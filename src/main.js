@@ -19,6 +19,7 @@ const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
 const TIP_BASIS_REVIEW = URL_PARAMS.get('tipBasis') === '1';
+const WORLD_SOCKET_REVIEW = URL_PARAMS.get('worldSocket') === '1';
 const POSE_STATE_ORDER = ['rest', 'ready', 'attack1'];
 const POSE_STATE_LABELS = {
   rest: 'Rest',
@@ -1040,9 +1041,61 @@ function tipBasisReportAt(time) {
   return best;
 }
 
+function jointPinnedReportAt(time) {
+  const report = attackPoseSequence?.guardReport?.jointPinned?.report || [];
+  if (!report.length) return null;
+  let best = report[0];
+  let bestDistance = Math.abs((best.time || 0) - time);
+  for (const entry of report) {
+    const distance = Math.abs((entry.time || 0) - time);
+    if (distance < bestDistance) {
+      best = entry;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
 function placeTipDot(dot, point) {
   if (!dot || !Array.isArray(point)) return;
   dot.style.transform = `translate(${Number(point[0]).toFixed(1)}px, ${Number(point[1]).toFixed(1)}px)`;
+}
+
+function liveJointPinnedProbe(entry) {
+  if (!saberGrip || !sabreRoot || !entry) return null;
+  root.updateMatrixWorld(true);
+  const elbow = poseBones.get('RightForeArm')?.getWorldPosition(new THREE.Vector3());
+  const wrist = poseBones.get('RightHand')?.getWorldPosition(new THREE.Vector3());
+  if (!elbow || !wrist) return null;
+  const tipLocalPoint = attackPoseSequence?.source?.jointPinned?.tipLocalPoint;
+  const hiltWorld = objectWorldPosition(saberGrip);
+  const tipWorld = Array.isArray(tipLocalPoint)
+    ? sabreRoot.localToWorld(new THREE.Vector3(...tipLocalPoint))
+    : orientationProbe(objectWorldPosition(sabreRoot), objectWorldQuaternion(sabreRoot), sabreBladeLocalAxis(), SABRE_AXIS_PROOF_LENGTH).end;
+  const targetElbow = new THREE.Vector3(...entry.targetElbowWorld);
+  const targetWrist = new THREE.Vector3(...entry.targetWristWorld);
+  const targetTip = new THREE.Vector3(...entry.desiredTipWorld);
+  const targetBlade = new THREE.Vector3(...entry.targetBladeDirectionWorld).normalize();
+  const actualBlade = tipWorld.clone().sub(hiltWorld).normalize();
+  const thresholds = attackPoseSequence?.source?.jointPinned?.thresholds || {};
+  const elbowWorldError = elbow.distanceTo(targetElbow);
+  const wristWorldError = wrist.distanceTo(targetWrist);
+  const bladeTipWorldError = tipWorld.distanceTo(targetTip);
+  const bladeAngleErrorDeg = vectorAngleDeg(actualBlade, targetBlade);
+  const pass = elbowWorldError <= (thresholds.elbowWorldError ?? 0)
+    && wristWorldError <= (thresholds.wristWorldError ?? 0)
+    && bladeTipWorldError <= (thresholds.bladeTipWorldError ?? 0)
+    && bladeAngleErrorDeg <= (thresholds.bladeAngleDeg ?? 0);
+  return {
+    hiltScreen: worldToScreenPixels(hiltWorld),
+    tipScreen: worldToScreenPixels(tipWorld),
+    targetTipScreen: worldToScreenPixels(targetTip),
+    elbowWorldError,
+    wristWorldError,
+    bladeTipWorldError,
+    bladeAngleErrorDeg,
+    pass,
+  };
 }
 
 function liveTipBasisProbe(entry) {
@@ -1077,10 +1130,26 @@ function liveTipBasisProbe(entry) {
 }
 
 function updateTipMatchOverlay() {
-  const active = Boolean(TIP_BASIS_REVIEW && attackPoseSequence?.guardReport?.tipBasis && poseState === 'attack1');
+  const active = Boolean(poseState === 'attack1' && (
+    (TIP_BASIS_REVIEW && attackPoseSequence?.guardReport?.tipBasis)
+    || (WORLD_SOCKET_REVIEW && attackPoseSequence?.guardReport?.jointPinned)
+  ));
   if (!tipMatchOverlay) return;
   tipMatchOverlay.hidden = !active;
   if (!active) return;
+  if (WORLD_SOCKET_REVIEW && attackPoseSequence?.guardReport?.jointPinned) {
+    const entry = jointPinnedReportAt(attackPoseCurrentTime || 0);
+    const live = liveJointPinnedProbe(entry);
+    if (!entry || !live) {
+      tipMatchReadout.value = 'world-socket: no live joint probe';
+      return;
+    }
+    placeTipDot(tipTargetDot, live.targetTipScreen.toArray());
+    placeTipDot(tipActualDot, live.tipScreen.toArray());
+    placeTipDot(tipHiltDot, live.hiltScreen.toArray());
+    tipMatchReadout.value = `${entry.label}: ${live.pass ? 'LIVE PASS' : 'LIVE FAIL'} elbow ${fixedNumber(live.elbowWorldError, 3)} wrist ${fixedNumber(live.wristWorldError, 3)} tip ${fixedNumber(live.bladeTipWorldError, 3)} angle ${fixedNumber(live.bladeAngleErrorDeg, 1)}deg`;
+    return;
+  }
   const entry = tipBasisReportAt(attackPoseCurrentTime || 0);
   if (!entry) {
     tipMatchReadout.value = 'tip-basis: no report';

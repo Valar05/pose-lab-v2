@@ -17,6 +17,7 @@ const poseStatusSource = read('src/pose-status.js');
 const reviewConstantsSource = read('src/review-constants.js');
 const attackCandidateSource = read('src/review-candidates/attack1-candidate-1.js');
 const tipBasisCandidateSource = read('src/review-candidates/attack1-tip-basis-2.js');
+const jointPinnedCandidateSource = read('src/review-candidates/attack1-joint-pinned-3.js');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
 const html = read('index.html');
 const css = read('src/styles.css');
@@ -37,6 +38,7 @@ const readyPreset = parseExportedObject(readyPose, 'Ready pose preset');
 const poseStatus = parseExportedObject(poseStatusSource, 'Pose status manifest');
 const attackCandidate = parseExportedObject(attackCandidateSource, 'Attack1 candidate preview');
 const tipBasisCandidate = parseExportedObject(tipBasisCandidateSource, 'Attack1 tip-basis candidate preview');
+const jointPinnedCandidate = parseExportedObject(jointPinnedCandidateSource, 'Attack1 joint-pinned candidate preview');
 const trackedCandidateFiles = execFileSync('git', ['ls-files', 'generated/pose-candidates'], {
   cwd: root,
   encoding: 'utf8',
@@ -76,6 +78,7 @@ assert(pkg.scripts?.['bake:ready'] === 'node scripts/bake-ready-pose.mjs', 'Read
 assert(pkg.scripts?.['bake:attack1:candidate'] === 'node scripts/bake-attack1-candidate.mjs', 'Attack1 candidate bake must be explicit and quarantine-only');
 assert(pkg.scripts?.['bake:attack1:tip-match'] === 'node scripts/bake-attack1-tip-match-candidate.mjs', 'Attack1 tip-match candidate bake must be explicit and quarantine-only');
 assert(pkg.scripts?.['bake:attack1:tip-basis'] === 'node scripts/bake-attack1-tip-basis-candidate.mjs', 'Attack1 tip-basis candidate bake must be explicit and quarantine-only');
+assert(pkg.scripts?.['bake:attack1:joint-pinned'] === 'node scripts/bake-attack1-joint-pinned-candidate.mjs', 'Attack1 joint-pinned candidate bake must be explicit and quarantine-only');
 assert(pkg.scripts?.['reference:attack1:fps'] === 'node scripts/fps-attack1-reference.mjs', 'FPS Attack1 reference extraction must be explicit and separate from Meshy authoring');
 assert(!pkg.scripts?.['bake:attack1'] && !pkg.scripts?.['diagnose:blade'], 'official scripts must not regenerate or bless the quarantined Attack1 pose');
 assert(pkg.scripts?.['promote:animation'] === 'node tools/promote_animation_candidate.mjs', 'animation promotion must use the explicit promotion gate');
@@ -85,13 +88,15 @@ assert(exists('tools/attack1_review_urls.mjs'), 'missing Attack1 review URL prin
 assert(exists('scripts/bake-attack1-candidate.mjs'), 'missing Attack1 candidate bake script');
 assert(exists('scripts/bake-attack1-tip-match-candidate.mjs'), 'missing Attack1 tip-match candidate bake script');
 assert(exists('scripts/bake-attack1-tip-basis-candidate.mjs'), 'missing Attack1 tip-basis candidate bake script');
+assert(exists('scripts/bake-attack1-joint-pinned-candidate.mjs'), 'missing Attack1 joint-pinned candidate bake script');
 assert(exists('scripts/fps-attack1-reference.mjs'), 'missing FPS Attack1 reference extractor');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
-assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-tip-basis-2') && attackReviewUrls.includes('tipBasis') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and tip-basis overlay URLs');
+assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
 assert(!exists('src/attack1-pose.js'), 'contaminated Attack1 generated pose data must not be shipped as repo truth');
 assert(exists('src/review-candidates/attack1-candidate-1.js'), 'Attack1 candidate 1 must be available as a preview module');
 assert(exists('src/review-candidates/attack1-tip-match-1.js'), 'Attack1 tip-match candidate 1 must be available as a preview module');
 assert(exists('src/review-candidates/attack1-tip-basis-2.js'), 'Attack1 tip-basis candidate 2 must be available as a preview module');
+assert(exists('src/review-candidates/attack1-joint-pinned-3.js'), 'Attack1 joint-pinned candidate 3 must be available as a preview module');
 assert(!trackedCandidateFiles, `generated pose candidates must not be tracked on main: ${trackedCandidateFiles}`);
 assert(poseStatus.ready?.status === 'accepted', 'Ready must be explicitly accepted in pose-status.js');
 assert(poseStatus.ready?.module === './ready-pose.js' && poseStatus.ready?.exportName === 'READY_POSE_PRESET', 'Ready status must point to the accepted Ready module');
@@ -120,15 +125,22 @@ assert(tipBasisCandidate.source?.tipBasis?.sourceSocket === 'WeaponR', 'Attack1 
 assert(tipBasisCandidate.source?.tipBasis?.targetCamera === 'Meshy runtime FPV', 'Attack1 tip-basis target must use the Meshy runtime FPV camera');
 assert(Array.isArray(tipBasisCandidate.source?.tipBasis?.solverAuthoredBones) && tipBasisCandidate.source.tipBasis.solverAuthoredBones.length === 1 && tipBasisCandidate.source.tipBasis.solverAuthoredBones[0] === 'RightHand', 'Attack1 tip-basis solver must only author RightHand');
 assert(tipBasisCandidate.source?.tipBasis?.allowedOutput === 'RightHand quaternion only', 'Attack1 tip-basis solver must forbid non-hand outputs');
-assert(tipBasisCandidate.guardReport?.tipBasis?.status === 'PASS', 'Attack1 tip-basis candidate must pass choreography projection guard');
-const tipBasisAnticipation = tipBasisCandidate.guardReport?.tipBasis?.report?.find((entry) => entry.label === 'anticipation');
-const tipBasisContact = tipBasisCandidate.guardReport?.tipBasis?.report?.find((entry) => entry.label === 'contact');
-assert(tipBasisAnticipation && tipBasisAnticipation.rightHandDeltaFromStart[0] >= 35 && tipBasisAnticipation.rightShoulderDeltaFromStart[0] >= 20, 'Attack1 tip-basis anticipation must move hand and visible upper arm right in FPV');
-assert(tipBasisAnticipation && tipBasisAnticipation.tipMinusHilt[0] <= -40 && Math.abs(tipBasisAnticipation.tipMinusHilt[0]) >= Math.abs(tipBasisAnticipation.tipMinusHilt[1]) * 1.4 && tipBasisAnticipation.tipMinusHilt[1] <= 0, 'Attack1 tip-basis anticipation blade must point left, mostly horizontal, and not below hilt');
-assert(tipBasisContact && tipBasisContact.tipMinusHilt[0] >= 40 && Math.abs(tipBasisContact.tipMinusHilt[0]) >= Math.abs(tipBasisContact.tipMinusHilt[1]) * 1.4 && tipBasisContact.tipMinusHilt[1] <= 0, 'Attack1 tip-basis contact blade must point right, mostly horizontal, and not below hilt');
-assert(tipBasisAnticipation && tipBasisContact && tipBasisContact.tipMinusHilt[0] - tipBasisAnticipation.tipMinusHilt[0] >= 90 && tipBasisAnticipation.rightHandScreen[0] - tipBasisContact.rightHandScreen[0] >= 35 && tipBasisAnticipation.rightShoulderScreen[0] - tipBasisContact.rightShoulderScreen[0] >= 20, 'Attack1 tip-basis contact must reverse anticipation left in hand, visible upper arm, and blade vector');
+assert(tipBasisCandidate.label?.includes('tip-basis'), 'Attack1 tip-basis candidate remains a named diagnostic artifact');
+assert(jointPinnedCandidate.source?.method === 'meshy-world-joint-pinned-from-fps-weaponr', 'Attack1 joint-pinned candidate must use calibrated world joint pinning');
+assert(jointPinnedCandidate.source?.jointPinned?.sourceSocket === 'WeaponR', 'Attack1 joint-pinned candidate must use FPS WeaponR as source socket evidence');
+assert(JSON.stringify(jointPinnedCandidate.source?.jointPinned?.sourceJoints) === JSON.stringify(['ArmR', 'ForearmR', 'HandR']), 'Attack1 joint-pinned candidate must source FPS right-arm joints');
+assert(JSON.stringify(jointPinnedCandidate.source?.jointPinned?.targetJoints) === JSON.stringify(['RightArm', 'RightForeArm', 'RightHand']), 'Attack1 joint-pinned candidate must target Meshy right-arm joints');
+assert(JSON.stringify(jointPinnedCandidate.source?.jointPinned?.solverAuthoredBones) === JSON.stringify(['RightArm', 'RightForeArm', 'RightHand']), 'Attack1 joint-pinned solver must only author right-arm bones');
+assert(jointPinnedCandidate.guardReport?.jointPinned?.status === 'PASS', 'Attack1 joint-pinned candidate must pass world joint/socket guard');
+const jointPinnedActiveFrames = jointPinnedCandidate.guardReport?.jointPinned?.report?.filter((entry) => !entry.endpoint) || [];
+assert(jointPinnedActiveFrames.length > 10, 'Attack1 joint-pinned candidate must sample source key times beyond prime frames');
+assert(jointPinnedActiveFrames.every((entry) => entry.elbowWorldError <= jointPinnedCandidate.source.jointPinned.thresholds.elbowWorldError), 'Attack1 joint-pinned elbow world error must stay under threshold');
+assert(jointPinnedActiveFrames.every((entry) => entry.wristWorldError <= jointPinnedCandidate.source.jointPinned.thresholds.wristWorldError), 'Attack1 joint-pinned wrist world error must stay under threshold');
+assert(jointPinnedActiveFrames.every((entry) => entry.bladeTipWorldError <= jointPinnedCandidate.source.jointPinned.thresholds.bladeTipWorldError), 'Attack1 joint-pinned blade tip world error must stay under threshold');
+assert(jointPinnedActiveFrames.every((entry) => entry.bladeAngleErrorDeg <= jointPinnedCandidate.source.jointPinned.thresholds.bladeAngleDeg), 'Attack1 joint-pinned blade angle error must stay under threshold');
 assert(!attackCandidateSource.includes('SaberGrip') && !attackCandidateSource.includes('WeaponR.quaternion'), 'Attack1 candidate module must not animate SaberGrip or WeaponR tracks');
 assert(!tipBasisCandidateSource.includes('SaberGrip.quaternion') && !tipBasisCandidateSource.includes('WeaponR.quaternion'), 'Attack1 tip-basis module must not animate SaberGrip or WeaponR tracks');
+assert(!jointPinnedCandidateSource.includes('SaberGrip.quaternion') && !jointPinnedCandidateSource.includes('WeaponR.quaternion'), 'Attack1 joint-pinned module must not animate SaberGrip or WeaponR tracks');
 assert(!read('scripts/bake-attack1-candidate.mjs').includes('applyOrientationBake') && !read('scripts/bake-attack1-candidate.mjs').includes('bakeCurrentFpsPoseToMeshy'), 'Attack1 candidate bake must not retarget FPS quaternions into Meshy');
 assert(readme.includes('Visual Verification Doctrine'), 'README must link the visual verification doctrine');
 assert(readme.includes('They are not visual acceptance and cannot close a') && readme.includes('screenshot-red build'), 'README must state smoke/source checks are not visual acceptance');
@@ -163,7 +175,7 @@ assert(main.includes('function applyAttackPose') && main.includes("poseState = '
 assert(main.includes('ATTACK1_REVIEW_CANDIDATES[REQUESTED_CANDIDATE]') && main.includes('Attack1 candidate preview') && main.includes('not accepted repo truth'), 'runtime must allow explicit candidate preview without accepting Attack1');
 assert(main.includes('function sequenceFrameAt') && main.includes('function applyAttackSequenceAt'), 'Attack1 candidate preview must play baked frames only');
 assert(main.includes('data-attack-review') && main.includes('data-attack-review-toggle') && main.includes('data-attack-review-close') && main.includes('data-attack-play') && main.includes('data-attack-pause') && main.includes('data-attack-scrub') && main.includes('data-attack-primes'), 'Attack1 candidate preview must expose closable play/pause, scrub, and prime-key controls');
-assert(main.includes("const TIP_BASIS_REVIEW = URL_PARAMS.get('tipBasis') === '1'") && main.includes('data-tip-match-overlay') && main.includes('function updateTipMatchOverlay') && main.includes('function liveTipBasisProbe'), 'Attack1 tip-basis preview must expose an explicit live FPV tip target overlay');
+assert(main.includes("const WORLD_SOCKET_REVIEW = URL_PARAMS.get('worldSocket') === '1'") && main.includes('data-tip-match-overlay') && main.includes('function updateTipMatchOverlay') && main.includes('function liveJointPinnedProbe') && main.includes('LIVE FAIL'), 'Attack1 joint-pinned preview must expose an explicit live world-socket error overlay');
 assert(main.includes('function setAttackReviewOpen') && main.includes('attackReviewOpen = Boolean(open && REQUESTED_CANDIDATE)') && main.includes('attackReviewPanel.hidden = !(active && attackReviewOpen)'), 'Attack1 candidate controls must be toggleable, not a permanent floating review window');
 assert(main.includes('function setupAttackReviewControls') && main.includes('function setAttackReviewTime') && main.includes('function playAttackReview') && main.includes('function pauseAttackReview'), 'Attack1 candidate preview controls must be wired to playback and frozen-frame review');
 assert(main.includes('attackPoseFixedTime === null') && main.includes('attackPoseCurrentTime'), 'Attack1 candidate preview must distinguish playing animation from frozen inspection frames');
@@ -185,7 +197,7 @@ assert(main.includes('object.scale.setScalar(0.48)'), 'default sabre scale must 
 assert(main.includes("findRequiredBone(meshyRoot, 'RightHand')"), 'runtime saber grip must parent under the real Meshy RightHand bone');
 assert(reviewConstantsSource.includes('export const SABER_GRIP_LOCAL = {') && reviewConstantsSource.includes('position: [8.52296, 28.41254, -24.44467]'), 'SaberGrip must use explicit authored RightHand-local placement from shared review constants');
 assert(reviewConstantsSource.includes('SABRE_REVIEW_LOCAL_AXIS') && reviewConstantsSource.includes('ATTACK1_REVIEW_CANDIDATES'), 'review constants must expose blade axis and candidate manifest');
-assert(reviewConstantsSource.includes('attack1-tip-match-1') && reviewConstantsSource.includes('failed diagnostic') && reviewConstantsSource.includes('attack1-tip-basis-2') && reviewConstantsSource.includes('ATTACK1_TIP_BASIS_SEQUENCE'), 'review constants must register the failed tip-match diagnostic and current tip-basis preview candidate');
+assert(reviewConstantsSource.includes('attack1-tip-match-1') && reviewConstantsSource.includes('failed diagnostic') && reviewConstantsSource.includes('attack1-tip-basis-2') && reviewConstantsSource.includes('failed diagnostic') && reviewConstantsSource.includes('attack1-joint-pinned-3') && reviewConstantsSource.includes('ATTACK1_JOINT_PINNED_SEQUENCE'), 'review constants must register failed diagnostics and current joint-pinned preview candidate');
 assert(main.includes("grip.name = 'SaberGrip'") && main.includes('rightHand.add(grip)') && main.includes('grip.add(sabreRoot)'), 'real sabre mesh must be parented through explicit local SaberGrip FK');
 assert(main.includes('sabreRoot.position.set(0, 0, 0)') && main.includes('sabreRoot.quaternion.identity()') && main.includes('sabreRoot.scale.set(1, 1, 1)'), 'sabre mesh local transform under SaberGrip must be identity');
 assert(!main.includes('rightHand.attach(grip)') && !main.includes('grip.attach(sabreRoot)'), 'SaberGrip must not preserve world placement through Object3D.attach');
@@ -293,6 +305,7 @@ if (exists('dist')) {
   assert(exists('dist/src/review-candidates/attack1-candidate-1.js'), 'dist must include Attack1 candidate preview module');
   assert(exists('dist/src/review-candidates/attack1-tip-match-1.js'), 'dist must include Attack1 tip-match candidate preview module');
   assert(exists('dist/src/review-candidates/attack1-tip-basis-2.js'), 'dist must include Attack1 tip-basis candidate preview module');
+  assert(exists('dist/src/review-candidates/attack1-joint-pinned-3.js'), 'dist must include Attack1 joint-pinned candidate preview module');
   assert(!exists('dist/src/attack1-pose.js'), 'dist must not ship the contaminated Attack1 pose sequence');
   assert(exists('dist/vendor/three/build/three.module.js'), 'dist must include vendored Three');
   assert(exists('dist/vendor/three/examples/jsm/loaders/GLTFLoader.js'), 'dist must include vendored GLTFLoader');
@@ -312,6 +325,7 @@ for (const file of [
   'src/review-candidates/attack1-candidate-1.js',
   'src/review-candidates/attack1-tip-match-1.js',
   'src/review-candidates/attack1-tip-basis-2.js',
+  'src/review-candidates/attack1-joint-pinned-3.js',
   'vendor/three/examples/jsm/loaders/GLTFLoader.js',
   'vendor/three/examples/jsm/controls/OrbitControls.js',
   'vendor/three/examples/jsm/utils/BufferGeometryUtils.js',

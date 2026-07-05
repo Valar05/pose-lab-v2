@@ -63,13 +63,13 @@ viewer-left strike. A wrist-travel number, source-motion statistic, or successfu
 smoke run does not make a candidate visually acceptable if those relationships
 are wrong.
 
-Tip-basis review is available as a quarantined authoring aid:
-`npm run bake:attack1:tip-basis` writes `attack1-tip-basis-2`, which uses the
-FPS `Camera` and `WeaponR` as reference evidence, then checks the Meshy runtime
-FPV camera directly. The bake refuses to write unless anticipation moves the
-right hand and visible upper arm right while the blade points left/horizontal,
-and contact reverses left while the blade points right/horizontal. Review it
-with `?pose=attack1&candidate=attack1-tip-basis-2&view=fpv&tipBasis=1`. This is
+Joint-pinned review is available as a quarantined authoring aid:
+`npm run bake:attack1:joint-pinned` writes `attack1-joint-pinned-3`, which uses
+FPS `ArmR`, `ForearmR`, `HandR`, and `WeaponR` as world-space reference evidence.
+The bake pins Meshy `RightArm`, `RightForeArm`, and `RightHand` in calibrated
+world space, then checks live elbow, wrist, blade-tip, and blade-angle error in
+the browser. Review it with
+`?pose=attack1&candidate=attack1-joint-pinned-3&view=fpv&worldSocket=1`. This is
 not accepted Attack1 until promoted through the normal human-visible cloud
 review.
 
@@ -82,6 +82,7 @@ npm run bake:ready
 npm run bake:attack1:candidate
 npm run bake:attack1:tip-match
 npm run bake:attack1:tip-basis
+npm run bake:attack1:joint-pinned
 npm run build
 npm run smoke
 git diff --check

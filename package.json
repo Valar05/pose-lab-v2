@@ -8,6 +8,7 @@
     "bake:attack1:candidate": "node scripts/bake-attack1-candidate.mjs",
     "bake:attack1:tip-match": "node scripts/bake-attack1-tip-match-candidate.mjs",
     "bake:attack1:tip-basis": "node scripts/bake-attack1-tip-basis-candidate.mjs",
+    "bake:attack1:joint-pinned": "node scripts/bake-attack1-joint-pinned-candidate.mjs",
     "reference:attack1:fps": "node scripts/fps-attack1-reference.mjs",
     "promote:animation": "node tools/promote_animation_candidate.mjs",
     "review:attack1": "node tools/attack1_review_urls.mjs",
