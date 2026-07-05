@@ -48,6 +48,7 @@ assert(!main.includes("import { READY_POSE_PRESET } from './ready-pose.js'"), 'R
 assert(main.includes('async function loadReadyPosePreset') && main.includes("await import(`./ready-pose.js${suffix}`)") && main.includes("URL_PARAMS.get('cacheBust')"), 'Ready pose preset must be dynamically imported with the page cacheBust');
 assert(main.includes('data-pose-state="rest"') && main.includes('data-pose-state="ready"'), 'app must expose Rest and Ready pose states');
 assert(main.includes('function initialPoseStateFromUrl') && main.includes("URL_PARAMS.get('pose') === 'ready'"), 'cloud review URL must be able to boot directly into Ready pose');
+assert(main.includes('function initialViewModeFromUrl') && main.includes("URL_PARAMS.get('view') === 'fpv'") && main.includes('setViewMode(initialViewModeFromUrl())'), 'cloud review URL must be able to boot directly into FPV view');
 assert(main.includes("let poseState = 'rest'") && main.includes('function applyReadyPose') && main.includes("poseState = 'ready'"), 'runtime must switch to baked Ready without animation retargeting');
 assert(!main.includes('READY_RIGHT_WRIST_ROLL_DEG') && !main.includes('rollReadyRightWrist'), 'Ready must not apply a hidden runtime wrist-roll patch');
 assert(main.includes("source-oriented OneHandReady, sabre follows RightHand FK"), 'Ready state must report source-orientation bake and FK saber ownership');

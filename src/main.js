@@ -696,6 +696,12 @@ function initialPoseStateFromUrl() {
   return URL_PARAMS.get('pose') === 'ready' ? 'ready' : 'rest';
 }
 
+function initialViewModeFromUrl() {
+  return URL_PARAMS.get('view') === 'fpv' || URL_PARAMS.get('view') === 'firstPerson'
+    ? 'firstPerson'
+    : 'orbit';
+}
+
 async function loadGlb(url) {
   return new Promise((resolve, reject) => {
     loader.load(url, (gltf) => resolve(gltf.scene), undefined, reject);
@@ -1699,6 +1705,7 @@ async function boot() {
   setupPoseHandles();
   setMode('move');
   setPoseState(initialPoseStateFromUrl());
+  setViewMode(initialViewModeFromUrl());
   if (poseState === 'rest') statusEl.textContent = 'ready: tap the real sabre, then drag';
 }
 
