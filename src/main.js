@@ -16,7 +16,6 @@ const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
-const ATTACK_TIME_PARAM = URL_PARAMS.get('attackTime');
 const POSE_STATE_ORDER = ['rest', 'ready', 'attack1'];
 const POSE_STATE_LABELS = {
   rest: 'Rest',
@@ -24,6 +23,8 @@ const POSE_STATE_LABELS = {
   attack1: 'Attack1',
   custom: 'Custom',
 };
+const REQUESTED_POSE = URL_PARAMS.get('pose');
+const REQUESTED_ATTACK_QUARANTINED = ['attack1', 'attack', 'onehandattack1'].includes(String(REQUESTED_POSE || '').toLowerCase());
 
 const app = document.querySelector('#app');
 app.innerHTML = `
@@ -384,9 +385,6 @@ let meshyRoot = null;
 let sabreRoot = null;
 let saberGrip = null;
 let readyPosePreset = null;
-let attackPoseSequence = null;
-let poseAnimation = null;
-let frozenAttackTime = null;
 let selectedPoseBone = null;
 let selected = false;
 let gesture = null;
@@ -807,7 +805,7 @@ function updatePoseHandles() {
 }
 
 function stopPoseAnimation() {
-  poseAnimation = null;
+  // Attack1 playback is quarantined; keep this hook for shared pose-edit paths.
 }
 
 function applyPoseBones(bones = {}) {
@@ -817,44 +815,6 @@ function applyPoseBones(bones = {}) {
   }
   root.updateMatrixWorld(true);
   updatePoseHandles();
-}
-
-function interpolatePoseBones(sequence, time) {
-  const frames = sequence?.frames || [];
-  if (!frames.length) return {};
-  if (frames.length === 1 || time <= frames[0].time) return frames[0].bones;
-  const last = frames[frames.length - 1];
-  if (time >= last.time) return last.bones;
-  let a = frames[0];
-  let b = last;
-  for (let i = 1; i < frames.length; i += 1) {
-    if (frames[i].time >= time) {
-      a = frames[i - 1];
-      b = frames[i];
-      break;
-    }
-  }
-  const span = Math.max(0.0001, b.time - a.time);
-  const alpha = Math.max(0, Math.min(1, (time - a.time) / span));
-  const bones = {};
-  for (const name of Object.keys(a.bones || {})) {
-    const qa = quaternionFromArray(a.bones[name]);
-    const qb = quaternionFromArray(b.bones?.[name] || a.bones[name]);
-    bones[name] = quaternionToFixedArray(qa.slerp(qb, alpha).normalize());
-  }
-  return bones;
-}
-
-function applyAttackPoseAt(time) {
-  applyPoseBones(interpolatePoseBones(attackPoseSequence, time));
-}
-
-function updatePoseAnimation(now) {
-  if (!poseAnimation || poseState !== 'attack1') return;
-  const duration = Math.max(0.0001, attackPoseSequence?.source?.duration || 1.25);
-  const time = ((now - poseAnimation.startedAt) / 1000) % duration;
-  applyAttackPoseAt(time);
-  statusEl.textContent = `attack1 playing ${time.toFixed(3)}s / ${duration.toFixed(3)}s`;
 }
 
 function markCustomPose() {
@@ -892,23 +852,10 @@ function applyReadyPose() {
 }
 
 function applyAttackPose() {
-  const duration = Math.max(0.0001, attackPoseSequence?.source?.duration || 1.25);
+  resetPose();
+  applyReadyPose();
   poseState = 'attack1';
-  const requestedTime = Number(ATTACK_TIME_PARAM);
-  if (ATTACK_TIME_PARAM !== null && Number.isFinite(requestedTime)) {
-    frozenAttackTime = Math.max(0, Math.min(duration, requestedTime));
-    poseAnimation = null;
-    applyAttackPoseAt(frozenAttackTime);
-    statusEl.textContent = `attack1 frozen at ${frozenAttackTime.toFixed(6)}s`;
-    return;
-  }
-  frozenAttackTime = null;
-  poseAnimation = {
-    startedAt: performance.now(),
-    duration,
-  };
-  applyAttackPoseAt(0);
-  statusEl.textContent = 'attack1 pose: baked OneHandAttack1, sabre follows RightHand FK';
+  statusEl.textContent = 'Attack1 quarantined: no accepted Attack1 bake is shipped; showing Ready fallback';
 }
 
 function setPoseState(next) {
@@ -960,7 +907,6 @@ function setPoseState(next) {
     }
     statusEl.textContent = 'ready pose: source-oriented OneHandReady, sabre follows RightHand FK';
   } else if (next === 'attack1') {
-    resetPose();
     applyAttackPose();
   } else {
     resetPose();
@@ -973,7 +919,7 @@ function setPoseState(next) {
 function initialPoseStateFromUrl() {
   const pose = URL_PARAMS.get('pose');
   if (pose === 'ready') return 'ready';
-  if (pose === 'attack1' || pose === 'attack' || pose === 'onehandattack1') return 'attack1';
+  if (REQUESTED_ATTACK_QUARANTINED) return 'attack1';
   return 'rest';
 }
 
@@ -1033,12 +979,8 @@ async function loadPosePresets({ announce = true } = {}) {
   if (announce) setBootPhase('loading baked poses');
   const cacheBust = URL_PARAMS.get('cacheBust');
   const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
-  const [readyModule, attackModule] = await Promise.all([
-    import(`./ready-pose.js${suffix}`),
-    import(`./attack1-pose.js${suffix}`),
-  ]);
+  const readyModule = await import(`./ready-pose.js${suffix}`);
   readyPosePreset = readyModule.READY_POSE_PRESET;
-  attackPoseSequence = attackModule.ATTACK1_POSE_SEQUENCE;
   updateReadyProof({
     readyPresetLoaded: Boolean(readyPosePreset),
     rightHandPresetQuaternion: readyPosePreset?.bones?.RightHand || null,
@@ -2157,9 +2099,13 @@ async function boot() {
       root.add(sabreRoot);
       attachSaberToRightHand();
       setPoseState(requestedPoseState);
-      statusEl.textContent = poseState === 'rest'
-        ? 'ready: tap the real sabre, then drag'
-        : `${POSE_STATE_LABELS[poseState] || 'Pose'} ready`;
+      if (REQUESTED_ATTACK_QUARANTINED) {
+        statusEl.textContent = 'Attack1 quarantined: no accepted Attack1 bake is shipped; showing Ready fallback';
+      } else {
+        statusEl.textContent = poseState === 'rest'
+          ? 'ready: tap the real sabre, then drag'
+          : `${POSE_STATE_LABELS[poseState] || 'Pose'} ready`;
+      }
     })
     .catch((error) => {
       document.body.dataset.sabrePoseFailed = error?.message || String(error || 'unknown sabre/pose error');
@@ -2270,7 +2216,6 @@ canvas.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive:
 
 function animate() {
   resize();
-  updatePoseAnimation(performance.now());
   if (viewMode === 'orbit') controls.update();
   else updateFirstPersonCamera();
   updatePoseHandles();

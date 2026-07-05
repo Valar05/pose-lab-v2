@@ -25,11 +25,13 @@
 ## FPSPlayer Pose References
 
 - Source workspace file: `../pose-lab/assets/models/FPSPlayer.glb`
-- Runtime files generated from it: `src/ready-pose.js`,
-  `src/attack1-pose.js`
+- Runtime files generated from it: `src/ready-pose.js`
 - Role: source-only pose reference for baking Meshy upper-body states. The GLB
   is not loaded by the browser runtime, and no old Pose Lab runtime retargeter,
   gates, debug bridge, or weapon solver was copied.
+- `Attack1` is still a desired target, but the previous generated
+  `src/attack1-pose.js` was quarantined and removed because visual review proved
+  it encoded a bad pose.
 
 No Pose Lab runtime code, rig profiles, generated visual artifacts, debug bridge
 code, or metric acceptance tooling was copied.

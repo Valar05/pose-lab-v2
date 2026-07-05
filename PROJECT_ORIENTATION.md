@@ -10,7 +10,9 @@ The visible target is deliberately small:
 - Meshy character visible from `public/assets/meshy/meshy_apose_walking_with_skin.glb`.
 - Real sabre mesh visible from `public/assets/meshy/meshy_real_sabre.glb`.
 - Direct visual saber placement controls inspired by TFTM placement workflow.
-- Baked `Ready` and `Attack1` pose data, not runtime retargeting.
+- Baked `Ready` pose data, not runtime retargeting.
+- `Attack1` remains a review target, but no accepted baked Attack1 pose is
+  currently shipped.
 - Boring FK saber ownership:
   `RightHand -> SaberGrip -> sabre mesh`.
 
@@ -73,7 +75,7 @@ assembled from large assets:
 - Meshy GLB, about 7.5 MB.
 - Real sabre GLB, about 11 MB.
 - Meshy PBR textures, including a large normal map.
-- Baked pose modules.
+- Baked Ready pose module.
 - Character normalization and first-use scene setup.
 
 Future performance work should make boot progressive: show the character and
@@ -87,7 +89,6 @@ Common guardrails:
 
 ```sh
 npm run bake:ready
-npm run bake:attack1
 npm run build
 npm run smoke
 git diff --check

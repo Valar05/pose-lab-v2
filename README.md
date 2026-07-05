@@ -12,9 +12,8 @@ This repo contains only:
 - one baked Meshy `Ready` pose preset generated from the old FPS
   `OneHandReady` reference through source-orientation retargeting and IK hand
   pinning, with no hidden runtime wrist-roll patch.
-- one baked Meshy `Attack1` pose sequence generated from the old FPS
-  `OneHandAttack1` reference, preserving its right wrist twist as authored pose
-  frames rather than runtime retargeting.
+- an `Attack1` review target, currently quarantined because no accepted Meshy
+  `OneHandAttack1` bake exists in repo truth.
 
 It is not a Pose Lab fork. It does not include runtime retargeting, runtime
 FK/IK solvers, debug bridges, visual metric gates, case systems, or numeric
@@ -41,9 +40,9 @@ or numeric pose panels.
 `Rest` restores the golden Meshy source pose. `Ready` applies the baked
 upper-body pose preset in memory; it does not run a retargeter or animate the
 sabre. The sabre follows because `SaberGrip` is a child of `RightHand`.
-`Attack1` plays a baked upper-body pose sequence from `OneHandAttack1`; the
-source weapon socket is only a reference for wrist/arm motion, not a runtime
-attachment path.
+`Attack1` remains a selectable target, but it intentionally falls back to Ready
+until a clean source-derived bake is accepted. Do not restore or iterate on the
+deleted bad generated pose copy.
 
 Numbers are readout/export only. Authoring is direct visual manipulation.
 
@@ -51,7 +50,6 @@ Numbers are readout/export only. Authoring is direct visual manipulation.
 
 ```sh
 npm run bake:ready
-npm run bake:attack1
 npm run build
 npm run smoke
 git diff --check

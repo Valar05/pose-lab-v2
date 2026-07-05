@@ -12,8 +12,6 @@ function assert(condition, message) {
 
 const main = read('src/main.js');
 const readyPose = read('src/ready-pose.js');
-const attackPose = read('src/attack1-pose.js');
-const attackBakeScript = read('scripts/bake-pose-sequence.mjs');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
 const html = read('index.html');
 const css = read('src/styles.css');
@@ -30,7 +28,6 @@ function parseExportedObject(source, label) {
   return JSON.parse(match[1]);
 }
 
-const attackSequence = parseExportedObject(attackPose, 'Attack1 pose sequence');
 const readyPreset = parseExportedObject(readyPose, 'Ready pose preset');
 
 function assertRelativeImportsResolve(file) {
@@ -64,12 +61,11 @@ assert(!html.includes('cdn.jsdelivr.net'), 'runtime must not depend on a CDN bef
 assert(!pkg.dependencies, 'repo must not require npm install dependencies for local build');
 assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static and native-binary free');
 assert(pkg.scripts?.['bake:ready'] === 'node scripts/bake-ready-pose.mjs', 'Ready pose bake script must be explicit and reproducible');
-assert(pkg.scripts?.['bake:attack1']?.includes('scripts/bake-pose-sequence.mjs') && pkg.scripts?.['bake:attack1']?.includes('OneHandAttack1'), 'Attack1 pose sequence bake script must be explicit and reproducible');
-assert(pkg.scripts?.['diagnose:blade'] === 'node tools/diagnose_attack1_blade_transform.mjs', 'blade transform diagnostic must be an explicit npm command');
-assert(pkg.scripts?.['review:attack1'] === 'node tools/attack1_review_urls.mjs', 'Attack1 review URLs must be an explicit npm command');
-assert(exists('tools/diagnose_attack1_blade_transform.mjs'), 'missing blade transform diagnostic');
+assert(!pkg.scripts?.['bake:attack1'] && !pkg.scripts?.['diagnose:blade'], 'official scripts must not regenerate or bless the quarantined Attack1 pose');
+assert(pkg.scripts?.['review:attack1'] === 'node tools/attack1_review_urls.mjs', 'Attack1 review URLs must remain available');
 assert(exists('tools/attack1_review_urls.mjs'), 'missing Attack1 review URL printer');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
+assert(!exists('src/attack1-pose.js'), 'contaminated Attack1 generated pose data must not be shipped as repo truth');
 assert(readme.includes('Visual Verification Doctrine'), 'README must link the visual verification doctrine');
 assert(readme.includes('They are not visual acceptance and cannot close a') && readme.includes('screenshot-red build'), 'README must state smoke/source checks are not visual acceptance');
 assert(visualDoctrine.includes('Human-visible truth is the acceptance gate'), 'visual doctrine must preserve human-visible truth as acceptance gate');
@@ -91,14 +87,14 @@ assert(!main.includes('fpsplayer_meshy') && !main.includes('0615041256'), 'app m
 assert(main.includes('texture.flipY = false') && main.includes('THREE.SRGBColorSpace'), 'Meshy PBR textures must use GLTF UV orientation and sRGB color maps');
 assert(main.includes('for (const entry of fpvBodyMasks)') && main.includes('applyMeshyPbrToMaterial(material, textures)'), 'FPV arm-mask materials must receive the same Meshy PBR channels as the full body');
 assert(!main.includes("import { READY_POSE_PRESET } from './ready-pose.js'"), 'Ready pose preset must not be statically imported because browser module cache can stale it');
-assert(main.includes('async function loadPosePresets') && main.includes("import(`./ready-pose.js${suffix}`)") && main.includes("import(`./attack1-pose.js${suffix}`)") && main.includes("URL_PARAMS.get('cacheBust')"), 'pose presets must be dynamically imported with the page cacheBust');
+assert(main.includes('async function loadPosePresets') && main.includes("import(`./ready-pose.js${suffix}`)") && main.includes("URL_PARAMS.get('cacheBust')"), 'Ready pose preset must be dynamically imported with the page cacheBust');
+assert(!main.includes("import(`./attack1-pose.js${suffix}`)") && !main.includes('ATTACK1_POSE_SEQUENCE'), 'runtime must not import contaminated Attack1 generated pose data');
 assert(main.includes('data-pose-state="rest"') && main.includes('data-pose-state="ready"') && main.includes('data-pose-state="attack1"'), 'app must expose Rest, Ready, and Attack1 pose states');
-assert(main.includes('function initialPoseStateFromUrl') && main.includes("pose === 'ready'") && main.includes("pose === 'attack1'"), 'cloud review URL must be able to boot directly into Ready or Attack1 pose');
+assert(main.includes('function initialPoseStateFromUrl') && main.includes("pose === 'ready'") && main.includes('REQUESTED_ATTACK_QUARANTINED') && main.includes("return 'attack1'"), 'cloud review URL must be able to boot directly into Ready or quarantined Attack1');
 assert(main.includes('function initialViewModeFromUrl') && main.includes("URL_PARAMS.get('view') === 'fpv'") && main.includes('setViewMode(initialViewModeFromUrl())'), 'cloud review URL must be able to boot directly into FPV view');
 assert(main.includes("let poseState = 'rest'") && main.includes('function applyReadyPose') && main.includes("poseState = 'ready'"), 'runtime must switch to baked Ready without animation retargeting');
-assert(main.includes('function applyAttackPose') && main.includes("poseState = 'attack1'") && main.includes('updatePoseAnimation(performance.now())'), 'runtime must play baked Attack1 frames without source animation runtime');
-assert(main.includes('const ATTACK_TIME_PARAM = URL_PARAMS.get(\'attackTime\')') && main.includes('attack1 frozen at') && main.includes('poseAnimation = null'), 'Attack1 review URL must support frozen attackTime without looping animation');
-assert(main.includes('attack1 playing') && main.includes('time.toFixed(3)'), 'looping Attack1 review must expose a visible animation-time readout');
+assert(main.includes('function applyAttackPose') && main.includes("poseState = 'attack1'") && main.includes('Attack1 quarantined'), 'Attack1 must remain selectable but quarantined until a clean bake exists');
+assert(!main.includes('updatePoseAnimation(performance.now())') && !main.includes('attack1 playing') && !main.includes('attack1 frozen at'), 'runtime must not play the contaminated Attack1 bake');
 assert(attackReviewUrls.includes('Attack1 animated loop') && attackReviewUrls.includes('time: null'), 'Attack1 review URLs must include an animated loop URL before frozen frames');
 assert(!main.includes('READY_RIGHT_WRIST_ROLL_DEG') && !main.includes('rollReadyRightWrist'), 'Ready must not apply a hidden runtime wrist-roll patch');
 assert(main.includes("source-oriented OneHandReady, sabre follows RightHand FK"), 'Ready state must report source-orientation bake and FK saber ownership');
@@ -108,25 +104,8 @@ assert(readyPose.includes("clip\": \"OneHandReady") && readyPose.includes("sampl
 assert(readyPose.includes('"RightHand"') && readyPose.includes('"LeftHand"') && readyPose.includes('"RightForeArm"'), 'Ready pose preset must include upper-body hand and forearm bones');
 assert(readyPose.includes('"method": "orientation-first-retarget-with-pins"'), 'Ready pose preset must use source-orientation retargeting guided by pins');
 assert(readyPose.includes('"retargetedBones"') && readyPose.includes('"RightArm"') && readyPose.includes('"RightForeArm"') && readyPose.includes('"RightHand"'), 'Ready preset must record orientation-retargeted arm/forearm/hand bones');
-assert(attackSequence.schema === 'pose-lab-v2-pose-sequence-v1', 'Attack1 sequence must use the v2 pose-sequence schema');
-assert(attackSequence.source?.clip === 'OneHandAttack1', 'Attack1 sequence must be baked from FPS OneHandAttack1');
-assert(attackSequence.source?.duration === 1.25, 'Attack1 sequence must preserve the FPS OneHandAttack1 duration');
-assert(attackSequence.source?.keyCount === 31 && attackSequence.frames?.length === 31, 'Attack1 sequence must preserve all 31 keyed source samples');
-assert(attackSequence.source?.signatureWristTwist?.sourceHandRotationTravelDeg > 100, 'Attack1 source must record a strong wrist-twist signature');
-assert(attackSequence.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > 100, 'Attack1 bake must preserve a strong right-hand wrist-twist signature');
-assert(attackSequence.source?.method === 'orientation-key-bake-with-ready-graph-offsets-hand-roll-and-weapon-reference-wrist', 'Attack1 must use Ready graph offsets, per-frame hand roll, and Weapon.R as a wrist-orientation reference');
-assert(attackSequence.source?.readyAnchoredWeaponWristInterpretation?.sourceReference === 'Weapon.R' && attackSequence.source?.readyAnchoredWeaponWristInterpretation?.afterMaxAngleDeg <= 12, 'Attack1 wrist interpretation must make the FK sabre follow the mapped Weapon.R blade direction');
-assert(attackBakeScript.includes('rotateHandRoll(THREE, meshyRoot, fpsRoot, meshyRoot, chain)'), 'Attack1 bake must align per-frame hand roll from the source hand instead of correcting the sabre independently');
-assert(!attackBakeScript.includes('function applyTwoBonePin') && !attackBakeScript.includes('applyTwoBonePin('), 'Attack1 bake must not use two-bone pinning; the slash is imported through bone rotations');
-assert(main.includes('runtime must play baked Attack1 frames without source animation runtime') || main.includes('function applyAttackPose'), 'runtime must play baked Attack1 frames rather than solving IK live');
+assert(!exists('scripts/bake-pose-sequence.mjs') || !pkg.scripts?.['bake:attack1'], 'Attack1 bake experiments must not be wired as accepted repo output');
 assert(!main.includes('applyTwoBonePin') && !main.includes('solveTwoBoneIk'), 'runtime must not use IK/two-bone hand pinning for Attack1');
-assert(attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('RightHand') && attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('LeftHand'), 'Attack1 graph offset must include both hands');
-assert(attackSequence.source?.readyEndpointContract?.firstMatchesReady === true && attackSequence.source?.readyEndpointContract?.lastMatchesReady === true, 'Attack1 first and last frames must match the accepted Ready pose');
-for (const boneName of ['LeftArm', 'LeftForeArm', 'LeftHand', 'RightArm', 'RightForeArm', 'RightHand']) {
-  assert(JSON.stringify(attackSequence.frames[0].bones?.[boneName]) === JSON.stringify(readyPreset.bones?.[boneName]), `Attack1 first frame ${boneName} must match Ready`);
-  assert(JSON.stringify(attackSequence.frames.at(-1).bones?.[boneName]) === JSON.stringify(readyPreset.bones?.[boneName]), `Attack1 last frame ${boneName} must match Ready`);
-}
-assert(attackSequence.frames.every((frame) => frame.bones?.RightHand && frame.bones?.RightForeArm && frame.bones?.RightArm), 'Attack1 frames must include the right arm, forearm, and hand');
 assert(main.includes('object.position.set(-0.39454, 0.71404, 0.32817)'), 'default sabre position must match the latest authored export');
 assert(main.includes('THREE.MathUtils.degToRad(160.077)') && main.includes('THREE.MathUtils.degToRad(83.685)') && main.includes('THREE.MathUtils.degToRad(-135.981)'), 'default sabre rotation must match the latest authored export');
 assert(main.includes('object.scale.setScalar(0.48)'), 'default sabre scale must match the latest authored export');
@@ -233,7 +212,7 @@ assert(main.includes("schema: 'pose-lab-v2-sabre-transform-v1'"), 'app must expo
 if (exists('dist')) {
   assert(exists('dist/index.html'), 'dist must include index.html');
   assert(exists('dist/src/main.js'), 'dist must include the app module at /src/main.js under the repo path');
-  assert(exists('dist/src/attack1-pose.js'), 'dist must include the baked Attack1 pose sequence');
+  assert(!exists('dist/src/attack1-pose.js'), 'dist must not ship the contaminated Attack1 pose sequence');
   assert(exists('dist/vendor/three/build/three.module.js'), 'dist must include vendored Three');
   assert(exists('dist/vendor/three/examples/jsm/loaders/GLTFLoader.js'), 'dist must include vendored GLTFLoader');
   assert(exists('dist/vendor/three/examples/jsm/controls/OrbitControls.js'), 'dist must include vendored OrbitControls');
