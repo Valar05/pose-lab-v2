@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { READY_POSE_PRESET } from './ready-pose.js';
 
 const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
@@ -14,6 +15,8 @@ app.innerHTML = `
     <div class="toolbar" aria-label="Saber direct controls">
       <button type="button" data-tool="saber" class="active">Saber</button>
       <button type="button" data-tool="pose">Pose</button>
+      <button type="button" data-pose-state="rest" class="active">Rest</button>
+      <button type="button" data-pose-state="ready">Ready</button>
       <button type="button" data-mode="move" class="active">Move</button>
       <button type="button" data-mode="rotate">Rotate</button>
       <button type="button" data-mode="scale">Scale</button>
@@ -43,6 +46,7 @@ const canvas = app.querySelector('canvas');
 const statusEl = app.querySelector('[data-status]');
 const exportEl = app.querySelector('[data-export]');
 const toolButtons = [...app.querySelectorAll('[data-tool]')];
+const poseStateButtons = [...app.querySelectorAll('[data-pose-state]')];
 const modeButtons = [...app.querySelectorAll('[data-mode]')];
 const axisButtons = [...app.querySelectorAll('[data-axis]')];
 const resetSaberButton = app.querySelector('[data-action="reset-saber"]');
@@ -115,6 +119,7 @@ const poseHandleMaterial = new THREE.MeshBasicMaterial({ color: 0x68d8ff, depthT
 const poseHandleSelectedMaterial = new THREE.MeshBasicMaterial({ color: 0xffd45c, depthTest: false, transparent: true, opacity: 0.96 });
 
 let toolMode = 'saber';
+let poseState = 'rest';
 let mode = 'move';
 let currentAxis = 'screen';
 let meshyRoot = null;
@@ -198,6 +203,15 @@ function rotationDegFromEuler(euler) {
     .map((value) => Number(THREE.MathUtils.radToDeg(value).toFixed(3)));
 }
 
+function quaternionFromArray(values) {
+  return new THREE.Quaternion(
+    Number(values?.[0] || 0),
+    Number(values?.[1] || 0),
+    Number(values?.[2] || 0),
+    Number(values?.[3] ?? 1)
+  ).normalize();
+}
+
 function vectorToFixedArray(vector) {
   return vector.toArray().map((value) => Number(value.toFixed(5)));
 }
@@ -270,9 +284,33 @@ function resetPose() {
     const rest = poseBoneRestQuaternions.get(name);
     if (rest) bone.quaternion.copy(rest);
   }
+  poseState = 'rest';
   selectedPoseBone = null;
   root.updateMatrixWorld(true);
   updatePoseHandles();
+}
+
+function applyReadyPose() {
+  resetPose();
+  for (const [name, values] of Object.entries(READY_POSE_PRESET.bones || {})) {
+    const bone = poseBones.get(name);
+    if (bone) bone.quaternion.copy(quaternionFromArray(values));
+  }
+  poseState = 'ready';
+  root.updateMatrixWorld(true);
+  updatePoseHandles();
+}
+
+function setPoseState(next) {
+  if (next === 'ready') {
+    applyReadyPose();
+    statusEl.textContent = 'ready pose: baked OneHandReady projection, sabre follows RightHand FK';
+  } else {
+    resetPose();
+    statusEl.textContent = 'rest pose: golden Meshy A-pose restored';
+  }
+  renderControls();
+  updateReadout();
 }
 
 async function loadGlb(url) {
@@ -315,6 +353,7 @@ function axisLabel() {
 
 function renderControls() {
   toolButtons.forEach((button) => button.classList.toggle('active', button.dataset.tool === toolMode));
+  poseStateButtons.forEach((button) => button.classList.toggle('active', button.dataset.poseState === poseState));
   modeButtons.forEach((button) => button.classList.toggle('active', button.dataset.mode === mode));
   axisButtons.forEach((button) => {
     const axis = button.dataset.axis || 'screen';
@@ -387,6 +426,8 @@ function exportTransform() {
     },
     saberGrip: saberGripLocal,
     pose: {
+      state: poseState,
+      readyPreset: READY_POSE_PRESET.label,
       selectedBone: selectedPoseBone?.name || null,
       bones: poseBonesExport,
     },
@@ -494,6 +535,7 @@ function rotateSabreAroundAxis(axis, radians) {
 
 function rotatePoseBoneByGesture(dx, dy, basis) {
   if (!selectedPoseBone) return;
+  poseState = 'custom';
   const axis = currentAxis === 'screen'
     ? basis.forward.clone()
     : worldAxisVector(currentAxis);
@@ -988,12 +1030,17 @@ async function boot() {
   attachSaberToRightHand();
   setupPoseHandles();
   setMode('move');
+  renderControls();
   updateReadout();
   statusEl.textContent = 'ready: tap the real sabre, then drag';
 }
 
 toolButtons.forEach((button) => {
   button.addEventListener('click', () => setToolMode(button.dataset.tool || 'saber'));
+});
+
+poseStateButtons.forEach((button) => {
+  button.addEventListener('click', () => setPoseState(button.dataset.poseState || 'rest'));
 });
 
 modeButtons.forEach((button) => {
@@ -1017,6 +1064,7 @@ resetSaberButton.addEventListener('click', () => {
 
 resetPoseButton.addEventListener('click', () => {
   resetPose();
+  renderControls();
   updateReadout();
   statusEl.textContent = 'reset pose bones';
 });

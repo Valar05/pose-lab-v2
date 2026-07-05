@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "bake:ready": "node scripts/bake-ready-pose.mjs",
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs"
   }

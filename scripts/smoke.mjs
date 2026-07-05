@@ -10,6 +10,7 @@ function assert(condition, message) {
 }
 
 const main = read('src/main.js');
+const readyPose = read('src/ready-pose.js');
 const html = read('index.html');
 const css = read('src/styles.css');
 const pkg = JSON.parse(read('package.json'));
@@ -36,12 +37,21 @@ assert(html.includes('"three/examples/jsm/": "./vendor/three/examples/jsm/"'), '
 assert(!html.includes('cdn.jsdelivr.net'), 'runtime must not depend on a CDN before the app can render');
 assert(!pkg.dependencies, 'repo must not require npm install dependencies for local build');
 assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static and native-binary free');
+assert(pkg.scripts?.['bake:ready'] === 'node scripts/bake-ready-pose.mjs', 'Ready pose bake script must be explicit and reproducible');
 assert(exists('vendor/three/build/three.module.js'), 'missing vendored Three module');
 assert(exists('vendor/three/examples/jsm/loaders/GLTFLoader.js'), 'missing vendored GLTFLoader');
 assert(exists('vendor/three/examples/jsm/controls/OrbitControls.js'), 'missing vendored OrbitControls');
 assert(exists('vendor/three/examples/jsm/utils/BufferGeometryUtils.js'), 'missing vendored BufferGeometryUtils');
 assert(main.includes("meshy_apose_walking_with_skin.glb"), 'app must reference Meshy GLB');
 assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB');
+assert(main.includes("import { READY_POSE_PRESET } from './ready-pose.js'"), 'app must import the baked Ready pose preset');
+assert(main.includes('data-pose-state="rest"') && main.includes('data-pose-state="ready"'), 'app must expose Rest and Ready pose states');
+assert(main.includes("let poseState = 'rest'") && main.includes('function applyReadyPose') && main.includes("poseState = 'ready'"), 'runtime must switch to baked Ready without animation retargeting');
+assert(main.includes("ready pose: baked OneHandReady projection, sabre follows RightHand FK"), 'Ready state must report baked pose plus FK saber ownership');
+assert(readyPose.includes("schema\": \"pose-lab-v2-ready-pose-v1"), 'Ready pose preset must use the v2 baked pose schema');
+assert(readyPose.includes("clip\": \"OneHandReady") && readyPose.includes("sampleTime\": 1.25"), 'Ready pose preset must be baked from FPS OneHandReady at the held pose sample');
+assert(readyPose.includes('"RightHand"') && readyPose.includes('"LeftHand"') && readyPose.includes('"RightForeArm"'), 'Ready pose preset must include upper-body hand and forearm bones');
+assert(readyPose.includes('"right": -120') && readyPose.includes('"left": -90'), 'Ready pose preset must preserve the accepted right/left roll offsets');
 assert(main.includes('object.position.set(-0.39454, 0.71404, 0.32817)'), 'default sabre position must match the latest authored export');
 assert(main.includes('THREE.MathUtils.degToRad(160.077)') && main.includes('THREE.MathUtils.degToRad(83.685)') && main.includes('THREE.MathUtils.degToRad(-135.981)'), 'default sabre rotation must match the latest authored export');
 assert(main.includes('object.scale.setScalar(0.48)'), 'default sabre scale must match the latest authored export');
@@ -54,6 +64,7 @@ assert(main.includes('const POSE_BONE_NAMES = [') && main.includes("'RightHand'"
 assert(main.includes('function setupPoseHandles') && main.includes('PoseHandle:') && main.includes('function pickPoseHandle'), 'Pose mode must create visible selectable bone handles');
 assert(main.includes('selectedPoseBone') && main.includes('function resetPose') && main.includes("data-action=\"reset-pose\""), 'Pose mode must track selection and reset curated bone rotations');
 assert(main.includes('toolMode === \'pose\' ? \'rotate\' : next') && main.includes('rotatePoseBoneByGesture'), 'Pose mode must be rotate-only and not reuse saber move/scale behavior');
+assert(!main.includes('AnimationMixer') && !main.includes('clipAction') && !main.includes('retarget'), 'v2 Ready must stay baked-pose only, not runtime animation retargeting');
 assert(!main.includes("import './styles.css'"), 'browser-native ESM must not import CSS without a bundler');
 assert(main.includes('pickSabre') && main.includes('startGesture') && main.includes('updateGesture'), 'app must use visible direct saber gestures');
 assert(main.includes('function handleTouchStart') && main.includes('function handleTouchMove') && main.includes('function handleTouchEnd'), 'mobile saber editing must use native touch handlers, not pointer-only guesses');
@@ -92,6 +103,7 @@ if (exists('dist')) {
 }
 
 for (const file of [
+  'src/main.js',
   'vendor/three/examples/jsm/loaders/GLTFLoader.js',
   'vendor/three/examples/jsm/controls/OrbitControls.js',
   'vendor/three/examples/jsm/utils/BufferGeometryUtils.js',
