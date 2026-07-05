@@ -36,58 +36,6 @@ canvas {
   touch-action: none;
 }
 
-.fpv-space-guide {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.fpv-space-guide::before {
-  position: absolute;
-  top: 56px;
-  left: 12px;
-  width: min(42vw, 420px);
-  height: min(46vh, 300px);
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  background: rgba(3, 7, 10, 0.16);
-  content: "";
-}
-
-.fpv-space-guide[hidden] {
-  display: none;
-}
-
-.fpv-space-label {
-  position: absolute;
-  top: 58px;
-  padding: 4px 7px;
-  border-radius: 5px;
-  background: rgba(3, 7, 10, 0.72);
-  color: #d8ecff;
-  font-size: 11px;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-.fpv-space-label-observer {
-  left: 12px;
-}
-
-.fpv-space-label-live {
-  right: 12px;
-}
-
-.fpv-bottom-band {
-  position: absolute;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  height: 10%;
-  border-top: 1px solid rgba(240, 195, 90, 0.82);
-  background: rgba(240, 195, 90, 0.12);
-}
-
 .primary-rail {
   position: absolute;
   left: 12px;
