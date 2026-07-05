@@ -20,8 +20,22 @@ app.innerHTML = `
         <button type="button" data-cycle-tool>Tool: Saber</button>
         <button type="button" data-cycle-pose-state>Pose: Rest</button>
         <button type="button" data-cycle-view-mode>View: Orbit</button>
+        <button type="button" class="fpv-settings-button" data-fpv-settings-toggle aria-label="FPV camera settings" title="FPV camera settings">⚙</button>
         <button type="button" data-dock-toggle>Tools</button>
         <span class="status" data-status>loading Meshy and real sabre</span>
+      </div>
+      <div class="fpv-settings" data-fpv-settings hidden aria-label="FPV camera nudge controls">
+        <div class="fpv-nudge-grid" aria-label="FPV camera position">
+          <button type="button" data-fpv-nudge="forward" aria-label="Move FPV camera forward">↑</button>
+          <button type="button" data-fpv-nudge="up" aria-label="Move FPV camera up">⇧</button>
+          <button type="button" data-fpv-nudge="back" aria-label="Move FPV camera back">↓</button>
+          <button type="button" data-fpv-nudge="down" aria-label="Move FPV camera down">⇩</button>
+        </div>
+        <div class="fpv-settings-actions">
+          <button type="button" data-fpv-reset>Reset</button>
+          <button type="button" data-fpv-copy>Copy</button>
+        </div>
+        <pre data-fpv-settings-readout aria-label="FPV camera constants"></pre>
       </div>
     </div>
     <div class="control-dock" aria-label="Secondary editor controls" hidden>
@@ -104,11 +118,21 @@ const dockToggleButton = app.querySelector('[data-dock-toggle]');
 const cycleToolButton = app.querySelector('[data-cycle-tool]');
 const cyclePoseStateButton = app.querySelector('[data-cycle-pose-state]');
 const cycleViewModeButton = app.querySelector('[data-cycle-view-mode]');
+const fpvSettingsToggle = app.querySelector('[data-fpv-settings-toggle]');
+const fpvSettingsPanel = app.querySelector('[data-fpv-settings]');
+const fpvSettingsReadout = app.querySelector('[data-fpv-settings-readout]');
+const fpvNudgeButtons = [...app.querySelectorAll('[data-fpv-nudge]')];
+const fpvResetButton = app.querySelector('[data-fpv-reset]');
+const fpvCopyButton = app.querySelector('[data-fpv-copy]');
 
 let toolMode = 'saber';
 let viewMode = 'orbit';
 let dockOpen = false;
 let activePanel = null;
+let fpvSettingsOpen = false;
+let fpvNudgeState = null;
+let fpvNudgeHoldTimer = null;
+let fpvNudgeRaf = null;
 const toolState = {
   saber: { mode: 'move', axis: 'screen' },
   pose: { mode: 'rotate', axis: 'screen' },
@@ -206,6 +230,17 @@ const firstPersonCameraConfig = {
   fov: 112,
   near: 0.055,
 };
+const FPV_CAMERA_DEFAULTS = Object.freeze({
+  headForwardOffset: firstPersonCameraConfig.headForwardOffset,
+  headCameraYOffset: firstPersonCameraConfig.headCameraYOffset,
+  lookForward: firstPersonCameraConfig.lookForward,
+  lookVertical: firstPersonCameraConfig.lookVertical,
+  fov: firstPersonCameraConfig.fov,
+  near: firstPersonCameraConfig.near,
+});
+const FPV_NUDGE_STEP = 0.01;
+const FPV_NUDGE_HOLD_DELAY_MS = 220;
+const FPV_NUDGE_HOLD_SPEED = 0.12;
 
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0.95, 0);
@@ -783,6 +818,83 @@ function setControlPanel(next) {
   }
 }
 
+function fpvSettingsExport() {
+  return {
+    cameraMode: firstPersonCameraConfig.cameraMode,
+    anchor: firstPersonCameraConfig.anchor,
+    fallbackAnchor: firstPersonCameraConfig.fallbackAnchor,
+    forwardAxis: firstPersonCameraConfig.forwardAxis,
+    headForwardOffset: fixedNumber(firstPersonCameraConfig.headForwardOffset, 4),
+    headCameraYOffset: fixedNumber(firstPersonCameraConfig.headCameraYOffset, 4),
+    lookForward: fixedNumber(firstPersonCameraConfig.lookForward, 4),
+    lookVertical: fixedNumber(firstPersonCameraConfig.lookVertical, 4),
+    fov: firstPersonCameraConfig.fov,
+    near: firstPersonCameraConfig.near,
+  };
+}
+
+function updateFpvSettingsReadout() {
+  if (!fpvSettingsReadout) return;
+  fpvSettingsReadout.textContent = JSON.stringify(fpvSettingsExport(), null, 2);
+}
+
+function setFpvSettingsOpen(open) {
+  fpvSettingsOpen = Boolean(open) && viewMode === 'firstPerson';
+  if (fpvSettingsPanel) fpvSettingsPanel.hidden = !fpvSettingsOpen;
+  if (fpvSettingsToggle) fpvSettingsToggle.classList.toggle('active', fpvSettingsOpen);
+  updateFpvSettingsReadout();
+}
+
+function applyFpvNudge(direction, amount) {
+  if (direction === 'forward') firstPersonCameraConfig.headForwardOffset += amount;
+  if (direction === 'back') firstPersonCameraConfig.headForwardOffset -= amount;
+  if (direction === 'up') firstPersonCameraConfig.headCameraYOffset += amount;
+  if (direction === 'down') firstPersonCameraConfig.headCameraYOffset -= amount;
+  firstPersonCameraConfig.headForwardOffset = fixedNumber(firstPersonCameraConfig.headForwardOffset, 4);
+  firstPersonCameraConfig.headCameraYOffset = fixedNumber(firstPersonCameraConfig.headCameraYOffset, 4);
+  updateFirstPersonCamera();
+  updateFpvSettingsReadout();
+  statusEl.textContent = `fpv camera: ${direction}`;
+}
+
+function stopFpvNudge() {
+  if (fpvNudgeHoldTimer) window.clearTimeout(fpvNudgeHoldTimer);
+  if (fpvNudgeRaf) window.cancelAnimationFrame(fpvNudgeRaf);
+  fpvNudgeHoldTimer = null;
+  fpvNudgeRaf = null;
+  fpvNudgeState = null;
+}
+
+function runFpvNudgeHold(timestamp) {
+  if (!fpvNudgeState) return;
+  const deltaSeconds = Math.min(0.08, Math.max(0, (timestamp - fpvNudgeState.lastTimestamp) / 1000));
+  fpvNudgeState.lastTimestamp = timestamp;
+  applyFpvNudge(fpvNudgeState.direction, FPV_NUDGE_HOLD_SPEED * deltaSeconds);
+  fpvNudgeRaf = window.requestAnimationFrame(runFpvNudgeHold);
+}
+
+function startFpvNudge(direction, event) {
+  if (viewMode !== 'firstPerson') return;
+  stopFpvNudge();
+  fpvNudgeState = { direction, lastTimestamp: 0 };
+  applyFpvNudge(direction, FPV_NUDGE_STEP);
+  if (event?.currentTarget?.setPointerCapture && event.pointerId !== undefined) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  fpvNudgeHoldTimer = window.setTimeout(() => {
+    if (!fpvNudgeState) return;
+    fpvNudgeState.lastTimestamp = performance.now();
+    fpvNudgeRaf = window.requestAnimationFrame(runFpvNudgeHold);
+  }, FPV_NUDGE_HOLD_DELAY_MS);
+}
+
+function resetFpvCameraSettings() {
+  Object.assign(firstPersonCameraConfig, FPV_CAMERA_DEFAULTS);
+  updateFirstPersonCamera();
+  updateFpvSettingsReadout();
+  statusEl.textContent = 'fpv camera: reset';
+}
+
 function renderControls() {
   toolButtons.forEach((button) => button.classList.toggle('active', button.dataset.tool === toolMode));
   viewModeButtons.forEach((button) => button.classList.toggle('active', button.dataset.viewMode === viewMode));
@@ -798,6 +910,15 @@ function renderControls() {
   panelToggleButtons.forEach((button) => button.classList.toggle('active', button.dataset.panelToggle === activePanel));
   dockEl.hidden = !dockOpen;
   dockToggleButton.classList.toggle('active', dockOpen);
+  if (viewMode !== 'firstPerson') {
+    fpvSettingsToggle.hidden = true;
+    setFpvSettingsOpen(false);
+  }
+  else {
+    fpvSettingsToggle.hidden = false;
+    if (fpvSettingsPanel) fpvSettingsPanel.hidden = !fpvSettingsOpen;
+    fpvSettingsToggle.classList.toggle('active', fpvSettingsOpen);
+  }
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
   cyclePoseStateButton.textContent = `Pose: ${poseState === 'ready' ? 'Ready' : 'Rest'}`;
   cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
@@ -1720,6 +1841,28 @@ viewModeButtons.forEach((button) => {
 });
 
 cycleViewModeButton.addEventListener('click', () => setViewMode(viewMode === 'orbit' ? 'firstPerson' : 'orbit'));
+
+fpvSettingsToggle.addEventListener('click', () => setFpvSettingsOpen(!fpvSettingsOpen));
+
+for (const button of fpvNudgeButtons) {
+  button.addEventListener('pointerdown', (event) => {
+    startFpvNudge(button.dataset.fpvNudge, event);
+    stopEvent(event);
+  });
+  button.addEventListener('pointerup', (event) => {
+    stopFpvNudge();
+    stopEvent(event);
+  });
+  button.addEventListener('pointercancel', stopFpvNudge);
+  button.addEventListener('pointerleave', stopFpvNudge);
+  button.addEventListener('lostpointercapture', stopFpvNudge);
+}
+
+fpvResetButton.addEventListener('click', () => resetFpvCameraSettings());
+fpvCopyButton.addEventListener('click', () => {
+  navigator.clipboard?.writeText(JSON.stringify(fpvSettingsExport(), null, 2)).catch(() => {});
+  statusEl.textContent = 'fpv camera: copied';
+});
 
 poseStateButtons.forEach((button) => {
   button.addEventListener('click', () => setPoseState(button.dataset.poseState || 'rest'));
