@@ -16,7 +16,8 @@ const pkg = JSON.parse(read('package.json'));
 
 assert(exists('public/assets/meshy/meshy_apose_walking_with_skin.glb'), 'missing Meshy A-pose/walking GLB');
 assert(exists('public/assets/meshy/meshy_real_sabre.glb'), 'missing real sabre GLB');
-assert(html.includes('/src/main.js'), 'HTML must load the minimal app entry');
+assert(html.includes('src="./src/main.js"'), 'HTML must load the minimal app entry with a repo-relative URL');
+assert(!html.includes('src="/src/main.js"'), 'GitHub Pages build must not use a root-relative module path');
 assert(html.includes('https://cdn.jsdelivr.net/npm/three@0.166.1/'), 'HTML must use static import-map Three dependency');
 assert(!pkg.dependencies, 'repo must not require npm install dependencies for local build');
 assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static and native-binary free');
@@ -24,6 +25,13 @@ assert(main.includes("meshy_apose_walking_with_skin.glb"), 'app must reference M
 assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB');
 assert(main.includes('raycastSabre') && main.includes('startGesture') && main.includes('updateGesture'), 'app must use visible direct saber gestures');
 assert(main.includes("schema: 'pose-lab-v2-sabre-transform-v1'"), 'app must export a compact saber transform');
+
+if (exists('dist')) {
+  assert(exists('dist/index.html'), 'dist must include index.html');
+  assert(exists('dist/src/main.js'), 'dist must include the app module at /src/main.js under the repo path');
+  assert(exists('dist/assets/meshy/meshy_apose_walking_with_skin.glb'), 'dist must expose Meshy GLB at /assets/meshy');
+  assert(exists('dist/assets/meshy/meshy_real_sabre.glb'), 'dist must expose real sabre GLB at /assets/meshy');
+}
 
 for (const forbidden of [
   'weapon-numeric-grid',
