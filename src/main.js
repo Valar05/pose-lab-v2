@@ -276,16 +276,35 @@ function scaleSabreByDelta(delta) {
 function startGesture(event) {
   if (!sabreRoot) return false;
   pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-  if (pointers.size === 2 && gesture) {
+  if (pointers.size >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
+    if (!gesture) {
+      const { right, up, forward } = cameraBasis();
+      gesture = {
+        pointerId: event.pointerId,
+        lastX: event.clientX,
+        lastY: event.clientY,
+        moved: false,
+        tapCanCycle: false,
+        multiTouch: true,
+        right,
+        up,
+        forward,
+      };
+    }
     lastPinchDistance = getPointerDistance();
     lastTwistAngle = getPointerAngle();
     controls.enabled = false;
+    canvas.setPointerCapture(event.pointerId);
+    statusEl.textContent = mode === 'rotate' ? 'two-finger roll armed' : 'two-finger scale armed';
     event.preventDefault();
     event.stopImmediatePropagation();
     return true;
   }
   const hit = pickSabre(event.clientX, event.clientY);
-  if (!hit) return false;
+  if (!hit) {
+    pointers.delete(event.pointerId);
+    return false;
+  }
   const wasSelected = selected;
   selected = true;
   controls.enabled = false;
@@ -342,6 +361,17 @@ function updateGesture(event) {
 
 function endGesture(event) {
   pointers.delete(event.pointerId);
+  if (gesture?.multiTouch && pointers.size < 2) {
+    gesture = null;
+    controls.enabled = true;
+    lastPinchDistance = 0;
+    lastTwistAngle = 0;
+    updateReadout();
+    statusEl.textContent = `${mode}: transform ready; empty-space drag orbits camera`;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    return true;
+  }
   if (gesture?.pointerId !== event.pointerId) return false;
   if (!gesture.moved && gesture.tapCanCycle) cycleMode();
   gesture = null;
