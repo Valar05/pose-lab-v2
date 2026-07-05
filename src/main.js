@@ -91,7 +91,14 @@ const readyProof = {
   rightHandDiffersFromRest: null,
   rightHandWorldDelta: null,
   rightHandScreenDeltaPx: null,
+  rightHandQuaternionAngleDeg: null,
+  rightHandAxisScreenDeltaPx: null,
   saberGripWorldDelta: null,
+  saberGripQuaternionAngleDeg: null,
+  sabreQuaternionAngleDeg: null,
+  sabreBladeAxisAngleDeg: null,
+  sabreBladeAxisScreenDeltaPx: null,
+  orientationDeltaPass: null,
   sabreScreenDeltaPx: null,
   visibleDeltaPass: null,
   visibleDeltaStatus: 'not-run',
@@ -193,6 +200,11 @@ const readyDeltaGeometry = new THREE.SphereGeometry(0.045, 12, 8);
 const readyRestMaterial = new THREE.MeshBasicMaterial({ color: 0x8b949e, depthTest: false, transparent: true, opacity: 0.72 });
 const readyReadyMaterial = new THREE.MeshBasicMaterial({ color: 0x58ff90, depthTest: false, transparent: true, opacity: 0.92 });
 const readyLineMaterial = new THREE.LineBasicMaterial({ color: 0x58ff90, depthTest: false, transparent: true, opacity: 0.85 });
+const readyRestAxisMaterial = new THREE.LineBasicMaterial({ color: 0x8b949e, depthTest: false, transparent: true, opacity: 0.82 });
+const readyReadyAxisMaterial = new THREE.LineBasicMaterial({ color: 0x58ff90, depthTest: false, transparent: true, opacity: 0.96 });
+const readySabreAxisMaterial = new THREE.LineBasicMaterial({ color: 0xffd45c, depthTest: false, transparent: true, opacity: 0.96 });
+const HAND_AXIS_PROOF_LENGTH = 0.22;
+const SABRE_AXIS_PROOF_LENGTH = 0.62;
 const SABER_GRIP_LOCAL = {
   position: [8.52296, 28.41254, -24.44467],
   rotationDeg: [32.35, 74.24, -174.11],
@@ -222,6 +234,10 @@ const readyDeltaMarkers = {
   readyHilt: new THREE.Mesh(readyDeltaGeometry, readyReadyMaterial),
   handLine: new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), readyLineMaterial),
   hiltLine: new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), readyLineMaterial),
+  restHandAxis: new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), readyRestAxisMaterial),
+  readyHandAxis: new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), readyReadyAxisMaterial),
+  restSabreAxis: new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), readyRestAxisMaterial),
+  readySabreAxis: new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), readySabreAxisMaterial),
 };
 for (const marker of Object.values(readyDeltaMarkers)) {
   marker.visible = false;
@@ -231,6 +247,7 @@ for (const marker of Object.values(readyDeltaMarkers)) {
 let lastPoseEmptyTap = null;
 let lastPinchDistance = 0;
 let lastTwistAngle = 0;
+let sabreBladeLocalAxisCache = null;
 
 function normalizeCharacter(object) {
   const box = new THREE.Box3().setFromObject(object);
@@ -320,6 +337,19 @@ function quaternionArraysClose(a, b, epsilon = 0.00001) {
   return a.every((value, index) => Math.abs(value - b[index]) <= epsilon);
 }
 
+function fixedNumber(value, places = 3) {
+  return Number(value.toFixed(places));
+}
+
+function quaternionAngleDeg(a, b) {
+  return fixedNumber(THREE.MathUtils.radToDeg(a.angleTo(b)), 4);
+}
+
+function vectorAngleDeg(a, b) {
+  const angle = a.lengthSq() > 0 && b.lengthSq() > 0 ? a.angleTo(b) : 0;
+  return fixedNumber(THREE.MathUtils.radToDeg(angle), 4);
+}
+
 function worldToScreenPixels(position) {
   const projected = position.clone().project(camera);
   const rect = canvas.getBoundingClientRect();
@@ -329,22 +359,75 @@ function worldToScreenPixels(position) {
   );
 }
 
+function localBoundsForObject(object) {
+  object.updateMatrixWorld(true);
+  const inverseRoot = object.matrixWorld.clone().invert();
+  const box = new THREE.Box3();
+  const corner = new THREE.Vector3();
+  object.traverse((node) => {
+    if (!node.isMesh || !node.geometry) return;
+    if (!node.geometry.boundingBox) node.geometry.computeBoundingBox();
+    const geometryBox = node.geometry.boundingBox;
+    for (const x of [geometryBox.min.x, geometryBox.max.x]) {
+      for (const y of [geometryBox.min.y, geometryBox.max.y]) {
+        for (const z of [geometryBox.min.z, geometryBox.max.z]) {
+          corner.set(x, y, z).applyMatrix4(node.matrixWorld).applyMatrix4(inverseRoot);
+          box.expandByPoint(corner);
+        }
+      }
+    }
+  });
+  return box;
+}
+
+function sabreBladeLocalAxis() {
+  if (sabreBladeLocalAxisCache) return sabreBladeLocalAxisCache.clone();
+  if (!sabreRoot) return new THREE.Vector3(0, 1, 0);
+  const box = localBoundsForObject(sabreRoot);
+  const size = box.getSize(new THREE.Vector3());
+  if (size.x >= size.y && size.x >= size.z) sabreBladeLocalAxisCache = new THREE.Vector3(1, 0, 0);
+  else if (size.y >= size.x && size.y >= size.z) sabreBladeLocalAxisCache = new THREE.Vector3(0, 1, 0);
+  else sabreBladeLocalAxisCache = new THREE.Vector3(0, 0, 1);
+  return sabreBladeLocalAxisCache.clone();
+}
+
+function orientationProbe(position, quaternion, localAxis, length) {
+  const direction = localAxis.clone().normalize().applyQuaternion(quaternion).normalize();
+  const end = position.clone().add(direction.clone().multiplyScalar(length));
+  return {
+    end,
+    direction,
+    screenEnd: worldToScreenPixels(end),
+  };
+}
+
 function readySnapshot() {
   root.updateMatrixWorld(true);
   const rightHand = poseBones.get('RightHand');
   const handPosition = rightHand ? objectWorldPosition(rightHand) : new THREE.Vector3();
   const hiltPosition = saberGrip ? objectWorldPosition(saberGrip) : objectWorldPosition(sabreRoot);
   const sabrePosition = objectWorldPosition(sabreRoot);
+  const handQuaternion = rightHand ? objectWorldQuaternion(rightHand) : new THREE.Quaternion();
+  const hiltQuaternion = saberGrip ? objectWorldQuaternion(saberGrip) : new THREE.Quaternion();
+  const sabreQuaternion = objectWorldQuaternion(sabreRoot);
+  const handAxis = orientationProbe(handPosition, handQuaternion, new THREE.Vector3(0, 0, 1), HAND_AXIS_PROOF_LENGTH);
+  const bladeAxis = orientationProbe(sabrePosition, sabreQuaternion, sabreBladeLocalAxis(), SABRE_AXIS_PROOF_LENGTH);
   return {
     handPosition,
-    handQuaternion: rightHand ? objectWorldQuaternion(rightHand) : new THREE.Quaternion(),
+    handQuaternion,
     hiltPosition,
-    hiltQuaternion: saberGrip ? objectWorldQuaternion(saberGrip) : new THREE.Quaternion(),
+    hiltQuaternion,
     sabrePosition,
-    sabreQuaternion: objectWorldQuaternion(sabreRoot),
+    sabreQuaternion,
     handScreen: worldToScreenPixels(handPosition),
     hiltScreen: worldToScreenPixels(hiltPosition),
     sabreScreen: worldToScreenPixels(sabrePosition),
+    handAxisEnd: handAxis.end,
+    handAxisDirection: handAxis.direction,
+    handAxisScreenEnd: handAxis.screenEnd,
+    sabreBladeAxisEnd: bladeAxis.end,
+    sabreBladeDirection: bladeAxis.direction,
+    sabreBladeAxisScreenEnd: bladeAxis.screenEnd,
   };
 }
 
@@ -361,6 +444,10 @@ function updateReadyDeltaMarkers(restSnapshot, readySnapshotValue) {
   readyDeltaMarkers.readyHilt.position.copy(readySnapshotValue.hiltPosition);
   setLineEndpoints(readyDeltaMarkers.handLine, restSnapshot.handPosition, readySnapshotValue.handPosition);
   setLineEndpoints(readyDeltaMarkers.hiltLine, restSnapshot.hiltPosition, readySnapshotValue.hiltPosition);
+  setLineEndpoints(readyDeltaMarkers.restHandAxis, restSnapshot.handPosition, restSnapshot.handAxisEnd);
+  setLineEndpoints(readyDeltaMarkers.readyHandAxis, readySnapshotValue.handPosition, readySnapshotValue.handAxisEnd);
+  setLineEndpoints(readyDeltaMarkers.restSabreAxis, restSnapshot.sabrePosition, restSnapshot.sabreBladeAxisEnd);
+  setLineEndpoints(readyDeltaMarkers.readySabreAxis, readySnapshotValue.sabrePosition, readySnapshotValue.sabreBladeAxisEnd);
   for (const marker of Object.values(readyDeltaMarkers)) marker.visible = true;
 }
 
@@ -479,15 +566,39 @@ function setPoseState(next) {
     const handScreenDelta = appliedSnapshot.handScreen.distanceTo(restSnapshot.handScreen);
     const hiltWorldDelta = appliedSnapshot.hiltPosition.distanceTo(restSnapshot.hiltPosition);
     const sabreScreenDelta = appliedSnapshot.sabreScreen.distanceTo(restSnapshot.sabreScreen);
-    const visibleDeltaPass = handScreenDelta > 1 || sabreScreenDelta > 1;
+    const rightHandQuaternionAngle = quaternionAngleDeg(restSnapshot.handQuaternion, appliedSnapshot.handQuaternion);
+    const saberGripQuaternionAngle = quaternionAngleDeg(restSnapshot.hiltQuaternion, appliedSnapshot.hiltQuaternion);
+    const sabreQuaternionAngle = quaternionAngleDeg(restSnapshot.sabreQuaternion, appliedSnapshot.sabreQuaternion);
+    const rightHandAxisScreenDelta = appliedSnapshot.handAxisScreenEnd.distanceTo(restSnapshot.handAxisScreenEnd);
+    const sabreBladeAxisAngle = vectorAngleDeg(restSnapshot.sabreBladeDirection, appliedSnapshot.sabreBladeDirection);
+    const sabreBladeAxisScreenDelta = appliedSnapshot.sabreBladeAxisScreenEnd.distanceTo(restSnapshot.sabreBladeAxisScreenEnd);
+    const positionDeltaPass = handScreenDelta > 1 || sabreScreenDelta > 1;
+    const orientationDeltaPass = rightHandQuaternionAngle > 0.25
+      || saberGripQuaternionAngle > 0.25
+      || sabreQuaternionAngle > 0.25
+      || rightHandAxisScreenDelta > 1
+      || sabreBladeAxisAngle > 0.25
+      || sabreBladeAxisScreenDelta > 1;
+    const visibleDeltaPass = positionDeltaPass || orientationDeltaPass;
     updateReadyDeltaMarkers(restSnapshot, appliedSnapshot);
     updateReadyProof({
-      rightHandWorldDelta: Number(handWorldDelta.toFixed(6)),
-      rightHandScreenDeltaPx: Number(handScreenDelta.toFixed(3)),
-      saberGripWorldDelta: Number(hiltWorldDelta.toFixed(6)),
-      sabreScreenDeltaPx: Number(sabreScreenDelta.toFixed(3)),
+      rightHandWorldDelta: fixedNumber(handWorldDelta, 6),
+      rightHandScreenDeltaPx: fixedNumber(handScreenDelta, 3),
+      rightHandQuaternionAngleDeg: rightHandQuaternionAngle,
+      rightHandAxisScreenDeltaPx: fixedNumber(rightHandAxisScreenDelta, 3),
+      saberGripWorldDelta: fixedNumber(hiltWorldDelta, 6),
+      saberGripQuaternionAngleDeg: saberGripQuaternionAngle,
+      sabreQuaternionAngleDeg: sabreQuaternionAngle,
+      sabreBladeAxisAngleDeg: sabreBladeAxisAngle,
+      sabreBladeAxisScreenDeltaPx: fixedNumber(sabreBladeAxisScreenDelta, 3),
+      orientationDeltaPass,
+      sabreScreenDeltaPx: fixedNumber(sabreScreenDelta, 3),
       visibleDeltaPass,
-      visibleDeltaStatus: visibleDeltaPass ? 'VISIBLE_DELTA' : 'NO_VISIBLE_DELTA',
+      visibleDeltaStatus: visibleDeltaPass
+        ? positionDeltaPass
+          ? 'VISIBLE_POSITION_DELTA'
+          : 'VISIBLE_ORIENTATION_DELTA'
+        : 'NO_VISIBLE_ORIENTATION_DELTA',
     });
     statusEl.textContent = 'ready pose: source-oriented OneHandReady, sabre follows RightHand FK';
   } else {
