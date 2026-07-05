@@ -17,29 +17,29 @@ app.innerHTML = `
     <div class="viewport">
       <canvas aria-label="Meshy A-pose saber placement viewport"></canvas>
       <div class="primary-rail" aria-label="Primary review controls">
-        <div class="rail-group" aria-label="Tool">
-          <button type="button" data-tool="saber" class="active">Saber</button>
-          <button type="button" data-tool="pose">Pose</button>
-        </div>
-        <div class="rail-group" aria-label="View">
-          <button type="button" data-view-mode="orbit" class="active">Orbit</button>
-          <button type="button" data-view-mode="firstPerson">FPV</button>
-        </div>
-        <div class="rail-group" aria-label="Pose state">
-          <button type="button" data-pose-state="rest" class="active">Rest</button>
-          <button type="button" data-pose-state="ready">Ready</button>
-        </div>
+        <button type="button" data-cycle-tool>Tool: Saber</button>
+        <button type="button" data-cycle-pose-state>Pose: Rest</button>
+        <button type="button" data-cycle-view-mode>View: Orbit</button>
+        <button type="button" data-dock-toggle>Tools</button>
         <span class="status" data-status>loading Meshy and real sabre</span>
       </div>
     </div>
-    <div class="control-dock" aria-label="Secondary editor controls">
+    <div class="control-dock" aria-label="Secondary editor controls" hidden>
       <div class="panel-tabs" aria-label="Control panels">
-        <button type="button" data-panel-toggle="transform" class="active">Transform</button>
+        <button type="button" data-panel-toggle="transform">Transform</button>
         <button type="button" data-panel-toggle="view">View</button>
         <button type="button" data-panel-toggle="export">Export</button>
         <button type="button" data-panel-toggle="debug" ${DEBUG_TOUCH || DEBUG_READY ? '' : 'hidden'}>Debug</button>
       </div>
-      <section class="control-panel active" data-panel="transform" aria-label="Transform controls">
+      <section class="control-panel" data-panel="transform" aria-label="Transform controls" hidden>
+        <div class="panel-row hidden-actions" aria-hidden="true">
+          <button type="button" data-tool="saber" class="active" tabindex="-1">Saber</button>
+          <button type="button" data-tool="pose" tabindex="-1">Pose</button>
+          <button type="button" data-pose-state="rest" class="active" tabindex="-1">Rest</button>
+          <button type="button" data-pose-state="ready" tabindex="-1">Ready</button>
+          <button type="button" data-view-mode="orbit" class="active" tabindex="-1">Orbit</button>
+          <button type="button" data-view-mode="firstPerson" tabindex="-1">FPV</button>
+        </div>
         <div class="panel-row">
           <button type="button" data-mode="move" class="active">Move</button>
           <button type="button" data-mode="rotate">Rotate</button>
@@ -99,10 +99,16 @@ const resetPoseButton = app.querySelector('[data-action="reset-pose"]');
 const touchProofPanel = app.querySelector('[data-touch-proof-readout]');
 const touchProbeButton = app.querySelector('[data-action="touch-probe"]');
 const readyProofPanel = app.querySelector('[data-ready-proof-readout]');
+const dockEl = app.querySelector('.control-dock');
+const dockToggleButton = app.querySelector('[data-dock-toggle]');
+const cycleToolButton = app.querySelector('[data-cycle-tool]');
+const cyclePoseStateButton = app.querySelector('[data-cycle-pose-state]');
+const cycleViewModeButton = app.querySelector('[data-cycle-view-mode]');
 
 let toolMode = 'saber';
 let viewMode = 'orbit';
-let activePanel = 'transform';
+let dockOpen = false;
+let activePanel = null;
 const toolState = {
   saber: { mode: 'move', axis: 'screen' },
   pose: { mode: 'rotate', axis: 'screen' },
@@ -718,7 +724,6 @@ function setToolMode(next) {
   toolMode = next === 'pose' ? 'pose' : 'saber';
   mode = toolState[toolMode].mode;
   currentAxis = toolState[toolMode].axis;
-  setControlPanel('transform');
   if (toolMode === 'pose') {
     leaveSaberEdit('pose: tap a bone handle');
   } else {
@@ -741,10 +746,26 @@ function axisLabel() {
   return currentAxis === 'screen' ? 'Screen' : currentAxis.toUpperCase();
 }
 
+function setDockOpen(open, panel = activePanel || 'transform') {
+  dockOpen = Boolean(open);
+  if (!dockOpen) activePanel = null;
+  else activePanel = controlPanels.some((element) => element.dataset.panel === panel) ? panel : 'transform';
+  dockEl.hidden = !dockOpen;
+  dockToggleButton.classList.toggle('active', dockOpen);
+  setControlPanel(activePanel);
+}
+
 function setControlPanel(next) {
-  const requested = next || 'transform';
-  const panel = controlPanels.some((element) => element.dataset.panel === requested) ? requested : 'transform';
-  activePanel = panel;
+  if (!dockOpen || !next) {
+    activePanel = null;
+    for (const button of panelToggleButtons) button.classList.remove('active');
+    for (const element of controlPanels) {
+      element.hidden = true;
+      element.classList.remove('active');
+    }
+    return;
+  }
+  activePanel = controlPanels.some((element) => element.dataset.panel === next) ? next : 'transform';
   for (const button of panelToggleButtons) {
     button.classList.toggle('active', button.dataset.panelToggle === activePanel);
   }
@@ -768,6 +789,11 @@ function renderControls() {
   resetSaberButton.hidden = toolMode !== 'saber';
   resetPoseButton.hidden = toolMode !== 'pose';
   panelToggleButtons.forEach((button) => button.classList.toggle('active', button.dataset.panelToggle === activePanel));
+  dockEl.hidden = !dockOpen;
+  dockToggleButton.classList.toggle('active', dockOpen);
+  cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
+  cyclePoseStateButton.textContent = `Pose: ${poseState === 'ready' ? 'Ready' : 'Rest'}`;
+  cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
   statusEl.textContent = toolMode === 'pose'
     ? selectedPoseBone
       ? `${mode} / ${axisLabel()}: editing ${selectedPoseBone.name}`
@@ -823,6 +849,7 @@ function setViewMode(next) {
     viewMode = 'firstPerson';
     controls.enabled = false;
     document.body.classList.add('is-fpv');
+    setDockOpen(false);
     updateFirstPersonCamera();
     statusEl.textContent = 'camera: FPV head-forward';
   } else {
@@ -1668,13 +1695,19 @@ toolButtons.forEach((button) => {
   button.addEventListener('click', () => setToolMode(button.dataset.tool || 'saber'));
 });
 
+cycleToolButton.addEventListener('click', () => setToolMode(toolMode === 'saber' ? 'pose' : 'saber'));
+
 viewModeButtons.forEach((button) => {
   button.addEventListener('click', () => setViewMode(button.dataset.viewMode || 'orbit'));
 });
 
+cycleViewModeButton.addEventListener('click', () => setViewMode(viewMode === 'orbit' ? 'firstPerson' : 'orbit'));
+
 poseStateButtons.forEach((button) => {
   button.addEventListener('click', () => setPoseState(button.dataset.poseState || 'rest'));
 });
+
+cyclePoseStateButton.addEventListener('click', () => setPoseState(poseState === 'rest' ? 'ready' : 'rest'));
 
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => setMode(button.dataset.mode || 'move'));
@@ -1684,8 +1717,10 @@ axisButtons.forEach((button) => {
   button.addEventListener('click', () => setAxis(button.dataset.axis || 'screen'));
 });
 
+dockToggleButton.addEventListener('click', () => setDockOpen(!dockOpen));
+
 panelToggleButtons.forEach((button) => {
-  button.addEventListener('click', () => setControlPanel(button.dataset.panelToggle || 'transform'));
+  button.addEventListener('click', () => setDockOpen(true, button.dataset.panelToggle || 'transform'));
 });
 
 app.querySelectorAll('[data-camera-view]').forEach((button) => {

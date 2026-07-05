@@ -94,10 +94,14 @@ assert(!main.includes('AUTO_TOUCH_PROBE') && !main.includes('requestAnimationFra
 assert(main.includes('data-touch-proof') && main.includes('data-touch-proof-readout') && main.includes('Run Touch Probe'), 'debugTouch mode must expose a visible interaction proof panel');
 assert(main.includes('data-ready-proof') && main.includes('data-ready-proof-readout') && main.includes('function updateReadyProof'), 'debugReady mode must expose a non-mutating Ready proof panel');
 assert(main.includes('class="primary-rail"') && main.includes('class="control-dock"'), 'mobile UI must separate primary review controls from secondary editor panels');
+assert(main.includes('data-cycle-tool') && main.includes('data-cycle-pose-state') && main.includes('data-cycle-view-mode') && main.includes('data-dock-toggle'), 'default mobile UI must use compact cycle controls plus one Tools opener');
+assert(main.includes('class="control-dock" aria-label="Secondary editor controls" hidden'), 'secondary control dock must be closed by default so the canvas is not covered on load');
 assert(main.includes('data-panel-toggle="transform"') && main.includes('data-panel-toggle="view"') && main.includes('data-panel-toggle="export"') && main.includes('data-panel-toggle="debug"'), 'mobile UI must expose collapsible Transform/View/Export/Debug panels');
 assert(main.includes('function setControlPanel') && main.includes('controlPanels') && main.includes('element.hidden = !active'), 'mobile UI panels must be single-open and hide inactive panel bodies');
+assert(main.includes('let dockOpen = false') && main.includes('let activePanel = null') && main.includes('function setDockOpen'), 'mobile UI must start with no open panel and an explicit dock open/close state');
 assert(main.indexOf('data-mode="move"') > main.indexOf('data-panel="transform"'), 'Move/Rotate/Scale controls must live inside the Transform panel, not the always-visible primary rail');
 assert(main.indexOf('data-camera-view="front"') > main.indexOf('data-panel="view"'), 'camera snap controls must live inside the View panel, not the always-visible primary rail');
+assert(!main.includes('<div class="rail-group" aria-label="Tool">'), 'default primary rail must not expose paired mode button groups');
 assert(main.includes('rightHandAppliedMatchesPreset') && main.includes('rightHandDiffersFromRest') && main.includes('rightHandAppliedQuaternion'), 'debugReady proof must report whether Ready RightHand actually applied');
 assert(main.includes('readyDeltaMarkers') && main.includes('updateReadyDeltaMarkers') && main.includes('worldToScreenPixels'), 'debugReadyDelta mode must render Rest/Ready visible comparison markers');
 assert(main.includes('rightHandWorldDelta') && main.includes('rightHandScreenDeltaPx') && main.includes('sabreScreenDeltaPx'), 'debugReadyDelta proof must report world and screen-space deltas');
@@ -121,6 +125,7 @@ assert(main.includes('function setViewMode') && main.includes('function updateFi
 assert(main.includes("if (viewMode === 'orbit') controls.update();") && main.includes('else updateFirstPersonCamera();'), 'animation loop must keep FPV camera synced to the posed head bone');
 assert(css.includes('body.is-fpv .primary-rail button:not([data-view-mode])') && css.includes('body.is-fpv .control-dock'), 'FPV mode must hide edit chrome while keeping Orbit/FPV controls reachable');
 assert(css.includes('.viewport') && css.includes('.control-dock') && css.includes('max-height: 42vh'), 'mobile layout must keep the 3D viewport visible while dock panels scroll below it');
+assert(css.includes('.control-dock[hidden]') && css.includes('.hidden-actions'), 'closed dock and compatibility action buttons must be visually hidden by default');
 assert(main.includes('function beginCameraTouch') && main.includes("kind: points.length >= 2 ? 'two-camera' : 'one-camera'"), 'mobile camera touch must be handled directly, not delegated to OrbitControls');
 assert(main.includes("leaveSaberEdit('camera: empty touch orbit')") && main.includes('beginCameraTouch(points)'), 'empty canvas touch must deselect the sabre and start one-finger camera orbit');
 assert(main.includes('function orbitCameraByDelta') && main.includes('function zoomCameraByDelta') && main.includes('function panCameraByDelta'), 'mobile camera must support one-finger orbit and two-finger zoom/pan');
