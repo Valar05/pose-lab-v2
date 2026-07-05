@@ -308,18 +308,19 @@ async function main() {
     summary: {
       sampleCount: samples.length,
       readyBestAngleDeg,
-      deprecatedWeaponDirectionCheck: {
+      weaponReferenceDirectionCheck: {
         pass: (sortedByError[0]?.angleDeg || 0) <= 12,
         maxAngleDeg: sortedByError[0]?.angleDeg,
         meanAngleDeg: Number((samples.reduce((sum, sample) => sum + sample.angleDeg, 0) / samples.length).toFixed(3)),
-        diagnosis: 'deprecated: this check compared Attack1 to the old single-bone Weapon.R direction override and could be false-green while the screenshot was human-red',
+        diagnosis: 'diagnostic only: Weapon.R is a source wrist-orientation reference; visual acceptance still comes from cloud screenshot review',
       },
-      holisticImportPass: ATTACK1_POSE_SEQUENCE.source?.readyAnchoredWeaponWristInterpretation?.skipped === true
+      holisticImportPass: ATTACK1_POSE_SEQUENCE.source?.readyAnchoredWeaponWristInterpretation?.sourceReference === weaponSocketName
+        && (sortedByError[0]?.angleDeg || 0) <= 12
         && ATTACK1_POSE_SEQUENCE.source?.readyEndpointContract?.firstMatchesReady === true
         && ATTACK1_POSE_SEQUENCE.source?.readyEndpointContract?.lastMatchesReady === true
         && (ATTACK1_POSE_SEQUENCE.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg || 0) > 120
         && (ATTACK1_POSE_SEQUENCE.source?.signatureWristTwist?.bakedRightForeArmRotationTravelDeg || 0) > 120,
-      holisticImportDiagnosis: 'Attack1 must be judged by whole-arm projected landmark motion, baked wrist/forearm roll, and cloud visual read, not by matching the deprecated Weapon.R direction override',
+      holisticImportDiagnosis: 'Attack1 import must preserve Ready endpoints, wrist/forearm motion, and mapped Weapon.R blade direction; cloud visual read remains final acceptance',
       method: ATTACK1_POSE_SEQUENCE.source?.method || null,
       signatureWristTwist: ATTACK1_POSE_SEQUENCE.source?.signatureWristTwist || null,
       firstAngleDeg: samples[0]?.angleDeg,
