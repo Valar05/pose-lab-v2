@@ -57,15 +57,29 @@ npm run smoke
 git diff --check
 ```
 
+`npm run smoke`, syntax checks, source-string checks, and asset reachability are
+guardrails only. They are not visual acceptance and cannot close a
+screenshot-red build.
+
+See [Visual Verification Doctrine](docs/VISUAL_VERIFICATION_DOCTRINE.md) for the
+required evidence order before reporting visual progress.
+
 ## Cloud Review Rule
 
 The hosted URL is the review surface. A successful deploy, HTTP 200 on the shell,
 or reachable component files are not visual acceptance.
 
+Local render is diagnostic eyesight, not acceptance. When the agent has local
+render tooling, or the user asks for agent eyes before wake, run a local
+boot/render probe first to catch blank screens, loading screens, error pages,
+missing meshes, and obvious no-op visuals. Do not substitute that probe for the
+hosted visual review.
+
 When waking a cloud URL:
 
-1. Verify the exact URL that was opened, including query string.
-2. Verify the module and real GLB assets referenced by that page.
-3. Treat those checks as blank-page diagnostics only.
-4. Do not claim visual success until the hosted page visibly renders the Meshy
+1. If local render/agent eyes are required, run that diagnostic before wake.
+2. Verify the exact URL that was opened, including query string.
+3. Verify the module and real GLB assets referenced by that page.
+4. Treat those checks as blank-page diagnostics only.
+5. Do not claim visual success until the hosted page visibly renders the Meshy
    character and real sabre.
