@@ -280,6 +280,8 @@ function startGesture(event) {
     lastPinchDistance = getPointerDistance();
     lastTwistAngle = getPointerAngle();
     controls.enabled = false;
+    event.preventDefault();
+    event.stopImmediatePropagation();
     return true;
   }
   const hit = pickSabre(event.clientX, event.clientY);
@@ -303,6 +305,7 @@ function startGesture(event) {
   controls.update();
   statusEl.textContent = `${mode}: editing real sabre`;
   event.preventDefault();
+  event.stopImmediatePropagation();
   return true;
 }
 
@@ -312,6 +315,7 @@ function updateGesture(event) {
   if (pointers.size >= 2) {
     handleTwoFingerGesture();
     event.preventDefault();
+    event.stopImmediatePropagation();
     return true;
   }
   if (gesture.pointerId !== event.pointerId) return false;
@@ -332,6 +336,7 @@ function updateGesture(event) {
   gesture.moved = true;
   updateReadout();
   event.preventDefault();
+  event.stopImmediatePropagation();
   return true;
 }
 
@@ -347,6 +352,8 @@ function endGesture(event) {
   }
   updateReadout();
   statusEl.textContent = `${mode}: transform ready; empty-space drag orbits camera`;
+  event.preventDefault();
+  event.stopImmediatePropagation();
   return true;
 }
 
@@ -435,10 +442,10 @@ app.querySelector('[data-action="copy"]').addEventListener('click', () => {
   statusEl.textContent = 'export copied';
 });
 
-canvas.addEventListener('pointerdown', startGesture);
-canvas.addEventListener('pointermove', updateGesture);
-canvas.addEventListener('pointerup', endGesture);
-canvas.addEventListener('pointercancel', endGesture);
+canvas.addEventListener('pointerdown', startGesture, { capture: true });
+canvas.addEventListener('pointermove', updateGesture, { capture: true });
+canvas.addEventListener('pointerup', endGesture, { capture: true });
+canvas.addEventListener('pointercancel', endGesture, { capture: true });
 
 function animate() {
   resize();

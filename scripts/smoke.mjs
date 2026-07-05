@@ -53,6 +53,8 @@ assert(main.includes('function moveSabreByGesture') && main.includes('function r
 assert(main.includes("if (mode === 'scale' && lastPinchDistance > 0)") && main.includes("if (mode === 'rotate' && Number.isFinite(lastTwistAngle))"), 'two-finger gestures must be gated to Scale and Rotate modes');
 assert(main.includes("const axis = currentAxis === 'screen' ? gesture.forward.clone() : worldAxisVector(currentAxis)"), 'two-finger rotate must default to Pose Lab-style screen roll');
 assert(main.includes("two-finger camera gesture ignored in Move"), 'Move mode must not transform the saber with two-finger gestures');
+assert(main.includes("canvas.addEventListener('pointerdown', startGesture, { capture: true })"), 'saber gesture pointerdown must capture before OrbitControls');
+assert(main.includes('event.stopImmediatePropagation();'), 'owned saber gestures must stop OrbitControls from stealing active two-finger edits');
 assert(main.includes("schema: 'pose-lab-v2-sabre-transform-v1'"), 'app must export a compact saber transform');
 
 if (exists('dist')) {
