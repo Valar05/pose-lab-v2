@@ -16,6 +16,13 @@ const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
+const POSE_STATE_ORDER = ['rest', 'ready', 'attack1'];
+const POSE_STATE_LABELS = {
+  rest: 'Rest',
+  ready: 'Ready',
+  attack1: 'Attack1',
+  custom: 'Custom',
+};
 
 const app = document.querySelector('#app');
 app.innerHTML = `
@@ -61,6 +68,7 @@ app.innerHTML = `
           <button type="button" data-tool="pose" tabindex="-1">Pose</button>
           <button type="button" data-pose-state="rest" class="active" tabindex="-1">Rest</button>
           <button type="button" data-pose-state="ready" tabindex="-1">Ready</button>
+          <button type="button" data-pose-state="attack1" tabindex="-1">Attack1</button>
           <button type="button" data-view-mode="orbit" class="active" tabindex="-1">Orbit</button>
           <button type="button" data-view-mode="firstPerson" tabindex="-1">FPV</button>
         </div>
@@ -347,6 +355,8 @@ let meshyRoot = null;
 let sabreRoot = null;
 let saberGrip = null;
 let readyPosePreset = null;
+let attackPoseSequence = null;
+let poseAnimation = null;
 let selectedPoseBone = null;
 let selected = false;
 let gesture = null;
@@ -737,7 +747,63 @@ function updatePoseHandles() {
   }
 }
 
+function stopPoseAnimation() {
+  poseAnimation = null;
+}
+
+function applyPoseBones(bones = {}) {
+  for (const [name, values] of Object.entries(bones)) {
+    const bone = poseBones.get(name);
+    if (bone) bone.quaternion.copy(quaternionFromArray(values));
+  }
+  root.updateMatrixWorld(true);
+  updatePoseHandles();
+}
+
+function interpolatePoseBones(sequence, time) {
+  const frames = sequence?.frames || [];
+  if (!frames.length) return {};
+  if (frames.length === 1 || time <= frames[0].time) return frames[0].bones;
+  const last = frames[frames.length - 1];
+  if (time >= last.time) return last.bones;
+  let a = frames[0];
+  let b = last;
+  for (let i = 1; i < frames.length; i += 1) {
+    if (frames[i].time >= time) {
+      a = frames[i - 1];
+      b = frames[i];
+      break;
+    }
+  }
+  const span = Math.max(0.0001, b.time - a.time);
+  const alpha = Math.max(0, Math.min(1, (time - a.time) / span));
+  const bones = {};
+  for (const name of Object.keys(a.bones || {})) {
+    const qa = quaternionFromArray(a.bones[name]);
+    const qb = quaternionFromArray(b.bones?.[name] || a.bones[name]);
+    bones[name] = quaternionToFixedArray(qa.slerp(qb, alpha).normalize());
+  }
+  return bones;
+}
+
+function applyAttackPoseAt(time) {
+  applyPoseBones(interpolatePoseBones(attackPoseSequence, time));
+}
+
+function updatePoseAnimation(now) {
+  if (!poseAnimation || poseState !== 'attack1') return;
+  const duration = Math.max(0.0001, attackPoseSequence?.source?.duration || 1.25);
+  const time = ((now - poseAnimation.startedAt) / 1000) % duration;
+  applyAttackPoseAt(time);
+}
+
+function markCustomPose() {
+  stopPoseAnimation();
+  poseState = 'custom';
+}
+
 function resetPose() {
+  stopPoseAnimation();
   for (const [name, bone] of poseBones) {
     const rest = poseBoneRestQuaternions.get(name);
     if (rest) bone.quaternion.copy(rest);
@@ -749,13 +815,8 @@ function resetPose() {
 }
 
 function applyReadyPose() {
-  for (const [name, values] of Object.entries(readyPosePreset?.bones || {})) {
-    const bone = poseBones.get(name);
-    if (bone) bone.quaternion.copy(quaternionFromArray(values));
-  }
+  applyPoseBones(readyPosePreset?.bones || {});
   poseState = 'ready';
-  root.updateMatrixWorld(true);
-  updatePoseHandles();
   const rightHand = poseBones.get('RightHand');
   const rightHandRest = poseBoneRestQuaternions.get('RightHand');
   const applied = rightHand ? quaternionToFixedArray(rightHand.quaternion) : null;
@@ -768,6 +829,17 @@ function applyReadyPose() {
     rightHandAppliedMatchesPreset: quaternionArraysClose(applied, preset),
     rightHandDiffersFromRest: !quaternionArraysClose(applied, rest),
   });
+}
+
+function applyAttackPose() {
+  const duration = Math.max(0.0001, attackPoseSequence?.source?.duration || 1.25);
+  poseState = 'attack1';
+  poseAnimation = {
+    startedAt: performance.now(),
+    duration,
+  };
+  applyAttackPoseAt(0);
+  statusEl.textContent = 'attack1 pose: baked OneHandAttack1, sabre follows RightHand FK';
 }
 
 function setPoseState(next) {
@@ -815,6 +887,9 @@ function setPoseState(next) {
         : 'NO_VISIBLE_ORIENTATION_DELTA',
     });
     statusEl.textContent = 'ready pose: source-oriented OneHandReady, sabre follows RightHand FK';
+  } else if (next === 'attack1') {
+    resetPose();
+    applyAttackPose();
   } else {
     resetPose();
     statusEl.textContent = 'rest pose: golden Meshy A-pose restored';
@@ -824,7 +899,10 @@ function setPoseState(next) {
 }
 
 function initialPoseStateFromUrl() {
-  return URL_PARAMS.get('pose') === 'ready' ? 'ready' : 'rest';
+  const pose = URL_PARAMS.get('pose');
+  if (pose === 'ready') return 'ready';
+  if (pose === 'attack1' || pose === 'attack' || pose === 'onehandattack1') return 'attack1';
+  return 'rest';
 }
 
 function initialViewModeFromUrl() {
@@ -887,11 +965,15 @@ async function applyMeshyPbrTextures(object) {
   }
 }
 
-async function loadReadyPosePreset() {
+async function loadPosePresets() {
   const cacheBust = URL_PARAMS.get('cacheBust');
   const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
-  const module = await import(`./ready-pose.js${suffix}`);
-  readyPosePreset = module.READY_POSE_PRESET;
+  const [readyModule, attackModule] = await Promise.all([
+    import(`./ready-pose.js${suffix}`),
+    import(`./attack1-pose.js${suffix}`),
+  ]);
+  readyPosePreset = readyModule.READY_POSE_PRESET;
+  attackPoseSequence = attackModule.ATTACK1_POSE_SEQUENCE;
   updateReadyProof({
     readyPresetLoaded: Boolean(readyPosePreset),
     rightHandPresetQuaternion: readyPosePreset?.bones?.RightHand || null,
@@ -1075,7 +1157,7 @@ function renderControls() {
     fpvSettingsToggle.classList.toggle('active', fpvSettingsOpen);
   }
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
-  cyclePoseStateButton.textContent = `Pose: ${poseState === 'ready' ? 'Ready' : 'Rest'}`;
+  cyclePoseStateButton.textContent = `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
   cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
   statusEl.textContent = toolMode === 'pose'
     ? selectedPoseBone
@@ -1215,6 +1297,7 @@ function exportTransform() {
     pose: {
       state: poseState,
       readyPreset: readyPosePreset?.label || null,
+      attackPreset: attackPoseSequence?.label || null,
       selectedBone: selectedPoseBone?.name || null,
       bones: poseBonesExport,
     },
@@ -1323,7 +1406,7 @@ function rotateSabreAroundAxis(axis, radians) {
 
 function rotateEditableByGesture(dx, dy, basis) {
   if (toolMode === 'pose' && !selectedPoseBone) return;
-  if (toolMode === 'pose') poseState = 'custom';
+  if (toolMode === 'pose') markCustomPose();
   if (currentAxis === 'screen') {
     rotateSabreAroundAxis(basis.up.clone(), dx * 0.007);
     rotateSabreAroundAxis(basis.right.clone(), dy * 0.007);
@@ -1340,7 +1423,7 @@ function rotateEditableByGesture(dx, dy, basis) {
 function scaleEditableByDelta(delta) {
   const target = editableTarget();
   if (!target) return;
-  if (toolMode === 'pose') poseState = 'custom';
+  if (toolMode === 'pose') markCustomPose();
   if (currentAxis === 'all' || currentAxis === 'screen') {
     const scalar = Math.max(0.05, Math.min(3, target.scale.x + delta));
     target.scale.setScalar(scalar);
@@ -1976,7 +2059,7 @@ function snapCamera(view) {
 }
 
 async function boot() {
-  const [meshy, sabre] = await Promise.all([loadGlb(ASSETS.meshy), loadGlb(ASSETS.sabre), loadReadyPosePreset()]);
+  const [meshy, sabre] = await Promise.all([loadGlb(ASSETS.meshy), loadGlb(ASSETS.sabre), loadPosePresets()]);
   meshyRoot = normalizeCharacter(meshy);
   await applyMeshyPbrTextures(meshyRoot);
   sabreRoot = prepareSabre(sabre);
@@ -2028,7 +2111,11 @@ poseStateButtons.forEach((button) => {
   button.addEventListener('click', () => setPoseState(button.dataset.poseState || 'rest'));
 });
 
-cyclePoseStateButton.addEventListener('click', () => setPoseState(poseState === 'rest' ? 'ready' : 'rest'));
+cyclePoseStateButton.addEventListener('click', () => {
+  const current = POSE_STATE_ORDER.includes(poseState) ? poseState : 'rest';
+  const next = POSE_STATE_ORDER[(POSE_STATE_ORDER.indexOf(current) + 1) % POSE_STATE_ORDER.length];
+  setPoseState(next);
+});
 
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => setMode(button.dataset.mode || 'move'));
@@ -2087,6 +2174,7 @@ canvas.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive:
 
 function animate() {
   resize();
+  updatePoseAnimation(performance.now());
   if (viewMode === 'orbit') controls.update();
   else updateFirstPersonCamera();
   updatePoseHandles();

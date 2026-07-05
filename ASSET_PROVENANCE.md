@@ -22,4 +22,14 @@
 - Included examples modules: `GLTFLoader.js`, `OrbitControls.js`, and
   `BufferGeometryUtils.js`.
 
-No Pose Lab runtime code, rig profiles, generated artifacts, retarget code, debug bridge code, or metric acceptance tooling was copied.
+## FPSPlayer Pose References
+
+- Source workspace file: `../pose-lab/assets/models/FPSPlayer.glb`
+- Runtime files generated from it: `src/ready-pose.js`,
+  `src/attack1-pose.js`
+- Role: source-only pose reference for baking Meshy upper-body states. The GLB
+  is not loaded by the browser runtime, and no old Pose Lab runtime retargeter,
+  gates, debug bridge, or weapon solver was copied.
+
+No Pose Lab runtime code, rig profiles, generated visual artifacts, debug bridge
+code, or metric acceptance tooling was copied.
