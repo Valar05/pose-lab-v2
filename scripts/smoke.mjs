@@ -26,6 +26,7 @@ function parseExportedObject(source, label) {
 }
 
 const attackSequence = parseExportedObject(attackPose, 'Attack1 pose sequence');
+const readyPreset = parseExportedObject(readyPose, 'Ready pose preset');
 
 function assertRelativeImportsResolve(file) {
   const source = read(file);
@@ -92,6 +93,11 @@ assert(attackSequence.source?.duration === 1.25, 'Attack1 sequence must preserve
 assert(attackSequence.source?.keyCount === 31 && attackSequence.frames?.length === 31, 'Attack1 sequence must preserve all 31 keyed source samples');
 assert(attackSequence.source?.signatureWristTwist?.sourceHandRotationTravelDeg > 100, 'Attack1 source must record a strong wrist-twist signature');
 assert(attackSequence.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > 100, 'Attack1 bake must preserve a strong right-hand wrist-twist signature');
+assert(attackSequence.source?.readyEndpointAnchor?.firstMatchesReady === true && attackSequence.source?.readyEndpointAnchor?.lastMatchesReady === true, 'Attack1 first and last frames must be anchored to the accepted Ready pose');
+for (const boneName of ['LeftArm', 'LeftForeArm', 'LeftHand', 'RightArm', 'RightForeArm', 'RightHand']) {
+  assert(JSON.stringify(attackSequence.frames[0].bones?.[boneName]) === JSON.stringify(readyPreset.bones?.[boneName]), `Attack1 first frame ${boneName} must match Ready`);
+  assert(JSON.stringify(attackSequence.frames.at(-1).bones?.[boneName]) === JSON.stringify(readyPreset.bones?.[boneName]), `Attack1 last frame ${boneName} must match Ready`);
+}
 assert(attackSequence.frames.every((frame) => frame.bones?.RightHand && frame.bones?.RightForeArm && frame.bones?.RightArm), 'Attack1 frames must include the right arm, forearm, and hand');
 assert(main.includes('object.position.set(-0.39454, 0.71404, 0.32817)'), 'default sabre position must match the latest authored export');
 assert(main.includes('THREE.MathUtils.degToRad(160.077)') && main.includes('THREE.MathUtils.degToRad(83.685)') && main.includes('THREE.MathUtils.degToRad(-135.981)'), 'default sabre rotation must match the latest authored export');

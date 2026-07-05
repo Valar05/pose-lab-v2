@@ -16,6 +16,7 @@ const targetFrameName = 'Spine02';
 const args = parseArgs(process.argv);
 const sourceClipName = args.clip;
 const outputPath = path.join(projectRoot, args.out);
+const readyPosePath = path.join(projectRoot, 'src', 'ready-pose.js');
 
 const chains = [
   {
@@ -357,6 +358,53 @@ function targetFrameTravelDeg(frames, boneName) {
   return Number((total * 180 / Math.PI).toFixed(3));
 }
 
+async function loadReadyBaseline() {
+  const module = await import(`${pathToFileURL(readyPosePath).href}?t=${Date.now()}`);
+  return module.READY_POSE_PRESET?.bones || {};
+}
+
+function quaternionFromArray(THREE, values) {
+  return new THREE.Quaternion(values[0], values[1], values[2], values[3]).normalize();
+}
+
+function anchorAttackEndpointsToReady(THREE, frames, readyBones) {
+  if (frames.length < 2) return { anchoredBones: [], firstMatchesReady: false, lastMatchesReady: false };
+  const first = frames[0];
+  const last = frames[frames.length - 1];
+  const startTime = first.time;
+  const duration = Math.max(0.0001, last.time - startTime);
+  const anchoredBones = exportBones.filter((name) => readyBones[name] && first.bones[name] && last.bones[name]);
+  const identity = new THREE.Quaternion();
+  const corrections = new Map();
+  for (const name of anchoredBones) {
+    const ready = quaternionFromArray(THREE, readyBones[name]);
+    corrections.set(name, {
+      start: ready.clone().multiply(quaternionFromArray(THREE, first.bones[name]).invert()).normalize(),
+      end: ready.clone().multiply(quaternionFromArray(THREE, last.bones[name]).invert()).normalize(),
+    });
+  }
+  for (const frame of frames) {
+    const phase = Math.max(0, Math.min(1, (frame.time - startTime) / duration));
+    for (const name of anchoredBones) {
+      const raw = quaternionFromArray(THREE, frame.bones[name]);
+      const { start, end } = corrections.get(name);
+      const correction = phase <= 0.5
+        ? start.clone().slerp(identity, phase * 2).normalize()
+        : identity.clone().slerp(end, (phase - 0.5) * 2).normalize();
+      frame.bones[name] = roundedQuaternion(correction.multiply(raw).normalize());
+    }
+  }
+  for (const name of anchoredBones) {
+    first.bones[name] = readyBones[name];
+    last.bones[name] = readyBones[name];
+  }
+  return {
+    anchoredBones,
+    firstMatchesReady: anchoredBones.every((name) => first.bones[name].every((value, index) => value === readyBones[name][index])),
+    lastMatchesReady: anchoredBones.every((name) => last.bones[name].every((value, index) => value === readyBones[name][index])),
+  };
+}
+
 async function main() {
   if (!fs.existsSync(fpsPath)) throw new Error(`missing FPS reference ${fpsPath}`);
   if (!fs.existsSync(meshyPath)) throw new Error(`missing Meshy asset ${meshyPath}`);
@@ -372,6 +420,7 @@ async function main() {
   const meshyRoot = meshy.scene;
   const sourceClip = fps.animations.find((clip) => clip.name === sourceClipName);
   const restClip = fps.animations.find((clip) => clip.name === restClipName);
+  const readyBaseline = await loadReadyBaseline();
   if (!sourceClip) throw new Error(`missing FPS clip ${sourceClipName}`);
   if (restClip) applyClipPose(THREE, fpsRoot, restClip, 0);
   const sourceRestWorld = captureWorldQuaternions(THREE, fpsRoot);
@@ -414,6 +463,7 @@ async function main() {
       bones: posePayload(meshyRoot),
     });
   }
+  const readyEndpointAnchor = anchorAttackEndpointsToReady(THREE, frames, readyBaseline);
 
   const payload = {
     schema: 'pose-lab-v2-pose-sequence-v1',
@@ -426,6 +476,7 @@ async function main() {
       keyCount: times.length,
       projectionFrame: `${sourceFrameName}->${targetFrameName}`,
       method: 'orientation-first-bake-with-pins',
+      readyEndpointAnchor,
       retargetedBones: [...retargetedBones],
       signatureWristTwist: {
         sourceHandRotationTravelDeg: sourceTrackTravelDeg(THREE, sourceClip, 'Hand.R', times),
