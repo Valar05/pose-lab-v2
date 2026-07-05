@@ -31,6 +31,10 @@ app.innerHTML = `
           <button type="button" data-fpv-nudge="back" aria-label="Move FPV camera back">↓</button>
           <button type="button" data-fpv-nudge="down" aria-label="Move FPV camera down">⇩</button>
         </div>
+        <label class="fpv-slider">
+          <span>FOV <output data-fpv-fov-output>112</output></span>
+          <input type="range" min="70" max="125" step="1" value="112" data-fpv-fov aria-label="FPV field of view" />
+        </label>
         <div class="fpv-settings-actions">
           <button type="button" data-fpv-reset>Reset</button>
           <button type="button" data-fpv-copy>Copy</button>
@@ -124,6 +128,8 @@ const fpvSettingsReadout = app.querySelector('[data-fpv-settings-readout]');
 const fpvNudgeButtons = [...app.querySelectorAll('[data-fpv-nudge]')];
 const fpvResetButton = app.querySelector('[data-fpv-reset]');
 const fpvCopyButton = app.querySelector('[data-fpv-copy]');
+const fpvFovInput = app.querySelector('[data-fpv-fov]');
+const fpvFovOutput = app.querySelector('[data-fpv-fov-output]');
 
 let toolMode = 'saber';
 let viewMode = 'orbit';
@@ -223,8 +229,8 @@ const firstPersonCameraConfig = {
   anchor: 'Head',
   fallbackAnchor: 'Spine02',
   forwardAxis: 'z',
-  headForwardOffset: 0.12,
-  headCameraYOffset: -0.08,
+  headForwardOffset: 0.15,
+  headCameraYOffset: -0.07,
   lookForward: 1.35,
   lookVertical: 0,
   fov: 112,
@@ -834,6 +840,8 @@ function fpvSettingsExport() {
 }
 
 function updateFpvSettingsReadout() {
+  if (fpvFovInput) fpvFovInput.value = String(firstPersonCameraConfig.fov);
+  if (fpvFovOutput) fpvFovOutput.value = String(firstPersonCameraConfig.fov);
   if (!fpvSettingsReadout) return;
   fpvSettingsReadout.textContent = JSON.stringify(fpvSettingsExport(), null, 2);
 }
@@ -893,6 +901,15 @@ function resetFpvCameraSettings() {
   updateFirstPersonCamera();
   updateFpvSettingsReadout();
   statusEl.textContent = 'fpv camera: reset';
+}
+
+function setFpvFov(value) {
+  const next = Number(value);
+  if (!Number.isFinite(next)) return;
+  firstPersonCameraConfig.fov = Math.max(70, Math.min(125, Math.round(next)));
+  updateFirstPersonCamera();
+  updateFpvSettingsReadout();
+  statusEl.textContent = `fpv camera: fov ${firstPersonCameraConfig.fov}`;
 }
 
 function renderControls() {
@@ -1863,6 +1880,7 @@ fpvCopyButton.addEventListener('click', () => {
   navigator.clipboard?.writeText(JSON.stringify(fpvSettingsExport(), null, 2)).catch(() => {});
   statusEl.textContent = 'fpv camera: copied';
 });
+fpvFovInput.addEventListener('input', () => setFpvFov(fpvFovInput.value));
 
 poseStateButtons.forEach((button) => {
   button.addEventListener('click', () => setPoseState(button.dataset.poseState || 'rest'));

@@ -98,6 +98,7 @@ assert(main.includes('data-ready-proof') && main.includes('data-ready-proof-read
 assert(main.includes('class="primary-rail"') && main.includes('class="control-dock"'), 'mobile UI must separate primary review controls from secondary editor panels');
 assert(main.includes('data-cycle-tool') && main.includes('data-cycle-pose-state') && main.includes('data-cycle-view-mode') && main.includes('data-dock-toggle'), 'default mobile UI must use compact cycle controls plus one Tools opener');
 assert(main.includes('data-fpv-settings-toggle') && main.includes('data-fpv-settings') && main.includes('data-fpv-nudge="forward"') && main.includes('data-fpv-nudge="back"') && main.includes('data-fpv-nudge="up"') && main.includes('data-fpv-nudge="down"'), 'FPV mode must expose a gear settings panel with forward/back/up/down nudges');
+assert(main.includes('data-fpv-fov') && main.includes('data-fpv-fov-output') && main.includes('function setFpvFov'), 'FPV gear panel must expose a live FOV slider');
 assert(!main.includes('data-fpv-nudge="left"') && !main.includes('data-fpv-nudge="right"'), 'FPV nudge panel must not expose left/right movement controls');
 assert(main.includes('>↑</button>') && main.includes('>↓</button>') && main.includes('>⇧</button>') && main.includes('>⇩</button>'), 'FPV nudge controls must use arrow symbols instead of WASD/QE labels');
 assert(main.includes('FPV_NUDGE_STEP = 0.01') && main.includes('FPV_NUDGE_HOLD_SPEED = 0.12') && main.includes('startFpvNudge') && main.includes('runFpvNudgeHold'), 'FPV nudge controls must support tap nudges and slow hold movement');
@@ -129,7 +130,7 @@ assert(main.includes('snapCamera') && main.includes('data-camera-view'), 'app mu
 assert(main.includes('data-action="camera"') && main.includes('function leaveSaberEdit'), 'app must expose an explicit Camera/deselect escape from saber editing');
 assert(main.includes('data-view-mode="orbit"') && main.includes('data-view-mode="firstPerson"'), 'app must expose Orbit/FPV camera mode buttons');
 assert(main.includes('const firstPersonCameraConfig = {') && main.includes("cameraMode: 'head-forward'") && main.includes("anchor: 'Head'") && main.includes("fallbackAnchor: 'Spine02'"), 'FPV mode must use the Meshy head-forward camera contract from Pose Lab');
-assert(main.includes('headForwardOffset: 0.12') && main.includes('headCameraYOffset: -0.08') && main.includes('lookForward: 1.35'), 'FPV camera must use the original arm-visible head-forward placement');
+assert(main.includes('headForwardOffset: 0.15') && main.includes('headCameraYOffset: -0.07') && main.includes('lookForward: 1.35'), 'FPV camera must use the latest authored head-forward placement');
 assert(main.includes('fov: 112') && main.includes('near: 0.055'), 'FPV camera must keep the original wide arm-visible framing');
 assert(!main.includes('hideBones') && !main.includes('hideScale') && !main.includes('bodyMeshesHidden: true'), 'FPV chest fix must not hide body meshes or bones');
 assert(!main.includes('firstPersonCameraConfig.hide') && !main.includes('setFirstPersonHeadMask'), 'FPV chest fix must not solve framing through FPV-specific mesh visibility masks');
@@ -138,7 +139,7 @@ assert(main.includes('function setViewMode') && main.includes('function updateFi
 assert(main.includes("if (viewMode === 'orbit') controls.update();") && main.includes('else updateFirstPersonCamera();'), 'animation loop must keep FPV camera synced to the posed head bone');
 assert(css.includes('body.is-fpv .primary-rail button:not([data-cycle-view-mode])') && css.includes('body.is-fpv .primary-rail button[data-cycle-view-mode]') && css.includes('body.is-fpv .primary-rail button[data-fpv-settings-toggle]') && css.includes('body.is-fpv .control-dock'), 'FPV mode must hide edit chrome while keeping View and gear controls reachable');
 assert(!css.includes('body.is-fpv .primary-rail button:not([data-view-mode])'), 'FPV mode must not target hidden compatibility view buttons as the only visible escape');
-assert(css.includes('.fpv-settings-button') && css.includes('.fpv-settings') && css.includes('.fpv-nudge-grid'), 'FPV settings must have compact dedicated mobile styling');
+assert(css.includes('.fpv-settings-button') && css.includes('.fpv-settings') && css.includes('.fpv-nudge-grid') && css.includes('.fpv-slider'), 'FPV settings must have compact dedicated mobile styling');
 assert(css.includes('.viewport') && css.includes('.control-dock') && css.includes('max-height: 42vh'), 'mobile layout must keep the 3D viewport visible while dock panels scroll below it');
 assert(css.includes('.control-dock[hidden]') && css.includes('.hidden-actions'), 'closed dock and compatibility action buttons must be visually hidden by default');
 assert(main.includes('function beginCameraTouch') && main.includes("kind: points.length >= 2 ? 'two-camera' : 'one-camera'"), 'mobile camera touch must be handled directly, not delegated to OrbitControls');
