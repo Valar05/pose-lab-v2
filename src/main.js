@@ -139,6 +139,7 @@ const pointers = new Map();
 const poseBones = new Map();
 const poseHandles = new Map();
 const poseBoneRestQuaternions = new Map();
+let lastPoseEmptyTap = null;
 let lastPinchDistance = 0;
 let lastTwistAngle = 0;
 
@@ -761,6 +762,21 @@ function beginCameraTouch(points) {
   statusEl.textContent = points.length >= 2 ? 'camera: pinch zoom / drag pan' : 'camera: one-finger orbit';
 }
 
+function consumePoseEmptyDoubleTap(point) {
+  const now = performance.now();
+  const previous = lastPoseEmptyTap;
+  lastPoseEmptyTap = { x: point.x, y: point.y, time: now };
+  if (!previous) return false;
+  const elapsed = now - previous.time;
+  const distance = Math.hypot(point.x - previous.x, point.y - previous.y);
+  if (elapsed > 360 || distance > 36) return false;
+  selectedPoseBone = null;
+  lastPoseEmptyTap = null;
+  updatePoseHandles();
+  statusEl.textContent = 'pose: bone deselected';
+  return true;
+}
+
 function handleTouchStart(event) {
   if (!sabreRoot) return false;
   const points = touchPoints(event);
@@ -788,6 +804,12 @@ function handleTouchStart(event) {
   if (toolMode === 'pose') {
     const started = beginSingleTouchSabre(touch, null);
     if (started) {
+      lastPoseEmptyTap = null;
+      suppressTouchPointerEvents = true;
+      stopEvent(event);
+      return true;
+    }
+    if (consumePoseEmptyDoubleTap(points[0])) {
       suppressTouchPointerEvents = true;
       stopEvent(event);
       return true;

@@ -74,6 +74,7 @@ assert(main.includes('function beginTwoFingerPose') && main.includes('function r
 assert(main.includes('pose: two-finger bone roll') && main.includes('beginTwoFingerPose(points)'), 'two-finger pose touch must be owned by the selected bone, not the camera');
 assert(main.includes("event.pointerType === 'touch' && toolMode === 'pose'") && main.includes('stopEvent(event);'), 'touch pointer events in Pose mode must not clear selected bones before native two-finger touch handling');
 assert(main.includes("points.length >= 2 && toolMode === 'pose' && selectedPoseBone"), 'Pose two-finger touch must preempt camera pan whenever a bone is selected');
+assert(main.includes('function consumePoseEmptyDoubleTap') && main.includes('pose: bone deselected'), 'Pose mode must expose double-tap empty-canvas deselect');
 assert(!main.includes('selectedPoseBone = null;\n    updatePoseHandles();\n    suppressTouchPointerEvents = true;\n    beginCameraTouch(points);'), 'empty Pose touch must not clear selected bone before a second finger can start twist');
 assert(!main.includes('AnimationMixer') && !main.includes('clipAction') && !main.includes('retarget'), 'v2 Ready must stay baked-pose only, not runtime animation retargeting');
 assert(!main.includes("import './styles.css'"), 'browser-native ESM must not import CSS without a bundler');
