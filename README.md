@@ -41,8 +41,9 @@ or numeric pose panels.
 upper-body pose preset in memory; it does not run a retargeter or animate the
 sabre. The sabre follows because `SaberGrip` is a child of `RightHand`.
 `Attack1` remains a selectable target, but it intentionally falls back to Ready
-until a clean source-derived bake is accepted. Do not restore or iterate on the
-deleted bad generated pose copy.
+until a clean source-derived bake is accepted. A quarantined review candidate can
+be loaded with `?pose=attack1&candidate=attack1-candidate-1`; that route is for
+visual review only and does not make Attack1 accepted repo truth.
 
 Accepted pose modules are listed in `src/pose-status.js`. Draft animations must
 stay under ignored `generated/pose-candidates/` until a hosted cloud review is
@@ -50,12 +51,18 @@ human-accepted, then promoted with `npm run promote:animation -- --pose attack1
 --candidate generated/pose-candidates/FILE.js --evidence-url CLOUD_URL --verdict
 accepted`.
 
+Attack candidates use prime-key review anchors: start, anticipation, contact,
+follow-through, recoil, and end. Candidate 1 must keep start/end equal to Ready,
+preserve wrist/forearm travel, and pass the screen-space blade-tip guard before
+it is reviewable.
+
 Numbers are readout/export only. Authoring is direct visual manipulation.
 
 ## Checks
 
 ```sh
 npm run bake:ready
+npm run bake:attack1:candidate
 npm run build
 npm run smoke
 git diff --check

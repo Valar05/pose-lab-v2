@@ -14,6 +14,8 @@ function assert(condition, message) {
 const main = read('src/main.js');
 const readyPose = read('src/ready-pose.js');
 const poseStatusSource = read('src/pose-status.js');
+const reviewConstantsSource = read('src/review-constants.js');
+const attackCandidateSource = read('src/review-candidates/attack1-candidate-1.js');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
 const html = read('index.html');
 const css = read('src/styles.css');
@@ -32,6 +34,7 @@ function parseExportedObject(source, label) {
 
 const readyPreset = parseExportedObject(readyPose, 'Ready pose preset');
 const poseStatus = parseExportedObject(poseStatusSource, 'Pose status manifest');
+const attackCandidate = parseExportedObject(attackCandidateSource, 'Attack1 candidate preview');
 const trackedCandidateFiles = execFileSync('git', ['ls-files', 'generated/pose-candidates'], {
   cwd: root,
   encoding: 'utf8',
@@ -68,18 +71,30 @@ assert(!html.includes('cdn.jsdelivr.net'), 'runtime must not depend on a CDN bef
 assert(!pkg.dependencies, 'repo must not require npm install dependencies for local build');
 assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static and native-binary free');
 assert(pkg.scripts?.['bake:ready'] === 'node scripts/bake-ready-pose.mjs', 'Ready pose bake script must be explicit and reproducible');
+assert(pkg.scripts?.['bake:attack1:candidate'] === 'node scripts/bake-attack1-candidate.mjs', 'Attack1 candidate bake must be explicit and quarantine-only');
 assert(!pkg.scripts?.['bake:attack1'] && !pkg.scripts?.['diagnose:blade'], 'official scripts must not regenerate or bless the quarantined Attack1 pose');
 assert(pkg.scripts?.['promote:animation'] === 'node tools/promote_animation_candidate.mjs', 'animation promotion must use the explicit promotion gate');
 assert(pkg.scripts?.['review:attack1'] === 'node tools/attack1_review_urls.mjs', 'Attack1 review URLs must remain available');
 assert(exists('tools/promote_animation_candidate.mjs'), 'missing animation promotion gate');
 assert(exists('tools/attack1_review_urls.mjs'), 'missing Attack1 review URL printer');
+assert(exists('scripts/bake-attack1-candidate.mjs'), 'missing Attack1 candidate bake script');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
+assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys');
 assert(!exists('src/attack1-pose.js'), 'contaminated Attack1 generated pose data must not be shipped as repo truth');
+assert(exists('src/review-candidates/attack1-candidate-1.js'), 'Attack1 candidate 1 must be available as a preview module');
 assert(!trackedCandidateFiles, `generated pose candidates must not be tracked on main: ${trackedCandidateFiles}`);
 assert(poseStatus.ready?.status === 'accepted', 'Ready must be explicitly accepted in pose-status.js');
 assert(poseStatus.ready?.module === './ready-pose.js' && poseStatus.ready?.exportName === 'READY_POSE_PRESET', 'Ready status must point to the accepted Ready module');
 assert(createHash('sha256').update(readyPose).digest('hex') === poseStatus.ready?.sha256, 'Ready pose hash must match pose-status.js');
 assert(poseStatus.attack1?.status === 'quarantined' && poseStatus.attack1?.fallback === 'ready', 'Attack1 must stay quarantined with Ready fallback until promoted');
+assert(attackCandidate.schema === 'pose-lab-v2-attack-candidate-v1', 'Attack1 candidate must use the quarantine preview schema');
+assert(attackCandidate.source?.clip === 'OneHandAttack1' && attackCandidate.source?.duration === 1.25 && attackCandidate.source?.keyCount === 31, 'Attack1 candidate must come from the full 31-key OneHandAttack1 source clip');
+assert(attackCandidate.frames?.length === 31, 'Attack1 candidate must preserve all 31 keyed source samples');
+assert(attackCandidate.primeKeys?.start === 0 && attackCandidate.primeKeys?.anticipation === 0.25 && attackCandidate.primeKeys?.contact === 0.458333 && attackCandidate.primeKeys?.followThrough === 0.75 && attackCandidate.primeKeys?.recoil === 1 && attackCandidate.primeKeys?.end === 1.25, 'Attack1 candidate must expose prime-key review anchors');
+assert(attackCandidate.guardReport?.bladeGuard?.status === 'PASS' && attackCandidate.guardReport?.bladeGuard?.firstFailure === null, 'Attack1 candidate must pass the screen-space blade-tip guard');
+assert(attackCandidate.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > 1 && attackCandidate.source?.signatureWristTwist?.bakedRightForeArmRotationTravelDeg > 1, 'Attack1 candidate must preserve nonzero wrist and forearm travel');
+assert(attackCandidate.guardReport?.readyEndpointContract?.firstMatchesReady && attackCandidate.guardReport?.readyEndpointContract?.lastMatchesReady, 'Attack1 candidate start/end must match accepted Ready');
+assert(!attackCandidateSource.includes('SaberGrip') && !attackCandidateSource.includes('WeaponR.quaternion'), 'Attack1 candidate module must not animate SaberGrip or WeaponR tracks');
 assert(readme.includes('Visual Verification Doctrine'), 'README must link the visual verification doctrine');
 assert(readme.includes('They are not visual acceptance and cannot close a') && readme.includes('screenshot-red build'), 'README must state smoke/source checks are not visual acceptance');
 assert(visualDoctrine.includes('Human-visible truth is the acceptance gate'), 'visual doctrine must preserve human-visible truth as acceptance gate');
@@ -102,6 +117,7 @@ assert(main.includes('texture.flipY = false') && main.includes('THREE.SRGBColorS
 assert(main.includes('for (const entry of fpvBodyMasks)') && main.includes('applyMeshyPbrToMaterial(material, textures)'), 'FPV arm-mask materials must receive the same Meshy PBR channels as the full body');
 assert(!main.includes("import { READY_POSE_PRESET } from './ready-pose.js'"), 'Ready pose preset must not be statically imported because browser module cache can stale it');
 assert(main.includes("import { POSE_STATUS } from './pose-status.js'"), 'runtime must read pose-status.js instead of hardcoding accepted pose modules');
+assert(main.includes("import { ATTACK1_REVIEW_CANDIDATES, SABER_GRIP_LOCAL } from './review-constants.js'"), 'runtime must import shared review constants for saber grip and Attack1 previews');
 assert(main.includes('async function loadPosePresets') && main.includes('readyStatus.module') && main.includes("URL_PARAMS.get('cacheBust')"), 'Ready pose preset must be dynamically imported from pose-status.js with the page cacheBust');
 assert(!main.includes("import(`./attack1-pose.js${suffix}`)") && !main.includes('ATTACK1_POSE_SEQUENCE'), 'runtime must not import contaminated Attack1 generated pose data');
 assert(main.includes('data-pose-state="rest"') && main.includes('data-pose-state="ready"') && main.includes('data-pose-state="attack1"'), 'app must expose Rest, Ready, and Attack1 pose states');
@@ -109,6 +125,8 @@ assert(main.includes('function initialPoseStateFromUrl') && main.includes("pose 
 assert(main.includes('function initialViewModeFromUrl') && main.includes("URL_PARAMS.get('view') === 'fpv'") && main.includes('setViewMode(initialViewModeFromUrl())'), 'cloud review URL must be able to boot directly into FPV view');
 assert(main.includes("let poseState = 'rest'") && main.includes('function applyReadyPose') && main.includes("poseState = 'ready'"), 'runtime must switch to baked Ready without animation retargeting');
 assert(main.includes('function applyAttackPose') && main.includes("poseState = 'attack1'") && main.includes('Attack1 quarantined'), 'Attack1 must remain selectable but quarantined until a clean bake exists');
+assert(main.includes('ATTACK1_REVIEW_CANDIDATES[REQUESTED_CANDIDATE]') && main.includes('Attack1 candidate preview') && main.includes('not accepted repo truth'), 'runtime must allow explicit candidate preview without accepting Attack1');
+assert(main.includes('function sequenceFrameAt') && main.includes('function applyAttackSequenceAt'), 'Attack1 candidate preview must play baked frames only');
 assert(!main.includes('updatePoseAnimation(performance.now())') && !main.includes('attack1 playing') && !main.includes('attack1 frozen at'), 'runtime must not play the contaminated Attack1 bake');
 assert(attackReviewUrls.includes('Attack1 animated loop') && attackReviewUrls.includes('time: null'), 'Attack1 review URLs must include an animated loop URL before frozen frames');
 assert(!main.includes('READY_RIGHT_WRIST_ROLL_DEG') && !main.includes('rollReadyRightWrist'), 'Ready must not apply a hidden runtime wrist-roll patch');
@@ -125,7 +143,8 @@ assert(main.includes('object.position.set(-0.39454, 0.71404, 0.32817)'), 'defaul
 assert(main.includes('THREE.MathUtils.degToRad(160.077)') && main.includes('THREE.MathUtils.degToRad(83.685)') && main.includes('THREE.MathUtils.degToRad(-135.981)'), 'default sabre rotation must match the latest authored export');
 assert(main.includes('object.scale.setScalar(0.48)'), 'default sabre scale must match the latest authored export');
 assert(main.includes("findRequiredBone(meshyRoot, 'RightHand')"), 'runtime saber grip must parent under the real Meshy RightHand bone');
-assert(main.includes('const SABER_GRIP_LOCAL = {') && main.includes('position: [8.52296, 28.41254, -24.44467]'), 'SaberGrip must use explicit authored RightHand-local placement');
+assert(reviewConstantsSource.includes('export const SABER_GRIP_LOCAL = {') && reviewConstantsSource.includes('position: [8.52296, 28.41254, -24.44467]'), 'SaberGrip must use explicit authored RightHand-local placement from shared review constants');
+assert(reviewConstantsSource.includes('SABRE_REVIEW_LOCAL_AXIS') && reviewConstantsSource.includes('ATTACK1_REVIEW_CANDIDATES') && reviewConstantsSource.includes('REVIEW_CAMERA_CONTRACT'), 'review constants must expose blade axis, candidate manifest, and review camera contract');
 assert(main.includes("grip.name = 'SaberGrip'") && main.includes('rightHand.add(grip)') && main.includes('grip.add(sabreRoot)'), 'real sabre mesh must be parented through explicit local SaberGrip FK');
 assert(main.includes('sabreRoot.position.set(0, 0, 0)') && main.includes('sabreRoot.quaternion.identity()') && main.includes('sabreRoot.scale.set(1, 1, 1)'), 'sabre mesh local transform under SaberGrip must be identity');
 assert(!main.includes('rightHand.attach(grip)') && !main.includes('grip.attach(sabreRoot)'), 'SaberGrip must not preserve world placement through Object3D.attach');
@@ -228,6 +247,8 @@ if (exists('dist')) {
   assert(exists('dist/index.html'), 'dist must include index.html');
   assert(exists('dist/src/main.js'), 'dist must include the app module at /src/main.js under the repo path');
   assert(exists('dist/src/pose-status.js'), 'dist must include pose-status.js');
+  assert(exists('dist/src/review-constants.js'), 'dist must include shared review constants');
+  assert(exists('dist/src/review-candidates/attack1-candidate-1.js'), 'dist must include Attack1 candidate preview module');
   assert(!exists('dist/src/attack1-pose.js'), 'dist must not ship the contaminated Attack1 pose sequence');
   assert(exists('dist/vendor/three/build/three.module.js'), 'dist must include vendored Three');
   assert(exists('dist/vendor/three/examples/jsm/loaders/GLTFLoader.js'), 'dist must include vendored GLTFLoader');
@@ -243,6 +264,8 @@ if (exists('dist')) {
 
 for (const file of [
   'src/main.js',
+  'src/review-constants.js',
+  'src/review-candidates/attack1-candidate-1.js',
   'vendor/three/examples/jsm/loaders/GLTFLoader.js',
   'vendor/three/examples/jsm/controls/OrbitControls.js',
   'vendor/three/examples/jsm/utils/BufferGeometryUtils.js',

@@ -13,6 +13,8 @@ The visible target is deliberately small:
 - Baked `Ready` pose data, not runtime retargeting.
 - `Attack1` remains a review target, but no accepted baked Attack1 pose is
   currently shipped.
+- `Attack1 candidate 1` is a quarantined preview route only:
+  `?pose=attack1&candidate=attack1-candidate-1`.
 - Draft animation candidates live under ignored `generated/pose-candidates/` and
   cannot become repo truth without promotion through `src/pose-status.js`.
 - Boring FK saber ownership:
@@ -60,6 +62,7 @@ Machine checks are guardrails:
 - `node --check`
 - `npm run build`
 - `npm run smoke`
+- `npm run bake:attack1:candidate`
 - source-string checks
 - route checks
 - asset reachability

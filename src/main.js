@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { POSE_STATUS } from './pose-status.js';
+import { ATTACK1_REVIEW_CANDIDATES, SABER_GRIP_LOCAL } from './review-constants.js';
 
 const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
@@ -25,6 +26,8 @@ const POSE_STATE_LABELS = {
   custom: 'Custom',
 };
 const REQUESTED_POSE = URL_PARAMS.get('pose');
+const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate');
+const REQUESTED_ATTACK_TIME = URL_PARAMS.get('attackTime');
 const REQUESTED_ATTACK_QUARANTINED = ['attack1', 'attack', 'onehandattack1'].includes(String(REQUESTED_POSE || '').toLowerCase());
 
 function poseStatus(name) {
@@ -381,12 +384,6 @@ const readyReadyAxisMaterial = new THREE.LineBasicMaterial({ color: 0x58ff90, de
 const readySabreAxisMaterial = new THREE.LineBasicMaterial({ color: 0xffd45c, depthTest: false, transparent: true, opacity: 0.96 });
 const HAND_AXIS_PROOF_LENGTH = 0.22;
 const SABRE_AXIS_PROOF_LENGTH = 0.62;
-const SABER_GRIP_LOCAL = {
-  position: [8.52296, 28.41254, -24.44467],
-  rotationDeg: [32.35, 74.24, -174.11],
-  scale: [46.62859, 46.62859, 46.62856],
-};
-
 let poseState = 'rest';
 let mode = 'move';
 let currentAxis = 'screen';
@@ -394,6 +391,9 @@ let meshyRoot = null;
 let sabreRoot = null;
 let saberGrip = null;
 let readyPosePreset = null;
+let attackPoseSequence = null;
+let attackPoseStartedAt = null;
+let attackPoseFixedTime = null;
 let selectedPoseBone = null;
 let selected = false;
 let gesture = null;
@@ -814,7 +814,8 @@ function updatePoseHandles() {
 }
 
 function stopPoseAnimation() {
-  // Attack1 playback is quarantined; keep this hook for shared pose-edit paths.
+  attackPoseStartedAt = null;
+  attackPoseFixedTime = null;
 }
 
 function applyPoseBones(bones = {}) {
@@ -863,9 +864,54 @@ function applyReadyPose() {
 function applyAttackPose() {
   const status = poseStatus('attack1');
   resetPose();
+  const candidateId = REQUESTED_CANDIDATE;
+  if (attackPoseSequence && candidateId) {
+    poseState = 'attack1';
+    attackPoseFixedTime = Number.isFinite(Number(REQUESTED_ATTACK_TIME)) ? Number(REQUESTED_ATTACK_TIME) : null;
+    attackPoseStartedAt = performance.now();
+    applyAttackSequenceAt(attackPoseFixedTime ?? 0);
+    statusEl.textContent = `Attack1 candidate preview: ${candidateId}; not accepted repo truth`;
+    return;
+  }
   if (status.fallback === 'ready' && poseIsAccepted('ready')) applyReadyPose();
   poseState = 'attack1';
   statusEl.textContent = `Attack1 ${status.status}: ${status.reason || 'no accepted Attack1 bake is shipped'}; showing ${status.fallback || 'Ready'} fallback`;
+}
+
+function sequenceFrameAt(sequence, time) {
+  const frames = sequence?.frames || [];
+  if (!frames.length) return null;
+  if (frames.length === 1 || time <= frames[0].time) return frames[0];
+  const duration = sequence.source?.duration || frames[frames.length - 1].time || 0;
+  const normalizedTime = duration > 0 ? ((time % duration) + duration) % duration : time;
+  for (let i = 1; i < frames.length; i += 1) {
+    const previous = frames[i - 1];
+    const next = frames[i];
+    if (normalizedTime <= next.time) {
+      const span = Math.max(0.000001, next.time - previous.time);
+      const alpha = THREE.MathUtils.clamp((normalizedTime - previous.time) / span, 0, 1);
+      return { time: normalizedTime, bones: interpolatePoseBones(previous.bones, next.bones, alpha) };
+    }
+  }
+  return frames[frames.length - 1];
+}
+
+function interpolatePoseBones(a = {}, b = {}, alpha = 0) {
+  const bones = {};
+  const names = new Set([...Object.keys(a), ...Object.keys(b)]);
+  for (const name of names) {
+    const left = a[name];
+    const right = b[name] || left;
+    if (!left || !right) continue;
+    bones[name] = quaternionToFixedArray(quaternionFromArray(left).slerp(quaternionFromArray(right), alpha).normalize());
+  }
+  return bones;
+}
+
+function applyAttackSequenceAt(time) {
+  const frame = sequenceFrameAt(attackPoseSequence, time);
+  if (!frame) return;
+  applyPoseBones(frame.bones || {});
 }
 
 function setPoseState(next) {
@@ -995,6 +1041,12 @@ async function loadPosePresets({ announce = true } = {}) {
   }
   const readyModule = await import(`${readyStatus.module}${suffix}`);
   readyPosePreset = readyModule[readyStatus.exportName];
+  const candidate = ATTACK1_REVIEW_CANDIDATES[REQUESTED_CANDIDATE];
+  if (REQUESTED_ATTACK_QUARANTINED && candidate) {
+    const candidateModule = await import(`${candidate.module}${suffix}`);
+    attackPoseSequence = candidateModule[candidate.exportName];
+    if (!attackPoseSequence?.frames?.length) throw new Error(`Attack1 review candidate ${REQUESTED_CANDIDATE} has no frames`);
+  }
   updateReadyProof({
     readyPresetLoaded: Boolean(readyPosePreset),
     rightHandPresetQuaternion: readyPosePreset?.bones?.RightHand || null,
@@ -2230,6 +2282,10 @@ canvas.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive:
 
 function animate() {
   resize();
+  if (poseState === 'attack1' && attackPoseSequence) {
+    const elapsed = attackPoseFixedTime ?? ((performance.now() - (attackPoseStartedAt ?? performance.now())) / 1000);
+    applyAttackSequenceAt(elapsed);
+  }
   if (viewMode === 'orbit') controls.update();
   else updateFirstPersonCamera();
   updatePoseHandles();

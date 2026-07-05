@@ -7,7 +7,9 @@ Current status: `Attack1` is quarantined. The previous generated
 `src/attack1-pose.js` and its false-green bake/diagnostic path were removed.
 Keep `Attack1` as a target, but do not iterate on that deleted bad copy.
 New candidates must be generated under ignored `generated/pose-candidates/`, not
-directly into `src/`.
+directly into accepted runtime paths. A tracked `src/review-candidates/*` module
+may exist only as a quarantined cloud-preview surface and must not change
+`src/pose-status.js` to accepted.
 
 ## Fixed Rules
 
@@ -31,13 +33,17 @@ directly into `src/`.
 4. Bake Meshy upper-body samples from the source clip using imported keyed
    rotations plus the accepted `Ready` local roll offsets. Do not use IK hand
    pinning in the attack bake.
-5. Write the bake as a candidate JavaScript data module under
-   `generated/pose-candidates/`.
+5. Write the bake as a candidate JavaScript data module. For cloud review,
+   `attack1-candidate-1` uses prime-key anchors: start, anticipation, contact,
+   follow-through, recoil, and end.
 6. Runtime playback may interpolate baked quaternions, but it must not solve or
    reinterpret the attack.
 7. Cloud review is the visible acceptance surface. Numeric wrist-travel checks
    are guardrails, not proof that the attack reads correctly.
-8. Promote the candidate into `src/` only after human-visible cloud acceptance,
+8. Reject the candidate if the projected blade tip dips below its frame-0 sabre
+   +X axis in the review camera. Diagnose the bone-roll interpretation; do not
+   fix the failure by moving the sabre.
+9. Promote the candidate into accepted pose status only after human-visible cloud acceptance,
    using the promotion command so `src/pose-status.js` records the accepted hash
    and evidence URL.
 
