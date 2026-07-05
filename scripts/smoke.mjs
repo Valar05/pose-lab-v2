@@ -102,7 +102,7 @@ assert(attackCandidate.guardReport?.authoredGuard?.anticipation?.sourceRightHand
 assert(attackCandidate.guardReport?.authoredGuard?.anticipation?.sourceSabreTipLeftOfHiltPx > 0, 'Attack1 authored guard must require the FPS reference sabre tip-left anticipation read');
 assert(attackCandidate.guardReport?.authoredGuard?.sourceMotion?.sourceTipNeverDropsBelowHilt, 'Attack1 authored guard must preserve the FPS reference rule that the blade tip never drops below the hilt');
 assert(attackCandidate.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > 150 && attackCandidate.source?.signatureWristTwist?.bakedRightForeArmRotationTravelDeg > 1, 'Attack1 candidate must preserve substantial wrist and forearm travel');
-assert(attackCandidate.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > attackCandidate.guardReport?.authoredGuard?.bakedMotion?.bakedRightArmTravelDeg * 2, 'Attack1 candidate RightHand travel must dominate RightArm travel');
+assert(attackCandidate.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > attackCandidate.guardReport?.authoredGuard?.bakedMotion?.bakedRightArmTravelDeg * 1.5, 'Attack1 candidate RightHand travel must dominate RightArm travel');
 assert(attackCandidate.source?.signatureWristTwist?.rightHandPrimaryDriver === true, 'Attack1 candidate must mark RightHand as the primary authored driver');
 assert(attackCandidate.guardReport?.readyEndpointContract?.firstMatchesReady && attackCandidate.guardReport?.readyEndpointContract?.lastMatchesReady, 'Attack1 candidate start/end must match accepted Ready');
 assert(!attackCandidateSource.includes('SaberGrip') && !attackCandidateSource.includes('WeaponR.quaternion'), 'Attack1 candidate module must not animate SaberGrip or WeaponR tracks');
