@@ -18,6 +18,8 @@ app.innerHTML = `
     <div class="toolbar" aria-label="Saber direct controls">
       <button type="button" data-tool="saber" class="active">Saber</button>
       <button type="button" data-tool="pose">Pose</button>
+      <button type="button" data-view-mode="orbit" class="active">Orbit</button>
+      <button type="button" data-view-mode="firstPerson">FPV</button>
       <button type="button" data-pose-state="rest" class="active">Rest</button>
       <button type="button" data-pose-state="ready">Ready</button>
       <button type="button" data-mode="move" class="active">Move</button>
@@ -56,6 +58,7 @@ const canvas = app.querySelector('canvas');
 const statusEl = app.querySelector('[data-status]');
 const exportEl = app.querySelector('[data-export]');
 const toolButtons = [...app.querySelectorAll('[data-tool]')];
+const viewModeButtons = [...app.querySelectorAll('[data-view-mode]')];
 const poseStateButtons = [...app.querySelectorAll('[data-pose-state]')];
 const modeButtons = [...app.querySelectorAll('[data-mode]')];
 const axisButtons = [...app.querySelectorAll('[data-axis]')];
@@ -66,6 +69,7 @@ const touchProbeButton = app.querySelector('[data-action="touch-probe"]');
 const readyProofPanel = app.querySelector('[data-ready-proof-readout]');
 
 let toolMode = 'saber';
+let viewMode = 'orbit';
 const toolState = {
   saber: { mode: 'move', axis: 'screen' },
   pose: { mode: 'rotate', axis: 'screen' },
@@ -141,6 +145,27 @@ scene.fog = new THREE.Fog(0x101315, 10, 24);
 
 const camera = new THREE.PerspectiveCamera(36, 1, 0.01, 80);
 camera.position.set(2.8, 1.75, 4.2);
+const orbitCameraState = {
+  fov: 36,
+  near: 0.01,
+  far: 80,
+  position: new THREE.Vector3(2.8, 1.75, 4.2),
+  target: new THREE.Vector3(0, 0.95, 0),
+  minDistance: 1.5,
+  maxDistance: 8,
+};
+const firstPersonCameraConfig = {
+  cameraMode: 'head-forward',
+  anchor: 'Head',
+  fallbackAnchor: 'Spine02',
+  forwardAxis: 'z',
+  headForwardOffset: 0.12,
+  headCameraYOffset: -0.08,
+  lookForward: 1.35,
+  lookVertical: 0,
+  fov: 112,
+  near: 0.055,
+};
 
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0.95, 0);
@@ -150,6 +175,11 @@ controls.minDistance = 1.5;
 controls.maxDistance = 8;
 controls.touches.ONE = THREE.TOUCH.ROTATE;
 controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
+controls.addEventListener('change', () => {
+  if (viewMode !== 'orbit') return;
+  orbitCameraState.position.copy(camera.position);
+  orbitCameraState.target.copy(controls.target);
+});
 
 scene.add(new THREE.HemisphereLight(0xfff3d5, 0x263036, 2.2));
 const key = new THREE.DirectionalLight(0xffffff, 2.6);
@@ -292,6 +322,10 @@ function findRequiredBone(object, name) {
   return bone;
 }
 
+function findBone(object, name) {
+  return name ? object?.getObjectByName(name) || null : null;
+}
+
 function objectWorldPosition(object) {
   return object.getWorldPosition(new THREE.Vector3());
 }
@@ -302,6 +336,15 @@ function objectWorldQuaternion(object) {
 
 function objectWorldScale(object) {
   return object.getWorldScale(new THREE.Vector3());
+}
+
+function localAxisVector(axis) {
+  if (axis === 'x') return new THREE.Vector3(1, 0, 0);
+  if (axis === '-x') return new THREE.Vector3(-1, 0, 0);
+  if (axis === 'y') return new THREE.Vector3(0, 1, 0);
+  if (axis === '-y') return new THREE.Vector3(0, -1, 0);
+  if (axis === '-z') return new THREE.Vector3(0, 0, -1);
+  return new THREE.Vector3(0, 0, 1);
 }
 
 function rotationDegFromQuaternion(quaternion) {
@@ -666,6 +709,7 @@ function axisLabel() {
 
 function renderControls() {
   toolButtons.forEach((button) => button.classList.toggle('active', button.dataset.tool === toolMode));
+  viewModeButtons.forEach((button) => button.classList.toggle('active', button.dataset.viewMode === viewMode));
   poseStateButtons.forEach((button) => button.classList.toggle('active', button.dataset.poseState === poseState));
   modeButtons.forEach((button) => button.classList.toggle('active', button.dataset.mode === mode));
   axisButtons.forEach((button) => {
@@ -682,6 +726,62 @@ function renderControls() {
     : selected
     ? `${mode} / ${axisLabel()}: drag sabre to edit, drag empty space for camera`
     : `${mode} / ${axisLabel()}: tap the visible sabre first`;
+}
+
+function applyOrbitCamera() {
+  viewMode = 'orbit';
+  document.body.classList.remove('is-fpv');
+  controls.enabled = true;
+  camera.fov = orbitCameraState.fov;
+  camera.near = orbitCameraState.near;
+  camera.far = orbitCameraState.far;
+  controls.minDistance = orbitCameraState.minDistance;
+  controls.maxDistance = orbitCameraState.maxDistance;
+  camera.position.copy(orbitCameraState.position);
+  controls.target.copy(orbitCameraState.target);
+  camera.updateProjectionMatrix();
+  controls.update();
+}
+
+function updateFirstPersonCamera() {
+  if (viewMode !== 'firstPerson' || !meshyRoot) return;
+  const anchor = findBone(meshyRoot, firstPersonCameraConfig.anchor)
+    || findBone(meshyRoot, firstPersonCameraConfig.fallbackAnchor);
+  if (!anchor) return;
+  root.updateMatrixWorld(true);
+  const anchorPosition = objectWorldPosition(anchor);
+  const anchorQuaternion = objectWorldQuaternion(anchor);
+  const forward = localAxisVector(firstPersonCameraConfig.forwardAxis)
+    .applyQuaternion(anchorQuaternion)
+    .normalize();
+  const position = anchorPosition.clone()
+    .add(forward.clone().multiplyScalar(firstPersonCameraConfig.headForwardOffset))
+    .add(new THREE.Vector3(0, firstPersonCameraConfig.headCameraYOffset, 0));
+  const target = anchorPosition.clone()
+    .add(forward.clone().multiplyScalar(firstPersonCameraConfig.lookForward))
+    .add(new THREE.Vector3(0, firstPersonCameraConfig.lookVertical, 0));
+  camera.position.copy(position);
+  camera.up.set(0, 1, 0);
+  camera.lookAt(target);
+  camera.fov = firstPersonCameraConfig.fov;
+  camera.near = firstPersonCameraConfig.near;
+  camera.far = orbitCameraState.far;
+  camera.updateProjectionMatrix();
+}
+
+function setViewMode(next) {
+  if (next === 'firstPerson') {
+    viewMode = 'firstPerson';
+    controls.enabled = false;
+    document.body.classList.add('is-fpv');
+    updateFirstPersonCamera();
+    statusEl.textContent = 'camera: FPV head-forward';
+  } else {
+    applyOrbitCamera();
+    statusEl.textContent = 'camera: orbit';
+  }
+  renderControls();
+  updateReadout();
 }
 
 function leaveSaberEdit(message = 'camera: sabre deselected') {
@@ -1485,6 +1585,7 @@ function handleTwoFingerTouch(points) {
 }
 
 function snapCamera(view) {
+  if (viewMode !== 'orbit') setViewMode('orbit');
   const focus = sabreRoot ? objectWorldPosition(sabreRoot) : new THREE.Vector3(0, 0.95, 0);
   const distance = Math.max(2.2, camera.position.distanceTo(controls.target));
   const offsets = {
@@ -1496,6 +1597,8 @@ function snapCamera(view) {
   };
   controls.target.copy(focus);
   camera.position.copy(focus).add(offsets[view] || offsets.front);
+  orbitCameraState.position.copy(camera.position);
+  orbitCameraState.target.copy(controls.target);
   controls.update();
   statusEl.textContent = `camera: ${view}`;
 }
@@ -1514,6 +1617,10 @@ async function boot() {
 
 toolButtons.forEach((button) => {
   button.addEventListener('click', () => setToolMode(button.dataset.tool || 'saber'));
+});
+
+viewModeButtons.forEach((button) => {
+  button.addEventListener('click', () => setViewMode(button.dataset.viewMode || 'orbit'));
 });
 
 poseStateButtons.forEach((button) => {
@@ -1547,6 +1654,7 @@ resetPoseButton.addEventListener('click', () => {
 });
 
 app.querySelector('[data-action="camera"]').addEventListener('click', () => {
+  if (viewMode !== 'orbit') setViewMode('orbit');
   leaveSaberEdit();
 });
 
@@ -1570,7 +1678,8 @@ canvas.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive:
 
 function animate() {
   resize();
-  controls.update();
+  if (viewMode === 'orbit') controls.update();
+  else updateFirstPersonCamera();
   updatePoseHandles();
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
