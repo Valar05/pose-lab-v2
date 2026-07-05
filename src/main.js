@@ -199,12 +199,12 @@ const firstPersonCameraConfig = {
   anchor: 'Head',
   fallbackAnchor: 'Spine02',
   forwardAxis: 'z',
-  headForwardOffset: 0.42,
-  headCameraYOffset: 0.03,
-  lookForward: 1.65,
+  headForwardOffset: 0.12,
+  headCameraYOffset: -0.08,
+  lookForward: 1.35,
   lookVertical: 0,
-  fov: 98,
-  near: 0.04,
+  fov: 112,
+  near: 0.055,
 };
 
 const controls = new OrbitControls(camera, canvas);
