@@ -60,6 +60,8 @@ assert(!pkg.dependencies, 'repo must not require npm install dependencies for lo
 assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static and native-binary free');
 assert(pkg.scripts?.['bake:ready'] === 'node scripts/bake-ready-pose.mjs', 'Ready pose bake script must be explicit and reproducible');
 assert(pkg.scripts?.['bake:attack1']?.includes('scripts/bake-pose-sequence.mjs') && pkg.scripts?.['bake:attack1']?.includes('OneHandAttack1'), 'Attack1 pose sequence bake script must be explicit and reproducible');
+assert(pkg.scripts?.['diagnose:blade'] === 'node tools/diagnose_attack1_blade_transform.mjs', 'blade transform diagnostic must be an explicit npm command');
+assert(exists('tools/diagnose_attack1_blade_transform.mjs'), 'missing blade transform diagnostic');
 assert(exists('vendor/three/build/three.module.js'), 'missing vendored Three module');
 assert(exists('vendor/three/examples/jsm/loaders/GLTFLoader.js'), 'missing vendored GLTFLoader');
 assert(exists('vendor/three/examples/jsm/controls/OrbitControls.js'), 'missing vendored OrbitControls');
