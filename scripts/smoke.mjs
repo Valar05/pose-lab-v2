@@ -84,6 +84,9 @@ assert(main.includes('pickSabre') && main.includes('startGesture') && main.inclu
 assert(main.includes('function handleTouchStart') && main.includes('function handleTouchMove') && main.includes('function handleTouchEnd'), 'mobile saber editing must use native touch handlers, not pointer-only guesses');
 assert(main.includes("canvas.addEventListener('touchstart', handleTouchStart, { capture: true, passive: false })"), 'touchstart must be non-passive capture so saber gestures can stop camera/browser handling');
 assert(main.includes('let suppressTouchPointerEvents = false') && main.includes('event.pointerType === \'touch\' && suppressTouchPointerEvents'), 'owned native touch gestures must suppress duplicate touch pointer events');
+assert(main.includes('function blockPoseTouchPointer') && main.includes("event.pointerType !== 'touch' || toolMode !== 'pose'"), 'Pose mode must firewall touch pointer events before OrbitControls can pan');
+assert(main.includes('blockPoseTouchPointer') && main.includes('stopImmediatePropagation()'), 'Pose touch pointer firewall must stop later OrbitControls listeners');
+assert(main.indexOf("canvas.addEventListener('pointerdown', blockPoseTouchPointer") >= 0 && main.indexOf("canvas.addEventListener('pointerdown', blockPoseTouchPointer") < main.indexOf('new OrbitControls(camera, canvas)'), 'Pose touch pointer firewall must register before OrbitControls');
 assert(main.includes('cycleMode') && main.includes('tapCanCycle'), 'selected sabre tap must cycle transform mode like the TFTM tuner');
 assert(main.includes('snapCamera') && main.includes('data-camera-view'), 'app must expose TFTM-style camera snap controls');
 assert(main.includes('data-action="camera"') && main.includes('function leaveSaberEdit'), 'app must expose an explicit Camera/deselect escape from saber editing');

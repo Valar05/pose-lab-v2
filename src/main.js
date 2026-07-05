@@ -52,6 +52,19 @@ const axisButtons = [...app.querySelectorAll('[data-axis]')];
 const resetSaberButton = app.querySelector('[data-action="reset-saber"]');
 const resetPoseButton = app.querySelector('[data-action="reset-pose"]');
 
+let toolMode = 'saber';
+
+function blockPoseTouchPointer(event) {
+  if (event.pointerType !== 'touch' || toolMode !== 'pose') return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}
+
+canvas.addEventListener('pointerdown', blockPoseTouchPointer, { capture: true });
+canvas.addEventListener('pointermove', blockPoseTouchPointer, { capture: true });
+canvas.addEventListener('pointerup', blockPoseTouchPointer, { capture: true });
+canvas.addEventListener('pointercancel', blockPoseTouchPointer, { capture: true });
+
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -123,7 +136,6 @@ const SABER_GRIP_LOCAL = {
   scale: [46.62859, 46.62859, 46.62856],
 };
 
-let toolMode = 'saber';
 let poseState = 'rest';
 let mode = 'move';
 let currentAxis = 'screen';
