@@ -9,6 +9,7 @@ const ASSETS = {
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
+const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
 
 const app = document.querySelector('#app');
 app.innerHTML = `
@@ -88,6 +89,12 @@ const readyProof = {
   rightHandRestQuaternion: null,
   rightHandAppliedMatchesPreset: null,
   rightHandDiffersFromRest: null,
+  rightHandWorldDelta: null,
+  rightHandScreenDeltaPx: null,
+  saberGripWorldDelta: null,
+  sabreScreenDeltaPx: null,
+  visibleDeltaPass: null,
+  visibleDeltaStatus: 'not-run',
 };
 
 function updateTouchProof(values = {}) {
@@ -182,6 +189,10 @@ const POSE_BONE_NAMES = [
 const poseHandleGeometry = new THREE.SphereGeometry(0.035, 12, 8);
 const poseHandleMaterial = new THREE.MeshBasicMaterial({ color: 0x68d8ff, depthTest: false, transparent: true, opacity: 0.82 });
 const poseHandleSelectedMaterial = new THREE.MeshBasicMaterial({ color: 0xffd45c, depthTest: false, transparent: true, opacity: 0.96 });
+const readyDeltaGeometry = new THREE.SphereGeometry(0.045, 12, 8);
+const readyRestMaterial = new THREE.MeshBasicMaterial({ color: 0x8b949e, depthTest: false, transparent: true, opacity: 0.72 });
+const readyReadyMaterial = new THREE.MeshBasicMaterial({ color: 0x58ff90, depthTest: false, transparent: true, opacity: 0.92 });
+const readyLineMaterial = new THREE.LineBasicMaterial({ color: 0x58ff90, depthTest: false, transparent: true, opacity: 0.85 });
 const SABER_GRIP_LOCAL = {
   position: [8.52296, 28.41254, -24.44467],
   rotationDeg: [32.35, 74.24, -174.11],
@@ -204,6 +215,19 @@ const pointers = new Map();
 const poseBones = new Map();
 const poseHandles = new Map();
 const poseBoneRestQuaternions = new Map();
+const readyDeltaMarkers = {
+  restHand: new THREE.Mesh(readyDeltaGeometry, readyRestMaterial),
+  readyHand: new THREE.Mesh(readyDeltaGeometry, readyReadyMaterial),
+  restHilt: new THREE.Mesh(readyDeltaGeometry, readyRestMaterial),
+  readyHilt: new THREE.Mesh(readyDeltaGeometry, readyReadyMaterial),
+  handLine: new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), readyLineMaterial),
+  hiltLine: new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), readyLineMaterial),
+};
+for (const marker of Object.values(readyDeltaMarkers)) {
+  marker.visible = false;
+  marker.renderOrder = 12;
+  scene.add(marker);
+}
 let lastPoseEmptyTap = null;
 let lastPinchDistance = 0;
 let lastTwistAngle = 0;
@@ -296,6 +320,50 @@ function quaternionArraysClose(a, b, epsilon = 0.00001) {
   return a.every((value, index) => Math.abs(value - b[index]) <= epsilon);
 }
 
+function worldToScreenPixels(position) {
+  const projected = position.clone().project(camera);
+  const rect = canvas.getBoundingClientRect();
+  return new THREE.Vector2(
+    (projected.x * 0.5 + 0.5) * rect.width,
+    (-projected.y * 0.5 + 0.5) * rect.height
+  );
+}
+
+function readySnapshot() {
+  root.updateMatrixWorld(true);
+  const rightHand = poseBones.get('RightHand');
+  const handPosition = rightHand ? objectWorldPosition(rightHand) : new THREE.Vector3();
+  const hiltPosition = saberGrip ? objectWorldPosition(saberGrip) : objectWorldPosition(sabreRoot);
+  const sabrePosition = objectWorldPosition(sabreRoot);
+  return {
+    handPosition,
+    handQuaternion: rightHand ? objectWorldQuaternion(rightHand) : new THREE.Quaternion(),
+    hiltPosition,
+    hiltQuaternion: saberGrip ? objectWorldQuaternion(saberGrip) : new THREE.Quaternion(),
+    sabrePosition,
+    sabreQuaternion: objectWorldQuaternion(sabreRoot),
+    handScreen: worldToScreenPixels(handPosition),
+    hiltScreen: worldToScreenPixels(hiltPosition),
+    sabreScreen: worldToScreenPixels(sabrePosition),
+  };
+}
+
+function setLineEndpoints(line, a, b) {
+  line.geometry.setFromPoints([a, b]);
+  line.geometry.computeBoundingSphere();
+}
+
+function updateReadyDeltaMarkers(restSnapshot, readySnapshotValue) {
+  if (!DEBUG_READY_DELTA) return;
+  readyDeltaMarkers.restHand.position.copy(restSnapshot.handPosition);
+  readyDeltaMarkers.readyHand.position.copy(readySnapshotValue.handPosition);
+  readyDeltaMarkers.restHilt.position.copy(restSnapshot.hiltPosition);
+  readyDeltaMarkers.readyHilt.position.copy(readySnapshotValue.hiltPosition);
+  setLineEndpoints(readyDeltaMarkers.handLine, restSnapshot.handPosition, readySnapshotValue.handPosition);
+  setLineEndpoints(readyDeltaMarkers.hiltLine, restSnapshot.hiltPosition, readySnapshotValue.hiltPosition);
+  for (const marker of Object.values(readyDeltaMarkers)) marker.visible = true;
+}
+
 function editableSaber() {
   return saberGrip || sabreRoot;
 }
@@ -380,7 +448,6 @@ function resetPose() {
 }
 
 function applyReadyPose() {
-  resetPose();
   for (const [name, values] of Object.entries(readyPosePreset?.bones || {})) {
     const bone = poseBones.get(name);
     if (bone) bone.quaternion.copy(quaternionFromArray(values));
@@ -404,7 +471,24 @@ function applyReadyPose() {
 
 function setPoseState(next) {
   if (next === 'ready') {
+    resetPose();
+    const restSnapshot = readySnapshot();
     applyReadyPose();
+    const appliedSnapshot = readySnapshot();
+    const handWorldDelta = appliedSnapshot.handPosition.distanceTo(restSnapshot.handPosition);
+    const handScreenDelta = appliedSnapshot.handScreen.distanceTo(restSnapshot.handScreen);
+    const hiltWorldDelta = appliedSnapshot.hiltPosition.distanceTo(restSnapshot.hiltPosition);
+    const sabreScreenDelta = appliedSnapshot.sabreScreen.distanceTo(restSnapshot.sabreScreen);
+    const visibleDeltaPass = handScreenDelta > 1 || sabreScreenDelta > 1;
+    updateReadyDeltaMarkers(restSnapshot, appliedSnapshot);
+    updateReadyProof({
+      rightHandWorldDelta: Number(handWorldDelta.toFixed(6)),
+      rightHandScreenDeltaPx: Number(handScreenDelta.toFixed(3)),
+      saberGripWorldDelta: Number(hiltWorldDelta.toFixed(6)),
+      sabreScreenDeltaPx: Number(sabreScreenDelta.toFixed(3)),
+      visibleDeltaPass,
+      visibleDeltaStatus: visibleDeltaPass ? 'VISIBLE_DELTA' : 'NO_VISIBLE_DELTA',
+    });
     statusEl.textContent = 'ready pose: source-oriented OneHandReady, sabre follows RightHand FK';
   } else {
     resetPose();
