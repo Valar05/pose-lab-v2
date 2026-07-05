@@ -135,6 +135,56 @@ canvas {
   display: none;
 }
 
+.tip-match-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+}
+
+.tip-match-overlay[hidden] {
+  display: none;
+}
+
+.tip-dot {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(0, 0, 0, 0.72);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.tip-dot-target {
+  background: #55d7ff;
+}
+
+.tip-dot-actual {
+  background: #f0c35a;
+}
+
+.tip-dot-hilt {
+  width: 10px;
+  height: 10px;
+  background: #f46f6f;
+}
+
+.tip-match-overlay output {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  max-width: min(300px, calc(100vw - 24px));
+  padding: 6px 8px;
+  border: 1px solid rgba(85, 215, 255, 0.55);
+  border-radius: 6px;
+  background: rgba(3, 7, 10, 0.78);
+  color: #e8f8ff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .attack-review-row,
 .attack-primes {
   display: flex;

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { POSE_STATUS } from './pose-status.js';
-import { ATTACK1_REVIEW_CANDIDATES, SABER_GRIP_LOCAL } from './review-constants.js';
+import { ATTACK1_REVIEW_CANDIDATES, SABER_GRIP_LOCAL, REVIEW_CAMERA_CONTRACT } from './review-constants.js';
 
 const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
@@ -18,6 +18,7 @@ const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
+const TIP_MATCH_REVIEW = URL_PARAMS.get('tipMatch') === '1';
 const POSE_STATE_ORDER = ['rest', 'ready', 'attack1'];
 const POSE_STATE_LABELS = {
   rest: 'Rest',
@@ -65,6 +66,12 @@ app.innerHTML = `
         </div>
         <input type="range" min="0" max="1.25" step="0.041667" value="0" data-attack-scrub aria-label="Attack time scrubber" />
         <div class="attack-primes" data-attack-primes aria-label="Attack prime keys"></div>
+      </div>
+      <div class="tip-match-overlay" data-tip-match-overlay hidden aria-label="Tip match review overlay">
+        <span class="tip-dot tip-dot-target" data-tip-target></span>
+        <span class="tip-dot tip-dot-actual" data-tip-actual></span>
+        <span class="tip-dot tip-dot-hilt" data-tip-hilt></span>
+        <output data-tip-match-readout></output>
       </div>
       <div class="fpv-settings" data-fpv-settings hidden aria-label="FPV camera nudge controls">
         <div class="fpv-nudge-grid" aria-label="FPV camera position">
@@ -183,6 +190,11 @@ const attackPauseButton = app.querySelector('[data-attack-pause]');
 const attackScrubInput = app.querySelector('[data-attack-scrub]');
 const attackTimeOutput = app.querySelector('[data-attack-time]');
 const attackPrimesEl = app.querySelector('[data-attack-primes]');
+const tipMatchOverlay = app.querySelector('[data-tip-match-overlay]');
+const tipTargetDot = app.querySelector('[data-tip-target]');
+const tipActualDot = app.querySelector('[data-tip-actual]');
+const tipHiltDot = app.querySelector('[data-tip-hilt]');
+const tipMatchReadout = app.querySelector('[data-tip-match-readout]');
 
 let toolMode = 'saber';
 let viewMode = 'orbit';
@@ -1010,6 +1022,46 @@ function updateAttackReviewControls() {
     const primeTime = Number(button.dataset.attackTime);
     button.classList.toggle('active', Math.abs(primeTime - time) < 0.025);
   }
+  updateTipMatchOverlay();
+}
+
+function tipMatchReportAt(time) {
+  const report = attackPoseSequence?.guardReport?.tipMatch?.report || [];
+  if (!report.length) return null;
+  let best = report[0];
+  let bestDistance = Math.abs((best.time || 0) - time);
+  for (const entry of report) {
+    const distance = Math.abs((entry.time || 0) - time);
+    if (distance < bestDistance) {
+      best = entry;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
+function placeTipDot(dot, point) {
+  if (!dot || !Array.isArray(point)) return;
+  const [sourceWidth, sourceHeight] = REVIEW_CAMERA_CONTRACT.viewport;
+  const x = point[0] / sourceWidth * canvas.clientWidth;
+  const y = point[1] / sourceHeight * canvas.clientHeight;
+  dot.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+}
+
+function updateTipMatchOverlay() {
+  const active = Boolean(TIP_MATCH_REVIEW && attackPoseSequence?.guardReport?.tipMatch && poseState === 'attack1');
+  if (!tipMatchOverlay) return;
+  tipMatchOverlay.hidden = !active;
+  if (!active) return;
+  const entry = tipMatchReportAt(attackPoseCurrentTime || 0);
+  if (!entry) {
+    tipMatchReadout.value = 'tip-match: no report';
+    return;
+  }
+  placeTipDot(tipTargetDot, entry.targetTipScreen);
+  placeTipDot(tipActualDot, entry.actualTipScreen);
+  placeTipDot(tipHiltDot, entry.actualHiltScreen);
+  tipMatchReadout.value = `${entry.label}: tip error ${entry.errorPx}px`;
 }
 
 function setPoseState(next) {

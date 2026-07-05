@@ -2,7 +2,7 @@
 import { execFileSync } from 'node:child_process';
 
 const BASE_URL = 'https://valar05.github.io/pose-lab-v2/';
-const CANDIDATE = 'attack1-candidate-1';
+const CANDIDATES = ['attack1-candidate-1', 'attack1-tip-match-1'];
 const REVIEW_TIMES = [
   ['start', 0],
   ['anticipation', 0.25],
@@ -16,33 +16,36 @@ function currentSha() {
   return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim();
 }
 
-function urlFor(time, cacheBust) {
+function urlFor(candidate, time, cacheBust, extras = {}) {
   const params = new URLSearchParams({
     pose: 'attack1',
-    candidate: CANDIDATE,
+    candidate,
     cacheBust,
+    ...extras,
   });
   if (time !== null) params.set('attackTime', String(time));
   return `${BASE_URL}?${params.toString()}`;
 }
 
 const cacheBust = `attack1-${currentSha()}`;
-const urls = [{
-  label: 'Attack1 animated loop',
+const urls = CANDIDATES.flatMap((candidate) => [{
+  label: `${candidate} animated loop`,
+  candidate,
   time: null,
-  url: urlFor(null, cacheBust),
+  url: urlFor(candidate, null, cacheBust, candidate.includes('tip-match') ? { tipMatch: '1', view: 'fpv' } : {}),
 }, ...REVIEW_TIMES.map(([primeKey, time]) => ({
-  label: `Attack1 ${primeKey} ${time.toFixed(6)}s`,
+  label: `${candidate} ${primeKey} ${time.toFixed(6)}s`,
+  candidate,
   primeKey,
   time,
-  url: urlFor(time, cacheBust),
-}))];
+  url: urlFor(candidate, time, cacheBust, candidate.includes('tip-match') ? { tipMatch: '1', view: 'fpv' } : {}),
+}))]);
 
 console.log(JSON.stringify({
   schema: 'pose-lab-v2-attack1-review-urls-v1',
   cloudReviewOnly: true,
   wakeBrowser: false,
   cacheBust,
-  candidate: CANDIDATE,
+  candidates: CANDIDATES,
   urls,
 }, null, 2));

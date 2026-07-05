@@ -12,6 +12,11 @@ export const ATTACK1_REVIEW_CANDIDATES = {
     exportName: "ATTACK1_POSE_SEQUENCE",
     label: "Attack1 candidate 1",
   },
+  "attack1-tip-match-1": {
+    module: "./review-candidates/attack1-tip-match-1.js",
+    exportName: "ATTACK1_TIP_MATCH_SEQUENCE",
+    label: "Attack1 tip-match candidate 1",
+  },
 };
 
 export const REVIEW_CAMERA_CONTRACT = {
