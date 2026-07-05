@@ -143,6 +143,7 @@ const readyProof = {
   sabreBladeAxisScreenDeltaPx: null,
   orientationDeltaPass: null,
   sabreScreenDeltaPx: null,
+  fpvCamera: null,
   visibleDeltaPass: null,
   visibleDeltaStatus: 'not-run',
 };
@@ -198,12 +199,12 @@ const firstPersonCameraConfig = {
   anchor: 'Head',
   fallbackAnchor: 'Spine02',
   forwardAxis: 'z',
-  headForwardOffset: 0.12,
-  headCameraYOffset: -0.08,
-  lookForward: 1.35,
+  headForwardOffset: 0.42,
+  headCameraYOffset: 0.03,
+  lookForward: 1.65,
   lookVertical: 0,
-  fov: 112,
-  near: 0.055,
+  fov: 98,
+  near: 0.04,
 };
 
 const controls = new OrbitControls(camera, canvas);
@@ -842,6 +843,16 @@ function updateFirstPersonCamera() {
   camera.near = firstPersonCameraConfig.near;
   camera.far = orbitCameraState.far;
   camera.updateProjectionMatrix();
+  updateReadyProof({
+    fpvCamera: {
+      cameraWorldPosition: vectorToFixedArray(camera.position),
+      headWorldPosition: vectorToFixedArray(anchorPosition),
+      headDistance: fixedNumber(camera.position.distanceTo(anchorPosition), 5),
+      fov: firstPersonCameraConfig.fov,
+      near: firstPersonCameraConfig.near,
+      bodyMeshesHidden: false,
+    },
+  });
 }
 
 function setViewMode(next) {

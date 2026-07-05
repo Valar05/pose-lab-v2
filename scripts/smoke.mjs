@@ -121,6 +121,11 @@ assert(main.includes('snapCamera') && main.includes('data-camera-view'), 'app mu
 assert(main.includes('data-action="camera"') && main.includes('function leaveSaberEdit'), 'app must expose an explicit Camera/deselect escape from saber editing');
 assert(main.includes('data-view-mode="orbit"') && main.includes('data-view-mode="firstPerson"'), 'app must expose Orbit/FPV camera mode buttons');
 assert(main.includes('const firstPersonCameraConfig = {') && main.includes("cameraMode: 'head-forward'") && main.includes("anchor: 'Head'") && main.includes("fallbackAnchor: 'Spine02'"), 'FPV mode must use the Meshy head-forward camera contract from Pose Lab');
+assert(main.includes('headForwardOffset: 0.42') && main.includes('headCameraYOffset: 0.03') && main.includes('lookForward: 1.65'), 'FPV camera must be placed out in front of the chest while looking through the arms');
+assert(main.includes('fov: 98') && main.includes('near: 0.04'), 'FPV camera must use framing/placement instead of wide-FOV torso clipping');
+assert(!main.includes('hideBones') && !main.includes('hideScale') && !main.includes('bodyMeshesHidden: true'), 'FPV chest fix must not hide body meshes or bones');
+assert(!main.includes('firstPersonCameraConfig.hide') && !main.includes('setFirstPersonHeadMask'), 'FPV chest fix must not solve framing through FPV-specific mesh visibility masks');
+assert(main.includes('fpvCamera') && main.includes('bodyMeshesHidden: false'), 'debug proof must report FPV camera placement and that body meshes are not hidden');
 assert(main.includes('function setViewMode') && main.includes('function updateFirstPersonCamera') && main.includes("document.body.classList.add('is-fpv')"), 'FPV mode must switch the live camera from orbit controls to head-forward first-person view');
 assert(main.includes("if (viewMode === 'orbit') controls.update();") && main.includes('else updateFirstPersonCamera();'), 'animation loop must keep FPV camera synced to the posed head bone');
 assert(css.includes('body.is-fpv .primary-rail button:not([data-view-mode])') && css.includes('body.is-fpv .control-dock'), 'FPV mode must hide edit chrome while keeping Orbit/FPV controls reachable');
