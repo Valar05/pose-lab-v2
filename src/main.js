@@ -55,7 +55,7 @@ app.innerHTML = `
         <button type="button" data-dock-toggle>Tools</button>
         <span class="status" data-status>loading Meshy and real sabre</span>
       </div>
-      <div class="attack-review" data-attack-review hidden aria-label="Attack candidate review controls">
+      <div class="attack-review" data-attack-review ${REQUESTED_CANDIDATE ? '' : 'hidden'} aria-label="Attack candidate review controls">
         <div class="attack-review-row">
           <button type="button" data-attack-play>Play</button>
           <button type="button" data-attack-pause>Pause</button>
