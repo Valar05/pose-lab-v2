@@ -5,6 +5,8 @@ Clean saber placement surface.
 This repo contains only:
 
 - the Meshy A-pose/standing source GLB used as the visible character;
+- the Meshy character PBR texture channels salvaged from Pose Lab's
+  `assets/models/fpsplayer_meshy` source asset folder;
 - the real Meshy sabre GLB;
 - TFTM-style direct placement controls for the visible sabre.
 - one baked Meshy `Ready` pose preset generated from the old FPS

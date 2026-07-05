@@ -6,6 +6,13 @@ const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
   sabre: './assets/meshy/meshy_real_sabre.glb',
 };
+const MESHY_PBR_TEXTURES = {
+  map: './assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture.png',
+  emissiveMap: './assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_emission.png',
+  metalnessMap: './assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_metallic.png',
+  normalMap: './assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_normal.png',
+  roughnessMap: './assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_roughness.png',
+};
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
@@ -290,6 +297,7 @@ floor.position.y = -0.02;
 scene.add(floor);
 
 const loader = new GLTFLoader();
+const textureLoader = new THREE.TextureLoader();
 const root = new THREE.Group();
 scene.add(root);
 
@@ -830,6 +838,54 @@ async function loadGlb(url) {
   return new Promise((resolve, reject) => {
     loader.load(url, (gltf) => resolve(gltf.scene), undefined, reject);
   });
+}
+
+async function loadTexture(url, colorSpace = null) {
+  return new Promise((resolve, reject) => {
+    textureLoader.load(url, (texture) => {
+      texture.flipY = false;
+      if (colorSpace) texture.colorSpace = colorSpace;
+      resolve(texture);
+    }, undefined, reject);
+  });
+}
+
+async function loadMeshyPbrTextures() {
+  const entries = await Promise.all(Object.entries(MESHY_PBR_TEXTURES).map(async ([slot, url]) => {
+    const colorSpace = slot === 'map' || slot === 'emissiveMap' ? THREE.SRGBColorSpace : null;
+    return [slot, await loadTexture(url, colorSpace)];
+  }));
+  return Object.fromEntries(entries);
+}
+
+function applyMeshyPbrToMaterial(material, textures) {
+  if (!material || !textures) return;
+  material.map = textures.map;
+  material.emissiveMap = textures.emissiveMap;
+  material.metalnessMap = textures.metalnessMap;
+  material.normalMap = textures.normalMap;
+  material.roughnessMap = textures.roughnessMap;
+  if (material.emissive?.set) material.emissive.set(0xffffff);
+  material.metalness = 1;
+  material.roughness = 1;
+  material.needsUpdate = true;
+}
+
+function eachMeshyMaterial(object, callback) {
+  object.traverse((node) => {
+    if (!node.isMesh || !node.material) return;
+    const materials = Array.isArray(node.material) ? node.material : [node.material];
+    for (const material of materials) callback(material);
+  });
+}
+
+async function applyMeshyPbrTextures(object) {
+  const textures = await loadMeshyPbrTextures();
+  eachMeshyMaterial(object, (material) => applyMeshyPbrToMaterial(material, textures));
+  for (const entry of fpvBodyMasks) {
+    const materials = Array.isArray(entry.mask.material) ? entry.mask.material : [entry.mask.material];
+    for (const material of materials) applyMeshyPbrToMaterial(material, textures);
+  }
 }
 
 async function loadReadyPosePreset() {
@@ -1923,6 +1979,7 @@ function snapCamera(view) {
 async function boot() {
   const [meshy, sabre] = await Promise.all([loadGlb(ASSETS.meshy), loadGlb(ASSETS.sabre), loadReadyPosePreset()]);
   meshyRoot = normalizeCharacter(meshy);
+  await applyMeshyPbrTextures(meshyRoot);
   sabreRoot = prepareSabre(sabre);
   root.add(meshyRoot, sabreRoot);
   attachSaberToRightHand();
