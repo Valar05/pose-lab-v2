@@ -129,7 +129,7 @@ assert(main.includes("forwardAxis: '-z'") && main.includes('headForwardOffset: 0
 assert(main.includes('fov: 102') && main.includes('near: 0.035'), 'FPV camera must use solver framing/placement instead of high near-plane torso clipping');
 assert(main.includes('function calculateFirstPersonCameraState') && main.includes('function applyFirstPersonCameraState') && main.includes('function updateFpvSpaceInspector'), 'FPV production and inspector cameras must share one camera-state calculation');
 assert(main.includes('chestInBottomTenPercentBand') && main.includes('chestTopNdc <= -0.8') && main.includes('chestHeight <= 0.1'), 'FPV inspector must encode the bottom-10-percent chest allowance rule');
-assert(main.includes('renderer.setScissorTest(true)') && main.includes('fpvObserverCamera') && main.includes('fpvPreviewCamera'), 'FPV inspector must render observer space and live FPV side by side');
+assert(main.includes('renderer.setScissorTest(true)') && main.includes('insetWidth') && main.includes('fpvObserverCamera') && main.includes('fpvPreviewCamera'), 'FPV inspector must render live FPV full-frame with observer space as an inset');
 assert(!main.includes('hideBones') && !main.includes('hideScale') && !main.includes('bodyMeshesHidden: true'), 'FPV chest fix must not hide body meshes or bones');
 assert(!main.includes('firstPersonCameraConfig.hide') && !main.includes('setFirstPersonHeadMask'), 'FPV chest fix must not solve framing through FPV-specific mesh visibility masks');
 assert(main.includes('fpvCamera') && main.includes('bodyMeshesHidden: false'), 'debug proof must report FPV camera placement and that body meshes are not hidden');
@@ -139,7 +139,7 @@ assert(css.includes('body.is-fpv .primary-rail button:not([data-cycle-view-mode]
 assert(!css.includes('body.is-fpv .primary-rail button:not([data-view-mode])'), 'FPV mode must not target hidden compatibility view buttons as the only visible escape');
 assert(css.includes('.viewport') && css.includes('.control-dock') && css.includes('max-height: 42vh'), 'mobile layout must keep the 3D viewport visible while dock panels scroll below it');
 assert(css.includes('.control-dock[hidden]') && css.includes('.hidden-actions'), 'closed dock and compatibility action buttons must be visually hidden by default');
-assert(css.includes('.fpv-space-guide') && css.includes('.fpv-bottom-band') && css.includes('height: 10%'), 'FPV spatial inspector must show the right-half bottom 10% chest allowance band');
+assert(css.includes('.fpv-space-guide') && css.includes('.fpv-bottom-band') && css.includes('height: 10%'), 'FPV spatial inspector must show the full-frame bottom 10% chest allowance band');
 const fpvSolver = read('tools/solve_fpv_camera.mjs');
 assert(fpvSolver.includes('meshy_apose_walking_with_skin.glb') && fpvSolver.includes('meshy_real_sabre.glb') && fpvSolver.includes('READY_POSE_PRESET'), 'FPV solver must use actual GLBs and baked Ready pose');
 assert(fpvSolver.includes('chestCentral') && fpvSolver.includes('handsInside') && fpvSolver.includes('sabreInside'), 'FPV solver must measure hands/sabre in-frame and chest center exclusion');

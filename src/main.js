@@ -1068,7 +1068,7 @@ function updateFpvSpaceInspector() {
   const state = calculateFirstPersonCameraState();
   if (!state) return;
   applyFirstPersonCameraState(fpvPreviewCamera, state);
-  fpvPreviewCamera.aspect = Math.max(0.1, (canvas.clientWidth * 0.5) / Math.max(1, canvas.clientHeight));
+  fpvPreviewCamera.aspect = Math.max(0.1, canvas.clientWidth / Math.max(1, canvas.clientHeight));
   fpvPreviewCamera.updateProjectionMatrix();
   const rightHand = poseBones.get('RightHand');
   const leftHand = poseBones.get('LeftHand');
@@ -1080,8 +1080,6 @@ function updateFpvSpaceInspector() {
   fpvSpaceState.chestBox.box.copy(chestBox);
   updateFpvInspectorLines(state);
   fpvSpaceState.cameraHelper.update();
-  fpvObserverCamera.aspect = Math.max(0.1, (canvas.clientWidth * 0.5) / Math.max(1, canvas.clientHeight));
-  fpvObserverCamera.updateProjectionMatrix();
   const report = fpvPointReport(fpvPreviewCamera, chestBox);
   fpvSpaceState.report = {
     cameraWorldPosition: vectorToFixedArray(state.position),
@@ -1200,23 +1198,30 @@ function renderScene() {
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
   const pixelRatio = renderer.getPixelRatio();
-  const leftWidth = Math.floor(width * 0.5);
-  const rightWidth = Math.max(1, width - leftWidth);
+  const insetWidth = Math.max(160, Math.min(width * 0.42, 420));
+  const insetHeight = Math.max(120, Math.min(height * 0.46, 300));
+  const insetX = 12;
+  const insetTop = 56;
+  const insetY = Math.max(0, height - insetHeight - insetTop);
   const bufferHeight = Math.floor(height * pixelRatio);
-  const leftBufferWidth = Math.floor(leftWidth * pixelRatio);
-  const rightBufferWidth = Math.floor(rightWidth * pixelRatio);
+  const bufferWidth = Math.floor(width * pixelRatio);
+  const insetBufferX = Math.floor(insetX * pixelRatio);
+  const insetBufferY = Math.floor(insetY * pixelRatio);
+  const insetBufferWidth = Math.floor(insetWidth * pixelRatio);
+  const insetBufferHeight = Math.floor(insetHeight * pixelRatio);
   renderer.setScissorTest(true);
-  fpvSpaceState.helperGroup.visible = true;
-  renderer.setViewport(0, 0, leftBufferWidth, bufferHeight);
-  renderer.setScissor(0, 0, leftBufferWidth, bufferHeight);
-  renderer.render(scene, fpvObserverCamera);
   fpvSpaceState.helperGroup.visible = false;
-  renderer.setViewport(leftBufferWidth, 0, rightBufferWidth, bufferHeight);
-  renderer.setScissor(leftBufferWidth, 0, rightBufferWidth, bufferHeight);
+  renderer.setViewport(0, 0, bufferWidth, bufferHeight);
+  renderer.setScissor(0, 0, bufferWidth, bufferHeight);
   renderer.render(scene, fpvPreviewCamera);
+  fpvObserverCamera.aspect = Math.max(0.1, insetWidth / Math.max(1, insetHeight));
+  fpvObserverCamera.updateProjectionMatrix();
   fpvSpaceState.helperGroup.visible = true;
+  renderer.setViewport(insetBufferX, insetBufferY, insetBufferWidth, insetBufferHeight);
+  renderer.setScissor(insetBufferX, insetBufferY, insetBufferWidth, insetBufferHeight);
+  renderer.render(scene, fpvObserverCamera);
   renderer.setScissorTest(false);
-  renderer.setViewport(0, 0, Math.floor(width * pixelRatio), bufferHeight);
+  renderer.setViewport(0, 0, bufferWidth, bufferHeight);
 }
 
 function pickSabre(clientX, clientY) {

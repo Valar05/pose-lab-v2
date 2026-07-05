@@ -45,11 +45,12 @@ canvas {
 
 .fpv-space-guide::before {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: rgba(255, 255, 255, 0.34);
+  top: 56px;
+  left: 12px;
+  width: min(42vw, 420px);
+  height: min(46vh, 300px);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: rgba(3, 7, 10, 0.16);
   content: "";
 }
 
@@ -74,14 +75,14 @@ canvas {
 }
 
 .fpv-space-label-live {
-  left: calc(50% + 12px);
+  right: 12px;
 }
 
 .fpv-bottom-band {
   position: absolute;
   right: 0;
+  left: 0;
   bottom: 0;
-  width: 50%;
   height: 10%;
   border-top: 1px solid rgba(240, 195, 90, 0.82);
   background: rgba(240, 195, 90, 0.12);
