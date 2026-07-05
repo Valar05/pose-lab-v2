@@ -72,6 +72,18 @@ These checks can explain why a page failed. They cannot prove that the Meshy
 character, hands, camera, pose, or real sabre look correct. If the screenshot or
 cloud review is human-red, the build is red.
 
+## No Rig-Space Guess Shipping
+
+When the user gives a visual correction, convert it into the review-camera
+relationship before editing and before committing. Do not ship a change because
+a local Euler sign, quaternion delta, wrist-travel total, source-motion metric,
+or smoke check changed.
+
+For Attack1, examples of required visible predicates are: anticipation sabre tip
+projects left of hilt, contact reverses into a viewer-left strike, and the sabre
+continues to read as owned by the right hand. If those predicates are not known
+or cannot be checked, do not deploy another candidate as progress.
+
 ## Boot And Render Shape
 
 The app can feel slow because boot currently waits for a useful scene to be

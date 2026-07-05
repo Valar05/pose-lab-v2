@@ -23,6 +23,27 @@ may exist only as a quarantined cloud-preview surface and must not change
   boring FK under `RightHand -> SaberGrip -> sabre mesh`.
 - Do not add runtime retargeting, IK solvers, debug bridges, generated visual QA
   frameworks, or Pose Lab gate systems to V2.
+- Do not translate visual choreography into unverified rig-space guesses. A
+  wrist twist, Euler sign, or quaternion travel total is not accepted until it
+  produces the requested screen-space relationship.
+
+## Attack1 Choreography Contract
+
+Before changing Attack1 keys, write the visible predicate for the active review
+camera and make the candidate satisfy that predicate.
+
+- Anticipation: right shoulder and right hand travel viewer-right, near the FPV
+  screen edge; the sabre tip trails viewer-left of the hilt; the tip does not
+  drop below the hilt.
+- Contact: the strike reverses anticipation and travels viewer-left; the blade
+  reads as striking left; the left arm may leave the FPV frame rather than
+  competing with the strike.
+- Follow-through and recoil inherit the contact path and settle back toward
+  Ready without breaking hand ownership.
+
+If the screenshot contradicts one of these visible predicates, the candidate is
+red even when source-motion metrics, wrist-travel totals, build checks, and
+smoke checks pass.
 
 ## Bake Workflow
 
@@ -40,9 +61,9 @@ may exist only as a quarantined cloud-preview surface and must not change
    reinterpret the attack.
 7. Cloud review is the visible acceptance surface. Numeric wrist-travel checks
    are guardrails, not proof that the attack reads correctly.
-8. Reject the candidate if the projected blade tip dips below its frame-0 sabre
-   +X axis in the review camera. Diagnose the bone-roll interpretation; do not
-   fix the failure by moving the sabre.
+8. Reject the candidate if the projected blade tip/hilt relationship does not
+   match the choreography contract. Diagnose the bone-roll or authored-key
+   interpretation; do not fix the failure by moving the sabre independently.
 9. Promote the candidate into accepted pose status only after human-visible cloud acceptance,
    using the promotion command so `src/pose-status.js` records the accepted hash
    and evidence URL.

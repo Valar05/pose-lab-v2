@@ -19,12 +19,36 @@ evidence shows the requested relationship is correct.
 1. Read the newest relevant visual evidence first.
 2. State the visible read in concrete nouns: Meshy character, hand, sabre,
    blade, camera, pose, controls.
-3. Classify every machine check as diagnostic, guardrail, unrelated, or visual
+3. Convert each visual correction into a screen-space predicate before editing.
+   If the user says "sabre trails left," the predicate is about the projected
+   blade tip and hilt in the review camera, not about a guessed local rotation
+   sign or wrist-travel metric.
+4. Classify every machine check as diagnostic, guardrail, unrelated, or visual
    acceptance.
-4. Do not wake the browser or ask the user to inspect a page until the agent has
+5. Do not wake the browser or ask the user to inspect a page until the agent has
    eliminated blank, loading, error, missing-mesh, and obvious no-op states.
-5. Do not claim green until the hosted review surface visibly shows the
+6. Do not claim green until the hosted review surface visibly shows the
    requested result.
+
+## Visual Predicate Rule
+
+Do not ship rig-space guesses for visual choreography. A visual instruction must
+be restated as the relationship a human would see in the active review camera,
+then checked against that relationship before commit or deploy.
+
+Examples:
+
+- "trail left" means the projected blade tip is left of the projected hilt.
+- "strike left" means the contact pose reverses the anticipation direction and
+  sends the blade/hand path viewer-left.
+- "held" means the hilt reads as owned by the hand, not merely parented in the
+  scene graph.
+- "out of frame" means the relevant limb or prop is not visually competing in
+  the FPV composition.
+
+Local quaternions, Euler signs, wrist-travel totals, route labels, and source
+clip statistics are diagnostics. They cannot substitute for the visible
+predicate that came from the user's correction.
 
 ## Local Render
 

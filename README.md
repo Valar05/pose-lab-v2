@@ -56,6 +56,13 @@ follow-through, recoil, and end. Candidate 1 must keep start/end equal to Ready,
 preserve wrist/forearm travel, and pass the screen-space blade-tip guard before
 it is reviewable.
 
+For Attack1, screen-space means the review camera relationship the user can see,
+not a rig-space proxy. Anticipation must show the sabre tip trailing left of the
+hilt while the right shoulder/hand move right. Contact must reverse into a
+viewer-left strike. A wrist-travel number, source-motion statistic, or successful
+smoke run does not make a candidate visually acceptable if those relationships
+are wrong.
+
 Numbers are readout/export only. Authoring is direct visual manipulation.
 
 ## Checks
