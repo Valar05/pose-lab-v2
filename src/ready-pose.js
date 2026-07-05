@@ -8,31 +8,6 @@ export const READY_POSE_PRESET = {
     "sampleTime": 1.25,
     "projectionFrame": "ShoulderCenter->Spine02",
     "method": "orientation-first-retarget-with-pins",
-    "bladeBasis": {
-      "weaponSocket": "Weapon.R",
-      "sourceBladeAxis": [
-        0,
-        -1,
-        0
-      ],
-      "sourceRollAxis": [
-        1,
-        0,
-        0
-      ],
-      "sabreBladeAxis": [
-        1,
-        0,
-        0
-      ],
-      "sabreRollAxis": [
-        0,
-        1,
-        0
-      ],
-      "correction": "baked-RightHand-world-quaternion",
-      "beforeAngleDeg": 92.999
-    },
     "retargetedBones": [
       "RightArm",
       "RightForeArm",
@@ -62,28 +37,28 @@ export const READY_POSE_PRESET = {
       0.997975
     ],
     "LeftShoulder": [
-      0.522128,
+      0.522129,
       0.564557,
       -0.472393,
       0.430699
     ],
     "LeftArm": [
-      0.479385,
-      0.32113,
-      0.576089,
-      0.578953
+      0.100441,
+      0.437689,
+      0.552189,
+      0.702444
     ],
     "LeftForeArm": [
-      -0.582117,
-      0.084839,
-      0.177869,
-      0.788863
+      -0.517448,
+      0.281281,
+      0.327324,
+      0.73891
     ],
     "LeftHand": [
-      0.319044,
-      0.206595,
-      0.165233,
-      0.91007
+      -0.086945,
+      -0.542548,
+      0.130476,
+      0.825263
     ],
     "RightShoulder": [
       0.521987,
@@ -104,10 +79,10 @@ export const READY_POSE_PRESET = {
       0.52701
     ],
     "RightHand": [
-      0.028178,
-      -0.262328,
-      -0.955439,
-      -0.13239
+      -0.3621,
+      0.455331,
+      -0.030282,
+      0.812798
     ],
     "neck": [
       0.063633,

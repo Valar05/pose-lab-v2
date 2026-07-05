@@ -9,25 +9,15 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const workspaceRoot = path.resolve(projectRoot, '..');
 const fpsPath = path.join(workspaceRoot, 'pose-lab', 'assets', 'models', 'FPSPlayer.glb');
 const meshyPath = path.join(projectRoot, 'public', 'assets', 'meshy', 'meshy_apose_walking_with_skin.glb');
-const sabrePath = path.join(projectRoot, 'public', 'assets', 'meshy', 'meshy_real_sabre.glb');
 const restClipName = '0T-Pose';
 const readyClipName = 'OneHandReady';
 const sourceFrameName = 'ShoulderCenter';
 const targetFrameName = 'Spine02';
-const weaponSocketName = 'Weapon.R';
-const sourceBladeAxis = [0, -1, 0];
-const sourceRollAxis = [1, 0, 0];
-const sabreRollAxis = [0, 1, 0];
 
 const args = parseArgs(process.argv);
 const sourceClipName = args.clip;
 const outputPath = path.join(projectRoot, args.out);
 const readyPosePath = path.join(projectRoot, 'src', 'ready-pose.js');
-const saberGripLocal = {
-  position: [8.52296, 28.41254, -24.44467],
-  rotationDeg: [32.35, 74.24, -174.11],
-  scale: [46.62859, 46.62859, 46.62856],
-};
 
 const chains = [
   {
@@ -239,81 +229,6 @@ function mapDirectionBetweenFrames(THREE, direction, sourceFrame, targetFrame) {
   return sourceLocal.applyQuaternion(worldQuaternion(THREE, targetFrame)).normalize();
 }
 
-function localBoundsForObject(THREE, object) {
-  object.updateMatrixWorld(true);
-  const inverseRoot = object.matrixWorld.clone().invert();
-  const box = new THREE.Box3();
-  const corner = new THREE.Vector3();
-  object.traverse((node) => {
-    if (!node.isMesh || !node.geometry) return;
-    if (!node.geometry.boundingBox) node.geometry.computeBoundingBox();
-    const geometryBox = node.geometry.boundingBox;
-    for (const x of [geometryBox.min.x, geometryBox.max.x]) {
-      for (const y of [geometryBox.min.y, geometryBox.max.y]) {
-        for (const z of [geometryBox.min.z, geometryBox.max.z]) {
-          corner.set(x, y, z).applyMatrix4(node.matrixWorld).applyMatrix4(inverseRoot);
-          box.expandByPoint(corner);
-        }
-      }
-    }
-  });
-  return box;
-}
-
-function dominantLocalAxis(THREE, object) {
-  const size = localBoundsForObject(THREE, object).getSize(new THREE.Vector3());
-  if (size.x >= size.y && size.x >= size.z) return new THREE.Vector3(1, 0, 0);
-  if (size.y >= size.x && size.y >= size.z) return new THREE.Vector3(0, 1, 0);
-  return new THREE.Vector3(0, 0, 1);
-}
-
-function basisQuaternion(THREE, primary, secondary) {
-  const x = primary.clone().normalize();
-  const y = secondary.clone().sub(x.clone().multiplyScalar(secondary.dot(x)));
-  if (y.lengthSq() < 1e-8) return new THREE.Quaternion();
-  y.normalize();
-  const z = new THREE.Vector3().crossVectors(x, y).normalize();
-  return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z)).normalize();
-}
-
-function attachDiagnosticSabre(THREE, meshyRoot, sabreRoot) {
-  const rightHand = requireNode(meshyRoot, 'RightHand');
-  const grip = new THREE.Bone();
-  grip.name = 'SaberGripBake';
-  grip.position.fromArray(saberGripLocal.position);
-  grip.rotation.set(
-    THREE.MathUtils.degToRad(saberGripLocal.rotationDeg[0]),
-    THREE.MathUtils.degToRad(saberGripLocal.rotationDeg[1]),
-    THREE.MathUtils.degToRad(saberGripLocal.rotationDeg[2])
-  );
-  grip.scale.fromArray(saberGripLocal.scale);
-  rightHand.add(grip);
-  sabreRoot.position.set(0, 0, 0);
-  sabreRoot.quaternion.identity();
-  sabreRoot.scale.set(1, 1, 1);
-  grip.add(sabreRoot);
-  meshyRoot.updateMatrixWorld(true);
-  return grip;
-}
-
-function applyBladeBasisCorrection(THREE, fpsRoot, meshyRoot, sabreRoot) {
-  const sourceFrame = requireNode(fpsRoot, sourceFrameName);
-  const targetFrame = requireNode(meshyRoot, targetFrameName);
-  const weaponSocket = requireNode(fpsRoot, weaponSocketName);
-  const rightHand = requireNode(meshyRoot, 'RightHand');
-  const sabreBladeAxis = dominantLocalAxis(THREE, sabreRoot);
-  const expectedBlade = mapDirectionBetweenFrames(THREE, worldDirection(THREE, weaponSocket, sourceBladeAxis), sourceFrame, targetFrame);
-  const expectedRoll = mapDirectionBetweenFrames(THREE, worldDirection(THREE, weaponSocket, sourceRollAxis), sourceFrame, targetFrame);
-  const actualBlade = sabreBladeAxis.applyQuaternion(worldQuaternion(THREE, sabreRoot)).normalize();
-  const actualRoll = new THREE.Vector3(...sabreRollAxis).normalize().applyQuaternion(worldQuaternion(THREE, sabreRoot)).normalize();
-  const expectedBasis = basisQuaternion(THREE, expectedBlade, expectedRoll);
-  const actualBasis = basisQuaternion(THREE, actualBlade, actualRoll);
-  const correction = expectedBasis.multiply(actualBasis.invert()).normalize();
-  setWorldQuaternion(THREE, rightHand, correction.multiply(worldQuaternion(THREE, rightHand)).normalize());
-  meshyRoot.updateMatrixWorld(true);
-  return Number((actualBlade.angleTo(expectedBlade) * 180 / Math.PI).toFixed(3));
-}
-
 function mapPointBetweenFrames(THREE, sourceFrame, targetFrame, sourceWorld, scale) {
   const local = sourceWorld.clone().sub(worldPosition(THREE, sourceFrame)).applyQuaternion(worldQuaternion(THREE, sourceFrame).invert());
   return local.multiplyScalar(scale).applyQuaternion(worldQuaternion(THREE, targetFrame)).add(worldPosition(THREE, targetFrame));
@@ -465,8 +380,6 @@ function bakeCurrentFpsPoseToMeshy(THREE, fpsRoot, meshyRoot, context, retargete
     sourceFrame,
     targetFrame,
     scale,
-    sabreRoot,
-    bladeBasisAngles,
   } = context;
   applyLocalQuaternions(meshyRoot, targetRestLocal);
   meshyRoot.updateMatrixWorld(true);
@@ -490,7 +403,6 @@ function bakeCurrentFpsPoseToMeshy(THREE, fpsRoot, meshyRoot, context, retargete
     applyTwoBonePin(THREE, meshyRoot, upper, lower, hand, projected.get(chain.source[2]));
     rotateHandRoll(THREE, meshyRoot, fpsRoot, meshyRoot, chain);
   }
-  bladeBasisAngles?.push(applyBladeBasisCorrection(THREE, fpsRoot, meshyRoot, sabreRoot));
   return posePayload(meshyRoot);
 }
 
@@ -548,11 +460,9 @@ async function main() {
   const loadGlb = (file) => new Promise((resolve, reject) => {
     new GLTFLoader().parse(arrayBuffer(file), path.dirname(file) + '/', resolve, reject);
   });
-  const [fps, meshy, sabre] = await Promise.all([loadGlb(fpsPath), loadGlb(meshyPath), loadGlb(sabrePath)]);
+  const [fps, meshy] = await Promise.all([loadGlb(fpsPath), loadGlb(meshyPath)]);
   const fpsRoot = fps.scene;
   const meshyRoot = meshy.scene;
-  const sabreRoot = sabre.scene;
-  attachDiagnosticSabre(THREE, meshyRoot, sabreRoot);
   const sourceClip = fps.animations.find((clip) => clip.name === sourceClipName);
   const readyClip = fps.animations.find((clip) => clip.name === readyClipName);
   const restClip = fps.animations.find((clip) => clip.name === restClipName);
@@ -571,7 +481,6 @@ async function main() {
   ), 0) / chains.length;
   const sourceFrame = requireNode(fpsRoot, sourceFrameName);
   const targetFrame = requireNode(meshyRoot, targetFrameName);
-  const bladeBasisAngles = [];
   const bakeContext = {
     targetRestLocal,
     sourceRestWorld,
@@ -579,8 +488,6 @@ async function main() {
     sourceFrame,
     targetFrame,
     scale,
-    sabreRoot,
-    bladeBasisAngles,
   };
   applyClipPose(THREE, fpsRoot, readyClip, readyClip.duration);
   const rawReadyBones = bakeCurrentFpsPoseToMeshy(THREE, fpsRoot, meshyRoot, bakeContext);
@@ -607,16 +514,6 @@ async function main() {
       keyCount: times.length,
       projectionFrame: `${sourceFrameName}->${targetFrameName}`,
       method: 'orientation-first-bake-with-ready-graph-offsets',
-      bladeBasis: {
-        weaponSocket: weaponSocketName,
-        sourceBladeAxis,
-        sourceRollAxis,
-        sabreBladeAxis: dominantLocalAxis(THREE, sabreRoot).toArray(),
-        sabreRollAxis,
-        correction: 'baked-RightHand-world-quaternion',
-        beforeMaxAngleDeg: Math.max(...bladeBasisAngles),
-        beforeMeanAngleDeg: Number((bladeBasisAngles.reduce((sum, value) => sum + value, 0) / bladeBasisAngles.length).toFixed(3)),
-      },
       readyGraphOffset,
       readyEndpointContract,
       retargetedBones: [...retargetedBones],

@@ -89,7 +89,6 @@ assert(readyPose.includes("clip\": \"OneHandReady") && readyPose.includes("sampl
 assert(readyPose.includes('"RightHand"') && readyPose.includes('"LeftHand"') && readyPose.includes('"RightForeArm"'), 'Ready pose preset must include upper-body hand and forearm bones');
 assert(readyPose.includes('"method": "orientation-first-retarget-with-pins"'), 'Ready pose preset must use source-orientation retargeting guided by pins');
 assert(readyPose.includes('"retargetedBones"') && readyPose.includes('"RightArm"') && readyPose.includes('"RightForeArm"') && readyPose.includes('"RightHand"'), 'Ready preset must record orientation-retargeted arm/forearm/hand bones');
-assert(readyPose.includes('"bladeBasis"') && readyPose.includes('"weaponSocket": "Weapon.R"') && readyPose.includes('"correction": "baked-RightHand-world-quaternion"'), 'Ready bake must record import-time blade-basis correction');
 assert(attackSequence.schema === 'pose-lab-v2-pose-sequence-v1', 'Attack1 sequence must use the v2 pose-sequence schema');
 assert(attackSequence.source?.clip === 'OneHandAttack1', 'Attack1 sequence must be baked from FPS OneHandAttack1');
 assert(attackSequence.source?.duration === 1.25, 'Attack1 sequence must preserve the FPS OneHandAttack1 duration');
@@ -97,7 +96,6 @@ assert(attackSequence.source?.keyCount === 31 && attackSequence.frames?.length =
 assert(attackSequence.source?.signatureWristTwist?.sourceHandRotationTravelDeg > 100, 'Attack1 source must record a strong wrist-twist signature');
 assert(attackSequence.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > 100, 'Attack1 bake must preserve a strong right-hand wrist-twist signature');
 assert(attackSequence.source?.method === 'orientation-first-bake-with-ready-graph-offsets', 'Attack1 must apply accepted Ready offsets across the whole animation graph');
-assert(attackSequence.source?.bladeBasis?.weaponSocket === 'Weapon.R' && attackSequence.source?.bladeBasis?.correction === 'baked-RightHand-world-quaternion', 'Attack1 bake must record import-time blade-basis correction');
 assert(attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('RightHand') && attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('LeftHand'), 'Attack1 graph offset must include both hands');
 assert(attackSequence.source?.readyEndpointContract?.firstMatchesReady === true && attackSequence.source?.readyEndpointContract?.lastMatchesReady === true, 'Attack1 first and last frames must match the accepted Ready pose');
 for (const boneName of ['LeftArm', 'LeftForeArm', 'LeftHand', 'RightArm', 'RightForeArm', 'RightHand']) {
