@@ -308,14 +308,20 @@ async function main() {
     summary: {
       sampleCount: samples.length,
       readyBestAngleDeg,
-      readyBladeTransformPass: null,
-      readyBladeTransformDiagnosis: 'absolute Ready Weapon.R parity is diagnostic only; checking Ready-relative wrist interpretation',
-      relativeBladeMotionPass: (sortedByError[0]?.angleDeg || 0) <= 12,
-      relativeBladeMotionDiagnosis: (sortedByError[0]?.angleDeg || 0) > 12
-        ? 'RIGHT_WRIST_INTERPRETATION_MISMATCH'
-        : 'ready-relative wrist interpretation within diagnostic tolerance',
-      maxAngleDeg: sortedByError[0]?.angleDeg,
-      meanAngleDeg: Number((samples.reduce((sum, sample) => sum + sample.angleDeg, 0) / samples.length).toFixed(3)),
+      deprecatedWeaponDirectionCheck: {
+        pass: (sortedByError[0]?.angleDeg || 0) <= 12,
+        maxAngleDeg: sortedByError[0]?.angleDeg,
+        meanAngleDeg: Number((samples.reduce((sum, sample) => sum + sample.angleDeg, 0) / samples.length).toFixed(3)),
+        diagnosis: 'deprecated: this check compared Attack1 to the old single-bone Weapon.R direction override and could be false-green while the screenshot was human-red',
+      },
+      holisticImportPass: ATTACK1_POSE_SEQUENCE.source?.readyAnchoredWeaponWristInterpretation?.skipped === true
+        && ATTACK1_POSE_SEQUENCE.source?.readyEndpointContract?.firstMatchesReady === true
+        && ATTACK1_POSE_SEQUENCE.source?.readyEndpointContract?.lastMatchesReady === true
+        && (ATTACK1_POSE_SEQUENCE.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg || 0) > 120
+        && (ATTACK1_POSE_SEQUENCE.source?.signatureWristTwist?.bakedRightForeArmRotationTravelDeg || 0) > 120,
+      holisticImportDiagnosis: 'Attack1 must be judged by whole-arm baked wrist/forearm motion and cloud visual read, not by matching the deprecated Weapon.R direction override',
+      method: ATTACK1_POSE_SEQUENCE.source?.method || null,
+      signatureWristTwist: ATTACK1_POSE_SEQUENCE.source?.signatureWristTwist || null,
       firstAngleDeg: samples[0]?.angleDeg,
       lastAngleDeg: samples[samples.length - 1]?.angleDeg,
       worstSamples: sortedByError.slice(0, 6),
@@ -323,7 +329,7 @@ async function main() {
     samples,
   };
   console.log(JSON.stringify(report, null, 2));
-  if ((report.summary.maxAngleDeg || 0) > 12) process.exitCode = 2;
+  if (!report.summary.holisticImportPass) process.exitCode = 2;
 }
 
 main().catch((error) => {

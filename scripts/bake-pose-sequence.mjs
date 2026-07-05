@@ -396,6 +396,7 @@ function bakeCurrentFpsPoseToMeshy(THREE, fpsRoot, meshyRoot, context, retargete
   for (const name of applyOrientationBake(THREE, fpsRoot, meshyRoot, sourceRestWorld, targetRestWorld)) {
     retargetedBones?.add(name);
   }
+  for (const chain of chains) rotateHandRoll(THREE, meshyRoot, fpsRoot, meshyRoot, chain);
   return posePayload(meshyRoot);
 }
 
@@ -577,7 +578,13 @@ async function main() {
     });
   }
   const readyGraphOffset = applyReadyGraphOffsets(THREE, frames, readyBaseline, rawReadyBones);
-  const readyAnchoredWeaponWristInterpretation = applyReadyAnchoredWeaponWristInterpretation(THREE, frames, fpsRoot, meshyRoot, sourceClip, readyClip, readyBaseline);
+  const readyAnchoredWeaponWristInterpretation = {
+    sourceReference: weaponSocketName,
+    targetBone: 'RightHand',
+    baseline: readyClipName,
+    skipped: true,
+    reason: 'disabled because single-bone Weapon.R direction correction produced a false-green diagonal slash; whole-arm ready-offset plus per-frame source hand-roll alignment owns Attack1',
+  };
   const readyEndpointContract = enforceReadyEndpointContract(THREE, frames, readyBaseline);
 
   const payload = {
@@ -590,7 +597,7 @@ async function main() {
       duration: Number(sourceClip.duration.toFixed(6)),
       keyCount: times.length,
       projectionFrame: `${sourceFrameName}->${targetFrameName}`,
-      method: 'orientation-key-bake-with-ready-anchored-weapon-wrist-interpretation',
+      method: 'orientation-key-bake-with-ready-graph-offsets-and-hand-roll-no-weapon-direction-override',
       readyGraphOffset,
       readyAnchoredWeaponWristInterpretation,
       readyEndpointContract,
