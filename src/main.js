@@ -315,6 +315,8 @@ const textureLoader = new THREE.TextureLoader();
 const root = new THREE.Group();
 scene.add(root);
 let firstFrameRendered = false;
+let meshyPbrTextures = null;
+let fpvBodyMasksReady = false;
 
 function setBootPhase(message) {
   document.body.dataset.bootState = message;
@@ -479,6 +481,44 @@ function updateFpvBodyMasks() {
   }
 }
 
+function applyMeshyPbrToMaterial(material, textures) {
+  if (!material || !textures) return;
+  material.map = textures.map;
+  material.emissiveMap = textures.emissiveMap;
+  material.metalnessMap = textures.metallicRoughnessMap;
+  material.normalMap = textures.normalMap;
+  material.roughnessMap = textures.metallicRoughnessMap;
+  if (material.emissive?.set) material.emissive.set(0xffffff);
+  material.metalness = 1;
+  material.roughness = 1;
+  material.needsUpdate = true;
+}
+
+function applyMeshyPbrToFpvMasks() {
+  if (!meshyPbrTextures) return;
+  for (const entry of fpvBodyMasks) {
+    const materials = Array.isArray(entry.mask.material) ? entry.mask.material : [entry.mask.material];
+    for (const material of materials) applyMeshyPbrToMaterial(material, meshyPbrTextures);
+  }
+}
+
+function ensureFpvBodyMasks() {
+  if (fpvBodyMasksReady || !meshyRoot) return;
+  fpvBodyMasksReady = true;
+  const armMasks = [];
+  meshyRoot.traverse((node) => {
+    if (!node.isSkinnedMesh) return;
+    const mask = createFpvArmMask(node);
+    if (mask) armMasks.push({ source: node, mask });
+  });
+  for (const entry of armMasks) {
+    entry.source.parent?.add(entry.mask);
+    fpvBodyMasks.push(entry);
+  }
+  applyMeshyPbrToFpvMasks();
+  updateFpvBodyMasks();
+}
+
 function normalizeCharacter(object) {
   const box = new THREE.Box3().setFromObject(object);
   const center = box.getCenter(new THREE.Vector3());
@@ -487,22 +527,13 @@ function normalizeCharacter(object) {
   object.position.y += size.y * 0.5;
   const height = Math.max(0.001, size.y);
   object.scale.multiplyScalar(1.75 / height);
-  const armMasks = [];
   object.traverse((node) => {
     if (node.isMesh) {
       node.frustumCulled = false;
       node.castShadow = false;
       node.receiveShadow = true;
     }
-    if (node.isSkinnedMesh) {
-      const mask = createFpvArmMask(node);
-      if (mask) armMasks.push({ source: node, mask });
-    }
   });
-  for (const entry of armMasks) {
-    entry.source.parent?.add(entry.mask);
-    fpvBodyMasks.push(entry);
-  }
   return object;
 }
 
@@ -965,8 +996,8 @@ async function loadGlb(url) {
   });
 }
 
-async function loadTexture(url, colorSpace = null) {
-  setBootPhase(`loading ${url.split('/').pop()}`);
+async function loadTexture(url, colorSpace = null, announce = true) {
+  if (announce) setBootPhase(`loading ${url.split('/').pop()}`);
   return new Promise((resolve, reject) => {
     textureLoader.load(url, (texture) => {
       texture.flipY = false;
@@ -976,26 +1007,13 @@ async function loadTexture(url, colorSpace = null) {
   });
 }
 
-async function loadMeshyPbrTextures() {
-  setBootPhase('loading Meshy PBR textures');
+async function loadMeshyPbrTextures({ announce = true } = {}) {
+  if (announce) setBootPhase('loading Meshy PBR textures');
   const entries = await Promise.all(Object.entries(MESHY_PBR_TEXTURES).map(async ([slot, url]) => {
     const colorSpace = slot === 'map' || slot === 'emissiveMap' ? THREE.SRGBColorSpace : null;
-    return [slot, await loadTexture(url, colorSpace)];
+    return [slot, await loadTexture(url, colorSpace, announce)];
   }));
   return Object.fromEntries(entries);
-}
-
-function applyMeshyPbrToMaterial(material, textures) {
-  if (!material || !textures) return;
-  material.map = textures.map;
-  material.emissiveMap = textures.emissiveMap;
-  material.metalnessMap = textures.metallicRoughnessMap;
-  material.normalMap = textures.normalMap;
-  material.roughnessMap = textures.metallicRoughnessMap;
-  if (material.emissive?.set) material.emissive.set(0xffffff);
-  material.metalness = 1;
-  material.roughness = 1;
-  material.needsUpdate = true;
 }
 
 function eachMeshyMaterial(object, callback) {
@@ -1006,13 +1024,10 @@ function eachMeshyMaterial(object, callback) {
   });
 }
 
-async function applyMeshyPbrTextures(object) {
-  const textures = await loadMeshyPbrTextures();
-  eachMeshyMaterial(object, (material) => applyMeshyPbrToMaterial(material, textures));
-  for (const entry of fpvBodyMasks) {
-    const materials = Array.isArray(entry.mask.material) ? entry.mask.material : [entry.mask.material];
-    for (const material of materials) applyMeshyPbrToMaterial(material, textures);
-  }
+async function applyMeshyPbrTextures(object, options = {}) {
+  meshyPbrTextures = await loadMeshyPbrTextures(options);
+  eachMeshyMaterial(object, (material) => applyMeshyPbrToMaterial(material, meshyPbrTextures));
+  applyMeshyPbrToFpvMasks();
 }
 
 async function loadPosePresets() {
@@ -1277,6 +1292,7 @@ function setViewMode(next) {
     viewMode = 'firstPerson';
     controls.enabled = false;
     document.body.classList.add('is-fpv');
+    ensureFpvBodyMasks();
     updateFpvBodyMasks();
     setDockOpen(false);
     updateFirstPersonCamera();
@@ -2114,7 +2130,6 @@ async function boot() {
   const [meshy, sabre] = await Promise.all([loadGlb(ASSETS.meshy), loadGlb(ASSETS.sabre), loadPosePresets()]);
   setBootPhase('preparing Meshy character');
   meshyRoot = normalizeCharacter(meshy);
-  await applyMeshyPbrTextures(meshyRoot);
   setBootPhase('attaching real sabre');
   sabreRoot = prepareSabre(sabre);
   root.add(meshyRoot, sabreRoot);
@@ -2125,6 +2140,14 @@ async function boot() {
   setViewMode(initialViewModeFromUrl());
   if (poseState === 'rest') statusEl.textContent = 'ready: tap the real sabre, then drag';
   markBootReady();
+  applyMeshyPbrTextures(meshyRoot, { announce: false })
+    .then(() => {
+      document.body.dataset.pbrReady = '1';
+    })
+    .catch((error) => {
+      document.body.dataset.pbrFailed = error?.message || String(error || 'unknown PBR error');
+      console.warn('Meshy PBR texture load failed after boot', error);
+    });
 }
 
 toolButtons.forEach((button) => {
