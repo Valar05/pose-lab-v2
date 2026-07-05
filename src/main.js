@@ -328,6 +328,11 @@ function setPoseState(next) {
   updateReadout();
 }
 
+function initialPoseStateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('pose') === 'ready' ? 'ready' : 'rest';
+}
+
 async function loadGlb(url) {
   return new Promise((resolve, reject) => {
     loader.load(url, (gltf) => resolve(gltf.scene), undefined, reject);
@@ -1045,9 +1050,8 @@ async function boot() {
   attachSaberToRightHand();
   setupPoseHandles();
   setMode('move');
-  renderControls();
-  updateReadout();
-  statusEl.textContent = 'ready: tap the real sabre, then drag';
+  setPoseState(initialPoseStateFromUrl());
+  if (poseState === 'rest') statusEl.textContent = 'ready: tap the real sabre, then drag';
 }
 
 toolButtons.forEach((button) => {

@@ -46,6 +46,7 @@ assert(main.includes("meshy_apose_walking_with_skin.glb"), 'app must reference M
 assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB');
 assert(main.includes("import { READY_POSE_PRESET } from './ready-pose.js'"), 'app must import the baked Ready pose preset');
 assert(main.includes('data-pose-state="rest"') && main.includes('data-pose-state="ready"'), 'app must expose Rest and Ready pose states');
+assert(main.includes('function initialPoseStateFromUrl') && main.includes("params.get('pose') === 'ready'"), 'cloud review URL must be able to boot directly into Ready pose');
 assert(main.includes("let poseState = 'rest'") && main.includes('function applyReadyPose') && main.includes("poseState = 'ready'"), 'runtime must switch to baked Ready without animation retargeting');
 assert(main.includes('const READY_RIGHT_WRIST_ROLL_DEG = -120') && main.includes('function rollReadyRightWrist'), 'Ready state must add the requested -120 degree right wrist roll');
 assert(main.includes("right wrist roll -120, sabre follows RightHand FK"), 'Ready state must report baked pose, wrist roll, and FK saber ownership');
