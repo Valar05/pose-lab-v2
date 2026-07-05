@@ -58,8 +58,8 @@ export const ATTACK1_POSE_SEQUENCE = {
         ],
         "RightHand": [
           0,
-          120,
-          -120
+          0,
+          0
         ]
       },
       "envelope": "smooth wind-up across start->anticipation->contact->followThrough keys"
@@ -87,7 +87,7 @@ export const ATTACK1_POSE_SEQUENCE = {
       "sourceHandRotationTravelDeg": 212.156,
       "sourceForearmRotationTravelDeg": 233.155,
       "sourceWeaponSocketRotationTravelDeg": 91.424,
-      "bakedRightHandRotationTravelDeg": 495.136,
+      "bakedRightHandRotationTravelDeg": 250.229,
       "bakedRightForeArmRotationTravelDeg": 246.25
     }
   },
@@ -139,29 +139,29 @@ export const ATTACK1_POSE_SEQUENCE = {
           "time": 0.25,
           "primeRegion": "anticipation",
           "tipScreen": [
-            230.106,
-            306.073
+            226.285,
+            277.862
           ],
           "hiltScreen": [
-            244.701,
-            325.944
+            81.511,
+            312.117
           ],
-          "initialAxisYAtTipX": 718.456,
-          "signedDipPx": -412.383
+          "initialAxisYAtTipX": 702.346,
+          "signedDipPx": -424.484
         },
         "contact": {
           "time": 0.458333,
           "primeRegion": "contact",
           "tipScreen": [
-            260.251,
-            347.3
+            283.221,
+            336.416
           ],
           "hiltScreen": [
-            294.234,
-            379.022
+            142.523,
+            387.425
           ],
-          "initialAxisYAtTipX": 845.56,
-          "signedDipPx": -498.26
+          "initialAxisYAtTipX": 942.405,
+          "signedDipPx": -605.989
         },
         "followThrough": {
           "time": 0.75,
@@ -209,13 +209,13 @@ export const ATTACK1_POSE_SEQUENCE = {
     },
     "anticipationReadGuard": {
       "status": "PASS",
-      "rule": "at anticipation the right-hand hilt must move screen-right and the sabre tip must trail screen-left of the hilt",
+      "rule": "at anticipation the right-hand hilt must move to character-right in front/orbit view while the sabre blade trails back across the body",
       "thresholds": {
-        "hiltMovesRightPx": 40,
-        "tipTrailsLeftPx": 8
+        "hiltMovesCharacterRightPx": 35,
+        "bladeTrailsAcrossBodyPx": 60
       },
-      "hiltMovesRightPx": 120.763,
-      "tipTrailsLeftPx": 14.595,
+      "hiltMovesCharacterRightPx": 42.427,
+      "bladeTrailsAcrossBodyPx": 144.774,
       "start": {
         "time": 0,
         "primeRegion": "start",
@@ -234,15 +234,15 @@ export const ATTACK1_POSE_SEQUENCE = {
         "time": 0.25,
         "primeRegion": "anticipation",
         "tipScreen": [
-          230.106,
-          306.073
+          226.285,
+          277.862
         ],
         "hiltScreen": [
-          244.701,
-          325.944
+          81.511,
+          312.117
         ],
-        "initialAxisYAtTipX": 718.456,
-        "signedDipPx": -412.383
+        "initialAxisYAtTipX": 702.346,
+        "signedDipPx": -424.484
       },
       "failures": []
     },
@@ -444,10 +444,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.475092
         ],
         "RightHand": [
-          -0.670422,
-          0.508972,
-          0.18752,
-          0.506278
+          -0.500968,
+          0.544391,
+          0.211777,
+          0.638608
         ],
         "neck": [
           0.063633,
@@ -527,10 +527,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.484621
         ],
         "RightHand": [
-          -0.802312,
-          0.423307,
-          0.188099,
-          0.376465
+          -0.485758,
+          0.526087,
+          0.254998,
+          0.649805
         ],
         "neck": [
           0.063633,
@@ -610,10 +610,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.535764
         ],
         "RightHand": [
-          -0.913908,
-          0.302852,
-          0.175292,
-          0.205734
+          -0.493974,
+          0.516515,
+          0.301551,
+          0.631085
         ],
         "neck": [
           0.063633,
@@ -693,10 +693,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.632855
         ],
         "RightHand": [
-          -0.979027,
-          0.138944,
-          0.148998,
-          0.00005
+          -0.525558,
+          0.514613,
+          0.349336,
+          0.580454
         ],
         "neck": [
           0.063633,
@@ -776,10 +776,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.726517
         ],
         "RightHand": [
-          -0.959041,
-          -0.069994,
-          0.133926,
-          -0.239594
+          -0.576166,
+          0.537877,
+          0.395729,
+          0.471297
         ],
         "neck": [
           0.063633,
@@ -859,10 +859,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.851777
         ],
         "RightHand": [
-          -0.789073,
-          -0.325269,
-          0.172498,
-          -0.49174
+          -0.632225,
+          0.602665,
+          0.415825,
+          0.25333
         ],
         "neck": [
           0.063633,
@@ -942,10 +942,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.779613
         ],
         "RightHand": [
-          0.681477,
-          0.247146,
-          -0.283638,
-          0.62774
+          0.659734,
+          -0.687273,
+          -0.29347,
+          -0.079254
         ],
         "neck": [
           0.063633,
@@ -1025,10 +1025,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.778191
         ],
         "RightHand": [
-          0.711006,
-          0.192452,
-          -0.296375,
-          0.607942
+          0.660136,
+          -0.68741,
+          -0.292082,
+          -0.079852
         ],
         "neck": [
           0.063633,
@@ -1108,10 +1108,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.776633
         ],
         "RightHand": [
-          0.737498,
-          0.137021,
-          -0.307721,
-          0.585346
+          0.660515,
+          -0.687537,
+          -0.290768,
+          -0.080419
         ],
         "neck": [
           0.063633,
@@ -1191,10 +1191,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.774939
         ],
         "RightHand": [
-          0.760756,
-          0.081807,
-          -0.31829,
-          0.559686
+          0.66061,
+          -0.687569,
+          -0.290438,
+          -0.080561
         ],
         "neck": [
           0.063633,
@@ -1274,10 +1274,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.77311
         ],
         "RightHand": [
-          0.780587,
-          0.027286,
-          -0.328481,
-          0.531074
+          0.66031,
+          -0.687469,
+          -0.291478,
+          -0.080112
         ],
         "neck": [
           0.063633,
@@ -1357,10 +1357,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.768634
         ],
         "RightHand": [
-          0.820533,
-          -0.140063,
-          -0.360666,
-          0.420747
+          0.619599,
+          -0.718195,
+          -0.291439,
+          -0.123925
         ],
         "neck": [
           0.063633,
@@ -1440,10 +1440,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           -0.743467
         ],
         "RightHand": [
-          0.809927,
-          -0.395019,
-          -0.3737,
-          0.219833
+          0.503673,
+          -0.787226,
+          -0.257033,
+          -0.246016
         ],
         "neck": [
           0.063633,
@@ -1523,10 +1523,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.694797
         ],
         "RightHand": [
-          0.739639,
-          -0.600079,
-          -0.304686,
-          0.002214
+          0.409036,
+          -0.810801,
+          -0.185062,
+          -0.375557
         ],
         "neck": [
           0.063633,
@@ -1606,10 +1606,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.646151
         ],
         "RightHand": [
-          0.662099,
-          -0.690817,
-          -0.18919,
-          -0.220462
+          0.371556,
+          -0.771183,
+          -0.114737,
+          -0.504043
         ],
         "neck": [
           0.063633,
@@ -1689,10 +1689,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.595387
         ],
         "RightHand": [
-          -0.571997,
-          0.674744,
-          0.065364,
-          0.461808
+          -0.357383,
+          0.675853,
+          0.045961,
+          0.642952
         ],
         "neck": [
           0.063633,
@@ -1772,10 +1772,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.555309
         ],
         "RightHand": [
-          -0.470109,
-          0.580855,
-          -0.010183,
-          0.664456
+          -0.357059,
+          0.561727,
+          -0.001993,
+          0.746302
         ],
         "neck": [
           0.063633,

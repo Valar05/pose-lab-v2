@@ -72,12 +72,12 @@ const anticipationGraphShape = {
   startTime: primeKeys.start,
   releaseTime: primeKeys.contact,
   endTime: primeKeys.followThrough,
-  // Authored graph-wide wind-up: hand travels to screen-right while the wrist
-  // rolls the blade back toward screen-left before contact.
+  // Authored graph-wide wind-up: the right hand travels to the character's
+  // right side in the front/orbit view while the blade trails back across the body.
   boneLocalEulerDeg: {
     RightArm: [-18, -36, 46],
     RightForeArm: [10, -18, 24],
-    RightHand: [0, 120, -120],
+    RightHand: [0, 0, 0],
   },
 };
 
@@ -557,20 +557,20 @@ function evaluateBladeGuard(THREE, camera, meshyRoot, frames, acceptedReadyBones
 function evaluateAnticipationReadGuard(bladeGuard) {
   const start = bladeGuard.primeSamples.start;
   const anticipation = bladeGuard.primeSamples.anticipation;
-  const hiltMovesRightPx = anticipation.hiltScreen[0] - start.hiltScreen[0];
-  const tipTrailsLeftPx = anticipation.hiltScreen[0] - anticipation.tipScreen[0];
+  const hiltMovesCharacterRightPx = start.hiltScreen[0] - anticipation.hiltScreen[0];
+  const bladeTrailsAcrossBodyPx = anticipation.tipScreen[0] - anticipation.hiltScreen[0];
   const failures = [];
-  if (hiltMovesRightPx < 40) failures.push('ANTICIPATION_HILT_NOT_RIGHT');
-  if (tipTrailsLeftPx < 8) failures.push('ANTICIPATION_TIP_NOT_LEFT_OF_HILT');
+  if (hiltMovesCharacterRightPx < 35) failures.push('ANTICIPATION_HILT_NOT_CHARACTER_RIGHT');
+  if (bladeTrailsAcrossBodyPx < 60) failures.push('ANTICIPATION_BLADE_NOT_TRAILING_ACROSS_BODY');
   return {
     status: failures.length ? 'FAIL' : 'PASS',
-    rule: 'at anticipation the right-hand hilt must move screen-right and the sabre tip must trail screen-left of the hilt',
+    rule: 'at anticipation the right-hand hilt must move to character-right in front/orbit view while the sabre blade trails back across the body',
     thresholds: {
-      hiltMovesRightPx: 40,
-      tipTrailsLeftPx: 8,
+      hiltMovesCharacterRightPx: 35,
+      bladeTrailsAcrossBodyPx: 60,
     },
-    hiltMovesRightPx: Number(hiltMovesRightPx.toFixed(3)),
-    tipTrailsLeftPx: Number(tipTrailsLeftPx.toFixed(3)),
+    hiltMovesCharacterRightPx: Number(hiltMovesCharacterRightPx.toFixed(3)),
+    bladeTrailsAcrossBodyPx: Number(bladeTrailsAcrossBodyPx.toFixed(3)),
     start,
     anticipation,
     failures,
