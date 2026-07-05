@@ -688,11 +688,11 @@ function readySnapshot() {
   root.updateMatrixWorld(true);
   const rightHand = poseBones.get('RightHand');
   const handPosition = rightHand ? objectWorldPosition(rightHand) : new THREE.Vector3();
-  const hiltPosition = saberGrip ? objectWorldPosition(saberGrip) : objectWorldPosition(sabreRoot);
-  const sabrePosition = objectWorldPosition(sabreRoot);
+  const hiltPosition = saberGrip ? objectWorldPosition(saberGrip) : handPosition.clone();
+  const sabrePosition = sabreRoot ? objectWorldPosition(sabreRoot) : hiltPosition.clone();
   const handQuaternion = rightHand ? objectWorldQuaternion(rightHand) : new THREE.Quaternion();
   const hiltQuaternion = saberGrip ? objectWorldQuaternion(saberGrip) : new THREE.Quaternion();
-  const sabreQuaternion = objectWorldQuaternion(sabreRoot);
+  const sabreQuaternion = sabreRoot ? objectWorldQuaternion(sabreRoot) : hiltQuaternion.clone();
   const handAxis = orientationProbe(handPosition, handQuaternion, new THREE.Vector3(0, 0, 1), HAND_AXIS_PROOF_LENGTH);
   const bladeAxis = orientationProbe(sabrePosition, sabreQuaternion, sabreBladeLocalAxis(), SABRE_AXIS_PROOF_LENGTH);
   return {
@@ -914,47 +914,50 @@ function applyAttackPose() {
 function setPoseState(next) {
   if (next === 'ready') {
     resetPose();
-    const restSnapshot = readySnapshot();
+    const canMeasureSaberDelta = Boolean(sabreRoot);
+    const restSnapshot = canMeasureSaberDelta ? readySnapshot() : null;
     applyReadyPose();
-    const appliedSnapshot = readySnapshot();
-    const handWorldDelta = appliedSnapshot.handPosition.distanceTo(restSnapshot.handPosition);
-    const handScreenDelta = appliedSnapshot.handScreen.distanceTo(restSnapshot.handScreen);
-    const hiltWorldDelta = appliedSnapshot.hiltPosition.distanceTo(restSnapshot.hiltPosition);
-    const sabreScreenDelta = appliedSnapshot.sabreScreen.distanceTo(restSnapshot.sabreScreen);
-    const rightHandQuaternionAngle = quaternionAngleDeg(restSnapshot.handQuaternion, appliedSnapshot.handQuaternion);
-    const saberGripQuaternionAngle = quaternionAngleDeg(restSnapshot.hiltQuaternion, appliedSnapshot.hiltQuaternion);
-    const sabreQuaternionAngle = quaternionAngleDeg(restSnapshot.sabreQuaternion, appliedSnapshot.sabreQuaternion);
-    const rightHandAxisScreenDelta = appliedSnapshot.handAxisScreenEnd.distanceTo(restSnapshot.handAxisScreenEnd);
-    const sabreBladeAxisAngle = vectorAngleDeg(restSnapshot.sabreBladeDirection, appliedSnapshot.sabreBladeDirection);
-    const sabreBladeAxisScreenDelta = appliedSnapshot.sabreBladeAxisScreenEnd.distanceTo(restSnapshot.sabreBladeAxisScreenEnd);
-    const positionDeltaPass = handScreenDelta > 1 || sabreScreenDelta > 1;
-    const orientationDeltaPass = rightHandQuaternionAngle > 0.25
-      || saberGripQuaternionAngle > 0.25
-      || sabreQuaternionAngle > 0.25
-      || rightHandAxisScreenDelta > 1
-      || sabreBladeAxisAngle > 0.25
-      || sabreBladeAxisScreenDelta > 1;
-    const visibleDeltaPass = positionDeltaPass || orientationDeltaPass;
-    updateReadyDeltaMarkers(restSnapshot, appliedSnapshot);
-    updateReadyProof({
-      rightHandWorldDelta: fixedNumber(handWorldDelta, 6),
-      rightHandScreenDeltaPx: fixedNumber(handScreenDelta, 3),
-      rightHandQuaternionAngleDeg: rightHandQuaternionAngle,
-      rightHandAxisScreenDeltaPx: fixedNumber(rightHandAxisScreenDelta, 3),
-      saberGripWorldDelta: fixedNumber(hiltWorldDelta, 6),
-      saberGripQuaternionAngleDeg: saberGripQuaternionAngle,
-      sabreQuaternionAngleDeg: sabreQuaternionAngle,
-      sabreBladeAxisAngleDeg: sabreBladeAxisAngle,
-      sabreBladeAxisScreenDeltaPx: fixedNumber(sabreBladeAxisScreenDelta, 3),
-      orientationDeltaPass,
-      sabreScreenDeltaPx: fixedNumber(sabreScreenDelta, 3),
-      visibleDeltaPass,
-      visibleDeltaStatus: visibleDeltaPass
-        ? positionDeltaPass
-          ? 'VISIBLE_POSITION_DELTA'
-          : 'VISIBLE_ORIENTATION_DELTA'
-        : 'NO_VISIBLE_ORIENTATION_DELTA',
-    });
+    if (canMeasureSaberDelta) {
+      const appliedSnapshot = readySnapshot();
+      const handWorldDelta = appliedSnapshot.handPosition.distanceTo(restSnapshot.handPosition);
+      const handScreenDelta = appliedSnapshot.handScreen.distanceTo(restSnapshot.handScreen);
+      const hiltWorldDelta = appliedSnapshot.hiltPosition.distanceTo(restSnapshot.hiltPosition);
+      const sabreScreenDelta = appliedSnapshot.sabreScreen.distanceTo(restSnapshot.sabreScreen);
+      const rightHandQuaternionAngle = quaternionAngleDeg(restSnapshot.handQuaternion, appliedSnapshot.handQuaternion);
+      const saberGripQuaternionAngle = quaternionAngleDeg(restSnapshot.hiltQuaternion, appliedSnapshot.hiltQuaternion);
+      const sabreQuaternionAngle = quaternionAngleDeg(restSnapshot.sabreQuaternion, appliedSnapshot.sabreQuaternion);
+      const rightHandAxisScreenDelta = appliedSnapshot.handAxisScreenEnd.distanceTo(restSnapshot.handAxisScreenEnd);
+      const sabreBladeAxisAngle = vectorAngleDeg(restSnapshot.sabreBladeDirection, appliedSnapshot.sabreBladeDirection);
+      const sabreBladeAxisScreenDelta = appliedSnapshot.sabreBladeAxisScreenEnd.distanceTo(restSnapshot.sabreBladeAxisScreenEnd);
+      const positionDeltaPass = handScreenDelta > 1 || sabreScreenDelta > 1;
+      const orientationDeltaPass = rightHandQuaternionAngle > 0.25
+        || saberGripQuaternionAngle > 0.25
+        || sabreQuaternionAngle > 0.25
+        || rightHandAxisScreenDelta > 1
+        || sabreBladeAxisAngle > 0.25
+        || sabreBladeAxisScreenDelta > 1;
+      const visibleDeltaPass = positionDeltaPass || orientationDeltaPass;
+      updateReadyDeltaMarkers(restSnapshot, appliedSnapshot);
+      updateReadyProof({
+        rightHandWorldDelta: fixedNumber(handWorldDelta, 6),
+        rightHandScreenDeltaPx: fixedNumber(handScreenDelta, 3),
+        rightHandQuaternionAngleDeg: rightHandQuaternionAngle,
+        rightHandAxisScreenDeltaPx: fixedNumber(rightHandAxisScreenDelta, 3),
+        saberGripWorldDelta: fixedNumber(hiltWorldDelta, 6),
+        saberGripQuaternionAngleDeg: saberGripQuaternionAngle,
+        sabreQuaternionAngleDeg: sabreQuaternionAngle,
+        sabreBladeAxisAngleDeg: sabreBladeAxisAngle,
+        sabreBladeAxisScreenDeltaPx: fixedNumber(sabreBladeAxisScreenDelta, 3),
+        orientationDeltaPass,
+        sabreScreenDeltaPx: fixedNumber(sabreScreenDelta, 3),
+        visibleDeltaPass,
+        visibleDeltaStatus: visibleDeltaPass
+          ? positionDeltaPass
+            ? 'VISIBLE_POSITION_DELTA'
+            : 'VISIBLE_ORIENTATION_DELTA'
+          : 'NO_VISIBLE_ORIENTATION_DELTA',
+      });
+    }
     statusEl.textContent = 'ready pose: source-oriented OneHandReady, sabre follows RightHand FK';
   } else if (next === 'attack1') {
     resetPose();
