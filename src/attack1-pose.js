@@ -8,7 +8,7 @@ export const ATTACK1_POSE_SEQUENCE = {
     "duration": 1.25,
     "keyCount": 31,
     "projectionFrame": "ShoulderCenter->Spine02",
-    "method": "orientation-key-bake-with-ready-roll-offsets",
+    "method": "orientation-key-bake-with-ready-anchored-weapon-wrist-interpretation",
     "readyGraphOffset": {
       "adjustedBones": [
         "Spine02",
@@ -58,6 +58,42 @@ export const ATTACK1_POSE_SEQUENCE = {
         "Head": 0
       }
     },
+    "readyAnchoredWeaponWristInterpretation": {
+      "sourceReference": "Weapon.R",
+      "targetBone": "RightHand",
+      "baseline": "OneHandReady",
+      "sourceAxis": "-y",
+      "sourceAxisCalibration": [
+        {
+          "axis": "-y",
+          "readyAngleDeg": 50.689
+        },
+        {
+          "axis": "-x",
+          "readyAngleDeg": 52.204
+        },
+        {
+          "axis": "-z",
+          "readyAngleDeg": 61.817
+        },
+        {
+          "axis": "+z",
+          "readyAngleDeg": 118.183
+        },
+        {
+          "axis": "+x",
+          "readyAngleDeg": 127.796
+        },
+        {
+          "axis": "+y",
+          "readyAngleDeg": 129.311
+        }
+      ],
+      "beforeMaxAngleDeg": 100.327,
+      "afterMaxAngleDeg": 0,
+      "beforeMeanAngleDeg": 28.935,
+      "afterMeanAngleDeg": 0
+    },
     "readyEndpointContract": {
       "endpointBones": [
         "Spine02",
@@ -87,7 +123,7 @@ export const ATTACK1_POSE_SEQUENCE = {
         "RightShoulder": 0,
         "RightArm": 0,
         "RightForeArm": 17.935,
-        "RightHand": 37.775,
+        "RightHand": 0,
         "neck": 0,
         "Head": 0
       },
@@ -119,7 +155,7 @@ export const ATTACK1_POSE_SEQUENCE = {
       "sourceHandRotationTravelDeg": 212.156,
       "sourceForearmRotationTravelDeg": 233.155,
       "sourceWeaponSocketRotationTravelDeg": 91.424,
-      "bakedRightHandRotationTravelDeg": 247.312,
+      "bakedRightHandRotationTravelDeg": 417.66,
       "bakedRightForeArmRotationTravelDeg": 245.841
     }
   },
@@ -271,10 +307,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.48676
         ],
         "RightHand": [
-          -0.507776,
-          0.536594,
-          0.199888,
-          0.643642
+          -0.168965,
+          0.554761,
+          0.067915,
+          0.811836
         ],
         "neck": [
           0.063633,
@@ -354,10 +390,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.503372
         ],
         "RightHand": [
-          -0.487194,
-          0.524647,
-          0.252823,
-          0.650744
+          -0.169397,
+          0.458695,
+          0.120559,
+          0.863926
         ],
         "neck": [
           0.063633,
@@ -437,10 +473,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.551786
         ],
         "RightHand": [
-          -0.493079,
-          0.517278,
-          0.302808,
-          0.630558
+          -0.171444,
+          0.332407,
+          0.159398,
+          0.913622
         ],
         "neck": [
           0.063633,
@@ -520,10 +556,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.627388
         ],
         "RightHand": [
-          -0.527092,
-          0.513557,
-          0.347196,
-          0.581282
+          -0.204301,
+          0.102986,
+          0.20825,
+          0.95094
         ],
         "neck": [
           0.063633,
@@ -603,10 +639,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.680637
         ],
         "RightHand": [
-          -0.57823,
-          0.536932,
-          0.392634,
-          0.472434
+          -0.238752,
+          -0.08842,
+          0.291306,
+          0.922128
         ],
         "neck": [
           0.063633,
@@ -686,10 +722,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.772974
         ],
         "RightHand": [
-          -0.632818,
-          0.602632,
-          0.414705,
-          0.253763
+          -0.26019,
+          0.260778,
+          0.296672,
+          0.881068
         ],
         "neck": [
           0.063633,
@@ -769,10 +805,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.729702
         ],
         "RightHand": [
-          0.650575,
-          -0.68389,
-          -0.323526,
-          -0.066162
+          -0.532282,
+          0.735829,
+          0.167386,
+          0.383683
         ],
         "neck": [
           0.063633,
@@ -852,10 +888,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.729702
         ],
         "RightHand": [
-          0.650576,
-          -0.68389,
-          -0.323525,
-          -0.066162
+          -0.539678,
+          0.711903,
+          0.189882,
+          0.407292
         ],
         "neck": [
           0.063633,
@@ -935,10 +971,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.729702
         ],
         "RightHand": [
-          0.650575,
-          -0.68389,
-          -0.323526,
-          -0.066162
+          -0.543224,
+          0.69797,
+          0.202135,
+          0.420579
         ],
         "neck": [
           0.063633,
@@ -1018,10 +1054,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.729702
         ],
         "RightHand": [
-          0.650576,
-          -0.68389,
-          -0.323525,
-          -0.066162
+          -0.5444,
+          0.692792,
+          0.206528,
+          0.425458
         ],
         "neck": [
           0.063633,
@@ -1101,10 +1137,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.729702
         ],
         "RightHand": [
-          0.650576,
-          -0.68389,
-          -0.323525,
-          -0.066162
+          -0.544903,
+          0.689914,
+          0.208807,
+          0.428367
         ],
         "neck": [
           0.063633,
@@ -1184,10 +1220,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.739401
         ],
         "RightHand": [
-          0.61815,
-          -0.717956,
-          -0.296023,
-          -0.121658
+          -0.491554,
+          0.802479,
+          0.111322,
+          0.319389
         ],
         "neck": [
           0.063633,
@@ -1267,10 +1303,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           -0.739944
         ],
         "RightHand": [
-          0.518379,
-          -0.781178,
-          -0.213541,
-          -0.274673
+          -0.262973,
+          0.894981,
+          -0.056634,
+          0.355874
         ],
         "neck": [
           0.063633,
@@ -1350,10 +1386,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.706227
         ],
         "RightHand": [
-          0.426564,
-          -0.792151,
-          -0.134829,
-          -0.415164
+          -0.119915,
+          0.849736,
+          -0.117421,
+          0.499782
         ],
         "neck": [
           0.063633,
@@ -1433,10 +1469,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.661632
         ],
         "RightHand": [
-          0.383853,
-          -0.750968,
-          -0.08101,
-          -0.53117
+          -0.03643,
+          0.753097,
+          -0.152195,
+          0.639026
         ],
         "neck": [
           0.063633,
@@ -1516,10 +1552,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.610109
         ],
         "RightHand": [
-          -0.363286,
-          0.662942,
-          0.03107,
-          0.653885
+          -0.073786,
+          0.589149,
+          -0.133809,
+          0.793444
         ],
         "neck": [
           0.063633,
@@ -1599,10 +1635,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.564339
         ],
         "RightHand": [
-          -0.35866,
-          0.557674,
-          -0.005663,
-          0.748553
+          -0.215057,
+          0.482381,
+          -0.078299,
+          0.845534
         ],
         "neck": [
           0.063633,
@@ -1682,10 +1718,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.535827
         ],
         "RightHand": [
-          -0.360513,
-          0.481104,
-          -0.024972,
-          0.798715
+          -0.326424,
+          0.456778,
+          -0.040989,
+          0.826511
         ],
         "neck": [
           0.063633,

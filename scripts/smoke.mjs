@@ -114,7 +114,8 @@ assert(attackSequence.source?.duration === 1.25, 'Attack1 sequence must preserve
 assert(attackSequence.source?.keyCount === 31 && attackSequence.frames?.length === 31, 'Attack1 sequence must preserve all 31 keyed source samples');
 assert(attackSequence.source?.signatureWristTwist?.sourceHandRotationTravelDeg > 100, 'Attack1 source must record a strong wrist-twist signature');
 assert(attackSequence.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > 100, 'Attack1 bake must preserve a strong right-hand wrist-twist signature');
-assert(attackSequence.source?.method === 'orientation-key-bake-with-ready-roll-offsets', 'Attack1 must apply accepted Ready roll offsets across keyed imported rotations');
+assert(attackSequence.source?.method === 'orientation-key-bake-with-ready-anchored-weapon-wrist-interpretation', 'Attack1 must apply Ready-anchored weapon wrist interpretation across keyed imported rotations');
+assert(attackSequence.source?.readyAnchoredWeaponWristInterpretation?.targetBone === 'RightHand' && attackSequence.source?.readyAnchoredWeaponWristInterpretation?.sourceReference === 'Weapon.R', 'Attack1 wrist interpretation must use Weapon.R as source reference and bake only RightHand correction');
 assert(!attackBakeScript.includes('applyTwoBonePin'), 'Attack1 bake script must not use IK/two-bone hand pinning');
 assert(attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('RightHand') && attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('LeftHand'), 'Attack1 graph offset must include both hands');
 assert(attackSequence.source?.readyEndpointContract?.firstMatchesReady === true && attackSequence.source?.readyEndpointContract?.lastMatchesReady === true, 'Attack1 first and last frames must match the accepted Ready pose');

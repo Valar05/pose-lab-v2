@@ -13,6 +13,19 @@ const restClipName = '0T-Pose';
 const readyClipName = 'OneHandReady';
 const sourceFrameName = 'ShoulderCenter';
 const targetFrameName = 'Spine02';
+const weaponSocketName = 'Weapon.R';
+const sabreDominantLocalAxis = [1, 0, 0];
+const saberGripLocal = {
+  rotationDeg: [32.35, 74.24, -174.11],
+};
+const sourceAxisCandidates = {
+  '+x': [1, 0, 0],
+  '-x': [-1, 0, 0],
+  '+y': [0, 1, 0],
+  '-y': [0, -1, 0],
+  '+z': [0, 0, 1],
+  '-z': [0, 0, -1],
+};
 
 const args = parseArgs(process.argv);
 const sourceClipName = args.clip;
@@ -343,6 +356,35 @@ function quaternionAngleDeg(THREE, a, b) {
   return Number((quaternionFromArray(THREE, a).angleTo(quaternionFromArray(THREE, b)) * 180 / Math.PI).toFixed(3));
 }
 
+function angleDeg(THREE, a, b) {
+  return Number((a.angleTo(b) * 180 / Math.PI).toFixed(3));
+}
+
+function gripLocalQuaternion(THREE) {
+  return new THREE.Quaternion().setFromEuler(new THREE.Euler(
+    THREE.MathUtils.degToRad(saberGripLocal.rotationDeg[0]),
+    THREE.MathUtils.degToRad(saberGripLocal.rotationDeg[1]),
+    THREE.MathUtils.degToRad(saberGripLocal.rotationDeg[2]),
+    'XYZ'
+  )).normalize();
+}
+
+function sabreDirectionFromRightHand(THREE, meshyRoot) {
+  return new THREE.Vector3(...sabreDominantLocalAxis)
+    .normalize()
+    .applyQuaternion(gripLocalQuaternion(THREE))
+    .applyQuaternion(worldQuaternion(THREE, requireNode(meshyRoot, 'RightHand')))
+    .normalize();
+}
+
+function applyPoseFrame(THREE, meshyRoot, frame) {
+  for (const [name, values] of Object.entries(frame.bones || {})) {
+    const bone = find(meshyRoot, name);
+    if (bone) bone.quaternion.copy(quaternionFromArray(THREE, values));
+  }
+  meshyRoot.updateMatrixWorld(true);
+}
+
 function bakeCurrentFpsPoseToMeshy(THREE, fpsRoot, meshyRoot, context, retargetedBones = null) {
   const {
     targetRestLocal,
@@ -355,6 +397,89 @@ function bakeCurrentFpsPoseToMeshy(THREE, fpsRoot, meshyRoot, context, retargete
     retargetedBones?.add(name);
   }
   return posePayload(meshyRoot);
+}
+
+function applyReadyAnchoredWeaponWristInterpretation(THREE, frames, fpsRoot, meshyRoot, sourceClip, readyClip, acceptedReadyBones) {
+  const sourceFrame = requireNode(fpsRoot, sourceFrameName);
+  const targetFrame = requireNode(meshyRoot, targetFrameName);
+  const weaponSocket = requireNode(fpsRoot, weaponSocketName);
+  const rightHand = requireNode(meshyRoot, 'RightHand');
+
+  applyClipPose(THREE, fpsRoot, readyClip, readyClip.duration);
+  applyPoseFrame(THREE, meshyRoot, { bones: acceptedReadyBones });
+  const readySabreDirection = sabreDirectionFromRightHand(THREE, meshyRoot);
+  const axisCalibration = Object.entries(sourceAxisCandidates)
+    .map(([axisName, axis]) => {
+      const mappedReadyDirection = mapDirectionBetweenFrames(
+        THREE,
+        worldDirection(THREE, weaponSocket, axis),
+        sourceFrame,
+        targetFrame
+      );
+      return {
+        axis: axisName,
+        readyAngleDeg: angleDeg(THREE, mappedReadyDirection, readySabreDirection),
+      };
+    })
+    .sort((a, b) => a.readyAngleDeg - b.readyAngleDeg);
+  const sourceAxisName = axisCalibration[0]?.axis || '-y';
+  const sourceAxis = sourceAxisCandidates[sourceAxisName];
+  const readyMappedSourceDirection = mapDirectionBetweenFrames(
+    THREE,
+    worldDirection(THREE, weaponSocket, sourceAxis),
+    sourceFrame,
+    targetFrame
+  );
+
+  const samples = [];
+  for (let index = 0; index < frames.length; index += 1) {
+    const frame = frames[index];
+    if (index === 0 || index === frames.length - 1) {
+      frame.bones.RightHand = acceptedReadyBones.RightHand;
+      samples.push({
+        time: frame.time,
+        beforeAngleDeg: 0,
+        afterAngleDeg: 0,
+        endpointReadyAnchor: true,
+      });
+      continue;
+    }
+    applyClipPose(THREE, fpsRoot, sourceClip, frame.time);
+    applyPoseFrame(THREE, meshyRoot, frame);
+    const mappedSourceDirection = mapDirectionBetweenFrames(
+      THREE,
+      worldDirection(THREE, weaponSocket, sourceAxis),
+      sourceFrame,
+      targetFrame
+    );
+    const expectedDirection = readySabreDirection.clone()
+      .applyQuaternion(new THREE.Quaternion().setFromUnitVectors(readyMappedSourceDirection, mappedSourceDirection).normalize())
+      .normalize();
+    const beforeDirection = sabreDirectionFromRightHand(THREE, meshyRoot);
+    const correction = new THREE.Quaternion().setFromUnitVectors(beforeDirection, expectedDirection).normalize();
+    const beforeAngleDeg = angleDeg(THREE, beforeDirection, expectedDirection);
+    setWorldQuaternion(THREE, rightHand, correction.multiply(worldQuaternion(THREE, rightHand)).normalize());
+    meshyRoot.updateMatrixWorld(true);
+    frame.bones.RightHand = roundedQuaternion(rightHand.quaternion);
+    const afterDirection = sabreDirectionFromRightHand(THREE, meshyRoot);
+    samples.push({
+      time: frame.time,
+      beforeAngleDeg,
+      afterAngleDeg: angleDeg(THREE, afterDirection, expectedDirection),
+    });
+  }
+
+  return {
+    sourceReference: weaponSocketName,
+    targetBone: 'RightHand',
+    baseline: readyClipName,
+    sourceAxis: sourceAxisName,
+    sourceAxisCalibration: axisCalibration,
+    beforeMaxAngleDeg: Math.max(...samples.map((sample) => sample.beforeAngleDeg)),
+    afterMaxAngleDeg: Math.max(...samples.map((sample) => sample.afterAngleDeg)),
+    beforeMeanAngleDeg: Number((samples.reduce((sum, sample) => sum + sample.beforeAngleDeg, 0) / samples.length).toFixed(3)),
+    afterMeanAngleDeg: Number((samples.reduce((sum, sample) => sum + sample.afterAngleDeg, 0) / samples.length).toFixed(3)),
+  };
 }
 
 function applyReadyGraphOffsets(THREE, frames, acceptedReadyBones, rawReadyBones) {
@@ -452,6 +577,7 @@ async function main() {
     });
   }
   const readyGraphOffset = applyReadyGraphOffsets(THREE, frames, readyBaseline, rawReadyBones);
+  const readyAnchoredWeaponWristInterpretation = applyReadyAnchoredWeaponWristInterpretation(THREE, frames, fpsRoot, meshyRoot, sourceClip, readyClip, readyBaseline);
   const readyEndpointContract = enforceReadyEndpointContract(THREE, frames, readyBaseline);
 
   const payload = {
@@ -464,8 +590,9 @@ async function main() {
       duration: Number(sourceClip.duration.toFixed(6)),
       keyCount: times.length,
       projectionFrame: `${sourceFrameName}->${targetFrameName}`,
-      method: 'orientation-key-bake-with-ready-roll-offsets',
+      method: 'orientation-key-bake-with-ready-anchored-weapon-wrist-interpretation',
       readyGraphOffset,
+      readyAnchoredWeaponWristInterpretation,
       readyEndpointContract,
       retargetedBones: [...retargetedBones],
       signatureWristTwist: {

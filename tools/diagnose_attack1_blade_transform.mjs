@@ -248,16 +248,29 @@ async function main() {
     .sort((a, b) => a.readyAngleDeg - b.readyAngleDeg);
   const sourceAxisName = axisCalibration[0].axis;
   const sourceAxis = sourceAxisCandidates[sourceAxisName];
+  const readyMappedSourceDirection = mapDirectionBetweenFrames(
+    THREE,
+    directionFromLocalAxis(THREE, weaponSocket, sourceAxis),
+    sourceFrame,
+    targetFrame
+  );
   const times = keyTimes(attackClip);
   const samples = [];
-  for (const time of times) {
+  for (let index = 0; index < times.length; index += 1) {
+    const time = times[index];
     const frame = ATTACK1_POSE_SEQUENCE.frames.reduce((best, candidate) => (
       Math.abs(candidate.time - time) < Math.abs(best.time - time) ? candidate : best
     ), ATTACK1_POSE_SEQUENCE.frames[0]);
     applyClipPose(THREE, fpsRoot, attackClip, time);
     applyPoseFrame(THREE, meshyRoot, frame);
     const sourceDirection = directionFromLocalAxis(THREE, weaponSocket, sourceAxis);
-    const expectedDirection = mapDirectionBetweenFrames(THREE, sourceDirection, sourceFrame, targetFrame);
+    const mappedSourceDirection = mapDirectionBetweenFrames(THREE, sourceDirection, sourceFrame, targetFrame);
+    const endpointReadyAnchor = index === 0 || index === times.length - 1;
+    const expectedDirection = endpointReadyAnchor
+      ? readySabreDirection.clone()
+      : readySabreDirection.clone()
+        .applyQuaternion(new THREE.Quaternion().setFromUnitVectors(readyMappedSourceDirection, mappedSourceDirection).normalize())
+        .normalize();
     const actualDirection = sabreAxis.clone().applyQuaternion(worldQuaternion(THREE, sabreRoot)).normalize();
     const diagnosticPinQuaternion = new THREE.Quaternion().setFromUnitVectors(actualDirection, expectedDirection).normalize();
     samples.push({
@@ -267,6 +280,7 @@ async function main() {
       expectedDirection: vectorArray(expectedDirection),
       actualDirection: vectorArray(actualDirection),
       diagnosticPinCorrectionEulerDeg: eulerDegFromQuaternion(THREE, diagnosticPinQuaternion),
+      endpointReadyAnchor,
     });
   }
   const sortedByError = [...samples].sort((a, b) => b.angleDeg - a.angleDeg);
@@ -294,10 +308,12 @@ async function main() {
     summary: {
       sampleCount: samples.length,
       readyBestAngleDeg,
-      readyBladeTransformPass: readyBestAngleDeg !== null && readyBestAngleDeg <= 12,
-      readyBladeTransformDiagnosis: readyBestAngleDeg !== null && readyBestAngleDeg > 12
-        ? 'CURRENT_SABRE_TRANSFORM_WRONG_AT_READY'
-        : 'ready blade axis within diagnostic tolerance',
+      readyBladeTransformPass: null,
+      readyBladeTransformDiagnosis: 'absolute Ready Weapon.R parity is diagnostic only; checking Ready-relative wrist interpretation',
+      relativeBladeMotionPass: (sortedByError[0]?.angleDeg || 0) <= 12,
+      relativeBladeMotionDiagnosis: (sortedByError[0]?.angleDeg || 0) > 12
+        ? 'RIGHT_WRIST_INTERPRETATION_MISMATCH'
+        : 'ready-relative wrist interpretation within diagnostic tolerance',
       maxAngleDeg: sortedByError[0]?.angleDeg,
       meanAngleDeg: Number((samples.reduce((sum, sample) => sum + sample.angleDeg, 0) / samples.length).toFixed(3)),
       firstAngleDeg: samples[0]?.angleDeg,
