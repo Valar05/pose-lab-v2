@@ -18,6 +18,7 @@ assert(exists('public/assets/meshy/meshy_apose_walking_with_skin.glb'), 'missing
 assert(exists('public/assets/meshy/meshy_real_sabre.glb'), 'missing real sabre GLB');
 assert(html.includes('src="./src/main.js"'), 'HTML must load the minimal app entry with a repo-relative URL');
 assert(html.includes('href="./src/styles.css"'), 'HTML must load CSS directly for no-bundler GitHub Pages runtime');
+assert(html.includes('loading Meshy character and real sabre'), 'HTML shell must not be blank before JS boots');
 assert(!html.includes('src="/src/main.js"'), 'GitHub Pages build must not use a root-relative module path');
 assert(html.includes('https://cdn.jsdelivr.net/npm/three@0.166.1/'), 'HTML must use static import-map Three dependency');
 assert(!pkg.dependencies, 'repo must not require npm install dependencies for local build');
