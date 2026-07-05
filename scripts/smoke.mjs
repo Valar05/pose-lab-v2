@@ -89,10 +89,13 @@ assert(main.includes('pickSabre') && main.includes('startGesture') && main.inclu
 assert(main.includes('function handleTouchStart') && main.includes('function handleTouchMove') && main.includes('function handleTouchEnd'), 'mobile saber editing must use native touch handlers, not pointer-only guesses');
 assert(main.includes("canvas.addEventListener('touchstart', handleTouchStart, { capture: true, passive: false })"), 'touchstart must be non-passive capture so saber gestures can stop camera/browser handling');
 assert(main.includes('let suppressTouchPointerEvents = false') && main.includes('event.pointerType === \'touch\' && suppressTouchPointerEvents'), 'owned native touch gestures must suppress duplicate touch pointer events');
-assert(main.includes("const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1'") && main.includes("const AUTO_TOUCH_PROBE = DEBUG_TOUCH && URL_PARAMS.get('runTouchProbe') === '1'"), 'touch proof UI must be gated behind ?debugTouch=1 and support auto-run');
+assert(main.includes("const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1'") && main.includes("const DEBUG_READY = URL_PARAMS.get('debugReady') === '1'"), 'debug proof UIs must be independently gated behind debugTouch/debugReady flags');
+assert(!main.includes('AUTO_TOUCH_PROBE') && !main.includes('requestAnimationFrame(runTouchProbe)'), 'touch probe must not auto-run because it mutates pose state');
 assert(main.includes('data-touch-proof') && main.includes('data-touch-proof-readout') && main.includes('Run Touch Probe'), 'debugTouch mode must expose a visible interaction proof panel');
+assert(main.includes('data-ready-proof') && main.includes('data-ready-proof-readout') && main.includes('function updateReadyProof'), 'debugReady mode must expose a non-mutating Ready proof panel');
+assert(main.includes('rightHandAppliedMatchesPreset') && main.includes('rightHandDiffersFromRest') && main.includes('rightHandAppliedQuaternion'), 'debugReady proof must report whether Ready RightHand actually applied');
 assert(main.includes('function runTouchProbe') && main.includes("probe: passed ? 'PASS' : 'FAIL'"), 'debugTouch mode must run a visible PASS/FAIL touch probe');
-assert(main.includes('if (AUTO_TOUCH_PROBE) requestAnimationFrame(runTouchProbe)'), 'cloud debug URL must be able to auto-run the touch probe after boot');
+assert(main.includes('bone.position.copy(bonePositionBefore)') && main.includes('bone.quaternion.copy(boneQuaternionBefore)') && main.includes('bone.scale.copy(boneScaleBefore)'), 'touch probe must restore bone transforms after measuring controls');
 assert(main.includes('cameraMovedDuringPoseTouch') && main.includes('boneQuaternionChanged') && main.includes('bonePositionChanged') && main.includes('boneScaleChanged'), 'touch probe must measure camera stability plus bone Move/Rotate/Scale changes');
 assert(main.includes("setMode('move')") && main.includes("setMode('rotate')") && main.includes("setMode('scale')"), 'touch probe must exercise all object-mode controls against a selected bone');
 assert(main.includes("gestureKindAfterStart === 'two-pose'"), 'touch probe must still verify two-pose ownership');

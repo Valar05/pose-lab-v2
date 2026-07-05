@@ -8,7 +8,7 @@ const ASSETS = {
 };
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
-const AUTO_TOUCH_PROBE = DEBUG_TOUCH && URL_PARAMS.get('runTouchProbe') === '1';
+const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 
 const app = document.querySelector('#app');
 app.innerHTML = `
@@ -45,6 +45,9 @@ app.innerHTML = `
       <button type="button" data-action="touch-probe">Run Touch Probe</button>
       <pre data-touch-proof-readout aria-label="Pose touch interaction proof">touch proof: not run</pre>
     </div>
+    <div class="ready-proof" data-ready-proof ${DEBUG_READY ? '' : 'hidden'}>
+      <pre data-ready-proof-readout aria-label="Ready pose application proof">ready proof: not run</pre>
+    </div>
   </section>
 `;
 
@@ -59,6 +62,7 @@ const resetSaberButton = app.querySelector('[data-action="reset-saber"]');
 const resetPoseButton = app.querySelector('[data-action="reset-pose"]');
 const touchProofPanel = app.querySelector('[data-touch-proof-readout]');
 const touchProbeButton = app.querySelector('[data-action="touch-probe"]');
+const readyProofPanel = app.querySelector('[data-ready-proof-readout]');
 
 let toolMode = 'saber';
 const toolState = {
@@ -76,6 +80,15 @@ const touchProof = {
   boneScaleChanged: null,
   lastTouchAction: 'none',
 };
+const readyProof = {
+  readyPresetLoaded: false,
+  cacheBust: URL_PARAMS.get('cacheBust') || null,
+  rightHandPresetQuaternion: null,
+  rightHandAppliedQuaternion: null,
+  rightHandRestQuaternion: null,
+  rightHandAppliedMatchesPreset: null,
+  rightHandDiffersFromRest: null,
+};
 
 function updateTouchProof(values = {}) {
   Object.assign(touchProof, values, {
@@ -84,6 +97,12 @@ function updateTouchProof(values = {}) {
   });
   if (!DEBUG_TOUCH || !touchProofPanel) return;
   touchProofPanel.textContent = JSON.stringify(touchProof, null, 2);
+}
+
+function updateReadyProof(values = {}) {
+  Object.assign(readyProof, values);
+  if (!DEBUG_READY || !readyProofPanel) return;
+  readyProofPanel.textContent = JSON.stringify(readyProof, null, 2);
 }
 
 function blockPoseTouchPointer(event) {
@@ -268,6 +287,15 @@ function vectorToFixedArray(vector) {
   return vector.toArray().map((value) => Number(value.toFixed(5)));
 }
 
+function quaternionToFixedArray(quaternion) {
+  return quaternion.toArray().map((value) => Number(value.toFixed(6)));
+}
+
+function quaternionArraysClose(a, b, epsilon = 0.00001) {
+  if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+  return a.every((value, index) => Math.abs(value - b[index]) <= epsilon);
+}
+
 function editableSaber() {
   return saberGrip || sabreRoot;
 }
@@ -360,6 +388,18 @@ function applyReadyPose() {
   poseState = 'ready';
   root.updateMatrixWorld(true);
   updatePoseHandles();
+  const rightHand = poseBones.get('RightHand');
+  const rightHandRest = poseBoneRestQuaternions.get('RightHand');
+  const applied = rightHand ? quaternionToFixedArray(rightHand.quaternion) : null;
+  const rest = rightHandRest ? quaternionToFixedArray(rightHandRest) : null;
+  const preset = readyPosePreset?.bones?.RightHand || null;
+  updateReadyProof({
+    rightHandPresetQuaternion: preset,
+    rightHandAppliedQuaternion: applied,
+    rightHandRestQuaternion: rest,
+    rightHandAppliedMatchesPreset: quaternionArraysClose(applied, preset),
+    rightHandDiffersFromRest: !quaternionArraysClose(applied, rest),
+  });
 }
 
 function setPoseState(next) {
@@ -389,6 +429,10 @@ async function loadReadyPosePreset() {
   const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
   const module = await import(`./ready-pose.js${suffix}`);
   readyPosePreset = module.READY_POSE_PRESET;
+  updateReadyProof({
+    readyPresetLoaded: Boolean(readyPosePreset),
+    rightHandPresetQuaternion: readyPosePreset?.bones?.RightHand || null,
+  });
 }
 
 function setMode(next) {
@@ -1010,6 +1054,13 @@ function runTouchProbe() {
     updateTouchProof({ probe: 'FAIL', lastTouchAction: 'probe missing pose bones' });
     return;
   }
+  const previousToolMode = toolMode;
+  const previousMode = mode;
+  const previousAxis = currentAxis;
+  const previousPoseState = poseState;
+  const previousSelectedBone = selectedPoseBone;
+  const previousGesture = gesture;
+  const previousTouchGesture = touchGesture;
   setToolMode('pose');
   setMode('rotate');
   const bone = poseBones.get('RightHand') || poseBones.get('RightForeArm');
@@ -1059,6 +1110,22 @@ function runTouchProbe() {
   const selectedStayed = selectedPoseBone === bone;
   const passed = selectedStayed && gestureKindAfterStart === 'two-pose' && !cameraMoved
     && boneChanged && bonePositionChanged && boneScaleChanged;
+  bone.position.copy(bonePositionBefore);
+  bone.quaternion.copy(boneQuaternionBefore);
+  bone.scale.copy(boneScaleBefore);
+  camera.position.copy(cameraPositionBefore);
+  controls.target.copy(cameraTargetBefore);
+  controls.update();
+  toolMode = previousToolMode;
+  mode = previousMode;
+  currentAxis = previousAxis;
+  poseState = previousPoseState;
+  selectedPoseBone = previousSelectedBone;
+  gesture = previousGesture;
+  touchGesture = previousTouchGesture;
+  controls.enabled = true;
+  root.updateMatrixWorld(true);
+  updatePoseHandles();
   updateTouchProof({
     probe: passed ? 'PASS' : 'FAIL',
     selectedBone: selectedPoseBone?.name || 'none',
@@ -1248,7 +1315,6 @@ async function boot() {
   setMode('move');
   setPoseState(initialPoseStateFromUrl());
   if (poseState === 'rest') statusEl.textContent = 'ready: tap the real sabre, then drag';
-  if (AUTO_TOUCH_PROBE) requestAnimationFrame(runTouchProbe);
 }
 
 toolButtons.forEach((button) => {
@@ -1296,6 +1362,7 @@ app.querySelector('[data-action="copy"]').addEventListener('click', () => {
 
 touchProbeButton?.addEventListener('click', runTouchProbe);
 updateTouchProof();
+updateReadyProof();
 
 canvas.addEventListener('pointerdown', startGesture, { capture: true });
 canvas.addEventListener('pointermove', updateGesture, { capture: true });

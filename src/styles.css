@@ -48,21 +48,31 @@ canvas {
   align-items: stretch;
 }
 
-.touch-proof {
+.touch-proof,
+.ready-proof {
   position: absolute;
   right: 12px;
-  bottom: 12px;
   z-index: 3;
   display: grid;
   gap: 8px;
   width: min(360px, calc(100vw - 24px));
 }
 
-.touch-proof[hidden] {
+.touch-proof {
+  bottom: 12px;
+}
+
+.ready-proof {
+  top: 72px;
+}
+
+.touch-proof[hidden],
+.ready-proof[hidden] {
   display: none;
 }
 
-.touch-proof pre {
+.touch-proof pre,
+.ready-proof pre {
   max-height: 220px;
   border: 1px solid rgba(240, 195, 90, 0.45);
 }
