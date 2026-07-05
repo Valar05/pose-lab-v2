@@ -139,6 +139,7 @@ let fpvSettingsOpen = false;
 let fpvNudgeState = null;
 let fpvNudgeHoldTimer = null;
 let fpvNudgeRaf = null;
+const fpvBodyMasks = [];
 const toolState = {
   saber: { mode: 'move', axis: 'screen' },
   pose: { mode: 'rotate', axis: 'screen' },
@@ -247,6 +248,16 @@ const FPV_CAMERA_DEFAULTS = Object.freeze({
 const FPV_NUDGE_STEP = 0.01;
 const FPV_NUDGE_HOLD_DELAY_MS = 220;
 const FPV_NUDGE_HOLD_SPEED = 0.12;
+const FPV_VISIBLE_BONES = new Set([
+  'LeftShoulder',
+  'LeftArm',
+  'LeftForeArm',
+  'LeftHand',
+  'RightShoulder',
+  'RightArm',
+  'RightForeArm',
+  'RightHand',
+]);
 
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0.95, 0);
@@ -360,6 +371,69 @@ let lastPinchDistance = 0;
 let lastTwistAngle = 0;
 let sabreBladeLocalAxisCache = null;
 
+function dominantSkinBoneName(skinnedMesh, vertexIndex) {
+  const skinIndex = skinnedMesh.geometry?.attributes?.skinIndex;
+  const skinWeight = skinnedMesh.geometry?.attributes?.skinWeight;
+  if (!skinIndex || !skinWeight) return null;
+  let bestBoneIndex = -1;
+  let bestWeight = -1;
+  for (let slot = 0; slot < 4; slot += 1) {
+    const weight = skinWeight.getComponent(vertexIndex, slot);
+    if (weight > bestWeight) {
+      bestWeight = weight;
+      bestBoneIndex = skinIndex.getComponent(vertexIndex, slot);
+    }
+  }
+  return skinnedMesh.skeleton?.bones?.[bestBoneIndex]?.name || null;
+}
+
+function createFpvArmMask(skinnedMesh) {
+  if (!skinnedMesh.isSkinnedMesh || !skinnedMesh.geometry?.attributes?.position || !skinnedMesh.skeleton) return null;
+  const sourceGeometry = skinnedMesh.geometry;
+  const positionCount = sourceGeometry.attributes.position.count;
+  const sourceIndex = sourceGeometry.index?.array || null;
+  const isVisibleVertex = new Array(positionCount);
+  for (let index = 0; index < positionCount; index += 1) {
+    isVisibleVertex[index] = FPV_VISIBLE_BONES.has(dominantSkinBoneName(skinnedMesh, index));
+  }
+  const keptIndices = [];
+  const sourceLength = sourceIndex ? sourceIndex.length : positionCount;
+  for (let i = 0; i < sourceLength; i += 3) {
+    const a = sourceIndex ? sourceIndex[i] : i;
+    const b = sourceIndex ? sourceIndex[i + 1] : i + 1;
+    const c = sourceIndex ? sourceIndex[i + 2] : i + 2;
+    if (isVisibleVertex[a] && isVisibleVertex[b] && isVisibleVertex[c]) keptIndices.push(a, b, c);
+  }
+  if (!keptIndices.length) return null;
+  const geometry = sourceGeometry.clone();
+  geometry.clearGroups();
+  geometry.setIndex(new THREE.Uint32BufferAttribute(keptIndices, 1));
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  const material = Array.isArray(skinnedMesh.material)
+    ? skinnedMesh.material[0].clone()
+    : skinnedMesh.material.clone();
+  material.name = `${material.name || skinnedMesh.name}-fpv-arms`;
+  material.depthWrite = true;
+  const mask = new THREE.SkinnedMesh(geometry, material);
+  mask.name = `${skinnedMesh.name || 'Meshy'}-FPV-arms`;
+  mask.frustumCulled = false;
+  mask.castShadow = false;
+  mask.receiveShadow = true;
+  mask.bind(skinnedMesh.skeleton, skinnedMesh.bindMatrix);
+  mask.bindMatrixInverse.copy(skinnedMesh.bindMatrixInverse);
+  mask.visible = false;
+  return mask;
+}
+
+function updateFpvBodyMasks() {
+  const fpv = viewMode === 'firstPerson';
+  for (const entry of fpvBodyMasks) {
+    entry.source.visible = !fpv;
+    entry.mask.visible = fpv;
+  }
+}
+
 function normalizeCharacter(object) {
   const box = new THREE.Box3().setFromObject(object);
   const center = box.getCenter(new THREE.Vector3());
@@ -368,13 +442,22 @@ function normalizeCharacter(object) {
   object.position.y += size.y * 0.5;
   const height = Math.max(0.001, size.y);
   object.scale.multiplyScalar(1.75 / height);
+  const armMasks = [];
   object.traverse((node) => {
     if (node.isMesh) {
       node.frustumCulled = false;
       node.castShadow = false;
       node.receiveShadow = true;
     }
+    if (node.isSkinnedMesh) {
+      const mask = createFpvArmMask(node);
+      if (mask) armMasks.push({ source: node, mask });
+    }
   });
+  for (const entry of armMasks) {
+    entry.source.parent?.add(entry.mask);
+    fpvBodyMasks.push(entry);
+  }
   return object;
 }
 
@@ -951,6 +1034,7 @@ function renderControls() {
 function applyOrbitCamera() {
   viewMode = 'orbit';
   document.body.classList.remove('is-fpv');
+  updateFpvBodyMasks();
   controls.enabled = true;
   camera.fov = orbitCameraState.fov;
   camera.near = orbitCameraState.near;
@@ -994,7 +1078,8 @@ function updateFirstPersonCamera() {
       headDistance: fixedNumber(camera.position.distanceTo(anchorPosition), 5),
       fov: firstPersonCameraConfig.fov,
       near: firstPersonCameraConfig.near,
-      bodyMeshesHidden: false,
+      fpvArmMaskActive: fpvBodyMasks.some((entry) => entry.mask.visible),
+      fullBodyVisible: fpvBodyMasks.every((entry) => entry.source.visible),
     },
   });
 }
@@ -1004,6 +1089,7 @@ function setViewMode(next) {
     viewMode = 'firstPerson';
     controls.enabled = false;
     document.body.classList.add('is-fpv');
+    updateFpvBodyMasks();
     setDockOpen(false);
     updateFirstPersonCamera();
     statusEl.textContent = 'camera: FPV head-forward';
