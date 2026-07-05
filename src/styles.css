@@ -29,6 +29,37 @@ body,
   overflow: hidden;
 }
 
+.boot-panel {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 6;
+  display: grid;
+  gap: 4px;
+  max-width: min(360px, calc(100vw - 24px));
+  padding: 10px 12px;
+  border: 1px solid rgba(240, 195, 90, 0.38);
+  border-radius: 6px;
+  background: rgba(5, 9, 12, 0.92);
+  color: #fff3cf;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.boot-panel strong {
+  font-size: 14px;
+}
+
+.boot-panel span {
+  color: #d8ecff;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.boot-panel[hidden] {
+  display: none;
+}
+
 canvas {
   display: block;
   width: 100%;

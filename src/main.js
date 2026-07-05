@@ -27,6 +27,10 @@ const POSE_STATE_LABELS = {
 const app = document.querySelector('#app');
 app.innerHTML = `
   <section class="surface">
+    <div class="boot-panel" data-boot-panel>
+      <strong>Pose Lab V2</strong>
+      <span data-boot-phase>booting module</span>
+    </div>
     <div class="viewport">
       <canvas aria-label="Meshy A-pose saber placement viewport"></canvas>
       <div class="primary-rail" aria-label="Primary review controls">
@@ -117,6 +121,8 @@ app.innerHTML = `
 `;
 
 const canvas = app.querySelector('canvas');
+const bootPanel = app.querySelector('[data-boot-panel]');
+const bootPhaseEl = app.querySelector('[data-boot-phase]');
 const statusEl = app.querySelector('[data-status]');
 const exportEl = app.querySelector('[data-export]');
 const toolButtons = [...app.querySelectorAll('[data-tool]')];
@@ -307,6 +313,26 @@ const loader = new GLTFLoader();
 const textureLoader = new THREE.TextureLoader();
 const root = new THREE.Group();
 scene.add(root);
+let firstFrameRendered = false;
+
+function setBootPhase(message) {
+  document.body.dataset.bootState = message;
+  if (bootPhaseEl) bootPhaseEl.textContent = message;
+  if (statusEl) statusEl.textContent = message;
+}
+
+function markBootReady() {
+  document.body.dataset.bootReady = '1';
+  bootPanel.hidden = true;
+}
+
+function markBootFailed(label, error) {
+  const detail = error instanceof Error ? error.message : String(error || '');
+  document.body.dataset.bootFailed = '1';
+  if (bootPanel) bootPanel.hidden = false;
+  if (bootPhaseEl) bootPhaseEl.textContent = `${label}: ${detail}`;
+  if (statusEl) statusEl.textContent = `${label}: ${detail}`;
+}
 
 const POSE_BONE_NAMES = [
   'Hips',
@@ -912,22 +938,34 @@ function initialViewModeFromUrl() {
 }
 
 async function loadGlb(url) {
+  setBootPhase(`loading ${url.split('/').pop()}`);
   return new Promise((resolve, reject) => {
-    loader.load(url, (gltf) => resolve(gltf.scene), undefined, reject);
+    loader.load(
+      url,
+      (gltf) => resolve(gltf.scene),
+      (event) => {
+        if (!event.total) return;
+        const percent = Math.round((event.loaded / event.total) * 100);
+        setBootPhase(`loading ${url.split('/').pop()} ${percent}%`);
+      },
+      (error) => reject(new Error(`failed ${url}: ${error?.message || error}`))
+    );
   });
 }
 
 async function loadTexture(url, colorSpace = null) {
+  setBootPhase(`loading ${url.split('/').pop()}`);
   return new Promise((resolve, reject) => {
     textureLoader.load(url, (texture) => {
       texture.flipY = false;
       if (colorSpace) texture.colorSpace = colorSpace;
       resolve(texture);
-    }, undefined, reject);
+    }, undefined, (error) => reject(new Error(`failed ${url}: ${error?.message || error}`)));
   });
 }
 
 async function loadMeshyPbrTextures() {
+  setBootPhase('loading Meshy PBR textures');
   const entries = await Promise.all(Object.entries(MESHY_PBR_TEXTURES).map(async ([slot, url]) => {
     const colorSpace = slot === 'map' || slot === 'emissiveMap' ? THREE.SRGBColorSpace : null;
     return [slot, await loadTexture(url, colorSpace)];
@@ -966,6 +1004,7 @@ async function applyMeshyPbrTextures(object) {
 }
 
 async function loadPosePresets() {
+  setBootPhase('loading baked poses');
   const cacheBust = URL_PARAMS.get('cacheBust');
   const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
   const [readyModule, attackModule] = await Promise.all([
@@ -2059,9 +2098,12 @@ function snapCamera(view) {
 }
 
 async function boot() {
+  setBootPhase('loading Meshy, sabre, and baked poses');
   const [meshy, sabre] = await Promise.all([loadGlb(ASSETS.meshy), loadGlb(ASSETS.sabre), loadPosePresets()]);
+  setBootPhase('preparing Meshy character');
   meshyRoot = normalizeCharacter(meshy);
   await applyMeshyPbrTextures(meshyRoot);
+  setBootPhase('attaching real sabre');
   sabreRoot = prepareSabre(sabre);
   root.add(meshyRoot, sabreRoot);
   attachSaberToRightHand();
@@ -2070,6 +2112,7 @@ async function boot() {
   setPoseState(initialPoseStateFromUrl());
   setViewMode(initialViewModeFromUrl());
   if (poseState === 'rest') statusEl.textContent = 'ready: tap the real sabre, then drag';
+  markBootReady();
 }
 
 toolButtons.forEach((button) => {
@@ -2179,11 +2222,15 @@ function animate() {
   else updateFirstPersonCamera();
   updatePoseHandles();
   renderer.render(scene, camera);
+  if (!firstFrameRendered) {
+    firstFrameRendered = true;
+    document.body.dataset.firstFrame = '1';
+  }
   requestAnimationFrame(animate);
 }
 
 boot().catch((error) => {
-  statusEl.textContent = `load failed: ${error instanceof Error ? error.message : String(error)}`;
+  markBootFailed('load failed', error);
 });
 
 requestAnimationFrame(animate);

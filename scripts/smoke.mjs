@@ -79,6 +79,8 @@ assert(main.includes("meshy_apose_walking_with_skin.glb"), 'app must reference M
 assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB');
 assert(main.includes('const MESHY_PBR_TEXTURES = {') && main.includes('character_sheet_pbr/normal.png'), 'app must reference salvaged Meshy Character Sheet PBR texture channels');
 assert(main.includes('const textureLoader = new THREE.TextureLoader()'), 'app must load Meshy PBR channels through Three TextureLoader');
+assert(main.includes('data-boot-panel') && main.includes('function setBootPhase') && main.includes('function markBootFailed'), 'app must expose visible boot phases instead of silent blank/loading states');
+assert(main.includes("document.body.dataset.firstFrame = '1'"), 'app must mark first rendered frame for render diagnostics');
 assert(main.includes('async function applyMeshyPbrTextures') && main.includes('applyMeshyPbrToMaterial'), 'app must apply salvaged Meshy PBR channels to character materials');
 assert(main.includes('material.map = textures.map') && main.includes('material.emissiveMap = textures.emissiveMap') && main.includes('material.metalnessMap = textures.metallicRoughnessMap') && main.includes('material.normalMap = textures.normalMap') && main.includes('material.roughnessMap = textures.metallicRoughnessMap'), 'app must assign full Meshy PBR material channels');
 assert(!main.includes('fpsplayer_meshy') && !main.includes('0615041256'), 'app must not use the old FPSPlayer Meshy texture set');
