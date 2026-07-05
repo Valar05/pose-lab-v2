@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { READY_POSE_PRESET } from './ready-pose.js';
 
 const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
@@ -176,6 +175,7 @@ let currentAxis = 'screen';
 let meshyRoot = null;
 let sabreRoot = null;
 let saberGrip = null;
+let readyPosePreset = null;
 let selectedPoseBone = null;
 let selected = false;
 let gesture = null;
@@ -353,7 +353,7 @@ function resetPose() {
 
 function applyReadyPose() {
   resetPose();
-  for (const [name, values] of Object.entries(READY_POSE_PRESET.bones || {})) {
+  for (const [name, values] of Object.entries(readyPosePreset?.bones || {})) {
     const bone = poseBones.get(name);
     if (bone) bone.quaternion.copy(quaternionFromArray(values));
   }
@@ -382,6 +382,13 @@ async function loadGlb(url) {
   return new Promise((resolve, reject) => {
     loader.load(url, (gltf) => resolve(gltf.scene), undefined, reject);
   });
+}
+
+async function loadReadyPosePreset() {
+  const cacheBust = URL_PARAMS.get('cacheBust');
+  const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
+  const module = await import(`./ready-pose.js${suffix}`);
+  readyPosePreset = module.READY_POSE_PRESET;
 }
 
 function setMode(next) {
@@ -496,7 +503,7 @@ function exportTransform() {
     sabreLocal,
     pose: {
       state: poseState,
-      readyPreset: READY_POSE_PRESET.label,
+      readyPreset: readyPosePreset?.label || null,
       selectedBone: selectedPoseBone?.name || null,
       bones: poseBonesExport,
     },
@@ -1232,7 +1239,7 @@ function snapCamera(view) {
 }
 
 async function boot() {
-  const [meshy, sabre] = await Promise.all([loadGlb(ASSETS.meshy), loadGlb(ASSETS.sabre)]);
+  const [meshy, sabre] = await Promise.all([loadGlb(ASSETS.meshy), loadGlb(ASSETS.sabre), loadReadyPosePreset()]);
   meshyRoot = normalizeCharacter(meshy);
   sabreRoot = prepareSabre(sabre);
   root.add(meshyRoot, sabreRoot);
