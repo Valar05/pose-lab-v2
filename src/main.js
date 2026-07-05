@@ -52,14 +52,16 @@ app.innerHTML = `
         <button type="button" data-cycle-pose-state>Pose: Rest</button>
         <button type="button" data-cycle-view-mode>View: Orbit</button>
         <button type="button" class="fpv-settings-button" data-fpv-settings-toggle aria-label="FPV camera settings" title="FPV camera settings">⚙</button>
+        <button type="button" data-attack-review-toggle ${REQUESTED_CANDIDATE ? '' : 'hidden'} aria-label="Attack playback controls">Attack</button>
         <button type="button" data-dock-toggle>Tools</button>
         <span class="status" data-status>loading Meshy and real sabre</span>
       </div>
-      <div class="attack-review" data-attack-review ${REQUESTED_CANDIDATE ? '' : 'hidden'} aria-label="Attack candidate review controls">
+      <div class="attack-review" data-attack-review hidden aria-label="Attack candidate review controls">
         <div class="attack-review-row">
           <button type="button" data-attack-play>Play</button>
           <button type="button" data-attack-pause>Pause</button>
           <output data-attack-time>0.000s</output>
+          <button type="button" class="attack-review-close" data-attack-review-close aria-label="Close attack playback controls">Close</button>
         </div>
         <input type="range" min="0" max="1.25" step="0.041667" value="0" data-attack-scrub aria-label="Attack time scrubber" />
         <div class="attack-primes" data-attack-primes aria-label="Attack prime keys"></div>
@@ -174,6 +176,8 @@ const fpvCopyButton = app.querySelector('[data-fpv-copy]');
 const fpvFovInput = app.querySelector('[data-fpv-fov]');
 const fpvFovOutput = app.querySelector('[data-fpv-fov-output]');
 const attackReviewPanel = app.querySelector('[data-attack-review]');
+const attackReviewToggle = app.querySelector('[data-attack-review-toggle]');
+const attackReviewClose = app.querySelector('[data-attack-review-close]');
 const attackPlayButton = app.querySelector('[data-attack-play]');
 const attackPauseButton = app.querySelector('[data-attack-pause]');
 const attackScrubInput = app.querySelector('[data-attack-scrub]');
@@ -188,6 +192,7 @@ let fpvSettingsOpen = false;
 let fpvNudgeState = null;
 let fpvNudgeHoldTimer = null;
 let fpvNudgeRaf = null;
+let attackReviewOpen = Boolean(REQUESTED_CANDIDATE);
 const fpvBodyMasks = [];
 const toolState = {
   saber: { mode: 'move', axis: 'screen' },
@@ -964,10 +969,14 @@ function pauseAttackReview() {
   statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; paused ${attackPoseCurrentTime.toFixed(3)}s`;
 }
 
+function setAttackReviewOpen(open) {
+  attackReviewOpen = Boolean(open && REQUESTED_CANDIDATE);
+  updateAttackReviewControls();
+}
+
 function setupAttackReviewControls() {
   if (!attackReviewPanel || !attackPoseSequence) return;
   const duration = attackDuration();
-  attackReviewPanel.hidden = false;
   attackScrubInput.max = String(duration || 1.25);
   attackScrubInput.step = String(1 / 24);
   attackPrimesEl.innerHTML = '';
@@ -986,7 +995,11 @@ function setupAttackReviewControls() {
 function updateAttackReviewControls() {
   if (!attackReviewPanel) return;
   const active = Boolean(attackPoseSequence && poseState === 'attack1');
-  attackReviewPanel.hidden = !active;
+  if (attackReviewToggle) {
+    attackReviewToggle.hidden = !Boolean(REQUESTED_CANDIDATE);
+    attackReviewToggle.classList.toggle('active', active && attackReviewOpen);
+  }
+  attackReviewPanel.hidden = !(active && attackReviewOpen);
   if (!active) return;
   const time = attackPoseCurrentTime || 0;
   attackScrubInput.value = String(time);
@@ -2304,6 +2317,8 @@ fpvCopyButton.addEventListener('click', () => {
   statusEl.textContent = 'fpv camera: copied';
 });
 fpvFovInput.addEventListener('input', () => setFpvFov(fpvFovInput.value));
+attackReviewToggle.addEventListener('click', () => setAttackReviewOpen(!attackReviewOpen));
+attackReviewClose.addEventListener('click', () => setAttackReviewOpen(false));
 attackPlayButton.addEventListener('click', playAttackReview);
 attackPauseButton.addEventListener('click', pauseAttackReview);
 attackScrubInput.addEventListener('input', () => setAttackReviewTime(attackScrubInput.value));

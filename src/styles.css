@@ -119,12 +119,11 @@ canvas {
 .attack-review {
   position: absolute;
   left: 12px;
-  right: 12px;
   top: 68px;
   z-index: 8;
   display: grid;
   gap: 7px;
-  max-width: min(680px, calc(100vw - 24px));
+  width: min(680px, calc(100vw - 24px));
   padding: 8px;
   border: 1px solid rgba(240, 195, 90, 0.38);
   border-radius: 6px;
@@ -157,6 +156,10 @@ canvas {
   color: #d8ecff;
   font-size: 12px;
   font-weight: 850;
+}
+
+.attack-review-close {
+  margin-left: auto;
 }
 
 .attack-primes button {
@@ -266,15 +269,15 @@ body.is-fpv .primary-rail {
   background: rgba(3, 7, 10, 0.72);
 }
 
-body.is-fpv .primary-rail button:not([data-cycle-view-mode]),
+body.is-fpv .primary-rail button:not([data-cycle-view-mode]):not([data-fpv-settings-toggle]):not([data-attack-review-toggle]),
 body.is-fpv .primary-rail .status,
-body.is-fpv .control-dock,
-body.is-fpv .attack-review {
+body.is-fpv .control-dock {
   display: none !important;
 }
 
 body.is-fpv .primary-rail button[data-cycle-view-mode],
-body.is-fpv .primary-rail button[data-fpv-settings-toggle] {
+body.is-fpv .primary-rail button[data-fpv-settings-toggle],
+body.is-fpv .primary-rail button[data-attack-review-toggle] {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
@@ -288,6 +291,11 @@ body.is-fpv .primary-rail button[data-fpv-settings-toggle] {
   min-width: 32px;
   width: 32px;
   font-size: 16px;
+}
+
+body.is-fpv .attack-review {
+  top: 56px;
+  width: min(460px, calc(100vw - 24px));
 }
 
 .touch-proof pre,
