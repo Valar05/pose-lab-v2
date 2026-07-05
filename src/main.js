@@ -7,6 +7,7 @@ const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
   sabre: './assets/meshy/meshy_real_sabre.glb',
 };
+const DEBUG_TOUCH = new URLSearchParams(window.location.search).get('debugTouch') === '1';
 
 const app = document.querySelector('#app');
 app.innerHTML = `
@@ -39,6 +40,10 @@ app.innerHTML = `
     <div class="readout">
       <pre data-export aria-label="Saber transform export"></pre>
     </div>
+    <div class="touch-proof" data-touch-proof ${DEBUG_TOUCH ? '' : 'hidden'}>
+      <button type="button" data-action="touch-probe">Run Touch Probe</button>
+      <pre data-touch-proof-readout aria-label="Pose touch interaction proof">touch proof: not run</pre>
+    </div>
   </section>
 `;
 
@@ -51,11 +56,32 @@ const modeButtons = [...app.querySelectorAll('[data-mode]')];
 const axisButtons = [...app.querySelectorAll('[data-axis]')];
 const resetSaberButton = app.querySelector('[data-action="reset-saber"]');
 const resetPoseButton = app.querySelector('[data-action="reset-pose"]');
+const touchProofPanel = app.querySelector('[data-touch-proof-readout]');
+const touchProbeButton = app.querySelector('[data-action="touch-probe"]');
 
 let toolMode = 'saber';
+const touchProof = {
+  probe: 'not-run',
+  selectedBone: 'none',
+  gestureKind: 'none',
+  orbitBlocked: false,
+  cameraMovedDuringPoseTouch: null,
+  boneQuaternionChanged: null,
+  lastTouchAction: 'none',
+};
+
+function updateTouchProof(values = {}) {
+  Object.assign(touchProof, values, {
+    selectedBone: selectedPoseBone?.name || touchProof.selectedBone,
+    gestureKind: touchGesture?.kind || touchProof.gestureKind,
+  });
+  if (!DEBUG_TOUCH || !touchProofPanel) return;
+  touchProofPanel.textContent = JSON.stringify(touchProof, null, 2);
+}
 
 function blockPoseTouchPointer(event) {
   if (event.pointerType !== 'touch' || toolMode !== 'pose') return;
+  updateTouchProof({ orbitBlocked: true, lastTouchAction: 'blocked-touch-pointer' });
   event.preventDefault();
   event.stopImmediatePropagation();
 }
@@ -759,6 +785,7 @@ function beginTwoFingerPose(points) {
   lastTwistAngle = touchAngle(points);
   controls.enabled = false;
   statusEl.textContent = `pose: two-finger bone roll ${selectedPoseBone?.name || ''}`;
+  updateTouchProof({ lastTouchAction: 'two-finger-pose-start' });
 }
 
 function beginPoseEmptyTouch(point) {
@@ -771,6 +798,7 @@ function beginPoseEmptyTouch(point) {
   };
   controls.enabled = false;
   statusEl.textContent = 'pose: selected bone kept; double-tap empty space to deselect';
+  updateTouchProof({ lastTouchAction: 'empty-hold' });
 }
 
 function beginCameraTouch(points) {
@@ -798,6 +826,7 @@ function consumePoseEmptyDoubleTap(point) {
   lastPoseEmptyTap = null;
   updatePoseHandles();
   statusEl.textContent = 'pose: bone deselected';
+  updateTouchProof({ selectedBone: 'none', lastTouchAction: 'double-tap-deselect' });
   return true;
 }
 
@@ -876,6 +905,7 @@ function handleTouchMove(event) {
     updatePoseHandles();
     updateReadout();
     statusEl.textContent = `pose: two-finger bone roll ${selectedPoseBone.name}`;
+    updateTouchProof({ lastTouchAction: 'two-finger-twist' });
     stopEvent(event);
     return true;
   }
@@ -971,6 +1001,69 @@ function handleTouchEnd(event) {
   statusEl.textContent = `${mode}: transform ready; empty-space drag orbits camera`;
   stopEvent(event);
   return true;
+}
+
+function makeSyntheticTouchEvent(points) {
+  return {
+    touches: points.map((point) => ({ clientX: point.x, clientY: point.y })),
+    preventDefault() {},
+    stopImmediatePropagation() {},
+  };
+}
+
+function makeSyntheticPointerEvent() {
+  return {
+    pointerType: 'touch',
+    preventDefault() {},
+    stopImmediatePropagation() {},
+  };
+}
+
+function runTouchProbe() {
+  if (!meshyRoot || !poseBones.size) {
+    updateTouchProof({ probe: 'FAIL', lastTouchAction: 'probe missing pose bones' });
+    return;
+  }
+  setToolMode('pose');
+  const bone = poseBones.get('RightHand') || poseBones.get('RightForeArm');
+  if (!bone) {
+    updateTouchProof({ probe: 'FAIL', lastTouchAction: 'probe missing RightHand' });
+    return;
+  }
+  selectedPoseBone = bone;
+  currentAxis = 'screen';
+  updatePoseHandles();
+  root.updateMatrixWorld(true);
+  const cameraPositionBefore = camera.position.clone();
+  const cameraTargetBefore = controls.target.clone();
+  const boneQuaternionBefore = bone.quaternion.clone();
+
+  blockPoseTouchPointer(makeSyntheticPointerEvent());
+  handleTouchStart(makeSyntheticTouchEvent([
+    { x: 120, y: 120 },
+    { x: 180, y: 120 },
+  ]));
+  const gestureKindAfterStart = touchGesture?.kind || 'none';
+  handleTouchMove(makeSyntheticTouchEvent([
+    { x: 120, y: 120 },
+    { x: 168, y: 152 },
+  ]));
+
+  const cameraMoved = camera.position.distanceTo(cameraPositionBefore) > 1e-8
+    || controls.target.distanceTo(cameraTargetBefore) > 1e-8;
+  const boneChanged = bone.quaternion.angleTo(boneQuaternionBefore) > 1e-6;
+  const selectedStayed = selectedPoseBone === bone;
+  const passed = selectedStayed && gestureKindAfterStart === 'two-pose' && !cameraMoved && boneChanged;
+  updateTouchProof({
+    probe: passed ? 'PASS' : 'FAIL',
+    selectedBone: selectedPoseBone?.name || 'none',
+    gestureKind: gestureKindAfterStart,
+    cameraMovedDuringPoseTouch: cameraMoved,
+    boneQuaternionChanged: boneChanged,
+    lastTouchAction: passed ? 'probe pass' : 'probe fail',
+  });
+  updateReadout();
+  statusEl.textContent = `touch probe: ${passed ? 'PASS' : 'FAIL'}`;
 }
 
 function startGesture(event) {
@@ -1198,6 +1291,9 @@ app.querySelector('[data-action="copy"]').addEventListener('click', () => {
   navigator.clipboard?.writeText(JSON.stringify(exportTransform(), null, 2)).catch(() => {});
   statusEl.textContent = 'export copied';
 });
+
+touchProbeButton?.addEventListener('click', runTouchProbe);
+updateTouchProof();
 
 canvas.addEventListener('pointerdown', startGesture, { capture: true });
 canvas.addEventListener('pointermove', updateGesture, { capture: true });

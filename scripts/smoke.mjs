@@ -84,6 +84,10 @@ assert(main.includes('pickSabre') && main.includes('startGesture') && main.inclu
 assert(main.includes('function handleTouchStart') && main.includes('function handleTouchMove') && main.includes('function handleTouchEnd'), 'mobile saber editing must use native touch handlers, not pointer-only guesses');
 assert(main.includes("canvas.addEventListener('touchstart', handleTouchStart, { capture: true, passive: false })"), 'touchstart must be non-passive capture so saber gestures can stop camera/browser handling');
 assert(main.includes('let suppressTouchPointerEvents = false') && main.includes('event.pointerType === \'touch\' && suppressTouchPointerEvents'), 'owned native touch gestures must suppress duplicate touch pointer events');
+assert(main.includes("const DEBUG_TOUCH = new URLSearchParams(window.location.search).get('debugTouch') === '1'"), 'touch proof UI must be gated behind ?debugTouch=1');
+assert(main.includes('data-touch-proof') && main.includes('data-touch-proof-readout') && main.includes('Run Touch Probe'), 'debugTouch mode must expose a visible interaction proof panel');
+assert(main.includes('function runTouchProbe') && main.includes("probe: passed ? 'PASS' : 'FAIL'"), 'debugTouch mode must run a visible PASS/FAIL touch probe');
+assert(main.includes('cameraMovedDuringPoseTouch') && main.includes('boneQuaternionChanged') && main.includes("gestureKindAfterStart === 'two-pose'"), 'touch probe must measure camera stability, bone change, and two-pose ownership');
 assert(main.includes('function blockPoseTouchPointer') && main.includes("event.pointerType !== 'touch' || toolMode !== 'pose'"), 'Pose mode must firewall touch pointer events before OrbitControls can pan');
 assert(main.includes('blockPoseTouchPointer') && main.includes('stopImmediatePropagation()'), 'Pose touch pointer firewall must stop later OrbitControls listeners');
 assert(main.indexOf("canvas.addEventListener('pointerdown', blockPoseTouchPointer") >= 0 && main.indexOf("canvas.addEventListener('pointerdown', blockPoseTouchPointer") < main.indexOf('new OrbitControls(camera, canvas)'), 'Pose touch pointer firewall must register before OrbitControls');

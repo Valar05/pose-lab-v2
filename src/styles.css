@@ -48,6 +48,25 @@ canvas {
   align-items: stretch;
 }
 
+.touch-proof {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+  display: grid;
+  gap: 8px;
+  width: min(360px, calc(100vw - 24px));
+}
+
+.touch-proof[hidden] {
+  display: none;
+}
+
+.touch-proof pre {
+  max-height: 220px;
+  border: 1px solid rgba(240, 195, 90, 0.45);
+}
+
 button {
   min-height: 40px;
   padding: 8px 12px;
@@ -105,4 +124,3 @@ pre {
     width: 100%;
   }
 }
-
