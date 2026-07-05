@@ -47,6 +47,12 @@ assert(main.includes('pickSabre') && main.includes('startGesture') && main.inclu
 assert(main.includes('pickSabre') && main.includes('if (!hit) return false'), 'empty-space drags must stay available for camera orbit after selection');
 assert(main.includes('cycleMode') && main.includes('tapCanCycle'), 'selected sabre tap must cycle transform mode like the TFTM tuner');
 assert(main.includes('snapCamera') && main.includes('data-camera-view'), 'app must expose TFTM-style camera snap controls');
+assert(main.includes('data-axis="screen"') && main.includes('data-axis="all"') && main.includes('data-axis="x"') && main.includes('data-axis="y"') && main.includes('data-axis="z"'), 'app must expose TFTM-style split axis controls');
+assert(main.includes("let currentAxis = 'screen'") && main.includes("currentAxis = mode === 'scale' ? 'all' : 'screen'"), 'mode changes must reset axis to Screen or All');
+assert(main.includes('function moveSabreByGesture') && main.includes('function rotateSabreByGesture') && main.includes('function scaleSabreByDelta'), 'saber transforms must route through split-axis helpers');
+assert(main.includes("if (mode === 'scale' && lastPinchDistance > 0)") && main.includes("if (mode === 'rotate' && Number.isFinite(lastTwistAngle))"), 'two-finger gestures must be gated to Scale and Rotate modes');
+assert(main.includes("const axis = currentAxis === 'screen' ? gesture.forward.clone() : worldAxisVector(currentAxis)"), 'two-finger rotate must default to Pose Lab-style screen roll');
+assert(main.includes("two-finger camera gesture ignored in Move"), 'Move mode must not transform the saber with two-finger gestures');
 assert(main.includes("schema: 'pose-lab-v2-sabre-transform-v1'"), 'app must export a compact saber transform');
 
 if (exists('dist')) {

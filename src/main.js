@@ -15,6 +15,11 @@ app.innerHTML = `
       <button type="button" data-mode="move" class="active">Move</button>
       <button type="button" data-mode="rotate">Rotate</button>
       <button type="button" data-mode="scale">Scale</button>
+      <button type="button" data-axis="screen" class="active">Screen</button>
+      <button type="button" data-axis="all" hidden>All</button>
+      <button type="button" data-axis="x">X</button>
+      <button type="button" data-axis="y">Y</button>
+      <button type="button" data-axis="z">Z</button>
       <button type="button" data-action="reset">Reset</button>
       <button type="button" data-action="copy">Copy Export</button>
       <button type="button" data-camera-view="front">Front</button>
@@ -34,6 +39,7 @@ const canvas = app.querySelector('canvas');
 const statusEl = app.querySelector('[data-status]');
 const exportEl = app.querySelector('[data-export]');
 const modeButtons = [...app.querySelectorAll('[data-mode]')];
+const axisButtons = [...app.querySelectorAll('[data-axis]')];
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
@@ -76,6 +82,7 @@ const root = new THREE.Group();
 scene.add(root);
 
 let mode = 'move';
+let currentAxis = 'screen';
 let meshyRoot = null;
 let sabreRoot = null;
 let selected = false;
@@ -125,10 +132,31 @@ async function loadGlb(url) {
 
 function setMode(next) {
   mode = next;
+  currentAxis = mode === 'scale' ? 'all' : 'screen';
+  renderControls();
+}
+
+function setAxis(next) {
+  currentAxis = mode === 'scale' && next === 'screen' ? 'all' : next;
+  if (mode !== 'scale' && currentAxis === 'all') currentAxis = 'screen';
+  renderControls();
+}
+
+function axisLabel() {
+  if (currentAxis === 'all') return 'All';
+  return currentAxis === 'screen' ? 'Screen' : currentAxis.toUpperCase();
+}
+
+function renderControls() {
   modeButtons.forEach((button) => button.classList.toggle('active', button.dataset.mode === mode));
+  axisButtons.forEach((button) => {
+    const axis = button.dataset.axis || 'screen';
+    button.hidden = axis === 'all' && mode !== 'scale';
+    button.classList.toggle('active', axis === currentAxis);
+  });
   statusEl.textContent = selected
-    ? `${mode}: drag sabre to edit, drag empty space for camera`
-    : `${mode}: tap the visible sabre first`;
+    ? `${mode} / ${axisLabel()}: drag sabre to edit, drag empty space for camera`
+    : `${mode} / ${axisLabel()}: tap the visible sabre first`;
 }
 
 function cycleMode() {
@@ -139,6 +167,7 @@ function exportTransform() {
   if (!sabreRoot) return {};
   const rotationDeg = sabreRoot.rotation.toArray().slice(0, 3)
     .map((value) => Number(THREE.MathUtils.radToDeg(value).toFixed(3)));
+  const scale = sabreRoot.scale.toArray().map((value) => Number(value.toFixed(5)));
   return {
     schema: 'pose-lab-v2-sabre-transform-v1',
     assets: {
@@ -148,7 +177,8 @@ function exportTransform() {
     saberRoot: {
       position: sabreRoot.position.toArray().map((value) => Number(value.toFixed(5))),
       rotationDeg,
-      scale: Number(sabreRoot.scale.x.toFixed(5)),
+      scale,
+      uniformScale: Number(sabreRoot.scale.x.toFixed(5)),
     },
   };
 }
@@ -194,6 +224,55 @@ function cameraBasis() {
   return { right: right.normalize(), up: up.normalize(), forward: forward.normalize() };
 }
 
+function worldAxisVector(axis) {
+  if (axis === 'x') return new THREE.Vector3(1, 0, 0);
+  if (axis === 'y') return new THREE.Vector3(0, 1, 0);
+  if (axis === 'z') return new THREE.Vector3(0, 0, 1);
+  return null;
+}
+
+function moveSabreByGesture(dx, dy, basis) {
+  const amount = 0.0035;
+  if (currentAxis === 'screen') {
+    const delta = basis.right.clone().multiplyScalar(dx * amount)
+      .add(basis.up.clone().multiplyScalar(-dy * amount));
+    sabreRoot.position.add(delta);
+    return;
+  }
+  const axis = worldAxisVector(currentAxis);
+  if (!axis) return;
+  const value = (Math.abs(dx) > Math.abs(dy) ? dx : -dy) * amount;
+  sabreRoot.position.add(axis.multiplyScalar(value));
+}
+
+function rotateSabreAroundAxis(axis, radians) {
+  const delta = new THREE.Quaternion().setFromAxisAngle(axis.normalize(), radians);
+  sabreRoot.quaternion.premultiply(delta).normalize();
+}
+
+function rotateSabreByGesture(dx, dy, basis) {
+  if (currentAxis === 'screen') {
+    const yaw = new THREE.Quaternion().setFromAxisAngle(basis.up, dx * 0.007);
+    const pitch = new THREE.Quaternion().setFromAxisAngle(basis.right, dy * 0.007);
+    sabreRoot.quaternion.premultiply(pitch).premultiply(yaw).normalize();
+    return;
+  }
+  const axis = worldAxisVector(currentAxis);
+  if (!axis) return;
+  const radians = (Math.abs(dx) > Math.abs(dy) ? dx : -dy) * 0.007;
+  rotateSabreAroundAxis(axis, radians);
+}
+
+function scaleSabreByDelta(delta) {
+  if (currentAxis === 'all' || currentAxis === 'screen') {
+    const scalar = Math.max(0.05, Math.min(3, sabreRoot.scale.x + delta));
+    sabreRoot.scale.setScalar(scalar);
+    return;
+  }
+  const next = Math.max(0.05, Math.min(3, sabreRoot.scale[currentAxis] + delta));
+  sabreRoot.scale[currentAxis] = next;
+}
+
 function startGesture(event) {
   if (!sabreRoot) return false;
   pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -209,7 +288,7 @@ function startGesture(event) {
   selected = true;
   controls.enabled = false;
   canvas.setPointerCapture(event.pointerId);
-  const { right, up } = cameraBasis();
+  const { right, up, forward } = cameraBasis();
   gesture = {
     pointerId: event.pointerId,
     lastX: event.clientX,
@@ -218,6 +297,7 @@ function startGesture(event) {
     tapCanCycle: wasSelected,
     right,
     up,
+    forward,
   };
   controls.target.copy(sabreRoot.position);
   controls.update();
@@ -227,28 +307,24 @@ function startGesture(event) {
 }
 
 function updateGesture(event) {
-  if (!gesture || gesture.pointerId !== event.pointerId || !sabreRoot) return false;
+  if (!gesture || !sabreRoot) return false;
   pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
   if (pointers.size >= 2) {
     handleTwoFingerGesture();
     event.preventDefault();
     return true;
   }
+  if (gesture.pointerId !== event.pointerId) return false;
   const dx = event.clientX - gesture.lastX;
   const dy = event.clientY - gesture.lastY;
   if (Math.abs(dx) + Math.abs(dy) < 0.5) return true;
 
   if (mode === 'move') {
-    const delta = gesture.right.clone().multiplyScalar(dx * 0.0035)
-      .add(gesture.up.clone().multiplyScalar(-dy * 0.0035));
-    sabreRoot.position.add(delta);
+    moveSabreByGesture(dx, dy, gesture);
   } else if (mode === 'scale') {
-    const scalar = Math.max(0.05, Math.min(3, sabreRoot.scale.x * Math.exp((dx - dy) * 0.004)));
-    sabreRoot.scale.setScalar(scalar);
+    scaleSabreByDelta((dx - dy) * 0.004);
   } else {
-    const yaw = new THREE.Quaternion().setFromAxisAngle(gesture.up, dx * 0.007);
-    const pitch = new THREE.Quaternion().setFromAxisAngle(gesture.right, dy * 0.007);
-    sabreRoot.quaternion.premultiply(pitch).premultiply(yaw).normalize();
+    rotateSabreByGesture(dx, dy, gesture);
   }
 
   gesture.lastX = event.clientX;
@@ -291,16 +367,22 @@ function handleTwoFingerGesture() {
   const distance = getPointerDistance();
   const angle = getPointerAngle();
   if (mode === 'scale' && lastPinchDistance > 0) {
-    const scalar = Math.max(0.05, Math.min(3, sabreRoot.scale.x + (distance - lastPinchDistance) * 0.006));
-    sabreRoot.scale.setScalar(scalar);
+    scaleSabreByDelta((distance - lastPinchDistance) * 0.006);
   }
   if (mode === 'rotate' && Number.isFinite(lastTwistAngle)) {
-    sabreRoot.rotateY(angle - lastTwistAngle);
+    const twist = angle - lastTwistAngle;
+    const axis = currentAxis === 'screen' ? gesture.forward.clone() : worldAxisVector(currentAxis);
+    if (axis) rotateSabreAroundAxis(axis, twist);
   }
   lastPinchDistance = distance;
   lastTwistAngle = angle;
   gesture.moved = true;
   updateReadout();
+  statusEl.textContent = mode === 'rotate'
+    ? `two-finger roll / ${axisLabel()}`
+    : mode === 'scale'
+      ? `two-finger scale / ${axisLabel()}`
+      : 'two-finger camera gesture ignored in Move';
 }
 
 function snapCamera(view) {
@@ -331,6 +413,10 @@ async function boot() {
 
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => setMode(button.dataset.mode || 'move'));
+});
+
+axisButtons.forEach((button) => {
+  button.addEventListener('click', () => setAxis(button.dataset.axis || 'screen'));
 });
 
 app.querySelectorAll('[data-camera-view]').forEach((button) => {
