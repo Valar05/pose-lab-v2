@@ -87,6 +87,13 @@ let meshyRoot = null;
 let sabreRoot = null;
 let selected = false;
 let gesture = null;
+const GESTURE_OWNER = {
+  NONE: 'none',
+  SABER_ONE: 'saber-one-finger',
+  SABER_TWO: 'saber-two-finger',
+  APP_CAMERA: 'app-camera-touch',
+};
+let gestureOwner = GESTURE_OWNER.NONE;
 const pointers = new Map();
 let lastPinchDistance = 0;
 let lastTwistAngle = 0;
@@ -250,6 +257,16 @@ function rotateSabreAroundAxis(axis, radians) {
   sabreRoot.quaternion.premultiply(delta).normalize();
 }
 
+function orbitCameraByDelta(dx, dy) {
+  const offset = camera.position.clone().sub(controls.target);
+  const spherical = new THREE.Spherical().setFromVector3(offset);
+  spherical.theta -= dx * 0.006;
+  spherical.phi = THREE.MathUtils.clamp(spherical.phi - dy * 0.0045, 0.18, Math.PI - 0.18);
+  offset.setFromSpherical(spherical);
+  camera.position.copy(controls.target).add(offset);
+  controls.update();
+}
+
 function rotateSabreByGesture(dx, dy, basis) {
   if (currentAxis === 'screen') {
     const yaw = new THREE.Quaternion().setFromAxisAngle(basis.up, dx * 0.007);
@@ -273,42 +290,84 @@ function scaleSabreByDelta(delta) {
   sabreRoot.scale[currentAxis] = next;
 }
 
+function stopEvent(event) {
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}
+
+function capturePointer(pointerId) {
+  if (canvas.hasPointerCapture?.(pointerId)) return;
+  canvas.setPointerCapture(pointerId);
+}
+
+function releasePointer(pointerId) {
+  if (!canvas.hasPointerCapture?.(pointerId)) return;
+  canvas.releasePointerCapture(pointerId);
+}
+
+function ownCameraTouch(event) {
+  const { right, up, forward } = cameraBasis();
+  gestureOwner = GESTURE_OWNER.APP_CAMERA;
+  gesture = {
+    pointerId: event.pointerId,
+    lastX: event.clientX,
+    lastY: event.clientY,
+    moved: false,
+    tapCanCycle: false,
+    right,
+    up,
+    forward,
+  };
+  controls.enabled = false;
+  capturePointer(event.pointerId);
+  statusEl.textContent = 'camera: one-finger orbit; add a finger to edit sabre';
+}
+
+function armTwoFingerSabre(event) {
+  const { right, up, forward } = cameraBasis();
+  gestureOwner = GESTURE_OWNER.SABER_TWO;
+  gesture = {
+    pointerId: event.pointerId,
+    lastX: event.clientX,
+    lastY: event.clientY,
+    moved: false,
+    tapCanCycle: false,
+    multiTouch: true,
+    right,
+    up,
+    forward,
+  };
+  lastPinchDistance = getPointerDistance();
+  lastTwistAngle = getPointerAngle();
+  controls.enabled = false;
+  for (const pointerId of pointers.keys()) capturePointer(pointerId);
+  statusEl.textContent = mode === 'rotate' ? 'two-finger roll armed' : 'two-finger scale armed';
+}
+
 function startGesture(event) {
   if (!sabreRoot) return false;
+  const isTouch = event.pointerType === 'touch';
   pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-  if (pointers.size >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
-    if (!gesture) {
-      const { right, up, forward } = cameraBasis();
-      gesture = {
-        pointerId: event.pointerId,
-        lastX: event.clientX,
-        lastY: event.clientY,
-        moved: false,
-        tapCanCycle: false,
-        multiTouch: true,
-        right,
-        up,
-        forward,
-      };
-    }
-    lastPinchDistance = getPointerDistance();
-    lastTwistAngle = getPointerAngle();
-    controls.enabled = false;
-    canvas.setPointerCapture(event.pointerId);
-    statusEl.textContent = mode === 'rotate' ? 'two-finger roll armed' : 'two-finger scale armed';
-    event.preventDefault();
-    event.stopImmediatePropagation();
+  if (isTouch && pointers.size >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
+    armTwoFingerSabre(event);
+    stopEvent(event);
     return true;
   }
   const hit = pickSabre(event.clientX, event.clientY);
   if (!hit) {
+    if (isTouch && selected && (mode === 'rotate' || mode === 'scale')) {
+      ownCameraTouch(event);
+      stopEvent(event);
+      return true;
+    }
     pointers.delete(event.pointerId);
     return false;
   }
   const wasSelected = selected;
   selected = true;
   controls.enabled = false;
-  canvas.setPointerCapture(event.pointerId);
+  gestureOwner = GESTURE_OWNER.SABER_ONE;
+  capturePointer(event.pointerId);
   const { right, up, forward } = cameraBasis();
   gesture = {
     pointerId: event.pointerId,
@@ -323,24 +382,34 @@ function startGesture(event) {
   controls.target.copy(sabreRoot.position);
   controls.update();
   statusEl.textContent = `${mode}: editing real sabre`;
-  event.preventDefault();
-  event.stopImmediatePropagation();
+  stopEvent(event);
   return true;
 }
 
 function updateGesture(event) {
-  if (!gesture || !sabreRoot) return false;
+  if (!sabreRoot || !pointers.has(event.pointerId)) return false;
   pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-  if (pointers.size >= 2) {
+  if (pointers.size >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
+    if (gestureOwner !== GESTURE_OWNER.SABER_TWO) armTwoFingerSabre(event);
     handleTwoFingerGesture();
-    event.preventDefault();
-    event.stopImmediatePropagation();
+    stopEvent(event);
     return true;
   }
+  if (!gesture) return false;
   if (gesture.pointerId !== event.pointerId) return false;
   const dx = event.clientX - gesture.lastX;
   const dy = event.clientY - gesture.lastY;
   if (Math.abs(dx) + Math.abs(dy) < 0.5) return true;
+
+  if (gestureOwner === GESTURE_OWNER.APP_CAMERA) {
+    orbitCameraByDelta(dx, dy);
+    gesture.lastX = event.clientX;
+    gesture.lastY = event.clientY;
+    gesture.moved = true;
+    statusEl.textContent = 'camera: one-finger orbit; add a finger to edit sabre';
+    stopEvent(event);
+    return true;
+  }
 
   if (mode === 'move') {
     moveSabreByGesture(dx, dy, gesture);
@@ -354,27 +423,29 @@ function updateGesture(event) {
   gesture.lastY = event.clientY;
   gesture.moved = true;
   updateReadout();
-  event.preventDefault();
-  event.stopImmediatePropagation();
+  stopEvent(event);
   return true;
 }
 
 function endGesture(event) {
+  const wasTracked = pointers.has(event.pointerId);
   pointers.delete(event.pointerId);
-  if (gesture?.multiTouch && pointers.size < 2) {
+  releasePointer(event.pointerId);
+  if (gestureOwner === GESTURE_OWNER.SABER_TWO && pointers.size < 2) {
     gesture = null;
+    gestureOwner = GESTURE_OWNER.NONE;
     controls.enabled = true;
     lastPinchDistance = 0;
     lastTwistAngle = 0;
     updateReadout();
     statusEl.textContent = `${mode}: transform ready; empty-space drag orbits camera`;
-    event.preventDefault();
-    event.stopImmediatePropagation();
+    stopEvent(event);
     return true;
   }
-  if (gesture?.pointerId !== event.pointerId) return false;
+  if (gesture?.pointerId !== event.pointerId) return wasTracked;
   if (!gesture.moved && gesture.tapCanCycle) cycleMode();
   gesture = null;
+  gestureOwner = GESTURE_OWNER.NONE;
   controls.enabled = true;
   if (pointers.size < 2) {
     lastPinchDistance = 0;
@@ -382,8 +453,7 @@ function endGesture(event) {
   }
   updateReadout();
   statusEl.textContent = `${mode}: transform ready; empty-space drag orbits camera`;
-  event.preventDefault();
-  event.stopImmediatePropagation();
+  stopEvent(event);
   return true;
 }
 

@@ -44,7 +44,9 @@ assert(main.includes("meshy_apose_walking_with_skin.glb"), 'app must reference M
 assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB');
 assert(!main.includes("import './styles.css'"), 'browser-native ESM must not import CSS without a bundler');
 assert(main.includes('pickSabre') && main.includes('startGesture') && main.includes('updateGesture'), 'app must use visible direct saber gestures');
-assert(main.includes('pickSabre') && main.includes('if (!hit)') && main.includes('pointers.delete(event.pointerId);\n    return false;'), 'one-finger empty-space drags must stay available for camera orbit after selection');
+assert(main.includes('GESTURE_OWNER') && main.includes("SABER_TWO: 'saber-two-finger'") && main.includes("APP_CAMERA: 'app-camera-touch'"), 'touch handling must use explicit gesture ownership');
+assert(main.includes('function ownCameraTouch') && main.includes('camera: one-finger orbit; add a finger to edit sabre'), 'selected Rotate/Scale empty first touch must remain app-owned while waiting for a second touch');
+assert(main.includes('function orbitCameraByDelta') && main.includes('new THREE.Spherical().setFromVector3(offset)'), 'app-owned one-finger touch must still orbit the camera without OrbitControls stealing the stream');
 assert(main.includes('cycleMode') && main.includes('tapCanCycle'), 'selected sabre tap must cycle transform mode like the TFTM tuner');
 assert(main.includes('snapCamera') && main.includes('data-camera-view'), 'app must expose TFTM-style camera snap controls');
 assert(main.includes('data-axis="screen"') && main.includes('data-axis="all"') && main.includes('data-axis="x"') && main.includes('data-axis="y"') && main.includes('data-axis="z"'), 'app must expose TFTM-style split axis controls');
@@ -54,8 +56,10 @@ assert(main.includes("if (mode === 'scale' && lastPinchDistance > 0)") && main.i
 assert(main.includes("const axis = currentAxis === 'screen' ? gesture.forward.clone() : worldAxisVector(currentAxis)"), 'two-finger rotate must default to Pose Lab-style screen roll');
 assert(main.includes("two-finger camera gesture ignored in Move"), 'Move mode must not transform the saber with two-finger gestures');
 assert(main.includes("pointers.size >= 2 && selected && (mode === 'rotate' || mode === 'scale')"), 'selected saber must own two-finger Rotate/Scale anywhere on the canvas');
-assert(main.includes('multiTouch: true') && main.includes('gesture?.multiTouch && pointers.size < 2'), 'two-finger saber gestures must have a separate release path');
-assert(main.includes('pointers.delete(event.pointerId);\n    return false;'), 'empty one-finger pointer misses must not leave stale tracked touches');
+assert(main.includes('function armTwoFingerSabre') && main.includes('gestureOwner = GESTURE_OWNER.SABER_TWO'), 'two-finger saber gestures must be promoted through a dedicated owner path');
+assert(main.includes('gestureOwner === GESTURE_OWNER.SABER_TWO && pointers.size < 2'), 'two-finger saber gestures must have a separate release path');
+assert(main.includes('isTouch && selected && (mode === \'rotate\' || mode === \'scale\')') && main.includes('ownCameraTouch(event)'), 'selected Rotate/Scale touch misses must not be deleted before a second touch can take over');
+assert(!main.includes('pointers.delete(event.pointerId);\n    return false;\n  }\n  const hit = pickSabre'), 'app must not delete the first empty touch before hit testing can form a two-finger saber gesture');
 assert(main.includes("canvas.addEventListener('pointerdown', startGesture, { capture: true })"), 'saber gesture pointerdown must capture before OrbitControls');
 assert(main.includes('event.stopImmediatePropagation();'), 'owned saber gestures must stop OrbitControls from stealing active two-finger edits');
 assert(main.includes("schema: 'pose-lab-v2-sabre-transform-v1'"), 'app must export a compact saber transform');
