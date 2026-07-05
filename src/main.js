@@ -198,13 +198,13 @@ const firstPersonCameraConfig = {
   cameraMode: 'head-forward',
   anchor: 'Head',
   fallbackAnchor: 'Spine02',
-  forwardAxis: 'z',
-  headForwardOffset: 0.42,
-  headCameraYOffset: 0.03,
-  lookForward: 1.65,
-  lookVertical: 0,
-  fov: 98,
-  near: 0.04,
+  forwardAxis: '-z',
+  headForwardOffset: 0.58,
+  headCameraYOffset: 0,
+  lookForward: 0.4,
+  lookVertical: 0.12,
+  fov: 102,
+  near: 0.035,
 };
 
 const controls = new OrbitControls(camera, canvas);
