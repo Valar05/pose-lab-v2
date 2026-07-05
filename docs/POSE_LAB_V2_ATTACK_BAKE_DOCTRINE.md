@@ -20,8 +20,9 @@ not import Pose Lab runtime systems.
 
 1. Inspect the source clip inventory from `FPSPlayer.glb`.
 2. Confirm the source clip, duration, and keyed wrist/forearm/socket tracks.
-3. Bake Meshy upper-body samples from the source clip using the same frame
-   mapping and hand pinning style that produced the accepted `Ready` baseline.
+3. Bake Meshy upper-body samples from the source clip using imported keyed
+   rotations plus the accepted `Ready` local roll offsets. Do not use IK hand
+   pinning in the attack bake.
 4. Write the bake as a static JavaScript data module.
 5. Runtime playback may interpolate baked quaternions, but it must not solve or
    reinterpret the attack.

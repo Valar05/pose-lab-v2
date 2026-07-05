@@ -189,35 +189,6 @@ function setWorldQuaternion(THREE, bone, targetWorld) {
   bone.quaternion.copy(parentWorld.multiply(targetWorld).normalize());
 }
 
-function rotateJointToward(THREE, sceneRoot, joint, end, targetWorld, strength) {
-  const jointPos = worldPosition(THREE, joint);
-  const current = worldPosition(THREE, end).sub(jointPos);
-  const desired = targetWorld.clone().sub(jointPos);
-  if (current.lengthSq() < 1e-8 || desired.lengthSq() < 1e-8) return;
-  const turn = new THREE.Quaternion().setFromUnitVectors(current.normalize(), desired.normalize());
-  if (strength < 1) turn.slerp(new THREE.Quaternion(), 1 - strength).normalize();
-  setWorldQuaternion(THREE, joint, turn.multiply(worldQuaternion(THREE, joint)).normalize());
-  sceneRoot.updateMatrixWorld(true);
-}
-
-function clampToReach(THREE, shoulder, targetWorld, length, reachScale = 0.98) {
-  const shoulderWorld = worldPosition(THREE, shoulder);
-  const offset = targetWorld.clone().sub(shoulderWorld);
-  const maxReach = Math.max(0.001, length * reachScale);
-  if (offset.length() > maxReach) offset.setLength(maxReach);
-  return shoulderWorld.add(offset);
-}
-
-function applyTwoBonePin(THREE, sceneRoot, upper, lower, hand, targetWorld) {
-  const length = worldPosition(THREE, upper).distanceTo(worldPosition(THREE, lower))
-    + worldPosition(THREE, lower).distanceTo(worldPosition(THREE, hand));
-  const pinnedTarget = clampToReach(THREE, upper, targetWorld, length);
-  for (let i = 0; i < 8; i += 1) {
-    rotateJointToward(THREE, sceneRoot, lower, hand, pinnedTarget, 0.95);
-    rotateJointToward(THREE, sceneRoot, upper, hand, pinnedTarget, 0.85);
-  }
-}
-
 function projectedAroundAxis(THREE, direction, axis) {
   const normal = axis.clone().normalize();
   const projected = direction.clone().sub(normal.multiplyScalar(direction.dot(normal)));
@@ -377,31 +348,11 @@ function bakeCurrentFpsPoseToMeshy(THREE, fpsRoot, meshyRoot, context, retargete
     targetRestLocal,
     sourceRestWorld,
     targetRestWorld,
-    sourceFrame,
-    targetFrame,
-    scale,
   } = context;
   applyLocalQuaternions(meshyRoot, targetRestLocal);
   meshyRoot.updateMatrixWorld(true);
-  const projected = new Map();
-  for (const chain of chains) {
-    for (const sourceName of chain.source) {
-      projected.set(sourceName, mapPointBetweenFrames(
-        THREE,
-        sourceFrame,
-        targetFrame,
-        worldPosition(THREE, requireNode(fpsRoot, sourceName)),
-        scale
-      ));
-    }
-  }
   for (const name of applyOrientationBake(THREE, fpsRoot, meshyRoot, sourceRestWorld, targetRestWorld)) {
     retargetedBones?.add(name);
-  }
-  for (const chain of chains) {
-    const [upper, lower, hand] = chain.target.map((name) => requireNode(meshyRoot, name));
-    applyTwoBonePin(THREE, meshyRoot, upper, lower, hand, projected.get(chain.source[2]));
-    rotateHandRoll(THREE, meshyRoot, fpsRoot, meshyRoot, chain);
   }
   return posePayload(meshyRoot);
 }
@@ -425,7 +376,7 @@ function applyReadyGraphOffsets(THREE, frames, acceptedReadyBones, rawReadyBones
   return {
     adjustedBones,
     sourceReadyClip: readyClipName,
-    offsetSpace: 'local-quaternion',
+    offsetSpace: 'local-quaternion-ready-roll-offset',
     firstReadyAngleDeg: Object.fromEntries(adjustedBones.map((name) => [name, quaternionAngleDeg(THREE, first[name], acceptedReadyBones[name])])),
     lastReadyAngleDeg: Object.fromEntries(adjustedBones.map((name) => [name, quaternionAngleDeg(THREE, last[name], acceptedReadyBones[name])])),
   };
@@ -513,7 +464,7 @@ async function main() {
       duration: Number(sourceClip.duration.toFixed(6)),
       keyCount: times.length,
       projectionFrame: `${sourceFrameName}->${targetFrameName}`,
-      method: 'orientation-first-bake-with-ready-graph-offsets',
+      method: 'orientation-key-bake-with-ready-roll-offsets',
       readyGraphOffset,
       readyEndpointContract,
       retargetedBones: [...retargetedBones],

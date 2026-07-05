@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 const root = path.resolve(import.meta.dirname, '..');
 const failures = [];
@@ -12,6 +13,7 @@ function assert(condition, message) {
 const main = read('src/main.js');
 const readyPose = read('src/ready-pose.js');
 const attackPose = read('src/attack1-pose.js');
+const attackBakeScript = read('scripts/bake-pose-sequence.mjs');
 const html = read('index.html');
 const css = read('src/styles.css');
 const pkg = JSON.parse(read('package.json'));
@@ -85,6 +87,7 @@ assert(main.includes('function applyAttackPose') && main.includes("poseState = '
 assert(!main.includes('READY_RIGHT_WRIST_ROLL_DEG') && !main.includes('rollReadyRightWrist'), 'Ready must not apply a hidden runtime wrist-roll patch');
 assert(main.includes("source-oriented OneHandReady, sabre follows RightHand FK"), 'Ready state must report source-orientation bake and FK saber ownership');
 assert(readyPose.includes("schema\": \"pose-lab-v2-ready-pose-v1"), 'Ready pose preset must use the v2 baked pose schema');
+assert(createHash('sha256').update(readyPose).digest('hex') === '8d8e070f0fe88001917c88d885052085286e85d56aa0081c13b4fce35dfc011d', 'Ready pose preset must remain the clean rollback baseline');
 assert(readyPose.includes("clip\": \"OneHandReady") && readyPose.includes("sampleTime\": 1.25"), 'Ready pose preset must be baked from FPS OneHandReady at the held pose sample');
 assert(readyPose.includes('"RightHand"') && readyPose.includes('"LeftHand"') && readyPose.includes('"RightForeArm"'), 'Ready pose preset must include upper-body hand and forearm bones');
 assert(readyPose.includes('"method": "orientation-first-retarget-with-pins"'), 'Ready pose preset must use source-orientation retargeting guided by pins');
@@ -95,7 +98,8 @@ assert(attackSequence.source?.duration === 1.25, 'Attack1 sequence must preserve
 assert(attackSequence.source?.keyCount === 31 && attackSequence.frames?.length === 31, 'Attack1 sequence must preserve all 31 keyed source samples');
 assert(attackSequence.source?.signatureWristTwist?.sourceHandRotationTravelDeg > 100, 'Attack1 source must record a strong wrist-twist signature');
 assert(attackSequence.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > 100, 'Attack1 bake must preserve a strong right-hand wrist-twist signature');
-assert(attackSequence.source?.method === 'orientation-first-bake-with-ready-graph-offsets', 'Attack1 must apply accepted Ready offsets across the whole animation graph');
+assert(attackSequence.source?.method === 'orientation-key-bake-with-ready-roll-offsets', 'Attack1 must apply accepted Ready roll offsets across keyed imported rotations');
+assert(!attackBakeScript.includes('applyTwoBonePin'), 'Attack1 bake script must not use IK/two-bone hand pinning');
 assert(attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('RightHand') && attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('LeftHand'), 'Attack1 graph offset must include both hands');
 assert(attackSequence.source?.readyEndpointContract?.firstMatchesReady === true && attackSequence.source?.readyEndpointContract?.lastMatchesReady === true, 'Attack1 first and last frames must match the accepted Ready pose');
 for (const boneName of ['LeftArm', 'LeftForeArm', 'LeftHand', 'RightArm', 'RightForeArm', 'RightHand']) {
