@@ -43,7 +43,10 @@ assert(exists('vendor/three/examples/jsm/utils/BufferGeometryUtils.js'), 'missin
 assert(main.includes("meshy_apose_walking_with_skin.glb"), 'app must reference Meshy GLB');
 assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB');
 assert(!main.includes("import './styles.css'"), 'browser-native ESM must not import CSS without a bundler');
-assert(main.includes('raycastSabre') && main.includes('startGesture') && main.includes('updateGesture'), 'app must use visible direct saber gestures');
+assert(main.includes('pickSabre') && main.includes('startGesture') && main.includes('updateGesture'), 'app must use visible direct saber gestures');
+assert(main.includes('pickSabre') && main.includes('if (!hit) return false'), 'empty-space drags must stay available for camera orbit after selection');
+assert(main.includes('cycleMode') && main.includes('tapCanCycle'), 'selected sabre tap must cycle transform mode like the TFTM tuner');
+assert(main.includes('snapCamera') && main.includes('data-camera-view'), 'app must expose TFTM-style camera snap controls');
 assert(main.includes("schema: 'pose-lab-v2-sabre-transform-v1'"), 'app must export a compact saber transform');
 
 if (exists('dist')) {
