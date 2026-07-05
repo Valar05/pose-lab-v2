@@ -980,17 +980,13 @@ function initialViewModeFromUrl() {
     : 'orbit';
 }
 
-async function loadGlb(url) {
-  setBootPhase(`loading ${url.split('/').pop()}`);
+async function loadGlb(url, { announce = true, label = null } = {}) {
+  if (announce) setBootPhase(label || `loading ${url.split('/').pop()}`);
   return new Promise((resolve, reject) => {
     loader.load(
       url,
       (gltf) => resolve(gltf.scene),
-      (event) => {
-        if (!event.total) return;
-        const percent = Math.round((event.loaded / event.total) * 100);
-        setBootPhase(`loading ${url.split('/').pop()} ${percent}%`);
-      },
+      undefined,
       (error) => reject(new Error(`failed ${url}: ${error?.message || error}`))
     );
   });
@@ -1030,8 +1026,8 @@ async function applyMeshyPbrTextures(object, options = {}) {
   applyMeshyPbrToFpvMasks();
 }
 
-async function loadPosePresets() {
-  setBootPhase('loading baked poses');
+async function loadPosePresets({ announce = true } = {}) {
+  if (announce) setBootPhase('loading baked poses');
   const cacheBust = URL_PARAMS.get('cacheBust');
   const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
   const [readyModule, attackModule] = await Promise.all([
@@ -2126,20 +2122,23 @@ function snapCamera(view) {
 }
 
 async function boot() {
-  setBootPhase('loading Meshy, sabre, and baked poses');
-  const [meshy, sabre] = await Promise.all([loadGlb(ASSETS.meshy), loadGlb(ASSETS.sabre), loadPosePresets()]);
-  setBootPhase('preparing Meshy character');
+  const requestedPoseState = initialPoseStateFromUrl();
+  setBootPhase('loading character');
+  const meshyPromise = loadGlb(ASSETS.meshy, { announce: false });
+  const sabrePromise = loadGlb(ASSETS.sabre, { announce: false });
+  const posePromise = loadPosePresets({ announce: false });
+
+  const meshy = await meshyPromise;
+  setBootPhase('showing character');
   meshyRoot = normalizeCharacter(meshy);
-  setBootPhase('attaching real sabre');
-  sabreRoot = prepareSabre(sabre);
-  root.add(meshyRoot, sabreRoot);
-  attachSaberToRightHand();
+  root.add(meshyRoot);
   setupPoseHandles();
   setMode('move');
-  setPoseState(initialPoseStateFromUrl());
+  setPoseState('rest');
   setViewMode(initialViewModeFromUrl());
-  if (poseState === 'rest') statusEl.textContent = 'ready: tap the real sabre, then drag';
   markBootReady();
+  statusEl.textContent = 'character visible; loading sabre and pose';
+
   applyMeshyPbrTextures(meshyRoot, { announce: false })
     .then(() => {
       document.body.dataset.pbrReady = '1';
@@ -2147,6 +2146,22 @@ async function boot() {
     .catch((error) => {
       document.body.dataset.pbrFailed = error?.message || String(error || 'unknown PBR error');
       console.warn('Meshy PBR texture load failed after boot', error);
+    });
+
+  Promise.all([sabrePromise, posePromise])
+    .then(([sabre]) => {
+      sabreRoot = prepareSabre(sabre);
+      root.add(sabreRoot);
+      attachSaberToRightHand();
+      setPoseState(requestedPoseState);
+      statusEl.textContent = poseState === 'rest'
+        ? 'ready: tap the real sabre, then drag'
+        : `${POSE_STATE_LABELS[poseState] || 'Pose'} ready`;
+    })
+    .catch((error) => {
+      document.body.dataset.sabrePoseFailed = error?.message || String(error || 'unknown sabre/pose error');
+      statusEl.textContent = `sabre or pose load failed: ${error?.message || error}`;
+      console.error('Sabre or pose load failed after first visual', error);
     });
 }
 
