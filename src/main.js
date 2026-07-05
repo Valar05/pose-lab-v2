@@ -939,6 +939,10 @@ function startGesture(event) {
     stopEvent(event);
     return true;
   }
+  if (event.pointerType === 'touch' && toolMode === 'pose') {
+    stopEvent(event);
+    return true;
+  }
   pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
   if (toolMode === 'pose') {
     const bone = pickPoseHandle(event.clientX, event.clientY);
