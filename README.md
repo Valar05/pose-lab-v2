@@ -8,8 +8,8 @@ This repo contains only:
 - the real Meshy sabre GLB;
 - TFTM-style direct placement controls for the visible sabre.
 - one baked Meshy `Ready` pose preset generated from the old FPS
-  `OneHandReady` reference through joint projection, IK hand pinning, and
-  fixed hand-roll offsets.
+  `OneHandReady` reference through source-orientation retargeting and IK hand
+  pinning, with no hidden runtime wrist-roll patch.
 
 It is not a Pose Lab fork. It does not include runtime retargeting, runtime
 FK/IK solvers, debug bridges, visual metric gates, case systems, or numeric
