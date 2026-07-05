@@ -16,6 +16,7 @@ const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
+const ATTACK_TIME_PARAM = URL_PARAMS.get('attackTime');
 const POSE_STATE_ORDER = ['rest', 'ready', 'attack1'];
 const POSE_STATE_LABELS = {
   rest: 'Rest',
@@ -383,6 +384,7 @@ let saberGrip = null;
 let readyPosePreset = null;
 let attackPoseSequence = null;
 let poseAnimation = null;
+let frozenAttackTime = null;
 let selectedPoseBone = null;
 let selected = false;
 let gesture = null;
@@ -860,6 +862,15 @@ function applyReadyPose() {
 function applyAttackPose() {
   const duration = Math.max(0.0001, attackPoseSequence?.source?.duration || 1.25);
   poseState = 'attack1';
+  const requestedTime = Number(ATTACK_TIME_PARAM);
+  if (ATTACK_TIME_PARAM !== null && Number.isFinite(requestedTime)) {
+    frozenAttackTime = Math.max(0, Math.min(duration, requestedTime));
+    poseAnimation = null;
+    applyAttackPoseAt(frozenAttackTime);
+    statusEl.textContent = `attack1 frozen at ${frozenAttackTime.toFixed(6)}s`;
+    return;
+  }
+  frozenAttackTime = null;
   poseAnimation = {
     startedAt: performance.now(),
     duration,

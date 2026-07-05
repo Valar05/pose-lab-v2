@@ -7,6 +7,7 @@
     "bake:ready": "node scripts/bake-ready-pose.mjs",
     "bake:attack1": "node scripts/bake-pose-sequence.mjs --clip OneHandAttack1 --out src/attack1-pose.js --export-name ATTACK1_POSE_SEQUENCE --label \"OneHandAttack1 sequence baked from FPSPlayer\"",
     "diagnose:blade": "node tools/diagnose_attack1_blade_transform.mjs",
+    "review:attack1": "node tools/attack1_review_urls.mjs",
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs"
   }

@@ -14,6 +14,7 @@ const main = read('src/main.js');
 const readyPose = read('src/ready-pose.js');
 const attackPose = read('src/attack1-pose.js');
 const attackBakeScript = read('scripts/bake-pose-sequence.mjs');
+const attackReviewUrls = read('tools/attack1_review_urls.mjs');
 const html = read('index.html');
 const css = read('src/styles.css');
 const readme = read('README.md');
@@ -65,7 +66,10 @@ assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static an
 assert(pkg.scripts?.['bake:ready'] === 'node scripts/bake-ready-pose.mjs', 'Ready pose bake script must be explicit and reproducible');
 assert(pkg.scripts?.['bake:attack1']?.includes('scripts/bake-pose-sequence.mjs') && pkg.scripts?.['bake:attack1']?.includes('OneHandAttack1'), 'Attack1 pose sequence bake script must be explicit and reproducible');
 assert(pkg.scripts?.['diagnose:blade'] === 'node tools/diagnose_attack1_blade_transform.mjs', 'blade transform diagnostic must be an explicit npm command');
+assert(pkg.scripts?.['review:attack1'] === 'node tools/attack1_review_urls.mjs', 'Attack1 review URLs must be an explicit npm command');
 assert(exists('tools/diagnose_attack1_blade_transform.mjs'), 'missing blade transform diagnostic');
+assert(exists('tools/attack1_review_urls.mjs'), 'missing Attack1 review URL printer');
+assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
 assert(readme.includes('Visual Verification Doctrine'), 'README must link the visual verification doctrine');
 assert(readme.includes('They are not visual acceptance and cannot close a') && readme.includes('screenshot-red build'), 'README must state smoke/source checks are not visual acceptance');
 assert(visualDoctrine.includes('Human-visible truth is the acceptance gate'), 'visual doctrine must preserve human-visible truth as acceptance gate');
@@ -93,6 +97,7 @@ assert(main.includes('function initialPoseStateFromUrl') && main.includes("pose 
 assert(main.includes('function initialViewModeFromUrl') && main.includes("URL_PARAMS.get('view') === 'fpv'") && main.includes('setViewMode(initialViewModeFromUrl())'), 'cloud review URL must be able to boot directly into FPV view');
 assert(main.includes("let poseState = 'rest'") && main.includes('function applyReadyPose') && main.includes("poseState = 'ready'"), 'runtime must switch to baked Ready without animation retargeting');
 assert(main.includes('function applyAttackPose') && main.includes("poseState = 'attack1'") && main.includes('updatePoseAnimation(performance.now())'), 'runtime must play baked Attack1 frames without source animation runtime');
+assert(main.includes('const ATTACK_TIME_PARAM = URL_PARAMS.get(\'attackTime\')') && main.includes('attack1 frozen at') && main.includes('poseAnimation = null'), 'Attack1 review URL must support frozen attackTime without looping animation');
 assert(!main.includes('READY_RIGHT_WRIST_ROLL_DEG') && !main.includes('rollReadyRightWrist'), 'Ready must not apply a hidden runtime wrist-roll patch');
 assert(main.includes("source-oriented OneHandReady, sabre follows RightHand FK"), 'Ready state must report source-orientation bake and FK saber ownership');
 assert(readyPose.includes("schema\": \"pose-lab-v2-ready-pose-v1"), 'Ready pose preset must use the v2 baked pose schema');
