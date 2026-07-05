@@ -749,6 +749,18 @@ function beginTwoFingerPose(points) {
   statusEl.textContent = `pose: two-finger bone roll ${selectedPoseBone?.name || ''}`;
 }
 
+function beginPoseEmptyTouch(point) {
+  touchGesture = {
+    kind: 'pose-empty',
+    lastX: point.x,
+    lastY: point.y,
+    moved: false,
+    tapCanCycle: false,
+  };
+  controls.enabled = false;
+  statusEl.textContent = 'pose: selected bone kept; double-tap empty space to deselect';
+}
+
 function beginCameraTouch(points) {
   touchGesture = {
     kind: points.length >= 2 ? 'two-camera' : 'one-camera',
@@ -815,7 +827,11 @@ function handleTouchStart(event) {
       return true;
     }
     suppressTouchPointerEvents = true;
-    beginCameraTouch(points);
+    if (selectedPoseBone) {
+      beginPoseEmptyTouch(points[0]);
+    } else {
+      beginCameraTouch(points);
+    }
     stopEvent(event);
     return true;
   }
@@ -899,6 +915,12 @@ function handleTouchMove(event) {
     stopEvent(event);
     return true;
   }
+  if (touchGesture.kind === 'pose-empty') {
+    touchGesture.moved = true;
+    statusEl.textContent = 'pose: selected bone kept; double-tap empty space to deselect';
+    stopEvent(event);
+    return true;
+  }
   if (touchGesture.kind !== 'single-sabre' || points.length !== 1) return false;
   const point = points[0];
   const dx = point.x - touchGesture.lastX;
@@ -954,8 +976,11 @@ function startGesture(event) {
     const bone = pickPoseHandle(event.clientX, event.clientY);
     if (!bone) {
       pointers.delete(event.pointerId);
-      selectedPoseBone = null;
-      updatePoseHandles();
+      if (selectedPoseBone) {
+        statusEl.textContent = 'pose: selected bone kept; double-tap empty space to deselect';
+        stopEvent(event);
+        return true;
+      }
       return false;
     }
     selectedPoseBone = bone;
