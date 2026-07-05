@@ -823,6 +823,7 @@ function updatePoseAnimation(now) {
   const duration = Math.max(0.0001, attackPoseSequence?.source?.duration || 1.25);
   const time = ((now - poseAnimation.startedAt) / 1000) % duration;
   applyAttackPoseAt(time);
+  statusEl.textContent = `attack1 playing ${time.toFixed(3)}s / ${duration.toFixed(3)}s`;
 }
 
 function markCustomPose() {

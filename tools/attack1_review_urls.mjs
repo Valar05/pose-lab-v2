@@ -11,18 +11,22 @@ function currentSha() {
 function urlFor(time, cacheBust) {
   const params = new URLSearchParams({
     pose: 'attack1',
-    attackTime: String(time),
     cacheBust,
   });
+  if (time !== null) params.set('attackTime', String(time));
   return `${BASE_URL}?${params.toString()}`;
 }
 
 const cacheBust = `attack1-${currentSha()}`;
-const urls = REVIEW_TIMES.map((time) => ({
+const urls = [{
+  label: 'Attack1 animated loop',
+  time: null,
+  url: urlFor(null, cacheBust),
+}, ...REVIEW_TIMES.map((time) => ({
   label: `Attack1 ${time.toFixed(6)}s`,
   time,
   url: urlFor(time, cacheBust),
-}));
+}))];
 
 console.log(JSON.stringify({
   schema: 'pose-lab-v2-attack1-review-urls-v1',

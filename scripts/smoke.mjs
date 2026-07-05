@@ -98,6 +98,8 @@ assert(main.includes('function initialViewModeFromUrl') && main.includes("URL_PA
 assert(main.includes("let poseState = 'rest'") && main.includes('function applyReadyPose') && main.includes("poseState = 'ready'"), 'runtime must switch to baked Ready without animation retargeting');
 assert(main.includes('function applyAttackPose') && main.includes("poseState = 'attack1'") && main.includes('updatePoseAnimation(performance.now())'), 'runtime must play baked Attack1 frames without source animation runtime');
 assert(main.includes('const ATTACK_TIME_PARAM = URL_PARAMS.get(\'attackTime\')') && main.includes('attack1 frozen at') && main.includes('poseAnimation = null'), 'Attack1 review URL must support frozen attackTime without looping animation');
+assert(main.includes('attack1 playing') && main.includes('time.toFixed(3)'), 'looping Attack1 review must expose a visible animation-time readout');
+assert(attackReviewUrls.includes('Attack1 animated loop') && attackReviewUrls.includes('time: null'), 'Attack1 review URLs must include an animated loop URL before frozen frames');
 assert(!main.includes('READY_RIGHT_WRIST_ROLL_DEG') && !main.includes('rollReadyRightWrist'), 'Ready must not apply a hidden runtime wrist-roll patch');
 assert(main.includes("source-oriented OneHandReady, sabre follows RightHand FK"), 'Ready state must report source-orientation bake and FK saber ownership');
 assert(readyPose.includes("schema\": \"pose-lab-v2-ready-pose-v1"), 'Ready pose preset must use the v2 baked pose schema');
