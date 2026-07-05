@@ -58,7 +58,10 @@ assert(main.includes('object.position.set(-0.39454, 0.71404, 0.32817)'), 'defaul
 assert(main.includes('THREE.MathUtils.degToRad(160.077)') && main.includes('THREE.MathUtils.degToRad(83.685)') && main.includes('THREE.MathUtils.degToRad(-135.981)'), 'default sabre rotation must match the latest authored export');
 assert(main.includes('object.scale.setScalar(0.48)'), 'default sabre scale must match the latest authored export');
 assert(main.includes("findRequiredBone(meshyRoot, 'RightHand')"), 'runtime saber grip must parent under the real Meshy RightHand bone');
-assert(main.includes("grip.name = 'SaberGrip'") && main.includes('rightHand.attach(grip)') && main.includes('grip.attach(sabreRoot)'), 'real sabre mesh must be parented through a SaberGrip bone');
+assert(main.includes('const SABER_GRIP_LOCAL = {') && main.includes('position: [8.52296, 28.41254, -24.44467]'), 'SaberGrip must use explicit authored RightHand-local placement');
+assert(main.includes("grip.name = 'SaberGrip'") && main.includes('rightHand.add(grip)') && main.includes('grip.add(sabreRoot)'), 'real sabre mesh must be parented through explicit local SaberGrip FK');
+assert(main.includes('sabreRoot.position.set(0, 0, 0)') && main.includes('sabreRoot.quaternion.identity()') && main.includes('sabreRoot.scale.set(1, 1, 1)'), 'sabre mesh local transform under SaberGrip must be identity');
+assert(!main.includes('rightHand.attach(grip)') && !main.includes('grip.attach(sabreRoot)'), 'SaberGrip must not preserve world placement through Object3D.attach');
 assert(main.includes('function editableSaber()') && main.includes('return saberGrip || sabreRoot'), 'direct transforms must target SaberGrip after hand parenting');
 assert(main.includes("parentBone: 'RightHand'"), 'export must report SaberGrip as RightHand-owned');
 assert(main.includes("let toolMode = 'saber'") && main.includes('data-tool="saber"') && main.includes('data-tool="pose"'), 'app must distinguish top-level Saber and Pose modes');

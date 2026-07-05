@@ -118,6 +118,11 @@ const poseHandleGeometry = new THREE.SphereGeometry(0.035, 12, 8);
 const poseHandleMaterial = new THREE.MeshBasicMaterial({ color: 0x68d8ff, depthTest: false, transparent: true, opacity: 0.82 });
 const poseHandleSelectedMaterial = new THREE.MeshBasicMaterial({ color: 0xffd45c, depthTest: false, transparent: true, opacity: 0.96 });
 const READY_RIGHT_WRIST_ROLL_DEG = -120;
+const SABER_GRIP_LOCAL = {
+  position: [8.52296, 28.41254, -24.44467],
+  rotationDeg: [32.35, 74.24, -174.11],
+  scale: [46.62859, 46.62859, 46.62856],
+};
 
 let toolMode = 'saber';
 let poseState = 'rest';
@@ -224,17 +229,22 @@ function editableSaber() {
 function attachSaberToRightHand() {
   if (!meshyRoot || !sabreRoot) return;
   const rightHand = findRequiredBone(meshyRoot, 'RightHand');
-  root.updateMatrixWorld(true);
-  sabreRoot.updateMatrixWorld(true);
 
   const grip = new THREE.Bone();
   grip.name = 'SaberGrip';
-  grip.position.copy(objectWorldPosition(sabreRoot));
-  grip.quaternion.copy(objectWorldQuaternion(sabreRoot));
-  grip.scale.copy(objectWorldScale(sabreRoot));
+  grip.position.fromArray(SABER_GRIP_LOCAL.position);
+  grip.rotation.set(
+    THREE.MathUtils.degToRad(SABER_GRIP_LOCAL.rotationDeg[0]),
+    THREE.MathUtils.degToRad(SABER_GRIP_LOCAL.rotationDeg[1]),
+    THREE.MathUtils.degToRad(SABER_GRIP_LOCAL.rotationDeg[2])
+  );
+  grip.scale.fromArray(SABER_GRIP_LOCAL.scale);
 
-  rightHand.attach(grip);
-  grip.attach(sabreRoot);
+  rightHand.add(grip);
+  sabreRoot.position.set(0, 0, 0);
+  sabreRoot.quaternion.identity();
+  sabreRoot.scale.set(1, 1, 1);
+  grip.add(sabreRoot);
   saberGrip = grip;
   root.updateMatrixWorld(true);
 }
@@ -423,6 +433,11 @@ function exportTransform() {
     rotationDeg: rotationDegFromEuler(saberGrip.rotation),
     scale: saberGrip.scale.toArray().map((value) => Number(value.toFixed(5))),
   } : null;
+  const sabreLocal = sabreRoot ? {
+    position: vectorToFixedArray(sabreRoot.position),
+    rotationDeg: rotationDegFromEuler(sabreRoot.rotation),
+    scale: vectorToFixedArray(sabreRoot.scale),
+  } : null;
   const poseBonesExport = {};
   for (const [name, bone] of poseBones) {
     const rest = poseBoneRestQuaternions.get(name);
@@ -445,6 +460,7 @@ function exportTransform() {
       uniformScale: Number(scale[0].toFixed(5)),
     },
     saberGrip: saberGripLocal,
+    sabreLocal,
     pose: {
       state: poseState,
       readyPreset: READY_POSE_PRESET.label,
