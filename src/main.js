@@ -10,12 +10,18 @@ const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
+const DEBUG_FPV_SPACE = URL_PARAMS.get('debugFpvSpace') === '1';
 
 const app = document.querySelector('#app');
 app.innerHTML = `
   <section class="surface">
     <div class="viewport">
       <canvas aria-label="Meshy A-pose saber placement viewport"></canvas>
+      <div class="fpv-space-guide" data-fpv-space-guide hidden>
+        <div class="fpv-space-label fpv-space-label-observer">space</div>
+        <div class="fpv-space-label fpv-space-label-live">fpv</div>
+        <div class="fpv-bottom-band"></div>
+      </div>
       <div class="primary-rail" aria-label="Primary review controls">
         <button type="button" data-cycle-tool>Tool: Saber</button>
         <button type="button" data-cycle-pose-state>Pose: Rest</button>
@@ -29,7 +35,7 @@ app.innerHTML = `
         <button type="button" data-panel-toggle="transform">Transform</button>
         <button type="button" data-panel-toggle="view">View</button>
         <button type="button" data-panel-toggle="export">Export</button>
-        <button type="button" data-panel-toggle="debug" ${DEBUG_TOUCH || DEBUG_READY ? '' : 'hidden'}>Debug</button>
+        <button type="button" data-panel-toggle="debug" ${DEBUG_TOUCH || DEBUG_READY || DEBUG_FPV_SPACE ? '' : 'hidden'}>Debug</button>
       </div>
       <section class="control-panel" data-panel="transform" aria-label="Transform controls" hidden>
         <div class="panel-row hidden-actions" aria-hidden="true">
@@ -79,6 +85,9 @@ app.innerHTML = `
         <div class="ready-proof" data-ready-proof ${DEBUG_READY ? '' : 'hidden'}>
           <pre data-ready-proof-readout aria-label="Ready pose application proof">ready proof: not run</pre>
         </div>
+        <div class="ready-proof" data-fpv-space-proof ${DEBUG_FPV_SPACE ? '' : 'hidden'}>
+          <pre data-fpv-space-proof-readout aria-label="FPV spatial composition proof">fpv space: not run</pre>
+        </div>
       </section>
     </div>
   </section>
@@ -99,6 +108,8 @@ const resetPoseButton = app.querySelector('[data-action="reset-pose"]');
 const touchProofPanel = app.querySelector('[data-touch-proof-readout]');
 const touchProbeButton = app.querySelector('[data-action="touch-probe"]');
 const readyProofPanel = app.querySelector('[data-ready-proof-readout]');
+const fpvSpaceGuide = app.querySelector('[data-fpv-space-guide]');
+const fpvSpaceProofPanel = app.querySelector('[data-fpv-space-proof-readout]');
 const dockEl = app.querySelector('.control-dock');
 const dockToggleButton = app.querySelector('[data-dock-toggle]');
 const cycleToolButton = app.querySelector('[data-cycle-tool]');
@@ -220,6 +231,23 @@ controls.addEventListener('change', () => {
   orbitCameraState.position.copy(camera.position);
   orbitCameraState.target.copy(controls.target);
 });
+const fpvPreviewCamera = new THREE.PerspectiveCamera(102, 1, 0.035, 80);
+const fpvObserverCamera = new THREE.PerspectiveCamera(42, 1, 0.01, 80);
+fpvObserverCamera.position.set(2.6, 1.7, 3.2);
+fpvObserverCamera.lookAt(0, 1.05, 0);
+const fpvSpaceState = {
+  enabled: DEBUG_FPV_SPACE,
+  helperGroup: new THREE.Group(),
+  cameraHelper: null,
+  headMarker: null,
+  rightHandMarker: null,
+  leftHandMarker: null,
+  saberMarker: null,
+  chestBox: null,
+  forwardLine: null,
+  lookLine: null,
+  report: null,
+};
 
 scene.add(new THREE.HemisphereLight(0xfff3d5, 0x263036, 2.2));
 const key = new THREE.DirectionalLight(0xffffff, 2.6);
@@ -228,6 +256,9 @@ scene.add(key);
 const rim = new THREE.DirectionalLight(0x9fbaff, 0.9);
 rim.position.set(-4, 2, -5);
 scene.add(rim);
+fpvSpaceState.helperGroup.name = 'FpvSpaceInspector';
+fpvSpaceState.helperGroup.visible = false;
+scene.add(fpvSpaceState.helperGroup);
 
 const floor = new THREE.Mesh(
   new THREE.CircleGeometry(2.3, 64),
@@ -440,6 +471,47 @@ function worldToScreenPixels(position) {
     (projected.x * 0.5 + 0.5) * rect.width,
     (-projected.y * 0.5 + 0.5) * rect.height
   );
+}
+
+function pointToScreenSpace(position, targetCamera = camera) {
+  const projected = position.clone().project(targetCamera);
+  return {
+    x: projected.x,
+    y: projected.y,
+    z: projected.z,
+    inside: Math.abs(projected.x) <= 1 && Math.abs(projected.y) <= 1 && projected.z >= -1 && projected.z <= 1,
+  };
+}
+
+function boxCorners(box) {
+  const points = [];
+  for (const x of [box.min.x, box.max.x]) {
+    for (const y of [box.min.y, box.max.y]) {
+      for (const z of [box.min.z, box.max.z]) points.push(new THREE.Vector3(x, y, z));
+    }
+  }
+  return points;
+}
+
+function screenBounds(points) {
+  const visible = points.filter((point) => point.inside);
+  if (!visible.length) return null;
+  return visible.reduce((bounds, point) => ({
+    minX: Math.min(bounds.minX, point.x),
+    maxX: Math.max(bounds.maxX, point.x),
+    minY: Math.min(bounds.minY, point.y),
+    maxY: Math.max(bounds.maxY, point.y),
+  }), {
+    minX: Infinity,
+    maxX: -Infinity,
+    minY: Infinity,
+    maxY: -Infinity,
+  });
+}
+
+function screenHeightPercent(bounds) {
+  if (!bounds) return 0;
+  return Math.max(0, bounds.maxY - bounds.minY) / 2;
 }
 
 function localBoundsForObject(object) {
@@ -825,11 +897,11 @@ function applyOrbitCamera() {
   controls.update();
 }
 
-function updateFirstPersonCamera() {
-  if (viewMode !== 'firstPerson' || !meshyRoot) return;
+function calculateFirstPersonCameraState() {
+  if (!meshyRoot) return null;
   const anchor = findBone(meshyRoot, firstPersonCameraConfig.anchor)
     || findBone(meshyRoot, firstPersonCameraConfig.fallbackAnchor);
-  if (!anchor) return;
+  if (!anchor) return null;
   root.updateMatrixWorld(true);
   const anchorPosition = objectWorldPosition(anchor);
   const anchorQuaternion = objectWorldQuaternion(anchor);
@@ -842,23 +914,184 @@ function updateFirstPersonCamera() {
   const target = anchorPosition.clone()
     .add(forward.clone().multiplyScalar(firstPersonCameraConfig.lookForward))
     .add(new THREE.Vector3(0, firstPersonCameraConfig.lookVertical, 0));
-  camera.position.copy(position);
-  camera.up.set(0, 1, 0);
-  camera.lookAt(target);
-  camera.fov = firstPersonCameraConfig.fov;
-  camera.near = firstPersonCameraConfig.near;
-  camera.far = orbitCameraState.far;
-  camera.updateProjectionMatrix();
+  return {
+    anchor,
+    anchorPosition,
+    anchorQuaternion,
+    forward,
+    position,
+    target,
+    fov: firstPersonCameraConfig.fov,
+    near: firstPersonCameraConfig.near,
+    far: orbitCameraState.far,
+  };
+}
+
+function applyFirstPersonCameraState(targetCamera, state) {
+  if (!state) return;
+  targetCamera.position.copy(state.position);
+  targetCamera.up.set(0, 1, 0);
+  targetCamera.lookAt(state.target);
+  targetCamera.fov = state.fov;
+  targetCamera.near = state.near;
+  targetCamera.far = state.far;
+  targetCamera.updateMatrixWorld(true);
+  targetCamera.updateProjectionMatrix();
+}
+
+function updateFirstPersonCamera() {
+  if (viewMode !== 'firstPerson' || !meshyRoot) return;
+  const state = calculateFirstPersonCameraState();
+  if (!state) return;
+  applyFirstPersonCameraState(camera, state);
   updateReadyProof({
     fpvCamera: {
       cameraWorldPosition: vectorToFixedArray(camera.position),
-      headWorldPosition: vectorToFixedArray(anchorPosition),
-      headDistance: fixedNumber(camera.position.distanceTo(anchorPosition), 5),
+      headWorldPosition: vectorToFixedArray(state.anchorPosition),
+      headDistance: fixedNumber(camera.position.distanceTo(state.anchorPosition), 5),
       fov: firstPersonCameraConfig.fov,
       near: firstPersonCameraConfig.near,
       bodyMeshesHidden: false,
     },
   });
+}
+
+function makeFpvMarker(color, radius = 0.035) {
+  const marker = new THREE.Mesh(
+    new THREE.SphereGeometry(radius, 12, 8),
+    new THREE.MeshBasicMaterial({ color, depthTest: false, transparent: true, opacity: 0.9 })
+  );
+  marker.renderOrder = 20;
+  return marker;
+}
+
+function makeFpvLine(color) {
+  const line = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]),
+    new THREE.LineBasicMaterial({ color, depthTest: false, transparent: true, opacity: 0.92 })
+  );
+  line.renderOrder = 20;
+  return line;
+}
+
+function setupFpvSpaceInspector() {
+  if (!DEBUG_FPV_SPACE || fpvSpaceState.cameraHelper) return;
+  fpvSpaceState.headMarker = makeFpvMarker(0xffe27a, 0.045);
+  fpvSpaceState.rightHandMarker = makeFpvMarker(0x58ff90);
+  fpvSpaceState.leftHandMarker = makeFpvMarker(0x68d8ff);
+  fpvSpaceState.saberMarker = makeFpvMarker(0xff5ebc);
+  fpvSpaceState.forwardLine = makeFpvLine(0xffe27a);
+  fpvSpaceState.lookLine = makeFpvLine(0xff5ebc);
+  fpvSpaceState.chestBox = new THREE.Box3Helper(new THREE.Box3(), 0xff7a4d);
+  fpvSpaceState.chestBox.renderOrder = 19;
+  fpvSpaceState.cameraHelper = new THREE.CameraHelper(fpvPreviewCamera);
+  fpvSpaceState.cameraHelper.renderOrder = 18;
+  fpvSpaceState.helperGroup.add(
+    fpvSpaceState.headMarker,
+    fpvSpaceState.rightHandMarker,
+    fpvSpaceState.leftHandMarker,
+    fpvSpaceState.saberMarker,
+    fpvSpaceState.forwardLine,
+    fpvSpaceState.lookLine,
+    fpvSpaceState.chestBox,
+    fpvSpaceState.cameraHelper
+  );
+  fpvSpaceState.helperGroup.visible = true;
+  if (fpvSpaceGuide) fpvSpaceGuide.hidden = false;
+}
+
+function chestWorldBox() {
+  const names = ['Spine', 'Spine01', 'Spine02', 'neck', 'LeftShoulder', 'RightShoulder'];
+  const box = new THREE.Box3();
+  for (const name of names) {
+    const bone = findBone(meshyRoot, name);
+    if (bone) box.expandByPoint(objectWorldPosition(bone));
+  }
+  if (box.isEmpty()) return new THREE.Box3(new THREE.Vector3(-0.2, 0.8, -0.1), new THREE.Vector3(0.2, 1.4, 0.2));
+  const size = box.getSize(new THREE.Vector3());
+  box.expandByVector(new THREE.Vector3(
+    Math.max(0.14, size.x * 0.55),
+    Math.max(0.16, size.y * 0.28),
+    Math.max(0.12, size.z * 0.75)
+  ));
+  return box;
+}
+
+function updateFpvInspectorLines(state) {
+  setLineEndpoints(
+    fpvSpaceState.forwardLine,
+    state.anchorPosition,
+    state.anchorPosition.clone().add(state.forward.clone().multiplyScalar(0.75))
+  );
+  setLineEndpoints(fpvSpaceState.lookLine, state.position, state.target);
+}
+
+function fpvPointReport(targetCamera, chestBox) {
+  const rightHand = poseBones.get('RightHand');
+  const leftHand = poseBones.get('LeftHand');
+  const points = {
+    hands: [rightHand, leftHand, saberGrip].filter(Boolean).map((object) => objectWorldPosition(object)),
+    sabre: sabreRoot ? boxCorners(new THREE.Box3().setFromObject(sabreRoot)) : [],
+    chest: boxCorners(chestBox),
+  };
+  const handsProjected = points.hands.map((point) => pointToScreenSpace(point, targetCamera));
+  const sabreProjected = points.sabre.map((point) => pointToScreenSpace(point, targetCamera));
+  const chestProjected = points.chest.map((point) => pointToScreenSpace(point, targetCamera));
+  const chestBounds = screenBounds(chestProjected);
+  const chestHeight = screenHeightPercent(chestBounds);
+  const chestVisible = chestProjected.some((point) => point.inside);
+  const chestTopNdc = chestBounds ? chestBounds.maxY : null;
+  const chestInBottomBand = !chestVisible || (chestTopNdc !== null && chestTopNdc <= -0.8 && chestHeight <= 0.1);
+  const handsInside = handsProjected.filter((point) => point.inside).length;
+  const sabreInside = sabreProjected.filter((point) => point.inside).length;
+  const verdict = !chestInBottomBand
+    ? 'chest-obstructed'
+    : handsInside < 2 || sabreInside < 2
+      ? 'underframed-arms'
+      : targetCamera.position.distanceTo(points.hands[0] || new THREE.Vector3()) > 1.2
+        ? 'third-person-suspect'
+        : 'true-fpv-candidate';
+  return {
+    handsInside,
+    sabreInside,
+    chestVisible,
+    chestHeightPercent: fixedNumber(chestHeight * 100, 2),
+    chestTopNdc: chestTopNdc === null ? null : fixedNumber(chestTopNdc, 3),
+    chestInBottomTenPercentBand: chestInBottomBand,
+    verdict,
+  };
+}
+
+function updateFpvSpaceInspector() {
+  if (!DEBUG_FPV_SPACE || !meshyRoot) return;
+  setupFpvSpaceInspector();
+  const state = calculateFirstPersonCameraState();
+  if (!state) return;
+  applyFirstPersonCameraState(fpvPreviewCamera, state);
+  fpvPreviewCamera.aspect = Math.max(0.1, (canvas.clientWidth * 0.5) / Math.max(1, canvas.clientHeight));
+  fpvPreviewCamera.updateProjectionMatrix();
+  const rightHand = poseBones.get('RightHand');
+  const leftHand = poseBones.get('LeftHand');
+  if (fpvSpaceState.headMarker) fpvSpaceState.headMarker.position.copy(state.anchorPosition);
+  if (fpvSpaceState.rightHandMarker && rightHand) fpvSpaceState.rightHandMarker.position.copy(objectWorldPosition(rightHand));
+  if (fpvSpaceState.leftHandMarker && leftHand) fpvSpaceState.leftHandMarker.position.copy(objectWorldPosition(leftHand));
+  if (fpvSpaceState.saberMarker && saberGrip) fpvSpaceState.saberMarker.position.copy(objectWorldPosition(saberGrip));
+  const chestBox = chestWorldBox();
+  fpvSpaceState.chestBox.box.copy(chestBox);
+  updateFpvInspectorLines(state);
+  fpvSpaceState.cameraHelper.update();
+  fpvObserverCamera.aspect = Math.max(0.1, (canvas.clientWidth * 0.5) / Math.max(1, canvas.clientHeight));
+  fpvObserverCamera.updateProjectionMatrix();
+  const report = fpvPointReport(fpvPreviewCamera, chestBox);
+  fpvSpaceState.report = {
+    cameraWorldPosition: vectorToFixedArray(state.position),
+    headWorldPosition: vectorToFixedArray(state.anchorPosition),
+    cameraHeadDistance: fixedNumber(state.position.distanceTo(state.anchorPosition), 4),
+    fov: state.fov,
+    near: state.near,
+    ...report,
+  };
+  if (fpvSpaceProofPanel) fpvSpaceProofPanel.textContent = JSON.stringify(fpvSpaceState.report, null, 2);
 }
 
 function setViewMode(next) {
@@ -955,6 +1188,35 @@ function resize() {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
   }
+}
+
+function renderScene() {
+  if (!DEBUG_FPV_SPACE) {
+    renderer.setScissorTest(false);
+    renderer.render(scene, camera);
+    return;
+  }
+  updateFpvSpaceInspector();
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+  const pixelRatio = renderer.getPixelRatio();
+  const leftWidth = Math.floor(width * 0.5);
+  const rightWidth = Math.max(1, width - leftWidth);
+  const bufferHeight = Math.floor(height * pixelRatio);
+  const leftBufferWidth = Math.floor(leftWidth * pixelRatio);
+  const rightBufferWidth = Math.floor(rightWidth * pixelRatio);
+  renderer.setScissorTest(true);
+  fpvSpaceState.helperGroup.visible = true;
+  renderer.setViewport(0, 0, leftBufferWidth, bufferHeight);
+  renderer.setScissor(0, 0, leftBufferWidth, bufferHeight);
+  renderer.render(scene, fpvObserverCamera);
+  fpvSpaceState.helperGroup.visible = false;
+  renderer.setViewport(leftBufferWidth, 0, rightBufferWidth, bufferHeight);
+  renderer.setScissor(leftBufferWidth, 0, rightBufferWidth, bufferHeight);
+  renderer.render(scene, fpvPreviewCamera);
+  fpvSpaceState.helperGroup.visible = true;
+  renderer.setScissorTest(false);
+  renderer.setViewport(0, 0, Math.floor(width * pixelRatio), bufferHeight);
 }
 
 function pickSabre(clientX, clientY) {
@@ -1787,7 +2049,7 @@ function animate() {
   if (viewMode === 'orbit') controls.update();
   else updateFirstPersonCamera();
   updatePoseHandles();
-  renderer.render(scene, camera);
+  renderScene();
   requestAnimationFrame(animate);
 }
 
