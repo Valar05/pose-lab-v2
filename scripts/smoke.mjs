@@ -28,10 +28,11 @@ function assertRelativeImportsResolve(file) {
 
 assert(exists('public/assets/meshy/meshy_apose_walking_with_skin.glb'), 'missing Meshy A-pose/walking GLB');
 assert(exists('public/assets/meshy/meshy_real_sabre.glb'), 'missing real sabre GLB');
-assert(html.includes('src="./src/main.js"'), 'HTML must load the minimal app entry with a repo-relative URL');
-assert(html.includes('href="./src/styles.css"'), 'HTML must load CSS directly for no-bundler GitHub Pages runtime');
+assert(html.includes("import(`./src/main.js${startupSuffix}`)"), 'HTML must load the minimal app entry with the page cacheBust');
+assert(html.includes("stylesheet.href = `./src/styles.css${startupSuffix}`"), 'HTML must load CSS with the page cacheBust');
 assert(html.includes('loading Meshy character and real sabre'), 'HTML shell must not be blank before JS boots');
 assert(!html.includes('src="/src/main.js"'), 'GitHub Pages build must not use a root-relative module path');
+assert(html.includes("new URLSearchParams(window.location.search)") && html.includes("startupParams.get('cacheBust')"), 'HTML boot must propagate cacheBust into subresources');
 assert(html.includes('"three": "./vendor/three/build/three.module.js"'), 'HTML must use same-origin vendored Three dependency');
 assert(html.includes('"three/examples/jsm/": "./vendor/three/examples/jsm/"'), 'HTML must use same-origin vendored Three examples');
 assert(!html.includes('cdn.jsdelivr.net'), 'runtime must not depend on a CDN before the app can render');

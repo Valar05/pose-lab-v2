@@ -12,8 +12,14 @@
         font-family: system-ui, sans-serif;
       }
     </style>
-    <link rel="stylesheet" href="./src/styles.css" />
     <script>
+      const startupParams = new URLSearchParams(window.location.search);
+      const startupCacheBust = startupParams.get('cacheBust');
+      const startupSuffix = startupCacheBust ? `?cacheBust=${encodeURIComponent(startupCacheBust)}` : '';
+      const stylesheet = document.createElement('link');
+      stylesheet.rel = 'stylesheet';
+      stylesheet.href = `./src/styles.css${startupSuffix}`;
+      document.head.append(stylesheet);
       const showStartupFailure = (label, detail) => {
         const app = document.querySelector('#app');
         if (!app) return;
@@ -45,6 +51,10 @@
     <main id="app" aria-label="Pose Lab V2 saber placement">
       <p style="padding: 16px;">loading Meshy character and real sabre</p>
     </main>
-    <script type="module" src="./src/main.js"></script>
+    <script type="module">
+      import(`./src/main.js${startupSuffix}`).catch((error) => {
+        showStartupFailure('module import failed', error?.stack || error);
+      });
+    </script>
   </body>
 </html>
