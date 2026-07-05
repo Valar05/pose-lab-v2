@@ -117,7 +117,6 @@ const POSE_BONE_NAMES = [
 const poseHandleGeometry = new THREE.SphereGeometry(0.035, 12, 8);
 const poseHandleMaterial = new THREE.MeshBasicMaterial({ color: 0x68d8ff, depthTest: false, transparent: true, opacity: 0.82 });
 const poseHandleSelectedMaterial = new THREE.MeshBasicMaterial({ color: 0xffd45c, depthTest: false, transparent: true, opacity: 0.96 });
-const READY_RIGHT_WRIST_ROLL_DEG = -120;
 const SABER_GRIP_LOCAL = {
   position: [8.52296, 28.41254, -24.44467],
   rotationDeg: [32.35, 74.24, -174.11],
@@ -307,29 +306,15 @@ function applyReadyPose() {
     const bone = poseBones.get(name);
     if (bone) bone.quaternion.copy(quaternionFromArray(values));
   }
-  rollReadyRightWrist();
   poseState = 'ready';
   root.updateMatrixWorld(true);
   updatePoseHandles();
 }
 
-function rollReadyRightWrist() {
-  const forearm = poseBones.get('RightForeArm');
-  const hand = poseBones.get('RightHand');
-  if (!forearm || !hand) return;
-  root.updateMatrixWorld(true);
-  const axis = objectWorldPosition(hand).sub(objectWorldPosition(forearm));
-  if (axis.lengthSq() < 1e-8) return;
-  const turn = new THREE.Quaternion().setFromAxisAngle(axis.normalize(), THREE.MathUtils.degToRad(READY_RIGHT_WRIST_ROLL_DEG));
-  const world = objectWorldQuaternion(hand).premultiply(turn).normalize();
-  const parentWorld = objectWorldQuaternion(hand.parent).invert();
-  hand.quaternion.copy(parentWorld.multiply(world)).normalize();
-}
-
 function setPoseState(next) {
   if (next === 'ready') {
     applyReadyPose();
-    statusEl.textContent = 'ready pose: baked OneHandReady projection, right wrist roll -120, sabre follows RightHand FK';
+    statusEl.textContent = 'ready pose: source-oriented OneHandReady, sabre follows RightHand FK';
   } else {
     resetPose();
     statusEl.textContent = 'rest pose: golden Meshy A-pose restored';

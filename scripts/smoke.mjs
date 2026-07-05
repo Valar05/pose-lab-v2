@@ -48,12 +48,13 @@ assert(main.includes("import { READY_POSE_PRESET } from './ready-pose.js'"), 'ap
 assert(main.includes('data-pose-state="rest"') && main.includes('data-pose-state="ready"'), 'app must expose Rest and Ready pose states');
 assert(main.includes('function initialPoseStateFromUrl') && main.includes("params.get('pose') === 'ready'"), 'cloud review URL must be able to boot directly into Ready pose');
 assert(main.includes("let poseState = 'rest'") && main.includes('function applyReadyPose') && main.includes("poseState = 'ready'"), 'runtime must switch to baked Ready without animation retargeting');
-assert(main.includes('const READY_RIGHT_WRIST_ROLL_DEG = -120') && main.includes('function rollReadyRightWrist'), 'Ready state must add the requested -120 degree right wrist roll');
-assert(main.includes("right wrist roll -120, sabre follows RightHand FK"), 'Ready state must report baked pose, wrist roll, and FK saber ownership');
+assert(!main.includes('READY_RIGHT_WRIST_ROLL_DEG') && !main.includes('rollReadyRightWrist'), 'Ready must not apply a hidden runtime wrist-roll patch');
+assert(main.includes("source-oriented OneHandReady, sabre follows RightHand FK"), 'Ready state must report source-orientation bake and FK saber ownership');
 assert(readyPose.includes("schema\": \"pose-lab-v2-ready-pose-v1"), 'Ready pose preset must use the v2 baked pose schema');
 assert(readyPose.includes("clip\": \"OneHandReady") && readyPose.includes("sampleTime\": 1.25"), 'Ready pose preset must be baked from FPS OneHandReady at the held pose sample');
 assert(readyPose.includes('"RightHand"') && readyPose.includes('"LeftHand"') && readyPose.includes('"RightForeArm"'), 'Ready pose preset must include upper-body hand and forearm bones');
-assert(readyPose.includes('"right": -120') && readyPose.includes('"left": -90'), 'Ready pose preset must preserve the accepted right/left roll offsets');
+assert(readyPose.includes('"method": "orientation-first-retarget-with-pins"'), 'Ready pose preset must use source-orientation retargeting guided by pins');
+assert(readyPose.includes('"retargetedBones"') && readyPose.includes('"RightArm"') && readyPose.includes('"RightForeArm"') && readyPose.includes('"RightHand"'), 'Ready preset must record orientation-retargeted arm/forearm/hand bones');
 assert(main.includes('object.position.set(-0.39454, 0.71404, 0.32817)'), 'default sabre position must match the latest authored export');
 assert(main.includes('THREE.MathUtils.degToRad(160.077)') && main.includes('THREE.MathUtils.degToRad(83.685)') && main.includes('THREE.MathUtils.degToRad(-135.981)'), 'default sabre rotation must match the latest authored export');
 assert(main.includes('object.scale.setScalar(0.48)'), 'default sabre scale must match the latest authored export');

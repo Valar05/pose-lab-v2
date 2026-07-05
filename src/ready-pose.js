@@ -1,16 +1,21 @@
 export const READY_POSE_PRESET = {
   "schema": "pose-lab-v2-ready-pose-v1",
-  "label": "OneHandReady baked from FPSPlayer projection",
+  "label": "OneHandReady orientation retargeted from FPSPlayer",
   "source": {
     "fps": "../pose-lab/assets/models/FPSPlayer.glb",
     "meshy": "./public/assets/meshy/meshy_apose_walking_with_skin.glb",
     "clip": "OneHandReady",
     "sampleTime": 1.25,
     "projectionFrame": "ShoulderCenter->Spine02",
-    "rollOffsetsDeg": {
-      "right": -120,
-      "left": -90
-    }
+    "method": "orientation-first-retarget-with-pins",
+    "retargetedBones": [
+      "RightArm",
+      "RightForeArm",
+      "RightHand",
+      "LeftArm",
+      "LeftForeArm",
+      "LeftHand"
+    ]
   },
   "bones": {
     "Spine02": [
@@ -32,28 +37,28 @@ export const READY_POSE_PRESET = {
       0.997975
     ],
     "LeftShoulder": [
-      0.522129,
+      0.522128,
       0.564557,
       -0.472393,
       0.430699
     ],
     "LeftArm": [
-      0.100441,
-      0.437689,
-      0.552189,
-      0.702444
+      0.479385,
+      0.32113,
+      0.576089,
+      0.578953
     ],
     "LeftForeArm": [
-      -0.517448,
-      0.281281,
-      0.327324,
-      0.73891
+      -0.582117,
+      0.084839,
+      0.177869,
+      0.788863
     ],
     "LeftHand": [
-      -0.086945,
-      -0.542548,
-      0.130476,
-      0.825263
+      0.319044,
+      0.206595,
+      0.165233,
+      0.91007
     ],
     "RightShoulder": [
       0.521987,
@@ -62,22 +67,22 @@ export const READY_POSE_PRESET = {
       0.437256
     ],
     "RightArm": [
-      -0.215434,
-      0.559723,
-      0.377669,
-      -0.705453
+      -0.631431,
+      0.268394,
+      0.431965,
+      -0.585376
     ],
     "RightForeArm": [
-      -0.712449,
-      -0.255254,
-      -0.149733,
-      0.636272
+      -0.669741,
+      -0.440047,
+      0.282959,
+      0.52701
     ],
     "RightHand": [
-      0.145609,
-      -0.746151,
-      -0.097542,
-      0.642295
+      -0.361782,
+      -0.458697,
+      -0.329796,
+      0.741583
     ],
     "neck": [
       0.063633,

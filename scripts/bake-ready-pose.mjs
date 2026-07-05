@@ -22,7 +22,6 @@ const chains = [
     target: ['RightArm', 'RightForeArm', 'RightHand'],
     targetLocalAxis: [0, -1, 0],
     sourceLocalAxis: [0, 0, 1],
-    rollOffsetDeg: -120,
   },
   {
     label: 'left',
@@ -30,7 +29,6 @@ const chains = [
     target: ['LeftArm', 'LeftForeArm', 'LeftHand'],
     targetLocalAxis: [0, -1, 0],
     sourceLocalAxis: [0, 0, 1],
-    rollOffsetDeg: -90,
   },
 ];
 const exportBones = [
@@ -119,6 +117,31 @@ function worldPosition(THREE, node) {
 
 function worldQuaternion(THREE, node) {
   return node.getWorldQuaternion(new THREE.Quaternion()).normalize();
+}
+
+function captureWorldQuaternions(THREE, root) {
+  const out = new Map();
+  root.updateMatrixWorld(true);
+  root.traverse((node) => {
+    if (node.isBone || node.isObject3D) out.set(canon(node.name), node.getWorldQuaternion(new THREE.Quaternion()).normalize());
+  });
+  return out;
+}
+
+function captureLocalQuaternions(root) {
+  const out = new Map();
+  root.traverse((node) => {
+    if (node.isBone || node.isObject3D) out.set(canon(node.name), node.quaternion.clone().normalize());
+  });
+  return out;
+}
+
+function applyLocalQuaternions(root, map) {
+  root.traverse((node) => {
+    const quaternion = map.get(canon(node.name));
+    if (quaternion) node.quaternion.copy(quaternion).normalize();
+  });
+  root.updateMatrixWorld(true);
 }
 
 function worldDirection(THREE, node, axis) {
@@ -211,10 +234,42 @@ function rotateHandRoll(THREE, sceneRoot, fpsRoot, meshyRoot, chain) {
   if (!desired || !current) return;
   const signed = Math.atan2(new THREE.Vector3().crossVectors(current, desired).dot(axis), current.dot(desired));
   const turn = new THREE.Quaternion()
-    .setFromAxisAngle(axis, signed + THREE.MathUtils.degToRad(chain.rollOffsetDeg))
+    .setFromAxisAngle(axis, signed)
     .normalize();
   setWorldQuaternion(THREE, hand, turn.multiply(worldQuaternion(THREE, hand)).normalize());
   sceneRoot.updateMatrixWorld(true);
+}
+
+function mapSourceDeltaToTargetFrame(THREE, sourceDelta, sourceFrameRestWorld, targetFrameRestWorld) {
+  const sourceFrameToTargetFrame = targetFrameRestWorld.clone().multiply(sourceFrameRestWorld.clone().invert()).normalize();
+  return sourceFrameToTargetFrame
+    .clone()
+    .multiply(sourceDelta)
+    .multiply(sourceFrameToTargetFrame.clone().invert())
+    .normalize();
+}
+
+function applyOrientationRetarget(THREE, fpsRoot, meshyRoot, sourceRestWorld, targetRestWorld) {
+  const sourceFrameRestWorld = sourceRestWorld.get(canon(sourceFrameName));
+  const targetFrameRestWorld = targetRestWorld.get(canon(targetFrameName));
+  const retargeted = [];
+  for (const chain of chains) {
+    for (let i = 0; i < chain.source.length; i += 1) {
+      const sourceName = chain.source[i];
+      const targetName = chain.target[i];
+      const sourceRest = sourceRestWorld.get(canon(sourceName));
+      const sourceReady = worldQuaternion(THREE, requireNode(fpsRoot, sourceName));
+      const targetRest = targetRestWorld.get(canon(targetName));
+      const targetBone = requireNode(meshyRoot, targetName);
+      if (!sourceRest || !sourceReady || !targetRest || !sourceFrameRestWorld || !targetFrameRestWorld) continue;
+      const sourceDelta = sourceReady.clone().multiply(sourceRest.clone().invert()).normalize();
+      const mappedDelta = mapSourceDeltaToTargetFrame(THREE, sourceDelta, sourceFrameRestWorld, targetFrameRestWorld);
+      setWorldQuaternion(THREE, targetBone, mappedDelta.multiply(targetRest).normalize());
+      meshyRoot.updateMatrixWorld(true);
+      retargeted.push(targetName);
+    }
+  }
+  return retargeted;
 }
 
 function sampleQuaternionTrack(THREE, track, time) {
@@ -261,7 +316,11 @@ async function main() {
   const restClip = fps.animations.find((clip) => clip.name === restClipName);
   if (!readyClip) throw new Error(`missing FPS clip ${sourceClipName}`);
   if (restClip) applyClipPose(THREE, fpsRoot, restClip, 0);
+  const sourceRestWorld = captureWorldQuaternions(THREE, fpsRoot);
+  const targetRestWorld = captureWorldQuaternions(THREE, meshyRoot);
+  const targetRestLocal = captureLocalQuaternions(meshyRoot);
   applyClipPose(THREE, fpsRoot, readyClip, readyClip.duration);
+  applyLocalQuaternions(meshyRoot, targetRestLocal);
   meshyRoot.updateMatrixWorld(true);
 
   const scale = chains.reduce((sum, chain) => (
@@ -282,24 +341,24 @@ async function main() {
     }
   }
 
+  const retargetedBones = applyOrientationRetarget(THREE, fpsRoot, meshyRoot, sourceRestWorld, targetRestWorld);
   for (const chain of chains) {
     const [upper, lower, hand] = chain.target.map((name) => requireNode(meshyRoot, name));
-    alignSegment(THREE, meshyRoot, upper, lower, projected.get(chain.source[0]), projected.get(chain.source[1]));
-    alignSegment(THREE, meshyRoot, lower, hand, projected.get(chain.source[1]), projected.get(chain.source[2]));
     applyTwoBonePin(THREE, meshyRoot, upper, lower, hand, projected.get(chain.source[2]));
     rotateHandRoll(THREE, meshyRoot, fpsRoot, meshyRoot, chain);
   }
 
   const payload = {
     schema: 'pose-lab-v2-ready-pose-v1',
-    label: 'OneHandReady baked from FPSPlayer projection',
+    label: 'OneHandReady orientation retargeted from FPSPlayer',
     source: {
       fps: '../pose-lab/assets/models/FPSPlayer.glb',
       meshy: './public/assets/meshy/meshy_apose_walking_with_skin.glb',
       clip: sourceClipName,
       sampleTime: Number(readyClip.duration.toFixed(6)),
       projectionFrame: `${sourceFrameName}->${targetFrameName}`,
-      rollOffsetsDeg: Object.fromEntries(chains.map((chain) => [chain.label, chain.rollOffsetDeg])),
+      method: 'orientation-first-retarget-with-pins',
+      retargetedBones,
     },
     bones: posePayload(THREE, meshyRoot),
   };
@@ -310,7 +369,8 @@ async function main() {
     clip: sourceClipName,
     time: payload.source.sampleTime,
     bones: Object.keys(payload.bones).length,
-    rollOffsetsDeg: payload.source.rollOffsetsDeg,
+    method: payload.source.method,
+    retargetedBones,
   }, null, 2));
 }
 
