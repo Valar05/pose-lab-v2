@@ -69,6 +69,8 @@ assert(main.includes('const POSE_BONE_NAMES = [') && main.includes("'RightHand'"
 assert(main.includes('function setupPoseHandles') && main.includes('PoseHandle:') && main.includes('function pickPoseHandle'), 'Pose mode must create visible selectable bone handles');
 assert(main.includes('selectedPoseBone') && main.includes('function resetPose') && main.includes("data-action=\"reset-pose\""), 'Pose mode must track selection and reset curated bone rotations');
 assert(main.includes('toolMode === \'pose\' ? \'rotate\' : next') && main.includes('rotatePoseBoneByGesture'), 'Pose mode must be rotate-only and not reuse saber move/scale behavior');
+assert(main.includes('function beginTwoFingerPose') && main.includes('function rotatePoseBoneByTwist') && main.includes('function poseBoneRollAxis'), 'Pose mode must support two-finger selected-bone twist around the bone axis');
+assert(main.includes('pose: two-finger bone roll') && main.includes('beginTwoFingerPose(points)'), 'two-finger pose touch must be owned by the selected bone, not the camera');
 assert(!main.includes('AnimationMixer') && !main.includes('clipAction') && !main.includes('retarget'), 'v2 Ready must stay baked-pose only, not runtime animation retargeting');
 assert(!main.includes("import './styles.css'"), 'browser-native ESM must not import CSS without a bundler');
 assert(main.includes('pickSabre') && main.includes('startGesture') && main.includes('updateGesture'), 'app must use visible direct saber gestures');

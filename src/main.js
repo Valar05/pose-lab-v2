@@ -581,6 +581,32 @@ function rotatePoseBoneByGesture(dx, dy, basis) {
   updatePoseHandles();
 }
 
+function poseBoneRollAxis(bone) {
+  if (!bone) return null;
+  root.updateMatrixWorld(true);
+  const head = objectWorldPosition(bone);
+  const firstBoneChild = bone.children.find((child) => child.isBone);
+  const tail = firstBoneChild
+    ? objectWorldPosition(firstBoneChild)
+    : bone.parent
+      ? objectWorldPosition(bone.parent)
+      : null;
+  if (!tail) return null;
+  const axis = firstBoneChild ? tail.sub(head) : head.sub(tail);
+  return axis.lengthSq() > 1e-8 ? axis.normalize() : null;
+}
+
+function rotatePoseBoneByTwist(radians) {
+  if (!selectedPoseBone) return;
+  poseState = 'custom';
+  const axis = currentAxis === 'screen'
+    ? poseBoneRollAxis(selectedPoseBone)
+    : worldAxisVector(currentAxis);
+  if (!axis) return;
+  rotateSabreAroundAxis(axis, radians);
+  updatePoseHandles();
+}
+
 function orbitCameraByDelta(dx, dy) {
   const offset = camera.position.clone().sub(controls.target);
   const spherical = new THREE.Spherical().setFromVector3(offset);
@@ -722,6 +748,21 @@ function beginTwoFingerSabre(points) {
   statusEl.textContent = mode === 'rotate' ? 'two-finger roll armed' : 'two-finger scale armed';
 }
 
+function beginTwoFingerPose(points) {
+  const { right, up, forward } = cameraBasis();
+  touchGesture = {
+    kind: 'two-pose',
+    moved: false,
+    tapCanCycle: false,
+    right,
+    up,
+    forward,
+  };
+  lastTwistAngle = touchAngle(points);
+  controls.enabled = false;
+  statusEl.textContent = `pose: two-finger bone roll ${selectedPoseBone?.name || ''}`;
+}
+
 function beginCameraTouch(points) {
   touchGesture = {
     kind: points.length >= 2 ? 'two-camera' : 'one-camera',
@@ -740,9 +781,7 @@ function handleTouchStart(event) {
   const points = touchPoints(event);
   if (points.length >= 2 && toolMode === 'pose' && selectedPoseBone) {
     suppressTouchPointerEvents = true;
-    const { right, up, forward } = cameraBasis();
-    touchGesture = { kind: 'two-pose', moved: false, tapCanCycle: false, right, up, forward };
-    lastTwistAngle = touchAngle(points);
+    beginTwoFingerPose(points);
     stopEvent(event);
     return true;
   }
@@ -796,13 +835,13 @@ function handleTouchMove(event) {
     const angle = touchAngle(points);
     if (Number.isFinite(lastTwistAngle)) {
       const twist = angle - lastTwistAngle;
-      const axis = currentAxis === 'screen' ? touchGesture.forward.clone() : worldAxisVector(currentAxis);
-      if (axis) rotateSabreAroundAxis(axis, twist);
+      rotatePoseBoneByTwist(twist);
     }
     lastTwistAngle = angle;
     touchGesture.moved = true;
     updatePoseHandles();
     updateReadout();
+    statusEl.textContent = `pose: two-finger bone roll ${selectedPoseBone.name}`;
     stopEvent(event);
     return true;
   }
