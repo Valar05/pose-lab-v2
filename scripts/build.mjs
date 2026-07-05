@@ -9,6 +9,7 @@ fs.mkdirSync(dist, { recursive: true });
 
 fs.cpSync(path.join(root, 'index.html'), path.join(dist, 'index.html'));
 fs.cpSync(path.join(root, 'src'), path.join(dist, 'src'), { recursive: true });
+fs.cpSync(path.join(root, 'vendor'), path.join(dist, 'vendor'), { recursive: true });
 fs.cpSync(path.join(root, 'public'), dist, { recursive: true });
 
 console.log(JSON.stringify({

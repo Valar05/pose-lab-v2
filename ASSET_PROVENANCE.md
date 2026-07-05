@@ -12,5 +12,12 @@
 - Source workspace file: `../pose-lab/assets/models/meshy_sabre/Meshy_AI_A_French_revolution_c_0628223518_texture.glb`
 - Role: real visible sabre mesh for direct placement.
 
-No Pose Lab runtime code, rig profiles, generated artifacts, retarget code, debug bridge code, or metric acceptance tooling was copied.
+## Three.js Runtime
 
+- Runtime files: `vendor/three/`
+- Source workspace files: `../tanks-for-the-memories/node_modules/three/`
+- Version: `0.166.1`
+- Role: same-origin browser runtime for GLB loading, orbit camera controls, and
+  WebGL rendering without a CDN startup dependency.
+
+No Pose Lab runtime code, rig profiles, generated artifacts, retarget code, debug bridge code, or metric acceptance tooling was copied.
