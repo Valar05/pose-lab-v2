@@ -67,6 +67,19 @@ const exportBones = [
 ];
 
 const sourceSignatureNodes = ['Arm.R', 'Forearm.R', 'Hand.R', 'Weapon.R'];
+const anticipationGraphShape = {
+  centerTime: primeKeys.anticipation,
+  startTime: primeKeys.start,
+  releaseTime: primeKeys.contact,
+  endTime: primeKeys.followThrough,
+  // Authored graph-wide wind-up: hand travels to screen-right while the wrist
+  // rolls the blade back toward screen-left before contact.
+  boneLocalEulerDeg: {
+    RightArm: [-18, -36, 46],
+    RightForeArm: [10, -18, 24],
+    RightHand: [0, 120, -120],
+  },
+};
 
 function ensureBrowserShim() {
   globalThis.ProgressEvent ||= class ProgressEvent {
@@ -361,6 +374,47 @@ function applyReadyGraphOffsets(THREE, frames, acceptedReadyBones, rawReadyBones
   };
 }
 
+function eulerDeltaQuaternion(THREE, values) {
+  return new THREE.Quaternion().setFromEuler(new THREE.Euler(
+    THREE.MathUtils.degToRad(values[0]),
+    THREE.MathUtils.degToRad(values[1]),
+    THREE.MathUtils.degToRad(values[2]),
+    'XYZ'
+  )).normalize();
+}
+
+function anticipationEnvelope(time) {
+  const { startTime, centerTime, releaseTime, endTime } = anticipationGraphShape;
+  if (time <= startTime || time >= endTime) return 0;
+  if (time <= centerTime) return (time - startTime) / Math.max(0.0001, centerTime - startTime);
+  if (time <= releaseTime) return 1 - 0.25 * ((time - centerTime) / Math.max(0.0001, releaseTime - centerTime));
+  return 0.75 * (1 - ((time - releaseTime) / Math.max(0.0001, endTime - releaseTime)));
+}
+
+function applyAnticipationGraphShape(THREE, frames) {
+  const adjustedBones = Object.keys(anticipationGraphShape.boneLocalEulerDeg);
+  const deltas = Object.fromEntries(Object.entries(anticipationGraphShape.boneLocalEulerDeg)
+    .map(([name, values]) => [name, eulerDeltaQuaternion(THREE, values)]));
+  for (const frame of frames) {
+    const weight = anticipationEnvelope(frame.time);
+    if (weight <= 0) continue;
+    for (const name of adjustedBones) {
+      if (!frame.bones[name]) continue;
+      const base = quaternionFromArray(THREE, frame.bones[name]);
+      const delta = new THREE.Quaternion().identity().slerp(deltas[name], weight).normalize();
+      frame.bones[name] = roundedQuaternion(base.multiply(delta).normalize());
+    }
+  }
+  return {
+    adjustedBones,
+    centerTime: anticipationGraphShape.centerTime,
+    releaseTime: anticipationGraphShape.releaseTime,
+    endTime: anticipationGraphShape.endTime,
+    boneLocalEulerDeg: anticipationGraphShape.boneLocalEulerDeg,
+    envelope: 'smooth wind-up across start->anticipation->contact->followThrough keys',
+  };
+}
+
 function enforceReadyEndpointContract(frames, acceptedReadyBones) {
   const endpointBones = exportBones.filter((name) => acceptedReadyBones[name]);
   const first = frames[0]?.bones || {};
@@ -500,6 +554,29 @@ function evaluateBladeGuard(THREE, camera, meshyRoot, frames, acceptedReadyBones
   };
 }
 
+function evaluateAnticipationReadGuard(bladeGuard) {
+  const start = bladeGuard.primeSamples.start;
+  const anticipation = bladeGuard.primeSamples.anticipation;
+  const hiltMovesRightPx = anticipation.hiltScreen[0] - start.hiltScreen[0];
+  const tipTrailsLeftPx = anticipation.hiltScreen[0] - anticipation.tipScreen[0];
+  const failures = [];
+  if (hiltMovesRightPx < 40) failures.push('ANTICIPATION_HILT_NOT_RIGHT');
+  if (tipTrailsLeftPx < 8) failures.push('ANTICIPATION_TIP_NOT_LEFT_OF_HILT');
+  return {
+    status: failures.length ? 'FAIL' : 'PASS',
+    rule: 'at anticipation the right-hand hilt must move screen-right and the sabre tip must trail screen-left of the hilt',
+    thresholds: {
+      hiltMovesRightPx: 40,
+      tipTrailsLeftPx: 8,
+    },
+    hiltMovesRightPx: Number(hiltMovesRightPx.toFixed(3)),
+    tipTrailsLeftPx: Number(tipTrailsLeftPx.toFixed(3)),
+    start,
+    anticipation,
+    failures,
+  };
+}
+
 function setupReviewCamera(THREE) {
   const [width, height] = REVIEW_CAMERA_CONTRACT.viewport;
   const camera = new THREE.PerspectiveCamera(
@@ -554,14 +631,24 @@ async function main() {
     });
   }
   const readyGraphOffset = applyReadyGraphOffsets(THREE, frames, readyBaseline, rawReadyBones);
+  const anticipationGraphWindup = applyAnticipationGraphShape(THREE, frames);
   const readyEndpointContract = enforceReadyEndpointContract(frames, readyBaseline);
   const reviewCamera = setupReviewCamera(THREE);
   const bladeGuard = evaluateBladeGuard(THREE, reviewCamera, meshyRoot, frames, readyBaseline, sourceClip, fpsRoot);
+  const anticipationReadGuard = evaluateAnticipationReadGuard(bladeGuard);
   if (bladeGuard.status !== 'PASS') {
     console.error(JSON.stringify({
       ok: false,
       reason: 'BLADE_GUARD_FAILED',
       bladeGuard,
+    }, null, 2));
+    process.exit(1);
+  }
+  if (anticipationReadGuard.status !== 'PASS') {
+    console.error(JSON.stringify({
+      ok: false,
+      reason: 'ANTICIPATION_READ_GUARD_FAILED',
+      anticipationReadGuard,
     }, null, 2));
     process.exit(1);
   }
@@ -579,6 +666,7 @@ async function main() {
       method: 'orientation-key-bake-with-ready-offsets-prime-key-review-and-screen-blade-guard',
       retargetedBones: [...retargetedBones],
       readyGraphOffset,
+      anticipationGraphWindup,
       readyEndpointContract,
       signatureWristTwist: {
         sourceHandRotationTravelDeg: sourceTrackTravelDeg(THREE, sourceClip, 'Hand.R', times),
@@ -591,6 +679,7 @@ async function main() {
     primeKeys,
     guardReport: {
       bladeGuard,
+      anticipationReadGuard,
       readyEndpointContract,
       startReadyAngleDeg: Object.fromEntries(exportBones
         .filter((name) => readyBaseline[name] && frames[0]?.bones?.[name])
