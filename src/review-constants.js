@@ -15,7 +15,12 @@ export const ATTACK1_REVIEW_CANDIDATES = {
   "attack1-tip-match-1": {
     module: "./review-candidates/attack1-tip-match-1.js",
     exportName: "ATTACK1_TIP_MATCH_SEQUENCE",
-    label: "Attack1 tip-match candidate 1",
+    label: "Attack1 tip-match candidate 1 (failed diagnostic)",
+  },
+  "attack1-tip-basis-2": {
+    module: "./review-candidates/attack1-tip-basis-2.js",
+    exportName: "ATTACK1_TIP_BASIS_SEQUENCE",
+    label: "Attack1 tip-basis candidate 2",
   },
 };
 

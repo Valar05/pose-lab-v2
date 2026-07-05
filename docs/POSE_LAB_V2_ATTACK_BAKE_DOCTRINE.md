@@ -64,6 +64,10 @@ smoke checks pass.
 8. Reject the candidate if the projected blade tip/hilt relationship does not
    match the choreography contract. Diagnose the bone-roll or authored-key
    interpretation; do not fix the failure by moving the sabre independently.
+   A low tip-target error is insufficient: the bake must also prove
+   anticipation moves the right hand and visible upper arm viewer-right with a
+   left/horizontal blade, and contact reverses viewer-left with a
+   right/horizontal blade in the active Meshy FPV camera.
 9. Promote the candidate into accepted pose status only after human-visible cloud acceptance,
    using the promotion command so `src/pose-status.js` records the accepted hash
    and evidence URL.

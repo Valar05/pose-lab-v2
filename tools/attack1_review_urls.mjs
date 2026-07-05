@@ -2,7 +2,7 @@
 import { execFileSync } from 'node:child_process';
 
 const BASE_URL = 'https://valar05.github.io/pose-lab-v2/';
-const CANDIDATES = ['attack1-candidate-1', 'attack1-tip-match-1'];
+const CANDIDATES = ['attack1-candidate-1', 'attack1-tip-basis-2'];
 const REVIEW_TIMES = [
   ['start', 0],
   ['anticipation', 0.25],
@@ -32,13 +32,13 @@ const urls = CANDIDATES.flatMap((candidate) => [{
   label: `${candidate} animated loop`,
   candidate,
   time: null,
-  url: urlFor(candidate, null, cacheBust, candidate.includes('tip-match') ? { tipMatch: '1', view: 'fpv' } : {}),
+  url: urlFor(candidate, null, cacheBust, candidate.includes('tip-basis') ? { tipBasis: '1', view: 'fpv' } : {}),
 }, ...REVIEW_TIMES.map(([primeKey, time]) => ({
   label: `${candidate} ${primeKey} ${time.toFixed(6)}s`,
   candidate,
   primeKey,
   time,
-  url: urlFor(candidate, time, cacheBust, candidate.includes('tip-match') ? { tipMatch: '1', view: 'fpv' } : {}),
+  url: urlFor(candidate, time, cacheBust, candidate.includes('tip-basis') ? { tipBasis: '1', view: 'fpv' } : {}),
 }))]);
 
 console.log(JSON.stringify({

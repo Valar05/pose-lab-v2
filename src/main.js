@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { POSE_STATUS } from './pose-status.js';
-import { ATTACK1_REVIEW_CANDIDATES, SABER_GRIP_LOCAL, REVIEW_CAMERA_CONTRACT } from './review-constants.js';
+import { ATTACK1_REVIEW_CANDIDATES, SABER_GRIP_LOCAL } from './review-constants.js';
 
 const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
@@ -18,7 +18,7 @@ const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
-const TIP_MATCH_REVIEW = URL_PARAMS.get('tipMatch') === '1';
+const TIP_BASIS_REVIEW = URL_PARAMS.get('tipBasis') === '1';
 const POSE_STATE_ORDER = ['rest', 'ready', 'attack1'];
 const POSE_STATE_LABELS = {
   rest: 'Rest',
@@ -1025,8 +1025,8 @@ function updateAttackReviewControls() {
   updateTipMatchOverlay();
 }
 
-function tipMatchReportAt(time) {
-  const report = attackPoseSequence?.guardReport?.tipMatch?.report || [];
+function tipBasisReportAt(time) {
+  const report = attackPoseSequence?.guardReport?.tipBasis?.report || [];
   if (!report.length) return null;
   let best = report[0];
   let bestDistance = Math.abs((best.time || 0) - time);
@@ -1042,26 +1042,61 @@ function tipMatchReportAt(time) {
 
 function placeTipDot(dot, point) {
   if (!dot || !Array.isArray(point)) return;
-  const [sourceWidth, sourceHeight] = REVIEW_CAMERA_CONTRACT.viewport;
-  const x = point[0] / sourceWidth * canvas.clientWidth;
-  const y = point[1] / sourceHeight * canvas.clientHeight;
-  dot.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+  dot.style.transform = `translate(${Number(point[0]).toFixed(1)}px, ${Number(point[1]).toFixed(1)}px)`;
+}
+
+function liveTipBasisProbe(entry) {
+  if (!saberGrip || !sabreRoot) return null;
+  root.updateMatrixWorld(true);
+  const tipLocalPoint = entry?.source?.tipLocalPoint || attackPoseSequence?.source?.tipBasis?.tipLocalPoint;
+  const hiltWorld = objectWorldPosition(saberGrip);
+  const tipWorld = Array.isArray(tipLocalPoint)
+    ? sabreRoot.localToWorld(new THREE.Vector3(...tipLocalPoint))
+    : orientationProbe(objectWorldPosition(sabreRoot), objectWorldQuaternion(sabreRoot), sabreBladeLocalAxis(), SABRE_AXIS_PROOF_LENGTH).end;
+  const hiltScreen = worldToScreenPixels(hiltWorld);
+  const tipScreen = worldToScreenPixels(tipWorld);
+  const tipMinusHilt = tipScreen.clone().sub(hiltScreen);
+  const sourceViewport = attackPoseSequence?.source?.tipBasis?.viewport;
+  const rect = canvas.getBoundingClientRect();
+  const desired = Array.isArray(entry?.desiredTipMinusHilt) && Array.isArray(sourceViewport)
+    ? new THREE.Vector2(
+      entry.desiredTipMinusHilt[0] * rect.width / sourceViewport[0],
+      entry.desiredTipMinusHilt[1] * rect.height / sourceViewport[1]
+    )
+    : Array.isArray(entry?.desiredTipMinusHilt)
+      ? new THREE.Vector2(...entry.desiredTipMinusHilt)
+      : tipMinusHilt.clone();
+  const targetTipScreen = hiltScreen.clone().add(desired);
+  return {
+    hiltScreen,
+    tipScreen,
+    targetTipScreen,
+    tipMinusHilt,
+    errorPx: tipMinusHilt.distanceTo(desired),
+  };
 }
 
 function updateTipMatchOverlay() {
-  const active = Boolean(TIP_MATCH_REVIEW && attackPoseSequence?.guardReport?.tipMatch && poseState === 'attack1');
+  const active = Boolean(TIP_BASIS_REVIEW && attackPoseSequence?.guardReport?.tipBasis && poseState === 'attack1');
   if (!tipMatchOverlay) return;
   tipMatchOverlay.hidden = !active;
   if (!active) return;
-  const entry = tipMatchReportAt(attackPoseCurrentTime || 0);
+  const entry = tipBasisReportAt(attackPoseCurrentTime || 0);
   if (!entry) {
-    tipMatchReadout.value = 'tip-match: no report';
+    tipMatchReadout.value = 'tip-basis: no report';
     return;
   }
-  placeTipDot(tipTargetDot, entry.targetTipScreen);
-  placeTipDot(tipActualDot, entry.actualTipScreen);
-  placeTipDot(tipHiltDot, entry.actualHiltScreen);
-  tipMatchReadout.value = `${entry.label}: tip error ${entry.errorPx}px`;
+  const live = liveTipBasisProbe(entry);
+  if (!live) {
+    tipMatchReadout.value = 'tip-basis: no live sabre probe';
+    return;
+  }
+  placeTipDot(tipTargetDot, live.targetTipScreen.toArray());
+  placeTipDot(tipActualDot, live.tipScreen.toArray());
+  placeTipDot(tipHiltDot, live.hiltScreen.toArray());
+  const vector = live.tipMinusHilt.toArray().map((value) => fixedNumber(value, 1));
+  const status = attackPoseSequence.guardReport.tipBasis.predicates?.status || 'UNKNOWN';
+  tipMatchReadout.value = `${entry.label}: live ${vector.join(', ')} target ${entry.desiredTipMinusHilt.join(', ')} error ${fixedNumber(live.errorPx, 1)}px ${status}`;
 }
 
 function setPoseState(next) {

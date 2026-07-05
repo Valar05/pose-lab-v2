@@ -63,12 +63,15 @@ viewer-left strike. A wrist-travel number, source-motion statistic, or successfu
 smoke run does not make a candidate visually acceptable if those relationships
 are wrong.
 
-Tip-match review is available as a quarantined authoring aid:
-`npm run bake:attack1:tip-match` writes `attack1-tip-match-1`, which rotates
-only Meshy `RightHand` so the real sabre tip approaches the FPS reference
-tip-to-hilt screen relationship. Review it with
-`?pose=attack1&candidate=attack1-tip-match-1&view=fpv&tipMatch=1`. This is not
-accepted Attack1 until promoted through the normal human-visible cloud review.
+Tip-basis review is available as a quarantined authoring aid:
+`npm run bake:attack1:tip-basis` writes `attack1-tip-basis-2`, which uses the
+FPS `Camera` and `WeaponR` as reference evidence, then checks the Meshy runtime
+FPV camera directly. The bake refuses to write unless anticipation moves the
+right hand and visible upper arm right while the blade points left/horizontal,
+and contact reverses left while the blade points right/horizontal. Review it
+with `?pose=attack1&candidate=attack1-tip-basis-2&view=fpv&tipBasis=1`. This is
+not accepted Attack1 until promoted through the normal human-visible cloud
+review.
 
 Numbers are readout/export only. Authoring is direct visual manipulation.
 
@@ -78,6 +81,7 @@ Numbers are readout/export only. Authoring is direct visual manipulation.
 npm run bake:ready
 npm run bake:attack1:candidate
 npm run bake:attack1:tip-match
+npm run bake:attack1:tip-basis
 npm run build
 npm run smoke
 git diff --check
