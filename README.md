@@ -32,3 +32,16 @@ npm run build
 npm run smoke
 git diff --check
 ```
+
+## Cloud Review Rule
+
+The hosted URL is the review surface. A successful deploy, HTTP 200 on the shell,
+or reachable component files are not visual acceptance.
+
+When waking a cloud URL:
+
+1. Verify the exact URL that was opened, including query string.
+2. Verify the module and real GLB assets referenced by that page.
+3. Treat those checks as blank-page diagnostics only.
+4. Do not claim visual success until the hosted page visibly renders the Meshy
+   character and real sabre.
