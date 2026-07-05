@@ -19,5 +19,7 @@
 - Version: `0.166.1`
 - Role: same-origin browser runtime for GLB loading, orbit camera controls, and
   WebGL rendering without a CDN startup dependency.
+- Included examples modules: `GLTFLoader.js`, `OrbitControls.js`, and
+  `BufferGeometryUtils.js`.
 
 No Pose Lab runtime code, rig profiles, generated artifacts, retarget code, debug bridge code, or metric acceptance tooling was copied.

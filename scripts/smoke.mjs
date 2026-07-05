@@ -13,6 +13,17 @@ const main = read('src/main.js');
 const html = read('index.html');
 const css = read('src/styles.css');
 const pkg = JSON.parse(read('package.json'));
+const importFromRegex = /from\s+['"]([^'"]+)['"]/g;
+
+function assertRelativeImportsResolve(file) {
+  const source = read(file);
+  for (const match of source.matchAll(importFromRegex)) {
+    const specifier = match[1];
+    if (!specifier.startsWith('.')) continue;
+    const resolved = path.normalize(path.join(path.dirname(file), specifier));
+    assert(exists(resolved), `${file} imports missing relative module ${specifier} -> ${resolved}`);
+  }
+}
 
 assert(exists('public/assets/meshy/meshy_apose_walking_with_skin.glb'), 'missing Meshy A-pose/walking GLB');
 assert(exists('public/assets/meshy/meshy_real_sabre.glb'), 'missing real sabre GLB');
@@ -28,6 +39,7 @@ assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static an
 assert(exists('vendor/three/build/three.module.js'), 'missing vendored Three module');
 assert(exists('vendor/three/examples/jsm/loaders/GLTFLoader.js'), 'missing vendored GLTFLoader');
 assert(exists('vendor/three/examples/jsm/controls/OrbitControls.js'), 'missing vendored OrbitControls');
+assert(exists('vendor/three/examples/jsm/utils/BufferGeometryUtils.js'), 'missing vendored BufferGeometryUtils');
 assert(main.includes("meshy_apose_walking_with_skin.glb"), 'app must reference Meshy GLB');
 assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB');
 assert(!main.includes("import './styles.css'"), 'browser-native ESM must not import CSS without a bundler');
@@ -40,8 +52,17 @@ if (exists('dist')) {
   assert(exists('dist/vendor/three/build/three.module.js'), 'dist must include vendored Three');
   assert(exists('dist/vendor/three/examples/jsm/loaders/GLTFLoader.js'), 'dist must include vendored GLTFLoader');
   assert(exists('dist/vendor/three/examples/jsm/controls/OrbitControls.js'), 'dist must include vendored OrbitControls');
+  assert(exists('dist/vendor/three/examples/jsm/utils/BufferGeometryUtils.js'), 'dist must include vendored BufferGeometryUtils');
   assert(exists('dist/assets/meshy/meshy_apose_walking_with_skin.glb'), 'dist must expose Meshy GLB at /assets/meshy');
   assert(exists('dist/assets/meshy/meshy_real_sabre.glb'), 'dist must expose real sabre GLB at /assets/meshy');
+}
+
+for (const file of [
+  'vendor/three/examples/jsm/loaders/GLTFLoader.js',
+  'vendor/three/examples/jsm/controls/OrbitControls.js',
+  'vendor/three/examples/jsm/utils/BufferGeometryUtils.js',
+]) {
+  assertRelativeImportsResolve(file);
 }
 
 for (const forbidden of [

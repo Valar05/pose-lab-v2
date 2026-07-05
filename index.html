@@ -13,6 +13,25 @@
       }
     </style>
     <link rel="stylesheet" href="./src/styles.css" />
+    <script>
+      const showStartupFailure = (label, detail) => {
+        const app = document.querySelector('#app');
+        if (!app) return;
+        app.innerHTML = `
+          <section style="padding: 16px; max-width: 720px;">
+            <h1 style="font-size: 18px; margin: 0 0 8px;">startup failed</h1>
+            <p style="margin: 0 0 8px;">${label}</p>
+            <pre style="white-space: pre-wrap; overflow-wrap: anywhere;">${String(detail || '')}</pre>
+          </section>
+        `;
+      };
+      window.addEventListener('error', (event) => {
+        showStartupFailure(event.message || 'module error', event.filename || event.error?.stack || event.error);
+      });
+      window.addEventListener('unhandledrejection', (event) => {
+        showStartupFailure('unhandled promise rejection', event.reason?.stack || event.reason);
+      });
+    </script>
     <script type="importmap">
       {
         "imports": {
