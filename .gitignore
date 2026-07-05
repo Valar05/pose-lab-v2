@@ -3,3 +3,4 @@ dist/
 .vite/
 *.log
 generated/pose-candidates/
+generated/fps-reference/

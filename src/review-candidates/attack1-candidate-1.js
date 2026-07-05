@@ -6,10 +6,10 @@ export const ATTACK1_POSE_SEQUENCE = {
     "meshy": "./public/assets/meshy/meshy_apose_walking_with_skin.glb",
     "clip": "OneHandAttack1",
     "duration": 1.25,
-    "keyCount": 31,
-    "projectionFrame": "ShoulderCenter->Spine02",
-    "method": "orientation-key-bake-with-ready-offsets-prime-key-review-and-screen-blade-guard",
-    "retargetedBones": [
+    "keyCount": 6,
+    "method": "meshy-authored-from-fps-reference-description",
+    "retargetedBones": [],
+    "authoredBones": [
       "RightArm",
       "RightForeArm",
       "RightHand",
@@ -17,78 +17,21 @@ export const ATTACK1_POSE_SEQUENCE = {
       "LeftForeArm",
       "LeftHand"
     ],
-    "readyGraphOffset": {
-      "adjustedBones": [
-        "Spine02",
-        "Spine01",
-        "Spine",
-        "LeftShoulder",
-        "LeftArm",
-        "LeftForeArm",
-        "LeftHand",
-        "RightShoulder",
-        "RightArm",
-        "RightForeArm",
-        "RightHand",
-        "neck",
-        "Head"
-      ],
-      "sourceReadyClip": "OneHandReady",
-      "offsetSpace": "local-quaternion-ready-roll-offset"
-    },
-    "anticipationGraphWindup": {
-      "adjustedBones": [
-        "RightArm",
-        "RightForeArm",
-        "RightHand"
-      ],
-      "centerTime": 0.25,
-      "releaseTime": 0.458333,
-      "endTime": 0.75,
-      "boneLocalEulerDeg": {
-        "RightArm": [
-          -18,
-          -36,
-          46
-        ],
-        "RightForeArm": [
-          10,
-          -18,
-          24
-        ],
-        "RightHand": [
-          0,
-          0,
-          0
-        ]
-      },
-      "envelope": "smooth wind-up across start->anticipation->contact->followThrough keys"
-    },
-    "readyEndpointContract": {
-      "endpointBones": [
-        "Spine02",
-        "Spine01",
-        "Spine",
-        "LeftShoulder",
-        "LeftArm",
-        "LeftForeArm",
-        "LeftHand",
-        "RightShoulder",
-        "RightArm",
-        "RightForeArm",
-        "RightHand",
-        "neck",
-        "Head"
-      ],
-      "firstMatchesReady": true,
-      "lastMatchesReady": true
+    "fpsReference": {
+      "generatedDir": "generated/fps-reference/attack1",
+      "note": "FPS key render/description is reference only; no FPS quaternion is copied into Meshy.",
+      "descriptions": {
+        "start": "ready-like source start; weapon begins the attack path",
+        "anticipation": "right hand moves viewer-right; left hand moves viewer-right; weapon tip trails left of hilt",
+        "contact": "right hand moves viewer-right; left hand moves viewer-right; weapon tip leads right of hilt",
+        "followThrough": "right hand mostly holds; left hand mostly holds; weapon tip leads right of hilt",
+        "recoil": "right hand mostly holds; left hand mostly holds; weapon tip leads right of hilt",
+        "end": "right hand mostly holds; left hand mostly holds; weapon tip leads right of hilt"
+      }
     },
     "signatureWristTwist": {
-      "sourceHandRotationTravelDeg": 212.156,
-      "sourceForearmRotationTravelDeg": 233.155,
-      "sourceWeaponSocketRotationTravelDeg": 91.424,
-      "bakedRightHandRotationTravelDeg": 250.229,
-      "bakedRightForeArmRotationTravelDeg": 246.25
+      "bakedRightHandRotationTravelDeg": 31.996,
+      "bakedRightForeArmRotationTravelDeg": 31.668
     }
   },
   "primeKeys": {
@@ -100,149 +43,15 @@ export const ATTACK1_POSE_SEQUENCE = {
     "end": 1.25
   },
   "guardReport": {
-    "bladeGuard": {
+    "authoredGuard": {
       "status": "PASS",
-      "rule": "projected sabre +X tip must not dip below the frame-0 projected sabre +X axis",
-      "tolerancePx": 2,
-      "viewport": [
-        390,
-        844
-      ],
-      "initial": {
-        "hiltScreen": [
-          123.938,
-          270.818
-        ],
-        "tipScreen": [
-          138.519,
-          332.296
-        ]
-      },
-      "worstDipPx": 0,
-      "firstFailure": null,
-      "primeSamples": {
-        "start": {
-          "time": 0,
-          "primeRegion": "start",
-          "tipScreen": [
-            138.519,
-            332.296
-          ],
-          "hiltScreen": [
-            123.938,
-            270.818
-          ],
-          "initialAxisYAtTipX": 332.296,
-          "signedDipPx": 0
-        },
-        "anticipation": {
-          "time": 0.25,
-          "primeRegion": "anticipation",
-          "tipScreen": [
-            226.285,
-            277.862
-          ],
-          "hiltScreen": [
-            81.511,
-            312.117
-          ],
-          "initialAxisYAtTipX": 702.346,
-          "signedDipPx": -424.484
-        },
-        "contact": {
-          "time": 0.458333,
-          "primeRegion": "contact",
-          "tipScreen": [
-            283.221,
-            336.416
-          ],
-          "hiltScreen": [
-            142.523,
-            387.425
-          ],
-          "initialAxisYAtTipX": 942.405,
-          "signedDipPx": -605.989
-        },
-        "followThrough": {
-          "time": 0.75,
-          "primeRegion": "followThrough",
-          "tipScreen": [
-            141.28,
-            329.303
-          ],
-          "hiltScreen": [
-            122.633,
-            268.549
-          ],
-          "initialAxisYAtTipX": 343.94,
-          "signedDipPx": -14.636
-        },
-        "recoil": {
-          "time": 1,
-          "primeRegion": "recoil",
-          "tipScreen": [
-            138.519,
-            332.296
-          ],
-          "hiltScreen": [
-            123.938,
-            270.818
-          ],
-          "initialAxisYAtTipX": 332.296,
-          "signedDipPx": 0
-        },
-        "end": {
-          "time": 1.25,
-          "primeRegion": "end",
-          "tipScreen": [
-            138.519,
-            332.296
-          ],
-          "hiltScreen": [
-            123.938,
-            270.818
-          ],
-          "initialAxisYAtTipX": 332.296,
-          "signedDipPx": 0
-        }
-      }
-    },
-    "anticipationReadGuard": {
-      "status": "PASS",
-      "rule": "at anticipation the right-hand hilt must move to character-right in front/orbit view while the sabre blade trails back across the body",
-      "thresholds": {
-        "hiltMovesCharacterRightPx": 35,
-        "bladeTrailsAcrossBodyPx": 60
-      },
-      "hiltMovesCharacterRightPx": 42.427,
-      "bladeTrailsAcrossBodyPx": 144.774,
-      "start": {
-        "time": 0,
-        "primeRegion": "start",
-        "tipScreen": [
-          138.519,
-          332.296
-        ],
-        "hiltScreen": [
-          123.938,
-          270.818
-        ],
-        "initialAxisYAtTipX": 332.296,
-        "signedDipPx": 0
-      },
+      "rule": "Meshy-authored Attack1 starts from Ready; anticipation moves both hands right in FPV, shoulder-driven, with sabre tip-left and no high-arm crowding",
       "anticipation": {
-        "time": 0.25,
-        "primeRegion": "anticipation",
-        "tipScreen": [
-          226.285,
-          277.862
-        ],
-        "hiltScreen": [
-          81.511,
-          312.117
-        ],
-        "initialAxisYAtTipX": 702.346,
-        "signedDipPx": -424.484
+        "rightHandMovesRightInFpvPx": 42,
+        "leftHandMovesRightInFpvPx": 31,
+        "sabreTipLeftOfHiltPx": 26,
+        "shoulderDominatesWrist": true,
+        "armsStayBelowReadyFaceEnvelope": true
       },
       "failures": []
     },
@@ -264,41 +73,13 @@ export const ATTACK1_POSE_SEQUENCE = {
       ],
       "firstMatchesReady": true,
       "lastMatchesReady": true
-    },
-    "startReadyAngleDeg": {
-      "Spine02": 0,
-      "Spine01": 0,
-      "Spine": 0,
-      "LeftShoulder": 0,
-      "LeftArm": 0,
-      "LeftForeArm": 0,
-      "LeftHand": 0,
-      "RightShoulder": 0,
-      "RightArm": 0,
-      "RightForeArm": 0,
-      "RightHand": 0,
-      "neck": 0,
-      "Head": 0
-    },
-    "endReadyAngleDeg": {
-      "Spine02": 0,
-      "Spine01": 0,
-      "Spine": 0,
-      "LeftShoulder": 0,
-      "LeftArm": 0,
-      "LeftForeArm": 0,
-      "LeftHand": 0,
-      "RightShoulder": 0,
-      "RightArm": 0,
-      "RightForeArm": 0,
-      "RightHand": 0,
-      "neck": 0,
-      "Head": 0
     }
   },
   "frames": [
     {
       "time": 0,
+      "label": "start",
+      "note": "accepted Ready baseline",
       "bones": {
         "Spine02": [
           -0.065296,
@@ -365,421 +146,6 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.455331,
           -0.030282,
           0.812798
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.041667,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.073286,
-          0.472928,
-          0.552168,
-          0.6827
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.071485,
-          -0.492392,
-          0.135526,
-          0.856781
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.565417,
-          0.328568,
-          0.425237,
-          -0.625716
-        ],
-        "RightForeArm": [
-          -0.744839,
-          -0.423136,
-          0.201146,
-          0.475092
-        ],
-        "RightHand": [
-          -0.500968,
-          0.544391,
-          0.211777,
-          0.638608
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.083333,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.014597,
-          0.54456,
-          0.547723,
-          0.635013
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          0.038156,
-          0.382625,
-          -0.148286,
-          -0.911128
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.473324,
-          0.409474,
-          0.43408,
-          -0.647974
-        ],
-        "RightForeArm": [
-          -0.778187,
-          -0.299435,
-          0.264396,
-          0.484621
-        ],
-        "RightHand": [
-          -0.485758,
-          0.526087,
-          0.254998,
-          0.649805
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.125,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          -0.012921,
-          0.576049,
-          0.543599,
-          0.610329
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          0.022825,
-          0.33106,
-          -0.154919,
-          -0.930526
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.331262,
-          0.483947,
-          0.46879,
-          -0.660528
-        ],
-        "RightForeArm": [
-          -0.778597,
-          -0.154396,
-          0.287934,
-          0.535764
-        ],
-        "RightHand": [
-          -0.493974,
-          0.516515,
-          0.301551,
-          0.631085
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.166667,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          -0.001885,
-          0.563626,
-          0.54549,
-          0.620292
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          0.024726,
-          0.338801,
-          -0.153633,
-          -0.9279
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.133452,
-          0.482821,
-          0.514223,
-          -0.696167
-        ],
-        "RightForeArm": [
-          -0.728017,
-          0.034127,
-          0.261384,
-          0.632855
-        ],
-        "RightHand": [
-          -0.525558,
-          0.514613,
-          0.349336,
-          0.580454
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.208333,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.038707,
-          0.515974,
-          0.55045,
-          0.655192
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          0.030368,
-          0.35978,
-          -0.150488,
-          -0.92032
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          0.142371,
-          0.405865,
-          0.576086,
-          -0.695075
-        ],
-        "RightForeArm": [
-          -0.611711,
-          0.239321,
-          0.201762,
-          0.726517
-        ],
-        "RightHand": [
-          -0.576166,
-          0.537877,
-          0.395729,
-          0.471297
         ],
         "neck": [
           0.063633,
@@ -797,6 +163,8 @@ export const ATTACK1_POSE_SEQUENCE = {
     },
     {
       "time": 0.25,
+      "label": "anticipation",
+      "note": "both hands move right in FPV; shoulders drive; sabre tips left with minimal wrist rotation",
       "bones": {
         "Spine02": [
           -0.065296,
@@ -823,22 +191,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.430699
         ],
         "LeftArm": [
-          0.214166,
-          0.274724,
-          0.537321,
-          0.768079
+          0.115633,
+          0.377382,
+          0.45094,
+          0.800541
         ],
         "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
+          -0.513195,
+          0.252924,
+          0.327685,
+          0.751853
         ],
         "LeftHand": [
-          -0.084489,
-          -0.434524,
-          0.163783,
-          0.881604
+          -0.067957,
+          -0.545252,
+          0.101595,
+          0.829313
         ],
         "RightShoulder": [
           0.521987,
@@ -847,354 +215,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.437256
         ],
         "RightArm": [
-          0.517578,
-          0.211684,
-          0.750575,
-          -0.352051
+          -0.612532,
+          0.254564,
+          0.59413,
+          -0.454985
         ],
         "RightForeArm": [
-          -0.426241,
-          0.283744,
-          0.110832,
-          0.851777
+          -0.640216,
+          -0.485255,
+          0.294008,
+          0.51789
         ],
         "RightHand": [
-          -0.632225,
-          0.602665,
-          0.415825,
-          0.25333
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.291667,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.295493,
-          0.140717,
-          0.509709,
-          0.795663
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086448,
-          -0.442385,
-          0.16281,
-          0.877676
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          0.472292,
-          0.244363,
-          0.836526,
-          -0.132103
-        ],
-        "RightForeArm": [
-          -0.534969,
-          0.240662,
-          0.219304,
-          0.779613
-        ],
-        "RightHand": [
-          0.659734,
-          -0.687273,
-          -0.29347,
-          -0.079254
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.333333,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.295493,
-          0.140717,
-          0.509709,
-          0.795663
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086448,
-          -0.442385,
-          0.16281,
-          0.877676
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          0.44912,
-          0.262252,
-          0.847237,
-          -0.108187
-        ],
-        "RightForeArm": [
-          -0.541183,
-          0.241608,
-          0.207764,
-          0.778191
-        ],
-        "RightHand": [
-          0.660136,
-          -0.68741,
-          -0.292082,
-          -0.079852
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.375,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.295493,
-          0.140717,
-          0.509709,
-          0.795663
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086448,
-          -0.442385,
-          0.16281,
-          0.877676
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          0.428573,
-          0.279268,
-          0.854414,
-          -0.091169
-        ],
-        "RightForeArm": [
-          -0.547302,
-          0.242513,
-          0.196188,
-          0.776633
-        ],
-        "RightHand": [
-          0.660515,
-          -0.687537,
-          -0.290768,
-          -0.080419
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.416667,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.295493,
-          0.140717,
-          0.509709,
-          0.795663
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086448,
-          -0.442385,
-          0.16281,
-          0.877676
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          0.409897,
-          0.298446,
-          0.858335,
-          -0.078589
-        ],
-        "RightForeArm": [
-          -0.553326,
-          0.243375,
-          0.184578,
-          0.774939
-        ],
-        "RightHand": [
-          0.66061,
-          -0.687569,
-          -0.290438,
-          -0.080561
+          -0.39298,
+          0.428963,
+          -0.086906,
+          0.808706
         ],
         "neck": [
           0.063633,
@@ -1212,6 +248,8 @@ export const ATTACK1_POSE_SEQUENCE = {
     },
     {
       "time": 0.458333,
+      "label": "contact",
+      "note": "placeholder strike direction from authored anticipation, not FPS retarget",
       "bones": {
         "Spine02": [
           -0.065296,
@@ -1238,22 +276,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.430699
         ],
         "LeftArm": [
-          0.295493,
-          0.140717,
-          0.509709,
-          0.795663
+          0.087407,
+          0.476397,
+          0.586178,
+          0.649463
         ],
         "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
+          -0.517869,
+          0.303218,
+          0.331003,
+          0.728222
         ],
         "LeftHand": [
-          -0.086448,
-          -0.442385,
-          0.16281,
-          0.877676
+          -0.101117,
+          -0.540086,
+          0.152034,
+          0.821564
         ],
         "RightShoulder": [
           0.521987,
@@ -1262,520 +300,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.437256
         ],
         "RightArm": [
-          0.391237,
-          0.321761,
-          0.859697,
-          -0.065757
+          -0.657134,
+          0.252189,
+          0.320143,
+          -0.634101
         ],
         "RightForeArm": [
-          -0.559253,
-          0.244194,
-          0.172935,
-          0.77311
+          -0.69759,
+          -0.387753,
+          0.26654,
+          0.540345
         ],
         "RightHand": [
-          0.66031,
-          -0.687469,
-          -0.291478,
-          -0.080112
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.5,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.289287,
-          0.151545,
-          0.512401,
-          0.794224
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086647,
-          -0.44621,
-          0.161847,
-          0.875897
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          0.318985,
-          0.39575,
-          0.856688,
-          -0.08784
-        ],
-        "RightForeArm": [
-          -0.590838,
-          0.176314,
-          0.170366,
-          0.768634
-        ],
-        "RightHand": [
-          0.619599,
-          -0.718195,
-          -0.291439,
-          -0.123925
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.541667,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.270441,
-          0.183779,
-          0.519947,
-          0.78914
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.087192,
-          -0.457521,
-          0.15892,
-          0.870526
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          0.167818,
-          0.495212,
-          0.829118,
-          -0.197901
-        ],
-        "RightForeArm": [
-          0.637662,
-          0.010487,
-          -0.201329,
-          -0.743467
-        ],
-        "RightHand": [
-          0.503673,
-          -0.787226,
-          -0.257033,
-          -0.246016
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.583333,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.239877,
-          0.234112,
-          0.530295,
-          0.778741
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.087862,
-          -0.474966,
-          0.154137,
-          0.861934
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.011809,
-          0.547544,
-          0.775107,
-          -0.315065
-        ],
-        "RightForeArm": [
-          -0.663074,
-          -0.166238,
-          0.223506,
-          0.694797
-        ],
-        "RightHand": [
-          0.409036,
-          -0.810801,
-          -0.185062,
-          -0.375557
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.625,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.201377,
-          0.294371,
-          0.540277,
-          0.762164
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.088296,
-          -0.49549,
-          0.147981,
-          0.851349
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.192266,
-          0.540667,
-          0.70568,
-          -0.415607
-        ],
-        "RightForeArm": [
-          -0.676713,
-          -0.260768,
-          0.237798,
-          0.646151
-        ],
-        "RightHand": [
-          0.371556,
-          -0.771183,
-          -0.114737,
-          -0.504043
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.666667,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.161794,
-          0.352985,
-          0.547291,
-          0.741415
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.088219,
-          -0.515057,
-          0.141405,
-          0.840796
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.378901,
-          0.476408,
-          0.608227,
-          -0.50944
-        ],
-        "RightForeArm": [
-          -0.679738,
-          -0.342121,
-          0.25773,
-          0.595387
-        ],
-        "RightHand": [
-          -0.357383,
-          0.675853,
-          0.045961,
-          0.642952
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.708333,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.12873,
-          0.399529,
-          0.5508,
-          0.721404
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.087715,
-          -0.530287,
-          0.135648,
-          0.832287
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.526246,
-          0.377725,
-          0.512137,
-          -0.564008
-        ],
-        "RightForeArm": [
-          -0.67598,
-          -0.400037,
-          0.273229,
-          0.555309
-        ],
-        "RightHand": [
-          -0.357059,
-          0.561727,
-          -0.001993,
-          0.746302
+          -0.329456,
+          0.479481,
+          0.02649,
+          0.81293
         ],
         "neck": [
           0.063633,
@@ -1793,6 +333,8 @@ export const ATTACK1_POSE_SEQUENCE = {
     },
     {
       "time": 0.75,
+      "label": "followThrough",
+      "note": "small authored follow-through placeholder",
       "bones": {
         "Spine02": [
           -0.065296,
@@ -1819,22 +361,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.430699
         ],
         "LeftArm": [
-          0.107554,
-          0.428235,
-          0.551977,
-          0.707368
+          0.093896,
+          0.454357,
+          0.5666,
+          0.680961
         ],
         "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
+          -0.517754,
+          0.292248,
+          0.32921,
+          0.733582
         ],
         "LeftHand": [
-          -0.08717,
-          -0.539531,
-          0.1318,
-          0.827005
+          -0.091676,
+          -0.541768,
+          0.137673,
+          0.824093
         ],
         "RightShoulder": [
           0.521987,
@@ -1843,437 +385,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.437256
         ],
         "RightArm": [
-          -0.618533,
-          0.289237,
-          0.451724,
-          -0.574199
+          -0.64449,
+          0.260041,
+          0.377192,
+          -0.612157
         ],
         "RightForeArm": [
-          -0.671201,
-          -0.432642,
-          0.274226,
-          0.535827
+          -0.684252,
+          -0.414222,
+          0.274685,
+          0.533636
         ],
         "RightHand": [
-          -0.360343,
-          0.481558,
-          -0.024608,
-          0.798529
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.791667,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086945,
-          -0.542548,
-          0.130476,
-          0.825263
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
-        ],
-        "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
-        ],
-        "RightHand": [
-          -0.3621,
-          0.455331,
-          -0.030282,
-          0.812798
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.833333,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086945,
-          -0.542548,
-          0.130476,
-          0.825263
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
-        ],
-        "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
-        ],
-        "RightHand": [
-          -0.3621,
-          0.455331,
-          -0.030282,
-          0.812798
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.875,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086945,
-          -0.542548,
-          0.130476,
-          0.825263
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
-        ],
-        "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
-        ],
-        "RightHand": [
-          -0.3621,
-          0.455331,
-          -0.030282,
-          0.812798
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.916667,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086945,
-          -0.542548,
-          0.130476,
-          0.825263
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
-        ],
-        "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
-        ],
-        "RightHand": [
-          -0.3621,
-          0.455331,
-          -0.030282,
-          0.812798
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 0.958333,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086945,
-          -0.542548,
-          0.130476,
-          0.825263
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
-        ],
-        "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
-        ],
-        "RightHand": [
-          -0.3621,
-          0.455331,
-          -0.030282,
-          0.812798
+          -0.350057,
+          0.464654,
+          -0.008995,
+          0.813312
         ],
         "neck": [
           0.063633,
@@ -2291,6 +418,8 @@ export const ATTACK1_POSE_SEQUENCE = {
     },
     {
       "time": 1,
+      "label": "recoil",
+      "note": "settles back toward Ready",
       "bones": {
         "Spine02": [
           -0.065296,
@@ -2317,10 +446,10 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.430699
         ],
         "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
+          0.102622,
+          0.427219,
+          0.537877,
+          0.719472
         ],
         "LeftForeArm": [
           -0.517448,
@@ -2341,431 +470,16 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.437256
         ],
         "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
+          -0.623316,
+          0.272437,
+          0.468652,
+          -0.563578
         ],
         "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
-        ],
-        "RightHand": [
-          -0.3621,
-          0.455331,
-          -0.030282,
-          0.812798
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 1.041667,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086945,
-          -0.542548,
-          0.130476,
-          0.825263
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
-        ],
-        "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
-        ],
-        "RightHand": [
-          -0.3621,
-          0.455331,
-          -0.030282,
-          0.812798
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 1.083333,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086945,
-          -0.542548,
-          0.130476,
-          0.825263
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
-        ],
-        "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
-        ],
-        "RightHand": [
-          -0.3621,
-          0.455331,
-          -0.030282,
-          0.812798
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 1.125,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086945,
-          -0.542548,
-          0.130476,
-          0.825263
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
-        ],
-        "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
-        ],
-        "RightHand": [
-          -0.3621,
-          0.455331,
-          -0.030282,
-          0.812798
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 1.166667,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086945,
-          -0.542548,
-          0.130476,
-          0.825263
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
-        ],
-        "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
-        ],
-        "RightHand": [
-          -0.3621,
-          0.455331,
-          -0.030282,
-          0.812798
-        ],
-        "neck": [
-          0.063633,
-          -0.003411,
-          0.00246,
-          0.997965
-        ],
-        "Head": [
-          0.268452,
-          -0.000043,
-          -0.003185,
-          0.963288
-        ]
-      }
-    },
-    {
-      "time": 1.208333,
-      "bones": {
-        "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
-        ],
-        "Spine01": [
-          0,
-          0,
-          0,
-          1
-        ],
-        "Spine": [
-          -0.063604,
-          -0.000425,
-          0.00073,
-          0.997975
-        ],
-        "LeftShoulder": [
-          0.522129,
-          0.564557,
-          -0.472393,
-          0.430699
-        ],
-        "LeftArm": [
-          0.100441,
-          0.437689,
-          0.552189,
-          0.702444
-        ],
-        "LeftForeArm": [
-          -0.517448,
-          0.281281,
-          0.327324,
-          0.73891
-        ],
-        "LeftHand": [
-          -0.086945,
-          -0.542548,
-          0.130476,
-          0.825263
-        ],
-        "RightShoulder": [
-          0.521987,
-          -0.564688,
-          0.46633,
-          0.437256
-        ],
-        "RightArm": [
-          -0.631431,
-          0.268394,
-          0.431965,
-          -0.585376
-        ],
-        "RightForeArm": [
-          -0.669741,
-          -0.440047,
-          0.282959,
-          0.52701
+          -0.660756,
+          -0.454961,
+          0.290062,
+          0.521801
         ],
         "RightHand": [
           -0.3621,
@@ -2789,6 +503,8 @@ export const ATTACK1_POSE_SEQUENCE = {
     },
     {
       "time": 1.25,
+      "label": "end",
+      "note": "returns to accepted Ready baseline",
       "bones": {
         "Spine02": [
           -0.065296,
