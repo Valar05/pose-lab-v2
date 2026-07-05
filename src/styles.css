@@ -116,13 +116,13 @@ body.is-fpv .primary-rail {
   background: rgba(3, 7, 10, 0.72);
 }
 
-body.is-fpv .primary-rail button:not([data-view-mode]),
+body.is-fpv .primary-rail button:not([data-cycle-view-mode]),
 body.is-fpv .primary-rail .status,
 body.is-fpv .control-dock {
   display: none !important;
 }
 
-body.is-fpv .primary-rail button[data-view-mode] {
+body.is-fpv .primary-rail button[data-cycle-view-mode] {
   min-width: 54px;
   min-height: 32px;
   padding: 5px 8px;

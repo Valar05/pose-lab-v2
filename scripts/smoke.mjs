@@ -129,7 +129,8 @@ assert(!main.includes('firstPersonCameraConfig.hide') && !main.includes('setFirs
 assert(main.includes('fpvCamera') && main.includes('bodyMeshesHidden: false'), 'debug proof must report FPV camera placement and that body meshes are not hidden');
 assert(main.includes('function setViewMode') && main.includes('function updateFirstPersonCamera') && main.includes("document.body.classList.add('is-fpv')"), 'FPV mode must switch the live camera from orbit controls to head-forward first-person view');
 assert(main.includes("if (viewMode === 'orbit') controls.update();") && main.includes('else updateFirstPersonCamera();'), 'animation loop must keep FPV camera synced to the posed head bone');
-assert(css.includes('body.is-fpv .primary-rail button:not([data-view-mode])') && css.includes('body.is-fpv .control-dock'), 'FPV mode must hide edit chrome while keeping Orbit/FPV controls reachable');
+assert(css.includes('body.is-fpv .primary-rail button:not([data-cycle-view-mode])') && css.includes('body.is-fpv .primary-rail button[data-cycle-view-mode]') && css.includes('body.is-fpv .control-dock'), 'FPV mode must hide edit chrome while keeping the visible View cycle escape reachable');
+assert(!css.includes('body.is-fpv .primary-rail button:not([data-view-mode])'), 'FPV mode must not target hidden compatibility view buttons as the only visible escape');
 assert(css.includes('.viewport') && css.includes('.control-dock') && css.includes('max-height: 42vh'), 'mobile layout must keep the 3D viewport visible while dock panels scroll below it');
 assert(css.includes('.control-dock[hidden]') && css.includes('.hidden-actions'), 'closed dock and compatibility action buttons must be visually hidden by default');
 assert(main.includes('function beginCameraTouch') && main.includes("kind: points.length >= 2 ? 'two-camera' : 'one-camera'"), 'mobile camera touch must be handled directly, not delegated to OrbitControls');
