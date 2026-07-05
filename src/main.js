@@ -792,8 +792,6 @@ function handleTouchStart(event) {
       stopEvent(event);
       return true;
     }
-    selectedPoseBone = null;
-    updatePoseHandles();
     suppressTouchPointerEvents = true;
     beginCameraTouch(points);
     stopEvent(event);
@@ -816,7 +814,8 @@ function handleTouchStart(event) {
 function handleTouchMove(event) {
   if (!sabreRoot || !touchGesture) return false;
   const points = touchPoints(event);
-  if (touchGesture.kind === 'two-pose' && points.length >= 2 && selectedPoseBone) {
+  if (points.length >= 2 && toolMode === 'pose' && selectedPoseBone) {
+    if (touchGesture.kind !== 'two-pose') beginTwoFingerPose(points);
     const angle = touchAngle(points);
     if (Number.isFinite(lastTwistAngle)) {
       const twist = angle - lastTwistAngle;
