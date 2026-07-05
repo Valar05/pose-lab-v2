@@ -87,13 +87,8 @@ let meshyRoot = null;
 let sabreRoot = null;
 let selected = false;
 let gesture = null;
-const GESTURE_OWNER = {
-  NONE: 'none',
-  SABER_ONE: 'saber-one-finger',
-  SABER_TWO: 'saber-two-finger',
-  APP_CAMERA: 'app-camera-touch',
-};
-let gestureOwner = GESTURE_OWNER.NONE;
+let touchGesture = null;
+let suppressTouchPointerEvents = false;
 const pointers = new Map();
 let lastPinchDistance = 0;
 let lastTwistAngle = 0;
@@ -257,16 +252,6 @@ function rotateSabreAroundAxis(axis, radians) {
   sabreRoot.quaternion.premultiply(delta).normalize();
 }
 
-function orbitCameraByDelta(dx, dy) {
-  const offset = camera.position.clone().sub(controls.target);
-  const spherical = new THREE.Spherical().setFromVector3(offset);
-  spherical.theta -= dx * 0.006;
-  spherical.phi = THREE.MathUtils.clamp(spherical.phi - dy * 0.0045, 0.18, Math.PI - 0.18);
-  offset.setFromSpherical(spherical);
-  camera.position.copy(controls.target).add(offset);
-  controls.update();
-}
-
 function rotateSabreByGesture(dx, dy, basis) {
   if (currentAxis === 'screen') {
     const yaw = new THREE.Quaternion().setFromAxisAngle(basis.up, dx * 0.007);
@@ -305,68 +290,139 @@ function releasePointer(pointerId) {
   canvas.releasePointerCapture(pointerId);
 }
 
-function ownCameraTouch(event) {
-  const { right, up, forward } = cameraBasis();
-  gestureOwner = GESTURE_OWNER.APP_CAMERA;
-  gesture = {
-    pointerId: event.pointerId,
-    lastX: event.clientX,
-    lastY: event.clientY,
-    moved: false,
-    tapCanCycle: false,
-    right,
-    up,
-    forward,
-  };
-  controls.enabled = false;
-  capturePointer(event.pointerId);
-  statusEl.textContent = 'camera: one-finger orbit; add a finger to edit sabre';
+function touchPoints(event) {
+  return [...event.touches].map((touch) => ({ x: touch.clientX, y: touch.clientY }));
 }
 
-function armTwoFingerSabre(event) {
+function touchDistance(points) {
+  if (points.length < 2) return 0;
+  return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+}
+
+function touchAngle(points) {
+  if (points.length < 2) return 0;
+  return Math.atan2(points[1].y - points[0].y, points[1].x - points[0].x);
+}
+
+function beginSingleTouchSabre(touch, hit) {
+  const wasSelected = selected && hit;
+  selected = true;
   const { right, up, forward } = cameraBasis();
-  gestureOwner = GESTURE_OWNER.SABER_TWO;
-  gesture = {
-    pointerId: event.pointerId,
-    lastX: event.clientX,
-    lastY: event.clientY,
+  touchGesture = {
+    kind: 'single-sabre',
+    lastX: touch.clientX,
+    lastY: touch.clientY,
     moved: false,
-    tapCanCycle: false,
-    multiTouch: true,
+    tapCanCycle: wasSelected,
     right,
     up,
     forward,
   };
-  lastPinchDistance = getPointerDistance();
-  lastTwistAngle = getPointerAngle();
   controls.enabled = false;
-  for (const pointerId of pointers.keys()) capturePointer(pointerId);
+  controls.target.copy(sabreRoot.position);
+  controls.update();
+  statusEl.textContent = `${mode}: touch editing real sabre`;
+}
+
+function beginTwoFingerSabre(points) {
+  const { right, up, forward } = cameraBasis();
+  touchGesture = {
+    kind: 'two-sabre',
+    moved: false,
+    tapCanCycle: false,
+    right,
+    up,
+    forward,
+  };
+  lastPinchDistance = touchDistance(points);
+  lastTwistAngle = touchAngle(points);
+  controls.enabled = false;
   statusEl.textContent = mode === 'rotate' ? 'two-finger roll armed' : 'two-finger scale armed';
+}
+
+function handleTouchStart(event) {
+  if (!sabreRoot) return false;
+  const points = touchPoints(event);
+  if (points.length >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
+    suppressTouchPointerEvents = true;
+    beginTwoFingerSabre(points);
+    stopEvent(event);
+    return true;
+  }
+  if (points.length !== 1) return false;
+  const touch = event.touches[0];
+  const hit = pickSabre(touch.clientX, touch.clientY);
+  if (!hit) return false;
+  suppressTouchPointerEvents = true;
+  beginSingleTouchSabre(touch, hit);
+  stopEvent(event);
+  return true;
+}
+
+function handleTouchMove(event) {
+  if (!sabreRoot || !touchGesture) return false;
+  const points = touchPoints(event);
+  if (points.length >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
+    if (touchGesture.kind !== 'two-sabre') beginTwoFingerSabre(points);
+    handleTwoFingerTouch(points);
+    stopEvent(event);
+    return true;
+  }
+  if (touchGesture.kind !== 'single-sabre' || points.length !== 1) return false;
+  const point = points[0];
+  const dx = point.x - touchGesture.lastX;
+  const dy = point.y - touchGesture.lastY;
+  if (Math.abs(dx) + Math.abs(dy) < 0.5) {
+    stopEvent(event);
+    return true;
+  }
+  if (mode === 'move') {
+    moveSabreByGesture(dx, dy, touchGesture);
+  } else if (mode === 'scale') {
+    scaleSabreByDelta((dx - dy) * 0.004);
+  } else {
+    rotateSabreByGesture(dx, dy, touchGesture);
+  }
+  touchGesture.lastX = point.x;
+  touchGesture.lastY = point.y;
+  touchGesture.moved = true;
+  updateReadout();
+  stopEvent(event);
+  return true;
+}
+
+function handleTouchEnd(event) {
+  if (!touchGesture) {
+    suppressTouchPointerEvents = false;
+    return false;
+  }
+  if (!touchGesture.moved && touchGesture.tapCanCycle) cycleMode();
+  touchGesture = null;
+  suppressTouchPointerEvents = false;
+  controls.enabled = true;
+  lastPinchDistance = 0;
+  lastTwistAngle = 0;
+  updateReadout();
+  statusEl.textContent = `${mode}: transform ready; empty-space drag orbits camera`;
+  stopEvent(event);
+  return true;
 }
 
 function startGesture(event) {
   if (!sabreRoot) return false;
-  const isTouch = event.pointerType === 'touch';
-  pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-  if (isTouch && pointers.size >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
-    armTwoFingerSabre(event);
+  if (event.pointerType === 'touch' && suppressTouchPointerEvents) {
     stopEvent(event);
     return true;
   }
+  pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
   const hit = pickSabre(event.clientX, event.clientY);
   if (!hit) {
-    if (isTouch && selected && (mode === 'rotate' || mode === 'scale')) {
-      ownCameraTouch(event);
-      stopEvent(event);
-      return true;
-    }
     pointers.delete(event.pointerId);
     return false;
   }
   const wasSelected = selected;
   selected = true;
   controls.enabled = false;
-  gestureOwner = GESTURE_OWNER.SABER_ONE;
   capturePointer(event.pointerId);
   const { right, up, forward } = cameraBasis();
   gesture = {
@@ -387,29 +443,17 @@ function startGesture(event) {
 }
 
 function updateGesture(event) {
-  if (!sabreRoot || !pointers.has(event.pointerId)) return false;
-  pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-  if (pointers.size >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
-    if (gestureOwner !== GESTURE_OWNER.SABER_TWO) armTwoFingerSabre(event);
-    handleTwoFingerGesture();
+  if (event.pointerType === 'touch' && suppressTouchPointerEvents) {
     stopEvent(event);
     return true;
   }
+  if (!sabreRoot || !pointers.has(event.pointerId)) return false;
+  pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
   if (!gesture) return false;
   if (gesture.pointerId !== event.pointerId) return false;
   const dx = event.clientX - gesture.lastX;
   const dy = event.clientY - gesture.lastY;
   if (Math.abs(dx) + Math.abs(dy) < 0.5) return true;
-
-  if (gestureOwner === GESTURE_OWNER.APP_CAMERA) {
-    orbitCameraByDelta(dx, dy);
-    gesture.lastX = event.clientX;
-    gesture.lastY = event.clientY;
-    gesture.moved = true;
-    statusEl.textContent = 'camera: one-finger orbit; add a finger to edit sabre';
-    stopEvent(event);
-    return true;
-  }
 
   if (mode === 'move') {
     moveSabreByGesture(dx, dy, gesture);
@@ -428,24 +472,16 @@ function updateGesture(event) {
 }
 
 function endGesture(event) {
-  const wasTracked = pointers.has(event.pointerId);
-  pointers.delete(event.pointerId);
-  releasePointer(event.pointerId);
-  if (gestureOwner === GESTURE_OWNER.SABER_TWO && pointers.size < 2) {
-    gesture = null;
-    gestureOwner = GESTURE_OWNER.NONE;
-    controls.enabled = true;
-    lastPinchDistance = 0;
-    lastTwistAngle = 0;
-    updateReadout();
-    statusEl.textContent = `${mode}: transform ready; empty-space drag orbits camera`;
+  if (event.pointerType === 'touch' && suppressTouchPointerEvents) {
     stopEvent(event);
     return true;
   }
+  const wasTracked = pointers.has(event.pointerId);
+  pointers.delete(event.pointerId);
+  releasePointer(event.pointerId);
   if (gesture?.pointerId !== event.pointerId) return wasTracked;
   if (!gesture.moved && gesture.tapCanCycle) cycleMode();
   gesture = null;
-  gestureOwner = GESTURE_OWNER.NONE;
   controls.enabled = true;
   if (pointers.size < 2) {
     lastPinchDistance = 0;
@@ -469,21 +505,21 @@ function getPointerAngle() {
   return Math.atan2(points[1].y - points[0].y, points[1].x - points[0].x);
 }
 
-function handleTwoFingerGesture() {
-  if (!gesture || !sabreRoot) return;
-  const distance = getPointerDistance();
-  const angle = getPointerAngle();
+function handleTwoFingerTouch(points) {
+  if (!touchGesture || !sabreRoot) return;
+  const distance = touchDistance(points);
+  const angle = touchAngle(points);
   if (mode === 'scale' && lastPinchDistance > 0) {
     scaleSabreByDelta((distance - lastPinchDistance) * 0.006);
   }
   if (mode === 'rotate' && Number.isFinite(lastTwistAngle)) {
     const twist = angle - lastTwistAngle;
-    const axis = currentAxis === 'screen' ? gesture.forward.clone() : worldAxisVector(currentAxis);
+    const axis = currentAxis === 'screen' ? touchGesture.forward.clone() : worldAxisVector(currentAxis);
     if (axis) rotateSabreAroundAxis(axis, twist);
   }
   lastPinchDistance = distance;
   lastTwistAngle = angle;
-  gesture.moved = true;
+  touchGesture.moved = true;
   updateReadout();
   statusEl.textContent = mode === 'rotate'
     ? `two-finger roll / ${axisLabel()}`
@@ -546,6 +582,10 @@ canvas.addEventListener('pointerdown', startGesture, { capture: true });
 canvas.addEventListener('pointermove', updateGesture, { capture: true });
 canvas.addEventListener('pointerup', endGesture, { capture: true });
 canvas.addEventListener('pointercancel', endGesture, { capture: true });
+canvas.addEventListener('touchstart', handleTouchStart, { capture: true, passive: false });
+canvas.addEventListener('touchmove', handleTouchMove, { capture: true, passive: false });
+canvas.addEventListener('touchend', handleTouchEnd, { capture: true, passive: false });
+canvas.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive: false });
 
 function animate() {
   resize();
