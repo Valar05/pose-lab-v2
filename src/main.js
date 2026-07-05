@@ -14,42 +14,72 @@ const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
 const app = document.querySelector('#app');
 app.innerHTML = `
   <section class="surface">
-    <canvas aria-label="Meshy A-pose saber placement viewport"></canvas>
-    <div class="toolbar" aria-label="Saber direct controls">
-      <button type="button" data-tool="saber" class="active">Saber</button>
-      <button type="button" data-tool="pose">Pose</button>
-      <button type="button" data-view-mode="orbit" class="active">Orbit</button>
-      <button type="button" data-view-mode="firstPerson">FPV</button>
-      <button type="button" data-pose-state="rest" class="active">Rest</button>
-      <button type="button" data-pose-state="ready">Ready</button>
-      <button type="button" data-mode="move" class="active">Move</button>
-      <button type="button" data-mode="rotate">Rotate</button>
-      <button type="button" data-mode="scale">Scale</button>
-      <button type="button" data-action="camera">Camera</button>
-      <button type="button" data-axis="screen" class="active">Screen</button>
-      <button type="button" data-axis="all" hidden>All</button>
-      <button type="button" data-axis="x">X</button>
-      <button type="button" data-axis="y">Y</button>
-      <button type="button" data-axis="z">Z</button>
-      <button type="button" data-action="reset-saber">Reset Saber</button>
-      <button type="button" data-action="reset-pose" hidden>Reset Pose</button>
-      <button type="button" data-action="copy">Copy Export</button>
-      <button type="button" data-camera-view="front">Front</button>
-      <button type="button" data-camera-view="left">Left</button>
-      <button type="button" data-camera-view="top">Top</button>
-      <button type="button" data-camera-view="right">Right</button>
-      <button type="button" data-camera-view="back">Back</button>
-      <span class="status" data-status>loading Meshy and real sabre</span>
+    <div class="viewport">
+      <canvas aria-label="Meshy A-pose saber placement viewport"></canvas>
+      <div class="primary-rail" aria-label="Primary review controls">
+        <div class="rail-group" aria-label="Tool">
+          <button type="button" data-tool="saber" class="active">Saber</button>
+          <button type="button" data-tool="pose">Pose</button>
+        </div>
+        <div class="rail-group" aria-label="View">
+          <button type="button" data-view-mode="orbit" class="active">Orbit</button>
+          <button type="button" data-view-mode="firstPerson">FPV</button>
+        </div>
+        <div class="rail-group" aria-label="Pose state">
+          <button type="button" data-pose-state="rest" class="active">Rest</button>
+          <button type="button" data-pose-state="ready">Ready</button>
+        </div>
+        <span class="status" data-status>loading Meshy and real sabre</span>
+      </div>
     </div>
-    <div class="readout">
-      <pre data-export aria-label="Saber transform export"></pre>
-    </div>
-    <div class="touch-proof" data-touch-proof ${DEBUG_TOUCH ? '' : 'hidden'}>
-      <button type="button" data-action="touch-probe">Run Touch Probe</button>
-      <pre data-touch-proof-readout aria-label="Pose touch interaction proof">touch proof: not run</pre>
-    </div>
-    <div class="ready-proof" data-ready-proof ${DEBUG_READY ? '' : 'hidden'}>
-      <pre data-ready-proof-readout aria-label="Ready pose application proof">ready proof: not run</pre>
+    <div class="control-dock" aria-label="Secondary editor controls">
+      <div class="panel-tabs" aria-label="Control panels">
+        <button type="button" data-panel-toggle="transform" class="active">Transform</button>
+        <button type="button" data-panel-toggle="view">View</button>
+        <button type="button" data-panel-toggle="export">Export</button>
+        <button type="button" data-panel-toggle="debug" ${DEBUG_TOUCH || DEBUG_READY ? '' : 'hidden'}>Debug</button>
+      </div>
+      <section class="control-panel active" data-panel="transform" aria-label="Transform controls">
+        <div class="panel-row">
+          <button type="button" data-mode="move" class="active">Move</button>
+          <button type="button" data-mode="rotate">Rotate</button>
+          <button type="button" data-mode="scale">Scale</button>
+          <button type="button" data-axis="screen" class="active">Screen</button>
+          <button type="button" data-axis="all" hidden>All</button>
+          <button type="button" data-axis="x">X</button>
+          <button type="button" data-axis="y">Y</button>
+          <button type="button" data-axis="z">Z</button>
+        </div>
+        <div class="panel-row">
+          <button type="button" data-action="reset-saber">Reset Saber</button>
+          <button type="button" data-action="reset-pose" hidden>Reset Pose</button>
+        </div>
+      </section>
+      <section class="control-panel" data-panel="view" aria-label="Camera controls" hidden>
+        <div class="panel-row">
+          <button type="button" data-action="camera">Camera</button>
+          <button type="button" data-camera-view="front">Front</button>
+          <button type="button" data-camera-view="left">Left</button>
+          <button type="button" data-camera-view="top">Top</button>
+          <button type="button" data-camera-view="right">Right</button>
+          <button type="button" data-camera-view="back">Back</button>
+        </div>
+      </section>
+      <section class="control-panel" data-panel="export" aria-label="Export controls" hidden>
+        <div class="panel-row">
+          <button type="button" data-action="copy">Copy Export</button>
+        </div>
+        <pre data-export aria-label="Saber transform export"></pre>
+      </section>
+      <section class="control-panel" data-panel="debug" aria-label="Debug proof controls" hidden>
+        <div class="touch-proof" data-touch-proof ${DEBUG_TOUCH ? '' : 'hidden'}>
+          <button type="button" data-action="touch-probe">Run Touch Probe</button>
+          <pre data-touch-proof-readout aria-label="Pose touch interaction proof">touch proof: not run</pre>
+        </div>
+        <div class="ready-proof" data-ready-proof ${DEBUG_READY ? '' : 'hidden'}>
+          <pre data-ready-proof-readout aria-label="Ready pose application proof">ready proof: not run</pre>
+        </div>
+      </section>
     </div>
   </section>
 `;
@@ -62,6 +92,8 @@ const viewModeButtons = [...app.querySelectorAll('[data-view-mode]')];
 const poseStateButtons = [...app.querySelectorAll('[data-pose-state]')];
 const modeButtons = [...app.querySelectorAll('[data-mode]')];
 const axisButtons = [...app.querySelectorAll('[data-axis]')];
+const panelToggleButtons = [...app.querySelectorAll('[data-panel-toggle]')];
+const controlPanels = [...app.querySelectorAll('[data-panel]')];
 const resetSaberButton = app.querySelector('[data-action="reset-saber"]');
 const resetPoseButton = app.querySelector('[data-action="reset-pose"]');
 const touchProofPanel = app.querySelector('[data-touch-proof-readout]');
@@ -70,6 +102,7 @@ const readyProofPanel = app.querySelector('[data-ready-proof-readout]');
 
 let toolMode = 'saber';
 let viewMode = 'orbit';
+let activePanel = 'transform';
 const toolState = {
   saber: { mode: 'move', axis: 'screen' },
   pose: { mode: 'rotate', axis: 'screen' },
@@ -685,6 +718,7 @@ function setToolMode(next) {
   toolMode = next === 'pose' ? 'pose' : 'saber';
   mode = toolState[toolMode].mode;
   currentAxis = toolState[toolMode].axis;
+  setControlPanel('transform');
   if (toolMode === 'pose') {
     leaveSaberEdit('pose: tap a bone handle');
   } else {
@@ -707,6 +741,20 @@ function axisLabel() {
   return currentAxis === 'screen' ? 'Screen' : currentAxis.toUpperCase();
 }
 
+function setControlPanel(next) {
+  const requested = next || 'transform';
+  const panel = controlPanels.some((element) => element.dataset.panel === requested) ? requested : 'transform';
+  activePanel = panel;
+  for (const button of panelToggleButtons) {
+    button.classList.toggle('active', button.dataset.panelToggle === activePanel);
+  }
+  for (const element of controlPanels) {
+    const active = element.dataset.panel === activePanel;
+    element.hidden = !active;
+    element.classList.toggle('active', active);
+  }
+}
+
 function renderControls() {
   toolButtons.forEach((button) => button.classList.toggle('active', button.dataset.tool === toolMode));
   viewModeButtons.forEach((button) => button.classList.toggle('active', button.dataset.viewMode === viewMode));
@@ -719,6 +767,7 @@ function renderControls() {
   });
   resetSaberButton.hidden = toolMode !== 'saber';
   resetPoseButton.hidden = toolMode !== 'pose';
+  panelToggleButtons.forEach((button) => button.classList.toggle('active', button.dataset.panelToggle === activePanel));
   statusEl.textContent = toolMode === 'pose'
     ? selectedPoseBone
       ? `${mode} / ${axisLabel()}: editing ${selectedPoseBone.name}`
@@ -1633,6 +1682,10 @@ modeButtons.forEach((button) => {
 
 axisButtons.forEach((button) => {
   button.addEventListener('click', () => setAxis(button.dataset.axis || 'screen'));
+});
+
+panelToggleButtons.forEach((button) => {
+  button.addEventListener('click', () => setControlPanel(button.dataset.panelToggle || 'transform'));
 });
 
 app.querySelectorAll('[data-camera-view]').forEach((button) => {

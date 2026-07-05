@@ -15,9 +15,18 @@ body,
 }
 
 .surface {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
+  min-height: 0;
+}
+
+.viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 42vh;
+  overflow: hidden;
 }
 
 canvas {
@@ -27,43 +36,66 @@ canvas {
   touch-action: none;
 }
 
-.toolbar,
-.readout {
+.primary-rail {
   position: absolute;
   left: 12px;
   right: 12px;
+  top: 12px;
   z-index: 2;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
+  flex-wrap: wrap;
+  pointer-events: none;
 }
 
-.toolbar {
-  top: 12px;
+.rail-group,
+.panel-tabs,
+.panel-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
   flex-wrap: wrap;
 }
 
-.readout {
-  bottom: 12px;
-  align-items: stretch;
+.rail-group,
+.status {
+  pointer-events: auto;
+}
+
+.control-dock {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 8px;
+  max-height: 38vh;
+  padding: 8px;
+  overflow: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(8, 11, 15, 0.96);
+  box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.32);
+}
+
+.panel-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding-bottom: 2px;
+  background: rgba(8, 11, 15, 0.96);
+}
+
+.control-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.control-panel[hidden] {
+  display: none;
 }
 
 .touch-proof,
 .ready-proof {
-  position: absolute;
-  right: 12px;
-  z-index: 3;
   display: grid;
   gap: 8px;
-  width: min(360px, calc(100vw - 24px));
-}
-
-.touch-proof {
-  bottom: 12px;
-}
-
-.ready-proof {
-  top: 72px;
 }
 
 .touch-proof[hidden],
@@ -71,7 +103,7 @@ canvas {
   display: none;
 }
 
-body.is-fpv .toolbar {
+body.is-fpv .primary-rail {
   right: auto;
   gap: 4px;
   padding: 3px;
@@ -80,15 +112,13 @@ body.is-fpv .toolbar {
   background: rgba(3, 7, 10, 0.72);
 }
 
-body.is-fpv .toolbar button:not([data-view-mode]),
-body.is-fpv .toolbar .status,
-body.is-fpv .readout,
-body.is-fpv .touch-proof,
-body.is-fpv .ready-proof {
+body.is-fpv .primary-rail button:not([data-view-mode]),
+body.is-fpv .primary-rail .status,
+body.is-fpv .control-dock {
   display: none !important;
 }
 
-body.is-fpv .toolbar button[data-view-mode] {
+body.is-fpv .primary-rail button[data-view-mode] {
   min-width: 54px;
   min-height: 32px;
   padding: 5px 8px;
@@ -129,7 +159,7 @@ button.active {
 
 pre {
   min-width: 0;
-  max-height: 32vh;
+  max-height: 24vh;
   flex: 1;
   margin: 0;
   padding: 10px;
@@ -142,10 +172,17 @@ pre {
 }
 
 @media (max-width: 640px) {
-  .toolbar,
-  .readout {
+  .primary-rail {
     left: 8px;
     right: 8px;
+  }
+
+  .viewport {
+    min-height: 52vh;
+  }
+
+  .control-dock {
+    max-height: 42vh;
   }
 
   button {
@@ -156,5 +193,23 @@ pre {
 
   .status {
     width: 100%;
+  }
+}
+
+@media (min-width: 860px) {
+  .surface {
+    flex-direction: row;
+  }
+
+  .viewport {
+    min-height: 100%;
+  }
+
+  .control-dock {
+    width: min(380px, 32vw);
+    max-height: 100%;
+    border-top: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: -12px 0 30px rgba(0, 0, 0, 0.28);
   }
 }
