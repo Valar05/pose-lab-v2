@@ -7,7 +7,9 @@ const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
   sabre: './assets/meshy/meshy_real_sabre.glb',
 };
-const DEBUG_TOUCH = new URLSearchParams(window.location.search).get('debugTouch') === '1';
+const URL_PARAMS = new URLSearchParams(window.location.search);
+const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
+const AUTO_TOUCH_PROBE = DEBUG_TOUCH && URL_PARAMS.get('runTouchProbe') === '1';
 
 const app = document.querySelector('#app');
 app.innerHTML = `
@@ -60,6 +62,10 @@ const touchProofPanel = app.querySelector('[data-touch-proof-readout]');
 const touchProbeButton = app.querySelector('[data-action="touch-probe"]');
 
 let toolMode = 'saber';
+const toolState = {
+  saber: { mode: 'move', axis: 'screen' },
+  pose: { mode: 'rotate', axis: 'screen' },
+};
 const touchProof = {
   probe: 'not-run',
   selectedBone: 'none',
@@ -67,6 +73,8 @@ const touchProof = {
   orbitBlocked: false,
   cameraMovedDuringPoseTouch: null,
   boneQuaternionChanged: null,
+  bonePositionChanged: null,
+  boneScaleChanged: null,
   lastTouchAction: 'none',
 };
 
@@ -264,6 +272,10 @@ function editableSaber() {
   return saberGrip || sabreRoot;
 }
 
+function editableTarget() {
+  return toolMode === 'pose' ? selectedPoseBone : editableSaber();
+}
+
 function attachSaberToRightHand() {
   if (!meshyRoot || !sabreRoot) return;
   const rightHand = findRequiredBone(meshyRoot, 'RightHand');
@@ -363,8 +375,7 @@ function setPoseState(next) {
 }
 
 function initialPoseStateFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('pose') === 'ready' ? 'ready' : 'rest';
+  return URL_PARAMS.get('pose') === 'ready' ? 'ready' : 'rest';
 }
 
 async function loadGlb(url) {
@@ -374,29 +385,31 @@ async function loadGlb(url) {
 }
 
 function setMode(next) {
-  mode = toolMode === 'pose' ? 'rotate' : next;
+  mode = next === 'scale' || next === 'rotate' ? next : 'move';
   currentAxis = mode === 'scale' ? 'all' : 'screen';
+  toolState[toolMode] = { mode, axis: currentAxis };
   renderControls();
 }
 
 function setToolMode(next) {
+  toolState[toolMode] = { mode, axis: currentAxis };
   toolMode = next === 'pose' ? 'pose' : 'saber';
+  mode = toolState[toolMode].mode;
+  currentAxis = toolState[toolMode].axis;
   if (toolMode === 'pose') {
     leaveSaberEdit('pose: tap a bone handle');
-    mode = 'rotate';
-    currentAxis = 'screen';
   } else {
     selectedPoseBone = null;
-    mode = mode === 'rotate' ? 'rotate' : 'move';
   }
   updatePoseHandles();
   renderControls();
 }
 
 function setAxis(next) {
-  currentAxis = toolMode === 'pose' && next === 'all' ? 'screen' : next;
+  currentAxis = next;
   currentAxis = mode === 'scale' && currentAxis === 'screen' ? 'all' : currentAxis;
   if (mode !== 'scale' && currentAxis === 'all') currentAxis = 'screen';
+  toolState[toolMode] = { mode, axis: currentAxis };
   renderControls();
 }
 
@@ -414,14 +427,11 @@ function renderControls() {
     button.hidden = axis === 'all' && mode !== 'scale';
     button.classList.toggle('active', axis === currentAxis);
   });
-  modeButtons.forEach((button) => {
-    button.hidden = toolMode === 'pose' && button.dataset.mode !== 'rotate';
-  });
   resetSaberButton.hidden = toolMode !== 'saber';
   resetPoseButton.hidden = toolMode !== 'pose';
   statusEl.textContent = toolMode === 'pose'
     ? selectedPoseBone
-      ? `pose / ${axisLabel()}: rotating ${selectedPoseBone.name}`
+      ? `${mode} / ${axisLabel()}: editing ${selectedPoseBone.name}`
       : `pose / ${axisLabel()}: tap a blue bone handle`
     : selected
     ? `${mode} / ${axisLabel()}: drag sabre to edit, drag empty space for camera`
@@ -442,7 +452,6 @@ function leaveSaberEdit(message = 'camera: sabre deselected') {
 }
 
 function cycleMode() {
-  if (toolMode === 'pose') return;
   setMode(mode === 'move' ? 'rotate' : mode === 'rotate' ? 'scale' : 'move');
 }
 
@@ -557,8 +566,9 @@ function worldAxisVector(axis) {
   return null;
 }
 
-function moveSabreByGesture(dx, dy, basis) {
-  const target = editableSaber();
+function moveEditableByGesture(dx, dy, basis) {
+  const target = editableTarget();
+  if (!target) return;
   const amount = 0.0035;
   if (currentAxis === 'screen') {
     const delta = basis.right.clone().multiplyScalar(dx * amount)
@@ -580,7 +590,7 @@ function moveObjectInWorld(object, delta) {
 }
 
 function rotateSabreAroundAxis(axis, radians) {
-  const target = toolMode === 'pose' ? selectedPoseBone : editableSaber();
+  const target = editableTarget();
   if (!target) return;
   const delta = new THREE.Quaternion().setFromAxisAngle(axis.normalize(), radians);
   const worldQuaternion = objectWorldQuaternion(target).premultiply(delta).normalize();
@@ -593,42 +603,43 @@ function rotateSabreAroundAxis(axis, radians) {
   target.updateMatrixWorld(true);
 }
 
-function rotatePoseBoneByGesture(dx, dy, basis) {
-  if (!selectedPoseBone) return;
-  poseState = 'custom';
-  const axis = currentAxis === 'screen'
-    ? basis.forward.clone()
-    : worldAxisVector(currentAxis);
+function rotateEditableByGesture(dx, dy, basis) {
+  if (toolMode === 'pose' && !selectedPoseBone) return;
+  if (toolMode === 'pose') poseState = 'custom';
+  if (currentAxis === 'screen') {
+    rotateSabreAroundAxis(basis.up.clone(), dx * 0.007);
+    rotateSabreAroundAxis(basis.right.clone(), dy * 0.007);
+    updatePoseHandles();
+    return;
+  }
+  const axis = worldAxisVector(currentAxis);
   if (!axis) return;
   const radians = (Math.abs(dx) > Math.abs(dy) ? dx : -dy) * 0.007;
   rotateSabreAroundAxis(axis, radians);
   updatePoseHandles();
 }
 
-function poseBoneRollAxis(bone) {
-  if (!bone) return null;
-  root.updateMatrixWorld(true);
-  const head = objectWorldPosition(bone);
-  const firstBoneChild = bone.children.find((child) => child.isBone);
-  const tail = firstBoneChild
-    ? objectWorldPosition(firstBoneChild)
-    : bone.parent
-      ? objectWorldPosition(bone.parent)
-      : null;
-  if (!tail) return null;
-  const axis = firstBoneChild ? tail.sub(head) : head.sub(tail);
-  return axis.lengthSq() > 1e-8 ? axis.normalize() : null;
+function scaleEditableByDelta(delta) {
+  const target = editableTarget();
+  if (!target) return;
+  if (toolMode === 'pose') poseState = 'custom';
+  if (currentAxis === 'all' || currentAxis === 'screen') {
+    const scalar = Math.max(0.05, Math.min(3, target.scale.x + delta));
+    target.scale.setScalar(scalar);
+    return;
+  }
+  const next = Math.max(0.05, Math.min(3, target.scale[currentAxis] + delta));
+  target.scale[currentAxis] = next;
 }
 
-function rotatePoseBoneByTwist(radians) {
-  if (!selectedPoseBone) return;
-  poseState = 'custom';
-  const axis = currentAxis === 'screen'
-    ? poseBoneRollAxis(selectedPoseBone)
-    : worldAxisVector(currentAxis);
-  if (!axis) return;
-  rotateSabreAroundAxis(axis, radians);
-  updatePoseHandles();
+function applyEditableGestureDelta(dx, dy, basis) {
+  if (mode === 'move') {
+    moveEditableByGesture(dx, dy, basis);
+  } else if (mode === 'scale') {
+    scaleEditableByDelta((dx - dy) * 0.004);
+  } else {
+    rotateEditableByGesture(dx, dy, basis);
+  }
 }
 
 function orbitCameraByDelta(dx, dy) {
@@ -658,33 +669,6 @@ function panCameraByDelta(dx, dy) {
   camera.position.add(delta);
   controls.target.add(delta);
   controls.update();
-}
-
-function rotateSabreByGesture(dx, dy, basis) {
-  if (toolMode === 'pose') {
-    rotatePoseBoneByGesture(dx, dy, basis);
-    return;
-  }
-  if (currentAxis === 'screen') {
-    rotateSabreAroundAxis(basis.up.clone(), dx * 0.007);
-    rotateSabreAroundAxis(basis.right.clone(), dy * 0.007);
-    return;
-  }
-  const axis = worldAxisVector(currentAxis);
-  if (!axis) return;
-  const radians = (Math.abs(dx) > Math.abs(dy) ? dx : -dy) * 0.007;
-  rotateSabreAroundAxis(axis, radians);
-}
-
-function scaleSabreByDelta(delta) {
-  const target = editableSaber();
-  if (currentAxis === 'all' || currentAxis === 'screen') {
-    const scalar = Math.max(0.05, Math.min(3, target.scale.x + delta));
-    target.scale.setScalar(scalar);
-    return;
-  }
-  const next = Math.max(0.05, Math.min(3, target.scale[currentAxis] + delta));
-  target.scale[currentAxis] = next;
 }
 
 function stopEvent(event) {
@@ -734,7 +718,7 @@ function beginSingleTouchSabre(touch, hit) {
     };
     controls.enabled = false;
     updatePoseHandles();
-    statusEl.textContent = `pose: rotating ${bone.name}`;
+    statusEl.textContent = `pose: ${mode} ${bone.name}`;
     return true;
   }
   const wasSelected = selected && hit;
@@ -783,8 +767,9 @@ function beginTwoFingerPose(points) {
     forward,
   };
   lastTwistAngle = touchAngle(points);
+  lastPinchDistance = touchDistance(points);
   controls.enabled = false;
-  statusEl.textContent = `pose: two-finger bone roll ${selectedPoseBone?.name || ''}`;
+  statusEl.textContent = `pose: two-finger ${mode} ${selectedPoseBone?.name || ''}`;
   updateTouchProof({ lastTouchAction: 'two-finger-pose-start' });
 }
 
@@ -895,16 +880,10 @@ function handleTouchMove(event) {
   const points = touchPoints(event);
   if (points.length >= 2 && toolMode === 'pose' && selectedPoseBone) {
     if (touchGesture.kind !== 'two-pose') beginTwoFingerPose(points);
-    const angle = touchAngle(points);
-    if (Number.isFinite(lastTwistAngle)) {
-      const twist = angle - lastTwistAngle;
-      rotatePoseBoneByTwist(twist);
-    }
-    lastTwistAngle = angle;
-    touchGesture.moved = true;
+    handleTwoFingerTouch(points);
     updatePoseHandles();
     updateReadout();
-    statusEl.textContent = `pose: two-finger bone roll ${selectedPoseBone.name}`;
+    statusEl.textContent = `pose: two-finger ${mode} ${selectedPoseBone.name}`;
     updateTouchProof({ lastTouchAction: 'two-finger-twist' });
     stopEvent(event);
     return true;
@@ -948,7 +927,7 @@ function handleTouchMove(event) {
     const dx = point.x - touchGesture.lastX;
     const dy = point.y - touchGesture.lastY;
     if (Math.abs(dx) + Math.abs(dy) >= 0.5) {
-      rotatePoseBoneByGesture(dx, dy, touchGesture);
+      applyEditableGestureDelta(dx, dy, touchGesture);
       touchGesture.lastX = point.x;
       touchGesture.lastY = point.y;
       touchGesture.moved = true;
@@ -972,11 +951,11 @@ function handleTouchMove(event) {
     return true;
   }
   if (mode === 'move') {
-    moveSabreByGesture(dx, dy, touchGesture);
+    moveEditableByGesture(dx, dy, touchGesture);
   } else if (mode === 'scale') {
-    scaleSabreByDelta((dx - dy) * 0.004);
+    scaleEditableByDelta((dx - dy) * 0.004);
   } else {
-    rotateSabreByGesture(dx, dy, touchGesture);
+    rotateEditableByGesture(dx, dy, touchGesture);
   }
   touchGesture.lastX = point.x;
   touchGesture.lastY = point.y;
@@ -1025,19 +1004,26 @@ function runTouchProbe() {
     return;
   }
   setToolMode('pose');
+  setMode('rotate');
   const bone = poseBones.get('RightHand') || poseBones.get('RightForeArm');
   if (!bone) {
     updateTouchProof({ probe: 'FAIL', lastTouchAction: 'probe missing RightHand' });
     return;
   }
   selectedPoseBone = bone;
-  currentAxis = 'screen';
   updatePoseHandles();
   root.updateMatrixWorld(true);
   const cameraPositionBefore = camera.position.clone();
   const cameraTargetBefore = controls.target.clone();
+  const bonePositionBefore = bone.position.clone();
   const boneQuaternionBefore = bone.quaternion.clone();
+  const boneScaleBefore = bone.scale.clone();
 
+  setMode('move');
+  applyEditableGestureDelta(32, -18, cameraBasis());
+  const bonePositionChanged = bone.position.distanceTo(bonePositionBefore) > 1e-6;
+
+  setMode('rotate');
   blockPoseTouchPointer(makeSyntheticPointerEvent());
   handleTouchStart(makeSyntheticTouchEvent([
     { x: 120, y: 120 },
@@ -1049,17 +1035,31 @@ function runTouchProbe() {
     { x: 168, y: 152 },
   ]));
 
+  setMode('scale');
+  beginTwoFingerPose([
+    { x: 120, y: 120 },
+    { x: 180, y: 120 },
+  ]);
+  handleTwoFingerTouch([
+    { x: 120, y: 120 },
+    { x: 205, y: 120 },
+  ]);
+
   const cameraMoved = camera.position.distanceTo(cameraPositionBefore) > 1e-8
     || controls.target.distanceTo(cameraTargetBefore) > 1e-8;
   const boneChanged = bone.quaternion.angleTo(boneQuaternionBefore) > 1e-6;
+  const boneScaleChanged = bone.scale.distanceTo(boneScaleBefore) > 1e-6;
   const selectedStayed = selectedPoseBone === bone;
-  const passed = selectedStayed && gestureKindAfterStart === 'two-pose' && !cameraMoved && boneChanged;
+  const passed = selectedStayed && gestureKindAfterStart === 'two-pose' && !cameraMoved
+    && boneChanged && bonePositionChanged && boneScaleChanged;
   updateTouchProof({
     probe: passed ? 'PASS' : 'FAIL',
     selectedBone: selectedPoseBone?.name || 'none',
     gestureKind: gestureKindAfterStart,
     cameraMovedDuringPoseTouch: cameraMoved,
     boneQuaternionChanged: boneChanged,
+    bonePositionChanged,
+    boneScaleChanged,
     lastTouchAction: passed ? 'probe pass' : 'probe fail',
   });
   updateReadout();
@@ -1103,7 +1103,7 @@ function startGesture(event) {
       forward,
     };
     updatePoseHandles();
-    statusEl.textContent = `pose: rotating ${bone.name}`;
+    statusEl.textContent = `pose: ${mode} ${bone.name}`;
     stopEvent(event);
     return true;
   }
@@ -1147,13 +1147,7 @@ function updateGesture(event) {
   const dy = event.clientY - gesture.lastY;
   if (Math.abs(dx) + Math.abs(dy) < 0.5) return true;
 
-  if (mode === 'move') {
-    moveSabreByGesture(dx, dy, gesture);
-  } else if (mode === 'scale') {
-    scaleSabreByDelta((dx - dy) * 0.004);
-  } else {
-    rotateSabreByGesture(dx, dy, gesture);
-  }
+  applyEditableGestureDelta(dx, dy, gesture);
 
   gesture.lastX = event.clientX;
   gesture.lastY = event.clientY;
@@ -1199,11 +1193,11 @@ function getPointerAngle() {
 }
 
 function handleTwoFingerTouch(points) {
-  if (!touchGesture || !sabreRoot) return;
+  if (!touchGesture || !editableTarget()) return;
   const distance = touchDistance(points);
   const angle = touchAngle(points);
   if (mode === 'scale' && lastPinchDistance > 0) {
-    scaleSabreByDelta((distance - lastPinchDistance) * 0.006);
+    scaleEditableByDelta((distance - lastPinchDistance) * 0.006);
   }
   if (mode === 'rotate' && Number.isFinite(lastTwistAngle)) {
     const twist = angle - lastTwistAngle;
@@ -1247,6 +1241,7 @@ async function boot() {
   setMode('move');
   setPoseState(initialPoseStateFromUrl());
   if (poseState === 'rest') statusEl.textContent = 'ready: tap the real sabre, then drag';
+  if (AUTO_TOUCH_PROBE) requestAnimationFrame(runTouchProbe);
 }
 
 toolButtons.forEach((button) => {
