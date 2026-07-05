@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "bake:ready": "node scripts/bake-ready-pose.mjs",
+    "promote:animation": "node tools/promote_animation_candidate.mjs",
     "review:attack1": "node tools/attack1_review_urls.mjs",
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs"

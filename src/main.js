@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { POSE_STATUS } from './pose-status.js';
 
 const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
@@ -25,6 +26,14 @@ const POSE_STATE_LABELS = {
 };
 const REQUESTED_POSE = URL_PARAMS.get('pose');
 const REQUESTED_ATTACK_QUARANTINED = ['attack1', 'attack', 'onehandattack1'].includes(String(REQUESTED_POSE || '').toLowerCase());
+
+function poseStatus(name) {
+  return POSE_STATUS[name] || { status: 'missing' };
+}
+
+function poseIsAccepted(name) {
+  return poseStatus(name).status === 'accepted';
+}
 
 const app = document.querySelector('#app');
 app.innerHTML = `
@@ -852,10 +861,11 @@ function applyReadyPose() {
 }
 
 function applyAttackPose() {
+  const status = poseStatus('attack1');
   resetPose();
-  applyReadyPose();
+  if (status.fallback === 'ready' && poseIsAccepted('ready')) applyReadyPose();
   poseState = 'attack1';
-  statusEl.textContent = 'Attack1 quarantined: no accepted Attack1 bake is shipped; showing Ready fallback';
+  statusEl.textContent = `Attack1 ${status.status}: ${status.reason || 'no accepted Attack1 bake is shipped'}; showing ${status.fallback || 'Ready'} fallback`;
 }
 
 function setPoseState(next) {
@@ -979,8 +989,12 @@ async function loadPosePresets({ announce = true } = {}) {
   if (announce) setBootPhase('loading baked poses');
   const cacheBust = URL_PARAMS.get('cacheBust');
   const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
-  const readyModule = await import(`./ready-pose.js${suffix}`);
-  readyPosePreset = readyModule.READY_POSE_PRESET;
+  const readyStatus = poseStatus('ready');
+  if (readyStatus.status !== 'accepted' || !readyStatus.module || !readyStatus.exportName) {
+    throw new Error('Ready pose is not accepted in pose-status.js');
+  }
+  const readyModule = await import(`${readyStatus.module}${suffix}`);
+  readyPosePreset = readyModule[readyStatus.exportName];
   updateReadyProof({
     readyPresetLoaded: Boolean(readyPosePreset),
     rightHandPresetQuaternion: readyPosePreset?.bones?.RightHand || null,

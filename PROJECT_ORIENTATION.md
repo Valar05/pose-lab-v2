@@ -13,6 +13,8 @@ The visible target is deliberately small:
 - Baked `Ready` pose data, not runtime retargeting.
 - `Attack1` remains a review target, but no accepted baked Attack1 pose is
   currently shipped.
+- Draft animation candidates live under ignored `generated/pose-candidates/` and
+  cannot become repo truth without promotion through `src/pose-status.js`.
 - Boring FK saber ownership:
   `RightHand -> SaberGrip -> sabre mesh`.
 
@@ -76,6 +78,7 @@ assembled from large assets:
 - Real sabre GLB, about 11 MB.
 - Meshy PBR textures, including a large normal map.
 - Baked Ready pose module.
+- Pose acceptance manifest: `src/pose-status.js`.
 - Character normalization and first-use scene setup.
 
 Future performance work should make boot progressive: show the character and

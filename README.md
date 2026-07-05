@@ -44,6 +44,12 @@ sabre. The sabre follows because `SaberGrip` is a child of `RightHand`.
 until a clean source-derived bake is accepted. Do not restore or iterate on the
 deleted bad generated pose copy.
 
+Accepted pose modules are listed in `src/pose-status.js`. Draft animations must
+stay under ignored `generated/pose-candidates/` until a hosted cloud review is
+human-accepted, then promoted with `npm run promote:animation -- --pose attack1
+--candidate generated/pose-candidates/FILE.js --evidence-url CLOUD_URL --verdict
+accepted`.
+
 Numbers are readout/export only. Authoring is direct visual manipulation.
 
 ## Checks

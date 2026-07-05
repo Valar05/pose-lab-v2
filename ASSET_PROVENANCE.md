@@ -32,6 +32,8 @@
 - `Attack1` is still a desired target, but the previous generated
   `src/attack1-pose.js` was quarantined and removed because visual review proved
   it encoded a bad pose.
+- Future generated animation candidates belong in ignored
+  `generated/pose-candidates/` until promoted with cloud visual evidence.
 
 No Pose Lab runtime code, rig profiles, generated visual artifacts, debug bridge
 code, or metric acceptance tooling was copied.

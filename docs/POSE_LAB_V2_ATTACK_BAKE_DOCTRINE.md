@@ -6,6 +6,8 @@ not import Pose Lab runtime systems.
 Current status: `Attack1` is quarantined. The previous generated
 `src/attack1-pose.js` and its false-green bake/diagnostic path were removed.
 Keep `Attack1` as a target, but do not iterate on that deleted bad copy.
+New candidates must be generated under ignored `generated/pose-candidates/`, not
+directly into `src/`.
 
 ## Fixed Rules
 
@@ -29,12 +31,15 @@ Keep `Attack1` as a target, but do not iterate on that deleted bad copy.
 4. Bake Meshy upper-body samples from the source clip using imported keyed
    rotations plus the accepted `Ready` local roll offsets. Do not use IK hand
    pinning in the attack bake.
-5. Write the bake as a static JavaScript data module only after visual review
-   shows a sane arm chain and blade axis.
+5. Write the bake as a candidate JavaScript data module under
+   `generated/pose-candidates/`.
 6. Runtime playback may interpolate baked quaternions, but it must not solve or
    reinterpret the attack.
 7. Cloud review is the visible acceptance surface. Numeric wrist-travel checks
    are guardrails, not proof that the attack reads correctly.
+8. Promote the candidate into `src/` only after human-visible cloud acceptance,
+   using the promotion command so `src/pose-status.js` records the accepted hash
+   and evidence URL.
 
 ## Acceptance
 

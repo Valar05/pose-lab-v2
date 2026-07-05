@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 
 const root = path.resolve(import.meta.dirname, '..');
 const failures = [];
@@ -12,6 +13,7 @@ function assert(condition, message) {
 
 const main = read('src/main.js');
 const readyPose = read('src/ready-pose.js');
+const poseStatusSource = read('src/pose-status.js');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
 const html = read('index.html');
 const css = read('src/styles.css');
@@ -29,6 +31,11 @@ function parseExportedObject(source, label) {
 }
 
 const readyPreset = parseExportedObject(readyPose, 'Ready pose preset');
+const poseStatus = parseExportedObject(poseStatusSource, 'Pose status manifest');
+const trackedCandidateFiles = execFileSync('git', ['ls-files', 'generated/pose-candidates'], {
+  cwd: root,
+  encoding: 'utf8',
+}).trim();
 
 function assertRelativeImportsResolve(file) {
   const source = read(file);
@@ -62,10 +69,17 @@ assert(!pkg.dependencies, 'repo must not require npm install dependencies for lo
 assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static and native-binary free');
 assert(pkg.scripts?.['bake:ready'] === 'node scripts/bake-ready-pose.mjs', 'Ready pose bake script must be explicit and reproducible');
 assert(!pkg.scripts?.['bake:attack1'] && !pkg.scripts?.['diagnose:blade'], 'official scripts must not regenerate or bless the quarantined Attack1 pose');
+assert(pkg.scripts?.['promote:animation'] === 'node tools/promote_animation_candidate.mjs', 'animation promotion must use the explicit promotion gate');
 assert(pkg.scripts?.['review:attack1'] === 'node tools/attack1_review_urls.mjs', 'Attack1 review URLs must remain available');
+assert(exists('tools/promote_animation_candidate.mjs'), 'missing animation promotion gate');
 assert(exists('tools/attack1_review_urls.mjs'), 'missing Attack1 review URL printer');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
 assert(!exists('src/attack1-pose.js'), 'contaminated Attack1 generated pose data must not be shipped as repo truth');
+assert(!trackedCandidateFiles, `generated pose candidates must not be tracked on main: ${trackedCandidateFiles}`);
+assert(poseStatus.ready?.status === 'accepted', 'Ready must be explicitly accepted in pose-status.js');
+assert(poseStatus.ready?.module === './ready-pose.js' && poseStatus.ready?.exportName === 'READY_POSE_PRESET', 'Ready status must point to the accepted Ready module');
+assert(createHash('sha256').update(readyPose).digest('hex') === poseStatus.ready?.sha256, 'Ready pose hash must match pose-status.js');
+assert(poseStatus.attack1?.status === 'quarantined' && poseStatus.attack1?.fallback === 'ready', 'Attack1 must stay quarantined with Ready fallback until promoted');
 assert(readme.includes('Visual Verification Doctrine'), 'README must link the visual verification doctrine');
 assert(readme.includes('They are not visual acceptance and cannot close a') && readme.includes('screenshot-red build'), 'README must state smoke/source checks are not visual acceptance');
 assert(visualDoctrine.includes('Human-visible truth is the acceptance gate'), 'visual doctrine must preserve human-visible truth as acceptance gate');
@@ -87,7 +101,8 @@ assert(!main.includes('fpsplayer_meshy') && !main.includes('0615041256'), 'app m
 assert(main.includes('texture.flipY = false') && main.includes('THREE.SRGBColorSpace'), 'Meshy PBR textures must use GLTF UV orientation and sRGB color maps');
 assert(main.includes('for (const entry of fpvBodyMasks)') && main.includes('applyMeshyPbrToMaterial(material, textures)'), 'FPV arm-mask materials must receive the same Meshy PBR channels as the full body');
 assert(!main.includes("import { READY_POSE_PRESET } from './ready-pose.js'"), 'Ready pose preset must not be statically imported because browser module cache can stale it');
-assert(main.includes('async function loadPosePresets') && main.includes("import(`./ready-pose.js${suffix}`)") && main.includes("URL_PARAMS.get('cacheBust')"), 'Ready pose preset must be dynamically imported with the page cacheBust');
+assert(main.includes("import { POSE_STATUS } from './pose-status.js'"), 'runtime must read pose-status.js instead of hardcoding accepted pose modules');
+assert(main.includes('async function loadPosePresets') && main.includes('readyStatus.module') && main.includes("URL_PARAMS.get('cacheBust')"), 'Ready pose preset must be dynamically imported from pose-status.js with the page cacheBust');
 assert(!main.includes("import(`./attack1-pose.js${suffix}`)") && !main.includes('ATTACK1_POSE_SEQUENCE'), 'runtime must not import contaminated Attack1 generated pose data');
 assert(main.includes('data-pose-state="rest"') && main.includes('data-pose-state="ready"') && main.includes('data-pose-state="attack1"'), 'app must expose Rest, Ready, and Attack1 pose states');
 assert(main.includes('function initialPoseStateFromUrl') && main.includes("pose === 'ready'") && main.includes('REQUESTED_ATTACK_QUARANTINED') && main.includes("return 'attack1'"), 'cloud review URL must be able to boot directly into Ready or quarantined Attack1');
@@ -212,6 +227,7 @@ assert(main.includes("schema: 'pose-lab-v2-sabre-transform-v1'"), 'app must expo
 if (exists('dist')) {
   assert(exists('dist/index.html'), 'dist must include index.html');
   assert(exists('dist/src/main.js'), 'dist must include the app module at /src/main.js under the repo path');
+  assert(exists('dist/src/pose-status.js'), 'dist must include pose-status.js');
   assert(!exists('dist/src/attack1-pose.js'), 'dist must not ship the contaminated Attack1 pose sequence');
   assert(exists('dist/vendor/three/build/three.module.js'), 'dist must include vendored Three');
   assert(exists('dist/vendor/three/examples/jsm/loaders/GLTFLoader.js'), 'dist must include vendored GLTFLoader');
