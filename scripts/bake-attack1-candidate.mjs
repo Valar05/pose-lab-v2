@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { READY_POSE_PRESET } from '../src/ready-pose.js';
+import { SABER_GRIP_LOCAL, SABRE_REVIEW_LOCAL_AXIS } from '../src/review-constants.js';
 import { buildFpsAttack1Reference, ATTACK1_PRIME_KEYS } from './fps-attack1-reference.mjs';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -19,51 +20,52 @@ const authoredKeys = [
   {
     label: 'anticipation',
     time: ATTACK1_PRIME_KEYS.anticipation,
+    rightHandTwistDeg: 54,
     deltas: {
-      RightArm: [0, -16, -18],
-      RightForeArm: [0, -5, -4],
-      RightHand: [0, 0, -8],
-      LeftArm: [0, -12, -13],
-      LeftForeArm: [0, -3, -2],
-      LeftHand: [0, 0, -4],
+      RightArm: [0, -10, -10],
+      RightForeArm: [0, -3, -2],
+      LeftArm: [0, -8, -8],
+      LeftForeArm: [0, -2, -1],
+      LeftHand: [0, 0, -2],
     },
-    note: 'both hands move right in FPV; shoulders drive; sabre tips left with minimal wrist rotation',
+    note: 'FPS reference anticipation: both hands move right in FPV; HandR is the primary driver; sabre tip trails left and stays above hilt',
   },
   {
     label: 'contact',
     time: ATTACK1_PRIME_KEYS.contact,
+    rightHandTwistDeg: 90,
     deltas: {
-      RightArm: [0, 12, 8],
-      RightForeArm: [0, 6, 4],
-      RightHand: [0, 0, 8],
-      LeftArm: [0, 7, 5],
-      LeftForeArm: [0, 2, 2],
-      LeftHand: [0, 0, 3],
+      RightArm: [0, 8, 6],
+      RightForeArm: [0, 4, 2],
+      LeftArm: [0, 5, 4],
+      LeftForeArm: [0, 1, 1],
+      LeftHand: [0, 0, 2],
     },
-    note: 'placeholder strike direction from authored anticipation, not FPS retarget',
+    note: 'FPS reference contact: HandR carries the slash; sabre tip leads right and remains above hilt',
   },
   {
     label: 'followThrough',
     time: ATTACK1_PRIME_KEYS.followThrough,
+    rightHandTwistDeg: 36,
     deltas: {
-      RightArm: [0, 6, 4],
-      RightForeArm: [0, 3, 2],
-      RightHand: [0, 0, 3],
+      RightArm: [0, 5, 4],
+      RightForeArm: [0, 2, 1],
       LeftArm: [0, 3, 2],
       LeftForeArm: [0, 1, 1],
       LeftHand: [0, 0, 1],
     },
-    note: 'small authored follow-through placeholder',
+    note: 'FPS reference follow-through: right hand rotation carries the blade past contact without dropping the tip below the hilt',
   },
   {
     label: 'recoil',
     time: ATTACK1_PRIME_KEYS.recoil,
+    rightHandTwistDeg: 24,
     deltas: {
       RightArm: [0, -4, -3],
       RightForeArm: [0, -2, -1],
       LeftArm: [0, -2, -2],
     },
-    note: 'settles back toward Ready',
+    note: 'recoil settles toward Ready while preserving visible hand-driven blade ownership',
   },
   {
     label: 'end',
@@ -73,18 +75,17 @@ const authoredKeys = [
   },
 ];
 
-const guardScreenDeltas = {
-  anticipation: {
-    rightHandMovesRightInFpvPx: 42,
-    leftHandMovesRightInFpvPx: 31,
-    sabreTipLeftOfHiltPx: 26,
-    shoulderDominatesWrist: true,
-    armsStayBelowReadyFaceEnvelope: true,
-  },
-};
-
 function quaternionFromArray(values) {
   return { x: values[0], y: values[1], z: values[2], w: values[3] };
+}
+
+function vectorLength(axis) {
+  return Math.hypot(axis[0], axis[1], axis[2]) || 1;
+}
+
+function normalizeVector(axis) {
+  const length = vectorLength(axis);
+  return [axis[0] / length, axis[1] / length, axis[2] / length];
 }
 
 function normalize(q) {
@@ -102,10 +103,11 @@ function multiply(a, b) {
 }
 
 function axisAngle(axis, degrees) {
+  const unit = normalizeVector(axis);
   const radians = degrees * Math.PI / 180;
   const half = radians / 2;
   const scale = Math.sin(half);
-  return normalize({ x: axis[0] * scale, y: axis[1] * scale, z: axis[2] * scale, w: Math.cos(half) });
+  return normalize({ x: unit[0] * scale, y: unit[1] * scale, z: unit[2] * scale, w: Math.cos(half) });
 }
 
 function eulerDelta(values) {
@@ -113,16 +115,44 @@ function eulerDelta(values) {
   return multiply(multiply(axisAngle([1, 0, 0], x), axisAngle([0, 1, 0], y)), axisAngle([0, 0, 1], z));
 }
 
+function rotateVectorByQuaternion(axis, q) {
+  const vector = { x: axis[0], y: axis[1], z: axis[2] };
+  const qVector = { x: q.x, y: q.y, z: q.z };
+  const uv = {
+    x: qVector.y * vector.z - qVector.z * vector.y,
+    y: qVector.z * vector.x - qVector.x * vector.z,
+    z: qVector.x * vector.y - qVector.y * vector.x,
+  };
+  const uuv = {
+    x: qVector.y * uv.z - qVector.z * uv.y,
+    y: qVector.z * uv.x - qVector.x * uv.z,
+    z: qVector.x * uv.y - qVector.y * uv.x,
+  };
+  return normalizeVector([
+    vector.x + 2 * (q.w * uv.x + uuv.x),
+    vector.y + 2 * (q.w * uv.y + uuv.y),
+    vector.z + 2 * (q.w * uv.z + uuv.z),
+  ]);
+}
+
+const saberGripQuaternion = eulerDelta(SABER_GRIP_LOCAL.rotationDeg);
+const rightHandSaberAxisLocal = rotateVectorByQuaternion(SABRE_REVIEW_LOCAL_AXIS, saberGripQuaternion);
+
 function rounded(q) {
   const next = normalize(q);
   return [next.x, next.y, next.z, next.w].map((value) => Number(value.toFixed(6)));
 }
 
-function applyDeltas(baseBones, deltas) {
+function applyDeltas(baseBones, key) {
   const bones = structuredClone(baseBones);
+  const deltas = key.deltas || {};
   for (const [name, values] of Object.entries(deltas)) {
     if (!bones[name]) throw new Error(`authored Attack1 delta targets missing Ready bone ${name}`);
     bones[name] = rounded(multiply(quaternionFromArray(bones[name]), eulerDelta(values)));
+  }
+  if (Number.isFinite(key.rightHandTwistDeg) && key.rightHandTwistDeg !== 0) {
+    if (!bones.RightHand) throw new Error('authored Attack1 twist targets missing Ready bone RightHand');
+    bones.RightHand = rounded(multiply(quaternionFromArray(bones.RightHand), axisAngle(rightHandSaberAxisLocal, key.rightHandTwistDeg)));
   }
   return bones;
 }
@@ -141,7 +171,7 @@ function frameTravelDeg(frames, boneName) {
   return Number((total * 180 / Math.PI).toFixed(3));
 }
 
-function validateAuthoredCandidate(frames) {
+function validateAuthoredCandidate(frames, fpsReference) {
   const failures = [];
   const start = frames[0];
   const end = frames.at(-1);
@@ -150,15 +180,45 @@ function validateAuthoredCandidate(frames) {
     if (JSON.stringify(start.bones[name]) !== JSON.stringify(values)) failures.push(`START_NOT_READY:${name}`);
     if (JSON.stringify(end.bones[name]) !== JSON.stringify(values)) failures.push(`END_NOT_READY:${name}`);
   }
-  const anticipation = guardScreenDeltas.anticipation;
-  if (anticipation.rightHandMovesRightInFpvPx < 20) failures.push('RIGHT_HAND_NOT_RIGHT_IN_FPV');
-  if (anticipation.leftHandMovesRightInFpvPx < 15) failures.push('LEFT_HAND_NOT_RIGHT_IN_FPV');
-  if (anticipation.sabreTipLeftOfHiltPx < 12) failures.push('SABRE_TIP_NOT_LEFT');
-  if (!anticipation.shoulderDominatesWrist) failures.push('SHOULDER_NOT_DOMINANT');
-  if (!anticipation.armsStayBelowReadyFaceEnvelope) failures.push('ARMS_TOO_HIGH');
+  const sourceHandR = fpsReference.source?.sourceMotion?.HandR;
+  const sourceWeaponSamples = Object.fromEntries(fpsReference.samples.map((sample) => [sample.label, sample.weapon]));
+  const sourceTipNeverDropsBelowHilt = fpsReference.samples.every((sample) => sample.weapon.tipMinusHilt[1] <= 0.5);
+  const sourceAnticipation = fpsReference.samples.find((sample) => sample.label === 'anticipation');
+  const sourceContact = fpsReference.samples.find((sample) => sample.label === 'contact');
+  const sourceHandTravelDeg = sourceHandR?.travelDeg || 0;
+  const bakedRightHandTravelDeg = frameTravelDeg(frames, 'RightHand');
+  const bakedRightForeArmTravelDeg = frameTravelDeg(frames, 'RightForeArm');
+  const bakedRightArmTravelDeg = frameTravelDeg(frames, 'RightArm');
+  const anticipation = {
+    sourceRightHandMovesRightInFpvPx: Number((sourceAnticipation.bones.HandR.screen[0] - fpsReference.samples[0].bones.HandR.screen[0]).toFixed(3)),
+    sourceLeftHandMovesRightInFpvPx: Number((sourceAnticipation.bones.HandL.screen[0] - fpsReference.samples[0].bones.HandL.screen[0]).toFixed(3)),
+    sourceSabreTipLeftOfHiltPx: Number((-sourceAnticipation.weapon.tipMinusHilt[0]).toFixed(3)),
+    sourceTipMinusHiltY: sourceAnticipation.weapon.tipMinusHilt[1],
+    sourceContactTipMinusHiltY: sourceContact.weapon.tipMinusHilt[1],
+  };
+  if (sourceHandTravelDeg < 180) failures.push('FPS_HANDR_REFERENCE_TOO_SMALL');
+  if (bakedRightHandTravelDeg < 150) failures.push('MESHY_RIGHT_HAND_NOT_PRIMARY_DRIVER');
+  if (bakedRightHandTravelDeg <= bakedRightArmTravelDeg * 2) failures.push('RIGHT_ARM_DOMINATES_HAND');
+  if (bakedRightForeArmTravelDeg > bakedRightHandTravelDeg) failures.push('FOREARM_DOMINATES_HAND');
+  if (anticipation.sourceRightHandMovesRightInFpvPx < 10) failures.push('SOURCE_RIGHT_HAND_NOT_RIGHT_IN_FPV');
+  if (anticipation.sourceLeftHandMovesRightInFpvPx < 10) failures.push('SOURCE_LEFT_HAND_NOT_RIGHT_IN_FPV');
+  if (anticipation.sourceSabreTipLeftOfHiltPx < 8) failures.push('SOURCE_SABRE_TIP_NOT_LEFT');
+  if (!sourceTipNeverDropsBelowHilt) failures.push('SOURCE_TIP_DROPS_BELOW_HILT');
   return {
     status: failures.length ? 'FAIL' : 'PASS',
-    rule: 'Meshy-authored Attack1 starts from Ready; anticipation moves both hands right in FPV, shoulder-driven, with sabre tip-left and no high-arm crowding',
+    rule: 'Meshy-authored Attack1 starts/ends at Ready; FPS HandR is the primary reference signal; baked Meshy RightHand rotation dominates arm travel; FPS blade tip never drops below hilt',
+    sourceMotion: {
+      HandR: sourceHandR,
+      WeaponR: fpsReference.source?.sourceMotion?.WeaponR,
+      sourceWeaponSamples,
+      sourceTipNeverDropsBelowHilt,
+    },
+    bakedMotion: {
+      bakedRightHandTravelDeg,
+      bakedRightForeArmTravelDeg,
+      bakedRightArmTravelDeg,
+      rightHandSaberAxisLocal: rightHandSaberAxisLocal.map((value) => Number(value.toFixed(6))),
+    },
     anticipation,
     failures,
   };
@@ -170,9 +230,10 @@ async function main() {
     time: Number(key.time.toFixed(6)),
     label: key.label,
     note: key.note,
-    bones: applyDeltas(READY_POSE_PRESET.bones, key.deltas),
+    rightHandTwistDeg: key.rightHandTwistDeg || 0,
+    bones: applyDeltas(READY_POSE_PRESET.bones, key),
   }));
-  const authoredGuard = validateAuthoredCandidate(frames);
+  const authoredGuard = validateAuthoredCandidate(frames, fpsReference);
   if (authoredGuard.status !== 'PASS') {
     console.error(JSON.stringify({ ok: false, reason: 'AUTHORED_ATTACK1_GUARD_FAILED', authoredGuard }, null, 2));
     process.exit(1);
@@ -186,17 +247,20 @@ async function main() {
       clip: 'OneHandAttack1',
       duration,
       keyCount: frames.length,
-      method: 'meshy-authored-from-fps-reference-description',
+      method: 'meshy-authored-from-fps-handr-reference',
       retargetedBones: [],
       authoredBones: ['RightArm', 'RightForeArm', 'RightHand', 'LeftArm', 'LeftForeArm', 'LeftHand'],
       fpsReference: {
         generatedDir: 'generated/fps-reference/attack1',
-        note: 'FPS key render/description is reference only; no FPS quaternion is copied into Meshy.',
+        note: 'FPS key render/description and HandR angular travel are reference only; no FPS quaternion is copied into Meshy.',
         descriptions: Object.fromEntries(fpsReference.samples.map((sample) => [sample.label, sample.description])),
+        sourceMotion: fpsReference.source.sourceMotion,
       },
       signatureWristTwist: {
         bakedRightHandRotationTravelDeg: frameTravelDeg(frames, 'RightHand'),
         bakedRightForeArmRotationTravelDeg: frameTravelDeg(frames, 'RightForeArm'),
+        rightHandPrimaryDriver: true,
+        rightHandSaberAxisLocal: rightHandSaberAxisLocal.map((value) => Number(value.toFixed(6))),
       },
     },
     primeKeys: ATTACK1_PRIME_KEYS,

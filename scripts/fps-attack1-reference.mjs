@@ -147,6 +147,53 @@ function weaponAxisProbe(THREE, camera, weapon) {
   };
 }
 
+function quaternionArray(quaternion) {
+  return quaternion.toArray().map((value) => Number(value.toFixed(6)));
+}
+
+function quaternionAngleDeg(a, b) {
+  const dot = Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w);
+  return Number((2 * Math.acos(Math.min(1, Math.max(-1, dot))) * 180 / Math.PI).toFixed(3));
+}
+
+function quaternionTrackFor(clip, nodeName) {
+  const wanted = canon(`${nodeName}.quaternion`);
+  return clip.tracks.find((track) => canon(track.name) === wanted) || null;
+}
+
+function trackTravelDeg(THREE, track) {
+  if (!track) return 0;
+  let total = 0;
+  let previous = null;
+  for (const time of track.times) {
+    const current = sampleQuaternionTrack(THREE, track, time);
+    if (previous) total += quaternionAngleDeg(previous, current);
+    previous = current;
+  }
+  return Number(total.toFixed(3));
+}
+
+function sourceMotionProfile(THREE, clip) {
+  const startQuaternions = new Map();
+  const profiles = {};
+  for (const name of referenceBones) {
+    const track = quaternionTrackFor(clip, name);
+    if (!track) continue;
+    const start = sampleQuaternionTrack(THREE, track, ATTACK1_PRIME_KEYS.start);
+    startQuaternions.set(name, start);
+    profiles[name] = {
+      keyedQuaternionTrack: true,
+      keyCount: track.times.length,
+      travelDeg: trackTravelDeg(THREE, track),
+      primeDeltasFromStartDeg: {},
+    };
+    for (const [label, time] of Object.entries(ATTACK1_PRIME_KEYS)) {
+      profiles[name].primeDeltasFromStartDeg[label] = quaternionAngleDeg(start, sampleQuaternionTrack(THREE, track, time));
+    }
+  }
+  return profiles;
+}
+
 function setupCamera(THREE) {
   const [width, height] = REVIEW_CAMERA_CONTRACT.viewport;
   const camera = new THREE.PerspectiveCamera(
@@ -223,11 +270,19 @@ export async function buildFpsAttack1Reference({ writeFiles = false } = {}) {
   });
   const clip = fps.animations.find((candidate) => candidate.name === sourceClipName);
   if (!clip) throw new Error(`missing FPS clip ${sourceClipName}`);
+  const sourceMotion = sourceMotionProfile(THREE, clip);
   const camera = setupCamera(THREE);
   const samples = [];
   for (const [label, time] of Object.entries(ATTACK1_PRIME_KEYS)) {
     applyClipPose(THREE, fps.scene, clip, time);
-    const bones = Object.fromEntries(referenceBones.map((name) => [name, screenPoint(THREE, camera, requireNode(fps.scene, name))]));
+    const bones = Object.fromEntries(referenceBones.map((name) => {
+      const node = requireNode(fps.scene, name);
+      return [name, {
+        ...screenPoint(THREE, camera, node),
+        localQuaternion: quaternionArray(node.quaternion),
+        rotationDeltaFromStartDeg: sourceMotion[name]?.primeDeltasFromStartDeg?.[label] ?? null,
+      }];
+    }));
     samples.push({
       label,
       time,
@@ -244,6 +299,7 @@ export async function buildFpsAttack1Reference({ writeFiles = false } = {}) {
       clip: sourceClipName,
       duration: Number(clip.duration.toFixed(6)),
       note: 'Reference only. These screen-space observations describe FPS intent; they are not Meshy transforms.',
+      sourceMotion,
     },
     samples,
   };
