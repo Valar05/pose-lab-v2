@@ -55,6 +55,15 @@ app.innerHTML = `
         <button type="button" data-dock-toggle>Tools</button>
         <span class="status" data-status>loading Meshy and real sabre</span>
       </div>
+      <div class="attack-review" data-attack-review hidden aria-label="Attack candidate review controls">
+        <div class="attack-review-row">
+          <button type="button" data-attack-play>Play</button>
+          <button type="button" data-attack-pause>Pause</button>
+          <output data-attack-time>0.000s</output>
+        </div>
+        <input type="range" min="0" max="1.25" step="0.041667" value="0" data-attack-scrub aria-label="Attack time scrubber" />
+        <div class="attack-primes" data-attack-primes aria-label="Attack prime keys"></div>
+      </div>
       <div class="fpv-settings" data-fpv-settings hidden aria-label="FPV camera nudge controls">
         <div class="fpv-nudge-grid" aria-label="FPV camera position">
           <button type="button" data-fpv-nudge="forward" aria-label="Move FPV camera forward">↑</button>
@@ -164,6 +173,12 @@ const fpvResetButton = app.querySelector('[data-fpv-reset]');
 const fpvCopyButton = app.querySelector('[data-fpv-copy]');
 const fpvFovInput = app.querySelector('[data-fpv-fov]');
 const fpvFovOutput = app.querySelector('[data-fpv-fov-output]');
+const attackReviewPanel = app.querySelector('[data-attack-review]');
+const attackPlayButton = app.querySelector('[data-attack-play]');
+const attackPauseButton = app.querySelector('[data-attack-pause]');
+const attackScrubInput = app.querySelector('[data-attack-scrub]');
+const attackTimeOutput = app.querySelector('[data-attack-time]');
+const attackPrimesEl = app.querySelector('[data-attack-primes]');
 
 let toolMode = 'saber';
 let viewMode = 'orbit';
@@ -394,6 +409,7 @@ let readyPosePreset = null;
 let attackPoseSequence = null;
 let attackPoseStartedAt = null;
 let attackPoseFixedTime = null;
+let attackPoseCurrentTime = 0;
 let selectedPoseBone = null;
 let selected = false;
 let gesture = null;
@@ -816,6 +832,8 @@ function updatePoseHandles() {
 function stopPoseAnimation() {
   attackPoseStartedAt = null;
   attackPoseFixedTime = null;
+  attackPoseCurrentTime = 0;
+  updateAttackReviewControls();
 }
 
 function applyPoseBones(bones = {}) {
@@ -868,8 +886,10 @@ function applyAttackPose() {
   if (attackPoseSequence && candidateId) {
     poseState = 'attack1';
     attackPoseFixedTime = Number.isFinite(Number(REQUESTED_ATTACK_TIME)) ? Number(REQUESTED_ATTACK_TIME) : null;
-    attackPoseStartedAt = performance.now();
-    applyAttackSequenceAt(attackPoseFixedTime ?? 0);
+    attackPoseCurrentTime = attackPoseFixedTime ?? 0;
+    attackPoseStartedAt = performance.now() - attackPoseCurrentTime * 1000;
+    applyAttackSequenceAt(attackPoseCurrentTime);
+    setupAttackReviewControls();
     statusEl.textContent = `Attack1 candidate preview: ${candidateId}; not accepted repo truth`;
     return;
   }
@@ -911,7 +931,72 @@ function interpolatePoseBones(a = {}, b = {}, alpha = 0) {
 function applyAttackSequenceAt(time) {
   const frame = sequenceFrameAt(attackPoseSequence, time);
   if (!frame) return;
+  attackPoseCurrentTime = frame.time;
   applyPoseBones(frame.bones || {});
+  updateAttackReviewControls();
+}
+
+function attackDuration() {
+  return attackPoseSequence?.source?.duration || attackPoseSequence?.frames?.at(-1)?.time || 0;
+}
+
+function setAttackReviewTime(time) {
+  const duration = attackDuration();
+  const next = THREE.MathUtils.clamp(Number(time) || 0, 0, duration || 0);
+  attackPoseFixedTime = next;
+  attackPoseStartedAt = performance.now() - next * 1000;
+  applyAttackSequenceAt(next);
+  statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; ${next.toFixed(3)}s`;
+}
+
+function playAttackReview() {
+  if (!attackPoseSequence) return;
+  attackPoseFixedTime = null;
+  attackPoseStartedAt = performance.now() - attackPoseCurrentTime * 1000;
+  updateAttackReviewControls();
+  statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; playing`;
+}
+
+function pauseAttackReview() {
+  if (!attackPoseSequence) return;
+  attackPoseFixedTime = attackPoseCurrentTime;
+  updateAttackReviewControls();
+  statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; paused ${attackPoseCurrentTime.toFixed(3)}s`;
+}
+
+function setupAttackReviewControls() {
+  if (!attackReviewPanel || !attackPoseSequence) return;
+  const duration = attackDuration();
+  attackReviewPanel.hidden = false;
+  attackScrubInput.max = String(duration || 1.25);
+  attackScrubInput.step = String(1 / 24);
+  attackPrimesEl.innerHTML = '';
+  for (const [label, time] of Object.entries(attackPoseSequence.primeKeys || {})) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.attackPrime = label;
+    button.dataset.attackTime = String(time);
+    button.textContent = label;
+    button.addEventListener('click', () => setAttackReviewTime(time));
+    attackPrimesEl.append(button);
+  }
+  updateAttackReviewControls();
+}
+
+function updateAttackReviewControls() {
+  if (!attackReviewPanel) return;
+  const active = Boolean(attackPoseSequence && poseState === 'attack1');
+  attackReviewPanel.hidden = !active;
+  if (!active) return;
+  const time = attackPoseCurrentTime || 0;
+  attackScrubInput.value = String(time);
+  attackTimeOutput.value = `${time.toFixed(3)}s`;
+  attackPlayButton.classList.toggle('active', attackPoseFixedTime === null);
+  attackPauseButton.classList.toggle('active', attackPoseFixedTime !== null);
+  for (const button of attackPrimesEl.querySelectorAll('[data-attack-prime]')) {
+    const primeTime = Number(button.dataset.attackTime);
+    button.classList.toggle('active', Math.abs(primeTime - time) < 0.025);
+  }
 }
 
 function setPoseState(next) {
@@ -1232,6 +1317,11 @@ function renderControls() {
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
   cyclePoseStateButton.textContent = `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
   cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
+  updateAttackReviewControls();
+  if (poseState === 'attack1' && attackPoseSequence) {
+    statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; ${attackPoseFixedTime === null ? 'playing' : `${attackPoseCurrentTime.toFixed(3)}s`}`;
+    return;
+  }
   statusEl.textContent = toolMode === 'pose'
     ? selectedPoseBone
       ? `${mode} / ${axisLabel()}: editing ${selectedPoseBone.name}`
@@ -2214,6 +2304,9 @@ fpvCopyButton.addEventListener('click', () => {
   statusEl.textContent = 'fpv camera: copied';
 });
 fpvFovInput.addEventListener('input', () => setFpvFov(fpvFovInput.value));
+attackPlayButton.addEventListener('click', playAttackReview);
+attackPauseButton.addEventListener('click', pauseAttackReview);
+attackScrubInput.addEventListener('input', () => setAttackReviewTime(attackScrubInput.value));
 
 poseStateButtons.forEach((button) => {
   button.addEventListener('click', () => setPoseState(button.dataset.poseState || 'rest'));

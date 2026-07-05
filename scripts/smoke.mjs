@@ -127,6 +127,9 @@ assert(main.includes("let poseState = 'rest'") && main.includes('function applyR
 assert(main.includes('function applyAttackPose') && main.includes("poseState = 'attack1'") && main.includes('Attack1 quarantined'), 'Attack1 must remain selectable but quarantined until a clean bake exists');
 assert(main.includes('ATTACK1_REVIEW_CANDIDATES[REQUESTED_CANDIDATE]') && main.includes('Attack1 candidate preview') && main.includes('not accepted repo truth'), 'runtime must allow explicit candidate preview without accepting Attack1');
 assert(main.includes('function sequenceFrameAt') && main.includes('function applyAttackSequenceAt'), 'Attack1 candidate preview must play baked frames only');
+assert(main.includes('data-attack-review') && main.includes('data-attack-play') && main.includes('data-attack-pause') && main.includes('data-attack-scrub') && main.includes('data-attack-primes'), 'Attack1 candidate preview must expose visible play/pause, scrub, and prime-key controls');
+assert(main.includes('function setupAttackReviewControls') && main.includes('function setAttackReviewTime') && main.includes('function playAttackReview') && main.includes('function pauseAttackReview'), 'Attack1 candidate preview controls must be wired to playback and frozen-frame review');
+assert(main.includes('attackPoseFixedTime === null') && main.includes('attackPoseCurrentTime'), 'Attack1 candidate preview must distinguish playing animation from frozen inspection frames');
 assert(!main.includes('updatePoseAnimation(performance.now())') && !main.includes('attack1 playing') && !main.includes('attack1 frozen at'), 'runtime must not play the contaminated Attack1 bake');
 assert(attackReviewUrls.includes('Attack1 animated loop') && attackReviewUrls.includes('time: null'), 'Attack1 review URLs must include an animated loop URL before frozen frames');
 assert(!main.includes('READY_RIGHT_WRIST_ROLL_DEG') && !main.includes('rollReadyRightWrist'), 'Ready must not apply a hidden runtime wrist-roll patch');
@@ -224,6 +227,7 @@ assert(css.includes('body.is-fpv .primary-rail button:not([data-cycle-view-mode]
 assert(!css.includes('body.is-fpv .primary-rail button:not([data-view-mode])'), 'FPV mode must not target hidden compatibility view buttons as the only visible escape');
 assert(css.includes('.fpv-settings-button') && css.includes('.fpv-settings') && css.includes('.fpv-nudge-grid') && css.includes('.fpv-slider'), 'FPV settings must have compact dedicated mobile styling');
 assert(css.includes('.viewport') && css.includes('.control-dock') && css.includes('max-height: 42vh'), 'mobile layout must keep the 3D viewport visible while dock panels scroll below it');
+assert(css.includes('.attack-review') && css.includes('.attack-primes') && css.includes('pointer-events: auto'), 'Attack1 candidate review controls must be visible and touchable on the hosted surface');
 assert(css.includes('.control-dock[hidden]') && css.includes('.hidden-actions'), 'closed dock and compatibility action buttons must be visually hidden by default');
 assert(main.includes('function beginCameraTouch') && main.includes("kind: points.length >= 2 ? 'two-camera' : 'one-camera'"), 'mobile camera touch must be handled directly, not delegated to OrbitControls');
 assert(main.includes("leaveSaberEdit('camera: empty touch orbit')") && main.includes('beginCameraTouch(points)'), 'empty canvas touch must deselect the sabre and start one-finger camera orbit');
