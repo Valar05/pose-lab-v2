@@ -15,6 +15,7 @@ app.innerHTML = `
       <button type="button" data-mode="move" class="active">Move</button>
       <button type="button" data-mode="rotate">Rotate</button>
       <button type="button" data-mode="scale">Scale</button>
+      <button type="button" data-action="camera">Camera</button>
       <button type="button" data-axis="screen" class="active">Screen</button>
       <button type="button" data-axis="all" hidden>All</button>
       <button type="button" data-axis="x">X</button>
@@ -159,6 +160,19 @@ function renderControls() {
   statusEl.textContent = selected
     ? `${mode} / ${axisLabel()}: drag sabre to edit, drag empty space for camera`
     : `${mode} / ${axisLabel()}: tap the visible sabre first`;
+}
+
+function leaveSaberEdit(message = 'camera: sabre deselected') {
+  selected = false;
+  gesture = null;
+  touchGesture = null;
+  suppressTouchPointerEvents = false;
+  pointers.clear();
+  controls.enabled = true;
+  lastPinchDistance = 0;
+  lastTwistAngle = 0;
+  renderControls();
+  statusEl.textContent = message;
 }
 
 function cycleMode() {
@@ -352,7 +366,10 @@ function handleTouchStart(event) {
   if (points.length !== 1) return false;
   const touch = event.touches[0];
   const hit = pickSabre(touch.clientX, touch.clientY);
-  if (!hit) return false;
+  if (!hit) {
+    leaveSaberEdit('camera: empty touch deselected sabre');
+    return false;
+  }
   suppressTouchPointerEvents = true;
   beginSingleTouchSabre(touch, hit);
   stopEvent(event);
@@ -571,6 +588,10 @@ app.querySelector('[data-action="reset"]').addEventListener('click', () => {
   prepareSabre(sabreRoot);
   updateReadout();
   statusEl.textContent = 'reset real sabre transform';
+});
+
+app.querySelector('[data-action="camera"]').addEventListener('click', () => {
+  leaveSaberEdit();
 });
 
 app.querySelector('[data-action="copy"]').addEventListener('click', () => {
