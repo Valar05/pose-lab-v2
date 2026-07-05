@@ -29,13 +29,12 @@ function assertRelativeImportsResolve(file) {
 assert(exists('public/assets/meshy/meshy_apose_walking_with_skin.glb'), 'missing Meshy A-pose/walking GLB');
 assert(exists('public/assets/meshy/meshy_real_sabre.glb'), 'missing real sabre GLB');
 for (const texture of [
-  'Meshy_AI__0615041256_texture.png',
-  'Meshy_AI__0615041256_texture_emission.png',
-  'Meshy_AI__0615041256_texture_metallic.png',
-  'Meshy_AI__0615041256_texture_normal.png',
-  'Meshy_AI__0615041256_texture_roughness.png',
+  'base_color.jpg',
+  'emissive.jpg',
+  'metallic_roughness.jpg',
+  'normal.png',
 ]) {
-  assert(exists(`public/assets/meshy/fpsplayer_meshy/${texture}`), `missing salvaged Meshy PBR texture: ${texture}`);
+  assert(exists(`public/assets/meshy/character_sheet_pbr/${texture}`), `missing salvaged Meshy Character Sheet PBR texture: ${texture}`);
 }
 assert(html.includes("import(`./src/main.js${startupSuffix}`)"), 'HTML must load the minimal app entry with the page cacheBust');
 assert(html.includes("stylesheet.href = `./src/styles.css${startupSuffix}`"), 'HTML must load CSS with the page cacheBust');
@@ -54,10 +53,11 @@ assert(exists('vendor/three/examples/jsm/controls/OrbitControls.js'), 'missing v
 assert(exists('vendor/three/examples/jsm/utils/BufferGeometryUtils.js'), 'missing vendored BufferGeometryUtils');
 assert(main.includes("meshy_apose_walking_with_skin.glb"), 'app must reference Meshy GLB');
 assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB');
-assert(main.includes('const MESHY_PBR_TEXTURES = {') && main.includes('Meshy_AI__0615041256_texture_normal.png'), 'app must reference salvaged Meshy PBR texture channels');
+assert(main.includes('const MESHY_PBR_TEXTURES = {') && main.includes('character_sheet_pbr/normal.png'), 'app must reference salvaged Meshy Character Sheet PBR texture channels');
 assert(main.includes('const textureLoader = new THREE.TextureLoader()'), 'app must load Meshy PBR channels through Three TextureLoader');
 assert(main.includes('async function applyMeshyPbrTextures') && main.includes('applyMeshyPbrToMaterial'), 'app must apply salvaged Meshy PBR channels to character materials');
-assert(main.includes('material.map = textures.map') && main.includes('material.emissiveMap = textures.emissiveMap') && main.includes('material.metalnessMap = textures.metalnessMap') && main.includes('material.normalMap = textures.normalMap') && main.includes('material.roughnessMap = textures.roughnessMap'), 'app must assign full Meshy PBR material channels');
+assert(main.includes('material.map = textures.map') && main.includes('material.emissiveMap = textures.emissiveMap') && main.includes('material.metalnessMap = textures.metallicRoughnessMap') && main.includes('material.normalMap = textures.normalMap') && main.includes('material.roughnessMap = textures.metallicRoughnessMap'), 'app must assign full Meshy PBR material channels');
+assert(!main.includes('fpsplayer_meshy') && !main.includes('0615041256'), 'app must not use the old FPSPlayer Meshy texture set');
 assert(main.includes('texture.flipY = false') && main.includes('THREE.SRGBColorSpace'), 'Meshy PBR textures must use GLTF UV orientation and sRGB color maps');
 assert(main.includes('for (const entry of fpvBodyMasks)') && main.includes('applyMeshyPbrToMaterial(material, textures)'), 'FPV arm-mask materials must receive the same Meshy PBR channels as the full body');
 assert(!main.includes("import { READY_POSE_PRESET } from './ready-pose.js'"), 'Ready pose preset must not be statically imported because browser module cache can stale it');
@@ -185,11 +185,10 @@ if (exists('dist')) {
   assert(exists('dist/vendor/three/examples/jsm/utils/BufferGeometryUtils.js'), 'dist must include vendored BufferGeometryUtils');
   assert(exists('dist/assets/meshy/meshy_apose_walking_with_skin.glb'), 'dist must expose Meshy GLB at /assets/meshy');
   assert(exists('dist/assets/meshy/meshy_real_sabre.glb'), 'dist must expose real sabre GLB at /assets/meshy');
-  assert(exists('dist/assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture.png'), 'dist must expose Meshy base color texture');
-  assert(exists('dist/assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_emission.png'), 'dist must expose Meshy emission texture');
-  assert(exists('dist/assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_metallic.png'), 'dist must expose Meshy metallic texture');
-  assert(exists('dist/assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_normal.png'), 'dist must expose Meshy normal texture');
-  assert(exists('dist/assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_roughness.png'), 'dist must expose Meshy roughness texture');
+  assert(exists('dist/assets/meshy/character_sheet_pbr/base_color.jpg'), 'dist must expose Meshy Character Sheet base color texture');
+  assert(exists('dist/assets/meshy/character_sheet_pbr/emissive.jpg'), 'dist must expose Meshy Character Sheet emission texture');
+  assert(exists('dist/assets/meshy/character_sheet_pbr/metallic_roughness.jpg'), 'dist must expose Meshy Character Sheet metallic-roughness texture');
+  assert(exists('dist/assets/meshy/character_sheet_pbr/normal.png'), 'dist must expose Meshy Character Sheet normal texture');
 }
 
 for (const file of [

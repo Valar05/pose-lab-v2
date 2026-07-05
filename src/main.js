@@ -7,11 +7,10 @@ const ASSETS = {
   sabre: './assets/meshy/meshy_real_sabre.glb',
 };
 const MESHY_PBR_TEXTURES = {
-  map: './assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture.png',
-  emissiveMap: './assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_emission.png',
-  metalnessMap: './assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_metallic.png',
-  normalMap: './assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_normal.png',
-  roughnessMap: './assets/meshy/fpsplayer_meshy/Meshy_AI__0615041256_texture_roughness.png',
+  map: './assets/meshy/character_sheet_pbr/base_color.jpg',
+  emissiveMap: './assets/meshy/character_sheet_pbr/emissive.jpg',
+  metallicRoughnessMap: './assets/meshy/character_sheet_pbr/metallic_roughness.jpg',
+  normalMap: './assets/meshy/character_sheet_pbr/normal.png',
 };
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
@@ -862,9 +861,9 @@ function applyMeshyPbrToMaterial(material, textures) {
   if (!material || !textures) return;
   material.map = textures.map;
   material.emissiveMap = textures.emissiveMap;
-  material.metalnessMap = textures.metalnessMap;
+  material.metalnessMap = textures.metallicRoughnessMap;
   material.normalMap = textures.normalMap;
-  material.roughnessMap = textures.roughnessMap;
+  material.roughnessMap = textures.metallicRoughnessMap;
   if (material.emissive?.set) material.emissive.set(0xffffff);
   material.metalness = 1;
   material.roughness = 1;
