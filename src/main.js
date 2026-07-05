@@ -266,6 +266,35 @@ function rotateSabreAroundAxis(axis, radians) {
   sabreRoot.quaternion.premultiply(delta).normalize();
 }
 
+function orbitCameraByDelta(dx, dy) {
+  const offset = camera.position.clone().sub(controls.target);
+  const spherical = new THREE.Spherical().setFromVector3(offset);
+  spherical.theta -= dx * 0.006;
+  spherical.phi = THREE.MathUtils.clamp(spherical.phi - dy * 0.0045, 0.18, Math.PI - 0.18);
+  offset.setFromSpherical(spherical);
+  camera.position.copy(controls.target).add(offset);
+  controls.update();
+}
+
+function zoomCameraByDelta(delta) {
+  const offset = camera.position.clone().sub(controls.target);
+  const scale = THREE.MathUtils.clamp(1 - delta * 0.003, 0.82, 1.18);
+  const nextLength = THREE.MathUtils.clamp(offset.length() * scale, controls.minDistance, controls.maxDistance);
+  offset.setLength(nextLength);
+  camera.position.copy(controls.target).add(offset);
+  controls.update();
+}
+
+function panCameraByDelta(dx, dy) {
+  const { right, up } = cameraBasis();
+  const distance = camera.position.distanceTo(controls.target);
+  const amount = distance * 0.0012;
+  const delta = right.multiplyScalar(-dx * amount).add(up.multiplyScalar(dy * amount));
+  camera.position.add(delta);
+  controls.target.add(delta);
+  controls.update();
+}
+
 function rotateSabreByGesture(dx, dy, basis) {
   if (currentAxis === 'screen') {
     const yaw = new THREE.Quaternion().setFromAxisAngle(basis.up, dx * 0.007);
@@ -354,6 +383,19 @@ function beginTwoFingerSabre(points) {
   statusEl.textContent = mode === 'rotate' ? 'two-finger roll armed' : 'two-finger scale armed';
 }
 
+function beginCameraTouch(points) {
+  touchGesture = {
+    kind: points.length >= 2 ? 'two-camera' : 'one-camera',
+    lastX: points[0].x,
+    lastY: points[0].y,
+    moved: false,
+    tapCanCycle: false,
+  };
+  lastPinchDistance = touchDistance(points);
+  controls.enabled = false;
+  statusEl.textContent = points.length >= 2 ? 'camera: pinch zoom / drag pan' : 'camera: one-finger orbit';
+}
+
 function handleTouchStart(event) {
   if (!sabreRoot) return false;
   const points = touchPoints(event);
@@ -363,12 +405,22 @@ function handleTouchStart(event) {
     stopEvent(event);
     return true;
   }
+  if (points.length >= 2) {
+    leaveSaberEdit('camera: two-finger gesture');
+    suppressTouchPointerEvents = true;
+    beginCameraTouch(points);
+    stopEvent(event);
+    return true;
+  }
   if (points.length !== 1) return false;
   const touch = event.touches[0];
   const hit = pickSabre(touch.clientX, touch.clientY);
   if (!hit) {
-    leaveSaberEdit('camera: empty touch deselected sabre');
-    return false;
+    leaveSaberEdit('camera: empty touch orbit');
+    suppressTouchPointerEvents = true;
+    beginCameraTouch(points);
+    stopEvent(event);
+    return true;
   }
   suppressTouchPointerEvents = true;
   beginSingleTouchSabre(touch, hit);
@@ -382,6 +434,34 @@ function handleTouchMove(event) {
   if (points.length >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
     if (touchGesture.kind !== 'two-sabre') beginTwoFingerSabre(points);
     handleTwoFingerTouch(points);
+    stopEvent(event);
+    return true;
+  }
+  if (touchGesture.kind === 'one-camera' && points.length === 1) {
+    const point = points[0];
+    const dx = point.x - touchGesture.lastX;
+    const dy = point.y - touchGesture.lastY;
+    orbitCameraByDelta(dx, dy);
+    touchGesture.lastX = point.x;
+    touchGesture.lastY = point.y;
+    touchGesture.moved = true;
+    statusEl.textContent = 'camera: one-finger orbit';
+    stopEvent(event);
+    return true;
+  }
+  if (touchGesture.kind === 'two-camera' && points.length >= 2) {
+    const distance = touchDistance(points);
+    const center = {
+      x: (points[0].x + points[1].x) * 0.5,
+      y: (points[0].y + points[1].y) * 0.5,
+    };
+    if (lastPinchDistance > 0) zoomCameraByDelta(distance - lastPinchDistance);
+    panCameraByDelta(center.x - touchGesture.lastX, center.y - touchGesture.lastY);
+    lastPinchDistance = distance;
+    touchGesture.lastX = center.x;
+    touchGesture.lastY = center.y;
+    touchGesture.moved = true;
+    statusEl.textContent = 'camera: pinch zoom / drag pan';
     stopEvent(event);
     return true;
   }
