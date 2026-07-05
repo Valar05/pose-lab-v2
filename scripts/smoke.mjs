@@ -114,10 +114,12 @@ assert(attackSequence.source?.duration === 1.25, 'Attack1 sequence must preserve
 assert(attackSequence.source?.keyCount === 31 && attackSequence.frames?.length === 31, 'Attack1 sequence must preserve all 31 keyed source samples');
 assert(attackSequence.source?.signatureWristTwist?.sourceHandRotationTravelDeg > 100, 'Attack1 source must record a strong wrist-twist signature');
 assert(attackSequence.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > 100, 'Attack1 bake must preserve a strong right-hand wrist-twist signature');
-assert(attackSequence.source?.method === 'orientation-key-bake-with-ready-graph-offsets-and-hand-roll-no-weapon-direction-override', 'Attack1 must use whole-arm Ready graph offsets plus per-frame source hand-roll alignment');
+assert(attackSequence.source?.method === 'orientation-key-bake-with-ready-graph-offsets-landmark-pins-and-hand-roll-no-weapon-direction-override', 'Attack1 must use whole-arm Ready graph offsets plus projected source hand landmarks and per-frame source hand-roll alignment');
 assert(attackSequence.source?.readyAnchoredWeaponWristInterpretation?.skipped === true && attackSequence.source?.readyAnchoredWeaponWristInterpretation?.sourceReference === 'Weapon.R', 'Attack1 must not reintroduce the deprecated single-bone Weapon.R direction override');
 assert(attackBakeScript.includes('rotateHandRoll(THREE, meshyRoot, fpsRoot, meshyRoot, chain)'), 'Attack1 bake must align per-frame hand roll from the source hand instead of correcting the sabre independently');
-assert(!attackBakeScript.includes('applyTwoBonePin'), 'Attack1 bake script must not use IK/two-bone hand pinning');
+assert(attackBakeScript.includes('applyTwoBonePin(THREE, meshyRoot, upper, lower, hand, targetWorld)'), 'Attack1 bake must project source hand landmarks into Meshy space before writing baked arm keys');
+assert(main.includes('runtime must play baked Attack1 frames without source animation runtime') || main.includes('function applyAttackPose'), 'runtime must play baked Attack1 frames rather than solving IK live');
+assert(!main.includes('applyTwoBonePin') && !main.includes('solveTwoBoneIk'), 'runtime must not use IK/two-bone hand pinning for Attack1');
 assert(attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('RightHand') && attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('LeftHand'), 'Attack1 graph offset must include both hands');
 assert(attackSequence.source?.readyEndpointContract?.firstMatchesReady === true && attackSequence.source?.readyEndpointContract?.lastMatchesReady === true, 'Attack1 first and last frames must match the accepted Ready pose');
 for (const boneName of ['LeftArm', 'LeftForeArm', 'LeftHand', 'RightArm', 'RightForeArm', 'RightHand']) {

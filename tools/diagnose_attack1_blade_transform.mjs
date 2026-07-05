@@ -319,7 +319,7 @@ async function main() {
         && ATTACK1_POSE_SEQUENCE.source?.readyEndpointContract?.lastMatchesReady === true
         && (ATTACK1_POSE_SEQUENCE.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg || 0) > 120
         && (ATTACK1_POSE_SEQUENCE.source?.signatureWristTwist?.bakedRightForeArmRotationTravelDeg || 0) > 120,
-      holisticImportDiagnosis: 'Attack1 must be judged by whole-arm baked wrist/forearm motion and cloud visual read, not by matching the deprecated Weapon.R direction override',
+      holisticImportDiagnosis: 'Attack1 must be judged by whole-arm projected landmark motion, baked wrist/forearm roll, and cloud visual read, not by matching the deprecated Weapon.R direction override',
       method: ATTACK1_POSE_SEQUENCE.source?.method || null,
       signatureWristTwist: ATTACK1_POSE_SEQUENCE.source?.signatureWristTwist || null,
       firstAngleDeg: samples[0]?.angleDeg,
