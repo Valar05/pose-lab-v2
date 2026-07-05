@@ -49,6 +49,11 @@ assert(main.includes("findRequiredBone(meshyRoot, 'RightHand')"), 'runtime saber
 assert(main.includes("grip.name = 'SaberGrip'") && main.includes('rightHand.attach(grip)') && main.includes('grip.attach(sabreRoot)'), 'real sabre mesh must be parented through a SaberGrip bone');
 assert(main.includes('function editableSaber()') && main.includes('return saberGrip || sabreRoot'), 'direct transforms must target SaberGrip after hand parenting');
 assert(main.includes("parentBone: 'RightHand'"), 'export must report SaberGrip as RightHand-owned');
+assert(main.includes("let toolMode = 'saber'") && main.includes('data-tool="saber"') && main.includes('data-tool="pose"'), 'app must distinguish top-level Saber and Pose modes');
+assert(main.includes('const POSE_BONE_NAMES = [') && main.includes("'RightHand'") && main.includes("'LeftFoot'"), 'Pose mode must expose curated real Meshy body bones');
+assert(main.includes('function setupPoseHandles') && main.includes('PoseHandle:') && main.includes('function pickPoseHandle'), 'Pose mode must create visible selectable bone handles');
+assert(main.includes('selectedPoseBone') && main.includes('function resetPose') && main.includes("data-action=\"reset-pose\""), 'Pose mode must track selection and reset curated bone rotations');
+assert(main.includes('toolMode === \'pose\' ? \'rotate\' : next') && main.includes('rotatePoseBoneByGesture'), 'Pose mode must be rotate-only and not reuse saber move/scale behavior');
 assert(!main.includes("import './styles.css'"), 'browser-native ESM must not import CSS without a bundler');
 assert(main.includes('pickSabre') && main.includes('startGesture') && main.includes('updateGesture'), 'app must use visible direct saber gestures');
 assert(main.includes('function handleTouchStart') && main.includes('function handleTouchMove') && main.includes('function handleTouchEnd'), 'mobile saber editing must use native touch handlers, not pointer-only guesses');
@@ -63,10 +68,11 @@ assert(main.includes('function orbitCameraByDelta') && main.includes('function z
 assert(main.includes('data-axis="screen"') && main.includes('data-axis="all"') && main.includes('data-axis="x"') && main.includes('data-axis="y"') && main.includes('data-axis="z"'), 'app must expose TFTM-style split axis controls');
 assert(main.includes("let currentAxis = 'screen'") && main.includes("currentAxis = mode === 'scale' ? 'all' : 'screen'"), 'mode changes must reset axis to Screen or All');
 assert(main.includes('function moveSabreByGesture') && main.includes('function rotateSabreByGesture') && main.includes('function scaleSabreByDelta'), 'saber transforms must route through split-axis helpers');
+assert(main.includes('rotateSabreAroundAxis(basis.up.clone(), dx * 0.007)') && main.includes('rotateSabreAroundAxis(basis.right.clone(), dy * 0.007)'), 'saber screen rotation must target SaberGrip, not the child mesh directly');
 assert(main.includes("if (mode === 'scale' && lastPinchDistance > 0)") && main.includes("if (mode === 'rotate' && Number.isFinite(lastTwistAngle))"), 'two-finger gestures must be gated to Scale and Rotate modes');
 assert(main.includes("const axis = currentAxis === 'screen' ? touchGesture.forward.clone() : worldAxisVector(currentAxis)"), 'two-finger rotate must default to screen roll from the native touch basis');
 assert(main.includes("two-finger camera gesture ignored in Move"), 'Move mode must not transform the saber with two-finger gestures');
-assert(main.includes('points.length >= 2 && selected && (mode === \'rotate\' || mode === \'scale\')') && main.includes('beginTwoFingerSabre(points)'), 'selected saber must own native two-finger Rotate/Scale anywhere on the canvas');
+assert(main.includes('points.length >= 2 && toolMode === \'saber\' && selected && (mode === \'rotate\' || mode === \'scale\')') && main.includes('beginTwoFingerSabre(points)'), 'selected saber must own native two-finger Rotate/Scale anywhere on the canvas');
 assert(main.includes('function beginSingleTouchSabre') && main.includes("kind: 'single-sabre'"), 'one-finger touch on the real saber must directly edit the selected mesh');
 assert(main.includes('function beginTwoFingerSabre') && main.includes("kind: 'two-sabre'"), 'two-finger touch must have a direct saber transform path');
 assert(!main.includes('GESTURE_OWNER'), 'failed pointer-owner experiment must not remain in the clean mobile touch path');

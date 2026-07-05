@@ -23,6 +23,11 @@ Tap the real sabre, then use:
 - `Scale` to resize it by drag;
 - `Copy Export` to copy the current transform JSON.
 
+`Saber` mode edits the real sabre through a runtime `SaberGrip` parent under
+the Meshy `RightHand` bone. `Pose` mode exposes curated Meshy body-bone handles
+for rotate-only posing. Pose mode does not add IK, retargeting, animation clips,
+or numeric pose panels.
+
 Numbers are readout/export only. Authoring is direct visual manipulation.
 
 ## Checks

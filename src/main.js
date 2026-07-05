@@ -12,6 +12,8 @@ app.innerHTML = `
   <section class="surface">
     <canvas aria-label="Meshy A-pose saber placement viewport"></canvas>
     <div class="toolbar" aria-label="Saber direct controls">
+      <button type="button" data-tool="saber" class="active">Saber</button>
+      <button type="button" data-tool="pose">Pose</button>
       <button type="button" data-mode="move" class="active">Move</button>
       <button type="button" data-mode="rotate">Rotate</button>
       <button type="button" data-mode="scale">Scale</button>
@@ -21,7 +23,8 @@ app.innerHTML = `
       <button type="button" data-axis="x">X</button>
       <button type="button" data-axis="y">Y</button>
       <button type="button" data-axis="z">Z</button>
-      <button type="button" data-action="reset">Reset</button>
+      <button type="button" data-action="reset-saber">Reset Saber</button>
+      <button type="button" data-action="reset-pose" hidden>Reset Pose</button>
       <button type="button" data-action="copy">Copy Export</button>
       <button type="button" data-camera-view="front">Front</button>
       <button type="button" data-camera-view="left">Left</button>
@@ -39,8 +42,11 @@ app.innerHTML = `
 const canvas = app.querySelector('canvas');
 const statusEl = app.querySelector('[data-status]');
 const exportEl = app.querySelector('[data-export]');
+const toolButtons = [...app.querySelectorAll('[data-tool]')];
 const modeButtons = [...app.querySelectorAll('[data-mode]')];
 const axisButtons = [...app.querySelectorAll('[data-axis]')];
+const resetSaberButton = app.querySelector('[data-action="reset-saber"]');
+const resetPoseButton = app.querySelector('[data-action="reset-pose"]');
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
@@ -82,16 +88,47 @@ const loader = new GLTFLoader();
 const root = new THREE.Group();
 scene.add(root);
 
+const POSE_BONE_NAMES = [
+  'Hips',
+  'Spine02',
+  'Spine01',
+  'Spine',
+  'neck',
+  'Head',
+  'LeftShoulder',
+  'LeftArm',
+  'LeftForeArm',
+  'LeftHand',
+  'RightShoulder',
+  'RightArm',
+  'RightForeArm',
+  'RightHand',
+  'LeftUpLeg',
+  'LeftLeg',
+  'LeftFoot',
+  'RightUpLeg',
+  'RightLeg',
+  'RightFoot',
+];
+const poseHandleGeometry = new THREE.SphereGeometry(0.035, 12, 8);
+const poseHandleMaterial = new THREE.MeshBasicMaterial({ color: 0x68d8ff, depthTest: false, transparent: true, opacity: 0.82 });
+const poseHandleSelectedMaterial = new THREE.MeshBasicMaterial({ color: 0xffd45c, depthTest: false, transparent: true, opacity: 0.96 });
+
+let toolMode = 'saber';
 let mode = 'move';
 let currentAxis = 'screen';
 let meshyRoot = null;
 let sabreRoot = null;
 let saberGrip = null;
+let selectedPoseBone = null;
 let selected = false;
 let gesture = null;
 let touchGesture = null;
 let suppressTouchPointerEvents = false;
 const pointers = new Map();
+const poseBones = new Map();
+const poseHandles = new Map();
+const poseBoneRestQuaternions = new Map();
 let lastPinchDistance = 0;
 let lastTwistAngle = 0;
 
@@ -161,6 +198,10 @@ function rotationDegFromEuler(euler) {
     .map((value) => Number(THREE.MathUtils.radToDeg(value).toFixed(3)));
 }
 
+function vectorToFixedArray(vector) {
+  return vector.toArray().map((value) => Number(value.toFixed(5)));
+}
+
 function editableSaber() {
   return saberGrip || sabreRoot;
 }
@@ -192,6 +233,48 @@ function resetSaberPlacement() {
   attachSaberToRightHand();
 }
 
+function setupPoseHandles() {
+  if (!meshyRoot) return;
+  poseBones.clear();
+  poseHandles.clear();
+  poseBoneRestQuaternions.clear();
+  for (const name of POSE_BONE_NAMES) {
+    const bone = findRequiredBone(meshyRoot, name);
+    poseBones.set(name, bone);
+    poseBoneRestQuaternions.set(name, bone.quaternion.clone());
+    const handle = new THREE.Mesh(poseHandleGeometry, poseHandleMaterial);
+    handle.name = `PoseHandle:${name}`;
+    handle.userData.poseBoneName = name;
+    handle.renderOrder = 10;
+    handle.visible = false;
+    scene.add(handle);
+    poseHandles.set(name, handle);
+  }
+  updatePoseHandles();
+}
+
+function updatePoseHandles() {
+  if (!poseHandles.size) return;
+  for (const [name, handle] of poseHandles) {
+    const bone = poseBones.get(name);
+    handle.visible = toolMode === 'pose';
+    if (!bone) continue;
+    handle.position.copy(objectWorldPosition(bone));
+    handle.quaternion.copy(camera.quaternion);
+    handle.material = selectedPoseBone?.name === name ? poseHandleSelectedMaterial : poseHandleMaterial;
+  }
+}
+
+function resetPose() {
+  for (const [name, bone] of poseBones) {
+    const rest = poseBoneRestQuaternions.get(name);
+    if (rest) bone.quaternion.copy(rest);
+  }
+  selectedPoseBone = null;
+  root.updateMatrixWorld(true);
+  updatePoseHandles();
+}
+
 async function loadGlb(url) {
   return new Promise((resolve, reject) => {
     loader.load(url, (gltf) => resolve(gltf.scene), undefined, reject);
@@ -199,13 +282,28 @@ async function loadGlb(url) {
 }
 
 function setMode(next) {
-  mode = next;
+  mode = toolMode === 'pose' ? 'rotate' : next;
   currentAxis = mode === 'scale' ? 'all' : 'screen';
   renderControls();
 }
 
+function setToolMode(next) {
+  toolMode = next === 'pose' ? 'pose' : 'saber';
+  if (toolMode === 'pose') {
+    leaveSaberEdit('pose: tap a bone handle');
+    mode = 'rotate';
+    currentAxis = 'screen';
+  } else {
+    selectedPoseBone = null;
+    mode = mode === 'rotate' ? 'rotate' : 'move';
+  }
+  updatePoseHandles();
+  renderControls();
+}
+
 function setAxis(next) {
-  currentAxis = mode === 'scale' && next === 'screen' ? 'all' : next;
+  currentAxis = toolMode === 'pose' && next === 'all' ? 'screen' : next;
+  currentAxis = mode === 'scale' && currentAxis === 'screen' ? 'all' : currentAxis;
   if (mode !== 'scale' && currentAxis === 'all') currentAxis = 'screen';
   renderControls();
 }
@@ -216,13 +314,23 @@ function axisLabel() {
 }
 
 function renderControls() {
+  toolButtons.forEach((button) => button.classList.toggle('active', button.dataset.tool === toolMode));
   modeButtons.forEach((button) => button.classList.toggle('active', button.dataset.mode === mode));
   axisButtons.forEach((button) => {
     const axis = button.dataset.axis || 'screen';
     button.hidden = axis === 'all' && mode !== 'scale';
     button.classList.toggle('active', axis === currentAxis);
   });
-  statusEl.textContent = selected
+  modeButtons.forEach((button) => {
+    button.hidden = toolMode === 'pose' && button.dataset.mode !== 'rotate';
+  });
+  resetSaberButton.hidden = toolMode !== 'saber';
+  resetPoseButton.hidden = toolMode !== 'pose';
+  statusEl.textContent = toolMode === 'pose'
+    ? selectedPoseBone
+      ? `pose / ${axisLabel()}: rotating ${selectedPoseBone.name}`
+      : `pose / ${axisLabel()}: tap a blue bone handle`
+    : selected
     ? `${mode} / ${axisLabel()}: drag sabre to edit, drag empty space for camera`
     : `${mode} / ${axisLabel()}: tap the visible sabre first`;
 }
@@ -241,6 +349,7 @@ function leaveSaberEdit(message = 'camera: sabre deselected') {
 }
 
 function cycleMode() {
+  if (toolMode === 'pose') return;
   setMode(mode === 'move' ? 'rotate' : mode === 'rotate' ? 'scale' : 'move');
 }
 
@@ -255,8 +364,17 @@ function exportTransform() {
     rotationDeg: rotationDegFromEuler(saberGrip.rotation),
     scale: saberGrip.scale.toArray().map((value) => Number(value.toFixed(5))),
   } : null;
+  const poseBonesExport = {};
+  for (const [name, bone] of poseBones) {
+    const rest = poseBoneRestQuaternions.get(name);
+    if (!rest || bone.quaternion.angleTo(rest) < 0.0001) continue;
+    poseBonesExport[name] = {
+      rotationDeg: rotationDegFromEuler(bone.rotation),
+    };
+  }
   return {
     schema: 'pose-lab-v2-sabre-transform-v1',
+    toolMode,
     assets: {
       meshy: ASSETS.meshy,
       sabre: ASSETS.sabre,
@@ -268,6 +386,10 @@ function exportTransform() {
       uniformScale: Number(scale[0].toFixed(5)),
     },
     saberGrip: saberGripLocal,
+    pose: {
+      selectedBone: selectedPoseBone?.name || null,
+      bones: poseBonesExport,
+    },
   };
 }
 
@@ -301,6 +423,21 @@ function pickSabre(clientX, clientY) {
   });
   const hits = raycaster.intersectObjects(meshes, false);
   return hits.length ? hits[0] : null;
+}
+
+function pickPoseHandle(clientX, clientY) {
+  if (!poseHandles.size) return null;
+  const rect = canvas.getBoundingClientRect();
+  const pointer = new THREE.Vector2(
+    ((clientX - rect.left) / rect.width) * 2 - 1,
+    -(((clientY - rect.top) / rect.height) * 2 - 1)
+  );
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects([...poseHandles.values()].filter((handle) => handle.visible), false);
+  if (!hits.length) return null;
+  const name = hits[0].object.userData.poseBoneName;
+  return poseBones.get(name) || null;
 }
 
 function cameraBasis() {
@@ -342,7 +479,8 @@ function moveObjectInWorld(object, delta) {
 }
 
 function rotateSabreAroundAxis(axis, radians) {
-  const target = editableSaber();
+  const target = toolMode === 'pose' ? selectedPoseBone : editableSaber();
+  if (!target) return;
   const delta = new THREE.Quaternion().setFromAxisAngle(axis.normalize(), radians);
   const worldQuaternion = objectWorldQuaternion(target).premultiply(delta).normalize();
   if (target.parent) {
@@ -352,6 +490,17 @@ function rotateSabreAroundAxis(axis, radians) {
     target.quaternion.copy(worldQuaternion);
   }
   target.updateMatrixWorld(true);
+}
+
+function rotatePoseBoneByGesture(dx, dy, basis) {
+  if (!selectedPoseBone) return;
+  const axis = currentAxis === 'screen'
+    ? basis.forward.clone()
+    : worldAxisVector(currentAxis);
+  if (!axis) return;
+  const radians = (Math.abs(dx) > Math.abs(dy) ? dx : -dy) * 0.007;
+  rotateSabreAroundAxis(axis, radians);
+  updatePoseHandles();
 }
 
 function orbitCameraByDelta(dx, dy) {
@@ -384,10 +533,13 @@ function panCameraByDelta(dx, dy) {
 }
 
 function rotateSabreByGesture(dx, dy, basis) {
+  if (toolMode === 'pose') {
+    rotatePoseBoneByGesture(dx, dy, basis);
+    return;
+  }
   if (currentAxis === 'screen') {
-    const yaw = new THREE.Quaternion().setFromAxisAngle(basis.up, dx * 0.007);
-    const pitch = new THREE.Quaternion().setFromAxisAngle(basis.right, dy * 0.007);
-    sabreRoot.quaternion.premultiply(pitch).premultiply(yaw).normalize();
+    rotateSabreAroundAxis(basis.up.clone(), dx * 0.007);
+    rotateSabreAroundAxis(basis.right.clone(), dy * 0.007);
     return;
   }
   const axis = worldAxisVector(currentAxis);
@@ -437,6 +589,26 @@ function touchAngle(points) {
 }
 
 function beginSingleTouchSabre(touch, hit) {
+  if (toolMode === 'pose') {
+    const bone = pickPoseHandle(touch.clientX, touch.clientY);
+    if (!bone) return false;
+    selectedPoseBone = bone;
+    const { right, up, forward } = cameraBasis();
+    touchGesture = {
+      kind: 'single-pose',
+      lastX: touch.clientX,
+      lastY: touch.clientY,
+      moved: false,
+      tapCanCycle: false,
+      right,
+      up,
+      forward,
+    };
+    controls.enabled = false;
+    updatePoseHandles();
+    statusEl.textContent = `pose: rotating ${bone.name}`;
+    return true;
+  }
   const wasSelected = selected && hit;
   selected = true;
   const { right, up, forward } = cameraBasis();
@@ -488,7 +660,15 @@ function beginCameraTouch(points) {
 function handleTouchStart(event) {
   if (!sabreRoot) return false;
   const points = touchPoints(event);
-  if (points.length >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
+  if (points.length >= 2 && toolMode === 'pose' && selectedPoseBone) {
+    suppressTouchPointerEvents = true;
+    const { right, up, forward } = cameraBasis();
+    touchGesture = { kind: 'two-pose', moved: false, tapCanCycle: false, right, up, forward };
+    lastTwistAngle = touchAngle(points);
+    stopEvent(event);
+    return true;
+  }
+  if (points.length >= 2 && toolMode === 'saber' && selected && (mode === 'rotate' || mode === 'scale')) {
     suppressTouchPointerEvents = true;
     beginTwoFingerSabre(points);
     stopEvent(event);
@@ -503,6 +683,20 @@ function handleTouchStart(event) {
   }
   if (points.length !== 1) return false;
   const touch = event.touches[0];
+  if (toolMode === 'pose') {
+    const started = beginSingleTouchSabre(touch, null);
+    if (started) {
+      suppressTouchPointerEvents = true;
+      stopEvent(event);
+      return true;
+    }
+    selectedPoseBone = null;
+    updatePoseHandles();
+    suppressTouchPointerEvents = true;
+    beginCameraTouch(points);
+    stopEvent(event);
+    return true;
+  }
   const hit = pickSabre(touch.clientX, touch.clientY);
   if (!hit) {
     leaveSaberEdit('camera: empty touch orbit');
@@ -520,7 +714,21 @@ function handleTouchStart(event) {
 function handleTouchMove(event) {
   if (!sabreRoot || !touchGesture) return false;
   const points = touchPoints(event);
-  if (points.length >= 2 && selected && (mode === 'rotate' || mode === 'scale')) {
+  if (touchGesture.kind === 'two-pose' && points.length >= 2 && selectedPoseBone) {
+    const angle = touchAngle(points);
+    if (Number.isFinite(lastTwistAngle)) {
+      const twist = angle - lastTwistAngle;
+      const axis = currentAxis === 'screen' ? touchGesture.forward.clone() : worldAxisVector(currentAxis);
+      if (axis) rotateSabreAroundAxis(axis, twist);
+    }
+    lastTwistAngle = angle;
+    touchGesture.moved = true;
+    updatePoseHandles();
+    updateReadout();
+    stopEvent(event);
+    return true;
+  }
+  if (points.length >= 2 && toolMode === 'saber' && selected && (mode === 'rotate' || mode === 'scale')) {
     if (touchGesture.kind !== 'two-sabre') beginTwoFingerSabre(points);
     handleTwoFingerTouch(points);
     stopEvent(event);
@@ -551,6 +759,20 @@ function handleTouchMove(event) {
     touchGesture.lastY = center.y;
     touchGesture.moved = true;
     statusEl.textContent = 'camera: pinch zoom / drag pan';
+    stopEvent(event);
+    return true;
+  }
+  if (touchGesture.kind === 'single-pose' && points.length === 1) {
+    const point = points[0];
+    const dx = point.x - touchGesture.lastX;
+    const dy = point.y - touchGesture.lastY;
+    if (Math.abs(dx) + Math.abs(dy) >= 0.5) {
+      rotatePoseBoneByGesture(dx, dy, touchGesture);
+      touchGesture.lastX = point.x;
+      touchGesture.lastY = point.y;
+      touchGesture.moved = true;
+      updateReadout();
+    }
     stopEvent(event);
     return true;
   }
@@ -601,6 +823,33 @@ function startGesture(event) {
     return true;
   }
   pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+  if (toolMode === 'pose') {
+    const bone = pickPoseHandle(event.clientX, event.clientY);
+    if (!bone) {
+      pointers.delete(event.pointerId);
+      selectedPoseBone = null;
+      updatePoseHandles();
+      return false;
+    }
+    selectedPoseBone = bone;
+    controls.enabled = false;
+    capturePointer(event.pointerId);
+    const { right, up, forward } = cameraBasis();
+    gesture = {
+      pointerId: event.pointerId,
+      lastX: event.clientX,
+      lastY: event.clientY,
+      moved: false,
+      tapCanCycle: false,
+      right,
+      up,
+      forward,
+    };
+    updatePoseHandles();
+    statusEl.textContent = `pose: rotating ${bone.name}`;
+    stopEvent(event);
+    return true;
+  }
   const hit = pickSabre(event.clientX, event.clientY);
   if (!hit) {
     pointers.delete(event.pointerId);
@@ -652,6 +901,7 @@ function updateGesture(event) {
   gesture.lastX = event.clientX;
   gesture.lastY = event.clientY;
   gesture.moved = true;
+  updatePoseHandles();
   updateReadout();
   stopEvent(event);
   return true;
@@ -736,10 +986,15 @@ async function boot() {
   sabreRoot = prepareSabre(sabre);
   root.add(meshyRoot, sabreRoot);
   attachSaberToRightHand();
+  setupPoseHandles();
   setMode('move');
   updateReadout();
   statusEl.textContent = 'ready: tap the real sabre, then drag';
 }
+
+toolButtons.forEach((button) => {
+  button.addEventListener('click', () => setToolMode(button.dataset.tool || 'saber'));
+});
 
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => setMode(button.dataset.mode || 'move'));
@@ -753,11 +1008,17 @@ app.querySelectorAll('[data-camera-view]').forEach((button) => {
   button.addEventListener('click', () => snapCamera(button.dataset.cameraView || 'front'));
 });
 
-app.querySelector('[data-action="reset"]').addEventListener('click', () => {
+resetSaberButton.addEventListener('click', () => {
   if (!sabreRoot) return;
   resetSaberPlacement();
   updateReadout();
   statusEl.textContent = 'reset real sabre transform';
+});
+
+resetPoseButton.addEventListener('click', () => {
+  resetPose();
+  updateReadout();
+  statusEl.textContent = 'reset pose bones';
 });
 
 app.querySelector('[data-action="camera"]').addEventListener('click', () => {
@@ -781,6 +1042,7 @@ canvas.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive:
 function animate() {
   resize();
   controls.update();
+  updatePoseHandles();
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
 }
