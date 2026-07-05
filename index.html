@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pose Lab V2 Saber</title>
+    <style>
+      body {
+        margin: 0;
+        background: #101315;
+        color: #f2ede3;
+        font-family: system-ui, sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <script>
+      const showStartupFailure = (label, detail) => {
+        const app = document.querySelector('#app');
+        if (!app) return;
+        app.innerHTML = `
+          <section style="padding: 16px; max-width: 720px;">
+            <h1 style="font-size: 18px; margin: 0 0 8px;">startup failed</h1>
+            <p style="margin: 0 0 8px;">${label}</p>
+            <pre style="white-space: pre-wrap; overflow-wrap: anywhere;">${String(detail || '')}</pre>
+          </section>
+        `;
+      };
+      window.addEventListener('error', (event) => {
+        showStartupFailure(event.message || 'module error', event.filename || event.error?.stack || event.error);
+      });
+      window.addEventListener('unhandledrejection', (event) => {
+        showStartupFailure('unhandled promise rejection', event.reason?.stack || event.reason);
+      });
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/build/three.module.js",
+          "three/examples/jsm/": "./vendor/three/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main id="app" aria-label="Pose Lab V2 saber placement">
+      <p style="padding: 16px;">loading Meshy character and real sabre</p>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
