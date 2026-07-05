@@ -93,7 +93,9 @@ assert(attackSequence.source?.duration === 1.25, 'Attack1 sequence must preserve
 assert(attackSequence.source?.keyCount === 31 && attackSequence.frames?.length === 31, 'Attack1 sequence must preserve all 31 keyed source samples');
 assert(attackSequence.source?.signatureWristTwist?.sourceHandRotationTravelDeg > 100, 'Attack1 source must record a strong wrist-twist signature');
 assert(attackSequence.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > 100, 'Attack1 bake must preserve a strong right-hand wrist-twist signature');
-assert(attackSequence.source?.readyEndpointAnchor?.firstMatchesReady === true && attackSequence.source?.readyEndpointAnchor?.lastMatchesReady === true, 'Attack1 first and last frames must be anchored to the accepted Ready pose');
+assert(attackSequence.source?.method === 'orientation-first-bake-with-ready-graph-offsets', 'Attack1 must apply accepted Ready offsets across the whole animation graph');
+assert(attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('RightHand') && attackSequence.source?.readyGraphOffset?.adjustedBones?.includes('LeftHand'), 'Attack1 graph offset must include both hands');
+assert(attackSequence.source?.readyEndpointContract?.firstMatchesReady === true && attackSequence.source?.readyEndpointContract?.lastMatchesReady === true, 'Attack1 first and last frames must match the accepted Ready pose');
 for (const boneName of ['LeftArm', 'LeftForeArm', 'LeftHand', 'RightArm', 'RightForeArm', 'RightHand']) {
   assert(JSON.stringify(attackSequence.frames[0].bones?.[boneName]) === JSON.stringify(readyPreset.bones?.[boneName]), `Attack1 first frame ${boneName} must match Ready`);
   assert(JSON.stringify(attackSequence.frames.at(-1).bones?.[boneName]) === JSON.stringify(readyPreset.bones?.[boneName]), `Attack1 last frame ${boneName} must match Ready`);

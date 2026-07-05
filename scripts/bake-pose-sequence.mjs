@@ -10,6 +10,7 @@ const workspaceRoot = path.resolve(projectRoot, '..');
 const fpsPath = path.join(workspaceRoot, 'pose-lab', 'assets', 'models', 'FPSPlayer.glb');
 const meshyPath = path.join(projectRoot, 'public', 'assets', 'meshy', 'meshy_apose_walking_with_skin.glb');
 const restClipName = '0T-Pose';
+const readyClipName = 'OneHandReady';
 const sourceFrameName = 'ShoulderCenter';
 const targetFrameName = 'Spine02';
 
@@ -367,41 +368,85 @@ function quaternionFromArray(THREE, values) {
   return new THREE.Quaternion(values[0], values[1], values[2], values[3]).normalize();
 }
 
-function anchorAttackEndpointsToReady(THREE, frames, readyBones) {
-  if (frames.length < 2) return { anchoredBones: [], firstMatchesReady: false, lastMatchesReady: false };
-  const first = frames[0];
-  const last = frames[frames.length - 1];
-  const startTime = first.time;
-  const duration = Math.max(0.0001, last.time - startTime);
-  const anchoredBones = exportBones.filter((name) => readyBones[name] && first.bones[name] && last.bones[name]);
-  const identity = new THREE.Quaternion();
-  const corrections = new Map();
-  for (const name of anchoredBones) {
-    const ready = quaternionFromArray(THREE, readyBones[name]);
-    corrections.set(name, {
-      start: ready.clone().multiply(quaternionFromArray(THREE, first.bones[name]).invert()).normalize(),
-      end: ready.clone().multiply(quaternionFromArray(THREE, last.bones[name]).invert()).normalize(),
-    });
-  }
-  for (const frame of frames) {
-    const phase = Math.max(0, Math.min(1, (frame.time - startTime) / duration));
-    for (const name of anchoredBones) {
-      const raw = quaternionFromArray(THREE, frame.bones[name]);
-      const { start, end } = corrections.get(name);
-      const correction = phase <= 0.5
-        ? start.clone().slerp(identity, phase * 2).normalize()
-        : identity.clone().slerp(end, (phase - 0.5) * 2).normalize();
-      frame.bones[name] = roundedQuaternion(correction.multiply(raw).normalize());
+function quaternionAngleDeg(THREE, a, b) {
+  return Number((quaternionFromArray(THREE, a).angleTo(quaternionFromArray(THREE, b)) * 180 / Math.PI).toFixed(3));
+}
+
+function bakeCurrentFpsPoseToMeshy(THREE, fpsRoot, meshyRoot, context, retargetedBones = null) {
+  const {
+    targetRestLocal,
+    sourceRestWorld,
+    targetRestWorld,
+    sourceFrame,
+    targetFrame,
+    scale,
+  } = context;
+  applyLocalQuaternions(meshyRoot, targetRestLocal);
+  meshyRoot.updateMatrixWorld(true);
+  const projected = new Map();
+  for (const chain of chains) {
+    for (const sourceName of chain.source) {
+      projected.set(sourceName, mapPointBetweenFrames(
+        THREE,
+        sourceFrame,
+        targetFrame,
+        worldPosition(THREE, requireNode(fpsRoot, sourceName)),
+        scale
+      ));
     }
   }
-  for (const name of anchoredBones) {
-    first.bones[name] = readyBones[name];
-    last.bones[name] = readyBones[name];
+  for (const name of applyOrientationBake(THREE, fpsRoot, meshyRoot, sourceRestWorld, targetRestWorld)) {
+    retargetedBones?.add(name);
+  }
+  for (const chain of chains) {
+    const [upper, lower, hand] = chain.target.map((name) => requireNode(meshyRoot, name));
+    applyTwoBonePin(THREE, meshyRoot, upper, lower, hand, projected.get(chain.source[2]));
+    rotateHandRoll(THREE, meshyRoot, fpsRoot, meshyRoot, chain);
+  }
+  return posePayload(meshyRoot);
+}
+
+function applyReadyGraphOffsets(THREE, frames, acceptedReadyBones, rawReadyBones) {
+  const adjustedBones = exportBones.filter((name) => acceptedReadyBones[name] && rawReadyBones[name]);
+  const offsets = new Map();
+  for (const name of adjustedBones) {
+    offsets.set(name, quaternionFromArray(THREE, acceptedReadyBones[name])
+      .multiply(quaternionFromArray(THREE, rawReadyBones[name]).invert())
+      .normalize());
+  }
+  for (const frame of frames) {
+    for (const name of adjustedBones) {
+      const raw = quaternionFromArray(THREE, frame.bones[name]);
+      frame.bones[name] = roundedQuaternion(offsets.get(name).clone().multiply(raw).normalize());
+    }
+  }
+  const first = frames[0]?.bones || {};
+  const last = frames[frames.length - 1]?.bones || {};
+  return {
+    adjustedBones,
+    sourceReadyClip: readyClipName,
+    offsetSpace: 'local-quaternion',
+    firstReadyAngleDeg: Object.fromEntries(adjustedBones.map((name) => [name, quaternionAngleDeg(THREE, first[name], acceptedReadyBones[name])])),
+    lastReadyAngleDeg: Object.fromEntries(adjustedBones.map((name) => [name, quaternionAngleDeg(THREE, last[name], acceptedReadyBones[name])])),
+  };
+}
+
+function enforceReadyEndpointContract(THREE, frames, acceptedReadyBones) {
+  const endpointBones = exportBones.filter((name) => acceptedReadyBones[name]);
+  const first = frames[0]?.bones || {};
+  const last = frames[frames.length - 1]?.bones || {};
+  const beforeFirstAngleDeg = Object.fromEntries(endpointBones.map((name) => [name, quaternionAngleDeg(THREE, first[name], acceptedReadyBones[name])]));
+  const beforeLastAngleDeg = Object.fromEntries(endpointBones.map((name) => [name, quaternionAngleDeg(THREE, last[name], acceptedReadyBones[name])]));
+  for (const name of endpointBones) {
+    first[name] = acceptedReadyBones[name];
+    last[name] = acceptedReadyBones[name];
   }
   return {
-    anchoredBones,
-    firstMatchesReady: anchoredBones.every((name) => first.bones[name].every((value, index) => value === readyBones[name][index])),
-    lastMatchesReady: anchoredBones.every((name) => last.bones[name].every((value, index) => value === readyBones[name][index])),
+    endpointBones,
+    firstMatchesReady: endpointBones.every((name) => first[name].every((value, index) => value === acceptedReadyBones[name][index])),
+    lastMatchesReady: endpointBones.every((name) => last[name].every((value, index) => value === acceptedReadyBones[name][index])),
+    beforeFirstAngleDeg,
+    beforeLastAngleDeg,
   };
 }
 
@@ -419,9 +464,11 @@ async function main() {
   const fpsRoot = fps.scene;
   const meshyRoot = meshy.scene;
   const sourceClip = fps.animations.find((clip) => clip.name === sourceClipName);
+  const readyClip = fps.animations.find((clip) => clip.name === readyClipName);
   const restClip = fps.animations.find((clip) => clip.name === restClipName);
   const readyBaseline = await loadReadyBaseline();
   if (!sourceClip) throw new Error(`missing FPS clip ${sourceClipName}`);
+  if (!readyClip) throw new Error(`missing FPS clip ${readyClipName}`);
   if (restClip) applyClipPose(THREE, fpsRoot, restClip, 0);
   const sourceRestWorld = captureWorldQuaternions(THREE, fpsRoot);
   const targetRestWorld = captureWorldQuaternions(THREE, meshyRoot);
@@ -434,36 +481,27 @@ async function main() {
   ), 0) / chains.length;
   const sourceFrame = requireNode(fpsRoot, sourceFrameName);
   const targetFrame = requireNode(meshyRoot, targetFrameName);
+  const bakeContext = {
+    targetRestLocal,
+    sourceRestWorld,
+    targetRestWorld,
+    sourceFrame,
+    targetFrame,
+    scale,
+  };
+  applyClipPose(THREE, fpsRoot, readyClip, readyClip.duration);
+  const rawReadyBones = bakeCurrentFpsPoseToMeshy(THREE, fpsRoot, meshyRoot, bakeContext);
   const retargetedBones = new Set();
   const frames = [];
   for (const time of times) {
     applyClipPose(THREE, fpsRoot, sourceClip, time);
-    applyLocalQuaternions(meshyRoot, targetRestLocal);
-    meshyRoot.updateMatrixWorld(true);
-    const projected = new Map();
-    for (const chain of chains) {
-      for (const sourceName of chain.source) {
-        projected.set(sourceName, mapPointBetweenFrames(
-          THREE,
-          sourceFrame,
-          targetFrame,
-          worldPosition(THREE, requireNode(fpsRoot, sourceName)),
-          scale
-        ));
-      }
-    }
-    for (const name of applyOrientationBake(THREE, fpsRoot, meshyRoot, sourceRestWorld, targetRestWorld)) retargetedBones.add(name);
-    for (const chain of chains) {
-      const [upper, lower, hand] = chain.target.map((name) => requireNode(meshyRoot, name));
-      applyTwoBonePin(THREE, meshyRoot, upper, lower, hand, projected.get(chain.source[2]));
-      rotateHandRoll(THREE, meshyRoot, fpsRoot, meshyRoot, chain);
-    }
     frames.push({
       time: Number(time.toFixed(6)),
-      bones: posePayload(meshyRoot),
+      bones: bakeCurrentFpsPoseToMeshy(THREE, fpsRoot, meshyRoot, bakeContext, retargetedBones),
     });
   }
-  const readyEndpointAnchor = anchorAttackEndpointsToReady(THREE, frames, readyBaseline);
+  const readyGraphOffset = applyReadyGraphOffsets(THREE, frames, readyBaseline, rawReadyBones);
+  const readyEndpointContract = enforceReadyEndpointContract(THREE, frames, readyBaseline);
 
   const payload = {
     schema: 'pose-lab-v2-pose-sequence-v1',
@@ -475,8 +513,9 @@ async function main() {
       duration: Number(sourceClip.duration.toFixed(6)),
       keyCount: times.length,
       projectionFrame: `${sourceFrameName}->${targetFrameName}`,
-      method: 'orientation-first-bake-with-pins',
-      readyEndpointAnchor,
+      method: 'orientation-first-bake-with-ready-graph-offsets',
+      readyGraphOffset,
+      readyEndpointContract,
       retargetedBones: [...retargetedBones],
       signatureWristTwist: {
         sourceHandRotationTravelDeg: sourceTrackTravelDeg(THREE, sourceClip, 'Hand.R', times),
