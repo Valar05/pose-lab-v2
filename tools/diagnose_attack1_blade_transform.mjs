@@ -15,6 +15,9 @@ const targetFrameName = 'Spine02';
 const weaponSocketName = 'Weapon.R';
 const readyClipName = 'OneHandReady';
 const attackClipName = 'OneHandAttack1';
+const sourceBladeAxis = [0, -1, 0];
+const sourceRollAxis = [1, 0, 0];
+const sabreRollAxis = [0, 1, 0];
 const saberGripLocal = {
   position: [8.52296, 28.41254, -24.44467],
   rotationDeg: [32.35, 74.24, -174.11],
@@ -167,6 +170,15 @@ function eulerDegFromQuaternion(THREE, quaternion) {
     .map((value) => Number(THREE.MathUtils.radToDeg(value).toFixed(3)));
 }
 
+function basisQuaternion(THREE, primary, secondary) {
+  const x = primary.clone().normalize();
+  const y = secondary.clone().sub(x.clone().multiplyScalar(secondary.dot(x)));
+  if (y.lengthSq() < 1e-8) return new THREE.Quaternion();
+  y.normalize();
+  const z = new THREE.Vector3().crossVectors(x, y).normalize();
+  return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z)).normalize();
+}
+
 function quaternionFromArray(THREE, values) {
   return new THREE.Quaternion(values[0], values[1], values[2], values[3]).normalize();
 }
@@ -236,6 +248,28 @@ async function main() {
   applyPoseFrame(THREE, meshyRoot, readyFrame);
   applyClipPose(THREE, fpsRoot, readyClip, readyClip.duration);
   const readySabreDirection = sabreAxis.clone().applyQuaternion(worldQuaternion(THREE, sabreRoot)).normalize();
+  const readySabreRollDirection = new THREE.Vector3(...sabreRollAxis).normalize().applyQuaternion(worldQuaternion(THREE, sabreRoot)).normalize();
+  const readyExpectedBlade = mapDirectionBetweenFrames(
+    THREE,
+    directionFromLocalAxis(THREE, weaponSocket, sourceBladeAxis),
+    sourceFrame,
+    targetFrame
+  );
+  const readyExpectedRoll = mapDirectionBetweenFrames(
+    THREE,
+    directionFromLocalAxis(THREE, weaponSocket, sourceRollAxis),
+    sourceFrame,
+    targetFrame
+  );
+  const readyBasisAngleDeg = angleDeg(
+    THREE,
+    new THREE.Vector3(1, 0, 0).applyQuaternion(basisQuaternion(THREE, readyExpectedBlade, readyExpectedRoll)),
+    new THREE.Vector3(1, 0, 0).applyQuaternion(basisQuaternion(THREE, readySabreDirection, readySabreRollDirection))
+  );
+  const readyBasisQuaternionAngleDeg = Number((
+    basisQuaternion(THREE, readyExpectedBlade, readyExpectedRoll)
+      .angleTo(basisQuaternion(THREE, readySabreDirection, readySabreRollDirection)) * 180 / Math.PI
+  ).toFixed(3));
   const axisCalibration = Object.entries(sourceAxisCandidates)
     .map(([name, axis]) => {
       const sourceDirection = directionFromLocalAxis(THREE, weaponSocket, axis);
@@ -246,31 +280,48 @@ async function main() {
       };
     })
     .sort((a, b) => a.readyAngleDeg - b.readyAngleDeg);
-  const sourceAxisName = axisCalibration[0].axis;
-  const sourceAxis = sourceAxisCandidates[sourceAxisName];
   const times = keyTimes(attackClip);
   const samples = [];
-  for (const time of times) {
+  for (let index = 0; index < times.length; index += 1) {
+    const time = times[index];
     const frame = ATTACK1_POSE_SEQUENCE.frames.reduce((best, candidate) => (
       Math.abs(candidate.time - time) < Math.abs(best.time - time) ? candidate : best
     ), ATTACK1_POSE_SEQUENCE.frames[0]);
-    applyClipPose(THREE, fpsRoot, attackClip, time);
+    const endpointReady = index === 0 || index === times.length - 1;
+    applyClipPose(THREE, fpsRoot, endpointReady ? readyClip : attackClip, endpointReady ? readyClip.duration : time);
     applyPoseFrame(THREE, meshyRoot, frame);
-    const sourceDirection = directionFromLocalAxis(THREE, weaponSocket, sourceAxis);
-    const expectedDirection = mapDirectionBetweenFrames(THREE, sourceDirection, sourceFrame, targetFrame);
+    const expectedDirection = mapDirectionBetweenFrames(
+      THREE,
+      directionFromLocalAxis(THREE, weaponSocket, sourceBladeAxis),
+      sourceFrame,
+      targetFrame
+    );
+    const expectedRoll = mapDirectionBetweenFrames(
+      THREE,
+      directionFromLocalAxis(THREE, weaponSocket, sourceRollAxis),
+      sourceFrame,
+      targetFrame
+    );
     const actualDirection = sabreAxis.clone().applyQuaternion(worldQuaternion(THREE, sabreRoot)).normalize();
-    const diagnosticPinQuaternion = new THREE.Quaternion().setFromUnitVectors(actualDirection, expectedDirection).normalize();
+    const actualRoll = new THREE.Vector3(...sabreRollAxis).normalize().applyQuaternion(worldQuaternion(THREE, sabreRoot)).normalize();
+    const expectedBasis = basisQuaternion(THREE, expectedDirection, expectedRoll);
+    const actualBasis = basisQuaternion(THREE, actualDirection, actualRoll);
+    const diagnosticPinQuaternion = expectedBasis.clone().multiply(actualBasis.clone().invert()).normalize();
     samples.push({
       time,
       frameTime: frame.time,
+      sourceClip: endpointReady ? readyClipName : attackClipName,
       angleDeg: angleDeg(THREE, expectedDirection, actualDirection),
+      basisAngleDeg: Number((expectedBasis.angleTo(actualBasis) * 180 / Math.PI).toFixed(3)),
       expectedDirection: vectorArray(expectedDirection),
       actualDirection: vectorArray(actualDirection),
+      expectedRollDirection: vectorArray(expectedRoll),
+      actualRollDirection: vectorArray(actualRoll),
       diagnosticPinCorrectionEulerDeg: eulerDegFromQuaternion(THREE, diagnosticPinQuaternion),
     });
   }
-  const sortedByError = [...samples].sort((a, b) => b.angleDeg - a.angleDeg);
-  const readyBestAngleDeg = axisCalibration[0]?.readyAngleDeg ?? null;
+  const sortedByError = [...samples].sort((a, b) => b.basisAngleDeg - a.basisAngleDeg);
+  const readyBladeAngleDeg = angleDeg(THREE, readyExpectedBlade, readySabreDirection);
   const report = {
     schema: 'pose-lab-v2-blade-transform-diagnostic-v1',
     diagnosticOnly: true,
@@ -290,24 +341,30 @@ async function main() {
       sabreDominantLocalAxis: vectorArray(sabreAxis),
     },
     sourceAxisCalibration: axisCalibration,
-    selectedSourceAxis: sourceAxisName,
+    selectedSourceBladeAxis: '-y',
+    selectedSourceRollAxis: '+x',
     summary: {
       sampleCount: samples.length,
-      readyBestAngleDeg,
-      readyBladeTransformPass: readyBestAngleDeg !== null && readyBestAngleDeg <= 12,
-      readyBladeTransformDiagnosis: readyBestAngleDeg !== null && readyBestAngleDeg > 12
+      readyBladeAngleDeg,
+      readyBasisAngleDeg: readyBasisQuaternionAngleDeg,
+      readyBladeTransformPass: readyBasisQuaternionAngleDeg <= 12,
+      readyBladeTransformDiagnosis: readyBasisQuaternionAngleDeg > 12
         ? 'CURRENT_SABRE_TRANSFORM_WRONG_AT_READY'
         : 'ready blade axis within diagnostic tolerance',
       maxAngleDeg: sortedByError[0]?.angleDeg,
+      maxBasisAngleDeg: sortedByError[0]?.basisAngleDeg,
+      meanBasisAngleDeg: Number((samples.reduce((sum, sample) => sum + sample.basisAngleDeg, 0) / samples.length).toFixed(3)),
       meanAngleDeg: Number((samples.reduce((sum, sample) => sum + sample.angleDeg, 0) / samples.length).toFixed(3)),
       firstAngleDeg: samples[0]?.angleDeg,
+      firstBasisAngleDeg: samples[0]?.basisAngleDeg,
       lastAngleDeg: samples[samples.length - 1]?.angleDeg,
+      lastBasisAngleDeg: samples[samples.length - 1]?.basisAngleDeg,
       worstSamples: sortedByError.slice(0, 6),
     },
     samples,
   };
   console.log(JSON.stringify(report, null, 2));
-  if ((report.summary.maxAngleDeg || 0) > 12) process.exitCode = 2;
+  if ((report.summary.maxBasisAngleDeg || 0) > 12 || !report.summary.readyBladeTransformPass) process.exitCode = 2;
 }
 
 main().catch((error) => {
