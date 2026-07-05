@@ -114,8 +114,12 @@ function normalizeCharacter(object) {
 
 function prepareSabre(object) {
   object.name = 'real-meshy-sabre';
-  object.position.set(0.45, 1.05, 0.05);
-  object.rotation.set(THREE.MathUtils.degToRad(90), 0, THREE.MathUtils.degToRad(-55));
+  object.position.set(-0.39454, 0.71404, 0.32817);
+  object.rotation.set(
+    THREE.MathUtils.degToRad(160.077),
+    THREE.MathUtils.degToRad(83.685),
+    THREE.MathUtils.degToRad(-135.981)
+  );
   object.scale.setScalar(0.48);
   object.traverse((node) => {
     if (node.isMesh) {

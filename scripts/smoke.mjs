@@ -42,6 +42,9 @@ assert(exists('vendor/three/examples/jsm/controls/OrbitControls.js'), 'missing v
 assert(exists('vendor/three/examples/jsm/utils/BufferGeometryUtils.js'), 'missing vendored BufferGeometryUtils');
 assert(main.includes("meshy_apose_walking_with_skin.glb"), 'app must reference Meshy GLB');
 assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB');
+assert(main.includes('object.position.set(-0.39454, 0.71404, 0.32817)'), 'default sabre position must match the latest authored export');
+assert(main.includes('THREE.MathUtils.degToRad(160.077)') && main.includes('THREE.MathUtils.degToRad(83.685)') && main.includes('THREE.MathUtils.degToRad(-135.981)'), 'default sabre rotation must match the latest authored export');
+assert(main.includes('object.scale.setScalar(0.48)'), 'default sabre scale must match the latest authored export');
 assert(!main.includes("import './styles.css'"), 'browser-native ESM must not import CSS without a bundler');
 assert(main.includes('pickSabre') && main.includes('startGesture') && main.includes('updateGesture'), 'app must use visible direct saber gestures');
 assert(main.includes('function handleTouchStart') && main.includes('function handleTouchMove') && main.includes('function handleTouchEnd'), 'mobile saber editing must use native touch handlers, not pointer-only guesses');
