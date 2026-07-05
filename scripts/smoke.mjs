@@ -45,6 +45,10 @@ assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB
 assert(main.includes('object.position.set(-0.39454, 0.71404, 0.32817)'), 'default sabre position must match the latest authored export');
 assert(main.includes('THREE.MathUtils.degToRad(160.077)') && main.includes('THREE.MathUtils.degToRad(83.685)') && main.includes('THREE.MathUtils.degToRad(-135.981)'), 'default sabre rotation must match the latest authored export');
 assert(main.includes('object.scale.setScalar(0.48)'), 'default sabre scale must match the latest authored export');
+assert(main.includes("findRequiredBone(meshyRoot, 'RightHand')"), 'runtime saber grip must parent under the real Meshy RightHand bone');
+assert(main.includes("grip.name = 'SaberGrip'") && main.includes('rightHand.attach(grip)') && main.includes('grip.attach(sabreRoot)'), 'real sabre mesh must be parented through a SaberGrip bone');
+assert(main.includes('function editableSaber()') && main.includes('return saberGrip || sabreRoot'), 'direct transforms must target SaberGrip after hand parenting');
+assert(main.includes("parentBone: 'RightHand'"), 'export must report SaberGrip as RightHand-owned');
 assert(!main.includes("import './styles.css'"), 'browser-native ESM must not import CSS without a bundler');
 assert(main.includes('pickSabre') && main.includes('startGesture') && main.includes('updateGesture'), 'app must use visible direct saber gestures');
 assert(main.includes('function handleTouchStart') && main.includes('function handleTouchMove') && main.includes('function handleTouchEnd'), 'mobile saber editing must use native touch handlers, not pointer-only guesses');

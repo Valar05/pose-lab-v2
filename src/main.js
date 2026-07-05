@@ -86,6 +86,7 @@ let mode = 'move';
 let currentAxis = 'screen';
 let meshyRoot = null;
 let sabreRoot = null;
+let saberGrip = null;
 let selected = false;
 let gesture = null;
 let touchGesture = null;
@@ -129,6 +130,66 @@ function prepareSabre(object) {
     }
   });
   return object;
+}
+
+function findRequiredBone(object, name) {
+  const bone = object?.getObjectByName(name);
+  if (!bone) throw new Error(`missing Meshy bone: ${name}`);
+  return bone;
+}
+
+function objectWorldPosition(object) {
+  return object.getWorldPosition(new THREE.Vector3());
+}
+
+function objectWorldQuaternion(object) {
+  return object.getWorldQuaternion(new THREE.Quaternion());
+}
+
+function objectWorldScale(object) {
+  return object.getWorldScale(new THREE.Vector3());
+}
+
+function rotationDegFromQuaternion(quaternion) {
+  const euler = new THREE.Euler().setFromQuaternion(quaternion, 'XYZ');
+  return euler.toArray().slice(0, 3)
+    .map((value) => Number(THREE.MathUtils.radToDeg(value).toFixed(3)));
+}
+
+function rotationDegFromEuler(euler) {
+  return euler.toArray().slice(0, 3)
+    .map((value) => Number(THREE.MathUtils.radToDeg(value).toFixed(3)));
+}
+
+function editableSaber() {
+  return saberGrip || sabreRoot;
+}
+
+function attachSaberToRightHand() {
+  if (!meshyRoot || !sabreRoot) return;
+  const rightHand = findRequiredBone(meshyRoot, 'RightHand');
+  root.updateMatrixWorld(true);
+  sabreRoot.updateMatrixWorld(true);
+
+  const grip = new THREE.Bone();
+  grip.name = 'SaberGrip';
+  grip.position.copy(objectWorldPosition(sabreRoot));
+  grip.quaternion.copy(objectWorldQuaternion(sabreRoot));
+  grip.scale.copy(objectWorldScale(sabreRoot));
+
+  rightHand.attach(grip);
+  grip.attach(sabreRoot);
+  saberGrip = grip;
+  root.updateMatrixWorld(true);
+}
+
+function resetSaberPlacement() {
+  if (!sabreRoot) return;
+  root.attach(sabreRoot);
+  if (saberGrip?.parent) saberGrip.parent.remove(saberGrip);
+  saberGrip = null;
+  prepareSabre(sabreRoot);
+  attachSaberToRightHand();
 }
 
 async function loadGlb(url) {
@@ -185,9 +246,15 @@ function cycleMode() {
 
 function exportTransform() {
   if (!sabreRoot) return {};
-  const rotationDeg = sabreRoot.rotation.toArray().slice(0, 3)
-    .map((value) => Number(THREE.MathUtils.radToDeg(value).toFixed(3)));
-  const scale = sabreRoot.scale.toArray().map((value) => Number(value.toFixed(5)));
+  root.updateMatrixWorld(true);
+  const rotationDeg = rotationDegFromQuaternion(objectWorldQuaternion(sabreRoot));
+  const scale = objectWorldScale(sabreRoot).toArray().map((value) => Number(value.toFixed(5)));
+  const saberGripLocal = saberGrip ? {
+    parentBone: 'RightHand',
+    position: saberGrip.position.toArray().map((value) => Number(value.toFixed(5))),
+    rotationDeg: rotationDegFromEuler(saberGrip.rotation),
+    scale: saberGrip.scale.toArray().map((value) => Number(value.toFixed(5))),
+  } : null;
   return {
     schema: 'pose-lab-v2-sabre-transform-v1',
     assets: {
@@ -195,11 +262,12 @@ function exportTransform() {
       sabre: ASSETS.sabre,
     },
     saberRoot: {
-      position: sabreRoot.position.toArray().map((value) => Number(value.toFixed(5))),
+      position: objectWorldPosition(sabreRoot).toArray().map((value) => Number(value.toFixed(5))),
       rotationDeg,
       scale,
-      uniformScale: Number(sabreRoot.scale.x.toFixed(5)),
+      uniformScale: Number(scale[0].toFixed(5)),
     },
+    saberGrip: saberGripLocal,
   };
 }
 
@@ -252,22 +320,38 @@ function worldAxisVector(axis) {
 }
 
 function moveSabreByGesture(dx, dy, basis) {
+  const target = editableSaber();
   const amount = 0.0035;
   if (currentAxis === 'screen') {
     const delta = basis.right.clone().multiplyScalar(dx * amount)
       .add(basis.up.clone().multiplyScalar(-dy * amount));
-    sabreRoot.position.add(delta);
+    moveObjectInWorld(target, delta);
     return;
   }
   const axis = worldAxisVector(currentAxis);
   if (!axis) return;
   const value = (Math.abs(dx) > Math.abs(dy) ? dx : -dy) * amount;
-  sabreRoot.position.add(axis.multiplyScalar(value));
+  moveObjectInWorld(target, axis.multiplyScalar(value));
+}
+
+function moveObjectInWorld(object, delta) {
+  const position = objectWorldPosition(object).add(delta);
+  if (object.parent) object.parent.worldToLocal(position);
+  object.position.copy(position);
+  object.updateMatrixWorld(true);
 }
 
 function rotateSabreAroundAxis(axis, radians) {
+  const target = editableSaber();
   const delta = new THREE.Quaternion().setFromAxisAngle(axis.normalize(), radians);
-  sabreRoot.quaternion.premultiply(delta).normalize();
+  const worldQuaternion = objectWorldQuaternion(target).premultiply(delta).normalize();
+  if (target.parent) {
+    const parentWorldQuaternion = objectWorldQuaternion(target.parent).invert();
+    target.quaternion.copy(parentWorldQuaternion.multiply(worldQuaternion)).normalize();
+  } else {
+    target.quaternion.copy(worldQuaternion);
+  }
+  target.updateMatrixWorld(true);
 }
 
 function orbitCameraByDelta(dx, dy) {
@@ -313,13 +397,14 @@ function rotateSabreByGesture(dx, dy, basis) {
 }
 
 function scaleSabreByDelta(delta) {
+  const target = editableSaber();
   if (currentAxis === 'all' || currentAxis === 'screen') {
-    const scalar = Math.max(0.05, Math.min(3, sabreRoot.scale.x + delta));
-    sabreRoot.scale.setScalar(scalar);
+    const scalar = Math.max(0.05, Math.min(3, target.scale.x + delta));
+    target.scale.setScalar(scalar);
     return;
   }
-  const next = Math.max(0.05, Math.min(3, sabreRoot.scale[currentAxis] + delta));
-  sabreRoot.scale[currentAxis] = next;
+  const next = Math.max(0.05, Math.min(3, target.scale[currentAxis] + delta));
+  target.scale[currentAxis] = next;
 }
 
 function stopEvent(event) {
@@ -366,7 +451,7 @@ function beginSingleTouchSabre(touch, hit) {
     forward,
   };
   controls.enabled = false;
-  controls.target.copy(sabreRoot.position);
+  controls.target.copy(objectWorldPosition(sabreRoot));
   controls.update();
   statusEl.textContent = `${mode}: touch editing real sabre`;
 }
@@ -536,7 +621,7 @@ function startGesture(event) {
     up,
     forward,
   };
-  controls.target.copy(sabreRoot.position);
+  controls.target.copy(objectWorldPosition(sabreRoot));
   controls.update();
   statusEl.textContent = `${mode}: editing real sabre`;
   stopEvent(event);
@@ -630,7 +715,7 @@ function handleTwoFingerTouch(points) {
 }
 
 function snapCamera(view) {
-  const focus = sabreRoot ? sabreRoot.position.clone() : new THREE.Vector3(0, 0.95, 0);
+  const focus = sabreRoot ? objectWorldPosition(sabreRoot) : new THREE.Vector3(0, 0.95, 0);
   const distance = Math.max(2.2, camera.position.distanceTo(controls.target));
   const offsets = {
     front: new THREE.Vector3(0, 0.7, distance),
@@ -650,6 +735,7 @@ async function boot() {
   meshyRoot = normalizeCharacter(meshy);
   sabreRoot = prepareSabre(sabre);
   root.add(meshyRoot, sabreRoot);
+  attachSaberToRightHand();
   setMode('move');
   updateReadout();
   statusEl.textContent = 'ready: tap the real sabre, then drag';
@@ -669,7 +755,7 @@ app.querySelectorAll('[data-camera-view]').forEach((button) => {
 
 app.querySelector('[data-action="reset"]').addEventListener('click', () => {
   if (!sabreRoot) return;
-  prepareSabre(sabreRoot);
+  resetSaberPlacement();
   updateReadout();
   statusEl.textContent = 'reset real sabre transform';
 });
