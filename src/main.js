@@ -2035,9 +2035,7 @@ function pickPoseHandle(clientX, clientY) {
   root.updateMatrixWorld(true);
   for (const [name, handle] of poseHandles) {
     if (!handle.visible) continue;
-    const head = worldToScreenPixels(handle.userData.head);
-    const tail = worldToScreenPixels(handle.userData.tail);
-    const distance = pointToScreenSegmentDistance(point, head, tail);
+    const distance = projectedHandlePickDistance(handle, point);
     if (distance < bestDistance) {
       best = name;
       bestDistance = distance;
@@ -2045,6 +2043,40 @@ function pickPoseHandle(clientX, clientY) {
   }
   if (!best || bestDistance > POSE_HANDLE_PICK_RADIUS_PX) return null;
   return poseBones.get(best) || null;
+}
+
+function projectedHandlePickDistance(handle, point) {
+  const positions = handle.geometry?.attributes?.position?.array;
+  if (!positions) return Infinity;
+  let bestDistance = Infinity;
+  for (let index = 0; index < positions.length; index += 9) {
+    const a = worldToScreenPixels(new THREE.Vector3(positions[index], positions[index + 1], positions[index + 2]));
+    const b = worldToScreenPixels(new THREE.Vector3(positions[index + 3], positions[index + 4], positions[index + 5]));
+    const c = worldToScreenPixels(new THREE.Vector3(positions[index + 6], positions[index + 7], positions[index + 8]));
+    if (pointInScreenTriangle(point, a, b, c)) return 0;
+    bestDistance = Math.min(
+      bestDistance,
+      pointToScreenSegmentDistance(point, a, b),
+      pointToScreenSegmentDistance(point, b, c),
+      pointToScreenSegmentDistance(point, c, a)
+    );
+  }
+  return bestDistance;
+}
+
+function pointInScreenTriangle(point, a, b, c) {
+  const area = signedScreenTriangleArea(a, b, c);
+  if (Math.abs(area) < 0.000001) return false;
+  const ab = signedScreenTriangleArea(point, a, b);
+  const bc = signedScreenTriangleArea(point, b, c);
+  const ca = signedScreenTriangleArea(point, c, a);
+  const hasNegative = ab < 0 || bc < 0 || ca < 0;
+  const hasPositive = ab > 0 || bc > 0 || ca > 0;
+  return !(hasNegative && hasPositive);
+}
+
+function signedScreenTriangleArea(a, b, c) {
+  return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
 function pointToScreenSegmentDistance(point, a, b) {
