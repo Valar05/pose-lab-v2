@@ -32,6 +32,8 @@ const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate');
 const REQUESTED_ATTACK_TIME = URL_PARAMS.get('attackTime');
 const REQUESTED_MANUAL_ATTACK = URL_PARAMS.get('manual') === '1' || URL_PARAMS.get('edit') === 'manual';
 const REQUESTED_ATTACK_QUARANTINED = ['attack1', 'attack', 'onehandattack1'].includes(String(REQUESTED_POSE || '').toLowerCase());
+const REQUESTED_ATTACK2_QUARANTINED = ['attack2', 'onehandattack2'].includes(String(REQUESTED_POSE || '').toLowerCase());
+const REQUESTED_ATTACK_LABEL = REQUESTED_ATTACK2_QUARANTINED ? 'Attack2' : 'Attack1';
 const MANUAL_ATTACK_KEYS = Object.freeze({
   start: 0,
   anticipation: 0.25,
@@ -51,7 +53,7 @@ function poseIsAccepted(name) {
 }
 
 function useManualAttackAuthoring() {
-  return REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE;
+  return !REQUESTED_ATTACK2_QUARANTINED && (REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE);
 }
 
 const app = document.querySelector('#app');
@@ -1062,7 +1064,7 @@ function applyAttackPose() {
     attackPoseStartedAt = performance.now() - attackPoseCurrentTime * 1000;
     applyAttackSequenceAt(attackPoseCurrentTime);
     setupAttackReviewControls();
-    statusEl.textContent = `Attack1 candidate preview: ${candidateId}; not accepted repo truth`;
+    statusEl.textContent = `${REQUESTED_ATTACK_LABEL} candidate preview: ${candidateId}; not accepted repo truth`;
     return;
   }
   if (status.fallback === 'ready' && poseIsAccepted('ready')) applyReadyPose();
@@ -1261,7 +1263,7 @@ function setAttackReviewTime(time) {
     return;
   }
   applyAttackSequenceAt(next);
-  statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; ${next.toFixed(3)}s`;
+  statusEl.textContent = `${REQUESTED_ATTACK_LABEL} candidate preview: ${REQUESTED_CANDIDATE}; ${next.toFixed(3)}s`;
 }
 
 function playAttackReview() {
@@ -1272,7 +1274,7 @@ function playAttackReview() {
   updateAttackReviewControls();
   statusEl.textContent = manualAttackDraft
     ? 'Attack1 manual draft: playing preview'
-    : `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; playing`;
+    : `${REQUESTED_ATTACK_LABEL} candidate preview: ${REQUESTED_CANDIDATE}; playing`;
 }
 
 function pauseAttackReview() {
@@ -1281,7 +1283,7 @@ function pauseAttackReview() {
   updateAttackReviewControls();
   statusEl.textContent = manualAttackDraft
     ? `Attack1 manual draft: paused ${attackPoseCurrentTime.toFixed(3)}s`
-    : `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; paused ${attackPoseCurrentTime.toFixed(3)}s`;
+    : `${REQUESTED_ATTACK_LABEL} candidate preview: ${REQUESTED_CANDIDATE}; paused ${attackPoseCurrentTime.toFixed(3)}s`;
 }
 
 function setAttackReviewOpen(open) {
@@ -1543,7 +1545,7 @@ function setPoseState(next) {
 function initialPoseStateFromUrl() {
   const pose = URL_PARAMS.get('pose');
   if (pose === 'ready') return 'ready';
-  if (REQUESTED_ATTACK_QUARANTINED) return 'attack1';
+  if (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED) return 'attack1';
   return 'rest';
 }
 
@@ -1610,10 +1612,10 @@ async function loadPosePresets({ announce = true } = {}) {
   const readyModule = await import(`${readyStatus.module}${suffix}`);
   readyPosePreset = readyModule[readyStatus.exportName];
   const candidate = ATTACK1_REVIEW_CANDIDATES[REQUESTED_CANDIDATE];
-  if (REQUESTED_ATTACK_QUARANTINED && candidate) {
+  if ((REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED) && candidate) {
     const candidateModule = await import(`${candidate.module}${suffix}`);
     attackPoseSequence = candidateModule[candidate.exportName];
-    if (!attackPoseSequence?.frames?.length) throw new Error(`Attack1 review candidate ${REQUESTED_CANDIDATE} has no frames`);
+    if (!attackPoseSequence?.frames?.length) throw new Error(`${REQUESTED_ATTACK_LABEL} review candidate ${REQUESTED_CANDIDATE} has no frames`);
   }
   updateReadyProof({
     readyPresetLoaded: Boolean(readyPosePreset),

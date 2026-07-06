@@ -27,6 +27,11 @@ export const ATTACK1_REVIEW_CANDIDATES = {
     exportName: "ATTACK1_JOINT_PINNED_SEQUENCE",
     label: "Attack1 joint-pinned candidate 3",
   },
+  "attack2-candidate-1": {
+    module: "./review-candidates/attack2-candidate-1.js",
+    exportName: "ATTACK2_POSE_SEQUENCE",
+    label: "Attack2 candidate 1",
+  },
 };
 
 export const REVIEW_CAMERA_CONTRACT = {
