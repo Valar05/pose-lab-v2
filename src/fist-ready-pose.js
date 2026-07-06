@@ -6,7 +6,7 @@ export const FIST_READY_POSE_PRESET = {
     "meshy": "./public/assets/meshy/meshy_apose_walking_with_skin.glb",
     "clip": "FistReady",
     "sampleTime": 1.25,
-    "projectionFrame": "FPSPlayer.Camera->Meshy FPV camera",
+    "projectionFrame": "ShoulderCenter->Spine02",
     "method": "orientation-first-retarget-with-world-joint-pins",
     "retargetedBones": [
       "RightArm",
@@ -41,133 +41,145 @@ export const FIST_READY_POSE_PRESET = {
           "LeftHand"
         ]
       },
-      "targetSpace": "runtime-normalized Meshy world mapped from FPS FistReady camera space",
+      "targetSpace": "runtime-normalized Meshy world: elbow/wrist from FPS FistReady limb vectors anchored at Meshy arm joint",
       "solverAuthoredBones": {
         "right": [
-          "RightShoulder",
           "RightArm",
           "RightForeArm"
         ],
         "left": [
-          "LeftShoulder",
           "LeftArm",
           "LeftForeArm"
         ]
       },
       "report": {
         "right": {
-          "shoulder": [
-            0.833639,
-            0.353627,
-            0.419819,
-            0.061206
+          "sourceUpperWorldVector": [
+            -0.16272,
+            -0.11407,
+            -0.0523
+          ],
+          "sourceForeWorldVector": [
+            -0.01714,
+            0.03537,
+            0.28926
+          ],
+          "targetUpperWorldVector": [
+            -0.19604,
+            -0.13431,
+            -0.01567
+          ],
+          "targetForeWorldVector": [
+            0.03068,
+            0.04109,
+            0.22617
+          ],
+          "shoulderWorld": [
+            -0.21898,
+            1.35825,
+            -0.00191
           ],
           "upper": [
-            -0.70073,
-            0.067293,
-            0.403715,
-            -0.584349
+            -0.292031,
+            0.117644,
+            0.036136,
+            -0.948458
           ],
           "lower": [
-            -0.612094,
-            -0.621631,
-            -0.114835,
-            0.475109
+            -0.794854,
+            -0.591836,
+            0.060242,
+            0.119619
           ],
-          "score": 0.144754,
-          "targetUpperWorld": [
-            0.04919,
-            1.33399,
-            0.07451
-          ],
-          "actualUpperWorld": [
-            0.05336,
-            1.24247,
-            0.10611
-          ],
-          "upperWorldError": 0.09691,
+          "score": 0.000897,
           "targetElbowWorld": [
-            0.20582,
-            1.33452,
-            -0.04447
+            -0.41502,
+            1.22394,
+            -0.01758
           ],
           "actualElbowWorld": [
-            0.20401,
-            1.37469,
-            -0.02249
+            -0.41528,
+            1.2243,
+            -0.0174
           ],
-          "elbowWorldError": 0.04583,
           "targetWristWorld": [
-            0.22115,
-            1.57144,
-            0.10286
+            -0.38434,
+            1.26502,
+            0.20859
           ],
           "actualWristWorld": [
-            0.22093,
-            1.56986,
-            0.10164
+            -0.38459,
+            1.26483,
+            0.20887
           ],
-          "wristWorldError": 0.00202,
-          "shoulderRotationFromInputDeg": 125.484,
-          "upperRotationFromInputDeg": 35.635,
-          "lowerRotationFromInputDeg": 33.484
+          "elbowWorldError": 0.00048,
+          "wristWorldError": 0.00042,
+          "upperRotationFromInputDeg": 86.247,
+          "lowerRotationFromInputDeg": 75.303
         },
         "left": {
-          "shoulder": [
-            0.154338,
-            -0.249392,
-            -0.83361,
-            -0.468057
+          "sourceUpperWorldVector": [
+            0.16406,
+            -0.11928,
+            0.03292
+          ],
+          "sourceForeWorldVector": [
+            -0.14062,
+            0.02908,
+            0.25415
+          ],
+          "targetUpperWorldVector": [
+            0.20612,
+            -0.14507,
+            0.00913
+          ],
+          "targetForeWorldVector": [
+            -0.07032,
+            0.0348,
+            0.21614
+          ],
+          "shoulderWorld": [
+            0.22274,
+            1.36581,
+            -0.00173
           ],
           "upper": [
-            0.564078,
-            0.529408,
-            -0.259818,
-            0.57796
+            0.233574,
+            0.482285,
+            0.198584,
+            0.820615
           ],
           "lower": [
-            -0.334154,
-            0.575012,
-            0.546425,
-            0.50904
+            -0.62695,
+            -0.061414,
+            0.508328,
+            0.587166
           ],
-          "score": 0.143037,
-          "targetUpperWorld": [
-            -0.15511,
-            1.37134,
-            0.09034
-          ],
-          "actualUpperWorld": [
-            -0.10577,
-            1.29731,
-            0.07264
-          ],
-          "upperWorldError": 0.09071,
+          "score": 0.000505,
           "targetElbowWorld": [
-            -0.31148,
-            1.44796,
-            -0.00112
+            0.42886,
+            1.22074,
+            0.00739
           ],
           "actualElbowWorld": [
-            -0.27485,
-            1.47719,
-            0.02098
+            0.4289,
+            1.22081,
+            0.0076
           ],
-          "elbowWorldError": 0.05181,
           "targetWristWorld": [
-            -0.17782,
-            1.65694,
-            0.12747
+            0.35854,
+            1.25554,
+            0.22353
           ],
           "actualWristWorld": [
-            -0.17787,
-            1.65668,
-            0.12703
+            0.35829,
+            1.25549,
+            0.22366
           ],
-          "wristWorldError": 0.00051,
-          "shoulderRotationFromInputDeg": 164.831,
-          "upperRotationFromInputDeg": 89.286,
-          "lowerRotationFromInputDeg": 8.254
+          "elbowWorldError": 0.00022,
+          "wristWorldError": 0.00029,
+          "upperRotationFromInputDeg": 69.777,
+          "lowerRotationFromInputDeg": 77.824
         }
       }
     },
@@ -187,15 +199,15 @@ export const FIST_READY_POSE_PRESET = {
         },
         "actual": {
           "RightForeArm": [
-            526.738,
-            363.86
+            -955.592,
+            -43.46
           ],
           "RightHand": [
-            631.62,
-            803.397
+            1475.095,
+            542.978
           ]
         },
-        "scorePx": 77.554
+        "scorePx": 2399.326
       },
       "left": {
         "target": {
@@ -210,15 +222,15 @@ export const FIST_READY_POSE_PRESET = {
         },
         "actual": {
           "LeftForeArm": [
-            -251.181,
-            547.079
+            1644,
+            -129.921
           ],
           "LeftHand": [
-            -129.555,
-            942.943
+            -853.894,
+            540.786
           ]
         },
-        "scorePx": 73.971
+        "scorePx": 2858.835
       }
     }
   },
@@ -242,52 +254,52 @@ export const FIST_READY_POSE_PRESET = {
       0.997975
     ],
     "LeftShoulder": [
-      0.154338,
-      -0.249392,
-      -0.83361,
-      -0.468057
+      0.522128,
+      0.564557,
+      -0.472393,
+      0.430699
     ],
     "LeftArm": [
-      0.564078,
-      0.529408,
-      -0.259818,
-      0.57796
+      0.233574,
+      0.482285,
+      0.198584,
+      0.820615
     ],
     "LeftForeArm": [
-      -0.334154,
-      0.575012,
-      0.546425,
-      0.50904
+      -0.62695,
+      -0.061414,
+      0.508328,
+      0.587166
     ],
     "LeftHand": [
-      -0.186291,
-      -0.909138,
-      -0.201073,
-      -0.313583
+      -0.059761,
+      0.258009,
+      0.267513,
+      0.926443
     ],
     "RightShoulder": [
-      0.833639,
-      0.353627,
-      0.419819,
-      0.061206
+      0.521987,
+      -0.564688,
+      0.46633,
+      0.437256
     ],
     "RightArm": [
-      -0.70073,
-      0.067293,
-      0.403715,
-      -0.584349
+      -0.292031,
+      0.117644,
+      0.036136,
+      -0.948458
     ],
     "RightForeArm": [
-      -0.612094,
-      -0.621631,
-      -0.114835,
-      0.475109
+      -0.794854,
+      -0.591836,
+      0.060242,
+      0.119619
     ],
     "RightHand": [
-      0.139327,
-      -0.806588,
-      -0.549002,
-      0.169116
+      -0.564714,
+      0.418405,
+      0.043738,
+      0.710016
     ],
     "neck": [
       0.063633,

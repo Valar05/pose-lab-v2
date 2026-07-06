@@ -97,52 +97,52 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
           0.997975
         ],
         "LeftShoulder": [
-          0.154338,
-          -0.249392,
-          -0.83361,
-          -0.468057
+          0.522128,
+          0.564557,
+          -0.472393,
+          0.430699
         ],
         "LeftArm": [
-          -0.591094,
-          -0.521706,
-          0.236916,
-          -0.567716
+          -0.259398,
+          -0.458235,
+          -0.211449,
+          -0.823421
         ],
         "LeftForeArm": [
-          -0.334154,
-          0.575012,
-          0.546425,
-          0.50904
+          -0.62695,
+          -0.061414,
+          0.508328,
+          0.587166
         ],
         "LeftHand": [
-          -0.238067,
-          -0.90698,
-          -0.307421,
-          -0.161876
+          0.102519,
+          0.332813,
+          0.321916,
+          0.880395
         ],
         "RightShoulder": [
-          0.833639,
-          0.353627,
-          0.419819,
-          0.061206
+          0.521987,
+          -0.564688,
+          0.46633,
+          0.437256
         ],
         "RightArm": [
-          -0.762504,
-          0.157261,
-          0.130304,
-          -0.613904
+          -0.307567,
+          0.15213,
+          -0.079591,
+          -0.935908
         ],
         "RightForeArm": [
-          -0.744831,
-          -0.532616,
-          -0.284971,
-          0.283439
+          -0.795782,
+          -0.590587,
+          0.06043,
+          0.119524
         ],
         "RightHand": [
-          0.169814,
-          -0.805561,
-          -0.554753,
-          0.12035
+          -0.552741,
+          0.379537,
+          0.01759,
+          0.741701
         ],
         "neck": [
           0.063633,
@@ -179,29 +179,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.19434,
-            1.27713,
-            -0.08268
+            -0.40399,
+            1.22694,
+            -0.07435
           ],
           "actualElbowWorld": [
-            0.19441,
-            1.27736,
-            -0.08259
+            -0.40394,
+            1.22691,
+            -0.07442
           ],
           "targetWristWorld": [
-            0.20908,
-            1.47098,
-            0.04376
+            -0.41979,
+            1.2365,
+            0.15683
           ],
           "actualWristWorld": [
-            0.20917,
-            1.47119,
-            0.04388
+            -0.41973,
+            1.23669,
+            0.15675
           ],
-          "elbowWorldError": 0.00026,
-          "wristWorldError": 0.00026,
-          "rightArmRotationFromInputDeg": 34.029,
-          "rightForeArmRotationFromInputDeg": 34.744
+          "elbowWorldError": 0.00009,
+          "wristWorldError": 0.00021,
+          "rightArmRotationFromInputDeg": 14.034,
+          "rightForeArmRotationFromInputDeg": 0.18
         }
       }
     },
@@ -228,52 +228,52 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
           0.997975
         ],
         "LeftShoulder": [
-          0.154338,
-          -0.249392,
-          -0.83361,
-          -0.468057
+          0.522128,
+          0.564557,
+          -0.472393,
+          0.430699
         ],
         "LeftArm": [
-          -0.526159,
-          -0.639383,
-          0.332358,
-          -0.451537
+          -0.294439,
+          -0.6165,
+          -0.177897,
+          -0.708227
         ],
         "LeftForeArm": [
-          -0.182434,
-          0.593796,
-          0.128138,
-          0.773114
+          -0.721925,
+          0.155838,
+          0.055916,
+          0.671872
         ],
         "LeftHand": [
-          -0.033843,
-          -0.71096,
-          -0.226997,
-          -0.664728
+          -0.22196,
+          -0.141272,
+          0.241124,
+          0.934149
         ],
         "RightShoulder": [
-          0.833639,
-          0.353627,
-          0.419819,
-          0.061206
+          0.521987,
+          -0.564688,
+          0.46633,
+          0.437256
         ],
         "RightArm": [
-          0.734074,
-          -0.205526,
-          -0.321704,
-          0.561606
+          0.316157,
+          0.038167,
+          0.056526,
+          0.946252
         ],
         "RightForeArm": [
-          -0.711181,
-          -0.434986,
-          -0.381568,
-          0.399268
+          -0.786191,
+          -0.587766,
+          -0.182468,
+          -0.056038
         ],
         "RightHand": [
-          0.490671,
-          -0.63838,
-          -0.424366,
-          -0.414279
+          -0.359015,
+          -0.16108,
+          -0.274909,
+          0.877261
         ],
         "neck": [
           0.063633,
@@ -310,29 +310,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.19218,
-            1.31549,
-            -0.0731
+            -0.40587,
+            1.21479,
+            -0.0367
           ],
           "actualElbowWorld": [
-            0.19239,
-            1.31565,
-            -0.07287
+            -0.40587,
+            1.21473,
+            -0.03641
           ],
           "targetWristWorld": [
-            0.13737,
-            1.50177,
-            0.05371
+            -0.3537,
+            1.20869,
+            0.18919
           ],
           "actualWristWorld": [
-            0.13724,
-            1.50188,
-            0.05386
+            -0.35349,
+            1.20875,
+            0.18943
           ],
-          "elbowWorldError": 0.00036,
-          "wristWorldError": 0.00023,
-          "rightArmRotationFromInputDeg": 30.69,
-          "rightForeArmRotationFromInputDeg": 22.9
+          "elbowWorldError": 0.00029,
+          "wristWorldError": 0.00032,
+          "rightArmRotationFromInputDeg": 13.455,
+          "rightForeArmRotationFromInputDeg": 53.255
         }
       }
     },
@@ -359,52 +359,52 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
           0.997975
         ],
         "LeftShoulder": [
-          0.154338,
-          -0.249392,
-          -0.83361,
-          -0.468057
+          0.522128,
+          0.564557,
+          -0.472393,
+          0.430699
         ],
         "LeftArm": [
-          0.33417,
-          -0.150049,
-          -0.083771,
-          0.926714
+          -0.272338,
+          -0.118989,
+          0.020502,
+          0.954596
         ],
         "LeftForeArm": [
-          0.549924,
-          0.341672,
-          0.468981,
-          0.600751
+          0.083893,
+          0.171893,
+          0.131393,
+          0.972703
         ],
         "LeftHand": [
-          -0.225575,
-          -0.903032,
-          -0.305034,
-          -0.2015
+          0.079403,
+          0.301209,
+          0.319674,
+          0.894861
         ],
         "RightShoulder": [
-          0.833639,
-          0.353627,
-          0.419819,
-          0.061206
+          0.521987,
+          -0.564688,
+          0.46633,
+          0.437256
         ],
         "RightArm": [
-          -0.710832,
-          0.213695,
-          -0.196224,
-          -0.64074
+          -0.257009,
+          -0.025237,
+          -0.395302,
+          -0.881502
         ],
         "RightForeArm": [
-          -0.775816,
-          -0.438075,
-          -0.449533,
-          0.064194
+          -0.896694,
+          -0.420719,
+          -0.011283,
+          -0.137143
         ],
         "RightHand": [
-          0.388109,
-          -0.754822,
-          -0.49959,
-          -0.173278
+          -0.486861,
+          0.068743,
+          -0.13948,
+          0.859527
         ],
         "neck": [
           0.063633,
@@ -441,29 +441,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.138,
-            1.17219,
-            -0.10511
+            -0.33829,
+            1.24553,
+            -0.17448
           ],
           "actualElbowWorld": [
-            0.1377,
-            1.17226,
-            -0.10525
+            -0.33805,
+            1.24559,
+            -0.17467
           ],
           "targetWristWorld": [
-            0.16717,
-            1.37833,
-            -0.00296
+            -0.3756,
+            1.23319,
+            0.05408
           ],
           "actualWristWorld": [
-            0.16717,
-            1.37837,
-            -0.0031
+            -0.37579,
+            1.23334,
+            0.05382
           ],
-          "elbowWorldError": 0.00034,
-          "wristWorldError": 0.00015,
-          "rightArmRotationFromInputDeg": 65.067,
-          "rightForeArmRotationFromInputDeg": 24.283
+          "elbowWorldError": 0.00031,
+          "wristWorldError": 0.00035,
+          "rightArmRotationFromInputDeg": 56.956,
+          "rightForeArmRotationFromInputDeg": 51.421
         }
       }
     },
@@ -490,52 +490,52 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
           0.997975
         ],
         "LeftShoulder": [
-          0.154338,
-          -0.249392,
-          -0.83361,
-          -0.468057
+          0.522128,
+          0.564557,
+          -0.472393,
+          0.430699
         ],
         "LeftArm": [
-          0.393099,
-          0.076217,
-          -0.14883,
-          0.904165
+          -0.170288,
+          0.089592,
+          0.091104,
+          0.977075
         ],
         "LeftForeArm": [
-          0.40863,
-          0.440167,
-          0.419394,
-          0.680723
+          -0.111458,
+          0.189804,
+          0.130646,
+          0.966687
         ],
         "LeftHand": [
-          -0.185491,
-          -0.879163,
-          -0.301443,
-          -0.319056
+          0.014039,
+          0.198592,
+          0.312466,
+          0.928832
         ],
         "RightShoulder": [
-          0.833639,
-          0.353627,
-          0.419819,
-          0.061206
+          0.521987,
+          -0.564688,
+          0.46633,
+          0.437256
         ],
         "RightArm": [
-          -0.743209,
-          0.268492,
-          -0.094312,
-          -0.605523
+          -0.265875,
+          -0.047807,
+          -0.376055,
+          -0.886345
         ],
         "RightForeArm": [
-          -0.732663,
-          -0.472062,
-          -0.451535,
-          0.190994
+          -0.854705,
+          -0.491373,
+          -0.101478,
+          -0.133169
         ],
         "RightHand": [
-          0.41439,
-          -0.680858,
-          -0.509791,
-          -0.32377
+          -0.374534,
+          -0.022939,
+          -0.21808,
+          0.90091
         ],
         "neck": [
           0.063633,
@@ -572,29 +572,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.14071,
-            1.18563,
-            -0.10803
+            -0.34374,
+            1.23715,
+            -0.16466
           ],
           "actualElbowWorld": [
-            0.14107,
-            1.18565,
-            -0.10789
+            -0.3437,
+            1.23744,
+            -0.16491
           ],
           "targetWristWorld": [
-            0.17795,
-            1.399,
-            -0.02517
+            -0.39449,
+            1.20772,
+            0.05971
           ],
           "actualWristWorld": [
-            0.17794,
-            1.39917,
-            -0.02525
+            -0.39456,
+            1.20754,
+            0.05937
           ],
-          "elbowWorldError": 0.00039,
-          "wristWorldError": 0.00019,
-          "rightArmRotationFromInputDeg": 56.712,
-          "rightForeArmRotationFromInputDeg": 28.918
+          "elbowWorldError": 0.00038,
+          "wristWorldError": 0.00039,
+          "rightArmRotationFromInputDeg": 53.703,
+          "rightForeArmRotationFromInputDeg": 55.33
         }
       }
     },
@@ -621,52 +621,52 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
           0.997975
         ],
         "LeftShoulder": [
-          0.154338,
-          -0.249392,
-          -0.83361,
-          -0.468057
+          0.522128,
+          0.564557,
+          -0.472393,
+          0.430699
         ],
         "LeftArm": [
-          0.496345,
-          0.470335,
-          -0.270286,
-          0.67777
+          0.112568,
+          0.454156,
+          0.173899,
+          0.866504
         ],
         "LeftForeArm": [
-          -0.0604,
-          0.578853,
-          0.382625,
-          0.717551
+          -0.548817,
+          0.095382,
+          0.24097,
+          0.794755
         ],
         "LeftHand": [
-          -0.151591,
-          -0.865561,
-          -0.248119,
-          -0.407751
+          -0.073662,
+          0.142289,
+          0.282536,
+          0.945781
         ],
         "RightShoulder": [
-          0.833639,
-          0.353627,
-          0.419819,
-          0.061206
+          0.521987,
+          -0.564688,
+          0.46633,
+          0.437256
         ],
         "RightArm": [
-          -0.767375,
-          0.218624,
-          0.004366,
-          -0.602761
+          -0.358152,
+          0.226622,
+          -0.173134,
+          -0.889041
         ],
         "RightForeArm": [
-          -0.718069,
-          -0.503718,
-          -0.411053,
-          0.248355
+          -0.77316,
+          -0.44003,
+          -0.29286,
+          0.350473
         ],
         "RightHand": [
-          0.372891,
-          -0.714612,
-          -0.539494,
-          -0.243369
+          -0.409244,
+          0.05968,
+          -0.171917,
+          0.894093
         ],
         "neck": [
           0.063633,
@@ -703,29 +703,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.16455,
-            1.22895,
-            -0.10406
+            -0.37266,
+            1.22532,
+            -0.12613
           ],
           "actualElbowWorld": [
-            0.16472,
-            1.22854,
-            -0.10394
+            -0.37247,
+            1.22527,
+            -0.12632
           ],
           "targetWristWorld": [
-            0.1912,
-            1.4377,
-            -0.00662
+            -0.4091,
+            1.20712,
+            0.10218
           ],
           "actualWristWorld": [
-            0.19131,
-            1.43736,
-            -0.00663
+            -0.40934,
+            1.2068,
+            0.1019
           ],
-          "elbowWorldError": 0.00046,
-          "wristWorldError": 0.00035,
-          "rightArmRotationFromInputDeg": 47.817,
-          "rightForeArmRotationFromInputDeg": 12.824
+          "elbowWorldError": 0.00027,
+          "wristWorldError": 0.00049,
+          "rightArmRotationFromInputDeg": 24.183,
+          "rightForeArmRotationFromInputDeg": 53.119
         }
       }
     },
@@ -752,52 +752,52 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
           0.997975
         ],
         "LeftShoulder": [
-          0.154338,
-          -0.249392,
-          -0.83361,
-          -0.468057
+          0.522128,
+          0.564557,
+          -0.472393,
+          0.430699
         ],
         "LeftArm": [
-          0.564078,
-          0.529408,
-          -0.259818,
-          0.57796
+          0.233574,
+          0.482285,
+          0.198584,
+          0.820615
         ],
         "LeftForeArm": [
-          -0.334154,
-          0.575012,
-          0.546425,
-          0.50904
+          -0.62695,
+          -0.061414,
+          0.508328,
+          0.587166
         ],
         "LeftHand": [
-          -0.186291,
-          -0.909138,
-          -0.201073,
-          -0.313583
+          -0.059761,
+          0.258009,
+          0.267513,
+          0.926443
         ],
         "RightShoulder": [
-          0.833639,
-          0.353627,
-          0.419819,
-          0.061206
+          0.521987,
+          -0.564688,
+          0.46633,
+          0.437256
         ],
         "RightArm": [
-          -0.760281,
-          0.199534,
-          0.051645,
-          -0.616029
+          -0.313158,
+          0.122997,
+          -0.173278,
+          -0.925623
         ],
         "RightForeArm": [
-          -0.749498,
-          -0.524148,
-          -0.27352,
-          0.297839
+          -0.795782,
+          -0.590587,
+          0.06043,
+          0.119524
         ],
         "RightHand": [
-          0.139327,
-          -0.806588,
-          -0.549002,
-          0.169116
+          -0.564714,
+          0.418405,
+          0.043738,
+          0.710016
         ],
         "neck": [
           0.063633,
@@ -834,29 +834,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.18046,
-            1.24254,
-            -0.0953
+            -0.38806,
+            1.23015,
+            -0.11018
           ],
           "actualElbowWorld": [
-            0.18061,
-            1.24279,
-            -0.0952
+            -0.38814,
+            1.23033,
+            -0.11026
           ],
           "targetWristWorld": [
-            0.23839,
-            1.43748,
-            0.01618
+            -0.44895,
+            1.23924,
+            0.11342
           ],
           "actualWristWorld": [
-            0.23849,
-            1.43754,
-            0.01663
+            -0.44872,
+            1.23921,
+            0.11342
           ],
-          "elbowWorldError": 0.00031,
-          "wristWorldError": 0.00047,
-          "rightArmRotationFromInputDeg": 44.055,
-          "rightForeArmRotationFromInputDeg": 33.526
+          "elbowWorldError": 0.00022,
+          "wristWorldError": 0.00023,
+          "rightArmRotationFromInputDeg": 24.314,
+          "rightForeArmRotationFromInputDeg": 0.18
         }
       }
     }
@@ -893,29 +893,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.19434,
-            1.27713,
-            -0.08268
+            -0.40399,
+            1.22694,
+            -0.07435
           ],
           "actualElbowWorld": [
-            0.19441,
-            1.27736,
-            -0.08259
+            -0.40394,
+            1.22691,
+            -0.07442
           ],
           "targetWristWorld": [
-            0.20908,
-            1.47098,
-            0.04376
+            -0.41979,
+            1.2365,
+            0.15683
           ],
           "actualWristWorld": [
-            0.20917,
-            1.47119,
-            0.04388
+            -0.41973,
+            1.23669,
+            0.15675
           ],
-          "elbowWorldError": 0.00026,
-          "wristWorldError": 0.00026,
-          "rightArmRotationFromInputDeg": 34.029,
-          "rightForeArmRotationFromInputDeg": 34.744
+          "elbowWorldError": 0.00009,
+          "wristWorldError": 0.00021,
+          "rightArmRotationFromInputDeg": 14.034,
+          "rightForeArmRotationFromInputDeg": 0.18
         },
         {
           "label": "windup",
@@ -931,29 +931,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.19218,
-            1.31549,
-            -0.0731
+            -0.40587,
+            1.21479,
+            -0.0367
           ],
           "actualElbowWorld": [
-            0.19239,
-            1.31565,
-            -0.07287
+            -0.40587,
+            1.21473,
+            -0.03641
           ],
           "targetWristWorld": [
-            0.13737,
-            1.50177,
-            0.05371
+            -0.3537,
+            1.20869,
+            0.18919
           ],
           "actualWristWorld": [
-            0.13724,
-            1.50188,
-            0.05386
+            -0.35349,
+            1.20875,
+            0.18943
           ],
-          "elbowWorldError": 0.00036,
-          "wristWorldError": 0.00023,
-          "rightArmRotationFromInputDeg": 30.69,
-          "rightForeArmRotationFromInputDeg": 22.9
+          "elbowWorldError": 0.00029,
+          "wristWorldError": 0.00032,
+          "rightArmRotationFromInputDeg": 13.455,
+          "rightForeArmRotationFromInputDeg": 53.255
         },
         {
           "label": "contact",
@@ -969,29 +969,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.138,
-            1.17219,
-            -0.10511
+            -0.33829,
+            1.24553,
+            -0.17448
           ],
           "actualElbowWorld": [
-            0.1377,
-            1.17226,
-            -0.10525
+            -0.33805,
+            1.24559,
+            -0.17467
           ],
           "targetWristWorld": [
-            0.16717,
-            1.37833,
-            -0.00296
+            -0.3756,
+            1.23319,
+            0.05408
           ],
           "actualWristWorld": [
-            0.16717,
-            1.37837,
-            -0.0031
+            -0.37579,
+            1.23334,
+            0.05382
           ],
-          "elbowWorldError": 0.00034,
-          "wristWorldError": 0.00015,
-          "rightArmRotationFromInputDeg": 65.067,
-          "rightForeArmRotationFromInputDeg": 24.283
+          "elbowWorldError": 0.00031,
+          "wristWorldError": 0.00035,
+          "rightArmRotationFromInputDeg": 56.956,
+          "rightForeArmRotationFromInputDeg": 51.421
         },
         {
           "label": "followThrough",
@@ -1007,29 +1007,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.14071,
-            1.18563,
-            -0.10803
+            -0.34374,
+            1.23715,
+            -0.16466
           ],
           "actualElbowWorld": [
-            0.14107,
-            1.18565,
-            -0.10789
+            -0.3437,
+            1.23744,
+            -0.16491
           ],
           "targetWristWorld": [
-            0.17795,
-            1.399,
-            -0.02517
+            -0.39449,
+            1.20772,
+            0.05971
           ],
           "actualWristWorld": [
-            0.17794,
-            1.39917,
-            -0.02525
+            -0.39456,
+            1.20754,
+            0.05937
           ],
-          "elbowWorldError": 0.00039,
-          "wristWorldError": 0.00019,
-          "rightArmRotationFromInputDeg": 56.712,
-          "rightForeArmRotationFromInputDeg": 28.918
+          "elbowWorldError": 0.00038,
+          "wristWorldError": 0.00039,
+          "rightArmRotationFromInputDeg": 53.703,
+          "rightForeArmRotationFromInputDeg": 55.33
         },
         {
           "label": "recoil",
@@ -1045,29 +1045,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.16455,
-            1.22895,
-            -0.10406
+            -0.37266,
+            1.22532,
+            -0.12613
           ],
           "actualElbowWorld": [
-            0.16472,
-            1.22854,
-            -0.10394
+            -0.37247,
+            1.22527,
+            -0.12632
           ],
           "targetWristWorld": [
-            0.1912,
-            1.4377,
-            -0.00662
+            -0.4091,
+            1.20712,
+            0.10218
           ],
           "actualWristWorld": [
-            0.19131,
-            1.43736,
-            -0.00663
+            -0.40934,
+            1.2068,
+            0.1019
           ],
-          "elbowWorldError": 0.00046,
-          "wristWorldError": 0.00035,
-          "rightArmRotationFromInputDeg": 47.817,
-          "rightForeArmRotationFromInputDeg": 12.824
+          "elbowWorldError": 0.00027,
+          "wristWorldError": 0.00049,
+          "rightArmRotationFromInputDeg": 24.183,
+          "rightForeArmRotationFromInputDeg": 53.119
         },
         {
           "label": "end",
@@ -1083,29 +1083,29 @@ export const FIST_ATTACK1_POSE_SEQUENCE = {
             "RightHand"
           ],
           "targetElbowWorld": [
-            0.18046,
-            1.24254,
-            -0.0953
+            -0.38806,
+            1.23015,
+            -0.11018
           ],
           "actualElbowWorld": [
-            0.18061,
-            1.24279,
-            -0.0952
+            -0.38814,
+            1.23033,
+            -0.11026
           ],
           "targetWristWorld": [
-            0.23839,
-            1.43748,
-            0.01618
+            -0.44895,
+            1.23924,
+            0.11342
           ],
           "actualWristWorld": [
-            0.23849,
-            1.43754,
-            0.01663
+            -0.44872,
+            1.23921,
+            0.11342
           ],
-          "elbowWorldError": 0.00031,
-          "wristWorldError": 0.00047,
-          "rightArmRotationFromInputDeg": 44.055,
-          "rightForeArmRotationFromInputDeg": 33.526
+          "elbowWorldError": 0.00022,
+          "wristWorldError": 0.00023,
+          "rightArmRotationFromInputDeg": 24.314,
+          "rightForeArmRotationFromInputDeg": 0.18
         }
       ]
     }
