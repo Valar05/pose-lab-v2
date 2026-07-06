@@ -4,11 +4,21 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { READY_POSE_PRESET } from '../src/ready-pose.js';
 import { SABER_GRIP_LOCAL, SABRE_REVIEW_LOCAL_AXIS } from '../src/review-constants.js';
-import { buildFpsAttack1Reference, ATTACK1_PRIME_KEYS } from './fps-attack1-reference.mjs';
+import { buildFpsAttack1Reference } from './fps-attack1-reference.mjs';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputPath = path.join(projectRoot, 'src', 'review-candidates', 'attack1-candidate-1.js');
 const duration = 1.25;
+const attack1ReviewKeys = {
+  start: 0,
+  anticipation: 0.18,
+  anticipationHold: 0.3,
+  contact: 0.38,
+  contactHold: 0.5,
+  followThrough: 0.7,
+  recoil: 0.95,
+  end: 1.25,
+};
 
 const userAuthoredBones = {
   anticipation: {
@@ -28,41 +38,53 @@ const userAuthoredBones = {
 const authoredKeys = [
   {
     label: 'start',
-    time: ATTACK1_PRIME_KEYS.start,
+    time: attack1ReviewKeys.start,
     authoredBones: {},
     note: 'accepted Ready baseline',
   },
   {
     label: 'anticipation',
-    time: ATTACK1_PRIME_KEYS.anticipation,
+    time: attack1ReviewKeys.anticipation,
     authoredBones: userAuthoredBones.anticipation,
     note: 'user-authored manual key: anticipation keeps Ready base, adjusts LeftForeArm, RightForeArm, and RightHand so the sabre trails left',
   },
   {
+    label: 'anticipationHold',
+    time: attack1ReviewKeys.anticipationHold,
+    authoredBones: userAuthoredBones.anticipation,
+    note: 'SF2-style moving read hold: keep the user-authored anticipation visible before the snap',
+  },
+  {
     label: 'contact',
-    time: ATTACK1_PRIME_KEYS.contact,
+    time: attack1ReviewKeys.contact,
     authoredBones: userAuthoredBones.contact,
     note: 'user-authored manual key: contact drives the strike with Spine02, LeftArm, RightArm, RightForeArm, and RightHand',
   },
   {
+    label: 'contactHold',
+    time: attack1ReviewKeys.contactHold,
+    authoredBones: userAuthoredBones.contact,
+    note: 'SF2-style impact hold: keep the user-authored contact readable instead of passing through it',
+  },
+  {
     label: 'followThrough',
-    time: ATTACK1_PRIME_KEYS.followThrough,
+    time: attack1ReviewKeys.followThrough,
     blendFrom: 'contact',
     blendTo: 'ready',
-    alpha: 0.35,
-    note: 'generated from user contact toward Ready; keeps the contact-side strike longer before recovery',
+    alpha: 0.18,
+    note: 'generated from user contact toward Ready; overcommitted follow-through stays close to contact before recovery',
   },
   {
     label: 'recoil',
-    time: ATTACK1_PRIME_KEYS.recoil,
+    time: attack1ReviewKeys.recoil,
     blendFrom: 'contact',
     blendTo: 'ready',
-    alpha: 0.75,
+    alpha: 0.68,
     note: 'generated from user contact toward Ready; recoil settles but remains on the same hand-owned path',
   },
   {
     label: 'end',
-    time: ATTACK1_PRIME_KEYS.end,
+    time: attack1ReviewKeys.end,
     authoredBones: {},
     note: 'returns to accepted Ready baseline',
   },
@@ -301,8 +323,10 @@ async function main() {
       retargetedBones: [],
       authoredBones: ['Spine02', 'RightArm', 'RightForeArm', 'RightHand', 'LeftArm', 'LeftForeArm'],
       generatedBones: {
-        followThrough: 'slerp(contact, ready, 0.35)',
-        recoil: 'slerp(contact, ready, 0.75)',
+        anticipationHold: 'duplicate(anticipation)',
+        contactHold: 'duplicate(contact)',
+        followThrough: 'slerp(contact, ready, 0.18)',
+        recoil: 'slerp(contact, ready, 0.68)',
         end: 'ready',
       },
       fpsReference: {
@@ -318,7 +342,7 @@ async function main() {
         rightHandSaberAxisLocal: rightHandSaberAxisLocal.map((value) => Number(value.toFixed(6))),
       },
     },
-    primeKeys: ATTACK1_PRIME_KEYS,
+    primeKeys: attack1ReviewKeys,
     guardReport: {
       authoredGuard,
       readyEndpointContract: {

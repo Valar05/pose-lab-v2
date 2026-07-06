@@ -5,10 +5,12 @@ const BASE_URL = 'https://valar05.github.io/pose-lab-v2/';
 const CANDIDATES = ['attack1-candidate-1', 'attack1-joint-pinned-3'];
 const REVIEW_TIMES = [
   ['start', 0],
-  ['anticipation', 0.25],
-  ['contact', 0.458333],
-  ['followThrough', 0.75],
-  ['recoil', 1],
+  ['anticipation', 0.18],
+  ['anticipationHold', 0.3],
+  ['contact', 0.38],
+  ['contactHold', 0.5],
+  ['followThrough', 0.7],
+  ['recoil', 0.95],
   ['end', 1.25],
 ];
 
