@@ -157,7 +157,11 @@ assert(attack2Candidate.source?.comboStart === 'attack1.contactHold' && attack2C
 assert(attack2Candidate.guardReport?.comboContract?.noReadyResetAtStart, 'Attack2 candidate must not reset to Ready at the start');
 assert(attack2Candidate.frames?.length === 8 && attack2Candidate.primeKeys?.backhandPrep === 0.14 && attack2Candidate.primeKeys?.contact === 0.36, 'Attack2 candidate must expose staged backhand review anchors');
 assert(fistReadyPreset.schema === 'pose-lab-v2-fist-ready-pose-v1' && fistReadyPreset.source?.clip === 'FistReady', 'FistReady preset must be baked from FPSPlayer FistReady');
-assert(fistReadyPreset.source?.method === 'orientation-first-retarget-with-pins', 'FistReady preset must use orientation retargeting guided by pins');
+assert(fistReadyPreset.source?.method === 'orientation-first-retarget-with-joint-and-fpv-screen-pins', 'FistReady preset must use orientation retargeting guided by joint and FPV screen pins');
+assert(fistReadyPreset.source?.fpvScreenPinned?.sourceCamera === 'FPSPlayer.Camera', 'FistReady preset must record FPS FPV screen targets');
+assert(fistReadyPreset.source?.fpvScreenPinned?.right?.actual?.RightHand && fistReadyPreset.source?.fpvScreenPinned?.left?.actual?.LeftHand, 'FistReady preset must record Meshy FPV hand screen positions');
+assert(Math.abs(fistReadyPreset.source.fpvScreenPinned.right.actual.RightHand[0] - fistReadyPreset.source.fpvScreenPinned.right.target.RightHand[0]) < 5, 'FistReady right hand must be screen-pinned near FPS FPV reference');
+assert(Math.abs(fistReadyPreset.source.fpvScreenPinned.left.actual.LeftHand[0] - fistReadyPreset.source.fpvScreenPinned.left.target.LeftHand[0]) < 5, 'FistReady left hand must be screen-pinned near FPS FPV reference');
 assert(fistReadyCandidate.schema === 'pose-lab-v2-attack-candidate-v1' && fistReadyCandidate.source?.clip === 'FistReady', 'FistReady candidate must expose the FistReady baseline for visual review');
 assert(fistReadyCandidate.source?.weaponless === true && fistReadyCandidate.guardReport?.weaponless === true, 'FistReady candidate must be weaponless');
 assert(fistReadyCandidate.frames?.length === 1 && fistReadyCandidate.frames[0]?.bones?.RightHand, 'FistReady candidate must expose a reviewable right-hand pose frame');

@@ -15,6 +15,20 @@ const sourceClipName = 'FistReady';
 const restClipName = '0T-Pose';
 const sourceFrameName = 'ShoulderCenter';
 const targetFrameName = 'Spine02';
+const viewport = [390, 844];
+const fpsCameraFov = 112;
+const meshyFpvCamera = {
+  anchor: 'Head',
+  fallbackAnchor: 'Spine02',
+  forwardAxis: 'z',
+  headForwardOffset: 0.15,
+  headCameraYOffset: -0.07,
+  lookForward: 1.35,
+  lookVertical: 0,
+  fov: 112,
+  near: 0.055,
+  far: 80,
+};
 
 const chains = [
   {
@@ -278,13 +292,158 @@ function sampleQuaternionTrack(THREE, track, time) {
   return new THREE.Quaternion(result[0], result[1], result[2], result[3]).normalize();
 }
 
+function sampleVectorTrack(THREE, track, time) {
+  const result = track.createInterpolant(new Float32Array(3)).evaluate(time);
+  return new THREE.Vector3(result[0], result[1], result[2]);
+}
+
 function applyClipPose(THREE, root, clip, time) {
   for (const track of clip.tracks || []) {
-    if (!track.name.endsWith('.quaternion')) continue;
-    const node = find(root, track.name.replace(/\.quaternion$/, ''));
-    if (node) node.quaternion.copy(sampleQuaternionTrack(THREE, track, time));
+    const node = find(root, track.name.replace(/\.(position|quaternion|scale)$/, ''));
+    if (!node) continue;
+    if (track.name.endsWith('.quaternion')) node.quaternion.copy(sampleQuaternionTrack(THREE, track, time));
+    else if (track.name.endsWith('.position')) node.position.copy(sampleVectorTrack(THREE, track, time));
+    else if (track.name.endsWith('.scale')) node.scale.copy(sampleVectorTrack(THREE, track, time));
   }
   root.updateMatrixWorld(true);
+}
+
+function localAxisVector(THREE, axisName) {
+  if (axisName === 'x') return new THREE.Vector3(1, 0, 0);
+  if (axisName === '-x') return new THREE.Vector3(-1, 0, 0);
+  if (axisName === 'y') return new THREE.Vector3(0, 1, 0);
+  if (axisName === '-y') return new THREE.Vector3(0, -1, 0);
+  if (axisName === '-z') return new THREE.Vector3(0, 0, -1);
+  return new THREE.Vector3(0, 0, 1);
+}
+
+function setupFpsCamera(THREE, fpsRoot) {
+  const [width, height] = viewport;
+  const cameraBone = requireNode(fpsRoot, 'Camera');
+  const camera = new THREE.PerspectiveCamera(fpsCameraFov, width / height, 0.055, 80);
+  camera.position.copy(worldPosition(THREE, cameraBone));
+  camera.quaternion.copy(worldQuaternion(THREE, cameraBone));
+  camera.updateProjectionMatrix();
+  camera.updateMatrixWorld(true);
+  return camera;
+}
+
+function setupMeshyFpvCamera(THREE, meshyRoot) {
+  const [width, height] = viewport;
+  const anchor = find(meshyRoot, meshyFpvCamera.anchor) || requireNode(meshyRoot, meshyFpvCamera.fallbackAnchor);
+  meshyRoot.updateMatrixWorld(true);
+  const anchorPosition = worldPosition(THREE, anchor);
+  const anchorQuaternion = worldQuaternion(THREE, anchor);
+  const forward = localAxisVector(THREE, meshyFpvCamera.forwardAxis)
+    .applyQuaternion(anchorQuaternion)
+    .normalize();
+  const position = anchorPosition.clone()
+    .add(forward.clone().multiplyScalar(meshyFpvCamera.headForwardOffset))
+    .add(new THREE.Vector3(0, meshyFpvCamera.headCameraYOffset, 0));
+  const target = anchorPosition.clone()
+    .add(forward.clone().multiplyScalar(meshyFpvCamera.lookForward))
+    .add(new THREE.Vector3(0, meshyFpvCamera.lookVertical, 0));
+  const camera = new THREE.PerspectiveCamera(meshyFpvCamera.fov, width / height, meshyFpvCamera.near, meshyFpvCamera.far);
+  camera.position.copy(position);
+  camera.up.set(0, 1, 0);
+  camera.lookAt(target);
+  camera.updateProjectionMatrix();
+  camera.updateMatrixWorld(true);
+  return camera;
+}
+
+function projectPoint(THREE, camera, point) {
+  const [width, height] = viewport;
+  const ndc = point.clone().project(camera);
+  return new THREE.Vector2(
+    (ndc.x + 1) * width * 0.5,
+    (-ndc.y + 1) * height * 0.5
+  );
+}
+
+function scoreScreenTargets(THREE, meshyRoot, targets) {
+  const camera = setupMeshyFpvCamera(THREE, meshyRoot);
+  let total = 0;
+  for (const [nodeName, target] of Object.entries(targets)) {
+    total += projectPoint(THREE, camera, worldPosition(THREE, requireNode(meshyRoot, nodeName))).distanceTo(target);
+  }
+  return total;
+}
+
+function solveChainToScreenTargets(THREE, meshyRoot, upperName, lowerName, handName, targets) {
+  const upper = requireNode(meshyRoot, upperName);
+  const lower = requireNode(meshyRoot, lowerName);
+  const hand = requireNode(meshyRoot, handName);
+  const startUpper = upper.quaternion.clone();
+  const startLower = lower.quaternion.clone();
+  const startHand = hand.quaternion.clone();
+  let bestUpper = startUpper.clone();
+  let bestLower = startLower.clone();
+  let bestHand = startHand.clone();
+  let bestScore = scoreScreenTargets(THREE, meshyRoot, targets);
+  const axes = [
+    new THREE.Vector3(1, 0, 0),
+    new THREE.Vector3(0, 1, 0),
+    new THREE.Vector3(0, 0, 1),
+  ];
+  for (const step of [55, 34, 21, 13, 8, 5, 3, 1.5, 0.75, 0.35, 0.18]) {
+    let improved = true;
+    let guard = 0;
+    while (improved && guard < 18) {
+      improved = false;
+      guard += 1;
+      for (const bone of [upper, lower, hand]) {
+        for (const axis of axes) {
+          for (const sign of [-1, 1]) {
+            const delta = new THREE.Quaternion().setFromAxisAngle(axis, THREE.MathUtils.degToRad(step * sign));
+            upper.quaternion.copy(bestUpper);
+            lower.quaternion.copy(bestLower);
+            hand.quaternion.copy(bestHand);
+            bone.quaternion.multiply(delta).normalize();
+            meshyRoot.updateMatrixWorld(true);
+            const score = scoreScreenTargets(THREE, meshyRoot, targets);
+            if (score + 0.001 < bestScore) {
+              bestUpper = upper.quaternion.clone();
+              bestLower = lower.quaternion.clone();
+              bestHand = hand.quaternion.clone();
+              bestScore = score;
+              improved = true;
+            }
+          }
+        }
+      }
+    }
+  }
+  upper.quaternion.copy(bestUpper).normalize();
+  lower.quaternion.copy(bestLower).normalize();
+  hand.quaternion.copy(bestHand).normalize();
+  meshyRoot.updateMatrixWorld(true);
+  const camera = setupMeshyFpvCamera(THREE, meshyRoot);
+  return {
+    upper: roundedQuaternion(bestUpper),
+    lower: roundedQuaternion(bestLower),
+    hand: roundedQuaternion(bestHand),
+    scorePx: Number(bestScore.toFixed(3)),
+    screen: Object.fromEntries(Object.keys(targets).map((name) => [
+      name,
+      projectPoint(THREE, camera, worldPosition(THREE, requireNode(meshyRoot, name))).toArray().map((value) => Number(value.toFixed(3))),
+    ])),
+  };
+}
+
+function sourceScreenTargets(THREE, fpsRoot) {
+  const camera = setupFpsCamera(THREE, fpsRoot);
+  const targetFor = (name) => projectPoint(THREE, camera, worldPosition(THREE, requireNode(fpsRoot, name)));
+  return {
+    right: {
+      RightForeArm: targetFor('ForearmR'),
+      RightHand: targetFor('HandR'),
+    },
+    left: {
+      LeftForeArm: targetFor('ForearmL'),
+      LeftHand: targetFor('HandL'),
+    },
+  };
 }
 
 function roundedQuaternion(quaternion) {
@@ -348,6 +507,10 @@ async function main() {
     applyTwoBonePin(THREE, meshyRoot, upper, lower, hand, projected.get(chain.source[2]));
     rotateHandRoll(THREE, meshyRoot, fpsRoot, meshyRoot, chain);
   }
+  const screenTargets = sourceScreenTargets(THREE, fpsRoot);
+  const rightScreenSolve = solveChainToScreenTargets(THREE, meshyRoot, 'RightArm', 'RightForeArm', 'RightHand', screenTargets.right);
+  const leftScreenSolve = solveChainToScreenTargets(THREE, meshyRoot, 'LeftArm', 'LeftForeArm', 'LeftHand', screenTargets.left);
+  const screenPinnedBones = posePayload(THREE, meshyRoot);
 
   const payload = {
     schema: 'pose-lab-v2-fist-ready-pose-v1',
@@ -358,10 +521,24 @@ async function main() {
       clip: sourceClipName,
       sampleTime: Number(readyClip.duration.toFixed(6)),
       projectionFrame: `${sourceFrameName}->${targetFrameName}`,
-      method: 'orientation-first-retarget-with-pins',
+      method: 'orientation-first-retarget-with-joint-and-fpv-screen-pins',
       retargetedBones,
+      fpvScreenPinned: {
+        sourceCamera: 'FPSPlayer.Camera',
+        targetCamera: 'Meshy head-forward FPV',
+        right: {
+          target: Object.fromEntries(Object.entries(screenTargets.right).map(([name, value]) => [name, value.toArray().map((entry) => Number(entry.toFixed(3)))])),
+          actual: rightScreenSolve.screen,
+          scorePx: rightScreenSolve.scorePx,
+        },
+        left: {
+          target: Object.fromEntries(Object.entries(screenTargets.left).map(([name, value]) => [name, value.toArray().map((entry) => Number(entry.toFixed(3)))])),
+          actual: leftScreenSolve.screen,
+          scorePx: leftScreenSolve.scorePx,
+        },
+      },
     },
-    bones: posePayload(THREE, meshyRoot),
+    bones: screenPinnedBones,
   };
   const source = `export const FIST_READY_POSE_PRESET = ${JSON.stringify(payload, null, 2)};\n`;
   fs.writeFileSync(outputPath, source);
@@ -377,6 +554,7 @@ async function main() {
       method: payload.source.method,
       weaponless: true,
       note: 'Weaponless FistReady baseline for reviewing FPSPlayer fist-family pose before FistAttack1.',
+      fpvScreenPinned: payload.source.fpvScreenPinned,
     },
     primeKeys: {
       ready: 0,
@@ -391,7 +569,7 @@ async function main() {
       weaponless: true,
       fistReadyBaseline: {
         status: 'REVIEW',
-        rule: 'FistAttack1 must use this FistReady target basis, not OneHandReady.',
+        rule: 'FistAttack1 must use this FistReady target basis, not OneHandReady. FistReady is additionally pinned toward FPS FPV forearm/hand screen positions.',
       },
     },
   };

@@ -7,7 +7,7 @@ export const FIST_READY_POSE_PRESET = {
     "clip": "FistReady",
     "sampleTime": 1.25,
     "projectionFrame": "ShoulderCenter->Spine02",
-    "method": "orientation-first-retarget-with-pins",
+    "method": "orientation-first-retarget-with-joint-and-fpv-screen-pins",
     "retargetedBones": [
       "RightArm",
       "RightForeArm",
@@ -15,7 +15,57 @@ export const FIST_READY_POSE_PRESET = {
       "LeftArm",
       "LeftForeArm",
       "LeftHand"
-    ]
+    ],
+    "fpvScreenPinned": {
+      "sourceCamera": "FPSPlayer.Camera",
+      "targetCamera": "Meshy head-forward FPV",
+      "right": {
+        "target": {
+          "RightForeArm": [
+            523.697,
+            291.716
+          ],
+          "RightHand": [
+            633.422,
+            808.429
+          ]
+        },
+        "actual": {
+          "RightForeArm": [
+            808.997,
+            347.307
+          ],
+          "RightHand": [
+            632.795,
+            808.093
+          ]
+        },
+        "scorePx": 291.378
+      },
+      "left": {
+        "target": {
+          "LeftForeArm": [
+            -290.14,
+            486.36
+          ],
+          "LeftHand": [
+            -130.079,
+            944.694
+          ]
+        },
+        "actual": {
+          "LeftForeArm": [
+            -563.935,
+            496.535
+          ],
+          "LeftHand": [
+            -131.474,
+            944.324
+          ]
+        },
+        "scorePx": 275.428
+      }
+    }
   },
   "bones": {
     "Spine02": [
@@ -43,16 +93,16 @@ export const FIST_READY_POSE_PRESET = {
       0.430699
     ],
     "LeftArm": [
-      0.503604,
-      0.352194,
-      0.572939,
-      0.542295
+      -0.402431,
+      0.606438,
+      0.571216,
+      0.379466
     ],
     "LeftForeArm": [
-      -0.610532,
-      0.040579,
-      0.095536,
-      0.78516
+      -0.695448,
+      -0.268381,
+      0.460442,
+      0.481993
     ],
     "LeftHand": [
       0.002026,
@@ -67,16 +117,16 @@ export const FIST_READY_POSE_PRESET = {
       0.437256
     ],
     "RightArm": [
-      -0.622522,
-      0.233294,
-      0.456529,
-      -0.591288
+      0.560643,
+      0.451335,
+      0.60813,
+      -0.334895
     ],
     "RightForeArm": [
-      -0.616469,
-      -0.485977,
-      0.18862,
-      0.590097
+      -0.672976,
+      -0.697422,
+      -0.233658,
+      0.078163
     ],
     "RightHand": [
       -0.399564,
