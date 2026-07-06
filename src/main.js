@@ -280,10 +280,10 @@ function updateReadyProof(values = {}) {
 }
 
 function blockPoseTouchPointer(event) {
-  if (event.pointerType !== 'touch' || toolMode !== 'pose') return;
-  updateTouchProof({ orbitBlocked: true, lastTouchAction: 'blocked-touch-pointer' });
+  if (event.pointerType !== 'touch' || toolMode !== 'pose' || !suppressTouchPointerEvents) return;
+  updateTouchProof({ orbitBlocked: true, lastTouchAction: 'blocked-duplicate-touch-pointer' });
   event.preventDefault();
-  event.stopImmediatePropagation();
+  event.stopPropagation();
 }
 
 canvas.addEventListener('pointerdown', blockPoseTouchPointer, { capture: true });
@@ -2029,55 +2029,45 @@ function pickSabre(clientX, clientY) {
 function pickPoseHandle(clientX, clientY) {
   if (!poseHandles.size) return null;
   const rect = canvas.getBoundingClientRect();
+  root.updateMatrixWorld(true);
+  updatePoseHandles();
+  const pointer = new THREE.Vector2(
+    ((clientX - rect.left) / rect.width) * 2 - 1,
+    -(((clientY - rect.top) / rect.height) * 2 - 1)
+  );
+  const visibleHandles = [...poseHandles.values()].filter((handle) => handle.visible);
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(visibleHandles, false);
+  if (hits.length) {
+    const name = hits[0].object.userData.poseBoneName;
+    return poseBones.get(name) || null;
+  }
   const point = new THREE.Vector2(clientX - rect.left, clientY - rect.top);
   let best = null;
-  let bestScore = Infinity;
   let bestDistance = Infinity;
-  root.updateMatrixWorld(true);
   for (const [name, handle] of poseHandles) {
     if (!handle.visible) continue;
     const pick = projectedHandlePickInfo(handle, point, rect);
-    const score = pick.inside
-      ? -100000 + pick.screenArea + posePickPriority(name)
-      : pick.distance + posePickPriority(name);
-    if (score < bestScore) {
+    const distance = pick.distance;
+    if (distance < bestDistance) {
       best = name;
-      bestScore = score;
-      bestDistance = pick.distance;
+      bestDistance = distance;
     }
   }
   if (!best || bestDistance > POSE_HANDLE_PICK_RADIUS_PX) return null;
   return poseBones.get(best) || null;
 }
 
-function posePickPriority(name) {
-  if (viewMode !== 'firstPerson') return 0;
-  if (name.includes('Hand')) return -9;
-  if (name.includes('ForeArm')) return -7;
-  if (name.includes('Arm')) return -6;
-  if (name.includes('Shoulder')) return -4;
-  return 0;
-}
-
 function projectedHandlePickInfo(handle, point, rect) {
   const positions = handle.geometry?.attributes?.position?.array;
-  if (!positions) return { distance: Infinity, inside: false, screenArea: Infinity };
+  if (!positions) return { distance: Infinity, inside: false };
   let bestDistance = Infinity;
   let inside = false;
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
   for (let index = 0; index < positions.length; index += 9) {
     const a = worldToScreenPixels(new THREE.Vector3(positions[index], positions[index + 1], positions[index + 2]));
     const b = worldToScreenPixels(new THREE.Vector3(positions[index + 3], positions[index + 4], positions[index + 5]));
     const c = worldToScreenPixels(new THREE.Vector3(positions[index + 6], positions[index + 7], positions[index + 8]));
-    for (const vertex of [a, b, c]) {
-      minX = Math.min(minX, THREE.MathUtils.clamp(vertex.x, 0, rect.width));
-      minY = Math.min(minY, THREE.MathUtils.clamp(vertex.y, 0, rect.height));
-      maxX = Math.max(maxX, THREE.MathUtils.clamp(vertex.x, 0, rect.width));
-      maxY = Math.max(maxY, THREE.MathUtils.clamp(vertex.y, 0, rect.height));
-    }
     if (pointInScreenTriangle(point, a, b, c)) inside = true;
     bestDistance = Math.min(
       bestDistance,
@@ -2086,8 +2076,7 @@ function projectedHandlePickInfo(handle, point, rect) {
       pointToScreenSegmentDistance(point, c, a)
     );
   }
-  const screenArea = Math.max(1, (maxX - minX) * (maxY - minY));
-  return { distance: inside ? 0 : bestDistance, inside, screenArea };
+  return { distance: inside ? 0 : bestDistance, inside };
 }
 
 function pointInScreenTriangle(point, a, b, c) {
