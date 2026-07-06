@@ -423,9 +423,20 @@ const POSE_BONE_NAMES = [
   'RightLeg',
   'RightFoot',
 ];
-const poseHandleGeometry = new THREE.SphereGeometry(0.035, 12, 8);
+const FPV_POSE_HANDLE_DEFS = Object.freeze({
+  LeftArm: { from: 'LeftArm', to: 'LeftForeArm', color: 0x68d8ff, shape: 'box' },
+  LeftForeArm: { from: 'LeftForeArm', to: 'LeftHand', color: 0x55ffb2, shape: 'box' },
+  LeftHand: { from: 'LeftHand', color: 0x8ddcff, shape: 'sphere' },
+  RightArm: { from: 'RightArm', to: 'RightForeArm', color: 0xffb84d, shape: 'box' },
+  RightForeArm: { from: 'RightForeArm', to: 'RightHand', color: 0xff7c7c, shape: 'box' },
+  RightHand: { from: 'RightHand', color: 0xffd45c, shape: 'sphere' },
+});
+const FPV_POSE_HANDLE_NAMES = new Set(Object.keys(FPV_POSE_HANDLE_DEFS));
+const poseHandleSphereGeometry = new THREE.SphereGeometry(1, 16, 10);
+const poseHandleBoxGeometry = new THREE.BoxGeometry(1.35, 0.72, 0.72);
+const poseHandleHitGeometry = new THREE.SphereGeometry(1, 16, 10);
 const poseHandleMaterial = new THREE.MeshBasicMaterial({ color: 0x68d8ff, depthTest: false, transparent: true, opacity: 0.82 });
-const poseHandleSelectedMaterial = new THREE.MeshBasicMaterial({ color: 0xffd45c, depthTest: false, transparent: true, opacity: 0.96 });
+const poseHandleHitMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false, transparent: true, opacity: 0.01 });
 const readyDeltaGeometry = new THREE.SphereGeometry(0.045, 12, 8);
 const readyRestMaterial = new THREE.MeshBasicMaterial({ color: 0x8b949e, depthTest: false, transparent: true, opacity: 0.72 });
 const readyReadyMaterial = new THREE.MeshBasicMaterial({ color: 0x58ff90, depthTest: false, transparent: true, opacity: 0.92 });
@@ -845,10 +856,9 @@ function setupPoseHandles() {
     const bone = findRequiredBone(meshyRoot, name);
     poseBones.set(name, bone);
     poseBoneRestQuaternions.set(name, bone.quaternion.clone());
-    const handle = new THREE.Mesh(poseHandleGeometry, poseHandleMaterial);
+    const handle = createPoseHandle(name);
     handle.name = `PoseHandle:${name}`;
     handle.userData.poseBoneName = name;
-    handle.renderOrder = 10;
     handle.visible = false;
     scene.add(handle);
     poseHandles.set(name, handle);
@@ -856,15 +866,65 @@ function setupPoseHandles() {
   updatePoseHandles();
 }
 
+function createPoseHandle(name) {
+  const fpvDef = FPV_POSE_HANDLE_DEFS[name];
+  const markerMaterial = poseHandleMaterial.clone();
+  markerMaterial.color.setHex(fpvDef?.color || 0x68d8ff);
+  const marker = new THREE.Mesh(
+    fpvDef?.shape === 'box' ? poseHandleBoxGeometry : poseHandleSphereGeometry,
+    markerMaterial
+  );
+  marker.name = `PoseHandleMarker:${name}`;
+  marker.userData.poseBoneName = name;
+  marker.renderOrder = 14;
+
+  const hit = new THREE.Mesh(poseHandleHitGeometry, poseHandleHitMaterial.clone());
+  hit.name = `PoseHandleHit:${name}`;
+  hit.userData.poseBoneName = name;
+  hit.renderOrder = 13;
+  hit.scale.setScalar(2.45);
+
+  const handle = new THREE.Group();
+  handle.userData.poseBoneName = name;
+  handle.userData.marker = marker;
+  handle.userData.hit = hit;
+  handle.add(hit);
+  handle.add(marker);
+  return handle;
+}
+
+function poseHandleWorldPosition(name, bone) {
+  if (viewMode !== 'firstPerson') return objectWorldPosition(bone);
+  const def = FPV_POSE_HANDLE_DEFS[name];
+  if (!def) return objectWorldPosition(bone);
+  const from = poseBones.get(def.from);
+  const to = poseBones.get(def.to);
+  const position = from ? objectWorldPosition(from) : objectWorldPosition(bone);
+  if (to) position.lerp(objectWorldPosition(to), 0.5);
+  return position;
+}
+
+function poseHandleScaleFor(position) {
+  if (viewMode !== 'firstPerson') return 0.035;
+  const distance = Math.max(0.08, camera.position.distanceTo(position));
+  return THREE.MathUtils.clamp(distance * 0.06, 0.045, 0.12);
+}
+
 function updatePoseHandles() {
   if (!poseHandles.size) return;
   for (const [name, handle] of poseHandles) {
     const bone = poseBones.get(name);
-    handle.visible = toolMode === 'pose';
+    handle.visible = toolMode === 'pose' && (viewMode !== 'firstPerson' || FPV_POSE_HANDLE_NAMES.has(name));
     if (!bone) continue;
-    handle.position.copy(objectWorldPosition(bone));
+    const position = poseHandleWorldPosition(name, bone);
+    handle.position.copy(position);
     handle.quaternion.copy(camera.quaternion);
-    handle.material = selectedPoseBone?.name === name ? poseHandleSelectedMaterial : poseHandleMaterial;
+    handle.scale.setScalar(poseHandleScaleFor(position));
+    const marker = handle.userData.marker;
+    if (marker?.material) {
+      marker.material.opacity = selectedPoseBone?.name === name ? 0.98 : 0.84;
+      marker.material.color.setHex(selectedPoseBone?.name === name ? 0xffffff : FPV_POSE_HANDLE_DEFS[name]?.color || 0x68d8ff);
+    }
   }
 }
 
@@ -1962,9 +2022,9 @@ function pickPoseHandle(clientX, clientY) {
   );
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(pointer, camera);
-  const hits = raycaster.intersectObjects([...poseHandles.values()].filter((handle) => handle.visible), false);
+  const hits = raycaster.intersectObjects([...poseHandles.values()].filter((handle) => handle.visible), true);
   if (!hits.length) return null;
-  const name = hits[0].object.userData.poseBoneName;
+  const name = hits[0].object.userData.poseBoneName || hits[0].object.parent?.userData.poseBoneName;
   return poseBones.get(name) || null;
 }
 

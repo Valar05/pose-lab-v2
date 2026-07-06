@@ -211,6 +211,10 @@ assert(main.includes("parentBone: 'RightHand'"), 'export must report SaberGrip a
 assert(main.includes("let toolMode = 'saber'") && main.includes('data-tool="saber"') && main.includes('data-tool="pose"'), 'app must distinguish top-level Saber and Pose modes');
 assert(main.includes('const POSE_BONE_NAMES = [') && main.includes("'RightHand'") && main.includes("'LeftFoot'"), 'Pose mode must expose curated real Meshy body bones');
 assert(main.includes('function setupPoseHandles') && main.includes('PoseHandle:') && main.includes('function pickPoseHandle'), 'Pose mode must create visible selectable bone handles');
+assert(main.includes('const FPV_POSE_HANDLE_DEFS = Object.freeze') && main.includes('LeftArm') && main.includes('LeftForeArm') && main.includes('RightArm') && main.includes('RightForeArm'), 'FPV pose mode must define dedicated upper-arm, forearm, and hand handles');
+assert(main.includes('function poseHandleWorldPosition') && main.includes('position.lerp(objectWorldPosition(to), 0.5)'), 'FPV pose handles must be positioned on visible limb segments, not only raw bone origins');
+assert(main.includes('poseHandleHitGeometry') && main.includes('hit.scale.setScalar(2.45)') && main.includes('intersectObjects([...poseHandles.values()].filter((handle) => handle.visible), true)'), 'FPV pose handles must include larger recursive hit targets');
+assert(main.includes("viewMode !== 'firstPerson' || FPV_POSE_HANDLE_NAMES.has(name)"), 'FPV pose mode must hide non-arm handles while preserving full handles outside FPV');
 assert(main.includes('selectedPoseBone') && main.includes('function resetPose') && main.includes("data-action=\"reset-pose\""), 'Pose mode must track selection and reset curated bone rotations');
 assert(main.includes('const toolState = {') && main.includes("pose: { mode: 'rotate', axis: 'screen' }"), 'Saber and Pose modes must preserve their own active transform mode and axis');
 assert(!main.includes("toolMode === 'pose' ? 'rotate' : next") && !main.includes('button.hidden = toolMode === \'pose\''), 'Pose mode must not be a rotate-only island');
