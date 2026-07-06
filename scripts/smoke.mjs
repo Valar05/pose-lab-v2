@@ -224,8 +224,8 @@ const fpvVisibleBones = fpvVisibleBonesMatch
   ? [...fpvVisibleBonesMatch[1].matchAll(/'([^']+)'/g)].map((match) => match[1])
   : [];
 assert(!fpvVisibleBones.includes('LeftShoulder') && !fpvVisibleBones.includes('RightShoulder'), 'FPV mask must not show shoulder-owned armor that fills the fist review camera');
-assert(!fpvVisibleBones.includes('LeftArm') && !fpvVisibleBones.includes('RightArm'), 'FPV mask must not show upper-arm armor that fills the fist review camera');
-for (const bone of ['LeftForeArm', 'LeftHand', 'RightForeArm', 'RightHand']) {
+assert(main.includes('const FPV_LIMB_MASK = {') && main.includes('function fpvVertexBelongsToLimb'), 'FPV must filter limb vertices by bone-segment capsules, not raw dominant bone alone');
+for (const bone of ['LeftArm', 'LeftForeArm', 'LeftHand', 'RightArm', 'RightForeArm', 'RightHand']) {
   assert(fpvVisibleBones.includes(bone), `FPV mask must still show ${bone}`);
 }
 assert(main.includes('const MESHY_PBR_TEXTURES = {') && main.includes('character_sheet_pbr/normal.png'), 'app must reference salvaged Meshy Character Sheet PBR texture channels');

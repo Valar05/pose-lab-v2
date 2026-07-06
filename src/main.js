@@ -336,11 +336,21 @@ const FPV_NUDGE_STEP = 0.01;
 const FPV_NUDGE_HOLD_DELAY_MS = 220;
 const FPV_NUDGE_HOLD_SPEED = 0.12;
 const FPV_VISIBLE_BONES = new Set([
+  'LeftArm',
   'LeftForeArm',
   'LeftHand',
+  'RightArm',
   'RightForeArm',
   'RightHand',
 ]);
+const FPV_LIMB_MASK = {
+  LeftArm: { from: 'LeftArm', to: 'LeftForeArm', radius: 0.18 },
+  LeftForeArm: { from: 'LeftForeArm', to: 'LeftHand', radius: 0.16 },
+  LeftHand: { from: 'LeftHand', to: 'LeftHand', radius: 0.2 },
+  RightArm: { from: 'RightArm', to: 'RightForeArm', radius: 0.18 },
+  RightForeArm: { from: 'RightForeArm', to: 'RightHand', radius: 0.16 },
+  RightHand: { from: 'RightHand', to: 'RightHand', radius: 0.2 },
+};
 
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0.95, 0);
@@ -501,14 +511,46 @@ function dominantSkinBoneName(skinnedMesh, vertexIndex) {
   return skinnedMesh.skeleton?.bones?.[bestBoneIndex]?.name || null;
 }
 
+function distanceToSegment(point, start, end) {
+  const segment = end.clone().sub(start);
+  const lengthSq = segment.lengthSq();
+  if (lengthSq <= 1e-8) return point.distanceTo(start);
+  const t = THREE.MathUtils.clamp(point.clone().sub(start).dot(segment) / lengthSq, 0, 1);
+  return point.distanceTo(start.clone().add(segment.multiplyScalar(t)));
+}
+
+function bonePositionInMeshLocal(skinnedMesh, boneName) {
+  const bone = skinnedMesh.skeleton?.bones?.find((entry) => entry.name === boneName);
+  if (!bone) return null;
+  const position = objectWorldPosition(bone);
+  return skinnedMesh.worldToLocal(position);
+}
+
+function fpvVertexBelongsToLimb(skinnedMesh, vertexIndex, vertexPosition, limbAnchors) {
+  const boneName = dominantSkinBoneName(skinnedMesh, vertexIndex);
+  if (!FPV_VISIBLE_BONES.has(boneName)) return false;
+  const segment = limbAnchors[boneName];
+  if (!segment) return false;
+  return distanceToSegment(vertexPosition, segment.from, segment.to) <= segment.radius;
+}
+
 function createFpvArmMask(skinnedMesh) {
   if (!skinnedMesh.isSkinnedMesh || !skinnedMesh.geometry?.attributes?.position || !skinnedMesh.skeleton) return null;
+  skinnedMesh.updateMatrixWorld(true);
   const sourceGeometry = skinnedMesh.geometry;
   const positionCount = sourceGeometry.attributes.position.count;
   const sourceIndex = sourceGeometry.index?.array || null;
+  const limbAnchors = {};
+  for (const [boneName, config] of Object.entries(FPV_LIMB_MASK)) {
+    const from = bonePositionInMeshLocal(skinnedMesh, config.from);
+    const to = bonePositionInMeshLocal(skinnedMesh, config.to);
+    if (from && to) limbAnchors[boneName] = { from, to, radius: config.radius };
+  }
+  const vertexPosition = new THREE.Vector3();
   const isVisibleVertex = new Array(positionCount);
   for (let index = 0; index < positionCount; index += 1) {
-    isVisibleVertex[index] = FPV_VISIBLE_BONES.has(dominantSkinBoneName(skinnedMesh, index));
+    vertexPosition.fromBufferAttribute(sourceGeometry.attributes.position, index);
+    isVisibleVertex[index] = fpvVertexBelongsToLimb(skinnedMesh, index, vertexPosition, limbAnchors);
   }
   const keptIndices = [];
   const sourceLength = sourceIndex ? sourceIndex.length : positionCount;
