@@ -218,6 +218,11 @@ canvas {
   font-size: 11px;
 }
 
+.attack-primes button.saved {
+  border-color: rgba(88, 255, 144, 0.72);
+  color: #dcffe7;
+}
+
 .fpv-settings[hidden] {
   display: none;
 }
@@ -319,12 +324,13 @@ body.is-fpv .primary-rail {
   background: rgba(3, 7, 10, 0.72);
 }
 
-body.is-fpv .primary-rail button:not([data-cycle-view-mode]):not([data-fpv-settings-toggle]):not([data-attack-review-toggle]),
+body.is-fpv .primary-rail button:not([data-cycle-tool]):not([data-cycle-view-mode]):not([data-fpv-settings-toggle]):not([data-attack-review-toggle]),
 body.is-fpv .primary-rail .status,
 body.is-fpv .control-dock {
   display: none !important;
 }
 
+body.is-fpv .primary-rail button[data-cycle-tool],
 body.is-fpv .primary-rail button[data-cycle-view-mode],
 body.is-fpv .primary-rail button[data-fpv-settings-toggle],
 body.is-fpv .primary-rail button[data-attack-review-toggle] {

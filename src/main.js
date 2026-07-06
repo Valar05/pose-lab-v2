@@ -30,7 +30,17 @@ const POSE_STATE_LABELS = {
 const REQUESTED_POSE = URL_PARAMS.get('pose');
 const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate');
 const REQUESTED_ATTACK_TIME = URL_PARAMS.get('attackTime');
+const REQUESTED_MANUAL_ATTACK = URL_PARAMS.get('manual') === '1' || URL_PARAMS.get('edit') === 'manual';
 const REQUESTED_ATTACK_QUARANTINED = ['attack1', 'attack', 'onehandattack1'].includes(String(REQUESTED_POSE || '').toLowerCase());
+const MANUAL_ATTACK_KEYS = Object.freeze({
+  start: 0,
+  anticipation: 0.25,
+  contact: 0.458333,
+  followThrough: 0.75,
+  recoil: 1,
+  end: 1.25,
+});
+const MANUAL_ATTACK_DURATION = 1.25;
 
 function poseStatus(name) {
   return POSE_STATUS[name] || { status: 'missing' };
@@ -38,6 +48,10 @@ function poseStatus(name) {
 
 function poseIsAccepted(name) {
   return poseStatus(name).status === 'accepted';
+}
+
+function useManualAttackAuthoring() {
+  return REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE;
 }
 
 const app = document.querySelector('#app');
@@ -63,6 +77,8 @@ app.innerHTML = `
           <button type="button" data-attack-play>Play</button>
           <button type="button" data-attack-pause>Pause</button>
           <output data-attack-time>0.000s</output>
+          <button type="button" data-attack-save-key>Save Key</button>
+          <button type="button" data-attack-export>Export Clip</button>
           <button type="button" class="attack-review-close" data-attack-review-close aria-label="Close attack playback controls">Close</button>
         </div>
         <input type="range" min="0" max="1.25" step="0.041667" value="0" data-attack-scrub aria-label="Attack time scrubber" />
@@ -188,6 +204,8 @@ const attackReviewToggle = app.querySelector('[data-attack-review-toggle]');
 const attackReviewClose = app.querySelector('[data-attack-review-close]');
 const attackPlayButton = app.querySelector('[data-attack-play]');
 const attackPauseButton = app.querySelector('[data-attack-pause]');
+const attackSaveKeyButton = app.querySelector('[data-attack-save-key]');
+const attackExportButton = app.querySelector('[data-attack-export]');
 const attackScrubInput = app.querySelector('[data-attack-scrub]');
 const attackTimeOutput = app.querySelector('[data-attack-time]');
 const attackPrimesEl = app.querySelector('[data-attack-primes]');
@@ -205,7 +223,7 @@ let fpvSettingsOpen = false;
 let fpvNudgeState = null;
 let fpvNudgeHoldTimer = null;
 let fpvNudgeRaf = null;
-let attackReviewOpen = Boolean(REQUESTED_CANDIDATE);
+let attackReviewOpen = Boolean(REQUESTED_CANDIDATE || REQUESTED_MANUAL_ATTACK);
 const fpvBodyMasks = [];
 const toolState = {
   saber: { mode: 'move', axis: 'screen' },
@@ -428,6 +446,9 @@ let attackPoseSequence = null;
 let attackPoseStartedAt = null;
 let attackPoseFixedTime = null;
 let attackPoseCurrentTime = 0;
+let manualAttackDraft = null;
+let manualAttackSelectedKey = 'start';
+let manualAttackDirty = false;
 let selectedPoseBone = null;
 let selected = false;
 let gesture = null;
@@ -863,7 +884,52 @@ function applyPoseBones(bones = {}) {
   updatePoseHandles();
 }
 
+function snapshotPoseBones() {
+  const bones = {};
+  for (const [name, bone] of poseBones) {
+    bones[name] = quaternionToFixedArray(bone.quaternion);
+  }
+  return bones;
+}
+
+function snapshotSaberFk() {
+  return {
+    saberGrip: saberGrip ? {
+      parentBone: 'RightHand',
+      position: vectorToFixedArray(saberGrip.position),
+      quaternion: quaternionToFixedArray(saberGrip.quaternion),
+      rotationDeg: rotationDegFromEuler(saberGrip.rotation),
+      scale: vectorToFixedArray(saberGrip.scale),
+    } : null,
+    sabreLocal: sabreRoot ? {
+      position: vectorToFixedArray(sabreRoot.position),
+      quaternion: quaternionToFixedArray(sabreRoot.quaternion),
+      rotationDeg: rotationDegFromEuler(sabreRoot.rotation),
+      scale: vectorToFixedArray(sabreRoot.scale),
+    } : null,
+  };
+}
+
+function applySaberFkSnapshot(snapshot = {}) {
+  if (saberGrip && snapshot.saberGrip) {
+    saberGrip.position.fromArray(snapshot.saberGrip.position || [0, 0, 0]);
+    saberGrip.quaternion.copy(quaternionFromArray(snapshot.saberGrip.quaternion));
+    saberGrip.scale.fromArray(snapshot.saberGrip.scale || [1, 1, 1]);
+  }
+  if (sabreRoot && snapshot.sabreLocal) {
+    sabreRoot.position.fromArray(snapshot.sabreLocal.position || [0, 0, 0]);
+    sabreRoot.quaternion.copy(quaternionFromArray(snapshot.sabreLocal.quaternion));
+    sabreRoot.scale.fromArray(snapshot.sabreLocal.scale || [1, 1, 1]);
+  }
+  root.updateMatrixWorld(true);
+}
+
 function markCustomPose() {
+  if (poseState === 'attack1' && manualAttackDraft) {
+    manualAttackDirty = true;
+    updateAttackReviewControls();
+    return;
+  }
   stopPoseAnimation();
   poseState = 'custom';
 }
@@ -900,6 +966,21 @@ function applyReadyPose() {
 function applyAttackPose() {
   const status = poseStatus('attack1');
   resetPose();
+  if (useManualAttackAuthoring()) {
+    createManualAttackDraft();
+    poseState = 'attack1';
+    attackPoseFixedTime = 0;
+    attackPoseCurrentTime = 0;
+    attackPoseStartedAt = null;
+    manualAttackSelectedKey = 'start';
+    applyManualAttackKey(manualAttackSelectedKey);
+    setToolMode('pose');
+    setMode('rotate');
+    setupAttackReviewControls();
+    setAttackReviewOpen(true);
+    statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
+    return;
+  }
   const candidateId = REQUESTED_CANDIDATE;
   if (attackPoseSequence && candidateId) {
     poseState = 'attack1';
@@ -914,6 +995,142 @@ function applyAttackPose() {
   if (status.fallback === 'ready' && poseIsAccepted('ready')) applyReadyPose();
   poseState = 'attack1';
   statusEl.textContent = `Attack1 ${status.status}: ${status.reason || 'no accepted Attack1 bake is shipped'}; showing ${status.fallback || 'Ready'} fallback`;
+}
+
+function manualAttackKeyLabels() {
+  return Object.keys(MANUAL_ATTACK_KEYS);
+}
+
+function createManualAttackDraft() {
+  if (manualAttackDraft) return manualAttackDraft;
+  resetPose();
+  applyReadyPose();
+  const readyBones = snapshotPoseBones();
+  const readySaber = snapshotSaberFk();
+  const keys = {};
+  for (const [label, time] of Object.entries(MANUAL_ATTACK_KEYS)) {
+    keys[label] = {
+      label,
+      time,
+      saved: false,
+      bones: structuredClone(readyBones),
+      saberGrip: structuredClone(readySaber.saberGrip),
+      sabreLocal: structuredClone(readySaber.sabreLocal),
+    };
+  }
+  manualAttackDraft = {
+    schema: 'pose-lab-v2-manual-animation-v1',
+    label: 'Attack1 manual blank-Ready draft',
+    source: {
+      readyPreset: readyPosePreset?.label || null,
+      seed: 'blank-ready-per-key',
+      candidateFramesUsed: false,
+    },
+    duration: MANUAL_ATTACK_DURATION,
+    primeKeys: { ...MANUAL_ATTACK_KEYS },
+    keys,
+  };
+  return manualAttackDraft;
+}
+
+function manualFrameFromKey(key) {
+  return {
+    time: key.time,
+    bones: structuredClone(key.bones || {}),
+    saberGrip: structuredClone(key.saberGrip || null),
+    sabreLocal: structuredClone(key.sabreLocal || null),
+  };
+}
+
+function manualAttackFrames() {
+  if (!manualAttackDraft) return [];
+  return manualAttackKeyLabels()
+    .map((label) => manualAttackDraft.keys[label])
+    .filter(Boolean)
+    .sort((a, b) => a.time - b.time)
+    .map(manualFrameFromKey);
+}
+
+function interpolateObjectSnapshot(a, b, alpha) {
+  if (!a || !b) return structuredClone(a || b || null);
+  const position = new THREE.Vector3().fromArray(a.position || [0, 0, 0])
+    .lerp(new THREE.Vector3().fromArray(b.position || [0, 0, 0]), alpha);
+  const scale = new THREE.Vector3().fromArray(a.scale || [1, 1, 1])
+    .lerp(new THREE.Vector3().fromArray(b.scale || [1, 1, 1]), alpha);
+  const quaternion = quaternionFromArray(a.quaternion).slerp(quaternionFromArray(b.quaternion), alpha).normalize();
+  return {
+    parentBone: a.parentBone || b.parentBone,
+    position: vectorToFixedArray(position),
+    quaternion: quaternionToFixedArray(quaternion),
+    rotationDeg: rotationDegFromQuaternion(quaternion),
+    scale: vectorToFixedArray(scale),
+  };
+}
+
+function manualAttackFrameAt(time) {
+  const frames = manualAttackFrames();
+  if (!frames.length) return null;
+  if (frames.length === 1 || time <= frames[0].time) return frames[0];
+  const normalizedTime = MANUAL_ATTACK_DURATION > 0
+    ? ((time % MANUAL_ATTACK_DURATION) + MANUAL_ATTACK_DURATION) % MANUAL_ATTACK_DURATION
+    : time;
+  for (let i = 1; i < frames.length; i += 1) {
+    const previous = frames[i - 1];
+    const next = frames[i];
+    if (normalizedTime <= next.time) {
+      const span = Math.max(0.000001, next.time - previous.time);
+      const alpha = THREE.MathUtils.clamp((normalizedTime - previous.time) / span, 0, 1);
+      return {
+        time: normalizedTime,
+        bones: interpolatePoseBones(previous.bones, next.bones, alpha),
+        saberGrip: interpolateObjectSnapshot(previous.saberGrip, next.saberGrip, alpha),
+        sabreLocal: interpolateObjectSnapshot(previous.sabreLocal, next.sabreLocal, alpha),
+      };
+    }
+  }
+  return frames[frames.length - 1];
+}
+
+function applyManualAttackFrameAt(time) {
+  const frame = manualAttackFrameAt(time);
+  if (!frame) return;
+  attackPoseCurrentTime = frame.time;
+  applyPoseBones(frame.bones || {});
+  applySaberFkSnapshot(frame);
+  updateAttackReviewControls();
+}
+
+function applyManualAttackKey(label) {
+  createManualAttackDraft();
+  if (manualAttackDirty && label !== manualAttackSelectedKey) persistManualAttackKey({ silent: true });
+  const key = manualAttackDraft.keys[label];
+  if (!key) return;
+  manualAttackSelectedKey = label;
+  attackPoseFixedTime = key.time;
+  attackPoseCurrentTime = key.time;
+  attackPoseStartedAt = null;
+  applyPoseBones(key.bones || {});
+  applySaberFkSnapshot(key);
+  manualAttackDirty = false;
+  updateAttackReviewControls();
+  updateReadout();
+}
+
+function persistManualAttackKey({ silent = false } = {}) {
+  if (!manualAttackDraft) createManualAttackDraft();
+  const key = manualAttackDraft.keys[manualAttackSelectedKey];
+  if (!key) return false;
+  key.bones = snapshotPoseBones();
+  Object.assign(key, snapshotSaberFk(), { saved: true });
+  manualAttackDirty = false;
+  updateAttackReviewControls();
+  updateReadout();
+  if (!silent) statusEl.textContent = `Attack1 manual: saved ${manualAttackSelectedKey}`;
+  return true;
+}
+
+function saveManualAttackKey() {
+  persistManualAttackKey();
 }
 
 function sequenceFrameAt(sequence, time) {
@@ -955,51 +1172,67 @@ function applyAttackSequenceAt(time) {
 }
 
 function attackDuration() {
+  if (manualAttackDraft) return manualAttackDraft.duration || MANUAL_ATTACK_DURATION;
   return attackPoseSequence?.source?.duration || attackPoseSequence?.frames?.at(-1)?.time || 0;
 }
 
 function setAttackReviewTime(time) {
   const duration = attackDuration();
   const next = THREE.MathUtils.clamp(Number(time) || 0, 0, duration || 0);
+  if (manualAttackDirty) persistManualAttackKey({ silent: true });
   attackPoseFixedTime = next;
   attackPoseStartedAt = performance.now() - next * 1000;
+  if (manualAttackDraft) {
+    applyManualAttackFrameAt(next);
+    statusEl.textContent = `Attack1 manual draft: ${next.toFixed(3)}s`;
+    return;
+  }
   applyAttackSequenceAt(next);
   statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; ${next.toFixed(3)}s`;
 }
 
 function playAttackReview() {
-  if (!attackPoseSequence) return;
+  if (!attackPoseSequence && !manualAttackDraft) return;
+  if (manualAttackDirty) persistManualAttackKey({ silent: true });
   attackPoseFixedTime = null;
   attackPoseStartedAt = performance.now() - attackPoseCurrentTime * 1000;
   updateAttackReviewControls();
-  statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; playing`;
+  statusEl.textContent = manualAttackDraft
+    ? 'Attack1 manual draft: playing preview'
+    : `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; playing`;
 }
 
 function pauseAttackReview() {
-  if (!attackPoseSequence) return;
+  if (!attackPoseSequence && !manualAttackDraft) return;
   attackPoseFixedTime = attackPoseCurrentTime;
   updateAttackReviewControls();
-  statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; paused ${attackPoseCurrentTime.toFixed(3)}s`;
+  statusEl.textContent = manualAttackDraft
+    ? `Attack1 manual draft: paused ${attackPoseCurrentTime.toFixed(3)}s`
+    : `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; paused ${attackPoseCurrentTime.toFixed(3)}s`;
 }
 
 function setAttackReviewOpen(open) {
-  attackReviewOpen = Boolean(open && REQUESTED_CANDIDATE);
+  attackReviewOpen = Boolean(open && (REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring()));
   updateAttackReviewControls();
 }
 
 function setupAttackReviewControls() {
-  if (!attackReviewPanel || !attackPoseSequence) return;
+  if (!attackReviewPanel || (!attackPoseSequence && !manualAttackDraft)) return;
   const duration = attackDuration();
   attackScrubInput.max = String(duration || 1.25);
   attackScrubInput.step = String(1 / 24);
   attackPrimesEl.innerHTML = '';
-  for (const [label, time] of Object.entries(attackPoseSequence.primeKeys || {})) {
+  const primeKeys = manualAttackDraft?.primeKeys || attackPoseSequence?.primeKeys || {};
+  for (const [label, time] of Object.entries(primeKeys)) {
     const button = document.createElement('button');
     button.type = 'button';
     button.dataset.attackPrime = label;
     button.dataset.attackTime = String(time);
     button.textContent = label;
-    button.addEventListener('click', () => setAttackReviewTime(time));
+    button.addEventListener('click', () => {
+      if (manualAttackDraft) applyManualAttackKey(label);
+      else setAttackReviewTime(time);
+    });
     attackPrimesEl.append(button);
   }
   updateAttackReviewControls();
@@ -1007,10 +1240,11 @@ function setupAttackReviewControls() {
 
 function updateAttackReviewControls() {
   if (!attackReviewPanel) return;
-  const active = Boolean(attackPoseSequence && poseState === 'attack1');
+  const active = Boolean((attackPoseSequence || manualAttackDraft) && poseState === 'attack1');
   if (attackReviewToggle) {
-    attackReviewToggle.hidden = !Boolean(REQUESTED_CANDIDATE);
+    attackReviewToggle.hidden = !Boolean(REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring());
     attackReviewToggle.classList.toggle('active', active && attackReviewOpen);
+    attackReviewToggle.textContent = manualAttackDraft ? 'Keys' : 'Attack';
   }
   attackReviewPanel.hidden = !(active && attackReviewOpen);
   if (!active) return;
@@ -1019,9 +1253,16 @@ function updateAttackReviewControls() {
   attackTimeOutput.value = `${time.toFixed(3)}s`;
   attackPlayButton.classList.toggle('active', attackPoseFixedTime === null);
   attackPauseButton.classList.toggle('active', attackPoseFixedTime !== null);
+  if (attackSaveKeyButton) attackSaveKeyButton.hidden = !manualAttackDraft;
+  if (attackExportButton) attackExportButton.hidden = !manualAttackDraft;
   for (const button of attackPrimesEl.querySelectorAll('[data-attack-prime]')) {
     const primeTime = Number(button.dataset.attackTime);
     button.classList.toggle('active', Math.abs(primeTime - time) < 0.025);
+    if (manualAttackDraft) {
+      const label = button.dataset.attackPrime;
+      button.classList.toggle('saved', Boolean(manualAttackDraft.keys[label]?.saved));
+      button.textContent = `${label}${manualAttackDirty && label === manualAttackSelectedKey ? '*' : ''}`;
+    }
   }
   updateTipMatchOverlay();
 }
@@ -1487,6 +1728,10 @@ function renderControls() {
   cyclePoseStateButton.textContent = `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
   cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
   updateAttackReviewControls();
+  if (poseState === 'attack1' && manualAttackDraft) {
+    statusEl.textContent = `Attack1 manual: ${manualAttackSelectedKey}${manualAttackDirty ? ' unsaved' : ''}`;
+    return;
+  }
   if (poseState === 'attack1' && attackPoseSequence) {
     statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; ${attackPoseFixedTime === null ? 'playing' : `${attackPoseCurrentTime.toFixed(3)}s`}`;
     return;
@@ -1590,6 +1835,10 @@ function cycleMode() {
 
 function exportTransform() {
   if (!sabreRoot) return {};
+  if (manualAttackDraft) {
+    if (manualAttackDirty) persistManualAttackKey({ silent: true });
+    return exportManualAttackDraft();
+  }
   root.updateMatrixWorld(true);
   const rotationDeg = rotationDegFromQuaternion(objectWorldQuaternion(sabreRoot));
   const scale = objectWorldScale(sabreRoot).toArray().map((value) => Number(value.toFixed(5)));
@@ -1634,6 +1883,41 @@ function exportTransform() {
       selectedBone: selectedPoseBone?.name || null,
       bones: poseBonesExport,
     },
+  };
+}
+
+function exportManualAttackDraft() {
+  const keys = {};
+  for (const label of manualAttackKeyLabels()) {
+    const key = manualAttackDraft.keys[label];
+    if (!key) continue;
+    keys[label] = {
+      time: key.time,
+      saved: Boolean(key.saved),
+      bones: structuredClone(key.bones || {}),
+      saberGrip: structuredClone(key.saberGrip || null),
+      sabreLocal: structuredClone(key.sabreLocal || null),
+    };
+  }
+  return {
+    schema: 'pose-lab-v2-manual-animation-v1',
+    toolMode,
+    status: 'manual-review',
+    label: 'Attack1 manual blank-Ready draft',
+    assets: {
+      meshy: ASSETS.meshy,
+      sabre: ASSETS.sabre,
+    },
+    source: {
+      readyPreset: readyPosePreset?.label || null,
+      seed: 'blank-ready-per-key',
+      candidateFramesUsed: false,
+    },
+    duration: manualAttackDraft.duration,
+    primeKeys: { ...manualAttackDraft.primeKeys },
+    selectedKey: manualAttackSelectedKey,
+    dirty: manualAttackDirty,
+    keys,
   };
 }
 
@@ -1773,6 +2057,10 @@ function applyEditableGestureDelta(dx, dy, basis) {
     scaleEditableByDelta((dx - dy) * 0.004);
   } else {
     rotateEditableByGesture(dx, dy, basis);
+  }
+  if (poseState === 'attack1' && manualAttackDraft) {
+    manualAttackDirty = true;
+    updateAttackReviewControls();
   }
 }
 
@@ -2365,6 +2653,10 @@ function handleTwoFingerTouch(points) {
   lastTwistAngle = angle;
   touchGesture.moved = true;
   updateReadout();
+  if (poseState === 'attack1' && manualAttackDraft) {
+    manualAttackDirty = true;
+    updateAttackReviewControls();
+  }
   statusEl.textContent = mode === 'rotate'
     ? `two-finger roll / ${axisLabel()}`
     : mode === 'scale'
@@ -2424,7 +2716,9 @@ async function boot() {
       root.add(sabreRoot);
       attachSaberToRightHand();
       setPoseState(requestedPoseState);
-      if (REQUESTED_ATTACK_QUARANTINED) {
+      if (useManualAttackAuthoring() && poseState === 'attack1') {
+        statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
+      } else if (REQUESTED_ATTACK_QUARANTINED) {
         statusEl.textContent = 'Attack1 quarantined: no accepted Attack1 bake is shipped; showing Ready fallback';
       } else {
         statusEl.textContent = poseState === 'rest'
@@ -2477,6 +2771,11 @@ attackReviewToggle.addEventListener('click', () => setAttackReviewOpen(!attackRe
 attackReviewClose.addEventListener('click', () => setAttackReviewOpen(false));
 attackPlayButton.addEventListener('click', playAttackReview);
 attackPauseButton.addEventListener('click', pauseAttackReview);
+attackSaveKeyButton.addEventListener('click', saveManualAttackKey);
+attackExportButton.addEventListener('click', () => {
+  navigator.clipboard?.writeText(JSON.stringify(exportTransform(), null, 2)).catch(() => {});
+  statusEl.textContent = 'Attack1 manual: animation export copied';
+});
 attackScrubInput.addEventListener('input', () => setAttackReviewTime(attackScrubInput.value));
 
 poseStateButtons.forEach((button) => {
@@ -2546,7 +2845,10 @@ canvas.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive:
 
 function animate() {
   resize();
-  if (poseState === 'attack1' && attackPoseSequence) {
+  if (poseState === 'attack1' && manualAttackDraft && attackPoseFixedTime === null) {
+    const elapsed = (performance.now() - (attackPoseStartedAt ?? performance.now())) / 1000;
+    applyManualAttackFrameAt(elapsed);
+  } else if (poseState === 'attack1' && attackPoseSequence) {
     const elapsed = attackPoseFixedTime ?? ((performance.now() - (attackPoseStartedAt ?? performance.now())) / 1000);
     applyAttackSequenceAt(elapsed);
   }

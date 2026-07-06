@@ -40,10 +40,11 @@ or numeric pose panels.
 `Rest` restores the golden Meshy source pose. `Ready` applies the baked
 upper-body pose preset in memory; it does not run a retargeter or animate the
 sabre. The sabre follows because `SaberGrip` is a child of `RightHand`.
-`Attack1` remains a selectable target, but it intentionally falls back to Ready
-until a clean source-derived bake is accepted. A quarantined review candidate can
-be loaded with `?pose=attack1&candidate=attack1-candidate-1`; that route is for
-visual review only and does not make Attack1 accepted repo truth.
+`Attack1` now opens a manual first-person authoring draft by default: every
+prime key starts as the accepted `Ready` pose, then can be posed by hand and
+saved per key. A quarantined review candidate can still be loaded with
+`?pose=attack1&candidate=attack1-candidate-1`; that route is for visual review
+only and does not make Attack1 accepted repo truth.
 
 Accepted pose modules are listed in `src/pose-status.js`. Draft animations must
 stay under ignored `generated/pose-candidates/` until a hosted cloud review is
@@ -55,6 +56,11 @@ Attack candidates use prime-key review anchors: start, anticipation, contact,
 follow-through, recoil, and end. Candidate 1 must keep start/end equal to Ready,
 preserve wrist/forearm travel, and pass the screen-space blade-tip guard before
 it is reviewable.
+
+Manual Attack1 authoring uses the same anchors but does not use candidate frames
+as starting material. Use the key strip to select a key, pose bones visually in
+FPV, tap `Save Key`, and `Export Clip` once for the whole animation. The export
+schema is `pose-lab-v2-manual-animation-v1` with status `manual-review`.
 
 For Attack1, screen-space means the review camera relationship the user can see,
 not a rig-space proxy. Anticipation must show the sabre tip trailing left of the
