@@ -218,6 +218,16 @@ assert(exists('vendor/three/examples/jsm/controls/OrbitControls.js'), 'missing v
 assert(exists('vendor/three/examples/jsm/utils/BufferGeometryUtils.js'), 'missing vendored BufferGeometryUtils');
 assert(main.includes("meshy_apose_walking_with_skin.glb"), 'app must reference Meshy GLB');
 assert(main.includes("meshy_real_sabre.glb"), 'app must reference real sabre GLB');
+const fpvVisibleBonesMatch = main.match(/const FPV_VISIBLE_BONES = new Set\(\[([\s\S]*?)\]\);/);
+assert(Boolean(fpvVisibleBonesMatch), 'runtime must declare the FPV visible bone mask');
+const fpvVisibleBones = fpvVisibleBonesMatch
+  ? [...fpvVisibleBonesMatch[1].matchAll(/'([^']+)'/g)].map((match) => match[1])
+  : [];
+assert(!fpvVisibleBones.includes('LeftShoulder') && !fpvVisibleBones.includes('RightShoulder'), 'FPV mask must not show shoulder-owned armor that fills the fist review camera');
+assert(!fpvVisibleBones.includes('LeftArm') && !fpvVisibleBones.includes('RightArm'), 'FPV mask must not show upper-arm armor that fills the fist review camera');
+for (const bone of ['LeftForeArm', 'LeftHand', 'RightForeArm', 'RightHand']) {
+  assert(fpvVisibleBones.includes(bone), `FPV mask must still show ${bone}`);
+}
 assert(main.includes('const MESHY_PBR_TEXTURES = {') && main.includes('character_sheet_pbr/normal.png'), 'app must reference salvaged Meshy Character Sheet PBR texture channels');
 assert(main.includes('const textureLoader = new THREE.TextureLoader()'), 'app must load Meshy PBR channels through Three TextureLoader');
 assert(main.includes('data-boot-panel') && main.includes('function setBootPhase') && main.includes('function markBootFailed'), 'app must expose visible boot phases instead of silent blank/loading states');

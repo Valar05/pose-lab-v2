@@ -336,12 +336,8 @@ const FPV_NUDGE_STEP = 0.01;
 const FPV_NUDGE_HOLD_DELAY_MS = 220;
 const FPV_NUDGE_HOLD_SPEED = 0.12;
 const FPV_VISIBLE_BONES = new Set([
-  'LeftShoulder',
-  'LeftArm',
   'LeftForeArm',
   'LeftHand',
-  'RightShoulder',
-  'RightArm',
   'RightForeArm',
   'RightHand',
 ]);
