@@ -13,6 +13,7 @@
     "bake:fist-ready": "node scripts/bake-fist-ready-pose.mjs",
     "bake:fist-attack1:candidate": "node scripts/bake-fist-attack1-candidate.mjs",
     "reference:attack1:fps": "node scripts/fps-attack1-reference.mjs",
+    "reference:fist:fps": "node scripts/fps-fist-reference.mjs",
     "promote:animation": "node tools/promote_animation_candidate.mjs",
     "review:attack1": "node tools/attack1_review_urls.mjs",
     "review:attack2": "node tools/attack2_review_urls.mjs",

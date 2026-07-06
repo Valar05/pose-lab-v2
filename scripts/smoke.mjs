@@ -94,6 +94,7 @@ assert(pkg.scripts?.['bake:attack2:candidate'] === 'node scripts/bake-attack2-ca
 assert(pkg.scripts?.['bake:fist-ready'] === 'node scripts/bake-fist-ready-pose.mjs', 'FistReady bake must be explicit and separate from one-hand Ready');
 assert(pkg.scripts?.['bake:fist-attack1:candidate'] === 'node scripts/bake-fist-attack1-candidate.mjs', 'FistAttack1 candidate bake must be explicit and quarantine-only');
 assert(pkg.scripts?.['reference:attack1:fps'] === 'node scripts/fps-attack1-reference.mjs', 'FPS Attack1 reference extraction must be explicit and separate from Meshy authoring');
+assert(pkg.scripts?.['reference:fist:fps'] === 'node scripts/fps-fist-reference.mjs', 'FPS fist reference extraction must be explicit before judging Meshy fist poses');
 assert(!pkg.scripts?.['bake:attack1'] && !pkg.scripts?.['diagnose:blade'], 'official scripts must not regenerate or bless the quarantined Attack1 pose');
 assert(pkg.scripts?.['promote:animation'] === 'node tools/promote_animation_candidate.mjs', 'animation promotion must use the explicit promotion gate');
 assert(pkg.scripts?.['review:attack1'] === 'node tools/attack1_review_urls.mjs', 'Attack1 review URLs must remain available');
@@ -111,6 +112,7 @@ assert(exists('scripts/bake-attack2-candidate.mjs'), 'missing Attack2 candidate 
 assert(exists('scripts/bake-fist-ready-pose.mjs'), 'missing FistReady bake script');
 assert(exists('scripts/bake-fist-attack1-candidate.mjs'), 'missing FistAttack1 candidate bake script');
 assert(exists('scripts/fps-attack1-reference.mjs'), 'missing FPS Attack1 reference extractor');
+assert(exists('scripts/fps-fist-reference.mjs'), 'missing FPS fist reference extractor');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
 assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
 assert(attack2ReviewUrls.includes('attack2-candidate-1') && attack2ReviewUrls.includes("pose: 'attack2'") && attack2ReviewUrls.includes('backhandPrep') && attack2ReviewUrls.includes('contactHold'), 'Attack2 review URLs must target the combo backhand candidate and its prime keys');
