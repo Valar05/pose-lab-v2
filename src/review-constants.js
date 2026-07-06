@@ -32,6 +32,11 @@ export const ATTACK1_REVIEW_CANDIDATES = {
     exportName: "ATTACK2_POSE_SEQUENCE",
     label: "Attack2 candidate 1",
   },
+  "fist-attack1-candidate-1": {
+    module: "./review-candidates/fist-attack1-candidate-1.js",
+    exportName: "FIST_ATTACK1_POSE_SEQUENCE",
+    label: "FistAttack1 candidate 1 (weaponless)",
+  },
 };
 
 export const REVIEW_CAMERA_CONTRACT = {

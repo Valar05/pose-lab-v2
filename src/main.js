@@ -809,6 +809,13 @@ function editableSaber() {
   return saberGrip || sabreRoot;
 }
 
+function setSabreReviewVisible(visible) {
+  if (!sabreRoot) return;
+  const next = Boolean(visible);
+  sabreRoot.visible = next;
+  if (saberGrip) saberGrip.visible = next;
+}
+
 function editableTarget() {
   return toolMode === 'pose' ? selectedPoseBone : editableSaber();
 }
@@ -1011,6 +1018,7 @@ function markCustomPose() {
 
 function resetPose() {
   stopPoseAnimation();
+  setSabreReviewVisible(true);
   for (const [name, bone] of poseBones) {
     const rest = poseBoneRestQuaternions.get(name);
     if (rest) bone.quaternion.copy(rest);
@@ -1022,6 +1030,7 @@ function resetPose() {
 }
 
 function applyReadyPose() {
+  setSabreReviewVisible(true);
   applyPoseBones(readyPosePreset?.bones || {});
   poseState = 'ready';
   const rightHand = poseBones.get('RightHand');
@@ -1042,6 +1051,7 @@ function applyAttackPose() {
   const status = poseStatus('attack1');
   resetPose();
   if (useManualAttackAuthoring()) {
+    setSabreReviewVisible(true);
     createManualAttackDraft();
     poseState = 'attack1';
     attackPoseFixedTime = 0;
@@ -1059,6 +1069,7 @@ function applyAttackPose() {
   const candidateId = REQUESTED_CANDIDATE;
   if (attackPoseSequence && candidateId) {
     poseState = 'attack1';
+    setSabreReviewVisible(!attackPoseSequence.source?.weaponless);
     attackPoseFixedTime = Number.isFinite(Number(REQUESTED_ATTACK_TIME)) ? Number(REQUESTED_ATTACK_TIME) : null;
     attackPoseCurrentTime = attackPoseFixedTime ?? 0;
     attackPoseStartedAt = performance.now() - attackPoseCurrentTime * 1000;
@@ -1241,6 +1252,7 @@ function interpolatePoseBones(a = {}, b = {}, alpha = 0) {
 function applyAttackSequenceAt(time) {
   const frame = sequenceFrameAt(attackPoseSequence, time);
   if (!frame) return;
+  setSabreReviewVisible(!attackPoseSequence?.source?.weaponless);
   attackPoseCurrentTime = frame.time;
   applyPoseBones(frame.bones || {});
   updateAttackReviewControls();
