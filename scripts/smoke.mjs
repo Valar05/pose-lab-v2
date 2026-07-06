@@ -67,6 +67,7 @@ function assertRelativeImportsResolve(file) {
 
 assert(exists('public/assets/meshy/meshy_apose_walking_with_skin.glb'), 'missing Meshy A-pose/walking GLB');
 assert(exists('public/assets/meshy/meshy_real_sabre.glb'), 'missing real sabre GLB');
+assert(exists('public/assets/meshy/meshy_fist_hands.glb'), 'missing Meshy-derived fist hands GLB; run npm run build:fist-hands');
 for (const texture of [
   'base_color.jpg',
   'emissive.jpg',
@@ -113,6 +114,9 @@ assert(exists('scripts/bake-fist-ready-pose.mjs'), 'missing FistReady bake scrip
 assert(exists('scripts/bake-fist-attack1-candidate.mjs'), 'missing FistAttack1 candidate bake script');
 assert(exists('scripts/fps-attack1-reference.mjs'), 'missing FPS Attack1 reference extractor');
 assert(exists('scripts/fps-fist-reference.mjs'), 'missing FPS fist reference extractor');
+assert(exists('authoring/meshy_fist/blender_build_meshy_fist_authoring.py'), 'missing Blender-first Meshy fist authoring script');
+assert(exists('scripts/build-meshy-fist-authoring.mjs'), 'missing Meshy fist authoring runner');
+assert(exists('tools/validate_meshy_fist_authoring.mjs'), 'missing Meshy fist authoring validator');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
 assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
 assert(attack2ReviewUrls.includes('attack2-candidate-1') && attack2ReviewUrls.includes("pose: 'attack2'") && attack2ReviewUrls.includes('backhandPrep') && attack2ReviewUrls.includes('contactHold'), 'Attack2 review URLs must target the combo backhand candidate and its prime keys');
@@ -360,7 +364,8 @@ assert(main.includes('const firstPersonCameraConfig = {') && main.includes("came
 assert(main.includes('headForwardOffset: 0.15') && main.includes('headCameraYOffset: -0.07') && main.includes('lookForward: 1.35'), 'FPV camera must use the latest authored head-forward placement');
 assert(main.includes('fov: 112') && main.includes('near: 0.055'), 'FPV camera must keep the original wide arm-visible framing');
 assert(main.includes('FPV_VISIBLE_BONES') && main.includes('createFpvArmMask') && main.includes('updateFpvBodyMasks'), 'FPV mode must mask chest by replacing the full body with an arm-only skinned mesh');
-assert(main.includes('LeftShoulder') && main.includes('RightHand') && !main.includes('data-fpv-nudge="left"'), 'FPV arm mask must preserve arms/hands without adding lateral camera controls');
+assert(main.includes("fistHands: './assets/meshy/meshy_fist_hands.glb'") && main.includes('FIST_VISUAL_REVIEW') && main.includes('attachFistHandsToMeshy'), 'fist routes must load the real Meshy-derived fist hands asset and attach it to hand bones');
+assert(main.includes('FPV_VISIBLE_BONES_FIST_REPLACEMENT') && main.includes('FIST_VISUAL_REVIEW ? FPV_VISIBLE_BONES_FIST_REPLACEMENT : FPV_VISIBLE_BONES'), 'fist review FPV mask must replace original hand vertices with the derived fist asset');
 assert(!main.includes('hideBones') && !main.includes('hideScale') && !main.includes('firstPersonCameraConfig.hide') && !main.includes('setFirstPersonHeadMask'), 'FPV chest mask must not use old hide/scale/head-mask hacks');
 assert(main.includes('fpvCamera') && main.includes('fpvArmMaskActive') && main.includes('fullBodyVisible'), 'debug proof must report FPV camera placement and body-mask state');
 assert(main.includes('function setViewMode') && main.includes('function updateFirstPersonCamera') && main.includes("document.body.classList.add('is-fpv')"), 'FPV mode must switch the live camera from orbit controls to head-forward first-person view');
@@ -409,6 +414,7 @@ if (exists('dist')) {
   assert(exists('dist/vendor/three/examples/jsm/utils/BufferGeometryUtils.js'), 'dist must include vendored BufferGeometryUtils');
   assert(exists('dist/assets/meshy/meshy_apose_walking_with_skin.glb'), 'dist must expose Meshy GLB at /assets/meshy');
   assert(exists('dist/assets/meshy/meshy_real_sabre.glb'), 'dist must expose real sabre GLB at /assets/meshy');
+  assert(exists('dist/assets/meshy/meshy_fist_hands.glb'), 'dist must expose Meshy-derived fist hands GLB at /assets/meshy');
   assert(exists('dist/assets/meshy/character_sheet_pbr/base_color.jpg'), 'dist must expose Meshy Character Sheet base color texture');
   assert(exists('dist/assets/meshy/character_sheet_pbr/emissive.jpg'), 'dist must expose Meshy Character Sheet emission texture');
   assert(exists('dist/assets/meshy/character_sheet_pbr/metallic_roughness.jpg'), 'dist must expose Meshy Character Sheet metallic-roughness texture');

@@ -4,3 +4,4 @@ dist/
 *.log
 generated/pose-candidates/
 generated/fps-reference/
+generated/meshy-fist-authoring/

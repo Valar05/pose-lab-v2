@@ -7,6 +7,7 @@ import { ATTACK1_REVIEW_CANDIDATES, SABER_GRIP_LOCAL } from './review-constants.
 const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
   sabre: './assets/meshy/meshy_real_sabre.glb',
+  fistHands: './assets/meshy/meshy_fist_hands.glb',
 };
 const MESHY_PBR_TEXTURES = {
   map: './assets/meshy/character_sheet_pbr/base_color.jpg',
@@ -34,6 +35,9 @@ const REQUESTED_MANUAL_ATTACK = URL_PARAMS.get('manual') === '1' || URL_PARAMS.g
 const REQUESTED_ATTACK_QUARANTINED = ['attack1', 'attack', 'onehandattack1'].includes(String(REQUESTED_POSE || '').toLowerCase());
 const REQUESTED_ATTACK2_QUARANTINED = ['attack2', 'onehandattack2'].includes(String(REQUESTED_POSE || '').toLowerCase());
 const REQUESTED_ATTACK_LABEL = REQUESTED_ATTACK2_QUARANTINED ? 'Attack2' : 'Attack1';
+const FIST_VISUAL_REVIEW = URL_PARAMS.get('fistHands') === '1'
+  || String(REQUESTED_CANDIDATE || '').startsWith('fist-')
+  || ['fist', 'fistready', 'fist-ready'].includes(String(REQUESTED_POSE || '').toLowerCase());
 const MANUAL_ATTACK_KEYS = Object.freeze({
   start: 0,
   anticipation: 0.25,
@@ -345,6 +349,14 @@ const FPV_VISIBLE_BONES = new Set([
   'RightForeArm',
   'RightHand',
 ]);
+const FPV_VISIBLE_BONES_FIST_REPLACEMENT = new Set([
+  'LeftShoulder',
+  'LeftArm',
+  'LeftForeArm',
+  'RightShoulder',
+  'RightArm',
+  'RightForeArm',
+]);
 
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0.95, 0);
@@ -450,6 +462,8 @@ let currentAxis = 'screen';
 let meshyRoot = null;
 let sabreRoot = null;
 let saberGrip = null;
+let fistHandsRoot = null;
+const fistHandVisuals = [];
 let readyPosePreset = null;
 let attackPoseSequence = null;
 let attackPoseStartedAt = null;
@@ -512,7 +526,8 @@ function createFpvArmMask(skinnedMesh) {
   const sourceIndex = sourceGeometry.index?.array || null;
   const isVisibleVertex = new Array(positionCount);
   for (let index = 0; index < positionCount; index += 1) {
-    isVisibleVertex[index] = FPV_VISIBLE_BONES.has(dominantSkinBoneName(skinnedMesh, index));
+    const visibleBones = FIST_VISUAL_REVIEW ? FPV_VISIBLE_BONES_FIST_REPLACEMENT : FPV_VISIBLE_BONES;
+    isVisibleVertex[index] = visibleBones.has(dominantSkinBoneName(skinnedMesh, index));
   }
   const keptIndices = [];
   const sourceLength = sourceIndex ? sourceIndex.length : positionCount;
@@ -549,6 +564,9 @@ function updateFpvBodyMasks() {
   for (const entry of fpvBodyMasks) {
     entry.source.visible = !fpv;
     entry.mask.visible = fpv;
+  }
+  for (const visual of fistHandVisuals) {
+    visual.visible = FIST_VISUAL_REVIEW;
   }
 }
 
@@ -850,6 +868,36 @@ function resetSaberPlacement() {
   saberGrip = null;
   prepareSabre(sabreRoot);
   attachSaberToRightHand();
+}
+
+function attachFistHandsToMeshy(object) {
+  if (!meshyRoot || !object) return;
+  fistHandsRoot = object;
+  object.name = 'meshy-derived-fist-hands';
+  object.traverse((node) => {
+    if (node.isMesh) {
+      node.frustumCulled = false;
+      node.castShadow = false;
+      node.receiveShadow = true;
+    }
+  });
+  const attachments = [
+    { objectName: 'RightMeshyFistHand', boneName: 'RightHand' },
+    { objectName: 'LeftMeshyFistHand', boneName: 'LeftHand' },
+  ];
+  for (const attachment of attachments) {
+    const visual = object.getObjectByName(attachment.objectName);
+    const bone = findBone(meshyRoot, attachment.boneName);
+    if (!visual || !bone) continue;
+    bone.add(visual);
+    visual.position.set(0, 0, 0);
+    visual.quaternion.identity();
+    visual.scale.set(1, 1, 1);
+    visual.userData.poseLabV2ParentBone = attachment.boneName;
+    fistHandVisuals.push(visual);
+  }
+  updateFpvBodyMasks();
+  document.body.dataset.fistHandsReady = fistHandVisuals.length ? '1' : '0';
 }
 
 function setupPoseHandles() {
@@ -2837,6 +2885,9 @@ async function boot() {
   const meshyPromise = loadGlb(ASSETS.meshy, { announce: false });
   const sabrePromise = loadGlb(ASSETS.sabre, { announce: false });
   const posePromise = loadPosePresets({ announce: false });
+  const fistHandsPromise = FIST_VISUAL_REVIEW
+    ? loadGlb(ASSETS.fistHands, { announce: false })
+    : Promise.resolve(null);
 
   const meshy = await meshyPromise;
   setBootPhase('showing character');
@@ -2858,11 +2909,12 @@ async function boot() {
       console.warn('Meshy PBR texture load failed after boot', error);
     });
 
-  Promise.all([sabrePromise, posePromise])
-    .then(([sabre]) => {
+  Promise.all([sabrePromise, posePromise, fistHandsPromise])
+    .then(([sabre, _posePresets, fistHands]) => {
       sabreRoot = prepareSabre(sabre);
       root.add(sabreRoot);
       attachSaberToRightHand();
+      if (fistHands) attachFistHandsToMeshy(fistHands);
       setPoseState(requestedPoseState);
       if (useManualAttackAuthoring() && poseState === 'attack1') {
         statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
@@ -2876,8 +2928,8 @@ async function boot() {
     })
     .catch((error) => {
       document.body.dataset.sabrePoseFailed = error?.message || String(error || 'unknown sabre/pose error');
-      statusEl.textContent = `sabre or pose load failed: ${error?.message || error}`;
-      console.error('Sabre or pose load failed after first visual', error);
+      statusEl.textContent = `sabre, fist, or pose load failed: ${error?.message || error}`;
+      console.error('Sabre, fist, or pose load failed after first visual', error);
     });
 }
 

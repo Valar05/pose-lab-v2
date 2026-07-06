@@ -88,6 +88,27 @@ review.
 
 Numbers are readout/export only. Authoring is direct visual manipulation.
 
+
+## Meshy-Derived Fist Hands
+
+Weaponless fist review can use a quarantined real-geometry fist asset generated
+from the existing Meshy hand vertices:
+
+```sh
+npm run build:fist-hands
+npm run validate:fist-hands
+```
+
+This writes `public/assets/meshy/meshy_fist_hands.glb` for runtime review and
+ignored diagnostic renders under `generated/meshy-fist-authoring/`. The runtime
+loads it only for fist routes such as `?candidate=fist-ready-candidate-1` or
+`?fistHands=1`, parents it under the real hand bones, and hides original FPV
+hand vertices only in that fist review mode.
+
+The fist asset is still quarantined until hosted cloud review says the hands
+read as fists. The build and manifest only prove that the asset is current and
+derived from the Meshy source.
+
 ## Checks
 
 ```sh

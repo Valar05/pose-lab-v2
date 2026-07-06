@@ -37,3 +37,20 @@
 
 No Pose Lab runtime code, rig profiles, generated visual artifacts, debug bridge
 code, or metric acceptance tooling was copied.
+
+## Meshy-Derived Fist Hands
+
+- Runtime file: `public/assets/meshy/meshy_fist_hands.glb`
+- Source file: `public/assets/meshy/meshy_apose_walking_with_skin.glb`
+- Authoring script: `authoring/meshy_fist/blender_build_meshy_fist_authoring.py`
+- Build command: `npm run build:fist-hands`
+- Role: quarantined fist visual review asset for weaponless fist routes. The asset
+  is derived from actual Meshy hand-weighted vertices, compacted into closed fist
+  hulls, and parented under the existing `RightHand` / `LeftHand` bones at
+  runtime. It is not a proxy primitive and it does not mutate the original Meshy
+  body mesh or skin weights.
+- Generated diagnostics: `generated/meshy-fist-authoring/` is ignored scratch;
+  rerun `npm run build:fist-hands` and `npm run validate:fist-hands` to refresh
+  local Blender renders and the manifest.
+- Acceptance: diagnostic manifests and Blender renders are guardrails only. The
+  cloud V2 route must still visibly read as a fist before the asset is accepted.

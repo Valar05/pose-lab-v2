@@ -20,6 +20,8 @@
     "review:fist-attack1": "node tools/fist_attack1_review_urls.mjs",
     "review:attacks": "node tools/attack_review_urls.mjs",
     "build": "node scripts/build.mjs",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "build:fist-hands": "node scripts/build-meshy-fist-authoring.mjs",
+    "validate:fist-hands": "node tools/validate_meshy_fist_authoring.mjs"
   }
 }
