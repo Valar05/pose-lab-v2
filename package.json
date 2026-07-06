@@ -10,6 +10,7 @@
     "bake:attack1:tip-basis": "node scripts/bake-attack1-tip-basis-candidate.mjs",
     "bake:attack1:joint-pinned": "node scripts/bake-attack1-joint-pinned-candidate.mjs",
     "bake:attack2:candidate": "node scripts/bake-attack2-candidate.mjs",
+    "bake:fist-ready": "node scripts/bake-fist-ready-pose.mjs",
     "bake:fist-attack1:candidate": "node scripts/bake-fist-attack1-candidate.mjs",
     "reference:attack1:fps": "node scripts/fps-attack1-reference.mjs",
     "promote:animation": "node tools/promote_animation_candidate.mjs",

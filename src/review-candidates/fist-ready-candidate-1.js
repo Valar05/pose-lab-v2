@@ -1,0 +1,111 @@
+export const FIST_READY_POSE_SEQUENCE = {
+  "schema": "pose-lab-v2-attack-candidate-v1",
+  "label": "FistReady candidate 1",
+  "source": {
+    "fps": "../pose-lab/assets/models/FPSPlayer.glb",
+    "meshy": "./public/assets/meshy/meshy_apose_walking_with_skin.glb",
+    "clip": "FistReady",
+    "duration": 1.25,
+    "keyCount": 1,
+    "method": "orientation-first-retarget-with-pins",
+    "weaponless": true,
+    "note": "Weaponless FistReady baseline for reviewing FPSPlayer fist-family pose before FistAttack1."
+  },
+  "primeKeys": {
+    "ready": 0
+  },
+  "frames": [
+    {
+      "label": "ready",
+      "time": 0,
+      "bones": {
+        "Spine02": [
+          -0.065296,
+          0.002273,
+          0.007842,
+          0.997833
+        ],
+        "Spine01": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "Spine": [
+          -0.063604,
+          -0.000425,
+          0.00073,
+          0.997975
+        ],
+        "LeftShoulder": [
+          0.522128,
+          0.564557,
+          -0.472393,
+          0.430699
+        ],
+        "LeftArm": [
+          0.503604,
+          0.352194,
+          0.572939,
+          0.542295
+        ],
+        "LeftForeArm": [
+          -0.610532,
+          0.040579,
+          0.095536,
+          0.78516
+        ],
+        "LeftHand": [
+          0.002026,
+          0.460039,
+          0.274099,
+          0.844529
+        ],
+        "RightShoulder": [
+          0.521987,
+          -0.564688,
+          0.46633,
+          0.437256
+        ],
+        "RightArm": [
+          -0.622522,
+          0.233294,
+          0.456529,
+          -0.591288
+        ],
+        "RightForeArm": [
+          -0.616469,
+          -0.485977,
+          0.18862,
+          0.590097
+        ],
+        "RightHand": [
+          -0.399564,
+          -0.269037,
+          -0.401453,
+          0.778976
+        ],
+        "neck": [
+          0.063633,
+          -0.003411,
+          0.00246,
+          0.997965
+        ],
+        "Head": [
+          0.268452,
+          -0.000043,
+          -0.003185,
+          0.963288
+        ]
+      }
+    }
+  ],
+  "guardReport": {
+    "quarantine": true,
+    "weaponless": true,
+    "fistReadyBaseline": {
+      "status": "REVIEW",
+      "rule": "FistAttack1 must use this FistReady target basis, not OneHandReady."
+    }
+  }
+};

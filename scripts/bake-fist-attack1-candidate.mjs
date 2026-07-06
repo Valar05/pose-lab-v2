@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { READY_POSE_PRESET } from '../src/ready-pose.js';
+import { FIST_READY_POSE_PRESET } from '../src/fist-ready-pose.js';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const workspaceRoot = path.resolve(projectRoot, '..');
@@ -256,12 +256,12 @@ function vectorArray(vector) {
 }
 
 function buildFrame(THREE, label, time, attackClip, readyClip, fpsRoot, meshyRoot, calibration) {
-  const bones = structuredClone(READY_POSE_PRESET.bones);
+  const bones = structuredClone(FIST_READY_POSE_PRESET.bones);
   const mapped = {};
   for (const [sourceName, targetName] of boneMap) {
     const attackTrack = quaternionTrackFor(attackClip, sourceName);
     const readyTrack = quaternionTrackFor(readyClip, sourceName);
-    const readyValues = READY_POSE_PRESET.bones[targetName];
+    const readyValues = FIST_READY_POSE_PRESET.bones[targetName];
     if (!attackTrack || !readyTrack || !readyValues) continue;
     const delta = sourceDeltaAt(THREE, attackTrack, readyTrack, Math.min(time, attackClip.duration));
     bones[targetName] = roundedQuaternion(applySourceDeltaToReady(THREE, delta, readyValues));
@@ -336,7 +336,7 @@ async function main() {
   applyClipPose(THREE, fps.scene, attackClip, 0);
   const fpsStart = worldSample(THREE, fps.scene, ['ArmR', 'ForearmR', 'HandR']);
   const sourceBasis = makeBasis(THREE, fpsStart.ArmR, fpsStart.ForearmR, fpsStart.HandR);
-  applyPoseBones(THREE, meshyRoot, READY_POSE_PRESET.bones);
+  applyPoseBones(THREE, meshyRoot, FIST_READY_POSE_PRESET.bones);
   const meshyStart = worldSample(THREE, meshyRoot, ['RightArm', 'RightForeArm', 'RightHand']);
   const targetBasis = makeBasis(THREE, meshyStart.RightArm, meshyStart.RightForeArm, meshyStart.RightHand);
   const calibration = {
@@ -366,19 +366,19 @@ async function main() {
       readyClip: sourceReadyClipName,
       duration: Number(attackClip.duration.toFixed(6)),
       keyCount: frames.length,
-      method: 'fps-fist-world-joint-pinned-over-meshy-ready',
+      method: 'fps-fist-world-joint-pinned-over-meshy-fist-ready',
       weaponless: true,
       note: 'No sabre judgment. This preview exists to inspect FPSPlayer fist orientation and compact right wrist/forearm punch read.',
       mappedBones: Object.fromEntries(boneMap.map(([source, target]) => [target, source])),
       jointPinned: {
         sourceJoints: ['ArmR', 'ForearmR', 'HandR'],
         targetJoints: ['RightArm', 'RightForeArm', 'RightHand'],
-        targetSpace: 'Meshy calibrated world from accepted Ready',
+        targetSpace: 'Meshy calibrated world from generated FistReady',
         solverAuthoredBones: ['RightArm', 'RightForeArm'],
-        handOrientation: 'RightHand keeps FPS FistReady->FistAttack1 local orientation delta over Meshy Ready',
+        handOrientation: 'RightHand keeps FPS FistReady->FistAttack1 local orientation delta over Meshy FistReady',
         calibration: {
           sourceBasis: 'FPS FistAttack1 start ArmR/ForearmR/HandR',
-          targetBasis: 'Meshy Ready RightArm/RightForeArm/RightHand',
+          targetBasis: 'Meshy FistReady RightArm/RightForeArm/RightHand',
           meshyUpperLength: Number(calibration.meshyUpperLength.toFixed(6)),
           meshyForeLength: Number(calibration.meshyForeLength.toFixed(6)),
         },
@@ -401,9 +401,9 @@ async function main() {
       quarantine: true,
       weaponless: true,
       readyEndpointContract: {
-        firstDiffersFromReady: JSON.stringify(frames[0].bones) !== JSON.stringify(READY_POSE_PRESET.bones),
+        firstDiffersFromFistReady: JSON.stringify(frames[0].bones) !== JSON.stringify(FIST_READY_POSE_PRESET.bones),
         lastReturnsNearReady: false,
-        note: 'FistAttack1 is a native short FPS punch and does not need Ready endpoints to match the one-hand saber contract.',
+        note: 'FistAttack1 is a native short FPS punch and uses FistReady as its target baseline, not OneHandReady.',
       },
       sourceMotion: {
         rightHandPrimaryDriver: trackTravelDeg(THREE, rightHandTrack) > trackTravelDeg(THREE, rightArmTrack),

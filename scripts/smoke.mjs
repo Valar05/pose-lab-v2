@@ -13,10 +13,12 @@ function assert(condition, message) {
 
 const main = read('src/main.js');
 const readyPose = read('src/ready-pose.js');
+const fistReadyPose = read('src/fist-ready-pose.js');
 const poseStatusSource = read('src/pose-status.js');
 const reviewConstantsSource = read('src/review-constants.js');
 const attackCandidateSource = read('src/review-candidates/attack1-candidate-1.js');
 const attack2CandidateSource = read('src/review-candidates/attack2-candidate-1.js');
+const fistReadyCandidateSource = read('src/review-candidates/fist-ready-candidate-1.js');
 const fistAttack1CandidateSource = read('src/review-candidates/fist-attack1-candidate-1.js');
 const tipBasisCandidateSource = read('src/review-candidates/attack1-tip-basis-2.js');
 const jointPinnedCandidateSource = read('src/review-candidates/attack1-joint-pinned-3.js');
@@ -40,9 +42,11 @@ function parseExportedObject(source, label) {
 }
 
 const readyPreset = parseExportedObject(readyPose, 'Ready pose preset');
+const fistReadyPreset = parseExportedObject(fistReadyPose, 'FistReady pose preset');
 const poseStatus = parseExportedObject(poseStatusSource, 'Pose status manifest');
 const attackCandidate = parseExportedObject(attackCandidateSource, 'Attack1 candidate preview');
 const attack2Candidate = parseExportedObject(attack2CandidateSource, 'Attack2 candidate preview');
+const fistReadyCandidate = parseExportedObject(fistReadyCandidateSource, 'FistReady candidate preview');
 const fistAttack1Candidate = parseExportedObject(fistAttack1CandidateSource, 'FistAttack1 candidate preview');
 const tipBasisCandidate = parseExportedObject(tipBasisCandidateSource, 'Attack1 tip-basis candidate preview');
 const jointPinnedCandidate = parseExportedObject(jointPinnedCandidateSource, 'Attack1 joint-pinned candidate preview');
@@ -87,6 +91,7 @@ assert(pkg.scripts?.['bake:attack1:tip-match'] === 'node scripts/bake-attack1-ti
 assert(pkg.scripts?.['bake:attack1:tip-basis'] === 'node scripts/bake-attack1-tip-basis-candidate.mjs', 'Attack1 tip-basis candidate bake must be explicit and quarantine-only');
 assert(pkg.scripts?.['bake:attack1:joint-pinned'] === 'node scripts/bake-attack1-joint-pinned-candidate.mjs', 'Attack1 joint-pinned candidate bake must be explicit and quarantine-only');
 assert(pkg.scripts?.['bake:attack2:candidate'] === 'node scripts/bake-attack2-candidate.mjs', 'Attack2 candidate bake must be explicit and quarantine-only');
+assert(pkg.scripts?.['bake:fist-ready'] === 'node scripts/bake-fist-ready-pose.mjs', 'FistReady bake must be explicit and separate from one-hand Ready');
 assert(pkg.scripts?.['bake:fist-attack1:candidate'] === 'node scripts/bake-fist-attack1-candidate.mjs', 'FistAttack1 candidate bake must be explicit and quarantine-only');
 assert(pkg.scripts?.['reference:attack1:fps'] === 'node scripts/fps-attack1-reference.mjs', 'FPS Attack1 reference extraction must be explicit and separate from Meshy authoring');
 assert(!pkg.scripts?.['bake:attack1'] && !pkg.scripts?.['diagnose:blade'], 'official scripts must not regenerate or bless the quarantined Attack1 pose');
@@ -103,12 +108,13 @@ assert(exists('scripts/bake-attack1-tip-match-candidate.mjs'), 'missing Attack1 
 assert(exists('scripts/bake-attack1-tip-basis-candidate.mjs'), 'missing Attack1 tip-basis candidate bake script');
 assert(exists('scripts/bake-attack1-joint-pinned-candidate.mjs'), 'missing Attack1 joint-pinned candidate bake script');
 assert(exists('scripts/bake-attack2-candidate.mjs'), 'missing Attack2 candidate bake script');
+assert(exists('scripts/bake-fist-ready-pose.mjs'), 'missing FistReady bake script');
 assert(exists('scripts/bake-fist-attack1-candidate.mjs'), 'missing FistAttack1 candidate bake script');
 assert(exists('scripts/fps-attack1-reference.mjs'), 'missing FPS Attack1 reference extractor');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
 assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
 assert(attack2ReviewUrls.includes('attack2-candidate-1') && attack2ReviewUrls.includes("pose: 'attack2'") && attack2ReviewUrls.includes('backhandPrep') && attack2ReviewUrls.includes('contactHold'), 'Attack2 review URLs must target the combo backhand candidate and its prime keys');
-assert(fistAttack1ReviewUrls.includes('fist-attack1-candidate-1') && fistAttack1ReviewUrls.includes('weaponless FPSPlayer FistAttack1') && fistAttack1ReviewUrls.includes('windup') && fistAttack1ReviewUrls.includes('contact') && fistAttack1ReviewUrls.includes("view: 'fpv'"), 'FistAttack1 review URLs must target the weaponless FPSPlayer fist candidate and its prime keys');
+assert(fistAttack1ReviewUrls.includes('fist-ready-candidate-1') && fistAttack1ReviewUrls.includes('fist-attack1-candidate-1') && fistAttack1ReviewUrls.includes('weaponless FPSPlayer FistReady baseline') && fistAttack1ReviewUrls.includes('windup') && fistAttack1ReviewUrls.includes('contact') && fistAttack1ReviewUrls.includes("view: 'fpv'"), 'FistAttack1 review URLs must target the weaponless FistReady baseline and fist candidate prime keys');
 assert(combinedAttackReviewUrls.includes('attack1_review_urls.mjs') && combinedAttackReviewUrls.includes('attack2_review_urls.mjs') && combinedAttackReviewUrls.includes('wakeBrowser: false'), 'combined Attack review URL printer must aggregate Attack1 and Attack2 without waking a browser');
 assert(!exists('src/attack1-pose.js'), 'contaminated Attack1 generated pose data must not be shipped as repo truth');
 assert(exists('src/review-candidates/attack1-candidate-1.js'), 'Attack1 candidate 1 must be available as a preview module');
@@ -116,6 +122,8 @@ assert(exists('src/review-candidates/attack1-tip-match-1.js'), 'Attack1 tip-matc
 assert(exists('src/review-candidates/attack1-tip-basis-2.js'), 'Attack1 tip-basis candidate 2 must be available as a preview module');
 assert(exists('src/review-candidates/attack1-joint-pinned-3.js'), 'Attack1 joint-pinned candidate 3 must be available as a preview module');
 assert(exists('src/review-candidates/attack2-candidate-1.js'), 'Attack2 candidate 1 must be available as a preview module');
+assert(exists('src/fist-ready-pose.js'), 'FistReady pose preset must be available as a generated baseline');
+assert(exists('src/review-candidates/fist-ready-candidate-1.js'), 'FistReady candidate 1 must be available as a weaponless preview module');
 assert(exists('src/review-candidates/fist-attack1-candidate-1.js'), 'FistAttack1 candidate 1 must be available as a weaponless preview module');
 assert(!trackedCandidateFiles, `generated pose candidates must not be tracked on main: ${trackedCandidateFiles}`);
 assert(poseStatus.ready?.status === 'accepted', 'Ready must be explicitly accepted in pose-status.js');
@@ -146,9 +154,15 @@ assert(attack2Candidate.source?.clip === 'OneHandAttack2' && attack2Candidate.so
 assert(attack2Candidate.source?.comboStart === 'attack1.contactHold' && attack2Candidate.guardReport?.comboContract?.startMatchesAttack1ContactHold, 'Attack2 candidate must start from Attack1 contactHold');
 assert(attack2Candidate.guardReport?.comboContract?.noReadyResetAtStart, 'Attack2 candidate must not reset to Ready at the start');
 assert(attack2Candidate.frames?.length === 8 && attack2Candidate.primeKeys?.backhandPrep === 0.14 && attack2Candidate.primeKeys?.contact === 0.36, 'Attack2 candidate must expose staged backhand review anchors');
+assert(fistReadyPreset.schema === 'pose-lab-v2-fist-ready-pose-v1' && fistReadyPreset.source?.clip === 'FistReady', 'FistReady preset must be baked from FPSPlayer FistReady');
+assert(fistReadyPreset.source?.method === 'orientation-first-retarget-with-pins', 'FistReady preset must use orientation retargeting guided by pins');
+assert(fistReadyCandidate.schema === 'pose-lab-v2-attack-candidate-v1' && fistReadyCandidate.source?.clip === 'FistReady', 'FistReady candidate must expose the FistReady baseline for visual review');
+assert(fistReadyCandidate.source?.weaponless === true && fistReadyCandidate.guardReport?.weaponless === true, 'FistReady candidate must be weaponless');
+assert(fistReadyCandidate.frames?.length === 1 && fistReadyCandidate.frames[0]?.bones?.RightHand, 'FistReady candidate must expose a reviewable right-hand pose frame');
 assert(fistAttack1Candidate.schema === 'pose-lab-v2-attack-candidate-v1', 'FistAttack1 candidate must use the quarantine preview schema');
 assert(fistAttack1Candidate.source?.clip === 'FistAttack1' && fistAttack1Candidate.source?.readyClip === 'FistReady', 'FistAttack1 candidate must come from FPSPlayer FistAttack1 over FistReady');
-assert(fistAttack1Candidate.source?.method === 'fps-fist-world-joint-pinned-over-meshy-ready', 'FistAttack1 candidate must pin FPS fist joints in Meshy calibrated world space');
+assert(fistAttack1Candidate.source?.method === 'fps-fist-world-joint-pinned-over-meshy-fist-ready', 'FistAttack1 candidate must pin FPS fist joints over Meshy FistReady, not OneHandReady');
+assert(fistAttack1Candidate.source?.jointPinned?.targetSpace === 'Meshy calibrated world from generated FistReady', 'FistAttack1 joint pin target basis must be generated FistReady');
 assert(fistAttack1Candidate.source?.weaponless === true && fistAttack1Candidate.guardReport?.weaponless === true, 'FistAttack1 candidate must be weaponless so fist orientation is the review target');
 assert(fistAttack1Candidate.frames?.length === 6 && fistAttack1Candidate.primeKeys?.windup === 0.125 && fistAttack1Candidate.primeKeys?.contact === 0.25, 'FistAttack1 candidate must expose compact punch review anchors');
 assert(fistAttack1Candidate.source?.sourceMotion?.RightHand?.travelDeg > 200 && fistAttack1Candidate.source?.sourceMotion?.RightForeArm?.travelDeg > 150, 'FistAttack1 candidate must preserve substantial FPS right hand and forearm rotation travel');
@@ -181,6 +195,7 @@ assert(jointPinnedActiveFrames.every((entry) => entry.bladeTipWorldError <= join
 assert(jointPinnedActiveFrames.every((entry) => entry.bladeAngleErrorDeg <= jointPinnedCandidate.source.jointPinned.thresholds.bladeAngleDeg), 'Attack1 joint-pinned blade angle error must stay under threshold');
 assert(!attackCandidateSource.includes('SaberGrip') && !attackCandidateSource.includes('WeaponR.quaternion'), 'Attack1 candidate module must not animate SaberGrip or WeaponR tracks');
 assert(!attack2CandidateSource.includes('SaberGrip') && !attack2CandidateSource.includes('WeaponR.quaternion'), 'Attack2 candidate module must not animate SaberGrip or WeaponR tracks');
+assert(!fistReadyCandidateSource.includes('SaberGrip') && !fistReadyCandidateSource.includes('WeaponR.quaternion'), 'FistReady candidate module must not animate SaberGrip or WeaponR tracks');
 assert(!fistAttack1CandidateSource.includes('SaberGrip') && !fistAttack1CandidateSource.includes('WeaponR.quaternion'), 'FistAttack1 candidate module must not animate SaberGrip or WeaponR tracks');
 assert(!tipBasisCandidateSource.includes('SaberGrip.quaternion') && !tipBasisCandidateSource.includes('WeaponR.quaternion'), 'Attack1 tip-basis module must not animate SaberGrip or WeaponR tracks');
 assert(!jointPinnedCandidateSource.includes('SaberGrip.quaternion') && !jointPinnedCandidateSource.includes('WeaponR.quaternion'), 'Attack1 joint-pinned module must not animate SaberGrip or WeaponR tracks');
@@ -247,6 +262,7 @@ assert(main.includes("findRequiredBone(meshyRoot, 'RightHand')"), 'runtime saber
 assert(reviewConstantsSource.includes('export const SABER_GRIP_LOCAL = {') && reviewConstantsSource.includes('position: [8.52296, 28.41254, -24.44467]'), 'SaberGrip must use explicit authored RightHand-local placement from shared review constants');
 assert(reviewConstantsSource.includes('SABRE_REVIEW_LOCAL_AXIS') && reviewConstantsSource.includes('ATTACK1_REVIEW_CANDIDATES'), 'review constants must expose blade axis and candidate manifest');
 assert(reviewConstantsSource.includes('attack1-tip-match-1') && reviewConstantsSource.includes('failed diagnostic') && reviewConstantsSource.includes('attack1-tip-basis-2') && reviewConstantsSource.includes('failed diagnostic') && reviewConstantsSource.includes('attack1-joint-pinned-3') && reviewConstantsSource.includes('ATTACK1_JOINT_PINNED_SEQUENCE'), 'review constants must register failed diagnostics and current joint-pinned preview candidate');
+assert(reviewConstantsSource.includes('fist-ready-candidate-1') && reviewConstantsSource.includes('FIST_READY_POSE_SEQUENCE') && reviewConstantsSource.includes('weaponless'), 'review constants must register the weaponless FistReady preview candidate');
 assert(reviewConstantsSource.includes('fist-attack1-candidate-1') && reviewConstantsSource.includes('FIST_ATTACK1_POSE_SEQUENCE') && reviewConstantsSource.includes('weaponless'), 'review constants must register the weaponless FistAttack1 preview candidate');
 assert(main.includes("grip.name = 'SaberGrip'") && main.includes('rightHand.add(grip)') && main.includes('grip.add(sabreRoot)'), 'real sabre mesh must be parented through explicit local SaberGrip FK');
 assert(main.includes('sabreRoot.position.set(0, 0, 0)') && main.includes('sabreRoot.quaternion.identity()') && main.includes('sabreRoot.scale.set(1, 1, 1)'), 'sabre mesh local transform under SaberGrip must be identity');
@@ -360,11 +376,13 @@ if (exists('dist')) {
   assert(exists('dist/src/main.js'), 'dist must include the app module at /src/main.js under the repo path');
   assert(exists('dist/src/pose-status.js'), 'dist must include pose-status.js');
   assert(exists('dist/src/review-constants.js'), 'dist must include shared review constants');
+  assert(exists('dist/src/fist-ready-pose.js'), 'dist must include FistReady pose preset');
   assert(exists('dist/src/review-candidates/attack1-candidate-1.js'), 'dist must include Attack1 candidate preview module');
   assert(exists('dist/src/review-candidates/attack2-candidate-1.js'), 'dist must include Attack2 candidate preview module');
   assert(exists('dist/src/review-candidates/attack1-tip-match-1.js'), 'dist must include Attack1 tip-match candidate preview module');
   assert(exists('dist/src/review-candidates/attack1-tip-basis-2.js'), 'dist must include Attack1 tip-basis candidate preview module');
   assert(exists('dist/src/review-candidates/attack1-joint-pinned-3.js'), 'dist must include Attack1 joint-pinned candidate preview module');
+  assert(exists('dist/src/review-candidates/fist-ready-candidate-1.js'), 'dist must include FistReady candidate preview module');
   assert(exists('dist/src/review-candidates/fist-attack1-candidate-1.js'), 'dist must include FistAttack1 candidate preview module');
   assert(!exists('dist/src/attack1-pose.js'), 'dist must not ship the contaminated Attack1 pose sequence');
   assert(exists('dist/vendor/three/build/three.module.js'), 'dist must include vendored Three');
@@ -382,8 +400,10 @@ if (exists('dist')) {
 for (const file of [
   'src/main.js',
   'src/review-constants.js',
+  'src/fist-ready-pose.js',
   'src/review-candidates/attack1-candidate-1.js',
   'src/review-candidates/attack2-candidate-1.js',
+  'src/review-candidates/fist-ready-candidate-1.js',
   'src/review-candidates/fist-attack1-candidate-1.js',
   'src/review-candidates/attack1-tip-match-1.js',
   'src/review-candidates/attack1-tip-basis-2.js',

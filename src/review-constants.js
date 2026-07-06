@@ -32,6 +32,11 @@ export const ATTACK1_REVIEW_CANDIDATES = {
     exportName: "ATTACK2_POSE_SEQUENCE",
     label: "Attack2 candidate 1",
   },
+  "fist-ready-candidate-1": {
+    module: "./review-candidates/fist-ready-candidate-1.js",
+    exportName: "FIST_READY_POSE_SEQUENCE",
+    label: "FistReady candidate 1 (weaponless)",
+  },
   "fist-attack1-candidate-1": {
     module: "./review-candidates/fist-attack1-candidate-1.js",
     exportName: "FIST_ATTACK1_POSE_SEQUENCE",
