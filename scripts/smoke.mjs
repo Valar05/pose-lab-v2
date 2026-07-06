@@ -148,11 +148,16 @@ assert(attack2Candidate.guardReport?.comboContract?.noReadyResetAtStart, 'Attack
 assert(attack2Candidate.frames?.length === 8 && attack2Candidate.primeKeys?.backhandPrep === 0.14 && attack2Candidate.primeKeys?.contact === 0.36, 'Attack2 candidate must expose staged backhand review anchors');
 assert(fistAttack1Candidate.schema === 'pose-lab-v2-attack-candidate-v1', 'FistAttack1 candidate must use the quarantine preview schema');
 assert(fistAttack1Candidate.source?.clip === 'FistAttack1' && fistAttack1Candidate.source?.readyClip === 'FistReady', 'FistAttack1 candidate must come from FPSPlayer FistAttack1 over FistReady');
-assert(fistAttack1Candidate.source?.method === 'fps-fist-ready-local-deltas-over-meshy-ready', 'FistAttack1 candidate must use source fist-ready deltas over accepted Meshy Ready');
+assert(fistAttack1Candidate.source?.method === 'fps-fist-world-joint-pinned-over-meshy-ready', 'FistAttack1 candidate must pin FPS fist joints in Meshy calibrated world space');
 assert(fistAttack1Candidate.source?.weaponless === true && fistAttack1Candidate.guardReport?.weaponless === true, 'FistAttack1 candidate must be weaponless so fist orientation is the review target');
 assert(fistAttack1Candidate.frames?.length === 6 && fistAttack1Candidate.primeKeys?.windup === 0.125 && fistAttack1Candidate.primeKeys?.contact === 0.25, 'FistAttack1 candidate must expose compact punch review anchors');
 assert(fistAttack1Candidate.source?.sourceMotion?.RightHand?.travelDeg > 200 && fistAttack1Candidate.source?.sourceMotion?.RightForeArm?.travelDeg > 150, 'FistAttack1 candidate must preserve substantial FPS right hand and forearm rotation travel');
 assert(fistAttack1Candidate.guardReport?.sourceMotion?.rightHandPrimaryDriver === true, 'FistAttack1 candidate must record right hand as primary source rotation driver');
+assert(JSON.stringify(fistAttack1Candidate.source?.jointPinned?.sourceJoints) === JSON.stringify(['ArmR', 'ForearmR', 'HandR']), 'FistAttack1 candidate must source FPS ArmR/ForearmR/HandR joint pins');
+assert(JSON.stringify(fistAttack1Candidate.source?.jointPinned?.targetJoints) === JSON.stringify(['RightArm', 'RightForeArm', 'RightHand']), 'FistAttack1 candidate must target Meshy RightArm/RightForeArm/RightHand joint pins');
+assert(JSON.stringify(fistAttack1Candidate.source?.jointPinned?.solverAuthoredBones) === JSON.stringify(['RightArm', 'RightForeArm']), 'FistAttack1 joint pin solve must author only RightArm/RightForeArm; RightHand remains fist orientation');
+assert(fistAttack1Candidate.guardReport?.jointPinned?.status === 'PASS', 'FistAttack1 candidate must pass joint-pinned guardrail');
+assert((fistAttack1Candidate.guardReport?.jointPinned?.report || []).every((entry) => entry.wristWorldError <= 0.01), 'FistAttack1 wrist joint pin must stay near FPS-derived target');
 assert(fistAttack1Candidate.source?.acceptanceRead?.includes('fist/knuckle orientation is the visual target'), 'FistAttack1 candidate must document fist/knuckle orientation as the visual target');
 assert(tipBasisCandidate.source?.method === 'meshy-authored-fpv-tip-basis', 'Attack1 tip-basis candidate must use the FPV tip-basis method');
 assert(tipBasisCandidate.source?.baseCandidate === 'attack1-candidate-1', 'Attack1 tip-basis candidate must record its base candidate');
