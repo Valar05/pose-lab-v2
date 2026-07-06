@@ -21,6 +21,7 @@ const tipBasisCandidateSource = read('src/review-candidates/attack1-tip-basis-2.
 const jointPinnedCandidateSource = read('src/review-candidates/attack1-joint-pinned-3.js');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
 const attack2ReviewUrls = read('tools/attack2_review_urls.mjs');
+const combinedAttackReviewUrls = read('tools/attack_review_urls.mjs');
 const html = read('index.html');
 const css = read('src/styles.css');
 const readme = read('README.md');
@@ -88,8 +89,10 @@ assert(!pkg.scripts?.['bake:attack1'] && !pkg.scripts?.['diagnose:blade'], 'offi
 assert(pkg.scripts?.['promote:animation'] === 'node tools/promote_animation_candidate.mjs', 'animation promotion must use the explicit promotion gate');
 assert(pkg.scripts?.['review:attack1'] === 'node tools/attack1_review_urls.mjs', 'Attack1 review URLs must remain available');
 assert(pkg.scripts?.['review:attack2'] === 'node tools/attack2_review_urls.mjs', 'Attack2 review URLs must remain available');
+assert(pkg.scripts?.['review:attacks'] === 'node tools/attack_review_urls.mjs', 'combined Attack review URL printer must remain available');
 assert(exists('tools/promote_animation_candidate.mjs'), 'missing animation promotion gate');
 assert(exists('tools/attack1_review_urls.mjs'), 'missing Attack1 review URL printer');
+assert(exists('tools/attack_review_urls.mjs'), 'missing combined Attack review URL printer');
 assert(exists('scripts/bake-attack1-candidate.mjs'), 'missing Attack1 candidate bake script');
 assert(exists('scripts/bake-attack1-tip-match-candidate.mjs'), 'missing Attack1 tip-match candidate bake script');
 assert(exists('scripts/bake-attack1-tip-basis-candidate.mjs'), 'missing Attack1 tip-basis candidate bake script');
@@ -99,6 +102,7 @@ assert(exists('scripts/fps-attack1-reference.mjs'), 'missing FPS Attack1 referen
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
 assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
 assert(attack2ReviewUrls.includes('attack2-candidate-1') && attack2ReviewUrls.includes("pose: 'attack2'") && attack2ReviewUrls.includes('backhandPrep') && attack2ReviewUrls.includes('contactHold'), 'Attack2 review URLs must target the combo backhand candidate and its prime keys');
+assert(combinedAttackReviewUrls.includes('attack1_review_urls.mjs') && combinedAttackReviewUrls.includes('attack2_review_urls.mjs') && combinedAttackReviewUrls.includes('wakeBrowser: false'), 'combined Attack review URL printer must aggregate Attack1 and Attack2 without waking a browser');
 assert(!exists('src/attack1-pose.js'), 'contaminated Attack1 generated pose data must not be shipped as repo truth');
 assert(exists('src/review-candidates/attack1-candidate-1.js'), 'Attack1 candidate 1 must be available as a preview module');
 assert(exists('src/review-candidates/attack1-tip-match-1.js'), 'Attack1 tip-match candidate 1 must be available as a preview module');
@@ -160,6 +164,7 @@ assert(!tipBasisCandidateSource.includes('SaberGrip.quaternion') && !tipBasisCan
 assert(!jointPinnedCandidateSource.includes('SaberGrip.quaternion') && !jointPinnedCandidateSource.includes('WeaponR.quaternion'), 'Attack1 joint-pinned module must not animate SaberGrip or WeaponR tracks');
 assert(!read('scripts/bake-attack1-candidate.mjs').includes('applyOrientationBake') && !read('scripts/bake-attack1-candidate.mjs').includes('bakeCurrentFpsPoseToMeshy'), 'Attack1 candidate bake must not retarget FPS quaternions into Meshy');
 assert(readme.includes('Visual Verification Doctrine'), 'README must link the visual verification doctrine');
+assert(readme.includes('Attack Authoring Learnings'), 'README must link the attack authoring learning note');
 assert(readme.includes('They are not visual acceptance and cannot close a') && readme.includes('screenshot-red build'), 'README must state smoke/source checks are not visual acceptance');
 assert(visualDoctrine.includes('Human-visible truth is the acceptance gate'), 'visual doctrine must preserve human-visible truth as acceptance gate');
 assert(visualDoctrine.includes('Local render is agent eyesight') && visualDoctrine.includes('not final acceptance'), 'visual doctrine must classify local render as diagnostic eyesight, not final acceptance');

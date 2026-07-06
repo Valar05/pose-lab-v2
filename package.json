@@ -14,6 +14,7 @@
     "promote:animation": "node tools/promote_animation_candidate.mjs",
     "review:attack1": "node tools/attack1_review_urls.mjs",
     "review:attack2": "node tools/attack2_review_urls.mjs",
+    "review:attacks": "node tools/attack_review_urls.mjs",
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs"
   }

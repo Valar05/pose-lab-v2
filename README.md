@@ -14,6 +14,8 @@ This repo contains only:
   pinning, with no hidden runtime wrist-roll patch.
 - an `Attack1` review target, currently quarantined because no accepted Meshy
   `OneHandAttack1` bake exists in repo truth.
+- an `Attack2` quarantined combo review candidate that starts from Attack1
+  contact hold rather than Ready.
 
 It is not a Pose Lab fork. It does not include runtime retargeting, runtime
 FK/IK solvers, debug bridges, visual metric gates, case systems, or numeric
@@ -57,6 +59,11 @@ follow-through, recoil, and end. Candidate 1 must keep start/end equal to Ready,
 preserve wrist/forearm travel, and pass the screen-space blade-tip guard before
 it is reviewable.
 
+Current useful attack authoring doctrine lives in
+[Attack Authoring Learnings](docs/ATTACK_AUTHORING_LEARNINGS.md). The important
+lesson is that usable attacks need hold/snap/hold/recover timing. Good isolated
+poses are not enough.
+
 Manual Attack1 authoring uses the same anchors but does not use candidate frames
 as starting material. Use the key strip to select a key, pose bones visually in
 FPV, tap `Save Key`, and `Export Clip` once for the whole animation. The export
@@ -89,8 +96,10 @@ npm run bake:attack1:candidate
 npm run bake:attack1:tip-match
 npm run bake:attack1:tip-basis
 npm run bake:attack1:joint-pinned
+npm run bake:attack2:candidate
 npm run build
 npm run smoke
+npm run review:attacks
 git diff --check
 ```
 

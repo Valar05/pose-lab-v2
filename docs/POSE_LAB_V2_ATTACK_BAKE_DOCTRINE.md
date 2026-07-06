@@ -11,11 +11,17 @@ directly into accepted runtime paths. A tracked `src/review-candidates/*` module
 may exist only as a quarantined cloud-preview surface and must not change
 `src/pose-status.js` to accepted.
 
+For the current working attack pattern, read
+[Attack Authoring Learnings](ATTACK_AUTHORING_LEARNINGS.md) before changing
+Attack1 or Attack2 candidates.
+
 ## Fixed Rules
 
 - The Meshy rest/A-pose is immutable. If rest changes, the change is wrong.
 - `Ready` is the calibration baseline for one-hand saber work.
 - `OneHandAttack1` is an animated sequence, not a single contact pose.
+- A combo follow-up can start from the previous attack's contact hold. Attack2
+  currently starts from Attack1 `contactHold`, not from Ready.
 - The source wrist twist is a time-varying relationship across `Arm.R`,
   `Forearm.R`, `Hand.R`, and the FPS weapon socket reference. Preserve it as
   baked upper-body pose samples.
@@ -45,6 +51,20 @@ If the screenshot contradicts one of these visible predicates, the candidate is
 red even when source-motion metrics, wrist-travel totals, build checks, and
 smoke checks pass.
 
+## Attack2 Choreography Contract
+
+Attack2 is a backhand combo follow-up.
+
+- Start: exact Attack1 `contactHold`; no Ready reset.
+- Prep: load from the left-side contact into a readable backhand chamber.
+- Contact: slash left-to-right.
+- Wrist/forearm: twist through contact so the blade edge remains aligned.
+- Contact hold: hold the rightward hit long enough to read.
+- Recovery: settle after the hit; do not erase follow-through immediately.
+
+The first Attack2 candidate is allowed to be functional rather than final. It
+must remain quarantined until hosted visual review confirms the combo reads.
+
 ## Bake Workflow
 
 1. Inspect the source clip inventory from `FPSPlayer.glb`.
@@ -61,6 +81,8 @@ smoke checks pass.
    reinterpret the attack.
 7. Cloud review is the visible acceptance surface. Numeric wrist-travel checks
    are guardrails, not proof that the attack reads correctly.
+   Attacks should use hold/snap/hold/recover timing; evenly smoothed pose blends
+   are expected to read bland even when individual poses are decent.
 8. Reject the candidate if the projected blade tip/hilt relationship does not
    match the choreography contract. Diagnose the bone-roll or authored-key
    interpretation; do not fix the failure by moving the sabre independently.
