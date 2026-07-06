@@ -423,19 +423,16 @@ const POSE_BONE_NAMES = [
   'RightLeg',
   'RightFoot',
 ];
-const FPV_POSE_HANDLE_NAMES = new Set([
-  'LeftShoulder',
-  'LeftArm',
-  'LeftForeArm',
-  'LeftHand',
-  'RightShoulder',
-  'RightArm',
-  'RightForeArm',
-  'RightHand',
-]);
-const POSE_HANDLE_PICK_RADIUS_PX = 76;
-const poseHandleGeometry = new THREE.OctahedronGeometry(1, 0);
-const poseHandleMaterial = new THREE.MeshBasicMaterial({ color: 0x68d8ff, depthTest: false, transparent: true, opacity: 0.82 });
+const FPV_POSE_HANDLE_NAMES = new Set(POSE_BONE_NAMES);
+const POSE_HANDLE_PICK_RADIUS_PX = 58;
+const POSE_HANDLE_POSITION_FLOATS = 8 * 3 * 3;
+const poseHandleMaterial = new THREE.MeshBasicMaterial({
+  color: 0x68d8ff,
+  depthTest: false,
+  side: THREE.DoubleSide,
+  transparent: true,
+  opacity: 0.42,
+});
 const readyDeltaGeometry = new THREE.SphereGeometry(0.045, 12, 8);
 const readyRestMaterial = new THREE.MeshBasicMaterial({ color: 0x8b949e, depthTest: false, transparent: true, opacity: 0.72 });
 const readyReadyMaterial = new THREE.MeshBasicMaterial({ color: 0x58ff90, depthTest: false, transparent: true, opacity: 0.92 });
@@ -855,10 +852,15 @@ function setupPoseHandles() {
     const bone = findRequiredBone(meshyRoot, name);
     poseBones.set(name, bone);
     poseBoneRestQuaternions.set(name, bone.quaternion.clone());
-    const handle = new THREE.Mesh(poseHandleGeometry, poseHandleMaterial.clone());
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(POSE_HANDLE_POSITION_FLOATS), 3));
+    const handle = new THREE.Mesh(geometry, poseHandleMaterial.clone());
     handle.name = `PoseHandle:${name}`;
     handle.userData.poseBoneName = name;
+    handle.userData.head = new THREE.Vector3();
+    handle.userData.tail = new THREE.Vector3();
     handle.renderOrder = 14;
+    handle.frustumCulled = false;
     handle.visible = false;
     scene.add(handle);
     poseHandles.set(name, handle);
@@ -866,10 +868,61 @@ function setupPoseHandles() {
   updatePoseHandles();
 }
 
-function poseHandleScaleFor(position) {
-  if (viewMode !== 'firstPerson') return 0.045;
-  const distance = Math.max(0.08, camera.position.distanceTo(position));
-  return THREE.MathUtils.clamp(distance * 0.08, 0.06, 0.16);
+function firstPoseBoneChild(bone) {
+  return bone.children.find((child) => child.isBone && poseBones.has(child.name))
+    || bone.children.find((child) => child.isBone)
+    || null;
+}
+
+function poseBoneTailPosition(bone, head) {
+  const child = firstPoseBoneChild(bone);
+  if (child) return objectWorldPosition(child);
+  const parent = bone.parent?.isBone ? objectWorldPosition(bone.parent) : null;
+  const direction = parent
+    ? head.clone().sub(parent)
+    : new THREE.Vector3(0, 0.12, 0);
+  if (direction.lengthSq() < 0.000001) direction.set(0, 0.12, 0);
+  const length = THREE.MathUtils.clamp(direction.length() * 0.52, 0.08, 0.18);
+  return head.clone().add(direction.normalize().multiplyScalar(length));
+}
+
+function updateOctahedralBoneGeometry(handle, head, tail) {
+  const axis = tail.clone().sub(head);
+  const length = axis.length();
+  if (length < 0.0001) return;
+  const direction = axis.normalize();
+  const cameraForward = new THREE.Vector3();
+  camera.getWorldDirection(cameraForward);
+  let side = direction.clone().cross(cameraForward);
+  if (side.lengthSq() < 0.0001) side = direction.clone().cross(new THREE.Vector3(0, 1, 0));
+  if (side.lengthSq() < 0.0001) side = new THREE.Vector3(1, 0, 0);
+  side.normalize();
+  const up = side.clone().cross(direction).normalize();
+  const radius = THREE.MathUtils.clamp(length * 0.16, 0.018, 0.07);
+  const center = head.clone().lerp(tail, 0.46);
+  const equator = [
+    center.clone().add(side.clone().multiplyScalar(radius)),
+    center.clone().add(up.clone().multiplyScalar(radius)),
+    center.clone().add(side.clone().multiplyScalar(-radius)),
+    center.clone().add(up.clone().multiplyScalar(-radius)),
+  ];
+  const triangles = [];
+  for (let index = 0; index < equator.length; index += 1) {
+    const next = (index + 1) % equator.length;
+    triangles.push(head, equator[index], equator[next]);
+    triangles.push(tail, equator[next], equator[index]);
+  }
+  const positions = handle.geometry.attributes.position.array;
+  let offset = 0;
+  for (const vertex of triangles) {
+    positions[offset++] = vertex.x;
+    positions[offset++] = vertex.y;
+    positions[offset++] = vertex.z;
+  }
+  handle.geometry.attributes.position.needsUpdate = true;
+  handle.geometry.computeBoundingSphere();
+  handle.userData.head.copy(head);
+  handle.userData.tail.copy(tail);
 }
 
 function updatePoseHandles() {
@@ -878,12 +931,11 @@ function updatePoseHandles() {
     const bone = poseBones.get(name);
     handle.visible = toolMode === 'pose' && (viewMode !== 'firstPerson' || FPV_POSE_HANDLE_NAMES.has(name));
     if (!bone) continue;
-    const position = objectWorldPosition(bone);
-    handle.position.copy(position);
-    handle.quaternion.copy(camera.quaternion);
-    handle.scale.setScalar(poseHandleScaleFor(position));
+    const head = objectWorldPosition(bone);
+    const tail = poseBoneTailPosition(bone, head);
+    updateOctahedralBoneGeometry(handle, head, tail);
     if (handle.material) {
-      handle.material.opacity = selectedPoseBone?.name === name ? 0.98 : 0.84;
+      handle.material.opacity = selectedPoseBone?.name === name ? 0.72 : 0.42;
       handle.material.color.setHex(selectedPoseBone?.name === name ? 0xffd45c : 0x68d8ff);
     }
   }
@@ -1983,8 +2035,9 @@ function pickPoseHandle(clientX, clientY) {
   root.updateMatrixWorld(true);
   for (const [name, handle] of poseHandles) {
     if (!handle.visible) continue;
-    const screen = worldToScreenPixels(handle.position);
-    const distance = screen.distanceTo(point);
+    const head = worldToScreenPixels(handle.userData.head);
+    const tail = worldToScreenPixels(handle.userData.tail);
+    const distance = pointToScreenSegmentDistance(point, head, tail);
     if (distance < bestDistance) {
       best = name;
       bestDistance = distance;
@@ -1992,6 +2045,14 @@ function pickPoseHandle(clientX, clientY) {
   }
   if (!best || bestDistance > POSE_HANDLE_PICK_RADIUS_PX) return null;
   return poseBones.get(best) || null;
+}
+
+function pointToScreenSegmentDistance(point, a, b) {
+  const segment = b.clone().sub(a);
+  const lengthSq = segment.lengthSq();
+  if (lengthSq <= 0.000001) return point.distanceTo(a);
+  const alpha = THREE.MathUtils.clamp(point.clone().sub(a).dot(segment) / lengthSq, 0, 1);
+  return point.distanceTo(a.clone().add(segment.multiplyScalar(alpha)));
 }
 
 function cameraBasis() {

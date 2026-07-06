@@ -211,11 +211,11 @@ assert(main.includes("parentBone: 'RightHand'"), 'export must report SaberGrip a
 assert(main.includes("let toolMode = 'saber'") && main.includes('data-tool="saber"') && main.includes('data-tool="pose"'), 'app must distinguish top-level Saber and Pose modes');
 assert(main.includes('const POSE_BONE_NAMES = [') && main.includes("'RightHand'") && main.includes("'LeftFoot'"), 'Pose mode must expose curated real Meshy body bones');
 assert(main.includes('function setupPoseHandles') && main.includes('PoseHandle:') && main.includes('function pickPoseHandle'), 'Pose mode must create visible selectable bone handles');
-assert(main.includes('new THREE.OctahedronGeometry(1, 0)'), 'Pose handles must use simple octahedron bone markers');
-assert(main.includes('const FPV_POSE_HANDLE_NAMES = new Set') && main.includes("'RightShoulder'") && main.includes("'RightArm'") && main.includes("'RightForeArm'") && main.includes("'RightHand'"), 'FPV pose mode must expose right shoulder, upper arm, forearm, and hand handles');
-assert(!main.includes('FPV_POSE_HANDLE_DEFS') && !main.includes('poseHandleWorldPosition') && !main.includes('position.lerp(objectWorldPosition'), 'FPV pose handles must stay at actual bone origins, not clever segment midpoints');
-assert(main.includes('POSE_HANDLE_PICK_RADIUS_PX') && main.includes('worldToScreenPixels(handle.position)') && main.includes('bestDistance > POSE_HANDLE_PICK_RADIUS_PX'), 'Pose handle picking must use screen-space nearest visible octahedron');
-assert(main.includes("viewMode !== 'firstPerson' || FPV_POSE_HANDLE_NAMES.has(name)"), 'FPV pose mode must hide non-arm handles while preserving full handles outside FPV');
+assert(main.includes('function updateOctahedralBoneGeometry') && main.includes('poseBoneTailPosition') && main.includes('handle.userData.head') && main.includes('handle.userData.tail'), 'Pose handles must render Blender-style head-to-tail octahedral bone bodies');
+assert(main.includes('const FPV_POSE_HANDLE_NAMES = new Set(POSE_BONE_NAMES)'), 'FPV pose mode must show the curated skeleton overlay across the body');
+assert(!main.includes('new THREE.OctahedronGeometry(1, 0)') && !main.includes('poseHandleWorldPosition') && !main.includes('position.lerp(objectWorldPosition'), 'Pose handles must not regress to point markers or clever midpoint widgets');
+assert(main.includes('function pointToScreenSegmentDistance') && main.includes('worldToScreenPixels(handle.userData.head)') && main.includes('worldToScreenPixels(handle.userData.tail)'), 'Pose handle picking must use projected bone segment distance');
+assert(main.includes("viewMode !== 'firstPerson' || FPV_POSE_HANDLE_NAMES.has(name)"), 'FPV pose mode must use the explicit FPV-visible skeleton handle set');
 assert(main.includes('selectedPoseBone') && main.includes('function resetPose') && main.includes("data-action=\"reset-pose\""), 'Pose mode must track selection and reset curated bone rotations');
 assert(main.includes('const toolState = {') && main.includes("pose: { mode: 'rotate', axis: 'screen' }"), 'Saber and Pose modes must preserve their own active transform mode and axis');
 assert(!main.includes("toolMode === 'pose' ? 'rotate' : next") && !main.includes('button.hidden = toolMode === \'pose\''), 'Pose mode must not be a rotate-only island');
