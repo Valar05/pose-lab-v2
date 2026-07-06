@@ -423,20 +423,19 @@ const POSE_BONE_NAMES = [
   'RightLeg',
   'RightFoot',
 ];
-const FPV_POSE_HANDLE_DEFS = Object.freeze({
-  LeftArm: { from: 'LeftArm', to: 'LeftForeArm', color: 0x68d8ff, shape: 'box' },
-  LeftForeArm: { from: 'LeftForeArm', to: 'LeftHand', color: 0x55ffb2, shape: 'box' },
-  LeftHand: { from: 'LeftHand', color: 0x8ddcff, shape: 'sphere' },
-  RightArm: { from: 'RightArm', to: 'RightForeArm', color: 0xffb84d, shape: 'box' },
-  RightForeArm: { from: 'RightForeArm', to: 'RightHand', color: 0xff7c7c, shape: 'box' },
-  RightHand: { from: 'RightHand', color: 0xffd45c, shape: 'sphere' },
-});
-const FPV_POSE_HANDLE_NAMES = new Set(Object.keys(FPV_POSE_HANDLE_DEFS));
-const poseHandleSphereGeometry = new THREE.SphereGeometry(1, 16, 10);
-const poseHandleBoxGeometry = new THREE.BoxGeometry(1.35, 0.72, 0.72);
-const poseHandleHitGeometry = new THREE.SphereGeometry(1, 16, 10);
+const FPV_POSE_HANDLE_NAMES = new Set([
+  'LeftShoulder',
+  'LeftArm',
+  'LeftForeArm',
+  'LeftHand',
+  'RightShoulder',
+  'RightArm',
+  'RightForeArm',
+  'RightHand',
+]);
+const POSE_HANDLE_PICK_RADIUS_PX = 76;
+const poseHandleGeometry = new THREE.OctahedronGeometry(1, 0);
 const poseHandleMaterial = new THREE.MeshBasicMaterial({ color: 0x68d8ff, depthTest: false, transparent: true, opacity: 0.82 });
-const poseHandleHitMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false, transparent: true, opacity: 0.01 });
 const readyDeltaGeometry = new THREE.SphereGeometry(0.045, 12, 8);
 const readyRestMaterial = new THREE.MeshBasicMaterial({ color: 0x8b949e, depthTest: false, transparent: true, opacity: 0.72 });
 const readyReadyMaterial = new THREE.MeshBasicMaterial({ color: 0x58ff90, depthTest: false, transparent: true, opacity: 0.92 });
@@ -856,9 +855,10 @@ function setupPoseHandles() {
     const bone = findRequiredBone(meshyRoot, name);
     poseBones.set(name, bone);
     poseBoneRestQuaternions.set(name, bone.quaternion.clone());
-    const handle = createPoseHandle(name);
+    const handle = new THREE.Mesh(poseHandleGeometry, poseHandleMaterial.clone());
     handle.name = `PoseHandle:${name}`;
     handle.userData.poseBoneName = name;
+    handle.renderOrder = 14;
     handle.visible = false;
     scene.add(handle);
     poseHandles.set(name, handle);
@@ -866,48 +866,10 @@ function setupPoseHandles() {
   updatePoseHandles();
 }
 
-function createPoseHandle(name) {
-  const fpvDef = FPV_POSE_HANDLE_DEFS[name];
-  const markerMaterial = poseHandleMaterial.clone();
-  markerMaterial.color.setHex(fpvDef?.color || 0x68d8ff);
-  const marker = new THREE.Mesh(
-    fpvDef?.shape === 'box' ? poseHandleBoxGeometry : poseHandleSphereGeometry,
-    markerMaterial
-  );
-  marker.name = `PoseHandleMarker:${name}`;
-  marker.userData.poseBoneName = name;
-  marker.renderOrder = 14;
-
-  const hit = new THREE.Mesh(poseHandleHitGeometry, poseHandleHitMaterial.clone());
-  hit.name = `PoseHandleHit:${name}`;
-  hit.userData.poseBoneName = name;
-  hit.renderOrder = 13;
-  hit.scale.setScalar(2.45);
-
-  const handle = new THREE.Group();
-  handle.userData.poseBoneName = name;
-  handle.userData.marker = marker;
-  handle.userData.hit = hit;
-  handle.add(hit);
-  handle.add(marker);
-  return handle;
-}
-
-function poseHandleWorldPosition(name, bone) {
-  if (viewMode !== 'firstPerson') return objectWorldPosition(bone);
-  const def = FPV_POSE_HANDLE_DEFS[name];
-  if (!def) return objectWorldPosition(bone);
-  const from = poseBones.get(def.from);
-  const to = poseBones.get(def.to);
-  const position = from ? objectWorldPosition(from) : objectWorldPosition(bone);
-  if (to) position.lerp(objectWorldPosition(to), 0.5);
-  return position;
-}
-
 function poseHandleScaleFor(position) {
-  if (viewMode !== 'firstPerson') return 0.035;
+  if (viewMode !== 'firstPerson') return 0.045;
   const distance = Math.max(0.08, camera.position.distanceTo(position));
-  return THREE.MathUtils.clamp(distance * 0.06, 0.045, 0.12);
+  return THREE.MathUtils.clamp(distance * 0.08, 0.06, 0.16);
 }
 
 function updatePoseHandles() {
@@ -916,14 +878,13 @@ function updatePoseHandles() {
     const bone = poseBones.get(name);
     handle.visible = toolMode === 'pose' && (viewMode !== 'firstPerson' || FPV_POSE_HANDLE_NAMES.has(name));
     if (!bone) continue;
-    const position = poseHandleWorldPosition(name, bone);
+    const position = objectWorldPosition(bone);
     handle.position.copy(position);
     handle.quaternion.copy(camera.quaternion);
     handle.scale.setScalar(poseHandleScaleFor(position));
-    const marker = handle.userData.marker;
-    if (marker?.material) {
-      marker.material.opacity = selectedPoseBone?.name === name ? 0.98 : 0.84;
-      marker.material.color.setHex(selectedPoseBone?.name === name ? 0xffffff : FPV_POSE_HANDLE_DEFS[name]?.color || 0x68d8ff);
+    if (handle.material) {
+      handle.material.opacity = selectedPoseBone?.name === name ? 0.98 : 0.84;
+      handle.material.color.setHex(selectedPoseBone?.name === name ? 0xffd45c : 0x68d8ff);
     }
   }
 }
@@ -2016,16 +1977,21 @@ function pickSabre(clientX, clientY) {
 function pickPoseHandle(clientX, clientY) {
   if (!poseHandles.size) return null;
   const rect = canvas.getBoundingClientRect();
-  const pointer = new THREE.Vector2(
-    ((clientX - rect.left) / rect.width) * 2 - 1,
-    -(((clientY - rect.top) / rect.height) * 2 - 1)
-  );
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(pointer, camera);
-  const hits = raycaster.intersectObjects([...poseHandles.values()].filter((handle) => handle.visible), true);
-  if (!hits.length) return null;
-  const name = hits[0].object.userData.poseBoneName || hits[0].object.parent?.userData.poseBoneName;
-  return poseBones.get(name) || null;
+  const point = new THREE.Vector2(clientX - rect.left, clientY - rect.top);
+  let best = null;
+  let bestDistance = Infinity;
+  root.updateMatrixWorld(true);
+  for (const [name, handle] of poseHandles) {
+    if (!handle.visible) continue;
+    const screen = worldToScreenPixels(handle.position);
+    const distance = screen.distanceTo(point);
+    if (distance < bestDistance) {
+      best = name;
+      bestDistance = distance;
+    }
+  }
+  if (!best || bestDistance > POSE_HANDLE_PICK_RADIUS_PX) return null;
+  return poseBones.get(best) || null;
 }
 
 function cameraBasis() {
