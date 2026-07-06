@@ -6,8 +6,8 @@ export const FIST_READY_POSE_PRESET = {
     "meshy": "./public/assets/meshy/meshy_apose_walking_with_skin.glb",
     "clip": "FistReady",
     "sampleTime": 1.25,
-    "projectionFrame": "ShoulderCenter->Spine02",
-    "method": "orientation-first-retarget-with-joint-and-fpv-screen-pins",
+    "projectionFrame": "FPSPlayer.Camera->Meshy FPV camera",
+    "method": "orientation-first-retarget-with-world-joint-pins",
     "retargetedBones": [
       "RightArm",
       "RightForeArm",
@@ -16,6 +16,161 @@ export const FIST_READY_POSE_PRESET = {
       "LeftForeArm",
       "LeftHand"
     ],
+    "jointPinned": {
+      "sourceJoints": {
+        "right": [
+          "Arm.R",
+          "Forearm.R",
+          "Hand.R"
+        ],
+        "left": [
+          "Arm.L",
+          "Forearm.L",
+          "Hand.L"
+        ]
+      },
+      "targetJoints": {
+        "right": [
+          "RightArm",
+          "RightForeArm",
+          "RightHand"
+        ],
+        "left": [
+          "LeftArm",
+          "LeftForeArm",
+          "LeftHand"
+        ]
+      },
+      "targetSpace": "runtime-normalized Meshy world mapped from FPS FistReady camera space",
+      "solverAuthoredBones": {
+        "right": [
+          "RightShoulder",
+          "RightArm",
+          "RightForeArm"
+        ],
+        "left": [
+          "LeftShoulder",
+          "LeftArm",
+          "LeftForeArm"
+        ]
+      },
+      "report": {
+        "right": {
+          "shoulder": [
+            0.833639,
+            0.353627,
+            0.419819,
+            0.061206
+          ],
+          "upper": [
+            -0.70073,
+            0.067293,
+            0.403715,
+            -0.584349
+          ],
+          "lower": [
+            -0.612094,
+            -0.621631,
+            -0.114835,
+            0.475109
+          ],
+          "score": 0.144754,
+          "targetUpperWorld": [
+            0.04919,
+            1.33399,
+            0.07451
+          ],
+          "actualUpperWorld": [
+            0.05336,
+            1.24247,
+            0.10611
+          ],
+          "upperWorldError": 0.09691,
+          "targetElbowWorld": [
+            0.20582,
+            1.33452,
+            -0.04447
+          ],
+          "actualElbowWorld": [
+            0.20401,
+            1.37469,
+            -0.02249
+          ],
+          "elbowWorldError": 0.04583,
+          "targetWristWorld": [
+            0.22115,
+            1.57144,
+            0.10286
+          ],
+          "actualWristWorld": [
+            0.22093,
+            1.56986,
+            0.10164
+          ],
+          "wristWorldError": 0.00202,
+          "shoulderRotationFromInputDeg": 125.484,
+          "upperRotationFromInputDeg": 35.635,
+          "lowerRotationFromInputDeg": 33.484
+        },
+        "left": {
+          "shoulder": [
+            0.154338,
+            -0.249392,
+            -0.83361,
+            -0.468057
+          ],
+          "upper": [
+            0.564078,
+            0.529408,
+            -0.259818,
+            0.57796
+          ],
+          "lower": [
+            -0.334154,
+            0.575012,
+            0.546425,
+            0.50904
+          ],
+          "score": 0.143037,
+          "targetUpperWorld": [
+            -0.15511,
+            1.37134,
+            0.09034
+          ],
+          "actualUpperWorld": [
+            -0.10577,
+            1.29731,
+            0.07264
+          ],
+          "upperWorldError": 0.09071,
+          "targetElbowWorld": [
+            -0.31148,
+            1.44796,
+            -0.00112
+          ],
+          "actualElbowWorld": [
+            -0.27485,
+            1.47719,
+            0.02098
+          ],
+          "elbowWorldError": 0.05181,
+          "targetWristWorld": [
+            -0.17782,
+            1.65694,
+            0.12747
+          ],
+          "actualWristWorld": [
+            -0.17787,
+            1.65668,
+            0.12703
+          ],
+          "wristWorldError": 0.00051,
+          "shoulderRotationFromInputDeg": 164.831,
+          "upperRotationFromInputDeg": 89.286,
+          "lowerRotationFromInputDeg": 8.254
+        }
+      }
+    },
     "fpvScreenPinned": {
       "sourceCamera": "FPSPlayer.Camera",
       "targetCamera": "Meshy head-forward FPV",
@@ -32,15 +187,15 @@ export const FIST_READY_POSE_PRESET = {
         },
         "actual": {
           "RightForeArm": [
-            808.997,
-            347.307
+            526.738,
+            363.86
           ],
           "RightHand": [
-            632.795,
-            808.093
+            631.62,
+            803.397
           ]
         },
-        "scorePx": 291.378
+        "scorePx": 77.554
       },
       "left": {
         "target": {
@@ -55,15 +210,15 @@ export const FIST_READY_POSE_PRESET = {
         },
         "actual": {
           "LeftForeArm": [
-            -563.935,
-            496.535
+            -251.181,
+            547.079
           ],
           "LeftHand": [
-            -131.474,
-            944.324
+            -129.555,
+            942.943
           ]
         },
-        "scorePx": 275.428
+        "scorePx": 73.971
       }
     }
   },
@@ -87,52 +242,52 @@ export const FIST_READY_POSE_PRESET = {
       0.997975
     ],
     "LeftShoulder": [
-      0.522128,
-      0.564557,
-      -0.472393,
-      0.430699
+      0.154338,
+      -0.249392,
+      -0.83361,
+      -0.468057
     ],
     "LeftArm": [
-      -0.402431,
-      0.606438,
-      0.571216,
-      0.379466
+      0.564078,
+      0.529408,
+      -0.259818,
+      0.57796
     ],
     "LeftForeArm": [
-      -0.695448,
-      -0.268381,
-      0.460442,
-      0.481993
+      -0.334154,
+      0.575012,
+      0.546425,
+      0.50904
     ],
     "LeftHand": [
-      0.002026,
-      0.460039,
-      0.274099,
-      0.844529
+      -0.186291,
+      -0.909138,
+      -0.201073,
+      -0.313583
     ],
     "RightShoulder": [
-      0.521987,
-      -0.564688,
-      0.46633,
-      0.437256
+      0.833639,
+      0.353627,
+      0.419819,
+      0.061206
     ],
     "RightArm": [
-      0.560643,
-      0.451335,
-      0.60813,
-      -0.334895
+      -0.70073,
+      0.067293,
+      0.403715,
+      -0.584349
     ],
     "RightForeArm": [
-      -0.672976,
-      -0.697422,
-      -0.233658,
-      0.078163
+      -0.612094,
+      -0.621631,
+      -0.114835,
+      0.475109
     ],
     "RightHand": [
-      -0.399564,
-      -0.269037,
-      -0.401453,
-      0.778976
+      0.139327,
+      -0.806588,
+      -0.549002,
+      0.169116
     ],
     "neck": [
       0.063633,

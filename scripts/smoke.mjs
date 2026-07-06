@@ -157,7 +157,12 @@ assert(attack2Candidate.source?.comboStart === 'attack1.contactHold' && attack2C
 assert(attack2Candidate.guardReport?.comboContract?.noReadyResetAtStart, 'Attack2 candidate must not reset to Ready at the start');
 assert(attack2Candidate.frames?.length === 8 && attack2Candidate.primeKeys?.backhandPrep === 0.14 && attack2Candidate.primeKeys?.contact === 0.36, 'Attack2 candidate must expose staged backhand review anchors');
 assert(fistReadyPreset.schema === 'pose-lab-v2-fist-ready-pose-v1' && fistReadyPreset.source?.clip === 'FistReady', 'FistReady preset must be baked from FPSPlayer FistReady');
-assert(fistReadyPreset.source?.method === 'orientation-first-retarget-with-joint-and-fpv-screen-pins', 'FistReady preset must use orientation retargeting guided by joint and FPV screen pins');
+assert(fistReadyPreset.source?.method === 'orientation-first-retarget-with-world-joint-pins', 'FistReady preset must use orientation retargeting guided by runtime-normalized world joint pins');
+assert(fistReadyPreset.source?.projectionFrame === 'FPSPlayer.Camera->Meshy FPV camera', 'FistReady preset must map FPS joints through the FPV camera, not a torso frame');
+assert(fistReadyPreset.source?.jointPinned?.report?.right?.wristWorldError <= 0.01 && fistReadyPreset.source?.jointPinned?.report?.left?.wristWorldError <= 0.01, 'FistReady wrist joints must stay near the camera-space world joint targets');
+assert(fistReadyPreset.source?.jointPinned?.report?.right?.elbowWorldError <= 0.075 && fistReadyPreset.source?.jointPinned?.report?.left?.elbowWorldError <= 0.075, 'FistReady elbow joints must stay near the camera-space world joint targets');
+assert(JSON.stringify(fistReadyPreset.source?.jointPinned?.solverAuthoredBones?.right) === JSON.stringify(['RightShoulder', 'RightArm', 'RightForeArm']), 'FistReady right solve must author the shoulder, upper arm, and forearm');
+assert(JSON.stringify(fistReadyPreset.source?.jointPinned?.solverAuthoredBones?.left) === JSON.stringify(['LeftShoulder', 'LeftArm', 'LeftForeArm']), 'FistReady left solve must author the shoulder, upper arm, and forearm');
 assert(fistReadyPreset.source?.fpvScreenPinned?.sourceCamera === 'FPSPlayer.Camera', 'FistReady preset must record FPS FPV screen targets');
 assert(fistReadyPreset.source?.fpvScreenPinned?.right?.actual?.RightHand && fistReadyPreset.source?.fpvScreenPinned?.left?.actual?.LeftHand, 'FistReady preset must record Meshy FPV hand screen positions');
 assert(Math.abs(fistReadyPreset.source.fpvScreenPinned.right.actual.RightHand[0] - fistReadyPreset.source.fpvScreenPinned.right.target.RightHand[0]) < 5, 'FistReady right hand must be screen-pinned near FPS FPV reference');
@@ -223,9 +228,7 @@ assert(Boolean(fpvVisibleBonesMatch), 'runtime must declare the FPV visible bone
 const fpvVisibleBones = fpvVisibleBonesMatch
   ? [...fpvVisibleBonesMatch[1].matchAll(/'([^']+)'/g)].map((match) => match[1])
   : [];
-assert(!fpvVisibleBones.includes('LeftShoulder') && !fpvVisibleBones.includes('RightShoulder'), 'FPV mask must not show shoulder-owned armor that fills the fist review camera');
-assert(main.includes('const FPV_LIMB_MASK = {') && main.includes('function fpvVertexBelongsToLimb'), 'FPV must filter limb vertices by bone-segment capsules, not raw dominant bone alone');
-for (const bone of ['LeftArm', 'LeftForeArm', 'LeftHand', 'RightArm', 'RightForeArm', 'RightHand']) {
+for (const bone of ['LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand']) {
   assert(fpvVisibleBones.includes(bone), `FPV mask must still show ${bone}`);
 }
 assert(main.includes('const MESHY_PBR_TEXTURES = {') && main.includes('character_sheet_pbr/normal.png'), 'app must reference salvaged Meshy Character Sheet PBR texture channels');

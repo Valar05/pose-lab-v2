@@ -34,6 +34,7 @@ const chains = [
   {
     label: 'right',
     source: ['Arm.R', 'Forearm.R', 'Hand.R'],
+    targetDriver: 'RightShoulder',
     target: ['RightArm', 'RightForeArm', 'RightHand'],
     targetLocalAxis: [0, -1, 0],
     sourceLocalAxis: [0, 0, 1],
@@ -41,6 +42,7 @@ const chains = [
   {
     label: 'left',
     source: ['Arm.L', 'Forearm.L', 'Hand.L'],
+    targetDriver: 'LeftShoulder',
     target: ['LeftArm', 'LeftForeArm', 'LeftHand'],
     targetLocalAxis: [0, -1, 0],
     sourceLocalAxis: [0, 0, 1],
@@ -217,6 +219,146 @@ function applyTwoBonePin(THREE, sceneRoot, upper, lower, hand, targetWorld) {
   }
 }
 
+function scoreWorldPoints(THREE, root, targets) {
+  root.updateMatrixWorld(true);
+  let total = 0;
+  for (const [nodeName, target] of Object.entries(targets)) {
+    total += requireNode(root, nodeName).getWorldPosition(new THREE.Vector3()).distanceTo(target);
+  }
+  return total;
+}
+
+function solveChainToWorldTargets(THREE, meshyRoot, upperName, lowerName, handName, targets) {
+  const upper = requireNode(meshyRoot, upperName);
+  const lower = requireNode(meshyRoot, lowerName);
+  const hand = requireNode(meshyRoot, handName);
+  const startUpper = upper.quaternion.clone();
+  const startLower = lower.quaternion.clone();
+  let bestUpper = startUpper.clone();
+  let bestLower = startLower.clone();
+  let bestScore = scoreWorldPoints(THREE, meshyRoot, targets);
+  const axes = [
+    new THREE.Vector3(1, 0, 0),
+    new THREE.Vector3(0, 1, 0),
+    new THREE.Vector3(0, 0, 1),
+  ];
+  for (const step of [60, 36, 24, 12, 6, 3, 1.5, 0.75, 0.35, 0.18]) {
+    let improved = true;
+    let guard = 0;
+    while (improved && guard < 20) {
+      improved = false;
+      guard += 1;
+      for (const bone of [upper, lower]) {
+        for (const axis of axes) {
+          for (const sign of [-1, 1]) {
+            const delta = new THREE.Quaternion().setFromAxisAngle(axis, THREE.MathUtils.degToRad(step * sign));
+            upper.quaternion.copy(bestUpper);
+            lower.quaternion.copy(bestLower);
+            bone.quaternion.multiply(delta).normalize();
+            meshyRoot.updateMatrixWorld(true);
+            const score = scoreWorldPoints(THREE, meshyRoot, targets);
+            if (score + 0.00001 < bestScore) {
+              bestUpper = upper.quaternion.clone();
+              bestLower = lower.quaternion.clone();
+              bestScore = score;
+              improved = true;
+            }
+          }
+        }
+      }
+    }
+  }
+  upper.quaternion.copy(bestUpper).normalize();
+  lower.quaternion.copy(bestLower).normalize();
+  meshyRoot.updateMatrixWorld(true);
+  const actualElbowWorld = lower.getWorldPosition(new THREE.Vector3());
+  const actualWristWorld = hand.getWorldPosition(new THREE.Vector3());
+  return {
+    upper: roundedQuaternion(bestUpper),
+    lower: roundedQuaternion(bestLower),
+    score: Number(bestScore.toFixed(6)),
+    targetElbowWorld: vectorArray(targets[lowerName]),
+    actualElbowWorld: vectorArray(actualElbowWorld),
+    targetWristWorld: vectorArray(targets[handName]),
+    actualWristWorld: vectorArray(actualWristWorld),
+    elbowWorldError: Number(actualElbowWorld.distanceTo(targets[lowerName]).toFixed(5)),
+    wristWorldError: Number(actualWristWorld.distanceTo(targets[handName]).toFixed(5)),
+    upperRotationFromInputDeg: Number(THREE.MathUtils.radToDeg(startUpper.angleTo(bestUpper)).toFixed(3)),
+    lowerRotationFromInputDeg: Number(THREE.MathUtils.radToDeg(startLower.angleTo(bestLower)).toFixed(3)),
+  };
+}
+
+function solveShoulderChainToWorldTargets(THREE, meshyRoot, shoulderName, upperName, lowerName, handName, targets) {
+  const shoulder = requireNode(meshyRoot, shoulderName);
+  const upper = requireNode(meshyRoot, upperName);
+  const lower = requireNode(meshyRoot, lowerName);
+  const startShoulder = shoulder.quaternion.clone();
+  const startUpper = upper.quaternion.clone();
+  const startLower = lower.quaternion.clone();
+  let bestShoulder = startShoulder.clone();
+  let bestUpper = startUpper.clone();
+  let bestLower = startLower.clone();
+  let bestScore = scoreWorldPoints(THREE, meshyRoot, targets);
+  const axes = [
+    new THREE.Vector3(1, 0, 0),
+    new THREE.Vector3(0, 1, 0),
+    new THREE.Vector3(0, 0, 1),
+  ];
+  for (const step of [60, 36, 24, 12, 6, 3, 1.5, 0.75, 0.35, 0.18]) {
+    let improved = true;
+    let guard = 0;
+    while (improved && guard < 24) {
+      improved = false;
+      guard += 1;
+      for (const bone of [shoulder, upper, lower]) {
+        for (const axis of axes) {
+          for (const sign of [-1, 1]) {
+            const delta = new THREE.Quaternion().setFromAxisAngle(axis, THREE.MathUtils.degToRad(step * sign));
+            shoulder.quaternion.copy(bestShoulder);
+            upper.quaternion.copy(bestUpper);
+            lower.quaternion.copy(bestLower);
+            bone.quaternion.multiply(delta).normalize();
+            meshyRoot.updateMatrixWorld(true);
+            const score = scoreWorldPoints(THREE, meshyRoot, targets);
+            if (score + 0.00001 < bestScore) {
+              bestShoulder = shoulder.quaternion.clone();
+              bestUpper = upper.quaternion.clone();
+              bestLower = lower.quaternion.clone();
+              bestScore = score;
+              improved = true;
+            }
+          }
+        }
+      }
+    }
+  }
+  shoulder.quaternion.copy(bestShoulder).normalize();
+  upper.quaternion.copy(bestUpper).normalize();
+  lower.quaternion.copy(bestLower).normalize();
+  meshyRoot.updateMatrixWorld(true);
+  const actualUpperWorld = requireNode(meshyRoot, upperName).getWorldPosition(new THREE.Vector3());
+  const actualElbowWorld = requireNode(meshyRoot, lowerName).getWorldPosition(new THREE.Vector3());
+  const actualWristWorld = requireNode(meshyRoot, handName).getWorldPosition(new THREE.Vector3());
+  return {
+    shoulder: roundedQuaternion(bestShoulder),
+    upper: roundedQuaternion(bestUpper),
+    lower: roundedQuaternion(bestLower),
+    score: Number(bestScore.toFixed(6)),
+    targetUpperWorld: vectorArray(targets[upperName]),
+    actualUpperWorld: vectorArray(actualUpperWorld),
+    upperWorldError: Number(actualUpperWorld.distanceTo(targets[upperName]).toFixed(5)),
+    targetElbowWorld: vectorArray(targets[lowerName]),
+    actualElbowWorld: vectorArray(actualElbowWorld),
+    elbowWorldError: Number(actualElbowWorld.distanceTo(targets[lowerName]).toFixed(5)),
+    targetWristWorld: vectorArray(targets[handName]),
+    actualWristWorld: vectorArray(actualWristWorld),
+    wristWorldError: Number(actualWristWorld.distanceTo(targets[handName]).toFixed(5)),
+    shoulderRotationFromInputDeg: Number(THREE.MathUtils.radToDeg(startShoulder.angleTo(bestShoulder)).toFixed(3)),
+    upperRotationFromInputDeg: Number(THREE.MathUtils.radToDeg(startUpper.angleTo(bestUpper)).toFixed(3)),
+    lowerRotationFromInputDeg: Number(THREE.MathUtils.radToDeg(startLower.angleTo(bestLower)).toFixed(3)),
+  };
+}
+
 function projectedAroundAxis(THREE, direction, axis) {
   const projected = direction.clone().sub(axis.clone().normalize().multiplyScalar(direction.dot(axis.clone().normalize())));
   return projected.lengthSq() > 1e-8 ? projected.normalize() : null;
@@ -230,6 +372,16 @@ function mapDirectionBetweenFrames(THREE, direction, sourceFrame, targetFrame) {
 function mapPointBetweenFrames(THREE, sourceFrame, targetFrame, sourceWorld, scale) {
   const local = sourceWorld.clone().sub(worldPosition(THREE, sourceFrame)).applyQuaternion(worldQuaternion(THREE, sourceFrame).invert());
   return local.multiplyScalar(scale).applyQuaternion(worldQuaternion(THREE, targetFrame)).add(worldPosition(THREE, targetFrame));
+}
+
+function mapPointBetweenCameras(THREE, sourceCamera, targetCamera, sourceWorld, scale) {
+  const sourceLocal = sourceWorld.clone()
+    .sub(sourceCamera.position)
+    .applyQuaternion(sourceCamera.quaternion.clone().invert());
+  return sourceLocal
+    .multiplyScalar(scale)
+    .applyQuaternion(targetCamera.quaternion)
+    .add(targetCamera.position);
 }
 
 function rotateHandRoll(THREE, sceneRoot, fpsRoot, meshyRoot, chain) {
@@ -431,6 +583,22 @@ function solveChainToScreenTargets(THREE, meshyRoot, upperName, lowerName, handN
   };
 }
 
+function screenReport(THREE, meshyRoot, targets) {
+  const camera = setupMeshyFpvCamera(THREE, meshyRoot);
+  const screen = Object.fromEntries(Object.keys(targets).map((name) => [
+    name,
+    projectPoint(THREE, camera, worldPosition(THREE, requireNode(meshyRoot, name))).toArray().map((value) => Number(value.toFixed(3))),
+  ]));
+  let score = 0;
+  for (const [name, target] of Object.entries(targets)) {
+    score += new THREE.Vector2(...screen[name]).distanceTo(target);
+  }
+  return {
+    scorePx: Number(score.toFixed(3)),
+    screen,
+  };
+}
+
 function sourceScreenTargets(THREE, fpsRoot) {
   const camera = setupFpsCamera(THREE, fpsRoot);
   const targetFor = (name) => projectPoint(THREE, camera, worldPosition(THREE, requireNode(fpsRoot, name)));
@@ -450,6 +618,10 @@ function roundedQuaternion(quaternion) {
   return [quaternion.x, quaternion.y, quaternion.z, quaternion.w].map((value) => Number(value.toFixed(6)));
 }
 
+function vectorArray(vector) {
+  return vector.toArray().map((value) => Number(value.toFixed(5)));
+}
+
 function posePayload(THREE, meshyRoot) {
   const bones = {};
   for (const name of exportBones) {
@@ -457,6 +629,18 @@ function posePayload(THREE, meshyRoot) {
     if (bone) bones[name] = roundedQuaternion(bone.quaternion);
   }
   return bones;
+}
+
+function normalizeCharacter(THREE, object) {
+  const box = new THREE.Box3().setFromObject(object);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  const height = Math.max(0.001, size.y);
+  object.position.sub(center);
+  object.position.y += height * 0.5;
+  object.scale.multiplyScalar(1.75 / height);
+  object.updateMatrixWorld(true);
+  return object;
 }
 
 async function main() {
@@ -471,7 +655,7 @@ async function main() {
   });
   const [fps, meshy] = await Promise.all([loadGlb(fpsPath), loadGlb(meshyPath)]);
   const fpsRoot = fps.scene;
-  const meshyRoot = meshy.scene;
+  const meshyRoot = normalizeCharacter(THREE, meshy.scene);
   const readyClip = fps.animations.find((clip) => clip.name === sourceClipName);
   const restClip = fps.animations.find((clip) => clip.name === restClipName);
   if (!readyClip) throw new Error(`missing FPS clip ${sourceClipName}`);
@@ -486,30 +670,34 @@ async function main() {
   const scale = chains.reduce((sum, chain) => (
     sum + chainLength(THREE, meshyRoot, chain.target) / Math.max(0.0001, chainLength(THREE, fpsRoot, chain.source))
   ), 0) / chains.length;
-  const sourceFrame = requireNode(fpsRoot, sourceFrameName);
-  const targetFrame = requireNode(meshyRoot, targetFrameName);
+  const retargetedBones = applyOrientationRetarget(THREE, fpsRoot, meshyRoot, sourceRestWorld, targetRestWorld);
+  const fpsCamera = setupFpsCamera(THREE, fpsRoot);
+  const meshyCamera = setupMeshyFpvCamera(THREE, meshyRoot);
   const projected = new Map();
   for (const chain of chains) {
     for (const sourceName of chain.source) {
-      projected.set(sourceName, mapPointBetweenFrames(
+      projected.set(sourceName, mapPointBetweenCameras(
         THREE,
-        sourceFrame,
-        targetFrame,
+        fpsCamera,
+        meshyCamera,
         worldPosition(THREE, requireNode(fpsRoot, sourceName)),
         scale
       ));
     }
   }
-
-  const retargetedBones = applyOrientationRetarget(THREE, fpsRoot, meshyRoot, sourceRestWorld, targetRestWorld);
+  const jointPinned = {};
   for (const chain of chains) {
-    const [upper, lower, hand] = chain.target.map((name) => requireNode(meshyRoot, name));
-    applyTwoBonePin(THREE, meshyRoot, upper, lower, hand, projected.get(chain.source[2]));
+    const solved = solveShoulderChainToWorldTargets(THREE, meshyRoot, chain.targetDriver, chain.target[0], chain.target[1], chain.target[2], {
+      [chain.target[0]]: projected.get(chain.source[0]),
+      [chain.target[1]]: projected.get(chain.source[1]),
+      [chain.target[2]]: projected.get(chain.source[2]),
+    });
     rotateHandRoll(THREE, meshyRoot, fpsRoot, meshyRoot, chain);
+    jointPinned[chain.label] = solved;
   }
   const screenTargets = sourceScreenTargets(THREE, fpsRoot);
-  const rightScreenSolve = solveChainToScreenTargets(THREE, meshyRoot, 'RightArm', 'RightForeArm', 'RightHand', screenTargets.right);
-  const leftScreenSolve = solveChainToScreenTargets(THREE, meshyRoot, 'LeftArm', 'LeftForeArm', 'LeftHand', screenTargets.left);
+  const rightScreenSolve = screenReport(THREE, meshyRoot, screenTargets.right);
+  const leftScreenSolve = screenReport(THREE, meshyRoot, screenTargets.left);
   const screenPinnedBones = posePayload(THREE, meshyRoot);
 
   const payload = {
@@ -520,9 +708,16 @@ async function main() {
       meshy: './public/assets/meshy/meshy_apose_walking_with_skin.glb',
       clip: sourceClipName,
       sampleTime: Number(readyClip.duration.toFixed(6)),
-      projectionFrame: `${sourceFrameName}->${targetFrameName}`,
-      method: 'orientation-first-retarget-with-joint-and-fpv-screen-pins',
+      projectionFrame: 'FPSPlayer.Camera->Meshy FPV camera',
+      method: 'orientation-first-retarget-with-world-joint-pins',
       retargetedBones,
+      jointPinned: {
+        sourceJoints: Object.fromEntries(chains.map((chain) => [chain.label, chain.source])),
+        targetJoints: Object.fromEntries(chains.map((chain) => [chain.label, chain.target])),
+        targetSpace: 'runtime-normalized Meshy world mapped from FPS FistReady camera space',
+        solverAuthoredBones: Object.fromEntries(chains.map((chain) => [chain.label, [chain.targetDriver, chain.target[0], chain.target[1]]])),
+        report: jointPinned,
+      },
       fpvScreenPinned: {
         sourceCamera: 'FPSPlayer.Camera',
         targetCamera: 'Meshy head-forward FPV',
