@@ -2031,29 +2031,54 @@ function pickPoseHandle(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
   const point = new THREE.Vector2(clientX - rect.left, clientY - rect.top);
   let best = null;
+  let bestScore = Infinity;
   let bestDistance = Infinity;
   root.updateMatrixWorld(true);
   for (const [name, handle] of poseHandles) {
     if (!handle.visible) continue;
-    const distance = projectedHandlePickDistance(handle, point);
-    if (distance < bestDistance) {
+    const pick = projectedHandlePickInfo(handle, point, rect);
+    const score = pick.inside
+      ? -100000 + pick.screenArea + posePickPriority(name)
+      : pick.distance + posePickPriority(name);
+    if (score < bestScore) {
       best = name;
-      bestDistance = distance;
+      bestScore = score;
+      bestDistance = pick.distance;
     }
   }
   if (!best || bestDistance > POSE_HANDLE_PICK_RADIUS_PX) return null;
   return poseBones.get(best) || null;
 }
 
-function projectedHandlePickDistance(handle, point) {
+function posePickPriority(name) {
+  if (viewMode !== 'firstPerson') return 0;
+  if (name.includes('Hand')) return -9;
+  if (name.includes('ForeArm')) return -7;
+  if (name.includes('Arm')) return -6;
+  if (name.includes('Shoulder')) return -4;
+  return 0;
+}
+
+function projectedHandlePickInfo(handle, point, rect) {
   const positions = handle.geometry?.attributes?.position?.array;
-  if (!positions) return Infinity;
+  if (!positions) return { distance: Infinity, inside: false, screenArea: Infinity };
   let bestDistance = Infinity;
+  let inside = false;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
   for (let index = 0; index < positions.length; index += 9) {
     const a = worldToScreenPixels(new THREE.Vector3(positions[index], positions[index + 1], positions[index + 2]));
     const b = worldToScreenPixels(new THREE.Vector3(positions[index + 3], positions[index + 4], positions[index + 5]));
     const c = worldToScreenPixels(new THREE.Vector3(positions[index + 6], positions[index + 7], positions[index + 8]));
-    if (pointInScreenTriangle(point, a, b, c)) return 0;
+    for (const vertex of [a, b, c]) {
+      minX = Math.min(minX, THREE.MathUtils.clamp(vertex.x, 0, rect.width));
+      minY = Math.min(minY, THREE.MathUtils.clamp(vertex.y, 0, rect.height));
+      maxX = Math.max(maxX, THREE.MathUtils.clamp(vertex.x, 0, rect.width));
+      maxY = Math.max(maxY, THREE.MathUtils.clamp(vertex.y, 0, rect.height));
+    }
+    if (pointInScreenTriangle(point, a, b, c)) inside = true;
     bestDistance = Math.min(
       bestDistance,
       pointToScreenSegmentDistance(point, a, b),
@@ -2061,7 +2086,8 @@ function projectedHandlePickDistance(handle, point) {
       pointToScreenSegmentDistance(point, c, a)
     );
   }
-  return bestDistance;
+  const screenArea = Math.max(1, (maxX - minX) * (maxY - minY));
+  return { distance: inside ? 0 : bestDistance, inside, screenArea };
 }
 
 function pointInScreenTriangle(point, a, b, c) {
