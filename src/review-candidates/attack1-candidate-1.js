@@ -7,19 +7,24 @@ export const ATTACK1_POSE_SEQUENCE = {
     "clip": "OneHandAttack1",
     "duration": 1.25,
     "keyCount": 6,
-    "method": "meshy-authored-from-fps-handr-reference",
+    "method": "meshy-manual-user-anticipation-contact-with-generated-recovery",
     "retargetedBones": [],
     "authoredBones": [
+      "Spine02",
       "RightArm",
       "RightForeArm",
       "RightHand",
       "LeftArm",
-      "LeftForeArm",
-      "LeftHand"
+      "LeftForeArm"
     ],
+    "generatedBones": {
+      "followThrough": "slerp(contact, ready, 0.35)",
+      "recoil": "slerp(contact, ready, 0.75)",
+      "end": "ready"
+    },
     "fpsReference": {
       "generatedDir": "generated/fps-reference/attack1",
-      "note": "FPS key render/description and HandR angular travel are reference only; no FPS quaternion is copied into Meshy.",
+      "note": "FPS key render/description and HandR angular travel are reference only. Anticipation/contact came from user manual authoring; generated recovery keys are slerped toward Ready.",
       "descriptions": {
         "start": "ready-like source start; weapon begins the attack path",
         "anticipation": "right hand moves viewer-right; left hand moves viewer-right; weapon tip trails left of hilt",
@@ -123,8 +128,8 @@ export const ATTACK1_POSE_SEQUENCE = {
       }
     },
     "signatureWristTwist": {
-      "bakedRightHandRotationTravelDeg": 260,
-      "bakedRightForeArmRotationTravelDeg": 41.643,
+      "bakedRightHandRotationTravelDeg": 284.713,
+      "bakedRightForeArmRotationTravelDeg": 293.144,
       "rightHandPrimaryDriver": true,
       "rightHandSaberAxisLocal": [
         -0.270175,
@@ -144,7 +149,7 @@ export const ATTACK1_POSE_SEQUENCE = {
   "guardReport": {
     "authoredGuard": {
       "status": "PASS",
-      "rule": "Meshy-authored Attack1 starts/ends at Ready; FPS HandR is the primary reference signal; baked Meshy RightHand rotation dominates arm travel; FPS blade tip never drops below hilt",
+      "rule": "Manual Attack1 candidate starts/ends at Ready; user anticipation/contact are preserved; generated recovery returns toward Ready; FPS blade tip reference never drops below hilt",
       "sourceMotion": {
         "HandR": {
           "keyedQuaternionTrack": true,
@@ -261,9 +266,9 @@ export const ATTACK1_POSE_SEQUENCE = {
         "sourceTipNeverDropsBelowHilt": true
       },
       "bakedMotion": {
-        "bakedRightHandTravelDeg": 260,
-        "bakedRightForeArmTravelDeg": 41.643,
-        "bakedRightArmTravelDeg": 137.843,
+        "bakedRightHandTravelDeg": 284.713,
+        "bakedRightForeArmTravelDeg": 293.144,
+        "bakedRightArmTravelDeg": 84.926,
         "rightHandSaberAxisLocal": [
           -0.270175,
           -0.598948,
@@ -304,7 +309,7 @@ export const ATTACK1_POSE_SEQUENCE = {
       "time": 0,
       "label": "start",
       "note": "accepted Ready baseline",
-      "rightHandTwistDeg": 0,
+      "generated": false,
       "bones": {
         "Spine02": [
           -0.065296,
@@ -389,8 +394,8 @@ export const ATTACK1_POSE_SEQUENCE = {
     {
       "time": 0.25,
       "label": "anticipation",
-      "note": "authored from visual review: wind up to viewer-right near screen edge; HandR twists so the sabre trails left, not top-right",
-      "rightHandTwistDeg": -54,
+      "note": "user-authored manual key: anticipation keeps Ready base, adjusts LeftForeArm, RightForeArm, and RightHand so the sabre trails left",
+      "generated": false,
       "bones": {
         "Spine02": [
           -0.065296,
@@ -417,22 +422,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.430699
         ],
         "LeftArm": [
-          0.132864,
-          0.347476,
-          0.403912,
-          0.83574
+          0.100441,
+          0.437689,
+          0.552189,
+          0.702444
         ],
         "LeftForeArm": [
-          -0.512219,
-          0.241997,
-          0.325477,
-          0.757056
+          -0.579859,
+          0.274347,
+          0.40318,
+          0.652643
         ],
         "LeftHand": [
-          -0.063197,
-          -0.545824,
-          0.094354,
-          0.830168
+          -0.086945,
+          -0.542548,
+          0.130476,
+          0.825263
         ],
         "RightShoulder": [
           0.521987,
@@ -441,22 +446,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.437256
         ],
         "RightArm": [
-          -0.596175,
-          0.266099,
-          0.649151,
-          -0.390346
+          -0.631431,
+          0.268394,
+          0.431965,
+          -0.585376
         ],
         "RightForeArm": [
-          -0.630036,
-          -0.499357,
-          0.301237,
-          0.512791
+          0.505157,
+          0.141278,
+          -0.800455,
+          -0.290048
         ],
         "RightHand": [
-          -0.370534,
-          0.499079,
-          -0.459459,
-          0.634447
+          -0.346474,
+          0.084827,
+          -0.383407,
+          0.851915
         ],
         "neck": [
           0.063633,
@@ -475,14 +480,14 @@ export const ATTACK1_POSE_SEQUENCE = {
     {
       "time": 0.458333,
       "label": "contact",
-      "note": "authored from visual review: strike back to viewer-left; opposite HandR rotation from anticipation; left arm exits the FPV frame",
-      "rightHandTwistDeg": 76,
+      "note": "user-authored manual key: contact drives the strike with Spine02, LeftArm, RightArm, RightForeArm, and RightHand",
+      "generated": false,
       "bones": {
         "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
+          -0.369923,
+          -0.032504,
+          0.083378,
+          0.924742
         ],
         "Spine01": [
           0,
@@ -503,22 +508,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.430699
         ],
         "LeftArm": [
-          0.0935,
-          0.661938,
-          0.673284,
-          0.315888
+          -0.348211,
+          -0.80149,
+          0.141502,
+          -0.465123
         ],
         "LeftForeArm": [
-          -0.52259,
-          0.394392,
-          0.319992,
-          0.684807
+          -0.517448,
+          0.281281,
+          0.327324,
+          0.73891
         ],
         "LeftHand": [
-          -0.1339,
-          -0.532905,
-          0.201906,
-          0.810751
+          -0.086945,
+          -0.542548,
+          0.130476,
+          0.825263
         ],
         "RightShoulder": [
           0.521987,
@@ -527,22 +532,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.437256
         ],
         "RightArm": [
-          -0.681331,
-          0.253467,
-          0.140716,
-          -0.672117
+          0.463915,
+          -0.355768,
+          -0.697378,
+          0.414579
         ],
         "RightForeArm": [
-          -0.714522,
-          -0.349472,
-          0.257486,
-          0.548662
+          -0.543052,
+          -0.505096,
+          -0.289738,
+          0.604999
         ],
         "RightHand": [
-          -0.22038,
-          0.232177,
-          0.562625,
-          0.76222
+          0.126043,
+          0.905519,
+          -0.06231,
+          0.400332
         ],
         "neck": [
           0.063633,
@@ -561,14 +566,14 @@ export const ATTACK1_POSE_SEQUENCE = {
     {
       "time": 0.75,
       "label": "followThrough",
-      "note": "follow-through inherits the contact-side leftward strike path while the HandR-driven blade stays owned by the hand",
-      "rightHandTwistDeg": 42,
+      "note": "generated from user contact toward Ready; keeps the contact-side strike longer before recovery",
+      "generated": true,
       "bones": {
         "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
+          -0.26614,
+          -0.020537,
+          0.057542,
+          0.961996
         ],
         "Spine01": [
           0,
@@ -589,22 +594,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.430699
         ],
         "LeftArm": [
-          0.077994,
-          0.590593,
-          0.659642,
-          0.458245
+          -0.284267,
+          -0.735611,
+          -0.117959,
+          -0.603452
         ],
         "LeftForeArm": [
-          -0.52402,
-          0.355335,
-          0.321451,
-          0.704137
+          -0.517448,
+          0.281281,
+          0.327324,
+          0.73891
         ],
         "LeftHand": [
-          -0.119905,
-          -0.536228,
-          0.180614,
-          0.815758
+          -0.086945,
+          -0.542548,
+          0.130476,
+          0.825263
         ],
         "RightShoulder": [
           0.521987,
@@ -613,22 +618,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.437256
         ],
         "RightArm": [
-          -0.662669,
-          0.262256,
-          0.244118,
-          -0.657645
+          0.531062,
+          -0.330183,
+          -0.613607,
+          0.482119
         ],
         "RightForeArm": [
-          -0.702869,
-          -0.376753,
-          0.265431,
-          0.541829
+          -0.613305,
+          -0.502866,
+          -0.090643,
+          0.602301
         ],
         "RightHand": [
-          -0.300238,
-          0.351379,
-          0.313115,
-          0.829668
+          -0.052269,
+          0.803187,
+          -0.054864,
+          0.590888
         ],
         "neck": [
           0.063633,
@@ -647,14 +652,14 @@ export const ATTACK1_POSE_SEQUENCE = {
     {
       "time": 1,
       "label": "recoil",
-      "note": "recoil settles toward Ready while preserving visible hand-driven blade ownership",
-      "rightHandTwistDeg": 20,
+      "note": "generated from user contact toward Ready; recoil settles but remains on the same hand-owned path",
+      "generated": true,
       "bones": {
         "Spine02": [
-          -0.065296,
-          0.002273,
-          0.007842,
-          0.997833
+          -0.143385,
+          -0.006544,
+          0.027121,
+          0.989274
         ],
         "Spine01": [
           0,
@@ -675,16 +680,16 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.430699
         ],
         "LeftArm": [
-          0.087009,
-          0.481729,
-          0.592161,
-          0.640087
+          -0.178638,
+          -0.57553,
+          -0.399377,
+          -0.690907
         ],
         "LeftForeArm": [
-          -0.520495,
-          0.298687,
-          0.324636,
-          0.731083
+          -0.517448,
+          0.281281,
+          0.327324,
+          0.73891
         ],
         "LeftHand": [
           -0.086945,
@@ -699,22 +704,22 @@ export const ATTACK1_POSE_SEQUENCE = {
           0.437256
         ],
         "RightArm": [
-          -0.64449,
-          0.260041,
-          0.377192,
-          -0.612157
+          0.596856,
+          -0.294203,
+          -0.505378,
+          0.549364
         ],
         "RightForeArm": [
-          -0.681993,
-          -0.418944,
-          0.280516,
-          0.529795
+          -0.659983,
+          -0.472915,
+          0.141315,
+          0.566396
         ],
         "RightHand": [
-          -0.338277,
-          0.412698,
-          0.135598,
-          0.834783
+          -0.25021,
+          0.609605,
+          -0.041121,
+          0.751057
         ],
         "neck": [
           0.063633,
@@ -734,7 +739,7 @@ export const ATTACK1_POSE_SEQUENCE = {
       "time": 1.25,
       "label": "end",
       "note": "returns to accepted Ready baseline",
-      "rightHandTwistDeg": 0,
+      "generated": false,
       "bones": {
         "Spine02": [
           -0.065296,

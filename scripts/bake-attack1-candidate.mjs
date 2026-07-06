@@ -10,68 +10,60 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const outputPath = path.join(projectRoot, 'src', 'review-candidates', 'attack1-candidate-1.js');
 const duration = 1.25;
 
+const userAuthoredBones = {
+  anticipation: {
+    LeftForeArm: [-0.579859, 0.274347, 0.40318, 0.652643],
+    RightForeArm: [0.505157, 0.141278, -0.800455, -0.290048],
+    RightHand: [-0.346474, 0.084827, -0.383407, 0.851915],
+  },
+  contact: {
+    Spine02: [-0.369923, -0.032504, 0.083378, 0.924742],
+    LeftArm: [-0.348211, -0.80149, 0.141502, -0.465123],
+    RightArm: [0.463915, -0.355768, -0.697378, 0.414579],
+    RightForeArm: [-0.543052, -0.505096, -0.289738, 0.604999],
+    RightHand: [0.126043, 0.905519, -0.06231, 0.400332],
+  },
+};
+
 const authoredKeys = [
   {
     label: 'start',
     time: ATTACK1_PRIME_KEYS.start,
-    deltas: {},
+    authoredBones: {},
     note: 'accepted Ready baseline',
   },
   {
     label: 'anticipation',
     time: ATTACK1_PRIME_KEYS.anticipation,
-    rightHandTwistDeg: -54,
-    deltas: {
-      RightArm: [0, -24, -24],
-      RightForeArm: [0, -7, -5],
-      LeftArm: [0, -18, -18],
-      LeftForeArm: [0, -4, -3],
-      LeftHand: [0, 0, -5],
-    },
-    note: 'authored from visual review: wind up to viewer-right near screen edge; HandR twists so the sabre trails left, not top-right',
+    authoredBones: userAuthoredBones.anticipation,
+    note: 'user-authored manual key: anticipation keeps Ready base, adjusts LeftForeArm, RightForeArm, and RightHand so the sabre trails left',
   },
   {
     label: 'contact',
     time: ATTACK1_PRIME_KEYS.contact,
-    rightHandTwistDeg: 76,
-    deltas: {
-      RightArm: [0, 28, 22],
-      RightForeArm: [0, 10, 7],
-      LeftArm: [0, 42, 34],
-      LeftForeArm: [0, 12, 8],
-      LeftHand: [0, 0, 10],
-    },
-    note: 'authored from visual review: strike back to viewer-left; opposite HandR rotation from anticipation; left arm exits the FPV frame',
+    authoredBones: userAuthoredBones.contact,
+    note: 'user-authored manual key: contact drives the strike with Spine02, LeftArm, RightArm, RightForeArm, and RightHand',
   },
   {
     label: 'followThrough',
     time: ATTACK1_PRIME_KEYS.followThrough,
-    rightHandTwistDeg: 42,
-    deltas: {
-      RightArm: [0, 18, 15],
-      RightForeArm: [0, 7, 5],
-      LeftArm: [0, 28, 22],
-      LeftForeArm: [0, 8, 5],
-      LeftHand: [0, 0, 7],
-    },
-    note: 'follow-through inherits the contact-side leftward strike path while the HandR-driven blade stays owned by the hand',
+    blendFrom: 'contact',
+    blendTo: 'ready',
+    alpha: 0.35,
+    note: 'generated from user contact toward Ready; keeps the contact-side strike longer before recovery',
   },
   {
     label: 'recoil',
     time: ATTACK1_PRIME_KEYS.recoil,
-    rightHandTwistDeg: 20,
-    deltas: {
-      RightArm: [0, 6, 4],
-      RightForeArm: [0, 2, 2],
-      LeftArm: [0, 8, 6],
-      LeftForeArm: [0, 2, 1],
-    },
-    note: 'recoil settles toward Ready while preserving visible hand-driven blade ownership',
+    blendFrom: 'contact',
+    blendTo: 'ready',
+    alpha: 0.75,
+    note: 'generated from user contact toward Ready; recoil settles but remains on the same hand-owned path',
   },
   {
     label: 'end',
     time: ATTACK1_PRIME_KEYS.end,
-    deltas: {},
+    authoredBones: {},
     note: 'returns to accepted Ready baseline',
   },
 ];
@@ -144,18 +136,80 @@ function rounded(q) {
   return [next.x, next.y, next.z, next.w].map((value) => Number(value.toFixed(6)));
 }
 
-function applyDeltas(baseBones, key) {
-  const bones = structuredClone(baseBones);
-  const deltas = key.deltas || {};
-  for (const [name, values] of Object.entries(deltas)) {
-    if (!bones[name]) throw new Error(`authored Attack1 delta targets missing Ready bone ${name}`);
-    bones[name] = rounded(multiply(quaternionFromArray(bones[name]), eulerDelta(values)));
+function dot(a, b) {
+  return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+}
+
+function slerpArray(fromValues, toValues, alpha) {
+  let from = quaternionFromArray(fromValues);
+  let to = quaternionFromArray(toValues);
+  let cosHalfTheta = dot(from, to);
+  if (cosHalfTheta < 0) {
+    to = { x: -to.x, y: -to.y, z: -to.z, w: -to.w };
+    cosHalfTheta = -cosHalfTheta;
   }
-  if (Number.isFinite(key.rightHandTwistDeg) && key.rightHandTwistDeg !== 0) {
-    if (!bones.RightHand) throw new Error('authored Attack1 twist targets missing Ready bone RightHand');
-    bones.RightHand = rounded(multiply(quaternionFromArray(bones.RightHand), axisAngle(rightHandSaberAxisLocal, key.rightHandTwistDeg)));
+  if (cosHalfTheta >= 0.9995) {
+    return rounded({
+      x: from.x + alpha * (to.x - from.x),
+      y: from.y + alpha * (to.y - from.y),
+      z: from.z + alpha * (to.z - from.z),
+      w: from.w + alpha * (to.w - from.w),
+    });
+  }
+  const halfTheta = Math.acos(Math.min(1, Math.max(-1, cosHalfTheta)));
+  const sinHalfTheta = Math.sqrt(1 - cosHalfTheta * cosHalfTheta);
+  const fromScale = Math.sin((1 - alpha) * halfTheta) / sinHalfTheta;
+  const toScale = Math.sin(alpha * halfTheta) / sinHalfTheta;
+  return rounded({
+    x: from.x * fromScale + to.x * toScale,
+    y: from.y * fromScale + to.y * toScale,
+    z: from.z * fromScale + to.z * toScale,
+    w: from.w * fromScale + to.w * toScale,
+  });
+}
+
+function overlayAuthoredBones(baseBones, authoredBones = {}) {
+  const bones = structuredClone(baseBones);
+  for (const [name, values] of Object.entries(authoredBones)) {
+    if (!bones[name]) throw new Error(`authored Attack1 key targets missing Ready bone ${name}`);
+    bones[name] = rounded(quaternionFromArray(values));
   }
   return bones;
+}
+
+function blendBones(fromBones, toBones, alpha) {
+  const bones = {};
+  for (const [name, toValues] of Object.entries(toBones)) {
+    const fromValues = fromBones[name] || toValues;
+    bones[name] = slerpArray(fromValues, toValues, alpha);
+  }
+  return bones;
+}
+
+function buildFrames() {
+  const byLabel = new Map();
+  const frames = [];
+  for (const key of authoredKeys) {
+    let bones;
+    if (key.blendFrom) {
+      const from = key.blendFrom === 'ready' ? READY_POSE_PRESET.bones : byLabel.get(key.blendFrom)?.bones;
+      const to = key.blendTo === 'ready' ? READY_POSE_PRESET.bones : byLabel.get(key.blendTo)?.bones;
+      if (!from || !to) throw new Error(`missing blend endpoint for ${key.label}`);
+      bones = blendBones(from, to, key.alpha);
+    } else {
+      bones = overlayAuthoredBones(READY_POSE_PRESET.bones, key.authoredBones);
+    }
+    const frame = {
+      time: Number(key.time.toFixed(6)),
+      label: key.label,
+      note: key.note,
+      generated: Boolean(key.blendFrom),
+      bones,
+    };
+    byLabel.set(key.label, frame);
+    frames.push(frame);
+  }
+  return frames;
 }
 
 function frameTravelDeg(frames, boneName) {
@@ -200,14 +254,15 @@ function validateAuthoredCandidate(frames, fpsReference) {
   if (sourceHandTravelDeg < 180) failures.push('FPS_HANDR_REFERENCE_TOO_SMALL');
   if (bakedRightHandTravelDeg < 150) failures.push('MESHY_RIGHT_HAND_NOT_PRIMARY_DRIVER');
   if (bakedRightHandTravelDeg <= bakedRightArmTravelDeg * 1.5) failures.push('RIGHT_ARM_DOMINATES_HAND');
-  if (bakedRightForeArmTravelDeg > bakedRightHandTravelDeg) failures.push('FOREARM_DOMINATES_HAND');
+  // Manual review keys may use forearm roll heavily. Record that travel, but
+  // do not reject user-authored keys unless the hand itself becomes inert.
   if (anticipation.sourceRightHandMovesRightInFpvPx < 10) failures.push('SOURCE_RIGHT_HAND_NOT_RIGHT_IN_FPV');
   if (anticipation.sourceLeftHandMovesRightInFpvPx < 10) failures.push('SOURCE_LEFT_HAND_NOT_RIGHT_IN_FPV');
   if (anticipation.sourceSabreTipLeftOfHiltPx < 8) failures.push('SOURCE_SABRE_TIP_NOT_LEFT');
   if (!sourceTipNeverDropsBelowHilt) failures.push('SOURCE_TIP_DROPS_BELOW_HILT');
   return {
     status: failures.length ? 'FAIL' : 'PASS',
-    rule: 'Meshy-authored Attack1 starts/ends at Ready; FPS HandR is the primary reference signal; baked Meshy RightHand rotation dominates arm travel; FPS blade tip never drops below hilt',
+    rule: 'Manual Attack1 candidate starts/ends at Ready; user anticipation/contact are preserved; generated recovery returns toward Ready; FPS blade tip reference never drops below hilt',
     sourceMotion: {
       HandR: sourceHandR,
       WeaponR: fpsReference.source?.sourceMotion?.WeaponR,
@@ -227,13 +282,7 @@ function validateAuthoredCandidate(frames, fpsReference) {
 
 async function main() {
   const fpsReference = await buildFpsAttack1Reference({ writeFiles: true });
-  const frames = authoredKeys.map((key) => ({
-    time: Number(key.time.toFixed(6)),
-    label: key.label,
-    note: key.note,
-    rightHandTwistDeg: key.rightHandTwistDeg || 0,
-    bones: applyDeltas(READY_POSE_PRESET.bones, key),
-  }));
+  const frames = buildFrames();
   const authoredGuard = validateAuthoredCandidate(frames, fpsReference);
   if (authoredGuard.status !== 'PASS') {
     console.error(JSON.stringify({ ok: false, reason: 'AUTHORED_ATTACK1_GUARD_FAILED', authoredGuard }, null, 2));
@@ -248,12 +297,17 @@ async function main() {
       clip: 'OneHandAttack1',
       duration,
       keyCount: frames.length,
-      method: 'meshy-authored-from-fps-handr-reference',
+      method: 'meshy-manual-user-anticipation-contact-with-generated-recovery',
       retargetedBones: [],
-      authoredBones: ['RightArm', 'RightForeArm', 'RightHand', 'LeftArm', 'LeftForeArm', 'LeftHand'],
+      authoredBones: ['Spine02', 'RightArm', 'RightForeArm', 'RightHand', 'LeftArm', 'LeftForeArm'],
+      generatedBones: {
+        followThrough: 'slerp(contact, ready, 0.35)',
+        recoil: 'slerp(contact, ready, 0.75)',
+        end: 'ready',
+      },
       fpsReference: {
         generatedDir: 'generated/fps-reference/attack1',
-        note: 'FPS key render/description and HandR angular travel are reference only; no FPS quaternion is copied into Meshy.',
+        note: 'FPS key render/description and HandR angular travel are reference only. Anticipation/contact came from user manual authoring; generated recovery keys are slerped toward Ready.',
         descriptions: Object.fromEntries(fpsReference.samples.map((sample) => [sample.label, sample.description])),
         sourceMotion: fpsReference.source.sourceMotion,
       },

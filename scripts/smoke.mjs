@@ -104,7 +104,8 @@ assert(createHash('sha256').update(readyPose).digest('hex') === poseStatus.ready
 assert(poseStatus.attack1?.status === 'quarantined' && poseStatus.attack1?.fallback === 'ready', 'Attack1 must stay quarantined with Ready fallback until promoted');
 assert(attackCandidate.schema === 'pose-lab-v2-attack-candidate-v1', 'Attack1 candidate must use the quarantine preview schema');
 assert(attackCandidate.source?.clip === 'OneHandAttack1' && attackCandidate.source?.duration === 1.25 && attackCandidate.source?.keyCount === 6, 'Attack1 candidate must be six authored prime keys informed by OneHandAttack1 reference');
-assert(attackCandidate.source?.method === 'meshy-authored-from-fps-handr-reference', 'Attack1 candidate must be Meshy-authored from FPS HandR reference, not FPS retargeted');
+assert(attackCandidate.source?.method === 'meshy-manual-user-anticipation-contact-with-generated-recovery', 'Attack1 candidate must preserve the user-authored anticipation/contact keys and generate only recovery keys, not retarget FPS quaternions');
+assert(attackCandidate.source?.generatedBones?.followThrough === 'slerp(contact, ready, 0.35)' && attackCandidate.source?.generatedBones?.recoil === 'slerp(contact, ready, 0.75)', 'Attack1 candidate must declare how follow-through and recoil were generated from the user contact key');
 assert(Array.isArray(attackCandidate.source?.retargetedBones) && attackCandidate.source.retargetedBones.length === 0, 'Attack1 candidate must not claim retargeted Meshy bones');
 assert(attackCandidate.source?.fpsReference?.generatedDir === 'generated/fps-reference/attack1' && attackCandidate.source?.fpsReference?.descriptions?.anticipation, 'Attack1 candidate must carry FPS reference descriptions as reference-only evidence');
 assert(attackCandidate.source?.fpsReference?.sourceMotion?.HandR?.travelDeg > 200, 'Attack1 candidate must record substantial FPS HandR source travel');
@@ -116,6 +117,7 @@ assert(attackCandidate.guardReport?.authoredGuard?.anticipation?.sourceSabreTipL
 assert(attackCandidate.guardReport?.authoredGuard?.sourceMotion?.sourceTipNeverDropsBelowHilt, 'Attack1 authored guard must preserve the FPS reference rule that the blade tip never drops below the hilt');
 assert(attackCandidate.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > 150 && attackCandidate.source?.signatureWristTwist?.bakedRightForeArmRotationTravelDeg > 1, 'Attack1 candidate must preserve substantial wrist and forearm travel');
 assert(attackCandidate.source?.signatureWristTwist?.bakedRightHandRotationTravelDeg > attackCandidate.guardReport?.authoredGuard?.bakedMotion?.bakedRightArmTravelDeg * 1.5, 'Attack1 candidate RightHand travel must dominate RightArm travel');
+assert(attackCandidate.source?.signatureWristTwist?.bakedRightForeArmRotationTravelDeg > 200, 'Attack1 manual candidate must preserve the substantial user-authored RightForeArm motion instead of filtering it out');
 assert(attackCandidate.source?.signatureWristTwist?.rightHandPrimaryDriver === true, 'Attack1 candidate must mark RightHand as the primary authored driver');
 assert(attackCandidate.guardReport?.readyEndpointContract?.firstMatchesReady && attackCandidate.guardReport?.readyEndpointContract?.lastMatchesReady, 'Attack1 candidate start/end must match accepted Ready');
 assert(tipBasisCandidate.source?.method === 'meshy-authored-fpv-tip-basis', 'Attack1 tip-basis candidate must use the FPV tip-basis method');
