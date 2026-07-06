@@ -32,6 +32,10 @@ Attack1 or Attack2 candidates.
 - Do not translate visual choreography into unverified rig-space guesses. A
   wrist twist, Euler sign, or quaternion travel total is not accepted until it
   produces the requested screen-space relationship.
+- For weaponless fist-family clips, do not use FPV screen coordinates as body
+  targets. Map FPS limb vectors through the body frame, anchor them at the
+  Meshy arm joint, and solve so Meshy elbow and wrist world positions occupy the
+  mapped source joint positions.
 
 ## Attack1 Choreography Contract
 
@@ -93,6 +97,32 @@ must remain quarantined until hosted visual review confirms the combo reads.
 9. Promote the candidate into accepted pose status only after human-visible cloud acceptance,
    using the promotion command so `src/pose-status.js` records the accepted hash
    and evidence URL.
+
+## Fist-Ready Pinning Rule
+
+FistReady is not a saber pose. The saber and FPS weapon socket are irrelevant.
+The useful source truth is the FPS limb chain:
+
+```text
+Arm.R -> Forearm.R -> Hand.R
+Arm.L -> Forearm.L -> Hand.L
+```
+
+The Meshy bake must preserve the source limb relationship by mapping FPS upper
+arm and forearm vectors through the body frame (`ShoulderCenter -> Spine02`),
+anchoring those mapped vectors at the Meshy arm joint, then solving the Meshy
+arm and forearm so:
+
+```text
+RightForeArm world position ~= mapped FPS elbow
+RightHand world position    ~= mapped FPS wrist
+LeftForeArm world position  ~= mapped FPS elbow
+LeftHand world position     ~= mapped FPS wrist
+```
+
+Do not drive full-body limb placement from FPV screen points or camera-space
+points. That produced arms-over-head false progress. FPV projection is useful as
+a diagnostic readout only after body-space elbow/wrist occupancy is true.
 
 ## Acceptance
 

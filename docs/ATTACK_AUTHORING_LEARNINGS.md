@@ -14,6 +14,10 @@ truth, and use FPS clips as choreography reference instead of retarget truth.
 - Use FPS reference for direction, timing, and wrist/blade intent only.
 - Preserve user-authored Meshy keys literally; do not reinterpret them through
   Euler deltas or IK.
+- For weaponless fist clips, preserve the source limb chain before judging
+  hand/fist orientation. Pin Meshy elbow and wrist world joints from mapped FPS
+  upper-arm and forearm vectors anchored at the Meshy arm joint; do not use FPV
+  screen positions as body targets.
 
 ## Attack1 Pattern
 
@@ -65,6 +69,8 @@ end            = ready
 - Do not tune the saber independently to hide wrist/arm failure.
 - Do not start combo attacks from Ready unless the choreography says so.
 - Do not add runtime solvers to make a baked review candidate pass.
+- Do not convert FPS FPV screen positions into full-body Meshy IK targets. That
+  can make numbers look close while the body raises both arms into nonsense.
 
 ## Review Commands
 
