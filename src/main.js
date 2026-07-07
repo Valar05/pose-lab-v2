@@ -21,10 +21,11 @@ const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
 const TIP_BASIS_REVIEW = URL_PARAMS.get('tipBasis') === '1';
 const WORLD_SOCKET_REVIEW = URL_PARAMS.get('worldSocket') === '1';
-const POSE_STATE_ORDER = ['rest', 'ready', 'attack1'];
+const POSE_STATE_ORDER = ['rest', 'ready', 'fistReady', 'attack1'];
 const POSE_STATE_LABELS = {
   rest: 'Rest',
   ready: 'Ready',
+  fistReady: 'FistReady',
   attack1: 'Attack1',
   custom: 'Custom',
 };
@@ -127,6 +128,7 @@ app.innerHTML = `
           <button type="button" data-tool="pose" tabindex="-1">Pose</button>
           <button type="button" data-pose-state="rest" class="active" tabindex="-1">Rest</button>
           <button type="button" data-pose-state="ready" tabindex="-1">Ready</button>
+          <button type="button" data-pose-state="fistReady" tabindex="-1">FistReady</button>
           <button type="button" data-pose-state="attack1" tabindex="-1">Attack1</button>
           <button type="button" data-view-mode="orbit" class="active" tabindex="-1">Orbit</button>
           <button type="button" data-view-mode="firstPerson" tabindex="-1">FPV</button>
@@ -438,6 +440,44 @@ const POSE_BONE_NAMES = [
   'RightFoot',
 ];
 const FPV_POSE_HANDLE_NAMES = new Set(POSE_BONE_NAMES);
+const FIST_CONTROL_BONE_NAMES = [
+  'RightFistMitten01',
+  'RightFistMitten02',
+  'RightFistMitten03',
+  'RightFistThumb01',
+  'RightFistThumb02',
+  'LeftFistMitten01',
+  'LeftFistMitten02',
+  'LeftFistMitten03',
+  'LeftFistThumb01',
+  'LeftFistThumb02',
+];
+const FIST_HAND_CONTROL_CONFIGS = [
+  {
+    objectName: 'RightMeshyFistHand',
+    boneName: 'RightHand',
+    center: [0.8, 0.85, -11.52],
+    controls: [
+      { name: 'RightFistMitten01', parent: 'RightHand', position: [0.8, 0.85, -11.52] },
+      { name: 'RightFistMitten02', parent: 'RightFistMitten01', position: [0, 1.65, -1.15] },
+      { name: 'RightFistMitten03', parent: 'RightFistMitten02', position: [0, 1.35, -1.05] },
+      { name: 'RightFistThumb01', parent: 'RightFistMitten01', position: [3.1, -0.65, 0.5] },
+      { name: 'RightFistThumb02', parent: 'RightFistThumb01', position: [1.35, -0.45, -0.65] },
+    ],
+  },
+  {
+    objectName: 'LeftMeshyFistHand',
+    boneName: 'LeftHand',
+    center: [-0.8, 0.85, -11.52],
+    controls: [
+      { name: 'LeftFistMitten01', parent: 'LeftHand', position: [-0.8, 0.85, -11.52] },
+      { name: 'LeftFistMitten02', parent: 'LeftFistMitten01', position: [0, 1.65, -1.15] },
+      { name: 'LeftFistMitten03', parent: 'LeftFistMitten02', position: [0, 1.35, -1.05] },
+      { name: 'LeftFistThumb01', parent: 'LeftFistMitten01', position: [-3.1, -0.65, 0.5] },
+      { name: 'LeftFistThumb02', parent: 'LeftFistThumb01', position: [-1.35, -0.45, -0.65] },
+    ],
+  },
+];
 const POSE_HANDLE_PICK_RADIUS_PX = 58;
 const POSE_HANDLE_POSITION_FLOATS = 8 * 3 * 3;
 const poseHandleMaterial = new THREE.MeshBasicMaterial({
@@ -464,7 +504,9 @@ let sabreRoot = null;
 let saberGrip = null;
 let fistHandsRoot = null;
 const fistHandVisuals = [];
+const fistHandControlBones = new Map();
 let readyPosePreset = null;
+let fistReadyPosePreset = null;
 let attackPoseSequence = null;
 let attackPoseStartedAt = null;
 let attackPoseFixedTime = null;
@@ -870,6 +912,29 @@ function resetSaberPlacement() {
   attachSaberToRightHand();
 }
 
+function ensureFistControlBones(config) {
+  const hand = findBone(meshyRoot, config.boneName);
+  if (!hand) return null;
+  const controlsByName = new Map([[config.boneName, hand]]);
+  for (const entry of config.controls) {
+    const parent = controlsByName.get(entry.parent) || findBone(meshyRoot, entry.parent);
+    if (!parent) continue;
+    let bone = parent.children.find((child) => child.isBone && child.name === entry.name);
+    if (!bone) {
+      bone = new THREE.Bone();
+      bone.name = entry.name;
+      parent.add(bone);
+    }
+    bone.position.fromArray(entry.position);
+    bone.quaternion.identity();
+    bone.scale.set(1, 1, 1);
+    bone.userData.poseLabV2FistControl = true;
+    controlsByName.set(entry.name, bone);
+    fistHandControlBones.set(entry.name, bone);
+  }
+  return controlsByName.get(config.controls[0]?.name) || null;
+}
+
 function attachFistHandsToMeshy(object) {
   if (!meshyRoot || !object) return;
   fistHandsRoot = object;
@@ -881,32 +946,44 @@ function attachFistHandsToMeshy(object) {
       node.receiveShadow = true;
     }
   });
-  const attachments = [
-    { objectName: 'RightMeshyFistHand', boneName: 'RightHand' },
-    { objectName: 'LeftMeshyFistHand', boneName: 'LeftHand' },
-  ];
-  for (const attachment of attachments) {
-    const visual = object.getObjectByName(attachment.objectName);
-    const bone = findBone(meshyRoot, attachment.boneName);
-    if (!visual || !bone) continue;
-    bone.add(visual);
-    visual.position.set(0, 0, 0);
+  fistHandVisuals.length = 0;
+  fistHandControlBones.clear();
+  for (const config of FIST_HAND_CONTROL_CONFIGS) {
+    const visual = object.getObjectByName(config.objectName);
+    const rootControl = ensureFistControlBones(config);
+    if (!visual || !rootControl) continue;
+    rootControl.add(visual);
+    visual.position.set(-config.center[0], -config.center[1], -config.center[2]);
     visual.quaternion.identity();
     visual.scale.set(1, 1, 1);
-    visual.userData.poseLabV2ParentBone = attachment.boneName;
+    visual.userData.poseLabV2ParentBone = rootControl.name;
     fistHandVisuals.push(visual);
   }
+  setupPoseHandles();
   updateFpvBodyMasks();
   document.body.dataset.fistHandsReady = fistHandVisuals.length ? '1' : '0';
+  document.body.dataset.fistControlsReady = fistHandControlBones.size ? '1' : '0';
+}
+
+function activePoseHandleNames() {
+  return FIST_VISUAL_REVIEW && fistHandControlBones.size
+    ? [...POSE_BONE_NAMES, ...FIST_CONTROL_BONE_NAMES]
+    : POSE_BONE_NAMES;
+}
+
+function fpvPoseHandleVisible(name) {
+  return FPV_POSE_HANDLE_NAMES.has(name) || fistHandControlBones.has(name);
 }
 
 function setupPoseHandles() {
   if (!meshyRoot) return;
+  for (const handle of poseHandles.values()) scene.remove(handle);
   poseBones.clear();
   poseHandles.clear();
   poseBoneRestQuaternions.clear();
-  for (const name of POSE_BONE_NAMES) {
-    const bone = findRequiredBone(meshyRoot, name);
+  for (const name of activePoseHandleNames()) {
+    const bone = findBone(meshyRoot, name);
+    if (!bone) continue;
     poseBones.set(name, bone);
     poseBoneRestQuaternions.set(name, bone.quaternion.clone());
     const geometry = new THREE.BufferGeometry();
@@ -986,7 +1063,7 @@ function updatePoseHandles() {
   if (!poseHandles.size) return;
   for (const [name, handle] of poseHandles) {
     const bone = poseBones.get(name);
-    handle.visible = toolMode === 'pose' && (viewMode !== 'firstPerson' || FPV_POSE_HANDLE_NAMES.has(name));
+    handle.visible = toolMode === 'pose' && (viewMode !== 'firstPerson' || fpvPoseHandleVisible(name));
     if (!bone) continue;
     const head = objectWorldPosition(bone);
     const tail = poseBoneTailPosition(bone, head);
@@ -1592,6 +1669,14 @@ function setPoseState(next) {
       });
     }
     statusEl.textContent = 'ready pose: source-oriented OneHandReady, sabre follows RightHand FK';
+  } else if (next === 'fistReady') {
+    resetPose();
+    setSabreReviewVisible(false);
+    applyPoseBones(fistReadyPosePreset?.bones || readyPosePreset?.bones || {});
+    poseState = 'fistReady';
+    setToolMode('pose');
+    setMode('rotate');
+    statusEl.textContent = 'fist ready: Meshy-derived fist controls editable in FPV';
   } else if (next === 'attack1') {
     applyAttackPose();
   } else {
@@ -1603,8 +1688,9 @@ function setPoseState(next) {
 }
 
 function initialPoseStateFromUrl() {
-  const pose = URL_PARAMS.get('pose');
+  const pose = String(URL_PARAMS.get('pose') || '').toLowerCase();
   if (pose === 'ready') return 'ready';
+  if (FIST_VISUAL_REVIEW || ['fist', 'fistready', 'fist-ready'].includes(pose)) return 'fistReady';
   if (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED) return 'attack1';
   return 'rest';
 }
@@ -1671,6 +1757,8 @@ async function loadPosePresets({ announce = true } = {}) {
   }
   const readyModule = await import(`${readyStatus.module}${suffix}`);
   readyPosePreset = readyModule[readyStatus.exportName];
+  const fistReadyModule = await import(`./fist-ready-pose.js${suffix}`);
+  fistReadyPosePreset = fistReadyModule.FIST_READY_POSE_PRESET;
   const candidate = ATTACK1_REVIEW_CANDIDATES[REQUESTED_CANDIDATE];
   if ((REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED) && candidate) {
     const candidateModule = await import(`${candidate.module}${suffix}`);
@@ -1860,7 +1948,7 @@ function renderControls() {
     fpvSettingsToggle.classList.toggle('active', fpvSettingsOpen);
   }
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
-  cyclePoseStateButton.textContent = `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
+  cyclePoseStateButton.textContent = `Clip: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
   cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
   updateAttackReviewControls();
   if (poseState === 'attack1' && manualAttackDraft) {
