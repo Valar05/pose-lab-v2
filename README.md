@@ -64,6 +64,20 @@ Current useful attack authoring doctrine lives in
 lesson is that usable attacks need hold/snap/hold/recover timing. Good isolated
 poses are not enough.
 
+Local-only procedural animation tooling lives in
+[Local Blender Animation Muscle](docs/LOCAL_BLENDER_ANIMATION_MUSCLE.md). That
+lane uses a video clip ledger, keyed contact sheets, saved-pose composition, and
+Blender-rendered truth artifacts under ignored `generated/` paths. It is
+diagnostic/authoring infrastructure, not browser/cloud visual acceptance.
+Its first learning specimen is Gravity Fist `LowBackKick`, where a legacy
+poseclip/evidence pair can be compared with an optional tripod recording before
+any new animation is authored.
+Cloud-worker packaging is documented in
+[Cloud Worker Animation Surface](docs/CLOUD_WORKER_ANIMATION_SURFACE.md). That
+surface materializes the learning packet inputs into a generated job bundle for
+Home Center Command Center MCP one-shot Codex workers, so workers do not depend
+on workspace skills, memories, sibling repos, or local browser state.
+
 Manual Attack1 authoring uses the same anchors but does not use candidate frames
 as starting material. Use the key strip to select a key, pose bones visually in
 FPV, tap `Save Key`, and `Export Clip` once for the whole animation. The export
@@ -88,6 +102,96 @@ review.
 
 Numbers are readout/export only. Authoring is direct visual manipulation.
 
+
+
+## Imported Character Pose Models
+
+Davin Wingsworth, the Kestrel Man, is the default manual pose-authoring surface.
+The merged runtime GLB is:
+
+```text
+public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb
+```
+
+It is derived from the merged rig/skin and walking/running clips from the downloaded biped zip
+with the full base-color, metallic-roughness, normal, and emissive material
+channels from the downloaded textured GLB. The original merged source remains at
+`public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr.glb`; the default runtime asset adds a real `Tail01` -> `Tail02` -> `Tail03` chain for spring-bone tests. Other imports remain available with:
+
+```sh
+?model=meshy
+?model=ares
+?model=security-titan
+```
+
+The imported character routes are for direct manual posing and contact
+sheet/source-art preparation. They do not use Meshy Ready, Attack1, fist hands,
+or the real sabre placement lane unless the Meshy model is explicitly selected.
+
+## Davin Tail Chain
+
+Davin's default runtime model is a derived GLB with a three-segment tail chain:
+
+```sh
+npm run build:davin-tail3
+```
+
+The authoring tool imports the source merged Davin GLB, creates `Tail01`,
+`Tail02`, and `Tail03` under `Hips`, removes existing body/leg influences from
+the selected rear feather vertices, and binds that cluster across the new chain.
+The output is `public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb`
+with an ignored manifest at `generated/davin-tail-authoring/manifest.json`.
+This is rig authoring only; the later spring-bone behavior still needs runtime
+implementation and visual review.
+
+## Davin Screenshot Idle Lane
+
+The newest screenshot idle target is `Screenshot_20260716-182009.png`: a
+three-quarter hawk-cop guard stance with head facing viewer-right, one wing
+swept open, one wing held as a guard, wide talons, and a low rear tail fan. The
+current first-pass 3D candidate is quarantined and visually red, but reproducible:
+
+```sh
+npm run bake:davin-idle
+npm run review:davin-idle
+# Browser review route:
+?model=davin&pose=idle
+```
+
+The candidate module is `src/review-candidates/davin-idle-screenshot-1.js`;
+ignored diagnostics render under `generated/davin-idle/screenshot-1/`. The bake
+uses temporary Blender IK targets for toes and wing endpoints, then writes plain
+local bone quaternions for runtime. No browser runtime IK or OpenPose dependency is added. This lane exists to iterate toward the screenshot silhouette, not to
+claim acceptance.
+
+## Davin LowBackKick Viability Lane
+
+Davin can load a quarantined LowBackKick candidate transferred from the old Ares
+SF2-timed poseclip:
+
+```sh
+npm run bake:davin-lowbackkick
+npm run build
+# Browser review route:
+?model=davin&pose=lowbackkick
+```
+
+The candidate is generated from `../pose-lab/assets/pose_indexes/ares_lowbackkick_sf2.poseclip.json`
+and its matching visual-evidence timing file. The first pass maps shared Mixamo
+style bones onto Davin, samples the eight SF2 read keys, and transfers rotations
+only. It intentionally ignores source positions/scales and stays labeled
+`diagnostic-not-acceptance` / `quarantined-review`.
+
+For agent eyesight before cloud review, render a local diagnostic contact sheet:
+
+```sh
+npm run review:davin-lowbackkick
+```
+
+That writes ignored Blender frames and a stitched PNG under
+`generated/davin-lowbackkick/contact-sheet/ares-transfer-1/`. The sheet is useful
+for deciding whether Davin and Ares share enough rig behavior to keep investing,
+but it is not the hosted visual truth lane and does not promote the animation.
 
 ## Meshy-Derived Fist Hands
 
@@ -121,6 +225,9 @@ npm run bake:attack2:candidate
 npm run build
 npm run smoke
 npm run review:attacks
+npm run cloud:agent-preflight
+npm run test:learning-packet
+npm run test:cloud-worker-surface
 git diff --check
 ```
 

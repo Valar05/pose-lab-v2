@@ -22,6 +22,8 @@ const fistReadyCandidateSource = read('src/review-candidates/fist-ready-candidat
 const fistAttack1CandidateSource = read('src/review-candidates/fist-attack1-candidate-1.js');
 const tipBasisCandidateSource = read('src/review-candidates/attack1-tip-basis-2.js');
 const jointPinnedCandidateSource = read('src/review-candidates/attack1-joint-pinned-3.js');
+const davinLowBackKickCandidateSource = read('src/review-candidates/davin-lowbackkick-ares-transfer-1.js');
+const davinIdleCandidateSource = read('src/review-candidates/davin-idle-screenshot-1.js');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
 const attack2ReviewUrls = read('tools/attack2_review_urls.mjs');
 const fistAttack1ReviewUrls = read('tools/fist_attack1_review_urls.mjs');
@@ -50,6 +52,14 @@ const fistReadyCandidate = parseExportedObject(fistReadyCandidateSource, 'FistRe
 const fistAttack1Candidate = parseExportedObject(fistAttack1CandidateSource, 'FistAttack1 candidate preview');
 const tipBasisCandidate = parseExportedObject(tipBasisCandidateSource, 'Attack1 tip-basis candidate preview');
 const jointPinnedCandidate = parseExportedObject(jointPinnedCandidateSource, 'Attack1 joint-pinned candidate preview');
+const davinLowBackKickCandidate = parseExportedObject(davinLowBackKickCandidateSource, 'Davin LowBackKick candidate preview');
+const davinIdleCandidate = parseExportedObject(davinIdleCandidateSource, 'Davin screenshot idle candidate preview');
+
+const davinTailManifest = JSON.parse(read('generated/davin-tail-authoring/manifest.json'));
+assert(davinTailManifest.schema === 'pose-lab-v2-davin-tail3-authoring-v1', 'Davin tail manifest must use the tail3 authoring schema');
+assert(davinTailManifest.runtimeGlb === 'public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb', 'Davin tail manifest must point at the tail3 runtime GLB');
+assert(JSON.stringify(davinTailManifest.springBoneIntent?.chain || []) === JSON.stringify(['Tail01', 'Tail02', 'Tail03']), 'Davin tail manifest must declare Tail01/Tail02/Tail03 spring-bone intent');
+assert(davinTailManifest.weightReport?.selectedVertices >= 80 && davinTailManifest.weightReport?.selectedVertices <= 500, 'Davin tail mask must select a bounded tail/plume region, not zero vertices or the whole body');
 const trackedCandidateFiles = execFileSync('git', ['ls-files', 'generated/pose-candidates'], {
   cwd: root,
   encoding: 'utf8',
@@ -65,9 +75,16 @@ function assertRelativeImportsResolve(file) {
   }
 }
 
+assert(exists('public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr.glb'), 'missing merged Davin Wingsworth Kestrel Man rigged PBR source GLB; run npm run build:davin');
+assert(exists('public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb'), 'missing Davin Tail01/Tail02/Tail03 derived runtime GLB; run npm run build:davin-tail3');
+assert(exists('generated/davin-tail-authoring/manifest.json'), 'missing Davin tail authoring manifest; run npm run build:davin-tail3');
 assert(exists('public/assets/meshy/meshy_apose_walking_with_skin.glb'), 'missing Meshy A-pose/walking GLB');
 assert(exists('public/assets/meshy/meshy_real_sabre.glb'), 'missing real sabre GLB');
 assert(exists('public/assets/meshy/meshy_fist_hands.glb'), 'missing Meshy-derived fist hands GLB; run npm run build:fist-hands');
+assert(exists('public/assets/ares/ares_rigged_diffuse.glb'), 'missing imported rigged Ares GLB');
+assert(exists('public/assets/ares/ares_texture_0.png'), 'missing imported Ares diffuse texture sidecar');
+assert(exists('public/assets/ares/security_titan_rigged_diffuse.glb'), 'missing imported rigged SecurityTitan GLB');
+assert(exists('public/assets/ares/security_titan_texture_0.png'), 'missing imported SecurityTitan diffuse texture sidecar');
 for (const texture of [
   'base_color.jpg',
   'emissive.jpg',
@@ -78,7 +95,7 @@ for (const texture of [
 }
 assert(html.includes("import(`./src/main.js${startupSuffix}`)"), 'HTML must load the minimal app entry with the page cacheBust');
 assert(html.includes("stylesheet.href = `./src/styles.css${startupSuffix}`"), 'HTML must load CSS with the page cacheBust');
-assert(html.includes('loading Meshy character and real sabre'), 'HTML shell must not be blank before JS boots');
+assert(html.includes('loading Davin Wingsworth and real sabre'), 'HTML shell must not be blank before JS boots');
 assert(!html.includes('src="/src/main.js"'), 'GitHub Pages build must not use a root-relative module path');
 assert(html.includes("new URLSearchParams(window.location.search)") && html.includes("startupParams.get('cacheBust')"), 'HTML boot must propagate cacheBust into subresources');
 assert(html.includes('"three": "./vendor/three/build/three.module.js"'), 'HTML must use same-origin vendored Three dependency');
@@ -86,6 +103,10 @@ assert(html.includes('"three/examples/jsm/": "./vendor/three/examples/jsm/"'), '
 assert(!html.includes('cdn.jsdelivr.net'), 'runtime must not depend on a CDN before the app can render');
 assert(!pkg.dependencies, 'repo must not require npm install dependencies for local build');
 assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static and native-binary free');
+assert(pkg.scripts?.['build:davin'] === 'node tools/build_davin_wingsworth_glb.mjs', 'Davin merged GLB build must be reproducible');
+assert(pkg.scripts?.['build:davin-tail3'] === 'node scripts/run-blender-tool.mjs tools/author_davin_tail_chain_blender.py --', 'Davin Tail01/Tail02/Tail03 chain authoring must be reproducible');
+assert(pkg.scripts?.['bake:davin-idle'] === 'node scripts/run-blender-tool.mjs tools/author_davin_idle_screenshot_blender.py --', 'Davin screenshot idle candidate bake must be reproducible');
+assert(pkg.scripts?.['review:davin-idle'] === 'node scripts/render-davin-idle-diagnostic.mjs', 'Davin screenshot idle diagnostic render must be reproducible');
 assert(pkg.scripts?.['bake:ready'] === 'node scripts/bake-ready-pose.mjs', 'Ready pose bake script must be explicit and reproducible');
 assert(pkg.scripts?.['bake:attack1:candidate'] === 'node scripts/bake-attack1-candidate.mjs', 'Attack1 candidate bake must be explicit and quarantine-only');
 assert(pkg.scripts?.['bake:attack1:tip-match'] === 'node scripts/bake-attack1-tip-match-candidate.mjs', 'Attack1 tip-match candidate bake must be explicit and quarantine-only');
@@ -94,6 +115,8 @@ assert(pkg.scripts?.['bake:attack1:joint-pinned'] === 'node scripts/bake-attack1
 assert(pkg.scripts?.['bake:attack2:candidate'] === 'node scripts/bake-attack2-candidate.mjs', 'Attack2 candidate bake must be explicit and quarantine-only');
 assert(pkg.scripts?.['bake:fist-ready'] === 'node scripts/bake-fist-ready-pose.mjs', 'FistReady bake must be explicit and separate from one-hand Ready');
 assert(pkg.scripts?.['bake:fist-attack1:candidate'] === 'node scripts/bake-fist-attack1-candidate.mjs', 'FistAttack1 candidate bake must be explicit and quarantine-only');
+assert(pkg.scripts?.['bake:davin-lowbackkick'] === 'node scripts/bake-davin-lowbackkick-candidate.mjs', 'Davin LowBackKick candidate bake must be explicit and quarantine-only');
+assert(pkg.scripts?.['review:davin-lowbackkick'] === 'node scripts/render-davin-lowbackkick-contact-sheet.mjs', 'Davin LowBackKick contact sheet review must be an explicit diagnostic script');
 assert(pkg.scripts?.['reference:attack1:fps'] === 'node scripts/fps-attack1-reference.mjs', 'FPS Attack1 reference extraction must be explicit and separate from Meshy authoring');
 assert(pkg.scripts?.['reference:fist:fps'] === 'node scripts/fps-fist-reference.mjs', 'FPS fist reference extraction must be explicit before judging Meshy fist poses');
 assert(!pkg.scripts?.['bake:attack1'] && !pkg.scripts?.['diagnose:blade'], 'official scripts must not regenerate or bless the quarantined Attack1 pose');
@@ -114,6 +137,14 @@ assert(exists('scripts/bake-fist-ready-pose.mjs'), 'missing FistReady bake scrip
 assert(exists('scripts/bake-fist-attack1-candidate.mjs'), 'missing FistAttack1 candidate bake script');
 assert(exists('scripts/fps-attack1-reference.mjs'), 'missing FPS Attack1 reference extractor');
 assert(exists('scripts/fps-fist-reference.mjs'), 'missing FPS fist reference extractor');
+assert(exists('scripts/bake-davin-lowbackkick-candidate.mjs'), 'missing Davin LowBackKick candidate bake script');
+assert(exists('scripts/render-davin-lowbackkick-contact-sheet.mjs'), 'missing Davin LowBackKick contact-sheet orchestrator');
+assert(exists('tools/author_davin_tail_chain_blender.py'), 'missing Davin Tail01/Tail02/Tail03 authoring tool');
+assert(exists('tools/author_davin_idle_screenshot_blender.py'), 'missing Davin screenshot idle authoring tool');
+assert(exists('tools/stitch_davin_idle_diagnostic.py'), 'missing Davin screenshot idle side-by-side diagnostic stitcher');
+assert(exists('scripts/render-davin-idle-diagnostic.mjs'), 'missing Davin screenshot idle diagnostic orchestrator');
+assert(exists('tools/render_davin_lowbackkick_blender.py'), 'missing Davin LowBackKick Blender diagnostic renderer');
+assert(exists('tools/stitch_davin_lowbackkick_contact_sheet.py'), 'missing Davin LowBackKick contact-sheet stitcher');
 assert(exists('authoring/meshy_fist/blender_build_meshy_fist_authoring.py'), 'missing Blender-first Meshy fist authoring script');
 assert(exists('scripts/build-meshy-fist-authoring.mjs'), 'missing Meshy fist authoring runner');
 assert(exists('tools/validate_meshy_fist_authoring.mjs'), 'missing Meshy fist authoring validator');
@@ -131,6 +162,8 @@ assert(exists('src/review-candidates/attack2-candidate-1.js'), 'Attack2 candidat
 assert(exists('src/fist-ready-pose.js'), 'FistReady pose preset must be available as a generated baseline');
 assert(exists('src/review-candidates/fist-ready-candidate-1.js'), 'FistReady candidate 1 must be available as a weaponless preview module');
 assert(exists('src/review-candidates/fist-attack1-candidate-1.js'), 'FistAttack1 candidate 1 must be available as a weaponless preview module');
+assert(exists('src/review-candidates/davin-lowbackkick-ares-transfer-1.js'), 'Davin LowBackKick Ares transfer candidate must be available as a preview module');
+assert(exists('src/review-candidates/davin-idle-screenshot-1.js'), 'Davin screenshot idle candidate must be available as a preview module');
 assert(!trackedCandidateFiles, `generated pose candidates must not be tracked on main: ${trackedCandidateFiles}`);
 assert(poseStatus.ready?.status === 'accepted', 'Ready must be explicitly accepted in pose-status.js');
 assert(poseStatus.ready?.module === './ready-pose.js' && poseStatus.ready?.exportName === 'READY_POSE_PRESET', 'Ready status must point to the accepted Ready module');
@@ -187,6 +220,18 @@ assert(JSON.stringify(fistAttack1Candidate.source?.jointPinned?.solverAuthoredBo
 assert(fistAttack1Candidate.guardReport?.jointPinned?.status === 'PASS', 'FistAttack1 candidate must pass joint-pinned guardrail');
 assert((fistAttack1Candidate.guardReport?.jointPinned?.report || []).every((entry) => entry.wristWorldError <= 0.01), 'FistAttack1 wrist joint pin must stay near FPS-derived target');
 assert(fistAttack1Candidate.source?.acceptanceRead?.includes('fist/knuckle orientation is the visual target'), 'FistAttack1 candidate must document fist/knuckle orientation as the visual target');
+assert(davinLowBackKickCandidate.schema === 'pose-lab-v2-davin-lowbackkick-candidate-v1', 'Davin LowBackKick candidate must use its quarantine preview schema');
+assert(davinLowBackKickCandidate.source?.sourcePoseclip?.endsWith('ares_lowbackkick_sf2.poseclip.json'), 'Davin LowBackKick candidate must cite the old Ares SF2 poseclip source');
+assert(davinLowBackKickCandidate.source?.method === 'direct-core-bone-quaternion-transfer-from-ares-mixamorig-to-davin-meshy-core', 'Davin LowBackKick candidate must be the shared-bone rotation transfer, not an accepted bake');
+assert(davinLowBackKickCandidate.status === 'quarantined-review' && JSON.stringify(davinLowBackKickCandidate.source?.retargetPolicy?.channels || []) === JSON.stringify(['quaternion']) && JSON.stringify(davinLowBackKickCandidate.source?.retargetPolicy?.ignoredChannels || []) === JSON.stringify(['position', 'scale']), 'Davin LowBackKick candidate must remain rotation-only and quarantined');
+assert(davinLowBackKickCandidate.source?.weaponless === true && davinLowBackKickCandidate.frames?.length === 8, 'Davin LowBackKick candidate must expose eight weaponless SF2 timing frames');
+assert(davinIdleCandidate.schema === 'pose-lab-v2-davin-idle-candidate-v1', 'Davin idle candidate must use its screenshot-idle schema');
+assert(davinIdleCandidate.status === 'quarantined-review' && davinIdleCandidate.source?.sourceScreenshot?.endsWith('Screenshot_20260716-182009.png'), 'Davin idle candidate must cite the newest screenshot source and remain quarantined');
+assert(davinIdleCandidate.source?.method === 'temporary-blender-ik-solve-baked-to-local-quaternion-candidate' && davinIdleCandidate.source?.authoringControls?.runtimeIk === false && davinIdleCandidate.source?.authoringControls?.openPose === false, 'Davin idle candidate must use temporary Blender IK only, with no runtime IK or OpenPose dependency');
+assert(JSON.stringify(Object.keys(davinIdleCandidate.source?.authoringControls?.temporaryIkTargets || {}).sort()) === JSON.stringify(['LeftHand', 'LeftToeBase', 'RightHand', 'RightToeBase']), 'Davin idle candidate must record toe and wing endpoint IK targets');
+assert(davinIdleCandidate.source?.targetModel?.endsWith('davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb') && davinIdleCandidate.frames?.length === 2, 'Davin idle candidate must target the tail3 runtime asset and expose idle/idleHold keys');
+
+assert(davinLowBackKickCandidate.primeKeys?.contact === 0.3 && davinLowBackKickCandidate.primeKeys?.settle === 0.66667, 'Davin LowBackKick candidate must preserve LowBackKick contact and settle anchors');
 assert(tipBasisCandidate.source?.method === 'meshy-authored-fpv-tip-basis', 'Attack1 tip-basis candidate must use the FPV tip-basis method');
 assert(tipBasisCandidate.source?.baseCandidate === 'attack1-candidate-1', 'Attack1 tip-basis candidate must record its base candidate');
 assert(tipBasisCandidate.source?.tipBasis?.sourceCamera === 'FPSPlayer.Camera', 'Attack1 tip-basis source must use the FPS Camera bone');
@@ -215,6 +260,9 @@ assert(!tipBasisCandidateSource.includes('SaberGrip.quaternion') && !tipBasisCan
 assert(!jointPinnedCandidateSource.includes('SaberGrip.quaternion') && !jointPinnedCandidateSource.includes('WeaponR.quaternion'), 'Attack1 joint-pinned module must not animate SaberGrip or WeaponR tracks');
 assert(!read('scripts/bake-attack1-candidate.mjs').includes('applyOrientationBake') && !read('scripts/bake-attack1-candidate.mjs').includes('bakeCurrentFpsPoseToMeshy'), 'Attack1 candidate bake must not retarget FPS quaternions into Meshy');
 assert(readme.includes('Visual Verification Doctrine'), 'README must link the visual verification doctrine');
+assert(readme.includes('Davin Tail Chain') && readme.includes('Tail01') && readme.includes('Tail02') && readme.includes('Tail03'), 'README must document the Davin three-segment tail chain authoring lane');
+assert(readme.includes('Davin Screenshot Idle Lane') && readme.includes('npm run review:davin-idle') && readme.includes('No browser runtime IK or OpenPose dependency'), 'README must document the IK-assisted screenshot idle lane and its dependency boundary');
+assert(readme.includes('Davin LowBackKick Viability Lane') && readme.includes('?model=davin&pose=lowbackkick') && readme.includes('not the hosted visual truth lane'), 'README must document the Davin LowBackKick quarantined viability route and local diagnostic limit');
 assert(readme.includes('Attack Authoring Learnings'), 'README must link the attack authoring learning note');
 assert(readme.includes('They are not visual acceptance and cannot close a') && readme.includes('screenshot-red build'), 'README must state smoke/source checks are not visual acceptance');
 assert(visualDoctrine.includes('Human-visible truth is the acceptance gate'), 'visual doctrine must preserve human-visible truth as acceptance gate');
@@ -235,6 +283,11 @@ for (const bone of ['LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'Right
   assert(fpvVisibleBones.includes(bone), `FPV mask must still show ${bone}`);
 }
 assert(main.includes('const MESHY_PBR_TEXTURES = {') && main.includes('character_sheet_pbr/normal.png'), 'app must reference salvaged Meshy Character Sheet PBR texture channels');
+assert(main.includes('davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb') && main.includes("label: 'Davin Wingsworth'") && main.includes("default: 'davin'") && main.includes('Tail01/Tail02/Tail03'), 'Davin Wingsworth Kestrel Man must be the default imported character profile with the derived tail chain runtime asset');
+assert(main.includes("ares_rigged_diffuse.glb") && main.includes("security_titan_rigged_diffuse.glb"), 'app must reference imported Ares character models');
+assert(main.includes('const MIXAMO_BONE_MAP = Object.freeze') && main.includes("RightHand: 'mixamorig:RightHand'"), 'app must map Pose Lab logical bones onto Mixamo imported rigs');
+assert(main.includes('function findPoseBone') && main.includes('activeBoneName(logicalName)'), 'app must resolve pose bones through active character profiles');
+assert(main.includes('supportsBakedPoseStates: false') && main.includes('imported rigged Ares diffuse authoring model'), 'imported Ares profiles must remain manual pose-authoring surfaces, not Meshy baked-pose targets');
 assert(main.includes('const textureLoader = new THREE.TextureLoader()'), 'app must load Meshy PBR channels through Three TextureLoader');
 assert(main.includes('data-boot-panel') && main.includes('function setBootPhase') && main.includes('function markBootFailed'), 'app must expose visible boot phases instead of silent blank/loading states');
 assert(main.includes("document.body.dataset.firstFrame = '1'"), 'app must mark first rendered frame for render diagnostics');
@@ -245,7 +298,10 @@ assert(main.includes('texture.flipY = false') && main.includes('THREE.SRGBColorS
 assert(main.includes('for (const entry of fpvBodyMasks)') && main.includes('applyMeshyPbrToMaterial(material, textures)'), 'FPV arm-mask materials must receive the same Meshy PBR channels as the full body');
 assert(!main.includes("import { READY_POSE_PRESET } from './ready-pose.js'"), 'Ready pose preset must not be statically imported because browser module cache can stale it');
 assert(main.includes("import { POSE_STATUS } from './pose-status.js'"), 'runtime must read pose-status.js instead of hardcoding accepted pose modules');
-assert(main.includes('ATTACK1_REVIEW_CANDIDATES') && main.includes('SABER_GRIP_LOCAL') && main.includes("from './review-constants.js'"), 'runtime must import shared review constants for saber grip and Attack1 previews');
+assert(main.includes('ATTACK1_REVIEW_CANDIDATES') && main.includes('DAVIN_IDLE_REVIEW_CANDIDATES') && main.includes('LOWBACKKICK_REVIEW_CANDIDATES') && main.includes('SABER_GRIP_LOCAL') && main.includes("from './review-constants.js'"), 'runtime must import shared review constants for saber grip, Attack1 previews, and Davin LowBackKick previews');
+assert(main.includes('REQUESTED_LOWBACKKICK_REVIEW') && main.includes("['lowbackkick', 'low-back-kick', 'low_back_kick']") && main.includes("poseState = 'lowBackKick'"), 'runtime must expose a Davin-only LowBackKick candidate review route');
+assert(reviewConstantsSource.includes('LOWBACKKICK_REVIEW_CANDIDATES') && reviewConstantsSource.includes('davin-lowbackkick-ares-transfer-1'), 'review constants must register the Davin LowBackKick candidate module');
+assert(reviewConstantsSource.includes('DAVIN_IDLE_REVIEW_CANDIDATES') && reviewConstantsSource.includes('davin-idle-screenshot-1'), 'review constants must register the Davin screenshot idle candidate module');
 assert(main.includes('async function loadPosePresets') && main.includes('readyStatus.module') && main.includes("URL_PARAMS.get('cacheBust')"), 'Ready pose preset must be dynamically imported from pose-status.js with the page cacheBust');
 assert(!main.includes("import(`./attack1-pose.js${suffix}`)") && !main.includes('ATTACK1_POSE_SEQUENCE'), 'runtime must not import contaminated Attack1 generated pose data');
 assert(main.includes('data-pose-state="rest"') && main.includes('data-pose-state="ready"') && main.includes('data-pose-state="attack1"'), 'app must expose Rest, Ready, and Attack1 pose states');
@@ -253,7 +309,7 @@ assert(main.includes('function initialPoseStateFromUrl') && main.includes("pose 
 assert(main.includes('function initialViewModeFromUrl') && main.includes("URL_PARAMS.get('view') === 'fpv'") && main.includes('setViewMode(initialViewModeFromUrl())'), 'cloud review URL must be able to boot directly into FPV view');
 assert(main.includes("let poseState = 'rest'") && main.includes('function applyReadyPose') && main.includes("poseState = 'ready'"), 'runtime must switch to baked Ready without animation retargeting');
 assert(main.includes('function applyAttackPose') && main.includes("poseState = 'attack1'") && main.includes('Attack1 quarantined'), 'Attack1 must remain selectable but quarantined until a clean bake exists');
-assert(main.includes('ATTACK1_REVIEW_CANDIDATES[REQUESTED_CANDIDATE]') && main.includes('Attack1 candidate preview') && main.includes('not accepted repo truth'), 'runtime must allow explicit candidate preview without accepting Attack1');
+assert(main.includes('const candidates = REQUESTED_IDLE_REVIEW ? DAVIN_IDLE_REVIEW_CANDIDATES : REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_REVIEW_CANDIDATES : ATTACK1_REVIEW_CANDIDATES') && main.includes('candidate preview') && main.includes('not accepted repo truth') && main.includes('red diagnostic, not accepted repo truth'), 'runtime must allow explicit candidate preview without accepting Attack1, LowBackKick, or screenshot Idle');
 assert(main.includes('function sequenceFrameAt') && main.includes('function applyAttackSequenceAt'), 'Attack1 candidate preview must play baked frames only');
 assert(main.includes('data-attack-review') && main.includes('data-attack-review-toggle') && main.includes('data-attack-review-close') && main.includes('data-attack-play') && main.includes('data-attack-pause') && main.includes('data-attack-scrub') && main.includes('data-attack-primes'), 'Attack1 candidate preview must expose closable play/pause, scrub, and prime-key controls');
 assert(main.includes('data-attack-save-key') && main.includes('data-attack-export'), 'Attack1 manual authoring must expose save-key and whole-animation export controls');
@@ -280,7 +336,7 @@ assert(!main.includes('applyTwoBonePin') && !main.includes('solveTwoBoneIk'), 'r
 assert(main.includes('object.position.set(-0.39454, 0.71404, 0.32817)'), 'default sabre position must match the latest authored export');
 assert(main.includes('THREE.MathUtils.degToRad(160.077)') && main.includes('THREE.MathUtils.degToRad(83.685)') && main.includes('THREE.MathUtils.degToRad(-135.981)'), 'default sabre rotation must match the latest authored export');
 assert(main.includes('object.scale.setScalar(0.48)'), 'default sabre scale must match the latest authored export');
-assert(main.includes("findRequiredBone(meshyRoot, 'RightHand')"), 'runtime saber grip must parent under the real Meshy RightHand bone');
+assert(main.includes("findRequiredPoseBone('RightHand')"), 'runtime saber grip must parent under the profile-resolved real RightHand bone');
 assert(reviewConstantsSource.includes('export const SABER_GRIP_LOCAL = {') && reviewConstantsSource.includes('position: [8.52296, 28.41254, -24.44467]'), 'SaberGrip must use explicit authored RightHand-local placement from shared review constants');
 assert(reviewConstantsSource.includes('SABRE_REVIEW_LOCAL_AXIS') && reviewConstantsSource.includes('ATTACK1_REVIEW_CANDIDATES'), 'review constants must expose blade axis and candidate manifest');
 assert(reviewConstantsSource.includes('attack1-tip-match-1') && reviewConstantsSource.includes('failed diagnostic') && reviewConstantsSource.includes('attack1-tip-basis-2') && reviewConstantsSource.includes('failed diagnostic') && reviewConstantsSource.includes('attack1-joint-pinned-3') && reviewConstantsSource.includes('ATTACK1_JOINT_PINNED_SEQUENCE'), 'review constants must register failed diagnostics and current joint-pinned preview candidate');
@@ -409,6 +465,8 @@ if (exists('dist')) {
   assert(exists('dist/src/review-candidates/attack1-joint-pinned-3.js'), 'dist must include Attack1 joint-pinned candidate preview module');
   assert(exists('dist/src/review-candidates/fist-ready-candidate-1.js'), 'dist must include FistReady candidate preview module');
   assert(exists('dist/src/review-candidates/fist-attack1-candidate-1.js'), 'dist must include FistAttack1 candidate preview module');
+  assert(exists('dist/src/review-candidates/davin-lowbackkick-ares-transfer-1.js'), 'dist must include Davin LowBackKick candidate preview module');
+  assert(exists('dist/src/review-candidates/davin-idle-screenshot-1.js'), 'dist must include Davin screenshot idle candidate preview module');
   assert(!exists('dist/src/attack1-pose.js'), 'dist must not ship the contaminated Attack1 pose sequence');
   assert(exists('dist/vendor/three/build/three.module.js'), 'dist must include vendored Three');
   assert(exists('dist/vendor/three/examples/jsm/loaders/GLTFLoader.js'), 'dist must include vendored GLTFLoader');

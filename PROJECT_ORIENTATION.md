@@ -17,6 +17,10 @@ The visible target is deliberately small:
   `?pose=attack1&candidate=attack1-candidate-1`.
 - Draft animation candidates live under ignored `generated/pose-candidates/` and
   cannot become repo truth without promotion through `src/pose-status.js`.
+- Animation learning can be packaged for cloud workers through generated
+  self-contained job bundles for Home Center Command Center MCP one-shot Codex
+  workers; workers must not rely on workspace skills, memories, sibling checkout
+  state, or local browser state.
 - Boring FK saber ownership:
   `RightHand -> SaberGrip -> sabre mesh`.
 
@@ -32,7 +36,12 @@ Before editing:
 3. Read `docs/VISUAL_VERIFICATION_DOCTRINE.md`.
 4. For Attack1 or imported motion work, read
    `docs/POSE_LAB_V2_ATTACK_BAKE_DOCTRINE.md`.
-5. For asset changes, read `ASSET_PROVENANCE.md`.
+5. For animation learning or cloud-worker work, read
+   `docs/LOCAL_BLENDER_ANIMATION_MUSCLE.md` and
+   `docs/CLOUD_WORKER_ANIMATION_SURFACE.md`,
+   `docs/CLOUD_WORKER_OUTPUT_CONTRACT.md`, and
+   `docs/COMMAND_CENTER_DISPATCH_PROMPT.md`.
+6. For asset changes, read `ASSET_PROVENANCE.md`.
 
 ## Banned Imports From Old Pose Lab
 

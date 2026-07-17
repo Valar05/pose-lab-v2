@@ -52,3 +52,19 @@ export const REVIEW_CAMERA_CONTRACT = {
   target: [0, 0.95, 0],
   viewport: [390, 844],
 };
+
+export const DAVIN_IDLE_REVIEW_CANDIDATES = {
+  "davin-idle-screenshot-1": {
+    module: "./review-candidates/davin-idle-screenshot-1.js",
+    exportName: "DAVIN_IDLE_SCREENSHOT_1",
+    label: "Davin screenshot idle 1 (red diagnostic)",
+  },
+};
+
+export const LOWBACKKICK_REVIEW_CANDIDATES = {
+  "davin-lowbackkick-ares-transfer-1": {
+    module: "./review-candidates/davin-lowbackkick-ares-transfer-1.js",
+    exportName: "DAVIN_LOWBACKKICK_ARES_TRANSFER_1",
+    label: "Davin LowBackKick from Ares SF2 transfer 1",
+  },
+};

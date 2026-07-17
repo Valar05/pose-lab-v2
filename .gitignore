@@ -2,6 +2,16 @@ node_modules/
 dist/
 .vite/
 *.log
+__pycache__/
 generated/pose-candidates/
 generated/fps-reference/
+generated/learning/
 generated/meshy-fist-authoring/
+generated/animation-comparisons/
+generated/blender-render-truth/
+generated/cloud-worker-jobs/
+generated/composed-animations/
+generated/source-clip-samples/
+generated/video-contact-sheets/
+generated/video-ledgers/
+generated/davin-*/

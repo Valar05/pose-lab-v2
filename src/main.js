@@ -2,13 +2,103 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { POSE_STATUS } from './pose-status.js';
-import { ATTACK1_REVIEW_CANDIDATES, SABER_GRIP_LOCAL } from './review-constants.js';
+import { ATTACK1_REVIEW_CANDIDATES, DAVIN_IDLE_REVIEW_CANDIDATES, LOWBACKKICK_REVIEW_CANDIDATES, SABER_GRIP_LOCAL } from './review-constants.js';
 
 const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
   sabre: './assets/meshy/meshy_real_sabre.glb',
   fistHands: './assets/meshy/meshy_fist_hands.glb',
+  davin: './assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb',
+  ares: './assets/ares/ares_rigged_diffuse.glb',
+  securityTitan: './assets/ares/security_titan_rigged_diffuse.glb',
 };
+const MIXAMO_BONE_MAP = Object.freeze({
+  Hips: 'mixamorig:Hips',
+  Spine: 'mixamorig:Spine',
+  Spine01: 'mixamorig:Spine1',
+  Spine02: 'mixamorig:Spine2',
+  neck: 'mixamorig:Neck',
+  Head: 'mixamorig:Head',
+  LeftShoulder: 'mixamorig:LeftShoulder',
+  LeftArm: 'mixamorig:LeftArm',
+  LeftForeArm: 'mixamorig:LeftForeArm',
+  LeftHand: 'mixamorig:LeftHand',
+  RightShoulder: 'mixamorig:RightShoulder',
+  RightArm: 'mixamorig:RightArm',
+  RightForeArm: 'mixamorig:RightForeArm',
+  RightHand: 'mixamorig:RightHand',
+  LeftUpLeg: 'mixamorig:LeftUpLeg',
+  LeftLeg: 'mixamorig:LeftLeg',
+  LeftFoot: 'mixamorig:LeftFoot',
+  RightUpLeg: 'mixamorig:RightUpLeg',
+  RightLeg: 'mixamorig:RightLeg',
+  RightFoot: 'mixamorig:RightFoot',
+});
+const CHARACTER_ASSETS = Object.freeze({
+  davin: {
+    key: 'davin',
+    label: 'Davin Wingsworth',
+    asset: ASSETS.davin,
+    source: '/storage/emulated/0/Download/Meshy_AI_Sky_Patrol_Hawk_biped.zip + /storage/emulated/0/Download/Meshy_AI_Sky_Patrol_Hawk_0716213205_texture.glb',
+    role: 'merged rigged Kestrel Man manual pose-authoring model with full PBR material channels and Tail01/Tail02/Tail03 spring-bone-ready tail chain',
+    boneMap: {},
+    supportsSaber: false,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+  },
+  meshy: {
+    key: 'meshy',
+    label: 'Meshy',
+    asset: ASSETS.meshy,
+    source: '../pose-lab/assets/models/meshy_character_sheet/animated/Meshy_AI_Meshy_Character_Sheet_biped_Animation_Walking_withSkin.glb',
+    role: 'accepted Meshy saber-placement baseline',
+    boneMap: {},
+    supportsSaber: true,
+    supportsBakedPoseStates: true,
+    supportsFistHands: true,
+    pbr: 'meshy-character-sheet',
+  },
+  ares: {
+    key: 'ares',
+    label: 'Ares',
+    asset: ASSETS.ares,
+    source: '../gravity-fist-threejs/assets/models/Ares.glb',
+    role: 'imported rigged Ares diffuse authoring model',
+    boneMap: MIXAMO_BONE_MAP,
+    supportsSaber: false,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+  },
+  'security-titan': {
+    key: 'security-titan',
+    label: 'SecurityTitan',
+    asset: ASSETS.securityTitan,
+    source: '../gravity-fist-threejs/assets/models/SecurityTitan.glb',
+    role: 'imported rigged SecurityTitan diffuse authoring model',
+    boneMap: MIXAMO_BONE_MAP,
+    supportsSaber: false,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+  },
+});
+const CHARACTER_KEY_ALIASES = Object.freeze({
+  default: 'davin',
+  davin: 'davin',
+  'davin-wingsworth': 'davin',
+  wingsworth: 'davin',
+  kestrel: 'davin',
+  'kestrel-man': 'davin',
+  hawk: 'davin',
+  meshy: 'meshy',
+  ares: 'ares',
+  aresDiffuse: 'ares',
+  'ares-diffuse': 'ares',
+  security: 'security-titan',
+  titan: 'security-titan',
+  securityTitan: 'security-titan',
+  'security-titan': 'security-titan',
+});
+const CHARACTER_KEYS = Object.freeze(Object.keys(CHARACTER_ASSETS));
 const MESHY_PBR_TEXTURES = {
   map: './assets/meshy/character_sheet_pbr/base_color.jpg',
   emissiveMap: './assets/meshy/character_sheet_pbr/emissive.jpg',
@@ -16,26 +106,45 @@ const MESHY_PBR_TEXTURES = {
   normalMap: './assets/meshy/character_sheet_pbr/normal.png',
 };
 const URL_PARAMS = new URLSearchParams(window.location.search);
+const REQUESTED_CHARACTER_KEY = CHARACTER_KEY_ALIASES[URL_PARAMS.get('model')]
+  || CHARACTER_KEY_ALIASES[URL_PARAMS.get('character')]
+  || 'davin';
+const ACTIVE_CHARACTER = CHARACTER_ASSETS[REQUESTED_CHARACTER_KEY] || CHARACTER_ASSETS.meshy;
+const IS_MESHY_CHARACTER = ACTIVE_CHARACTER.key === 'meshy';
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
 const TIP_BASIS_REVIEW = URL_PARAMS.get('tipBasis') === '1';
 const WORLD_SOCKET_REVIEW = URL_PARAMS.get('worldSocket') === '1';
 const POSE_STATE_ORDER = ['rest', 'ready', 'fistReady', 'attack1'];
+const IMPORTED_POSE_STATE_ORDER = ['rest'];
+function activePoseStateOrder() {
+  if (ACTIVE_CHARACTER.supportsBakedPoseStates) return POSE_STATE_ORDER;
+  if (REQUESTED_IDLE_REVIEW) return ['rest', 'idle'];
+  return REQUESTED_LOWBACKKICK_REVIEW ? ['rest', 'lowBackKick'] : IMPORTED_POSE_STATE_ORDER;
+}
 const POSE_STATE_LABELS = {
   rest: 'Rest',
   ready: 'Ready',
   fistReady: 'FistReady',
   attack1: 'Attack1',
+  lowBackKick: 'LowBackKick',
+  idle: 'Idle',
   custom: 'Custom',
 };
 const REQUESTED_POSE = URL_PARAMS.get('pose');
-const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate');
+const REQUESTED_LOWBACKKICK_REVIEW = ACTIVE_CHARACTER.key === 'davin'
+  && ['lowbackkick', 'low-back-kick', 'low_back_kick'].includes(String(REQUESTED_POSE || '').toLowerCase());
+const REQUESTED_IDLE_REVIEW = ACTIVE_CHARACTER.key === 'davin'
+  && ['idle', 'screenshot-idle', 'idle-screenshot'].includes(String(REQUESTED_POSE || '').toLowerCase());
+const LOWBACKKICK_DEFAULT_CANDIDATE = 'davin-lowbackkick-ares-transfer-1';
+const IDLE_DEFAULT_CANDIDATE = 'davin-idle-screenshot-1';
+const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate') || (REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_DEFAULT_CANDIDATE : REQUESTED_IDLE_REVIEW ? IDLE_DEFAULT_CANDIDATE : null);
 const REQUESTED_ATTACK_TIME = URL_PARAMS.get('attackTime');
 const REQUESTED_MANUAL_ATTACK = URL_PARAMS.get('manual') === '1' || URL_PARAMS.get('edit') === 'manual';
 const REQUESTED_ATTACK_QUARANTINED = ['attack1', 'attack', 'onehandattack1'].includes(String(REQUESTED_POSE || '').toLowerCase());
 const REQUESTED_ATTACK2_QUARANTINED = ['attack2', 'onehandattack2'].includes(String(REQUESTED_POSE || '').toLowerCase());
-const REQUESTED_ATTACK_LABEL = REQUESTED_ATTACK2_QUARANTINED ? 'Attack2' : 'Attack1';
+const REQUESTED_ATTACK_LABEL = REQUESTED_IDLE_REVIEW ? 'Idle' : REQUESTED_LOWBACKKICK_REVIEW ? 'LowBackKick' : REQUESTED_ATTACK2_QUARANTINED ? 'Attack2' : 'Attack1';
 const FIST_VISUAL_REVIEW = URL_PARAMS.get('fistHands') === '1'
   || String(REQUESTED_CANDIDATE || '').startsWith('fist-')
   || ['fist', 'fistready', 'fist-ready'].includes(String(REQUESTED_POSE || '').toLowerCase());
@@ -69,15 +178,16 @@ app.innerHTML = `
       <span data-boot-phase>booting module</span>
     </div>
     <div class="viewport">
-      <canvas aria-label="Meshy A-pose saber placement viewport"></canvas>
+      <canvas aria-label="${ACTIVE_CHARACTER.label} pose viewport"></canvas>
       <div class="primary-rail" aria-label="Primary review controls">
+        <button type="button" data-cycle-character>Model: ${ACTIVE_CHARACTER.label}</button>
         <button type="button" data-cycle-tool>Tool: Saber</button>
         <button type="button" data-cycle-pose-state>Pose: Rest</button>
         <button type="button" data-cycle-view-mode>View: Orbit</button>
         <button type="button" class="fpv-settings-button" data-fpv-settings-toggle aria-label="FPV camera settings" title="FPV camera settings">⚙</button>
         <button type="button" data-attack-review-toggle ${REQUESTED_CANDIDATE ? '' : 'hidden'} aria-label="Attack playback controls">Attack</button>
         <button type="button" data-dock-toggle>Tools</button>
-        <span class="status" data-status>loading Meshy and real sabre</span>
+        <span class="status" data-status>loading ${ACTIVE_CHARACTER.label}</span>
       </div>
       <div class="attack-review" data-attack-review hidden aria-label="Attack candidate review controls">
         <div class="attack-review-row">
@@ -124,12 +234,14 @@ app.innerHTML = `
       </div>
       <section class="control-panel" data-panel="transform" aria-label="Transform controls" hidden>
         <div class="panel-row hidden-actions" aria-hidden="true">
-          <button type="button" data-tool="saber" class="active" tabindex="-1">Saber</button>
+          <button type="button" data-tool="saber" class="active" tabindex="-1" ${ACTIVE_CHARACTER.supportsSaber ? '' : 'hidden'}>Saber</button>
           <button type="button" data-tool="pose" tabindex="-1">Pose</button>
           <button type="button" data-pose-state="rest" class="active" tabindex="-1">Rest</button>
           <button type="button" data-pose-state="ready" tabindex="-1">Ready</button>
           <button type="button" data-pose-state="fistReady" tabindex="-1">FistReady</button>
           <button type="button" data-pose-state="attack1" tabindex="-1">Attack1</button>
+          <button type="button" data-pose-state="lowBackKick" tabindex="-1">LowBackKick</button>
+          <button type="button" data-pose-state="idle" tabindex="-1">Idle</button>
           <button type="button" data-view-mode="orbit" class="active" tabindex="-1">Orbit</button>
           <button type="button" data-view-mode="firstPerson" tabindex="-1">FPV</button>
         </div>
@@ -195,6 +307,7 @@ const touchProofPanel = app.querySelector('[data-touch-proof-readout]');
 const touchProbeButton = app.querySelector('[data-action="touch-probe"]');
 const readyProofPanel = app.querySelector('[data-ready-proof-readout]');
 const dockEl = app.querySelector('.control-dock');
+const cycleCharacterButton = app.querySelector('[data-cycle-character]');
 const dockToggleButton = app.querySelector('[data-dock-toggle]');
 const cycleToolButton = app.querySelector('[data-cycle-tool]');
 const cyclePoseStateButton = app.querySelector('[data-cycle-pose-state]');
@@ -697,6 +810,24 @@ function findBone(object, name) {
   return name ? object?.getObjectByName(name) || null : null;
 }
 
+function activeBoneName(logicalName) {
+  return ACTIVE_CHARACTER.boneMap?.[logicalName] || logicalName;
+}
+
+function findPoseBone(logicalName) {
+  return findBone(meshyRoot, activeBoneName(logicalName)) || findBone(meshyRoot, logicalName);
+}
+
+function findRequiredPoseBone(logicalName) {
+  const bone = findPoseBone(logicalName);
+  if (!bone) throw new Error(`missing ${ACTIVE_CHARACTER.label} bone: ${activeBoneName(logicalName)}`);
+  return bone;
+}
+
+function poseBoneLabel(bone, logicalName = null) {
+  return logicalName && bone?.name !== logicalName ? `${logicalName} (${bone.name})` : bone?.name || logicalName || 'none';
+}
+
 function objectWorldPosition(object) {
   return object.getWorldPosition(new THREE.Vector3());
 }
@@ -882,7 +1013,8 @@ function editableTarget() {
 
 function attachSaberToRightHand() {
   if (!meshyRoot || !sabreRoot) return;
-  const rightHand = findRequiredBone(meshyRoot, 'RightHand');
+  if (!ACTIVE_CHARACTER.supportsSaber) return;
+  const rightHand = findRequiredPoseBone('RightHand');
 
   const grip = new THREE.Bone();
   grip.name = 'SaberGrip';
@@ -913,11 +1045,11 @@ function resetSaberPlacement() {
 }
 
 function ensureFistControlBones(config) {
-  const hand = findBone(meshyRoot, config.boneName);
+  const hand = findPoseBone(config.boneName);
   if (!hand) return null;
   const controlsByName = new Map([[config.boneName, hand]]);
   for (const entry of config.controls) {
-    const parent = controlsByName.get(entry.parent) || findBone(meshyRoot, entry.parent);
+    const parent = controlsByName.get(entry.parent) || findPoseBone(entry.parent);
     if (!parent) continue;
     let bone = parent.children.find((child) => child.isBone && child.name === entry.name);
     if (!bone) {
@@ -966,7 +1098,7 @@ function attachFistHandsToMeshy(object) {
 }
 
 function activePoseHandleNames() {
-  return FIST_VISUAL_REVIEW && fistHandControlBones.size
+  return FIST_VISUAL_REVIEW && ACTIVE_CHARACTER.supportsFistHands && fistHandControlBones.size
     ? [...POSE_BONE_NAMES, ...FIST_CONTROL_BONE_NAMES]
     : POSE_BONE_NAMES;
 }
@@ -982,9 +1114,10 @@ function setupPoseHandles() {
   poseHandles.clear();
   poseBoneRestQuaternions.clear();
   for (const name of activePoseHandleNames()) {
-    const bone = findBone(meshyRoot, name);
+    const bone = findPoseBone(name);
     if (!bone) continue;
     poseBones.set(name, bone);
+    bone.userData.poseLabV2LogicalName = name;
     poseBoneRestQuaternions.set(name, bone.quaternion.clone());
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(POSE_HANDLE_POSITION_FLOATS), 3));
@@ -1155,6 +1288,11 @@ function resetPose() {
 }
 
 function applyReadyPose() {
+  if (!ACTIVE_CHARACTER.supportsBakedPoseStates) {
+    resetPose();
+    statusEl.textContent = `${ACTIVE_CHARACTER.label}: baked Meshy Ready is disabled; use Pose mode to author manually`;
+    return;
+  }
   setSabreReviewVisible(true);
   applyPoseBones(readyPosePreset?.bones || {});
   poseState = 'ready';
@@ -1172,7 +1310,58 @@ function applyReadyPose() {
   });
 }
 
+function applyLowBackKickPose() {
+  resetPose();
+  if (attackPoseSequence && REQUESTED_CANDIDATE) {
+    poseState = 'lowBackKick';
+    setSabreReviewVisible(false);
+    attackPoseFixedTime = Number.isFinite(Number(REQUESTED_ATTACK_TIME)) ? Number(REQUESTED_ATTACK_TIME) : null;
+    attackPoseCurrentTime = attackPoseFixedTime ?? 0;
+    attackPoseStartedAt = performance.now() - attackPoseCurrentTime * 1000;
+    applyAttackSequenceAt(attackPoseCurrentTime);
+    setToolMode('pose');
+    setMode('rotate');
+    setupAttackReviewControls();
+    setAttackReviewOpen(true);
+    statusEl.textContent = `LowBackKick candidate preview: ${REQUESTED_CANDIDATE}; not accepted repo truth`;
+    return;
+  }
+  setToolMode('pose');
+  setMode('rotate');
+  poseState = 'lowBackKick';
+  statusEl.textContent = 'LowBackKick candidate missing; showing Davin rest pose';
+}
+
+function applyIdlePose() {
+  resetPose();
+  if (attackPoseSequence && REQUESTED_CANDIDATE) {
+    poseState = 'idle';
+    setSabreReviewVisible(false);
+    attackPoseFixedTime = Number.isFinite(Number(REQUESTED_ATTACK_TIME)) ? Number(REQUESTED_ATTACK_TIME) : 0;
+    attackPoseCurrentTime = attackPoseFixedTime;
+    attackPoseStartedAt = performance.now() - attackPoseCurrentTime * 1000;
+    applyAttackSequenceAt(attackPoseCurrentTime);
+    setToolMode('pose');
+    setMode('rotate');
+    setupAttackReviewControls();
+    setAttackReviewOpen(true);
+    statusEl.textContent = `Idle screenshot candidate preview: ${REQUESTED_CANDIDATE}; red diagnostic, not accepted repo truth`;
+    return;
+  }
+  setToolMode('pose');
+  setMode('rotate');
+  poseState = 'idle';
+  statusEl.textContent = 'Idle candidate missing; showing Davin rest pose';
+}
+
 function applyAttackPose() {
+  if (!ACTIVE_CHARACTER.supportsBakedPoseStates) {
+    resetPose();
+    setToolMode('pose');
+    setMode('rotate');
+    statusEl.textContent = `${ACTIVE_CHARACTER.label}: imported model pose authoring only`;
+    return;
+  }
   const status = poseStatus('attack1');
   resetPose();
   if (useManualAttackAuthoring()) {
@@ -1452,7 +1641,7 @@ function setupAttackReviewControls() {
 
 function updateAttackReviewControls() {
   if (!attackReviewPanel) return;
-  const active = Boolean((attackPoseSequence || manualAttackDraft) && poseState === 'attack1');
+  const active = Boolean((attackPoseSequence || manualAttackDraft) && isSequenceReviewState());
   if (attackReviewToggle) {
     attackReviewToggle.hidden = !Boolean(REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring());
     attackReviewToggle.classList.toggle('active', active && attackReviewOpen);
@@ -1670,6 +1859,15 @@ function setPoseState(next) {
     }
     statusEl.textContent = 'ready pose: source-oriented OneHandReady, sabre follows RightHand FK';
   } else if (next === 'fistReady') {
+    if (!ACTIVE_CHARACTER.supportsFistHands) {
+      resetPose();
+      setToolMode('pose');
+      setMode('rotate');
+      statusEl.textContent = `${ACTIVE_CHARACTER.label}: fist hands are Meshy-only; author this rig in Rest`;
+      renderControls();
+      updateReadout();
+      return;
+    }
     resetPose();
     setSabreReviewVisible(false);
     applyPoseBones(fistReadyPosePreset?.bones || readyPosePreset?.bones || {});
@@ -1679,6 +1877,10 @@ function setPoseState(next) {
     statusEl.textContent = 'fist ready: Meshy-derived fist controls editable in FPV';
   } else if (next === 'attack1') {
     applyAttackPose();
+  } else if (next === 'lowBackKick') {
+    applyLowBackKickPose();
+  } else if (next === 'idle') {
+    applyIdlePose();
   } else {
     resetPose();
     statusEl.textContent = 'rest pose: golden Meshy A-pose restored';
@@ -1690,8 +1892,10 @@ function setPoseState(next) {
 function initialPoseStateFromUrl() {
   const pose = String(URL_PARAMS.get('pose') || '').toLowerCase();
   if (pose === 'ready') return 'ready';
-  if (FIST_VISUAL_REVIEW || ['fist', 'fistready', 'fist-ready'].includes(pose)) return 'fistReady';
-  if (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED) return 'attack1';
+  if (ACTIVE_CHARACTER.supportsFistHands && (FIST_VISUAL_REVIEW || ['fist', 'fistready', 'fist-ready'].includes(pose))) return 'fistReady';
+  if (REQUESTED_IDLE_REVIEW) return 'idle';
+  if (REQUESTED_LOWBACKKICK_REVIEW) return 'lowBackKick';
+  if (ACTIVE_CHARACTER.supportsBakedPoseStates && (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED)) return 'attack1';
   return 'rest';
 }
 
@@ -1742,6 +1946,7 @@ function eachMeshyMaterial(object, callback) {
 }
 
 async function applyMeshyPbrTextures(object, options = {}) {
+  if (!IS_MESHY_CHARACTER) return;
   meshyPbrTextures = await loadMeshyPbrTextures(options);
   eachMeshyMaterial(object, (material) => applyMeshyPbrToMaterial(material, meshyPbrTextures));
   applyMeshyPbrToFpvMasks();
@@ -1759,16 +1964,27 @@ async function loadPosePresets({ announce = true } = {}) {
   readyPosePreset = readyModule[readyStatus.exportName];
   const fistReadyModule = await import(`./fist-ready-pose.js${suffix}`);
   fistReadyPosePreset = fistReadyModule.FIST_READY_POSE_PRESET;
-  const candidate = ATTACK1_REVIEW_CANDIDATES[REQUESTED_CANDIDATE];
-  if ((REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED) && candidate) {
-    const candidateModule = await import(`${candidate.module}${suffix}`);
-    attackPoseSequence = candidateModule[candidate.exportName];
-    if (!attackPoseSequence?.frames?.length) throw new Error(`${REQUESTED_ATTACK_LABEL} review candidate ${REQUESTED_CANDIDATE} has no frames`);
-  }
   updateReadyProof({
     readyPresetLoaded: Boolean(readyPosePreset),
     rightHandPresetQuaternion: readyPosePreset?.bones?.RightHand || null,
   });
+}
+
+async function loadReviewCandidate() {
+  const cacheBust = URL_PARAMS.get('cacheBust');
+  const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
+  const candidates = REQUESTED_IDLE_REVIEW ? DAVIN_IDLE_REVIEW_CANDIDATES : REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_REVIEW_CANDIDATES : ATTACK1_REVIEW_CANDIDATES;
+  const candidate = candidates[REQUESTED_CANDIDATE];
+  if (!candidate) return;
+  const shouldLoad = REQUESTED_IDLE_REVIEW || REQUESTED_LOWBACKKICK_REVIEW || REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED;
+  if (!shouldLoad) return;
+  const candidateModule = await import(`${candidate.module}${suffix}`);
+  attackPoseSequence = candidateModule[candidate.exportName];
+  if (!attackPoseSequence?.frames?.length) throw new Error(`${REQUESTED_ATTACK_LABEL} review candidate ${REQUESTED_CANDIDATE} has no frames`);
+}
+
+function isSequenceReviewState() {
+  return poseState === 'attack1' || poseState === 'lowBackKick' || poseState === 'idle';
 }
 
 function setMode(next) {
@@ -1780,7 +1996,7 @@ function setMode(next) {
 
 function setToolMode(next) {
   toolState[toolMode] = { mode, axis: currentAxis };
-  toolMode = next === 'pose' ? 'pose' : 'saber';
+  toolMode = next === 'pose' || !ACTIVE_CHARACTER.supportsSaber ? 'pose' : 'saber';
   mode = toolState[toolMode].mode;
   currentAxis = toolState[toolMode].axis;
   if (toolMode === 'pose') {
@@ -1924,7 +2140,11 @@ function setFpvFov(value) {
 }
 
 function renderControls() {
-  toolButtons.forEach((button) => button.classList.toggle('active', button.dataset.tool === toolMode));
+  if (cycleCharacterButton) cycleCharacterButton.textContent = `Model: ${ACTIVE_CHARACTER.label}`;
+  toolButtons.forEach((button) => {
+    if (button.dataset.tool === 'saber') button.hidden = !ACTIVE_CHARACTER.supportsSaber;
+    button.classList.toggle('active', button.dataset.tool === toolMode);
+  });
   viewModeButtons.forEach((button) => button.classList.toggle('active', button.dataset.viewMode === viewMode));
   poseStateButtons.forEach((button) => button.classList.toggle('active', button.dataset.poseState === poseState));
   modeButtons.forEach((button) => button.classList.toggle('active', button.dataset.mode === mode));
@@ -1947,6 +2167,7 @@ function renderControls() {
     if (fpvSettingsPanel) fpvSettingsPanel.hidden = !fpvSettingsOpen;
     fpvSettingsToggle.classList.toggle('active', fpvSettingsOpen);
   }
+  cycleToolButton.hidden = !ACTIVE_CHARACTER.supportsSaber;
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
   cyclePoseStateButton.textContent = `Clip: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
   cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
@@ -1955,13 +2176,13 @@ function renderControls() {
     statusEl.textContent = `Attack1 manual: ${manualAttackSelectedKey}${manualAttackDirty ? ' unsaved' : ''}`;
     return;
   }
-  if (poseState === 'attack1' && attackPoseSequence) {
-    statusEl.textContent = `Attack1 candidate preview: ${REQUESTED_CANDIDATE}; ${attackPoseFixedTime === null ? 'playing' : `${attackPoseCurrentTime.toFixed(3)}s`}`;
+  if (isSequenceReviewState() && attackPoseSequence) {
+    statusEl.textContent = `${REQUESTED_ATTACK_LABEL} candidate preview: ${REQUESTED_CANDIDATE}; ${attackPoseFixedTime === null ? 'playing' : `${attackPoseCurrentTime.toFixed(3)}s`}`;
     return;
   }
   statusEl.textContent = toolMode === 'pose'
     ? selectedPoseBone
-      ? `${mode} / ${axisLabel()}: editing ${selectedPoseBone.name}`
+      ? `${mode} / ${axisLabel()}: editing ${poseBoneLabel(selectedPoseBone, selectedPoseBone.userData.poseLabV2LogicalName)}`
       : `pose / ${axisLabel()}: tap a blue bone handle`
     : selected
     ? `${mode} / ${axisLabel()}: drag sabre to edit, drag empty space for camera`
@@ -1986,8 +2207,8 @@ function applyOrbitCamera() {
 
 function updateFirstPersonCamera() {
   if (viewMode !== 'firstPerson' || !meshyRoot) return;
-  const anchor = findBone(meshyRoot, firstPersonCameraConfig.anchor)
-    || findBone(meshyRoot, firstPersonCameraConfig.fallbackAnchor);
+  const anchor = findPoseBone(firstPersonCameraConfig.anchor)
+    || findPoseBone(firstPersonCameraConfig.fallbackAnchor);
   if (!anchor) return;
   root.updateMatrixWorld(true);
   const anchorPosition = objectWorldPosition(anchor);
@@ -2045,7 +2266,7 @@ function leaveSaberEdit(message = 'camera: sabre deselected') {
   touchGesture = null;
   suppressTouchPointerEvents = false;
   pointers.clear();
-  controls.enabled = true;
+  controls.enabled = viewMode === 'orbit';
   lastPinchDistance = 0;
   lastTwistAngle = 0;
   renderControls();
@@ -2057,14 +2278,13 @@ function cycleMode() {
 }
 
 function exportTransform() {
-  if (!sabreRoot) return {};
   if (manualAttackDraft) {
     if (manualAttackDirty) persistManualAttackKey({ silent: true });
     return exportManualAttackDraft();
   }
   root.updateMatrixWorld(true);
-  const rotationDeg = rotationDegFromQuaternion(objectWorldQuaternion(sabreRoot));
-  const scale = objectWorldScale(sabreRoot).toArray().map((value) => Number(value.toFixed(5)));
+  const rotationDeg = sabreRoot ? rotationDegFromQuaternion(objectWorldQuaternion(sabreRoot)) : null;
+  const scale = sabreRoot ? objectWorldScale(sabreRoot).toArray().map((value) => Number(value.toFixed(5))) : null;
   const saberGripLocal = saberGrip ? {
     parentBone: 'RightHand',
     position: saberGrip.position.toArray().map((value) => Number(value.toFixed(5))),
@@ -2088,15 +2308,19 @@ function exportTransform() {
     schema: 'pose-lab-v2-sabre-transform-v1',
     toolMode,
     assets: {
+      character: ACTIVE_CHARACTER.asset,
+      characterKey: ACTIVE_CHARACTER.key,
+      characterLabel: ACTIVE_CHARACTER.label,
+      source: ACTIVE_CHARACTER.source,
       meshy: ASSETS.meshy,
       sabre: ASSETS.sabre,
     },
-    saberRoot: {
+    saberRoot: sabreRoot ? {
       position: objectWorldPosition(sabreRoot).toArray().map((value) => Number(value.toFixed(5))),
       rotationDeg,
       scale,
       uniformScale: Number(scale[0].toFixed(5)),
-    },
+    } : null,
     saberGrip: saberGripLocal,
     sabreLocal,
     pose: {
@@ -2128,6 +2352,10 @@ function exportManualAttackDraft() {
     status: 'manual-review',
     label: 'Attack1 manual blank-Ready draft',
     assets: {
+      character: ACTIVE_CHARACTER.asset,
+      characterKey: ACTIVE_CHARACTER.key,
+      characterLabel: ACTIVE_CHARACTER.label,
+      source: ACTIVE_CHARACTER.source,
       meshy: ASSETS.meshy,
       sabre: ASSETS.sabre,
     },
@@ -2424,7 +2652,7 @@ function beginSingleTouchSabre(touch, hit) {
     };
     controls.enabled = false;
     updatePoseHandles();
-    statusEl.textContent = `pose: ${mode} ${bone.name}`;
+    statusEl.textContent = `pose: ${mode} ${poseBoneLabel(bone, bone.userData.poseLabV2LogicalName)}`;
     return true;
   }
   const wasSelected = selected && hit;
@@ -2475,7 +2703,7 @@ function beginTwoFingerPose(points) {
   lastTwistAngle = touchAngle(points);
   lastPinchDistance = touchDistance(points);
   controls.enabled = false;
-  statusEl.textContent = `pose: two-finger ${mode} ${selectedPoseBone?.name || ''}`;
+  statusEl.textContent = `pose: two-finger ${mode} ${poseBoneLabel(selectedPoseBone, selectedPoseBone?.userData.poseLabV2LogicalName)}`;
   updateTouchProof({ lastTouchAction: 'two-finger-pose-start' });
 }
 
@@ -2522,7 +2750,7 @@ function consumePoseEmptyDoubleTap(point) {
 }
 
 function handleTouchStart(event) {
-  if (!sabreRoot) return false;
+  if (!sabreRoot && toolMode !== 'pose') return false;
   const points = touchPoints(event);
   if (points.length >= 2 && toolMode === 'pose' && selectedPoseBone) {
     suppressTouchPointerEvents = true;
@@ -2582,14 +2810,14 @@ function handleTouchStart(event) {
 }
 
 function handleTouchMove(event) {
-  if (!sabreRoot || !touchGesture) return false;
+  if ((!sabreRoot && toolMode !== 'pose') || !touchGesture) return false;
   const points = touchPoints(event);
   if (points.length >= 2 && toolMode === 'pose' && selectedPoseBone) {
     if (touchGesture.kind !== 'two-pose') beginTwoFingerPose(points);
     handleTwoFingerTouch(points);
     updatePoseHandles();
     updateReadout();
-    statusEl.textContent = `pose: two-finger ${mode} ${selectedPoseBone.name}`;
+    statusEl.textContent = `pose: two-finger ${mode} ${poseBoneLabel(selectedPoseBone, selectedPoseBone?.userData.poseLabV2LogicalName)}`;
     updateTouchProof({ lastTouchAction: 'two-finger-twist' });
     stopEvent(event);
     return true;
@@ -2679,7 +2907,7 @@ function handleTouchEnd(event) {
   if (!touchGesture.moved && touchGesture.tapCanCycle) cycleMode();
   touchGesture = null;
   suppressTouchPointerEvents = false;
-  controls.enabled = true;
+  controls.enabled = viewMode === 'orbit';
   lastPinchDistance = 0;
   lastTwistAngle = 0;
   updateReadout();
@@ -2778,7 +3006,7 @@ function runTouchProbe() {
   selectedPoseBone = previousSelectedBone;
   gesture = previousGesture;
   touchGesture = previousTouchGesture;
-  controls.enabled = true;
+  controls.enabled = viewMode === 'orbit';
   root.updateMatrixWorld(true);
   updatePoseHandles();
   updateTouchProof({
@@ -2796,7 +3024,7 @@ function runTouchProbe() {
 }
 
 function startGesture(event) {
-  if (!sabreRoot) return false;
+  if (!sabreRoot && toolMode !== 'pose') return false;
   if (event.pointerType === 'touch' && suppressTouchPointerEvents) {
     stopEvent(event);
     return true;
@@ -2832,7 +3060,7 @@ function startGesture(event) {
       forward,
     };
     updatePoseHandles();
-    statusEl.textContent = `pose: ${mode} ${bone.name}`;
+    statusEl.textContent = `pose: ${mode} ${poseBoneLabel(bone, bone.userData.poseLabV2LogicalName)}`;
     stopEvent(event);
     return true;
   }
@@ -2868,7 +3096,7 @@ function updateGesture(event) {
     stopEvent(event);
     return true;
   }
-  if (!sabreRoot || !pointers.has(event.pointerId)) return false;
+  if ((!sabreRoot && toolMode !== 'pose') || !pointers.has(event.pointerId)) return false;
   pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
   if (!gesture) return false;
   if (gesture.pointerId !== event.pointerId) return false;
@@ -2898,7 +3126,7 @@ function endGesture(event) {
   if (gesture?.pointerId !== event.pointerId) return wasTracked;
   if (!gesture.moved && gesture.tapCanCycle) cycleMode();
   gesture = null;
-  controls.enabled = true;
+  controls.enabled = viewMode === 'orbit';
   if (pointers.size < 2) {
     lastPinchDistance = 0;
     lastTwistAngle = 0;
@@ -2969,16 +3197,23 @@ function snapCamera(view) {
 
 async function boot() {
   const requestedPoseState = initialPoseStateFromUrl();
-  setBootPhase('loading character');
-  const meshyPromise = loadGlb(ASSETS.meshy, { announce: false });
-  const sabrePromise = loadGlb(ASSETS.sabre, { announce: false });
-  const posePromise = loadPosePresets({ announce: false });
-  const fistHandsPromise = FIST_VISUAL_REVIEW
+  setBootPhase(`loading ${ACTIVE_CHARACTER.label}`);
+  const characterPromise = loadGlb(ACTIVE_CHARACTER.asset, { announce: false });
+  const sabrePromise = ACTIVE_CHARACTER.supportsSaber
+    ? loadGlb(ASSETS.sabre, { announce: false })
+    : Promise.resolve(null);
+  const posePromise = Promise.all([
+    ACTIVE_CHARACTER.supportsBakedPoseStates
+      ? loadPosePresets({ announce: false })
+      : Promise.resolve(null),
+    loadReviewCandidate(),
+  ]);
+  const fistHandsPromise = FIST_VISUAL_REVIEW && ACTIVE_CHARACTER.supportsFistHands
     ? loadGlb(ASSETS.fistHands, { announce: false })
     : Promise.resolve(null);
 
-  const meshy = await meshyPromise;
-  setBootPhase('showing character');
+  const meshy = await characterPromise;
+  setBootPhase(`showing ${ACTIVE_CHARACTER.label}`);
   meshyRoot = normalizeCharacter(meshy);
   root.add(meshyRoot);
   setupPoseHandles();
@@ -2986,7 +3221,10 @@ async function boot() {
   setPoseState('rest');
   setViewMode(initialViewModeFromUrl());
   markBootReady();
-  statusEl.textContent = 'character visible; loading sabre and pose';
+  if (!ACTIVE_CHARACTER.supportsSaber) setToolMode('pose');
+  statusEl.textContent = ACTIVE_CHARACTER.supportsSaber
+    ? 'character visible; loading sabre and pose'
+    : `${ACTIVE_CHARACTER.label} visible; pose handles ready`;
 
   applyMeshyPbrTextures(meshyRoot, { announce: false })
     .then(() => {
@@ -2999,18 +3237,22 @@ async function boot() {
 
   Promise.all([sabrePromise, posePromise, fistHandsPromise])
     .then(([sabre, _posePresets, fistHands]) => {
-      sabreRoot = prepareSabre(sabre);
-      root.add(sabreRoot);
-      attachSaberToRightHand();
+      if (sabre) {
+        sabreRoot = prepareSabre(sabre);
+        root.add(sabreRoot);
+        attachSaberToRightHand();
+      }
       if (fistHands) attachFistHandsToMeshy(fistHands);
       setPoseState(requestedPoseState);
       if (useManualAttackAuthoring() && poseState === 'attack1') {
         statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
+      } else if (REQUESTED_LOWBACKKICK_REVIEW) {
+        statusEl.textContent = `LowBackKick candidate preview: ${REQUESTED_CANDIDATE}; not accepted repo truth`;
       } else if (REQUESTED_ATTACK_QUARANTINED) {
         statusEl.textContent = 'Attack1 quarantined: no accepted Attack1 bake is shipped; showing Ready fallback';
       } else {
         statusEl.textContent = poseState === 'rest'
-          ? 'ready: tap the real sabre, then drag'
+          ? ACTIVE_CHARACTER.supportsSaber ? 'ready: tap the real sabre, then drag' : `${ACTIVE_CHARACTER.label}: pose handles ready`
           : `${POSE_STATE_LABELS[poseState] || 'Pose'} ready`;
       }
     })
@@ -3023,6 +3265,17 @@ async function boot() {
 
 toolButtons.forEach((button) => {
   button.addEventListener('click', () => setToolMode(button.dataset.tool || 'saber'));
+});
+
+cycleCharacterButton?.addEventListener('click', () => {
+  const currentIndex = CHARACTER_KEYS.indexOf(ACTIVE_CHARACTER.key);
+  const nextKey = CHARACTER_KEYS[(Math.max(0, currentIndex) + 1) % CHARACTER_KEYS.length];
+  const params = new URLSearchParams(window.location.search);
+  params.set('model', nextKey);
+  params.delete('pose');
+  params.delete('candidate');
+  params.delete('fistHands');
+  window.location.search = params.toString();
 });
 
 cycleToolButton.addEventListener('click', () => setToolMode(toolMode === 'saber' ? 'pose' : 'saber'));
@@ -3071,8 +3324,9 @@ poseStateButtons.forEach((button) => {
 });
 
 cyclePoseStateButton.addEventListener('click', () => {
-  const current = POSE_STATE_ORDER.includes(poseState) ? poseState : 'rest';
-  const next = POSE_STATE_ORDER[(POSE_STATE_ORDER.indexOf(current) + 1) % POSE_STATE_ORDER.length];
+  const order = activePoseStateOrder();
+  const current = order.includes(poseState) ? poseState : 'rest';
+  const next = order[(order.indexOf(current) + 1) % order.length];
   setPoseState(next);
 });
 
@@ -3136,7 +3390,7 @@ function animate() {
   if (poseState === 'attack1' && manualAttackDraft && attackPoseFixedTime === null) {
     const elapsed = (performance.now() - (attackPoseStartedAt ?? performance.now())) / 1000;
     applyManualAttackFrameAt(elapsed);
-  } else if (poseState === 'attack1' && attackPoseSequence) {
+  } else if (isSequenceReviewState() && attackPoseSequence) {
     const elapsed = attackPoseFixedTime ?? ((performance.now() - (attackPoseStartedAt ?? performance.now())) / 1000);
     applyAttackSequenceAt(elapsed);
   }
