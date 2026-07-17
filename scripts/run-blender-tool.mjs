@@ -17,7 +17,7 @@ if (separator !== '--') {
 const absoluteTool = path.resolve(root, toolPath);
 const result = spawnSync(
   'proot-distro',
-  ['login', 'debian', '--', 'blender', '--background', '--python', absoluteTool, '--', ...toolArgs],
+  ['login', 'debian', '--', 'blender', '--background', '--python-exit-code', '1', '--python', absoluteTool, '--', ...toolArgs],
   { cwd: root, stdio: 'inherit' }
 );
 

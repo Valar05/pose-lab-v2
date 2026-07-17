@@ -34,6 +34,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--runtime-glb', default=str(RUNTIME_GLB))
     parser.add_argument('--out-dir', default=str(OUT_DIR))
     parser.add_argument('--mask-debug', action='store_true')
+    parser.add_argument('--allow-red-mask', action='store_true', help='export even when the tail mask sanity gate fails')
+    parser.add_argument('--diagnostic-only', action='store_true', help='write mask manifest/render without exporting or failing')
     return parser.parse_args(argv_after_blender())
 
 
@@ -191,6 +193,30 @@ def reweight_tail(mesh_obj: bpy.types.Object) -> dict:
     }
 
 
+def mask_acceptance(weight_report: dict) -> dict:
+    low = weight_report['boundsMin']
+    high = weight_report['boundsMax']
+    width_x = round(high[0] - low[0], 5)
+    depth_y = round(high[1] - low[1], 5)
+    height_z = round(high[2] - low[2], 5)
+    failures = []
+    if width_x > 0.28:
+        failures.append(f'tail selection is too wide on X for a central/fan root isolate: {width_x}')
+    if height_z > 0.55:
+        failures.append(f'tail selection is too tall and likely includes torso/leg/wing vertices: {height_z}')
+    if weight_report['selectedVertices'] > 180:
+        selected_vertices = weight_report['selectedVertices']
+        failures.append(f'tail selection has too many vertices for the initial spring-chain isolate: {selected_vertices}')
+    return {
+        'status': 'PASS' if not failures else 'FAIL',
+        'widthX': width_x,
+        'depthY': depth_y,
+        'heightZ': height_z,
+        'failures': failures,
+        'note': 'Fail closed until a mask-debug render proves only the low rear tail fan is selected.'
+    }
+
+
 def add_debug_mask_material(mesh_obj: bpy.types.Object) -> None:
     mat = bpy.data.materials.new('TailMask_Debug_Red')
     mat.diffuse_color = (1.0, 0.08, 0.02, 1.0)
@@ -200,6 +226,33 @@ def add_debug_mask_material(mesh_obj: bpy.types.Object) -> None:
         values = [tail_mask(mesh_obj, mesh_obj.data.vertices[index]) for index in poly.vertices]
         if sum(values) / len(values) > 0.08:
             poly.material_index = debug_index
+
+
+def render_mask_debug(out_path: Path) -> None:
+    scene = bpy.context.scene
+    scene.render.engine = 'BLENDER_WORKBENCH'
+    scene.render.resolution_x = 960
+    scene.render.resolution_y = 720
+    scene.world.color = (0.045, 0.05, 0.055)
+    if hasattr(scene, 'display'):
+        scene.display.shading.light = 'STUDIO'
+        scene.display.shading.color_type = 'MATERIAL'
+    camera = bpy.data.objects.new('davin_tail_mask_camera', bpy.data.cameras.new('davin_tail_mask_camera'))
+    bpy.context.collection.objects.link(camera)
+    scene.camera = camera
+    camera.data.type = 'ORTHO'
+    camera.data.ortho_scale = 1.8
+    camera.location = (1.35, -1.55, 0.78)
+    direction = Vector((0.0, 0.18, 0.55)) - camera.location
+    camera.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+    light = bpy.data.objects.new('davin_tail_mask_light', bpy.data.lights.new('davin_tail_mask_light', 'AREA'))
+    light.location = (0.0, -2.4, 2.5)
+    light.data.energy = 500
+    light.data.size = 4
+    bpy.context.collection.objects.link(light)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    scene.render.filepath = str(out_path)
+    bpy.ops.render.render(write_still=True)
 
 
 def export_glb(path: Path) -> None:
@@ -223,11 +276,17 @@ def main() -> None:
     mesh_obj = find_skinned_mesh(imported)
     authored = add_tail_bones(armature)
     weight_report = reweight_tail(mesh_obj)
-    if args.mask_debug:
+    acceptance = mask_acceptance(weight_report)
+    debug_render = out_dir / 'tail-mask-debug.png'
+    if args.mask_debug or acceptance['status'] != 'PASS':
         add_debug_mask_material(mesh_obj)
-    for obj in bpy.data.objects:
-        obj.select_set(obj.type in {'ARMATURE', 'MESH', 'EMPTY'})
-    export_glb(runtime)
+        render_mask_debug(debug_render)
+    exported = (acceptance['status'] == 'PASS' or args.allow_red_mask) and not args.diagnostic_only
+    if exported:
+        for obj in bpy.data.objects:
+            obj.select_set(obj.type in {'ARMATURE', 'MESH', 'EMPTY'})
+        export_glb(runtime)
+    runtime_sha = sha256(runtime) if runtime.exists() else None
     manifest = {
         'schema': 'pose-lab-v2-davin-tail3-authoring-v1',
         'status': 'derived-runtime-asset',
@@ -235,10 +294,14 @@ def main() -> None:
         'sourceGlb': str(source.relative_to(ROOT)),
         'sourceSha256': sha256(source),
         'runtimeGlb': str(runtime.relative_to(ROOT)),
-        'runtimeSha256': sha256(runtime),
+        'runtimeSha256': runtime_sha,
+        'exportedRuntime': exported,
+        'diagnosticOnly': bool(args.diagnostic_only),
+        'maskDebugRender': str(debug_render.relative_to(ROOT)) if debug_render.exists() else None,
         'blender': bpy.app.version_string,
         'tailChain': authored,
         'weightReport': weight_report,
+        'maskAcceptance': acceptance,
         'springBoneIntent': {
             'chain': TAIL_BONES,
             'rootParent': 'Hips',
@@ -247,7 +310,13 @@ def main() -> None:
         'acceptance': 'Asset authoring guardrail only; visual contact sheet must prove silhouette improvement.'
     }
     manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
-    print(json.dumps({'ok': True, 'runtimeGlb': str(runtime), 'manifest': str(manifest_path), **weight_report}, indent=2))
+    if not exported:
+        ok = bool(args.diagnostic_only)
+        print(json.dumps({'ok': ok, 'runtimeGlb': str(runtime), 'manifest': str(manifest_path), 'maskAcceptance': acceptance, **weight_report}, indent=2))
+        if not args.diagnostic_only:
+            raise RuntimeError('Davin tail mask sanity gate failed; runtime GLB was not overwritten')
+        return
+    print(json.dumps({'ok': True, 'runtimeGlb': str(runtime), 'manifest': str(manifest_path), 'maskAcceptance': acceptance, **weight_report}, indent=2))
 
 if __name__ == '__main__':
     main()

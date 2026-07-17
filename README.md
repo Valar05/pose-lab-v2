@@ -133,8 +133,11 @@ or the real sabre placement lane unless the Meshy model is explicitly selected.
 Davin's default runtime model is a derived GLB with a three-segment tail chain:
 
 ```sh
+npm run review:davin-tail-mask
 npm run build:davin-tail3
 ```
+
+`review:davin-tail-mask` is non-destructive: it writes the mask manifest and debug render without overwriting the runtime GLB. `build:davin-tail3` is fail-closed and refuses to export when the selected region is too wide, too tall, or too large to be a sane low rear tail fan.
 
 The authoring tool imports the source merged Davin GLB, creates `Tail01`,
 `Tail02`, and `Tail03` under `Hips`, removes existing body/leg influences from
@@ -158,11 +161,7 @@ npm run review:davin-idle
 ?model=davin&pose=idle
 ```
 
-The candidate module is `src/review-candidates/davin-idle-screenshot-1.js`;
-ignored diagnostics render under `generated/davin-idle/screenshot-1/`. The bake
-uses temporary Blender IK targets for toes and wing endpoints, then writes plain
-local bone quaternions for runtime. No browser runtime IK or OpenPose dependency is added. This lane exists to iterate toward the screenshot silhouette, not to
-claim acceptance.
+The candidate module is `src/review-candidates/davin-idle-screenshot-1.js`; ignored diagnostics render under `generated/davin-idle/screenshot-1/`. The review command now also writes a screen-space projection overlay comparing explicit screenshot landmarks with projected rig points. No browser runtime IK or OpenPose dependency is added. This lane exists to expose the miss and iterate toward the screenshot silhouette, not to claim acceptance.
 
 ## Davin LowBackKick Viability Lane
 

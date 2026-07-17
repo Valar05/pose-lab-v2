@@ -116,6 +116,9 @@ const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
 const DEBUG_READY_DELTA = URL_PARAMS.get('debugReadyDelta') === '1';
 const TIP_BASIS_REVIEW = URL_PARAMS.get('tipBasis') === '1';
 const WORLD_SOCKET_REVIEW = URL_PARAMS.get('worldSocket') === '1';
+const DEBUG_BONES = URL_PARAMS.get('debugBones') === '1';
+const DEBUG_LANDMARKS = URL_PARAMS.get('debugLandmarks') === '1';
+const REVIEW_CONTROLS_OPEN = URL_PARAMS.get('reviewControls') === '1';
 const POSE_STATE_ORDER = ['rest', 'ready', 'fistReady', 'attack1'];
 const IMPORTED_POSE_STATE_ORDER = ['rest'];
 function activePoseStateOrder() {
@@ -344,7 +347,7 @@ let fpvSettingsOpen = false;
 let fpvNudgeState = null;
 let fpvNudgeHoldTimer = null;
 let fpvNudgeRaf = null;
-let attackReviewOpen = Boolean(REQUESTED_CANDIDATE || REQUESTED_MANUAL_ATTACK);
+let attackReviewOpen = Boolean(REQUESTED_MANUAL_ATTACK || REVIEW_CONTROLS_OPEN);
 const fpvBodyMasks = [];
 const toolState = {
   saber: { mode: 'move', axis: 'screen' },
@@ -1196,7 +1199,7 @@ function updatePoseHandles() {
   if (!poseHandles.size) return;
   for (const [name, handle] of poseHandles) {
     const bone = poseBones.get(name);
-    handle.visible = toolMode === 'pose' && (viewMode !== 'firstPerson' || fpvPoseHandleVisible(name));
+    handle.visible = toolMode === 'pose' && (!isSequenceReviewState() || DEBUG_BONES) && (viewMode !== 'firstPerson' || fpvPoseHandleVisible(name));
     if (!bone) continue;
     const head = objectWorldPosition(bone);
     const tail = poseBoneTailPosition(bone, head);
@@ -1322,8 +1325,8 @@ function applyLowBackKickPose() {
     setToolMode('pose');
     setMode('rotate');
     setupAttackReviewControls();
-    setAttackReviewOpen(true);
-    statusEl.textContent = `LowBackKick candidate preview: ${REQUESTED_CANDIDATE}; not accepted repo truth`;
+    setAttackReviewOpen(REVIEW_CONTROLS_OPEN);
+    statusEl.textContent = `LowBackKick candidate preview: ${REQUESTED_CANDIDATE}; not accepted repo truth${DEBUG_BONES ? '; debug bones visible' : ''}`;
     return;
   }
   setToolMode('pose');
@@ -1344,8 +1347,8 @@ function applyIdlePose() {
     setToolMode('pose');
     setMode('rotate');
     setupAttackReviewControls();
-    setAttackReviewOpen(true);
-    statusEl.textContent = `Idle screenshot candidate preview: ${REQUESTED_CANDIDATE}; red diagnostic, not accepted repo truth`;
+    setAttackReviewOpen(REVIEW_CONTROLS_OPEN);
+    statusEl.textContent = `Idle screenshot candidate preview: ${REQUESTED_CANDIDATE}; failed diagnostic, not accepted repo truth${DEBUG_BONES ? '; debug bones visible' : ''}`;
     return;
   }
   setToolMode('pose');
@@ -1645,7 +1648,7 @@ function updateAttackReviewControls() {
   if (attackReviewToggle) {
     attackReviewToggle.hidden = !Boolean(REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring());
     attackReviewToggle.classList.toggle('active', active && attackReviewOpen);
-    attackReviewToggle.textContent = manualAttackDraft ? 'Keys' : 'Attack';
+    attackReviewToggle.textContent = manualAttackDraft ? 'Keys' : REQUESTED_ATTACK_LABEL;
   }
   attackReviewPanel.hidden = !(active && attackReviewOpen);
   if (!active) return;

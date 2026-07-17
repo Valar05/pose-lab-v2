@@ -41,6 +41,7 @@
     "bake:davin-lowbackkick": "node scripts/bake-davin-lowbackkick-candidate.mjs",
     "review:davin-lowbackkick": "node scripts/render-davin-lowbackkick-contact-sheet.mjs",
     "blender:render-davin-lowbackkick": "node scripts/run-blender-tool.mjs tools/render_davin_lowbackkick_blender.py --",
-    "contact-sheet:davin-lowbackkick": "python3 tools/stitch_davin_lowbackkick_contact_sheet.py"
+    "contact-sheet:davin-lowbackkick": "python3 tools/stitch_davin_lowbackkick_contact_sheet.py",
+    "review:davin-tail-mask": "node scripts/run-blender-tool.mjs tools/author_davin_tail_chain_blender.py -- --mask-debug --diagnostic-only"
   }
 }

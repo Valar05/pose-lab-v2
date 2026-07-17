@@ -83,6 +83,8 @@ cloud review is human-red, the build is red.
 
 ## No Rig-Space Guess Shipping
 
+Davin screenshot-idle is currently failed-diagnostic evidence: the first pass used guessed world-space IK targets and a bad tail isolate. Future Davin pose work must produce a screen-space projection diagnostic before another candidate is called useful.
+
 When the user gives a visual correction, convert it into the review-camera
 relationship before editing and before committing. Do not ship a change because
 a local Euler sign, quaternion delta, wrist-travel total, source-motion metric,

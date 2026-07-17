@@ -1,14 +1,14 @@
 export const DAVIN_IDLE_SCREENSHOT_1 = {
   "schema": "pose-lab-v2-davin-idle-candidate-v1",
   "label": "Davin Wingsworth screenshot idle 1",
-  "status": "quarantined-review",
+  "status": "failed-diagnostic",
   "source": {
     "actor": "Davin Wingsworth",
     "targetModel": "./public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb",
     "sourceScreenshot": "/storage/emulated/0/Pictures/Screenshots/Screenshot_20260716-182009.png",
     "sourceScreenshotSha256": "44e662f7a30619bd2357b42b8ea66a3f903ff61824ff64a5b2509a3a1f6ef55c",
     "sourceScreenshotTimestamp": "2026-07-16T18:20:09-05:00",
-    "method": "temporary-blender-ik-solve-baked-to-local-quaternion-candidate",
+    "method": "failed-world-space-ik-diagnostic-replaced-by-screen-space-projection-required",
     "weaponless": true,
     "authoringControls": {
       "runtimeIk": false,
@@ -240,10 +240,10 @@ export const DAVIN_IDLE_SCREENSHOT_1 = {
   },
   "guardReport": {
     "status": "QUARANTINED",
-    "visualAcceptance": "not-run",
+    "visualAcceptance": "failed-local-screenshot-review",
     "phaseCount": 2,
     "mappedBoneCount": 25,
-    "note": "IK-assisted screenshot-derived idle pose pass. Local render decides whether to iterate before hosted review."
+    "note": "FAILED: first pass used guessed world-space IK targets and did not project bones to screenshot landmarks. Do not treat this as a usable pose candidate."
   },
   "frames": [
     {
