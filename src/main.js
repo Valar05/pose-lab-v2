@@ -788,7 +788,7 @@ function activeSwordLocal() {
 }
 
 function activeSaberTipLocalPoint() {
-  return ACTIVE_CHARACTER.key === 'crimson' ? [0, 0, 0.898242] : null;
+  return ACTIVE_CHARACTER.key === 'crimson' ? [0, 0, 0.618789] : null;
 }
 
 function activeSaberAsset() {

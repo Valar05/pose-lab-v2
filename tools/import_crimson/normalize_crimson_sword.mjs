@@ -230,7 +230,7 @@ function main() {
     },
     swordLocal: {
       position: [0, 0, 0],
-      rotationDeg: [0, 0, 0],
+      rotationDeg: [180, 0, 0],
       scale: [88, 88, 88],
     },
     sourceBladeLocalAxis: [0, -1, 0],
@@ -244,7 +244,7 @@ function main() {
       size: roundVec(normalizedBounds.size),
       dominantAxis: 'z',
     },
-    acceptanceNote: 'Offline socket calibration places the normalized origin at the top-middle hilt/guard transition, keeps SaberGrip as an unscaled RightHand child, scales the sword mesh locally for Crimson units, and maps the blade tip to runtime local +Z. Hosted visual review is still required before claiming Crimson socket acceptance.',
+    acceptanceNote: 'Offline socket calibration places the normalized origin at the top-middle hilt/guard transition, keeps SaberGrip as an unscaled RightHand child, scales the sword mesh locally for Crimson units, and maps the blade tip to runtime local +Z, then applies a sword-local 180deg X rest rotation so the visible point hangs below/forward from the hilt instead of climbing back along the forearm. Hosted visual review is still required before claiming Crimson socket acceptance.',
   };
   fs.writeFileSync(calibrationPath, `${JSON.stringify(calibration, null, 2)}\n`);
   if (fs.existsSync(manifestPath)) {

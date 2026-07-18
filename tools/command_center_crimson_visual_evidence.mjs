@@ -9,6 +9,7 @@ const REQUIRED_ASSERTIONS = [
   'realSwordVisible',
   'hiltSeatedInHand',
   'bladeProjectsForwardFromWrist',
+  'bladeTipDoesNotClimbForearmInRest',
   'noHandImpale',
   'noManualAlignmentRequired',
 ];

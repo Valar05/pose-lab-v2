@@ -12,6 +12,7 @@ const REQUIRED_ASSERTIONS = [
   'realSwordVisible',
   'hiltSeatedInHand',
   'bladeProjectsForwardFromWrist',
+  'bladeTipDoesNotClimbForearmInRest',
   'noHandImpale',
   'noManualAlignmentRequired',
 ];
@@ -180,7 +181,7 @@ function main() {
   validateCapture(evidence, evidenceFile, args, errors);
   const visualRead = String(evidence.visualRead || '');
   if (visualRead.length < 40) errors.push('visualRead must describe the visible hand/hilt/blade relationship in concrete nouns');
-  if (/not seated|not held|behind the wrist|red|wrong|fails|manual alignment required/i.test(visualRead)) {
+  if (/not seated|not held|behind the wrist|above the hilt|up the forearm|red|wrong|fails|manual alignment required/i.test(visualRead)) {
     errors.push('visualRead still describes a red Crimson sword relationship');
   }
   const assertions = evidence.assertions || {};
@@ -194,6 +195,15 @@ function main() {
   if (!(Number(browserSocketProof.screenLengthPx) >= 12)) errors.push('browserSocketProof.screenLengthPx must show a visible blade length');
   if (!(Number(browserSocketProof.bladeWorldLength) >= 0.5)) errors.push('browserSocketProof.bladeWorldLength must be nonzero and sword-sized');
   if (!Array.isArray(browserSocketProof.hiltScreen) || !Array.isArray(browserSocketProof.tipScreen)) errors.push('browserSocketProof must include hiltScreen and tipScreen');
+  if (Array.isArray(browserSocketProof.hiltScreen) && Array.isArray(browserSocketProof.tipScreen)) {
+    const hiltY = Number(browserSocketProof.hiltScreen[1]);
+    const tipY = Number(browserSocketProof.tipScreen[1]);
+    if (!(tipY >= hiltY - 20)) errors.push('Crimson rest blade point must not climb above the hilt in the review camera or run up/back along the forearm');
+  }
+  if (Array.isArray(browserSocketProof.bladeWorldDirection)) {
+    const bladeY = Number(browserSocketProof.bladeWorldDirection[1]);
+    if (!(bladeY <= 0.15)) errors.push('Crimson rest blade world direction must not angle upward along the forearm');
+  }
   if (errors.length) fail(errors, evidenceFile);
   console.log(JSON.stringify({
     ok: true,

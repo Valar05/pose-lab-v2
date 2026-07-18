@@ -14,7 +14,7 @@ export const CRIMSON_SABER_GRIP_LOCAL = {
 
 export const CRIMSON_SWORD_LOCAL = {
   position: [0, 0, 0],
-  rotationDeg: [0, 0, 0],
+  rotationDeg: [180, 0, 0],
   scale: [88, 88, 88],
 };
 
