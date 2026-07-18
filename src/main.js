@@ -1316,6 +1316,13 @@ function editableTarget() {
   return toolMode === 'pose' ? selectedPoseBone : editableSaber();
 }
 
+function saberTransformClaimsEmptyGesture() {
+  return toolMode === 'saber'
+    && ACTIVE_CHARACTER.supportsSaber
+    && Boolean(sabreRoot)
+    && (selected || mode === 'rotate' || mode === 'scale');
+}
+
 function attachSaberToRightHand() {
   if (!meshyRoot || !sabreRoot) return;
   if (!ACTIVE_CHARACTER.supportsSaber) return;
@@ -2576,8 +2583,12 @@ function renderControls() {
       ? `${mode} / ${axisLabel()}: editing ${poseBoneLabel(selectedPoseBone, selectedPoseBone.userData.poseLabV2LogicalName)}`
       : `pose / ${axisLabel()}: tap a blue bone handle`
     : selected
-    ? `${mode} / ${axisLabel()}: drag sabre to edit, drag empty space for camera`
-    : `${mode} / ${axisLabel()}: tap the visible sabre first`;
+    ? mode === 'move'
+      ? `${mode} / ${axisLabel()}: drag sabre to edit, drag empty space for camera`
+      : `${mode} / ${axisLabel()}: drag canvas to edit selected sabre; Camera tool or Move empty-space drag orbits`
+    : mode === 'move'
+      ? `${mode} / ${axisLabel()}: tap the visible sabre first`
+      : `${mode} / ${axisLabel()}: drag canvas to edit sabre; no precise pick required`;
 }
 
 function applyOrbitCamera() {
@@ -3156,7 +3167,8 @@ function handleTouchStart(event) {
     stopEvent(event);
     return true;
   }
-  if (points.length >= 2 && toolMode === 'saber' && selected && (mode === 'rotate' || mode === 'scale')) {
+  if (points.length >= 2 && toolMode === 'saber' && (selected || mode === 'rotate' || mode === 'scale') && (mode === 'rotate' || mode === 'scale')) {
+    selected = true;
     suppressTouchPointerEvents = true;
     beginTwoFingerSabre(points);
     stopEvent(event);
@@ -3194,7 +3206,7 @@ function handleTouchStart(event) {
     return true;
   }
   const hit = pickSabre(touch.clientX, touch.clientY);
-  if (!hit) {
+  if (!hit && !saberTransformClaimsEmptyGesture()) {
     leaveSaberEdit('camera: empty touch orbit');
     suppressTouchPointerEvents = true;
     beginCameraTouch(points);
@@ -3220,7 +3232,8 @@ function handleTouchMove(event) {
     stopEvent(event);
     return true;
   }
-  if (points.length >= 2 && toolMode === 'saber' && selected && (mode === 'rotate' || mode === 'scale')) {
+  if (points.length >= 2 && toolMode === 'saber' && (selected || mode === 'rotate' || mode === 'scale') && (mode === 'rotate' || mode === 'scale')) {
+    selected = true;
     if (touchGesture.kind !== 'two-sabre') beginTwoFingerSabre(points);
     handleTwoFingerTouch(points);
     stopEvent(event);
@@ -3463,11 +3476,11 @@ function startGesture(event) {
     return true;
   }
   const hit = pickSabre(event.clientX, event.clientY);
-  if (!hit) {
+  if (!hit && !saberTransformClaimsEmptyGesture()) {
     pointers.delete(event.pointerId);
     return false;
   }
-  const wasSelected = selected;
+  const wasSelected = selected && Boolean(hit);
   selected = true;
   controls.enabled = false;
   capturePointer(event.pointerId);

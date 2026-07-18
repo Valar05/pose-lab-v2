@@ -60,6 +60,7 @@
     "test:crimson-review-surface": "node tools/test_crimson_review_surface.mjs",
     "evidence:crimson-command-center": "node tools/command_center_crimson_visual_evidence.mjs",
     "test:crimson-visual-evidence-promotion": "node tools/test_crimson_visual_evidence_promotion.mjs",
-    "accept:crimson-sword:cloud": "node tools/run_crimson_cloud_acceptance.mjs"
+    "accept:crimson-sword:cloud": "node tools/run_crimson_cloud_acceptance.mjs",
+    "test:saber-transform-interaction": "node tools/test_saber_transform_interaction.mjs"
   }
 }

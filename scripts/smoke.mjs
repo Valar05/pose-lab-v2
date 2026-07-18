@@ -535,7 +535,7 @@ assert(main.includes('rotateSabreAroundAxis(basis.up.clone(), dx * 0.007)') && m
 assert(main.includes("if (mode === 'scale' && lastPinchDistance > 0)") && main.includes("if (mode === 'rotate' && Number.isFinite(lastTwistAngle))"), 'two-finger gestures must be gated to Scale and Rotate modes');
 assert(main.includes("const axis = currentAxis === 'screen' ? touchGesture.forward.clone() : worldAxisVector(currentAxis)"), 'two-finger rotate must default to screen roll from the native touch basis');
 assert(main.includes("two-finger camera gesture ignored in Move"), 'Move mode must not transform the saber with two-finger gestures');
-assert(main.includes('points.length >= 2 && toolMode === \'saber\' && selected && (mode === \'rotate\' || mode === \'scale\')') && main.includes('beginTwoFingerSabre(points)'), 'selected saber must own native two-finger Rotate/Scale anywhere on the canvas');
+assert(main.includes('function saberTransformClaimsEmptyGesture()') && main.includes("if (!hit && !saberTransformClaimsEmptyGesture())") && main.includes("&& (selected || mode === 'rotate' || mode === 'scale')") && main.includes('beginTwoFingerSabre(points)'), 'Saber Rotate/Scale must claim canvas gestures instead of falling through to camera when the thin sword pick misses');
 assert(main.includes('function beginSingleTouchSabre') && main.includes("kind: 'single-sabre'"), 'one-finger touch on the real saber must directly edit the selected mesh');
 assert(main.includes('function beginTwoFingerSabre') && main.includes("kind: 'two-sabre'"), 'two-finger touch must have a direct saber transform path');
 assert(!main.includes('GESTURE_OWNER'), 'failed pointer-owner experiment must not remain in the clean mobile touch path');
