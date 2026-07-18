@@ -77,6 +77,9 @@ expectFail('command center requested action without episode', ['--evidence', wri
   commandCenter: { jobId: 'job_3482abf0-4e12-4c20-92cb-4bfc12cbbf2b', jobStatus: 'completed', actionStatus: 'requested' },
 }), '--allow-fixture'], /completed browser episode id/);
 
+const redSubstringPassing = run(['--evidence', writeEvidence(tmp, { visualRead: 'Hosted cloud screenshot shows Crimson Knight with the real Arborblade visible; the hilt reads seated in the right hand and the blade projects forward from the wrist.' }), '--allow-fixture']);
+assert(redSubstringPassing.status === 0, `visualRead containing reads should not trip the red-word regex: ${redSubstringPassing.stderr || redSubstringPassing.stdout}`);
+
 const passing = run(['--evidence', writeEvidence(tmp), '--allow-fixture']);
 assert(passing.status === 0, `mock hosted cloud evidence should pass fixture gate: ${passing.stderr || passing.stdout}`);
 assert(String(passing.stdout || '').trim().startsWith('{'), `passing fixture should emit JSON stdout: ${passing.stderr || passing.stdout}`);
@@ -94,4 +97,4 @@ const commandCenterPassing = run(['--evidence', writeEvidence(tmp, {
 assert(commandCenterPassing.status === 0, `mock Command Center cloud evidence should pass fixture gate: ${commandCenterPassing.stderr || commandCenterPassing.stdout}`);
 
 if (failures.length) throw new Error(failures.join('\n'));
-console.log(JSON.stringify({ ok: true, checked: ['missing', 'localhost', 'android-screenshot', 'stale-cache', 'false-hilt', 'red-read', 'browser-socket-proof', 'upward-blade-point', 'downward-blade-point', 'command-center-requested-action', 'mock-pass', 'command-center-pass'] }, null, 2));
+console.log(JSON.stringify({ ok: true, checked: ['missing', 'localhost', 'android-screenshot', 'stale-cache', 'false-hilt', 'red-read', 'browser-socket-proof', 'upward-blade-point', 'downward-blade-point', 'command-center-requested-action', 'red-substring-pass', 'mock-pass', 'command-center-pass'] }, null, 2));

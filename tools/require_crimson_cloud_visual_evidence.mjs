@@ -181,7 +181,7 @@ function main() {
   validateCapture(evidence, evidenceFile, args, errors);
   const visualRead = String(evidence.visualRead || '');
   if (visualRead.length < 40) errors.push('visualRead must describe the visible hand/hilt/blade relationship in concrete nouns');
-  if (/not seated|not held|behind the wrist|above the hilt|up the forearm|red|wrong|fails|manual alignment required/i.test(visualRead)) {
+  if (/not seated|not held|behind the wrist|above the hilt|up the forearm|\bred\b|wrong|fails|manual alignment required/i.test(visualRead)) {
     errors.push('visualRead still describes a red Crimson sword relationship');
   }
   const assertions = evidence.assertions || {};
