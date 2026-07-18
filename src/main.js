@@ -514,7 +514,19 @@ canvas.addEventListener('pointermove', blockPoseTouchPointer, { capture: true })
 canvas.addEventListener('pointerup', blockPoseTouchPointer, { capture: true });
 canvas.addEventListener('pointercancel', blockPoseTouchPointer, { capture: true });
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: true,
+  alpha: false,
+  preserveDrawingBuffer: true,
+  powerPreference: 'high-performance',
+});
+canvas.addEventListener('webglcontextlost', () => {
+  document.body.dataset.webglContextLost = '1';
+});
+canvas.addEventListener('webglcontextrestored', () => {
+  document.body.dataset.webglContextRestored = '1';
+});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
