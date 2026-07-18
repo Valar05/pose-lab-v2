@@ -33,6 +33,12 @@ const css = read('src/styles.css');
 const readme = read('README.md');
 const visualDoctrine = read('docs/VISUAL_VERIFICATION_DOCTRINE.md');
 const pkg = JSON.parse(read('package.json'));
+const vanguardManifest = JSON.parse(read('public/assets/vanguard/vanguard_manifest.json'));
+const vanguardRootMotion = JSON.parse(read('public/assets/vanguard/vanguard_root_motion.json'));
+const crimsonManifest = JSON.parse(read('public/assets/crimson/crimson_manifest.json'));
+const crimsonSwordCalibration = JSON.parse(read('public/assets/crimson/crimson_sword_calibration.json'));
+const crimsonModelViewerConstraints = JSON.parse(read('public/assets/crimson/crimson_model_viewer_constraints.json'));
+const crimsonVanguardAttackReference = JSON.parse(read('public/assets/crimson/vanguard_swordattack1_reference.json'));
 const importFromRegex = /from\s+['"]([^'"]+)['"]/g;
 const moduleExportRegex = /export const \w+ = (.*);\s*$/s;
 
@@ -85,6 +91,15 @@ assert(exists('public/assets/ares/ares_rigged_diffuse.glb'), 'missing imported r
 assert(exists('public/assets/ares/ares_texture_0.png'), 'missing imported Ares diffuse texture sidecar');
 assert(exists('public/assets/ares/security_titan_rigged_diffuse.glb'), 'missing imported rigged SecurityTitan GLB');
 assert(exists('public/assets/ares/security_titan_texture_0.png'), 'missing imported SecurityTitan diffuse texture sidecar');
+assert(exists('public/assets/vanguard/vanguard_rigged_animations.glb'), 'missing imported Vanguard runtime GLB exported from Downloads/Vanguard.blend');
+assert(exists('public/assets/vanguard/vanguard_manifest.json'), 'missing imported Vanguard runtime manifest');
+assert(exists('public/assets/vanguard/vanguard_root_motion.json'), 'missing imported Vanguard root motion sidecar');
+assert(exists('public/assets/crimson/crimson_plume_knight_rigged_pbr.glb'), 'missing Crimson Plume Knight rigged PBR runtime GLB; run npm run build:crimson');
+assert(exists('public/assets/crimson/arborblade_sword.glb'), 'missing Arborblade real sword runtime GLB; run npm run build:crimson');
+assert(exists('public/assets/crimson/crimson_manifest.json'), 'missing Crimson runtime manifest');
+assert(exists('public/assets/crimson/crimson_sword_calibration.json'), 'missing Crimson sword calibration');
+assert(exists('public/assets/crimson/vanguard_swordattack1_reference.json'), 'missing Vanguard SwordAttack1 reference for Crimson; run npm run reference:crimson:swordattack1');
+assert(exists('public/assets/crimson/crimson_model_viewer_constraints.json'), 'missing Crimson model-viewer constraint contract');
 for (const texture of [
   'base_color.jpg',
   'emissive.jpg',
@@ -104,6 +119,21 @@ assert(!html.includes('cdn.jsdelivr.net'), 'runtime must not depend on a CDN bef
 assert(!pkg.dependencies, 'repo must not require npm install dependencies for local build');
 assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static and native-binary free');
 assert(pkg.scripts?.['build:davin'] === 'node tools/build_davin_wingsworth_glb.mjs', 'Davin merged GLB build must be reproducible');
+assert(pkg.scripts?.['inspect:vanguard'] === 'node scripts/run-blender-tool.mjs tools/import_vanguard/inspect_vanguard_blend.py --', 'Vanguard blend inspection must be reproducible');
+assert(pkg.scripts?.['root-motion:vanguard'] === 'node scripts/run-blender-tool.mjs tools/import_vanguard/export_vanguard_root_motion.py --', 'Vanguard root motion extraction must be reproducible');
+assert(pkg.scripts?.['build:vanguard'] === 'node scripts/run-blender-tool.mjs tools/import_vanguard/export_vanguard_glb.py -- && node scripts/run-blender-tool.mjs tools/import_vanguard/export_vanguard_root_motion.py --', 'Vanguard GLB export plus root motion extraction must be reproducible');
+assert(pkg.scripts?.['build:crimson']?.includes('build_crimson_assets.mjs') && pkg.scripts?.['build:crimson']?.includes('normalize:crimson-sword'), 'Crimson build must rebuild assets and normalize Arborblade offline');
+assert(pkg.scripts?.['normalize:crimson-sword'] === 'node tools/import_crimson/normalize_crimson_sword.mjs', 'Crimson normalized sword intake must be reproducible');
+assert(pkg.scripts?.['review:crimson-sword']?.includes('validate:crimson-model-viewer-constraints') && pkg.scripts?.['review:crimson-sword']?.includes('render_crimson_sword_calibration_blender.py'), 'Crimson sword offline Blender review must validate model-viewer constraints before rendering');
+assert(pkg.scripts?.['validate:crimson-model-viewer-constraints'] === 'node tools/validate_crimson_model_viewer_constraints.mjs', 'Crimson model-viewer constraint validator must be explicit');
+assert(pkg.scripts?.['test:crimson-model-viewer-constraints'] === 'node tools/test_crimson_model_viewer_constraints.mjs', 'Crimson model-viewer divergence test must be explicit');
+assert(pkg.scripts?.['test:crimson-review-surface'] === 'node tools/test_crimson_review_surface.mjs', 'Crimson review surface test must be explicit');
+assert(pkg.scripts?.['review:crimson-sword-url'] === 'node tools/crimson_sword_review_url.mjs', 'Crimson cloud review URL printer must be explicit');
+assert(pkg.scripts?.['reference:crimson:swordattack1'] === 'node tools/import_crimson/extract_vanguard_swordattack1_reference.mjs', 'Crimson SwordAttack1 Vanguard reference extraction must be reproducible');
+assert(pkg.scripts?.['validate:crimson-sword-intake']?.includes('validate:crimson-model-viewer-constraints') && pkg.scripts?.['validate:crimson-sword-intake']?.includes('tools/validate_crimson_sword_intake.mjs'), 'Crimson sword intake guardrail must validate model-viewer constraints before intake checks');
+assert(pkg.scripts?.['accept:crimson-sword'] === 'node tools/require_crimson_cloud_visual_evidence.mjs', 'Crimson sword visual acceptance must require cloud screenshot evidence');
+assert(pkg.scripts?.['validate:crimson-sword'] === 'npm run validate:crimson-sword-intake && npm run accept:crimson-sword', 'validate:crimson-sword must not pass without cloud visual acceptance');
+assert(pkg.scripts?.['test:crimson-cloud-visual-gate'] === 'node tools/test_crimson_cloud_visual_evidence_gate.mjs', 'Crimson visual gate fixture test must exist');
 assert(pkg.scripts?.['build:davin-tail3'] === 'node scripts/run-blender-tool.mjs tools/author_davin_tail_chain_blender.py --', 'Davin Tail01/Tail02/Tail03 chain authoring must be reproducible');
 assert(pkg.scripts?.['bake:davin-idle'] === 'node scripts/run-blender-tool.mjs tools/author_davin_idle_screenshot_blender.py --', 'Davin screenshot idle candidate bake must be reproducible');
 assert(pkg.scripts?.['review:davin-idle'] === 'node scripts/render-davin-idle-diagnostic.mjs', 'Davin screenshot idle diagnostic render must be reproducible');
@@ -148,6 +178,51 @@ assert(exists('tools/stitch_davin_lowbackkick_contact_sheet.py'), 'missing Davin
 assert(exists('authoring/meshy_fist/blender_build_meshy_fist_authoring.py'), 'missing Blender-first Meshy fist authoring script');
 assert(exists('scripts/build-meshy-fist-authoring.mjs'), 'missing Meshy fist authoring runner');
 assert(exists('tools/validate_meshy_fist_authoring.mjs'), 'missing Meshy fist authoring validator');
+assert(exists('tools/import_vanguard/inspect_vanguard_blend.py'), 'missing Vanguard blend inspection tool');
+assert(exists('tools/import_vanguard/export_vanguard_glb.py'), 'missing Vanguard GLB export tool');
+assert(exists('tools/import_vanguard/export_vanguard_root_motion.py'), 'missing Vanguard root motion export tool');
+assert(exists('tools/import_crimson/build_crimson_assets.mjs'), 'missing Crimson import build tool');
+assert(exists('tools/import_crimson/extract_vanguard_swordattack1_reference.mjs'), 'missing Crimson Vanguard SwordAttack1 reference extraction tool');
+assert(exists('tools/validate_crimson_sword_intake.mjs'), 'missing Crimson sword intake validator');
+assert(exists('tools/validate_crimson_model_viewer_constraints.mjs'), 'missing Crimson model-viewer constraint validator');
+assert(exists('tools/test_crimson_model_viewer_constraints.mjs'), 'missing Crimson model-viewer constraint divergence test');
+assert(exists('tools/test_crimson_review_surface.mjs'), 'missing Crimson review surface model-switch test');
+assert(exists('tools/require_crimson_cloud_visual_evidence.mjs'), 'missing Crimson cloud visual evidence gate');
+assert(exists('tools/crimson_sword_review_url.mjs'), 'missing Crimson cloud review URL helper');
+assert(exists('tools/test_crimson_cloud_visual_evidence_gate.mjs'), 'missing Crimson cloud visual evidence gate fixture test');
+assert(vanguardManifest.schema === 'pose-lab-v2-vanguard-runtime-asset-v1', 'Vanguard manifest must use the runtime asset schema');
+assert(vanguardManifest.sourceBlend === '/storage/emulated/0/Download/Vanguard.blend', 'Vanguard manifest must preserve the Downloads source blend path');
+assert(vanguardManifest.runtimeGlb === 'public/assets/vanguard/vanguard_rigged_animations.glb', 'Vanguard manifest must point at the runtime GLB');
+assert(vanguardManifest.selectedObjects?.join(',') === 'Body,Long_Sword,rig', 'Vanguard export must include only Body, Long_Sword, and rig from the source blend');
+assert(vanguardManifest.animations?.length === 20 && vanguardManifest.animations.some((clip) => clip.name === 'SwordAttack1') && vanguardManifest.animations.some((clip) => clip.name === 'Idle'), 'Vanguard manifest must preserve the 20 embedded source actions');
+assert(vanguardManifest.textureStatus?.missingExternalTexturePaths?.length === 2, 'Vanguard manifest must record the two missing external texture paths');
+assert(vanguardManifest.textureStatus?.generatedPalette?.lightBluePlates === '#75c9ff' && vanguardManifest.textureStatus?.generatedPalette?.darkGreenUnderarmor === '#123f2f' && vanguardManifest.textureStatus?.generatedPalette?.redHelmetFeathers === '#c92f2f' && vanguardManifest.textureStatus?.generatedPalette?.cyanEyeholes === '#36fff3', 'Vanguard manifest must record the generated fallback palette');
+assert(vanguardManifest.rootMotion?.sidecar === 'public/assets/vanguard/vanguard_root_motion.json' && vanguardManifest.rootMotion?.applyInPoseLab === false, 'Vanguard manifest must point at a non-applied root motion sidecar');
+assert(vanguardRootMotion.schema === 'pose-lab-v2-vanguard-root-motion-v1' && vanguardRootMotion.applyInPoseLab === false, 'Vanguard root motion sidecar must declare non-applied root motion');
+assert(vanguardRootMotion.actions?.length === 20 && vanguardRootMotion.actions.some((clip) => clip.name === 'RunForwardOld' && clip.hasRootMotion && Math.abs(clip.totalDelta?.[1]) > 4), 'Vanguard root motion must preserve meaningful RunForwardOld travel');
+assert(vanguardRootMotion.actions.some((clip) => clip.name === 'SwordAttack1' && clip.hasRootMotion), 'Vanguard root motion must preserve sword attack travel for game use');
+assert(crimsonManifest.schema === 'pose-lab-v2-crimson-runtime-asset-v1', 'Crimson manifest must use the runtime asset schema');
+assert(crimsonManifest.runtimeGlb === 'public/assets/crimson/crimson_plume_knight_rigged_pbr.glb', 'Crimson manifest must point at the runtime GLB');
+assert(crimsonManifest.swordGlb === 'public/assets/crimson/arborblade_sword.glb', 'Crimson manifest must point at the Arborblade sword GLB');
+assert(crimsonManifest.skeleton?.rightHand && crimsonManifest.skeleton?.rightForeArm && crimsonManifest.skeleton?.rightArm, 'Crimson rig must expose RightArm, RightForeArm, and RightHand for sword attack authoring');
+assert(crimsonManifest.animations?.some((clip) => clip.name === 'CrimsonPlumeKnight|walking|baselayer') && crimsonManifest.animations?.some((clip) => clip.name === 'CrimsonPlumeKnight|running|baselayer'), 'Crimson runtime GLB must preserve walking and running clips');
+assert(!crimsonManifest.animations?.some((clip) => /SwordAttack1/i.test(clip.name)), 'Crimson intake must not claim a native SwordAttack1 clip');
+assert(crimsonManifest.materialStatus?.staticCharacterPbrChannels?.baseColorTexture && crimsonManifest.materialStatus?.staticCharacterPbrChannels?.metallicRoughnessTexture && crimsonManifest.materialStatus?.staticCharacterPbrChannels?.normalTexture && crimsonManifest.materialStatus?.staticCharacterPbrChannels?.emissiveTexture, 'Crimson manifest must record full static character PBR channels');
+assert(crimsonManifest.materialStatus?.swordPbrChannels?.baseColorTexture && crimsonManifest.materialStatus?.swordPbrChannels?.metallicRoughnessTexture && crimsonManifest.materialStatus?.swordPbrChannels?.normalTexture && crimsonManifest.materialStatus?.swordPbrChannels?.emissiveTexture, 'Crimson manifest must record full Arborblade PBR channels');
+assert(crimsonSwordCalibration.schema === 'pose-lab-v2-crimson-sword-calibration-v1' && crimsonSwordCalibration.status === 'offline-normalized-not-hosted-visual-accepted', 'Crimson sword calibration must be explicit, offline-normalized, and not accepted as hosted visual truth');
+assert(JSON.stringify(crimsonSwordCalibration.hierarchy) === JSON.stringify(['RightHand', 'SaberGrip', 'ArborbladeSword']), 'Crimson sword hierarchy must remain RightHand -> SaberGrip -> ArborbladeSword');
+assert(crimsonModelViewerConstraints.schema === 'pose-lab-v2-crimson-model-viewer-constraints-v1' && crimsonModelViewerConstraints.status === 'diagnostic-only-not-visual-acceptance', 'Crimson model-viewer constraints must be explicit and diagnostic-only');
+assert(JSON.stringify(crimsonModelViewerConstraints.hierarchy) === JSON.stringify(crimsonSwordCalibration.hierarchy), 'Crimson model-viewer constraints must mirror the sword hierarchy');
+assert(JSON.stringify(crimsonModelViewerConstraints.saberGripLocal) === JSON.stringify(crimsonSwordCalibration.saberGripLocal), 'Crimson model-viewer constraints must mirror SaberGrip calibration');
+assert(JSON.stringify(crimsonModelViewerConstraints.swordLocal) === JSON.stringify(crimsonSwordCalibration.swordLocal), 'Crimson model-viewer constraints must mirror swordLocal calibration');
+assert(JSON.stringify(crimsonModelViewerConstraints.camera) === JSON.stringify({ fov: 36, near: 0.01, far: 80, position: [2.8, 1.75, 4.2], target: [0, 0.95, 0], viewport: [390, 844] }), 'Crimson model-viewer constraints must mirror REVIEW_CAMERA_CONTRACT');
+assert(crimsonModelViewerConstraints.localBlenderCapture?.mustValidateBeforeRender === true && crimsonModelViewerConstraints.localBlenderCapture?.acceptance === false, 'Crimson local Blender capture must fail closed and remain diagnostic-only');
+assert(JSON.stringify(crimsonSwordCalibration.bladeLocalAxis) === JSON.stringify([0, 0, 1]), 'Crimson Arborblade blade axis must stay normalized to local +Z');
+assert(crimsonSwordCalibration.saberGripLocal?.scale?.[0] >= 40, 'Crimson Arborblade grip scale must compensate for the 0.01 armature scale so the sword is visible');
+assert(JSON.stringify(crimsonSwordCalibration.hiltLocalPoint) === JSON.stringify([0, 0, 0]), 'Crimson Arborblade hilt anchor must be the normalized origin');
+assert(crimsonSwordCalibration.tipLocalPoint?.[2] > 0.7, 'Crimson Arborblade tip must point forward on local +Z');
+assert(crimsonVanguardAttackReference.schema === 'pose-lab-v2-crimson-vanguard-swordattack1-reference-v1' && crimsonVanguardAttackReference.sourceClip === 'SwordAttack1', 'Crimson Vanguard reference must identify SwordAttack1');
+assert(crimsonVanguardAttackReference.policy?.role === 'reference-only' && crimsonVanguardAttackReference.byNode?.['Weapon.R']?.length >= 1 && crimsonVanguardAttackReference.byNode?.['hand.fk.R']?.length >= 1, 'Vanguard SwordAttack1 reference must stay reference-only and include Weapon.R/right-hand tracks');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
 assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
 assert(attack2ReviewUrls.includes('attack2-candidate-1') && attack2ReviewUrls.includes("pose: 'attack2'") && attack2ReviewUrls.includes('backhandPrep') && attack2ReviewUrls.includes('contactHold'), 'Attack2 review URLs must target the combo backhand candidate and its prime keys');
@@ -265,6 +340,7 @@ assert(readme.includes('Davin Screenshot Idle Lane') && readme.includes('npm run
 assert(readme.includes('Davin LowBackKick Viability Lane') && readme.includes('?model=davin&pose=lowbackkick') && readme.includes('not the hosted visual truth lane'), 'README must document the Davin LowBackKick quarantined viability route and local diagnostic limit');
 assert(readme.includes('Attack Authoring Learnings'), 'README must link the attack authoring learning note');
 assert(readme.includes('They are not visual acceptance and cannot close a') && readme.includes('screenshot-red build'), 'README must state smoke/source checks are not visual acceptance');
+assert(readme.includes('npm run validate:crimson-sword-intake') && readme.includes('npm run accept:crimson-sword') && readme.includes('Only `npm run accept:crimson-sword` can pass Crimson sword visual acceptance'), 'README must split Crimson intake guardrails from cloud visual acceptance');
 assert(visualDoctrine.includes('Human-visible truth is the acceptance gate'), 'visual doctrine must preserve human-visible truth as acceptance gate');
 assert(visualDoctrine.includes('Local render is agent eyesight') && visualDoctrine.includes('not final acceptance'), 'visual doctrine must classify local render as diagnostic eyesight, not final acceptance');
 assert(visualDoctrine.includes('`npm run smoke`') && visualDoctrine.includes('not visual acceptance'), 'visual doctrine must forbid smoke-as-visual-acceptance claims');
@@ -316,9 +392,9 @@ assert(main.includes('data-attack-save-key') && main.includes('data-attack-expor
 assert(main.includes("schema: 'pose-lab-v2-manual-animation-v1'") && main.includes("seed: 'blank-ready-per-key'") && main.includes('candidateFramesUsed: false'), 'Attack1 manual authoring must export a blank-Ready whole-animation draft that does not use candidate frames');
 assert(main.includes('function createManualAttackDraft') && main.includes('applyReadyPose()') && main.includes('snapshotPoseBones()'), 'Attack1 manual draft keys must initialize from accepted Ready and snapshot the full curated pose state');
 assert(main.includes('function saveManualAttackKey') && main.includes('function exportManualAttackDraft'), 'Attack1 manual authoring must save per-key poses and export the whole animation');
-assert(main.includes('function useManualAttackAuthoring') && main.includes("return !REQUESTED_ATTACK2_QUARANTINED && (REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE)"), 'Attack1 without an explicit candidate must enter blank manual authoring while Attack2 requires an explicit candidate');
+assert(main.includes('function useManualAttackAuthoring') && main.includes("return ACTIVE_CHARACTER.supportsBakedPoseStates && !REQUESTED_ATTACK2_QUARANTINED && (REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE)"), 'Attack1 without an explicit candidate must enter blank manual authoring while Attack2 requires an explicit candidate');
 assert(main.includes("const WORLD_SOCKET_REVIEW = URL_PARAMS.get('worldSocket') === '1'") && main.includes('data-tip-match-overlay') && main.includes('function updateTipMatchOverlay') && main.includes('function liveJointPinnedProbe') && main.includes('LIVE FAIL'), 'Attack1 joint-pinned preview must expose an explicit live world-socket error overlay');
-assert(main.includes('function setAttackReviewOpen') && main.includes('attackReviewOpen = Boolean(open && (REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring()))') && main.includes('let attackReviewOpen = Boolean(REQUESTED_MANUAL_ATTACK || REVIEW_CONTROLS_OPEN)') && main.includes('attackReviewPanel.hidden = !(active && attackReviewOpen)'), 'Attack1 controls must be toggleable and review controls must be closed by default unless requested');
+assert(main.includes('function setAttackReviewOpen') && main.includes('attackReviewOpen = Boolean(open && canExposeAttackReview() && (REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring()))') && main.includes('let attackReviewOpen = Boolean(canExposeAttackReview() && (REQUESTED_MANUAL_ATTACK || REVIEW_CONTROLS_OPEN))') && main.includes('attackReviewPanel.hidden = !(active && attackReviewOpen)'), 'Attack1 controls must be toggleable and review controls must be closed by default unless requested');
 assert(main.includes('function setupAttackReviewControls') && main.includes('function setAttackReviewTime') && main.includes('function playAttackReview') && main.includes('function pauseAttackReview'), 'Attack1 candidate preview controls must be wired to playback and frozen-frame review');
 assert(main.includes('attackPoseFixedTime === null') && main.includes('attackPoseCurrentTime'), 'Attack1 candidate preview must distinguish playing animation from frozen inspection frames');
 assert(!main.includes('updatePoseAnimation(performance.now())') && !main.includes('attack1 playing') && !main.includes('attack1 frozen at'), 'runtime must not play the contaminated Attack1 bake');
@@ -343,9 +419,11 @@ assert(reviewConstantsSource.includes('attack1-tip-match-1') && reviewConstantsS
 assert(reviewConstantsSource.includes('fist-ready-candidate-1') && reviewConstantsSource.includes('FIST_READY_POSE_SEQUENCE') && reviewConstantsSource.includes('weaponless'), 'review constants must register the weaponless FistReady preview candidate');
 assert(reviewConstantsSource.includes('fist-attack1-candidate-1') && reviewConstantsSource.includes('FIST_ATTACK1_POSE_SEQUENCE') && reviewConstantsSource.includes('weaponless'), 'review constants must register the weaponless FistAttack1 preview candidate');
 assert(main.includes("grip.name = 'SaberGrip'") && main.includes('rightHand.add(grip)') && main.includes('grip.add(sabreRoot)'), 'real sabre mesh must be parented through explicit local SaberGrip FK');
-assert(main.includes('sabreRoot.position.set(0, 0, 0)') && main.includes('sabreRoot.quaternion.identity()') && main.includes('sabreRoot.scale.set(1, 1, 1)'), 'sabre mesh local transform under SaberGrip must be identity');
+assert(main.includes('function activeSwordLocal()') && main.includes('sabreRoot.position.fromArray(swordLocal.position)') && main.includes('sabreRoot.scale.fromArray(swordLocal.scale)') && reviewConstantsSource.includes('export const CRIMSON_SWORD_LOCAL = {') && reviewConstantsSource.includes('position: [0, 0, 0]'), 'default sabre mesh local transform must remain identity while Crimson applies explicit Arborblade swordLocal calibration');
 assert(!main.includes('rightHand.attach(grip)') && !main.includes('grip.attach(sabreRoot)'), 'SaberGrip must not preserve world placement through Object3D.attach');
 assert(main.includes('function editableSaber()') && main.includes('return saberGrip || sabreRoot'), 'direct transforms must target SaberGrip after hand parenting');
+assert(main.includes('function updateSaberAttachmentProof()') && main.includes('saberAttachmentStatus') && main.includes('hiltToHandDistance'), 'runtime must measure whether the sword hilt is attached to the active RightHand');
+assert(main.includes('supportsAttackReview: false') && main.includes('function canExposeAttackReview()'), 'Crimson locomotion-only route must not expose fake Attack1 review controls');
 assert(main.includes("parentBone: 'RightHand'"), 'export must report SaberGrip as RightHand-owned');
 assert(main.includes("let toolMode = 'saber'") && main.includes('data-tool="saber"') && main.includes('data-tool="pose"'), 'app must distinguish top-level Saber and Pose modes');
 assert(main.includes('const POSE_BONE_NAMES = [') && main.includes("'RightHand'") && main.includes("'LeftFoot'"), 'Pose mode must expose curated real Meshy body bones');
@@ -371,7 +449,13 @@ assert(main.includes('function consumePoseEmptyDoubleTap') && main.includes('pos
 assert(main.includes('function beginPoseEmptyTouch') && main.includes('beginPoseEmptyTouch(points[0])'), 'selected Pose empty touch must reserve the gesture instead of starting camera pan');
 assert(!main.includes('selectedPoseBone = null;\n    updatePoseHandles();\n    suppressTouchPointerEvents = true;\n    beginCameraTouch(points);'), 'empty Pose touch must not clear selected bone before a second finger can start twist');
 assert(!main.includes('pointers.delete(event.pointerId);\n      selectedPoseBone = null;\n      updatePoseHandles();'), 'empty Pose pointer miss must not clear selected bone or fall through to camera');
-assert(!main.includes('AnimationMixer') && !main.includes('clipAction') && !main.includes('retarget'), 'v2 Ready must stay baked-pose only, not runtime animation retargeting');
+assert(main.includes("vanguard: './assets/vanguard/vanguard_rigged_animations.glb'") && main.includes('VANGUARD_BONE_MAP') && main.includes('supportsAnimationClips: true'), 'runtime must register Vanguard as an imported animated character');
+assert(main.includes('supportsAnimationClips: true') && main.includes('importedAnimationMixer') && main.includes('clipAction(clip)'), 'imported model lane must support embedded GLB animation clip playback');
+assert(main.includes('REQUESTED_IMPORTED_CLIP') && main.includes('data-cycle-animation') && main.includes('cycleImportedAnimation'), 'Vanguard clips must be selectable by URL and UI cycle control');
+assert(main.includes('importedRootMotionBone') && main.includes('function suppressImportedRootMotion') && main.includes('applyInPoseLab: false'), 'Vanguard browser playback must suppress saved root motion instead of applying it');
+assert(main.includes('function vanguardPaletteColor') && main.includes('0x75c9ff') && main.includes('0x123f2f') && main.includes('0xc92f2f') && main.includes('0x36fff3'), 'Vanguard runtime must apply light blue plates, dark green underarmor, red feathers, and cyan eyeholes');
+assert(main.includes('ACTIVE_CHARACTER.supportsBakedPoseStates') && main.includes('loadPosePresets({ announce: false })'), 'Meshy baked pose loading must stay gated to baked-pose characters');
+assert(!readyPose.includes('AnimationMixer') && !readyPose.includes('clipAction'), 'v2 Ready must stay baked-pose data only, not runtime animation playback');
 assert(!main.includes("import './styles.css'"), 'browser-native ESM must not import CSS without a bundler');
 assert(main.includes('pickSabre') && main.includes('startGesture') && main.includes('updateGesture'), 'app must use visible direct saber gestures');
 assert(main.includes('function handleTouchStart') && main.includes('function handleTouchMove') && main.includes('function handleTouchEnd'), 'mobile saber editing must use native touch handlers, not pointer-only guesses');
@@ -382,6 +466,8 @@ assert(!main.includes('AUTO_TOUCH_PROBE') && !main.includes('requestAnimationFra
 assert(main.includes('data-touch-proof') && main.includes('data-touch-proof-readout') && main.includes('Run Touch Probe'), 'debugTouch mode must expose a visible interaction proof panel');
 assert(main.includes('data-ready-proof') && main.includes('data-ready-proof-readout') && main.includes('function updateReadyProof'), 'debugReady mode must expose a non-mutating Ready proof panel');
 assert(main.includes('class="primary-rail"') && main.includes('class="control-dock"'), 'mobile UI must separate primary review controls from secondary editor panels');
+assert(main.includes('data-cycle-character>Model: ${ACTIVE_CHARACTER.label}</button>') && main.indexOf('data-cycle-character') < main.indexOf('data-cycle-tool'), 'Model control must remain visible before Tool in the primary rail');
+assert(main.includes('data-panel="model"') && main.includes('CHARACTER_KEYS.map(modelButtonHtml)') && main.includes('modelButtons.forEach'), 'Tools dock must expose direct model switching buttons');
 assert(main.includes('data-cycle-tool') && main.includes('data-cycle-pose-state') && main.includes('data-cycle-view-mode') && main.includes('data-dock-toggle'), 'default mobile UI must use compact cycle controls plus one Tools opener');
 assert(main.includes('data-fpv-settings-toggle') && main.includes('data-fpv-settings') && main.includes('data-fpv-nudge="forward"') && main.includes('data-fpv-nudge="back"') && main.includes('data-fpv-nudge="up"') && main.includes('data-fpv-nudge="down"'), 'FPV mode must expose a gear settings panel with forward/back/up/down nudges');
 assert(main.includes('data-fpv-fov') && main.includes('data-fpv-fov-output') && main.includes('function setFpvFov'), 'FPV gear panel must expose a live FOV slider');
@@ -391,9 +477,9 @@ assert(main.includes('FPV_NUDGE_STEP = 0.01') && main.includes('FPV_NUDGE_HOLD_S
 assert(main.includes('fpvSettingsExport') && main.includes('data-fpv-copy') && main.includes('data-fpv-reset'), 'FPV settings must expose copy and reset actions');
 assert(!main.includes('localStorage'), 'FPV camera tweaks must stay session-only and must not use localStorage');
 assert(main.includes('class="control-dock" aria-label="Secondary editor controls" hidden'), 'secondary control dock must be closed by default so the canvas is not covered on load');
-assert(main.includes('data-panel-toggle="transform"') && main.includes('data-panel-toggle="view"') && main.includes('data-panel-toggle="export"') && main.includes('data-panel-toggle="debug"'), 'mobile UI must expose collapsible Transform/View/Export/Debug panels');
+assert(main.includes('data-panel-toggle="model"') && main.includes('data-panel-toggle="transform"') && main.includes('data-panel-toggle="view"') && main.includes('data-panel-toggle="export"') && main.includes('data-panel-toggle="debug"'), 'mobile UI must expose collapsible Model/Transform/View/Export/Debug panels');
 assert(main.includes('function setControlPanel') && main.includes('controlPanels') && main.includes('element.hidden = !active'), 'mobile UI panels must be single-open and hide inactive panel bodies');
-assert(main.includes('let dockOpen = false') && main.includes('let activePanel = null') && main.includes('function setDockOpen'), 'mobile UI must start with no open panel and an explicit dock open/close state');
+assert(main.includes("let dockOpen = ACTIVE_CHARACTER.key === 'crimson'") && main.includes("let activePanel = ACTIVE_CHARACTER.key === 'crimson' ? 'model' : null") && main.includes('function setDockOpen'), 'mobile UI must keep an explicit dock open/close state and open Crimson model tools by default so model switching remains reachable');
 assert(main.indexOf('data-mode="move"') > main.indexOf('data-panel="transform"'), 'Move/Rotate/Scale controls must live inside the Transform panel, not the always-visible primary rail');
 assert(main.indexOf('data-camera-view="front"') > main.indexOf('data-panel="view"'), 'camera snap controls must live inside the View panel, not the always-visible primary rail');
 assert(!main.includes('<div class="rail-group" aria-label="Tool">'), 'default primary rail must not expose paired mode button groups');
@@ -422,13 +508,13 @@ assert(main.includes('fov: 112') && main.includes('near: 0.055'), 'FPV camera mu
 assert(main.includes('FPV_VISIBLE_BONES') && main.includes('createFpvArmMask') && main.includes('updateFpvBodyMasks'), 'FPV mode must mask chest by replacing the full body with an arm-only skinned mesh');
 assert(main.includes("fistHands: './assets/meshy/meshy_fist_hands.glb'") && main.includes('FIST_VISUAL_REVIEW') && main.includes('attachFistHandsToMeshy'), 'fist routes must load the real Meshy-derived fist hands asset and attach it to hand bones');
 assert(main.includes('ensureFistControlBones') && main.includes('RightFistMitten01') && main.includes('RightFistThumb02') && main.includes('LeftFistMitten01') && main.includes('LeftFistThumb02'), 'fist review must expose selectable mitten and thumb control bones under the hand bones');
-assert(main.includes("['fist', 'fistready', 'fist-ready'].includes(pose)") && main.includes("return 'fistReady'") && main.includes("Clip: ${POSE_STATE_LABELS[poseState] || 'Custom'}"), 'FPV review must expose clip selection and boot fist routes into FistReady');
+assert(main.includes("['fist', 'fistready', 'fist-ready'].includes(pose)") && main.includes("return 'fistReady'") && main.includes("Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}") && main.includes('data-cycle-animation'), 'FPV review must expose pose and imported-animation selection while booting fist routes into FistReady');
 assert(main.includes('FPV_VISIBLE_BONES_FIST_REPLACEMENT') && main.includes('FIST_VISUAL_REVIEW ? FPV_VISIBLE_BONES_FIST_REPLACEMENT : FPV_VISIBLE_BONES'), 'fist review FPV mask must replace original hand vertices with the derived fist asset');
 assert(!main.includes('hideBones') && !main.includes('hideScale') && !main.includes('firstPersonCameraConfig.hide') && !main.includes('setFirstPersonHeadMask'), 'FPV chest mask must not use old hide/scale/head-mask hacks');
 assert(main.includes('fpvCamera') && main.includes('fpvArmMaskActive') && main.includes('fullBodyVisible'), 'debug proof must report FPV camera placement and body-mask state');
 assert(main.includes('function setViewMode') && main.includes('function updateFirstPersonCamera') && main.includes("document.body.classList.add('is-fpv')"), 'FPV mode must switch the live camera from orbit controls to head-forward first-person view');
 assert(main.includes("if (viewMode === 'orbit') controls.update();") && main.includes('else updateFirstPersonCamera();'), 'animation loop must keep FPV camera synced to the posed head bone');
-assert(css.includes('body.is-fpv .primary-rail button:not([data-cycle-tool]):not([data-cycle-pose-state]):not([data-cycle-view-mode]):not([data-fpv-settings-toggle]):not([data-attack-review-toggle])') && css.includes('body.is-fpv .primary-rail button[data-cycle-tool]') && css.includes('body.is-fpv .primary-rail button[data-cycle-pose-state]') && css.includes('body.is-fpv .primary-rail button[data-cycle-view-mode]') && css.includes('body.is-fpv .primary-rail button[data-fpv-settings-toggle]') && css.includes('body.is-fpv .primary-rail button[data-attack-review-toggle]') && css.includes('body.is-fpv .control-dock'), 'FPV mode must hide edit chrome while keeping Tool, Clip, View, gear, and Attack controls reachable');
+assert(css.includes('body.is-fpv .primary-rail button:not([data-cycle-character]):not([data-cycle-tool]):not([data-cycle-pose-state]):not([data-cycle-view-mode]):not([data-fpv-settings-toggle]):not([data-attack-review-toggle])') && css.includes('body.is-fpv .primary-rail button[data-cycle-character]') && css.includes('body.is-fpv .primary-rail button[data-cycle-tool]') && css.includes('body.is-fpv .primary-rail button[data-cycle-pose-state]') && css.includes('body.is-fpv .primary-rail button[data-cycle-view-mode]') && css.includes('body.is-fpv .primary-rail button[data-fpv-settings-toggle]') && css.includes('body.is-fpv .primary-rail button[data-attack-review-toggle]') && css.includes('body.is-fpv .control-dock'), 'FPV mode must hide edit chrome while keeping Model, Tool, Clip, View, gear, and Attack controls reachable');
 assert(!css.includes('body.is-fpv .primary-rail button:not([data-view-mode])'), 'FPV mode must not target hidden compatibility view buttons as the only visible escape');
 assert(css.includes('.fpv-settings-button') && css.includes('.fpv-settings') && css.includes('.fpv-nudge-grid') && css.includes('.fpv-slider'), 'FPV settings must have compact dedicated mobile styling');
 assert(css.includes('.viewport') && css.includes('.control-dock') && css.includes('max-height: 42vh'), 'mobile layout must keep the 3D viewport visible while dock panels scroll below it');
@@ -475,6 +561,14 @@ if (exists('dist')) {
   assert(exists('dist/assets/meshy/meshy_apose_walking_with_skin.glb'), 'dist must expose Meshy GLB at /assets/meshy');
   assert(exists('dist/assets/meshy/meshy_real_sabre.glb'), 'dist must expose real sabre GLB at /assets/meshy');
   assert(exists('dist/assets/meshy/meshy_fist_hands.glb'), 'dist must expose Meshy-derived fist hands GLB at /assets/meshy');
+  assert(exists('dist/assets/vanguard/vanguard_rigged_animations.glb'), 'dist must expose Vanguard runtime GLB at /assets/vanguard');
+  assert(exists('dist/assets/vanguard/vanguard_manifest.json'), 'dist must expose Vanguard runtime manifest at /assets/vanguard');
+  assert(exists('dist/assets/vanguard/vanguard_root_motion.json'), 'dist must expose Vanguard root motion sidecar at /assets/vanguard');
+  assert(exists('dist/assets/crimson/crimson_plume_knight_rigged_pbr.glb'), 'dist must expose Crimson runtime GLB at /assets/crimson');
+  assert(exists('dist/assets/crimson/arborblade_sword.glb'), 'dist must expose Arborblade sword GLB at /assets/crimson');
+  assert(exists('dist/assets/crimson/crimson_manifest.json'), 'dist must expose Crimson runtime manifest at /assets/crimson');
+  assert(exists('dist/assets/crimson/crimson_sword_calibration.json'), 'dist must expose Crimson sword calibration at /assets/crimson');
+  assert(exists('dist/assets/crimson/vanguard_swordattack1_reference.json'), 'dist must expose Crimson Vanguard SwordAttack1 reference at /assets/crimson');
   assert(exists('dist/assets/meshy/character_sheet_pbr/base_color.jpg'), 'dist must expose Meshy Character Sheet base color texture');
   assert(exists('dist/assets/meshy/character_sheet_pbr/emissive.jpg'), 'dist must expose Meshy Character Sheet emission texture');
   assert(exists('dist/assets/meshy/character_sheet_pbr/metallic_roughness.jpg'), 'dist must expose Meshy Character Sheet metallic-roughness texture');
@@ -495,6 +589,8 @@ for (const file of [
   'vendor/three/examples/jsm/loaders/GLTFLoader.js',
   'vendor/three/examples/jsm/controls/OrbitControls.js',
   'vendor/three/examples/jsm/utils/BufferGeometryUtils.js',
+  'tools/import_vanguard/export_vanguard_glb.py',
+  'tools/import_vanguard/export_vanguard_root_motion.py',
 ]) {
   assertRelativeImportsResolve(file);
 }
@@ -516,6 +612,10 @@ for (const forbidden of [
   assert(!html.includes(forbidden), `HTML must not include Pose Lab poison marker: ${forbidden}`);
   assert(!css.includes(forbidden), `CSS must not include Pose Lab poison marker: ${forbidden}`);
 }
+
+const crimsonBlenderRenderSource = read('tools/import_crimson/render_crimson_sword_calibration_blender.py');
+assert(crimsonBlenderRenderSource.includes('crimson_model_viewer_constraints.json') && crimsonBlenderRenderSource.includes('contract_hash'), 'Crimson Blender diagnostic must read and record the model-viewer constraint contract');
+assert(!crimsonBlenderRenderSource.includes('obj.scale = (0.82, 0.82, 0.82)') && !crimsonBlenderRenderSource.includes('obj.location = hand'), 'Crimson Blender diagnostic must not reintroduce independent sword scale or hand-head placement');
 
 if (failures.length) {
   console.error(failures.join('\n'));

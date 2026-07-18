@@ -1,0 +1,1067 @@
+{
+  "schema": "pose-lab-v2-crimson-vanguard-swordattack1-reference-v1",
+  "sourceGlb": "public/assets/vanguard/vanguard_rigged_animations.glb",
+  "sourceClip": "SwordAttack1",
+  "duration": 0.633333,
+  "primeTimes": {
+    "start": 0,
+    "anticipation": 0.18,
+    "contact": 0.38,
+    "contactHold": 0.5,
+    "followThrough": 0.7,
+    "recoil": 0.95,
+    "end": 1.25
+  },
+  "policy": {
+    "role": "reference-only",
+    "target": "Crimson Plume Knight / Arborblade sword authoring",
+    "forbiddenUse": "Do not copy Vanguard Weapon.R transforms directly into Crimson as accepted sword orientation.",
+    "intendedUse": "Use timing plus hand/forearm/weapon relationship predicates to author a quarantined Crimson attack candidate."
+  },
+  "referenceTracks": [
+    "root",
+    "upper_arm.fk.R",
+    "forearm.fk.R",
+    "hand.fk.R",
+    "Weapon.R",
+    "Long_Sword"
+  ],
+  "byNode": {
+    "root": [
+      {
+        "node": "root",
+        "path": "translation",
+        "interpolation": "LINEAR",
+        "keyCount": 39,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "anticipation": {
+            "time": 0.183333,
+            "value": [
+              0,
+              0,
+              0.558837
+            ]
+          },
+          "contact": {
+            "time": 0.383333,
+            "value": [
+              0,
+              0,
+              1.22789
+            ]
+          },
+          "contactHold": {
+            "time": 0.5,
+            "value": [
+              0,
+              0,
+              1.302308
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              1.81257
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              1.81257
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              1.81257
+            ]
+          }
+        }
+      },
+      {
+        "node": "root",
+        "path": "rotation",
+        "interpolation": "STEP",
+        "keyCount": 2,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              -0.707107,
+              0,
+              0,
+              0.707107
+            ]
+          },
+          "anticipation": {
+            "time": 0,
+            "value": [
+              -0.707107,
+              0,
+              0,
+              0.707107
+            ]
+          },
+          "contact": {
+            "time": 0.633333,
+            "value": [
+              -0.707107,
+              0,
+              0,
+              0.707107
+            ]
+          },
+          "contactHold": {
+            "time": 0.633333,
+            "value": [
+              -0.707107,
+              0,
+              0,
+              0.707107
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              -0.707107,
+              0,
+              0,
+              0.707107
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              -0.707107,
+              0,
+              0,
+              0.707107
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              -0.707107,
+              0,
+              0,
+              0.707107
+            ]
+          }
+        }
+      },
+      {
+        "node": "root",
+        "path": "scale",
+        "interpolation": "STEP",
+        "keyCount": 2,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "anticipation": {
+            "time": 0,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "contact": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "contactHold": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    ],
+    "upper_arm.fk.R": [
+      {
+        "node": "upper_arm.fk.R",
+        "path": "translation",
+        "interpolation": "LINEAR",
+        "keyCount": 2,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "anticipation": {
+            "time": 0,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "contact": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "contactHold": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "node": "upper_arm.fk.R",
+        "path": "rotation",
+        "interpolation": "LINEAR",
+        "keyCount": 39,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              0.303104,
+              0.34487,
+              -0.195519,
+              0.866582
+            ]
+          },
+          "anticipation": {
+            "time": 0.183333,
+            "value": [
+              0.470638,
+              0.427913,
+              -0.370051,
+              0.677091
+            ]
+          },
+          "contact": {
+            "time": 0.383333,
+            "value": [
+              0.41963,
+              0.010295,
+              0.463948,
+              0.780101
+            ]
+          },
+          "contactHold": {
+            "time": 0.5,
+            "value": [
+              0.373932,
+              0.049938,
+              0.401992,
+              0.834316
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              0.109596,
+              0.252699,
+              -0.01686,
+              0.96117
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              0.109596,
+              0.252699,
+              -0.01686,
+              0.96117
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              0.109596,
+              0.252699,
+              -0.01686,
+              0.96117
+            ]
+          }
+        }
+      },
+      {
+        "node": "upper_arm.fk.R",
+        "path": "scale",
+        "interpolation": "STEP",
+        "keyCount": 2,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "anticipation": {
+            "time": 0,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "contact": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "contactHold": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    ],
+    "forearm.fk.R": [
+      {
+        "node": "forearm.fk.R",
+        "path": "translation",
+        "interpolation": "LINEAR",
+        "keyCount": 2,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "anticipation": {
+            "time": 0,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "contact": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "contactHold": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "node": "forearm.fk.R",
+        "path": "rotation",
+        "interpolation": "LINEAR",
+        "keyCount": 39,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              0.760189,
+              -0.033036,
+              -0.054375,
+              0.64658
+            ]
+          },
+          "anticipation": {
+            "time": 0.183333,
+            "value": [
+              0.478035,
+              -0.011359,
+              -0.062602,
+              0.876033
+            ]
+          },
+          "contact": {
+            "time": 0.383333,
+            "value": [
+              0.377345,
+              -0.004306,
+              -0.063478,
+              0.923885
+            ]
+          },
+          "contactHold": {
+            "time": 0.5,
+            "value": [
+              0.469686,
+              -0.010764,
+              -0.062707,
+              0.880538
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              0.845793,
+              -0.040561,
+              -0.049019,
+              0.529705
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              0.845793,
+              -0.040561,
+              -0.049019,
+              0.529705
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              0.845793,
+              -0.040561,
+              -0.049019,
+              0.529705
+            ]
+          }
+        }
+      },
+      {
+        "node": "forearm.fk.R",
+        "path": "scale",
+        "interpolation": "LINEAR",
+        "keyCount": 2,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "anticipation": {
+            "time": 0,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "contact": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "contactHold": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    ],
+    "hand.fk.R": [
+      {
+        "node": "hand.fk.R",
+        "path": "translation",
+        "interpolation": "LINEAR",
+        "keyCount": 2,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "anticipation": {
+            "time": 0,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "contact": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "contactHold": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      {
+        "node": "hand.fk.R",
+        "path": "rotation",
+        "interpolation": "LINEAR",
+        "keyCount": 39,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              0.019832,
+              -0.14399,
+              -0.277929,
+              0.949542
+            ]
+          },
+          "anticipation": {
+            "time": 0.183333,
+            "value": [
+              -0.036248,
+              0.16311,
+              -0.15079,
+              0.974343
+            ]
+          },
+          "contact": {
+            "time": 0.383333,
+            "value": [
+              -0.133018,
+              -0.240633,
+              -0.028371,
+              0.961039
+            ]
+          },
+          "contactHold": {
+            "time": 0.5,
+            "value": [
+              -0.108661,
+              -0.226264,
+              -0.069756,
+              0.96547
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              0.019832,
+              -0.143989,
+              -0.277929,
+              0.949542
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              0.019832,
+              -0.143989,
+              -0.277929,
+              0.949542
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              0.019832,
+              -0.143989,
+              -0.277929,
+              0.949542
+            ]
+          }
+        }
+      },
+      {
+        "node": "hand.fk.R",
+        "path": "scale",
+        "interpolation": "STEP",
+        "keyCount": 2,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "anticipation": {
+            "time": 0,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "contact": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "contactHold": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    ],
+    "Weapon.R": [
+      {
+        "node": "Weapon.R",
+        "path": "translation",
+        "interpolation": "LINEAR",
+        "keyCount": 39,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              0.01797,
+              0.100084,
+              0.031002
+            ]
+          },
+          "anticipation": {
+            "time": 0.183333,
+            "value": [
+              0.021093,
+              0.093805,
+              0.034678
+            ]
+          },
+          "contact": {
+            "time": 0.383333,
+            "value": [
+              0.022841,
+              0.09029,
+              0.036736
+            ]
+          },
+          "contactHold": {
+            "time": 0.5,
+            "value": [
+              0.022042,
+              0.091896,
+              0.035796
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              0.01797,
+              0.100084,
+              0.031002
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              0.01797,
+              0.100084,
+              0.031002
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              0.01797,
+              0.100084,
+              0.031002
+            ]
+          }
+        }
+      },
+      {
+        "node": "Weapon.R",
+        "path": "rotation",
+        "interpolation": "LINEAR",
+        "keyCount": 39,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              -0.668618,
+              -0.738557,
+              -0.055227,
+              0.066587
+            ]
+          },
+          "anticipation": {
+            "time": 0.183333,
+            "value": [
+              -0.735434,
+              -0.675171,
+              -0.012058,
+              0.05599
+            ]
+          },
+          "contact": {
+            "time": 0.383333,
+            "value": [
+              -0.592164,
+              -0.797181,
+              -0.008991,
+              0.117315
+            ]
+          },
+          "contactHold": {
+            "time": 0.5,
+            "value": [
+              -0.605284,
+              -0.788323,
+              -0.01659,
+              0.1091
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              -0.668618,
+              -0.738557,
+              -0.055227,
+              0.066587
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              -0.668618,
+              -0.738557,
+              -0.055227,
+              0.066587
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              -0.668618,
+              -0.738557,
+              -0.055227,
+              0.066587
+            ]
+          }
+        }
+      },
+      {
+        "node": "Weapon.R",
+        "path": "scale",
+        "interpolation": "STEP",
+        "keyCount": 2,
+        "startTime": 0,
+        "endTime": 0.633333,
+        "samples": {
+          "start": {
+            "time": 0,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "anticipation": {
+            "time": 0,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "contact": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "contactHold": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "followThrough": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "recoil": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          },
+          "end": {
+            "time": 0.633333,
+            "value": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    ],
+    "Long_Sword": []
+  }
+}

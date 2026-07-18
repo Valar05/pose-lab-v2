@@ -88,6 +88,11 @@ canvas {
   flex-wrap: wrap;
 }
 
+.model-switcher button.active {
+  border-color: rgba(122, 205, 255, 0.8);
+  background: rgba(70, 130, 170, 0.46);
+}
+
 .primary-rail > button,
 .status {
   pointer-events: auto;
@@ -324,12 +329,13 @@ body.is-fpv .primary-rail {
   background: rgba(3, 7, 10, 0.72);
 }
 
-body.is-fpv .primary-rail button:not([data-cycle-tool]):not([data-cycle-pose-state]):not([data-cycle-view-mode]):not([data-fpv-settings-toggle]):not([data-attack-review-toggle]),
+body.is-fpv .primary-rail button:not([data-cycle-character]):not([data-cycle-tool]):not([data-cycle-pose-state]):not([data-cycle-view-mode]):not([data-fpv-settings-toggle]):not([data-attack-review-toggle]),
 body.is-fpv .primary-rail .status,
 body.is-fpv .control-dock {
   display: none !important;
 }
 
+body.is-fpv .primary-rail button[data-cycle-character],
 body.is-fpv .primary-rail button[data-cycle-tool],
 body.is-fpv .primary-rail button[data-cycle-pose-state],
 body.is-fpv .primary-rail button[data-cycle-view-mode],

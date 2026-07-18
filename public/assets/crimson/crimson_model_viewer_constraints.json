@@ -1,0 +1,66 @@
+{
+  "schema": "pose-lab-v2-crimson-model-viewer-constraints-v1",
+  "status": "diagnostic-only-not-visual-acceptance",
+  "target": "crimson-sword",
+  "model": "crimson",
+  "route": {
+    "origin": "https://valar05.github.io",
+    "path": "/pose-lab-v2/",
+    "params": {
+      "model": "crimson",
+      "pose": "rest",
+      "view": "orbit"
+    },
+    "cacheBustPrefix": "crimson-sword-"
+  },
+  "assets": {
+    "character": "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb",
+    "sword": "public/assets/crimson/arborblade_sword.glb",
+    "calibration": "public/assets/crimson/crimson_sword_calibration.json"
+  },
+  "normalization": {
+    "method": "pose-lab-v2-normalizeCharacter",
+    "centerBoundsAtOrigin": true,
+    "feetToGround": true,
+    "targetHeight": 1.75
+  },
+  "hierarchy": [
+    "RightHand",
+    "SaberGrip",
+    "ArborbladeSword"
+  ],
+  "saberGripLocal": {
+    "parentBone": "RightHand",
+    "position": [0, 0, 0],
+    "rotationDeg": [0, 0, 0],
+    "scale": [88, 88, 88]
+  },
+  "swordLocal": {
+    "position": [0, 0, 0],
+    "rotationDeg": [0, 0, 0],
+    "scale": [1, 1, 1]
+  },
+  "bladeLocalAxis": [0, 0, 1],
+  "hiltLocalPoint": [0, 0, 0],
+  "camera": {
+    "fov": 36,
+    "near": 0.01,
+    "far": 80,
+    "position": [2.8, 1.75, 4.2],
+    "target": [0, 0.95, 0],
+    "viewport": [390, 844]
+  },
+  "localBlenderCapture": {
+    "classification": "diagnostic",
+    "mustValidateBeforeRender": true,
+    "forbiddenIndependentOverrides": [
+      "camera",
+      "characterNormalization",
+      "swordPosition",
+      "swordRotation",
+      "swordScale",
+      "hierarchy"
+    ],
+    "acceptance": false
+  }
+}

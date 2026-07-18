@@ -99,3 +99,26 @@ The accepted visible relationship is simple:
   hiding the target.
 
 Metrics explain why this failed. They do not decide whether it passed.
+
+## Crimson Sword Gate
+
+Crimson/Arborblade has a hard evidence split:
+
+- `npm run validate:crimson-sword-intake` is an asset and wiring guardrail. It
+  can pass while the screenshot is still red.
+- `npm run accept:crimson-sword` is the visual acceptance gate. It must fail
+  unless `generated/cloud-visual-evidence/crimson-sword/latest.json` points to a
+  fresh hosted GitHub Pages screenshot for the current cache token and asserts
+  the visible hand/hilt/blade relationship.
+- `npm run validate:crimson-sword` runs both, so it cannot pass from geometry,
+  smoke, local render, localhost, or Android screenshot evidence alone.
+
+A red Crimson screenshot means the build is red even when intake, build, smoke,
+Blender diagnostics, and asset metadata are green.
+
+Local Blender/model-viewer divergence is a red diagnostic gate. Blender renders
+for Crimson must fail unless `public/assets/crimson/crimson_model_viewer_constraints.json`
+mirrors the browser model-viewer assets, hierarchy, calibration transform,
+normalization, and camera. If Blender needs a different camera, scale, socket,
+or placement to look good, the diagnostic is invalid and must fail before any
+render is treated as useful.

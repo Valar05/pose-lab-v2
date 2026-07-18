@@ -42,6 +42,21 @@
     "review:davin-lowbackkick": "node scripts/render-davin-lowbackkick-contact-sheet.mjs",
     "blender:render-davin-lowbackkick": "node scripts/run-blender-tool.mjs tools/render_davin_lowbackkick_blender.py --",
     "contact-sheet:davin-lowbackkick": "python3 tools/stitch_davin_lowbackkick_contact_sheet.py",
-    "review:davin-tail-mask": "node scripts/run-blender-tool.mjs tools/author_davin_tail_chain_blender.py -- --mask-debug --diagnostic-only"
+    "review:davin-tail-mask": "node scripts/run-blender-tool.mjs tools/author_davin_tail_chain_blender.py -- --mask-debug --diagnostic-only",
+    "inspect:vanguard": "node scripts/run-blender-tool.mjs tools/import_vanguard/inspect_vanguard_blend.py --",
+    "build:vanguard": "node scripts/run-blender-tool.mjs tools/import_vanguard/export_vanguard_glb.py -- && node scripts/run-blender-tool.mjs tools/import_vanguard/export_vanguard_root_motion.py --",
+    "root-motion:vanguard": "node scripts/run-blender-tool.mjs tools/import_vanguard/export_vanguard_root_motion.py --",
+    "build:crimson": "node tools/import_crimson/build_crimson_assets.mjs && npm run normalize:crimson-sword",
+    "reference:crimson:swordattack1": "node tools/import_crimson/extract_vanguard_swordattack1_reference.mjs",
+    "validate:crimson-sword": "npm run validate:crimson-sword-intake && npm run accept:crimson-sword",
+    "normalize:crimson-sword": "node tools/import_crimson/normalize_crimson_sword.mjs",
+    "review:crimson-sword": "npm run validate:crimson-model-viewer-constraints && node scripts/run-blender-tool.mjs tools/import_crimson/render_crimson_sword_calibration_blender.py --",
+    "review:crimson-sword-url": "node tools/crimson_sword_review_url.mjs",
+    "validate:crimson-sword-intake": "npm run validate:crimson-model-viewer-constraints && node tools/validate_crimson_sword_intake.mjs",
+    "accept:crimson-sword": "node tools/require_crimson_cloud_visual_evidence.mjs",
+    "test:crimson-cloud-visual-gate": "node tools/test_crimson_cloud_visual_evidence_gate.mjs",
+    "validate:crimson-model-viewer-constraints": "node tools/validate_crimson_model_viewer_constraints.mjs",
+    "test:crimson-model-viewer-constraints": "node tools/test_crimson_model_viewer_constraints.mjs",
+    "test:crimson-review-surface": "node tools/test_crimson_review_surface.mjs"
   }
 }

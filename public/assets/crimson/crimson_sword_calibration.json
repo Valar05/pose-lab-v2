@@ -1,0 +1,92 @@
+{
+  "schema": "pose-lab-v2-crimson-sword-calibration-v1",
+  "status": "offline-normalized-not-hosted-visual-accepted",
+  "targetCharacter": "crimson",
+  "swordAsset": "public/assets/crimson/arborblade_sword.glb",
+  "sourceSwordAsset": "/storage/emulated/0/Download/Meshy_AI_Arborblade_0717211756_texture.glb",
+  "sourceSwordSha256": "8e8d2f48aa2e271009e982a0ad0834094dc14c29ed8897f0544b35c2e670afe2",
+  "hierarchy": [
+    "RightHand",
+    "SaberGrip",
+    "ArborbladeSword"
+  ],
+  "saberGripLocal": {
+    "parentBone": "RightHand",
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rotationDeg": [
+      0,
+      0,
+      0
+    ],
+    "scale": [
+      88,
+      88,
+      88
+    ]
+  },
+  "swordLocal": {
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rotationDeg": [
+      0,
+      0,
+      0
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ]
+  },
+  "sourceBladeLocalAxis": [
+    0,
+    1,
+    0
+  ],
+  "bladeLocalAxis": [
+    0,
+    0,
+    1
+  ],
+  "hiltLocalPoint": [
+    0,
+    0,
+    0
+  ],
+  "tipLocalPoint": [
+    0,
+    0,
+    0.898242
+  ],
+  "pommelLocalPoint": [
+    0,
+    0,
+    -0.099805
+  ],
+  "normalizedBounds": {
+    "min": [
+      -0.0896,
+      -0.023987,
+      -0.099805
+    ],
+    "max": [
+      0.0896,
+      0.023987,
+      0.898242
+    ],
+    "size": [
+      0.179199,
+      0.047974,
+      0.998047
+    ],
+    "dominantAxis": "z"
+  },
+  "acceptanceNote": "Offline asset normalization makes hilt origin and +Z blade direction deterministic. Hosted visual review is still required before claiming Crimson socket acceptance."
+}

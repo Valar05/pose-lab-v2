@@ -2,15 +2,18 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { POSE_STATUS } from './pose-status.js';
-import { ATTACK1_REVIEW_CANDIDATES, DAVIN_IDLE_REVIEW_CANDIDATES, LOWBACKKICK_REVIEW_CANDIDATES, SABER_GRIP_LOCAL } from './review-constants.js';
+import { ATTACK1_REVIEW_CANDIDATES, CRIMSON_SABER_GRIP_LOCAL, CRIMSON_SWORD_LOCAL, DAVIN_IDLE_REVIEW_CANDIDATES, LOWBACKKICK_REVIEW_CANDIDATES, SABER_GRIP_LOCAL } from './review-constants.js';
 
 const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
   sabre: './assets/meshy/meshy_real_sabre.glb',
+  crimson: './assets/crimson/crimson_plume_knight_rigged_pbr.glb',
+  arborblade: './assets/crimson/arborblade_sword.glb',
   fistHands: './assets/meshy/meshy_fist_hands.glb',
   davin: './assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb',
   ares: './assets/ares/ares_rigged_diffuse.glb',
   securityTitan: './assets/ares/security_titan_rigged_diffuse.glb',
+  vanguard: './assets/vanguard/vanguard_rigged_animations.glb',
 };
 const MIXAMO_BONE_MAP = Object.freeze({
   Hips: 'mixamorig:Hips',
@@ -34,6 +37,28 @@ const MIXAMO_BONE_MAP = Object.freeze({
   RightLeg: 'mixamorig:RightLeg',
   RightFoot: 'mixamorig:RightFoot',
 });
+const VANGUARD_BONE_MAP = Object.freeze({
+  Hips: 'hips',
+  Spine: 'spine',
+  Spine01: 'spine',
+  Spine02: 'chest',
+  neck: 'neck',
+  Head: 'head',
+  LeftShoulder: 'shoulder.L',
+  LeftArm: 'upper_arm.fk.L',
+  LeftForeArm: 'forearm.fk.L',
+  LeftHand: 'hand.fk.L',
+  RightShoulder: 'shoulder.R',
+  RightArm: 'upper_arm.fk.R',
+  RightForeArm: 'forearm.fk.R',
+  RightHand: 'hand.fk.R',
+  LeftUpLeg: 'thigh.fk.L',
+  LeftLeg: 'shin.fk.L',
+  LeftFoot: 'foot.fk.L',
+  RightUpLeg: 'thigh.fk.R',
+  RightLeg: 'shin.fk.R',
+  RightFoot: 'foot.fk.R',
+});
 const CHARACTER_ASSETS = Object.freeze({
   davin: {
     key: 'davin',
@@ -45,6 +70,25 @@ const CHARACTER_ASSETS = Object.freeze({
     supportsSaber: false,
     supportsBakedPoseStates: false,
     supportsFistHands: false,
+  },
+  crimson: {
+    key: 'crimson',
+    label: 'Crimson Knight',
+    asset: ASSETS.crimson,
+    saberAsset: ASSETS.arborblade,
+    saberName: 'real-arborblade-sword',
+    saberGripLocal: CRIMSON_SABER_GRIP_LOCAL,
+    swordLocal: CRIMSON_SWORD_LOCAL,
+    source: '/storage/emulated/0/Download/Meshy_AI_Crimson_Plume_Knight_biped.zip + /storage/emulated/0/Download/Meshy_AI_Crimson_Plume_Knight_0717211804_texture.glb + /storage/emulated/0/Download/Meshy_AI_Arborblade_0717211756_texture.glb',
+    role: 'Crimson Plume Knight rigged locomotion/PBR authoring model with real Arborblade sword calibration baseline',
+    boneMap: {},
+    supportsSaber: true,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+    supportsAnimationClips: true,
+    autoPlayAnimation: false,
+    supportsAttackReview: false,
+    defaultClip: null,
   },
   meshy: {
     key: 'meshy',
@@ -80,6 +124,19 @@ const CHARACTER_ASSETS = Object.freeze({
     supportsBakedPoseStates: false,
     supportsFistHands: false,
   },
+  vanguard: {
+    key: 'vanguard',
+    label: 'Vanguard',
+    asset: ASSETS.vanguard,
+    source: '/storage/emulated/0/Download/Vanguard.blend',
+    role: 'imported Rigify-style Vanguard model with embedded sword, body mesh, and 20 source animation actions',
+    boneMap: VANGUARD_BONE_MAP,
+    supportsSaber: false,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+    supportsAnimationClips: true,
+    defaultClip: 'Idle',
+  },
 });
 const CHARACTER_KEY_ALIASES = Object.freeze({
   default: 'davin',
@@ -89,6 +146,10 @@ const CHARACTER_KEY_ALIASES = Object.freeze({
   kestrel: 'davin',
   'kestrel-man': 'davin',
   hawk: 'davin',
+  crimson: 'crimson',
+  'crimson-knight': 'crimson',
+  'crimson-plume': 'crimson',
+  arborblade: 'crimson',
   meshy: 'meshy',
   ares: 'ares',
   aresDiffuse: 'ares',
@@ -97,6 +158,9 @@ const CHARACTER_KEY_ALIASES = Object.freeze({
   titan: 'security-titan',
   securityTitan: 'security-titan',
   'security-titan': 'security-titan',
+  vanguard: 'vanguard',
+  Vanguard: 'vanguard',
+  guard: 'vanguard',
 });
 const CHARACTER_KEYS = Object.freeze(Object.keys(CHARACTER_ASSETS));
 const MESHY_PBR_TEXTURES = {
@@ -110,6 +174,12 @@ const REQUESTED_CHARACTER_KEY = CHARACTER_KEY_ALIASES[URL_PARAMS.get('model')]
   || CHARACTER_KEY_ALIASES[URL_PARAMS.get('character')]
   || 'davin';
 const ACTIVE_CHARACTER = CHARACTER_ASSETS[REQUESTED_CHARACTER_KEY] || CHARACTER_ASSETS.meshy;
+
+function modelButtonHtml(key) {
+  const character = CHARACTER_ASSETS[key];
+  const active = key === ACTIVE_CHARACTER.key ? ' class="active"' : '';
+  return `<button type="button" data-model-key="${key}"${active}>${character.label}</button>`;
+}
 const IS_MESHY_CHARACTER = ACTIVE_CHARACTER.key === 'meshy';
 const DEBUG_TOUCH = URL_PARAMS.get('debugTouch') === '1';
 const DEBUG_READY = URL_PARAMS.get('debugReady') === '1';
@@ -136,6 +206,7 @@ const POSE_STATE_LABELS = {
   custom: 'Custom',
 };
 const REQUESTED_POSE = URL_PARAMS.get('pose');
+const REQUESTED_IMPORTED_CLIP = URL_PARAMS.get('clip') || URL_PARAMS.get('animation') || URL_PARAMS.get('anim') || null;
 const REQUESTED_LOWBACKKICK_REVIEW = ACTIVE_CHARACTER.key === 'davin'
   && ['lowbackkick', 'low-back-kick', 'low_back_kick'].includes(String(REQUESTED_POSE || '').toLowerCase());
 const REQUESTED_IDLE_REVIEW = ACTIVE_CHARACTER.key === 'davin'
@@ -170,7 +241,12 @@ function poseIsAccepted(name) {
 }
 
 function useManualAttackAuthoring() {
-  return !REQUESTED_ATTACK2_QUARANTINED && (REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE);
+  return ACTIVE_CHARACTER.supportsBakedPoseStates && !REQUESTED_ATTACK2_QUARANTINED && (REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE);
+}
+
+function canExposeAttackReview() {
+  if (ACTIVE_CHARACTER.supportsAttackReview === false) return false;
+  return ACTIVE_CHARACTER.supportsBakedPoseStates || Boolean(REQUESTED_CANDIDATE);
 }
 
 const app = document.querySelector('#app');
@@ -186,9 +262,10 @@ app.innerHTML = `
         <button type="button" data-cycle-character>Model: ${ACTIVE_CHARACTER.label}</button>
         <button type="button" data-cycle-tool>Tool: Saber</button>
         <button type="button" data-cycle-pose-state>Pose: Rest</button>
+        <button type="button" data-cycle-animation hidden>Anim: None</button>
         <button type="button" data-cycle-view-mode>View: Orbit</button>
         <button type="button" class="fpv-settings-button" data-fpv-settings-toggle aria-label="FPV camera settings" title="FPV camera settings">⚙</button>
-        <button type="button" data-attack-review-toggle ${REQUESTED_CANDIDATE ? '' : 'hidden'} aria-label="Attack playback controls">Attack</button>
+        <button type="button" data-attack-review-toggle ${canExposeAttackReview() ? '' : 'hidden'} aria-label="Attack playback controls">Attack</button>
         <button type="button" data-dock-toggle>Tools</button>
         <span class="status" data-status>loading ${ACTIVE_CHARACTER.label}</span>
       </div>
@@ -230,11 +307,17 @@ app.innerHTML = `
     </div>
     <div class="control-dock" aria-label="Secondary editor controls" hidden>
       <div class="panel-tabs" aria-label="Control panels">
+        <button type="button" data-panel-toggle="model">Model</button>
         <button type="button" data-panel-toggle="transform">Transform</button>
         <button type="button" data-panel-toggle="view">View</button>
         <button type="button" data-panel-toggle="export">Export</button>
         <button type="button" data-panel-toggle="debug" ${DEBUG_TOUCH || DEBUG_READY ? '' : 'hidden'}>Debug</button>
       </div>
+      <section class="control-panel" data-panel="model" aria-label="Model controls" hidden>
+        <div class="panel-row model-switcher" aria-label="Model switcher">
+          ${CHARACTER_KEYS.map(modelButtonHtml).join('')}
+        </div>
+      </section>
       <section class="control-panel" data-panel="transform" aria-label="Transform controls" hidden>
         <div class="panel-row hidden-actions" aria-hidden="true">
           <button type="button" data-tool="saber" class="active" tabindex="-1" ${ACTIVE_CHARACTER.supportsSaber ? '' : 'hidden'}>Saber</button>
@@ -311,9 +394,11 @@ const touchProbeButton = app.querySelector('[data-action="touch-probe"]');
 const readyProofPanel = app.querySelector('[data-ready-proof-readout]');
 const dockEl = app.querySelector('.control-dock');
 const cycleCharacterButton = app.querySelector('[data-cycle-character]');
+const modelButtons = Array.from(app.querySelectorAll('[data-model-key]'));
 const dockToggleButton = app.querySelector('[data-dock-toggle]');
 const cycleToolButton = app.querySelector('[data-cycle-tool]');
 const cyclePoseStateButton = app.querySelector('[data-cycle-pose-state]');
+const cycleAnimationButton = app.querySelector('[data-cycle-animation]');
 const cycleViewModeButton = app.querySelector('[data-cycle-view-mode]');
 const fpvSettingsToggle = app.querySelector('[data-fpv-settings-toggle]');
 const fpvSettingsPanel = app.querySelector('[data-fpv-settings]');
@@ -341,13 +426,13 @@ const tipMatchReadout = app.querySelector('[data-tip-match-readout]');
 
 let toolMode = 'saber';
 let viewMode = 'orbit';
-let dockOpen = false;
-let activePanel = null;
+let dockOpen = ACTIVE_CHARACTER.key === 'crimson';
+let activePanel = ACTIVE_CHARACTER.key === 'crimson' ? 'model' : null;
 let fpvSettingsOpen = false;
 let fpvNudgeState = null;
 let fpvNudgeHoldTimer = null;
 let fpvNudgeRaf = null;
-let attackReviewOpen = Boolean(REQUESTED_MANUAL_ATTACK || REVIEW_CONTROLS_OPEN);
+let attackReviewOpen = Boolean(canExposeAttackReview() && (REQUESTED_MANUAL_ATTACK || REVIEW_CONTROLS_OPEN));
 const fpvBodyMasks = [];
 const toolState = {
   saber: { mode: 'move', axis: 'screen' },
@@ -364,6 +449,13 @@ const touchProof = {
   boneScaleChanged: null,
   lastTouchAction: 'none',
 };
+const saberAttachmentProof = {
+  status: 'not-run',
+  parentBone: null,
+  hiltToHandDistance: null,
+  swordWorldScale: null,
+};
+
 const readyProof = {
   readyPresetLoaded: false,
   cacheBust: URL_PARAMS.get('cacheBust') || null,
@@ -627,6 +719,13 @@ let attackPoseSequence = null;
 let attackPoseStartedAt = null;
 let attackPoseFixedTime = null;
 let attackPoseCurrentTime = 0;
+let importedAnimationMixer = null;
+let importedAnimationClips = [];
+let importedAnimationAction = null;
+let activeImportedAnimationClip = null;
+let importedRootMotionBone = null;
+let importedRootMotionRestPosition = null;
+const importedAnimationClock = new THREE.Clock();
 let manualAttackDraft = null;
 let manualAttackSelectedKey = 'start';
 let manualAttackDirty = false;
@@ -660,6 +759,18 @@ let lastPoseEmptyTap = null;
 let lastPinchDistance = 0;
 let lastTwistAngle = 0;
 let sabreBladeLocalAxisCache = null;
+
+function activeSaberGripLocal() {
+  return ACTIVE_CHARACTER.saberGripLocal || SABER_GRIP_LOCAL;
+}
+
+function activeSwordLocal() {
+  return ACTIVE_CHARACTER.swordLocal || { position: [0, 0, 0], rotationDeg: [0, 0, 0], scale: [1, 1, 1] };
+}
+
+function activeSaberAsset() {
+  return ACTIVE_CHARACTER.saberAsset || ASSETS.sabre;
+}
 
 function dominantSkinBoneName(skinnedMesh, vertexIndex) {
   const skinIndex = skinnedMesh.geometry?.attributes?.skinIndex;
@@ -749,6 +860,67 @@ function applyMeshyPbrToFpvMasks() {
   }
 }
 
+function vanguardPaletteColor(position, bounds) {
+  const height = (position.y - bounds.min.y) / Math.max(0.0001, bounds.max.y - bounds.min.y);
+  const width = Math.abs(position.x) / Math.max(0.0001, Math.max(Math.abs(bounds.min.x), Math.abs(bounds.max.x)));
+  const depth = (position.z - bounds.min.z) / Math.max(0.0001, bounds.max.z - bounds.min.z);
+  const lightBluePlate = new THREE.Color(0x75c9ff);
+  const darkGreenUnderarmor = new THREE.Color(0x123f2f);
+  const redFeather = new THREE.Color(0xc92f2f);
+  const cyanEyehole = new THREE.Color(0x36fff3);
+  const shadowBlue = new THREE.Color(0x3e8fc4);
+
+  if (height > 0.72 && depth > 0.72 && width > 0.08 && width < 0.34) return cyanEyehole;
+  if (height > 0.82 && (depth < 0.55 || width > 0.32)) return redFeather;
+  if ((height < 0.36 && width < 0.34) || (height > 0.34 && height < 0.68 && width < 0.18) || (height > 0.43 && width > 0.58)) return darkGreenUnderarmor;
+  if (depth < 0.18 && height < 0.72) return shadowBlue;
+  return lightBluePlate;
+}
+
+function applyVanguardBodyPalette(mesh) {
+  const position = mesh.geometry?.attributes?.position;
+  if (!position) return;
+  if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+  const bounds = mesh.geometry.boundingBox;
+  const colors = new Float32Array(position.count * 3);
+  const vertex = new THREE.Vector3();
+  for (let index = 0; index < position.count; index += 1) {
+    vertex.fromBufferAttribute(position, index);
+    const color = vanguardPaletteColor(vertex, bounds);
+    colors[index * 3] = color.r;
+    colors[index * 3 + 1] = color.g;
+    colors[index * 3 + 2] = color.b;
+  }
+  mesh.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  mesh.material = new THREE.MeshStandardMaterial({
+    name: 'VanguardRecoveredPalette',
+    vertexColors: true,
+    roughness: 0.62,
+    metalness: 0.08,
+    side: THREE.DoubleSide,
+  });
+}
+
+function applyVanguardMaterialRecovery(object) {
+  if (ACTIVE_CHARACTER.key !== 'vanguard') return;
+  object.traverse((node) => {
+    if (!node.isMesh) return;
+    if (node.name === 'Body' || node.material?.name === 'VanguardBody') {
+      applyVanguardBodyPalette(node);
+      return;
+    }
+    if (node.name === 'Long_Sword' || node.material?.name === 'LowPolyProps') {
+      node.material = new THREE.MeshStandardMaterial({
+        name: 'VanguardRecoveredSteel',
+        color: 0xb8b1a2,
+        roughness: 0.38,
+        metalness: 0.52,
+        side: THREE.DoubleSide,
+      });
+    }
+  });
+}
+
 function ensureFpvBodyMasks() {
   if (fpvBodyMasksReady || !meshyRoot) return;
   fpvBodyMasksReady = true;
@@ -785,7 +957,7 @@ function normalizeCharacter(object) {
 }
 
 function prepareSabre(object) {
-  object.name = 'real-meshy-sabre';
+  object.name = ACTIVE_CHARACTER.saberName || 'real-meshy-sabre';
   object.position.set(-0.39454, 0.71404, 0.32817);
   object.rotation.set(
     THREE.MathUtils.degToRad(160.077),
@@ -949,6 +1121,23 @@ function orientationProbe(position, quaternion, localAxis, length) {
   };
 }
 
+function updateSaberAttachmentProof() {
+  if (!ACTIVE_CHARACTER.supportsSaber || !saberGrip || !sabreRoot) return;
+  root.updateMatrixWorld(true);
+  const hand = findPoseBone('RightHand');
+  const hilt = objectWorldPosition(saberGrip);
+  const handPosition = hand ? objectWorldPosition(hand) : null;
+  const swordScale = objectWorldScale(sabreRoot);
+  saberAttachmentProof.status = hand && saberGrip.parent === hand ? 'attached' : 'detached';
+  saberAttachmentProof.parentBone = saberGrip.parent?.name || null;
+  saberAttachmentProof.hiltToHandDistance = handPosition ? fixedNumber(hilt.distanceTo(handPosition), 5) : null;
+  saberAttachmentProof.swordWorldScale = vectorToFixedArray(swordScale);
+  document.body.dataset.saberAttachmentStatus = saberAttachmentProof.status;
+  document.body.dataset.saberAttachmentParent = saberAttachmentProof.parentBone || '';
+  document.body.dataset.saberAttachmentDistance = String(saberAttachmentProof.hiltToHandDistance ?? '');
+  document.body.dataset.saberWorldScale = JSON.stringify(saberAttachmentProof.swordWorldScale);
+}
+
 function readySnapshot() {
   root.updateMatrixWorld(true);
   const rightHand = poseBones.get('RightHand');
@@ -1021,21 +1210,28 @@ function attachSaberToRightHand() {
 
   const grip = new THREE.Bone();
   grip.name = 'SaberGrip';
-  grip.position.fromArray(SABER_GRIP_LOCAL.position);
+  const gripLocal = activeSaberGripLocal();
+  grip.position.fromArray(gripLocal.position);
   grip.rotation.set(
-    THREE.MathUtils.degToRad(SABER_GRIP_LOCAL.rotationDeg[0]),
-    THREE.MathUtils.degToRad(SABER_GRIP_LOCAL.rotationDeg[1]),
-    THREE.MathUtils.degToRad(SABER_GRIP_LOCAL.rotationDeg[2])
+    THREE.MathUtils.degToRad(gripLocal.rotationDeg[0]),
+    THREE.MathUtils.degToRad(gripLocal.rotationDeg[1]),
+    THREE.MathUtils.degToRad(gripLocal.rotationDeg[2])
   );
-  grip.scale.fromArray(SABER_GRIP_LOCAL.scale);
+  grip.scale.fromArray(gripLocal.scale);
 
   rightHand.add(grip);
-  sabreRoot.position.set(0, 0, 0);
-  sabreRoot.quaternion.identity();
-  sabreRoot.scale.set(1, 1, 1);
+  const swordLocal = activeSwordLocal();
+  sabreRoot.position.fromArray(swordLocal.position);
+  sabreRoot.rotation.set(
+    THREE.MathUtils.degToRad(swordLocal.rotationDeg[0]),
+    THREE.MathUtils.degToRad(swordLocal.rotationDeg[1]),
+    THREE.MathUtils.degToRad(swordLocal.rotationDeg[2])
+  );
+  sabreRoot.scale.fromArray(swordLocal.scale);
   grip.add(sabreRoot);
   saberGrip = grip;
   root.updateMatrixWorld(true);
+  updateSaberAttachmentProof();
 }
 
 function resetSaberPlacement() {
@@ -1616,7 +1812,7 @@ function pauseAttackReview() {
 }
 
 function setAttackReviewOpen(open) {
-  attackReviewOpen = Boolean(open && (REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring()));
+  attackReviewOpen = Boolean(open && canExposeAttackReview() && (REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring()));
   updateAttackReviewControls();
 }
 
@@ -1646,7 +1842,7 @@ function updateAttackReviewControls() {
   if (!attackReviewPanel) return;
   const active = Boolean((attackPoseSequence || manualAttackDraft) && isSequenceReviewState());
   if (attackReviewToggle) {
-    attackReviewToggle.hidden = !Boolean(REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring());
+    attackReviewToggle.hidden = !Boolean(canExposeAttackReview() && (REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring()));
     attackReviewToggle.classList.toggle('active', active && attackReviewOpen);
     attackReviewToggle.textContent = manualAttackDraft ? 'Keys' : REQUESTED_ATTACK_LABEL;
   }
@@ -1908,16 +2104,21 @@ function initialViewModeFromUrl() {
     : 'orbit';
 }
 
-async function loadGlb(url, { announce = true, label = null } = {}) {
+async function loadGltf(url, { announce = true, label = null } = {}) {
   if (announce) setBootPhase(label || `loading ${url.split('/').pop()}`);
   return new Promise((resolve, reject) => {
     loader.load(
       url,
-      (gltf) => resolve(gltf.scene),
+      (gltf) => resolve(gltf),
       undefined,
       (error) => reject(new Error(`failed ${url}: ${error?.message || error}`))
     );
   });
+}
+
+async function loadGlb(url, options = {}) {
+  const gltf = await loadGltf(url, options);
+  return gltf.scene;
 }
 
 async function loadTexture(url, colorSpace = null, announce = true) {
@@ -1990,11 +2191,75 @@ function isSequenceReviewState() {
   return poseState === 'attack1' || poseState === 'lowBackKick' || poseState === 'idle';
 }
 
+function importedClipNames() {
+  return importedAnimationClips.map((clip) => clip.name).filter(Boolean);
+}
+
+function importedClipByName(name) {
+  const lower = String(name || '').toLowerCase();
+  return importedAnimationClips.find((clip) => clip.name.toLowerCase() === lower) || null;
+}
+
+function stopImportedAnimation() {
+  importedAnimationAction?.stop();
+  importedAnimationAction = null;
+  activeImportedAnimationClip = null;
+}
+
+function playImportedAnimation(name = null) {
+  if (!importedAnimationMixer || !importedAnimationClips.length) return false;
+  const clip = importedClipByName(name) || (ACTIVE_CHARACTER.defaultClip ? importedClipByName(ACTIVE_CHARACTER.defaultClip) : null) || importedAnimationClips[0];
+  if (!clip) return false;
+  importedAnimationAction?.stop();
+  importedAnimationAction = importedAnimationMixer.clipAction(clip);
+  importedAnimationAction.reset();
+  importedAnimationAction.play();
+  activeImportedAnimationClip = clip;
+  importedAnimationClock.start();
+  statusEl.textContent = `${ACTIVE_CHARACTER.label}: playing ${clip.name}`;
+  renderControls();
+  updateReadout();
+  return true;
+}
+
+function setupImportedAnimations(gltf) {
+  importedAnimationClips = ACTIVE_CHARACTER.supportsAnimationClips ? [...(gltf.animations || [])] : [];
+  if (!importedAnimationClips.length) return;
+  importedRootMotionBone = ACTIVE_CHARACTER.key === 'vanguard' ? meshyRoot.getObjectByName('root') : null;
+  importedRootMotionRestPosition = importedRootMotionBone ? importedRootMotionBone.position.clone() : null;
+  importedAnimationMixer = new THREE.AnimationMixer(meshyRoot);
+  if (REQUESTED_IMPORTED_CLIP || ACTIVE_CHARACTER.autoPlayAnimation) playImportedAnimation(REQUESTED_IMPORTED_CLIP);
+}
+
+
+function suppressImportedRootMotion() {
+  if (!importedRootMotionBone || !importedRootMotionRestPosition) return;
+  importedRootMotionBone.position.copy(importedRootMotionRestPosition);
+  importedRootMotionBone.updateMatrixWorld(true);
+}
+
+function cycleImportedAnimation() {
+  if (!importedAnimationClips.length) return;
+  const currentIndex = importedAnimationClips.findIndex((clip) => clip === activeImportedAnimationClip);
+  const next = importedAnimationClips[(Math.max(0, currentIndex) + 1) % importedAnimationClips.length];
+  playImportedAnimation(next.name);
+}
+
 function setMode(next) {
   mode = next === 'scale' || next === 'rotate' ? next : 'move';
   currentAxis = mode === 'scale' ? 'all' : 'screen';
   toolState[toolMode] = { mode, axis: currentAxis };
   renderControls();
+}
+
+function switchModel(nextKey) {
+  if (!CHARACTER_ASSETS[nextKey] || nextKey === ACTIVE_CHARACTER.key) return;
+  const params = new URLSearchParams(window.location.search);
+  params.set('model', nextKey);
+  params.delete('candidate');
+  params.delete('fistHands');
+  if (!CHARACTER_ASSETS[nextKey].supportsBakedPoseStates) params.delete('pose');
+  window.location.search = params.toString();
 }
 
 function setToolMode(next) {
@@ -2024,16 +2289,17 @@ function axisLabel() {
   return currentAxis === 'screen' ? 'Screen' : currentAxis.toUpperCase();
 }
 
-function setDockOpen(open, panel = activePanel || 'transform') {
+function setDockOpen(open, panel = activePanel || (ACTIVE_CHARACTER.key === 'crimson' ? 'model' : 'transform')) {
   dockOpen = Boolean(open);
   if (!dockOpen) activePanel = null;
-  else activePanel = controlPanels.some((element) => element.dataset.panel === panel) ? panel : 'transform';
+  else activePanel = controlPanels.some((element) => element.dataset.panel === panel) ? panel : (ACTIVE_CHARACTER.key === 'crimson' ? 'model' : 'transform');
   dockEl.hidden = !dockOpen;
   dockToggleButton.classList.toggle('active', dockOpen);
   setControlPanel(activePanel);
 }
 
 function setControlPanel(next) {
+  const defaultPanel = ACTIVE_CHARACTER.key === 'crimson' ? 'model' : 'transform';
   if (!dockOpen || !next) {
     activePanel = null;
     for (const button of panelToggleButtons) button.classList.remove('active');
@@ -2043,7 +2309,7 @@ function setControlPanel(next) {
     }
     return;
   }
-  activePanel = controlPanels.some((element) => element.dataset.panel === next) ? next : 'transform';
+  activePanel = controlPanels.some((element) => element.dataset.panel === next) ? next : defaultPanel;
   for (const button of panelToggleButtons) {
     button.classList.toggle('active', button.dataset.panelToggle === activePanel);
   }
@@ -2143,7 +2409,12 @@ function setFpvFov(value) {
 }
 
 function renderControls() {
-  if (cycleCharacterButton) cycleCharacterButton.textContent = `Model: ${ACTIVE_CHARACTER.label}`;
+  if (cycleCharacterButton) {
+    cycleCharacterButton.textContent = `Model: ${ACTIVE_CHARACTER.label}`;
+    cycleCharacterButton.hidden = false;
+    cycleCharacterButton.setAttribute('aria-label', `Current model: ${ACTIVE_CHARACTER.label}; tap to switch model`);
+  }
+  modelButtons.forEach((button) => button.classList.toggle('active', button.dataset.modelKey === ACTIVE_CHARACTER.key));
   toolButtons.forEach((button) => {
     if (button.dataset.tool === 'saber') button.hidden = !ACTIVE_CHARACTER.supportsSaber;
     button.classList.toggle('active', button.dataset.tool === toolMode);
@@ -2172,7 +2443,11 @@ function renderControls() {
   }
   cycleToolButton.hidden = !ACTIVE_CHARACTER.supportsSaber;
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
-  cyclePoseStateButton.textContent = `Clip: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
+  cyclePoseStateButton.textContent = `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
+  if (cycleAnimationButton) {
+    cycleAnimationButton.hidden = !importedAnimationClips.length;
+    cycleAnimationButton.textContent = `Anim: ${activeImportedAnimationClip?.name || 'None'}`;
+  }
   cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
   updateAttackReviewControls();
   if (poseState === 'attack1' && manualAttackDraft) {
@@ -2316,7 +2591,14 @@ function exportTransform() {
       characterLabel: ACTIVE_CHARACTER.label,
       source: ACTIVE_CHARACTER.source,
       meshy: ASSETS.meshy,
-      sabre: ASSETS.sabre,
+      sabre: activeSaberAsset(),
+      animations: importedClipNames(),
+      activeAnimation: activeImportedAnimationClip?.name || null,
+      rootMotion: ACTIVE_CHARACTER.key === 'vanguard' ? {
+        sidecar: './assets/vanguard/vanguard_root_motion.json',
+        applyInPoseLab: false,
+        suppressedBone: importedRootMotionBone?.name || null,
+      } : null,
     },
     saberRoot: sabreRoot ? {
       position: objectWorldPosition(sabreRoot).toArray().map((value) => Number(value.toFixed(5))),
@@ -2360,7 +2642,7 @@ function exportManualAttackDraft() {
       characterLabel: ACTIVE_CHARACTER.label,
       source: ACTIVE_CHARACTER.source,
       meshy: ASSETS.meshy,
-      sabre: ASSETS.sabre,
+      sabre: activeSaberAsset(),
     },
     source: {
       readyPreset: readyPosePreset?.label || null,
@@ -3201,9 +3483,9 @@ function snapCamera(view) {
 async function boot() {
   const requestedPoseState = initialPoseStateFromUrl();
   setBootPhase(`loading ${ACTIVE_CHARACTER.label}`);
-  const characterPromise = loadGlb(ACTIVE_CHARACTER.asset, { announce: false });
+  const characterPromise = loadGltf(ACTIVE_CHARACTER.asset, { announce: false });
   const sabrePromise = ACTIVE_CHARACTER.supportsSaber
-    ? loadGlb(ASSETS.sabre, { announce: false })
+    ? loadGlb(activeSaberAsset(), { announce: false })
     : Promise.resolve(null);
   const posePromise = Promise.all([
     ACTIVE_CHARACTER.supportsBakedPoseStates
@@ -3215,12 +3497,16 @@ async function boot() {
     ? loadGlb(ASSETS.fistHands, { announce: false })
     : Promise.resolve(null);
 
-  const meshy = await characterPromise;
+  const characterGltf = await characterPromise;
+  const meshy = characterGltf.scene;
   setBootPhase(`showing ${ACTIVE_CHARACTER.label}`);
   meshyRoot = normalizeCharacter(meshy);
+  applyVanguardMaterialRecovery(meshyRoot);
   root.add(meshyRoot);
   setupPoseHandles();
+  setupImportedAnimations(characterGltf);
   setMode('move');
+  if (ACTIVE_CHARACTER.key === 'crimson') setDockOpen(true, 'model');
   setPoseState('rest');
   setViewMode(initialViewModeFromUrl());
   markBootReady();
@@ -3273,12 +3559,11 @@ toolButtons.forEach((button) => {
 cycleCharacterButton?.addEventListener('click', () => {
   const currentIndex = CHARACTER_KEYS.indexOf(ACTIVE_CHARACTER.key);
   const nextKey = CHARACTER_KEYS[(Math.max(0, currentIndex) + 1) % CHARACTER_KEYS.length];
-  const params = new URLSearchParams(window.location.search);
-  params.set('model', nextKey);
-  params.delete('pose');
-  params.delete('candidate');
-  params.delete('fistHands');
-  window.location.search = params.toString();
+  switchModel(nextKey);
+});
+
+modelButtons.forEach((button) => {
+  button.addEventListener('click', () => switchModel(button.dataset.modelKey));
 });
 
 cycleToolButton.addEventListener('click', () => setToolMode(toolMode === 'saber' ? 'pose' : 'saber'));
@@ -3332,6 +3617,7 @@ cyclePoseStateButton.addEventListener('click', () => {
   const next = order[(order.indexOf(current) + 1) % order.length];
   setPoseState(next);
 });
+cycleAnimationButton?.addEventListener('click', cycleImportedAnimation);
 
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => setMode(button.dataset.mode || 'move'));
@@ -3390,6 +3676,12 @@ canvas.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive:
 
 function animate() {
   resize();
+  const importedAnimationDelta = importedAnimationClock.getDelta();
+  if (importedAnimationMixer && importedAnimationDelta > 0) {
+    importedAnimationMixer.update(importedAnimationDelta);
+    suppressImportedRootMotion();
+  }
+  updateSaberAttachmentProof();
   if (poseState === 'attack1' && manualAttackDraft && attackPoseFixedTime === null) {
     const elapsed = (performance.now() - (attackPoseStartedAt ?? performance.now())) / 1000;
     applyManualAttackFrameAt(elapsed);

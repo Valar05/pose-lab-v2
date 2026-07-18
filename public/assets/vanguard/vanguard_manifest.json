@@ -1,0 +1,212 @@
+{
+  "schema": "pose-lab-v2-vanguard-runtime-asset-v1",
+  "runtimeGlb": "public/assets/vanguard/vanguard_rigged_animations.glb",
+  "sourceBlend": "/storage/emulated/0/Download/Vanguard.blend",
+  "buildScript": "tools/import_vanguard/export_vanguard_glb.py",
+  "inspectScript": "tools/import_vanguard/inspect_vanguard_blend.py",
+  "selectedObjects": [
+    "Body",
+    "Long_Sword",
+    "rig"
+  ],
+  "animations": [
+    {
+      "name": "0T-Pose",
+      "frameRange": [
+        0.0,
+        0.0
+      ],
+      "fcurves": 444
+    },
+    {
+      "name": "ClubIdle",
+      "frameRange": [
+        0.0,
+        80.0
+      ],
+      "fcurves": 441
+    },
+    {
+      "name": "Idle",
+      "frameRange": [
+        0.0,
+        60.0
+      ],
+      "fcurves": 438
+    },
+    {
+      "name": "Jump",
+      "frameRange": [
+        0.0,
+        19.0
+      ],
+      "fcurves": 1080
+    },
+    {
+      "name": "JumpCrouch",
+      "frameRange": [
+        0.0,
+        72.0
+      ],
+      "fcurves": 1096
+    },
+    {
+      "name": "JumpForward",
+      "frameRange": [
+        0.0,
+        60.0
+      ],
+      "fcurves": 1182
+    },
+    {
+      "name": "Land",
+      "frameRange": [
+        0.0,
+        30.0
+      ],
+      "fcurves": 1076
+    },
+    {
+      "name": "LedgeClimb",
+      "frameRange": [
+        0.0,
+        60.0
+      ],
+      "fcurves": 1038
+    },
+    {
+      "name": "LedgeGrab",
+      "frameRange": [
+        0.0,
+        60.0
+      ],
+      "fcurves": 986
+    },
+    {
+      "name": "LedgeGrabHang",
+      "frameRange": [
+        0.0,
+        60.0
+      ],
+      "fcurves": 1038
+    },
+    {
+      "name": "Midair",
+      "frameRange": [
+        0.0,
+        60.0
+      ],
+      "fcurves": 1162
+    },
+    {
+      "name": "MidairSwordAttack1",
+      "frameRange": [
+        0.0,
+        60.0
+      ],
+      "fcurves": 1046
+    },
+    {
+      "name": "MidairSwordAttack2",
+      "frameRange": [
+        0.0,
+        60.0
+      ],
+      "fcurves": 1038
+    },
+    {
+      "name": "RunForwardOld",
+      "frameRange": [
+        0.0,
+        46.0
+      ],
+      "fcurves": 922
+    },
+    {
+      "name": "SpinAttack",
+      "frameRange": [
+        0.0,
+        53.0
+      ],
+      "fcurves": 526
+    },
+    {
+      "name": "SwordAttack1",
+      "frameRange": [
+        0.0,
+        38.0
+      ],
+      "fcurves": 526
+    },
+    {
+      "name": "SwordAttack2",
+      "frameRange": [
+        0.0,
+        41.0
+      ],
+      "fcurves": 526
+    },
+    {
+      "name": "SwordAttack3",
+      "frameRange": [
+        0.0,
+        41.0
+      ],
+      "fcurves": 1105
+    },
+    {
+      "name": "SwordAttack4",
+      "frameRange": [
+        0.0,
+        41.0
+      ],
+      "fcurves": 526
+    },
+    {
+      "name": "SwordAttack5",
+      "frameRange": [
+        0.0,
+        51.0
+      ],
+      "fcurves": 706
+    }
+  ],
+  "textureStatus": {
+    "packedTextures": false,
+    "missingExternalTexturePaths": [
+      "D:/Unity/Warrior Apocalypse/Assets/Textures/LowPolyPropsAlbedoVanguard.jpeg",
+      "D:/Unity/Warrior Apocalypse/Assets/Textures/Vanguard_albedo.jpeg"
+    ],
+    "note": "The downloaded blend referenced external Windows texture paths that were not packed in the file; the current runtime GLB preserves geometry, materials, and animations without recovered albedo images.",
+    "runtimeRecovery": "The original albedo files are missing, so Pose Lab applies a generated Vanguard palette: light blue plates, dark green underarmor, red helmet feathers, cyan eyeholes, and a bounded steel material for the sword/props.",
+    "bodyVertexColors": [
+      "COLOR_0",
+      "COLOR_1"
+    ],
+    "generatedPalette": {
+      "lightBluePlates": "#75c9ff",
+      "darkGreenUnderarmor": "#123f2f",
+      "redHelmetFeathers": "#c92f2f",
+      "cyanEyeholes": "#36fff3",
+      "shadowBlueBackplates": "#3e8fc4",
+      "steelProps": "#b8b1a2"
+    }
+  },
+  "role": "Imported Vanguard review model with embedded sword and source animation clips. This is an imported character/clip inspection lane, not Meshy accepted pose truth.",
+  "rootMotion": {
+    "sidecar": "public/assets/vanguard/vanguard_root_motion.json",
+    "schema": "pose-lab-v2-vanguard-root-motion-v1",
+    "rootBone": "root",
+    "applyInPoseLab": false,
+    "suppression": "Pose Lab V2 resets the imported root bone to its rest local position after AnimationMixer updates so preview clips stay in-place.",
+    "clipsWithMotion": [
+      "RunForwardOld",
+      "SpinAttack",
+      "SwordAttack1",
+      "SwordAttack2",
+      "SwordAttack3",
+      "SwordAttack4",
+      "SwordAttack5"
+    ]
+  }
+}

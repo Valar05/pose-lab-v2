@@ -1,0 +1,232 @@
+{
+  "schema": "pose-lab-v2-crimson-runtime-asset-v1",
+  "sourceDownloads": {
+    "rigArchive": "/storage/emulated/0/Download/Meshy_AI_Crimson_Plume_Knight_biped.zip",
+    "rigWalkingEntry": "Meshy_AI_Crimson_Plume_Knight_biped/Meshy_AI_Crimson_Plume_Knight_biped_Animation_Walking_withSkin.glb",
+    "rigRunningEntry": "Meshy_AI_Crimson_Plume_Knight_biped/Meshy_AI_Crimson_Plume_Knight_biped_Animation_Running_withSkin.glb",
+    "staticPbrCharacter": "/storage/emulated/0/Download/Meshy_AI_Crimson_Plume_Knight_0717211804_texture.glb",
+    "staticPbrSword": "/storage/emulated/0/Download/Meshy_AI_Arborblade_0717211756_texture.glb"
+  },
+  "runtimeGlb": "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb",
+  "swordGlb": "public/assets/crimson/arborblade_sword.glb",
+  "buildScript": "tools/import_crimson/build_crimson_assets.mjs",
+  "skeleton": {
+    "root": "Armature",
+    "jointCount": 24,
+    "joints": [
+      "Hips",
+      "LeftUpLeg",
+      "LeftLeg",
+      "LeftFoot",
+      "LeftToeBase",
+      "RightUpLeg",
+      "RightLeg",
+      "RightFoot",
+      "RightToeBase",
+      "Spine02",
+      "Spine01",
+      "Spine",
+      "LeftShoulder",
+      "LeftArm",
+      "LeftForeArm",
+      "LeftHand",
+      "RightShoulder",
+      "RightArm",
+      "RightForeArm",
+      "RightHand",
+      "neck",
+      "Head",
+      "head_end",
+      "headfront"
+    ],
+    "rightHand": true,
+    "rightForeArm": true,
+    "rightArm": true
+  },
+  "animations": [
+    {
+      "name": "CrimsonPlumeKnight|walking|baselayer",
+      "channels": 72,
+      "samplers": 72
+    },
+    {
+      "name": "CrimsonPlumeKnight|running|baselayer",
+      "channels": 72,
+      "samplers": 72
+    }
+  ],
+  "materialStatus": {
+    "staticCharacterPbrChannels": {
+      "baseColorTexture": true,
+      "metallicRoughnessTexture": true,
+      "normalTexture": true,
+      "emissiveTexture": true
+    },
+    "swordPbrChannels": {
+      "baseColorTexture": true,
+      "metallicRoughnessTexture": true,
+      "normalTexture": true,
+      "emissiveTexture": true
+    }
+  },
+  "bounds": {
+    "staticCharacter": {
+      "min": [
+        -0.3085939884185791,
+        -0.5,
+        -0.1484380066394806
+      ],
+      "max": [
+        0.30664101243019104,
+        0.5,
+        0.14746099710464478
+      ],
+      "size": [
+        0.6152350008487701,
+        1,
+        0.29589900374412537
+      ],
+      "dominantAxis": "y",
+      "dominantAxisVector": [
+        0,
+        1,
+        0
+      ]
+    },
+    "sword": {
+      "min": [
+        -0.0896,
+        -0.023987,
+        -0.099805
+      ],
+      "max": [
+        0.0896,
+        0.023987,
+        0.898242
+      ],
+      "size": [
+        0.179199,
+        0.047974,
+        0.998047
+      ],
+      "dominantAxis": "z"
+    }
+  },
+  "saberGrip": {
+    "schema": "pose-lab-v2-crimson-sword-calibration-v1",
+    "status": "offline-normalized-not-hosted-visual-accepted",
+    "targetCharacter": "crimson",
+    "swordAsset": "public/assets/crimson/arborblade_sword.glb",
+    "sourceSwordAsset": "/storage/emulated/0/Download/Meshy_AI_Arborblade_0717211756_texture.glb",
+    "sourceSwordSha256": "8e8d2f48aa2e271009e982a0ad0834094dc14c29ed8897f0544b35c2e670afe2",
+    "hierarchy": [
+      "RightHand",
+      "SaberGrip",
+      "ArborbladeSword"
+    ],
+    "saberGripLocal": {
+      "parentBone": "RightHand",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotationDeg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        88,
+        88,
+        88
+      ]
+    },
+    "swordLocal": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotationDeg": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "sourceBladeLocalAxis": [
+      0,
+      1,
+      0
+    ],
+    "bladeLocalAxis": [
+      0,
+      0,
+      1
+    ],
+    "hiltLocalPoint": [
+      0,
+      0,
+      0
+    ],
+    "tipLocalPoint": [
+      0,
+      0,
+      0.898242
+    ],
+    "pommelLocalPoint": [
+      0,
+      0,
+      -0.099805
+    ],
+    "normalizedBounds": {
+      "min": [
+        -0.0896,
+        -0.023987,
+        -0.099805
+      ],
+      "max": [
+        0.0896,
+        0.023987,
+        0.898242
+      ],
+      "size": [
+        0.179199,
+        0.047974,
+        0.998047
+      ],
+      "dominantAxis": "z"
+    },
+    "acceptanceNote": "Offline asset normalization makes hilt origin and +Z blade direction deterministic. Hosted visual review is still required before claiming Crimson socket acceptance."
+  },
+  "vanguardReference": {
+    "sourceGlb": "public/assets/vanguard/vanguard_rigged_animations.glb",
+    "sourceClip": "SwordAttack1",
+    "usePolicy": "reference timing and visible blade/hand predicates only; do not copy Vanguard Weapon.R transforms directly onto Crimson",
+    "rootMotionPolicy": "save sidecar data for game use; do not apply root motion in Pose Lab"
+  },
+  "acceptance": {
+    "localChecksAreGuardrails": true,
+    "hostedCloudReviewRequired": true,
+    "currentState": "offline-normalized-sword-socket-pending-hosted-review"
+  },
+  "swordNormalization": {
+    "script": "tools/import_crimson/normalize_crimson_sword.mjs",
+    "runtimeSword": "public/assets/crimson/arborblade_sword.glb",
+    "bladeLocalAxis": [
+      0,
+      0,
+      1
+    ],
+    "hiltLocalPoint": [
+      0,
+      0,
+      0
+    ]
+  }
+}

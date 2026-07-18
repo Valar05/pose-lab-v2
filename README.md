@@ -122,11 +122,85 @@ channels from the downloaded textured GLB. The original merged source remains at
 ?model=meshy
 ?model=ares
 ?model=security-titan
+?model=vanguard
+?model=vanguard&clip=SwordAttack1
 ```
 
 The imported character routes are for direct manual posing and contact
 sheet/source-art preparation. They do not use Meshy Ready, Attack1, fist hands,
 or the real sabre placement lane unless the Meshy model is explicitly selected.
+
+
+## Crimson Plume Knight / Arborblade
+
+The new Meshy downloads are imported as a staged Crimson authoring lane:
+
+```text
+public/assets/crimson/crimson_plume_knight_rigged_pbr.glb
+public/assets/crimson/arborblade_sword.glb
+public/assets/crimson/crimson_sword_calibration.json
+public/assets/crimson/crimson_model_viewer_constraints.json
+public/assets/crimson/vanguard_swordattack1_reference.json
+```
+
+Use:
+
+```sh
+npm run build:crimson
+npm run validate:crimson-model-viewer-constraints
+npm run test:crimson-model-viewer-constraints
+npm run review:crimson-sword
+npm run review:crimson-sword-url
+npm run validate:crimson-sword-intake
+npm run accept:crimson-sword
+npm run validate:crimson-sword
+npm run reference:crimson:swordattack1
+```
+
+Review route:
+
+```text
+?model=crimson
+```
+
+This route uses the Crimson biped for the body and the real Arborblade static
+PBR sword under `RightHand -> SaberGrip -> ArborbladeSword`. Arborblade is
+offline-normalized before browser use: the runtime GLB origin is the hilt
+anchor, the blade points along local `+Z`, and the browser consumes the saved
+`crimson_sword_calibration.json` grip/sword-local contract. Manual transform
+tools remain useful for authoring, but they are not the basic import/socket
+calibration path. The current calibration is deliberately labeled
+`offline-normalized-not-hosted-visual-accepted`. Vanguard `SwordAttack1` is
+extracted as timing and relationship reference only; its `Weapon.R` transforms
+are not copied directly as accepted Crimson motion.
+The Crimson download package has walking/running only, so any SwordAttack1 must
+be authored as a quarantined candidate after grip/orientation review. Model-viewer constraints are now a fail-closed contract in `public/assets/crimson/crimson_model_viewer_constraints.json`: local Blender diagnostics must use the same asset paths, `RightHand -> SaberGrip -> ArborbladeSword` hierarchy, calibration transform, browser normalization policy, and review camera/viewport as the hosted model viewer. `npm run review:crimson-sword` validates that contract before Blender can render. Local Blender diagnostic renders for the normalized Crimson sword are written under ignored `generated/crimson-sword-calibration/`; they are agent eyesight, not hosted visual acceptance.
+
+Crimson sword checks are deliberately split. `npm run validate:crimson-sword-intake`
+only proves asset intake, normalized hilt origin, local `+Z` blade axis, material
+presence, and runtime wiring. It is a guardrail. Only
+`npm run accept:crimson-sword` can pass Crimson sword visual acceptance, and it
+requires a fresh hosted GitHub Pages screenshot evidence manifest at
+Only `npm run accept:crimson-sword` can pass Crimson sword visual acceptance.
+`generated/cloud-visual-evidence/crimson-sword/latest.json`. The manifest must
+match the current `crimson-sword-<git-sha>` cache token and explicitly assert
+that the real Arborblade is visible, the hilt is seated in the right hand, the
+blade projects forward from the wrist, the hand is not impaled, and no manual
+alignment was required. Local Android screenshots, localhost captures, Blender
+renders, deploy success, build output, and smoke output are rejected for this
+acceptance gate.
+
+Vanguard is exported from `/storage/emulated/0/Download/Vanguard.blend` into
+`public/assets/vanguard/vanguard_rigged_animations.glb`. The runtime GLB keeps
+the `Body`, `Long_Sword`, and `rig` objects plus 20 embedded Blender actions.
+Use `npm run inspect:vanguard` to refresh the scratch inventory and
+`npm run build:vanguard` to regenerate the runtime GLB. The source blend
+references external Windows texture paths that were not packed. The runtime
+applies a generated palette: light blue plates, dark green underarmor, red
+helmet feathers, cyan eyeholes, and bounded steel sword/props material. The
+original albedo files are still not present. Root
+motion is saved separately in `public/assets/vanguard/vanguard_root_motion.json`
+for game use and is intentionally suppressed in Pose Lab playback.
 
 ## Davin Tail Chain
 
@@ -224,6 +298,9 @@ npm run bake:attack2:candidate
 npm run build
 npm run smoke
 npm run review:attacks
+npm run review:crimson-sword-url
+npm run validate:crimson-sword-intake
+npm run accept:crimson-sword
 npm run cloud:agent-preflight
 npm run test:learning-packet
 npm run test:cloud-worker-surface
@@ -254,5 +331,7 @@ When waking a cloud URL:
 2. Verify the exact URL that was opened, including query string.
 3. Verify the module and real GLB assets referenced by that page.
 4. Treat those checks as blank-page diagnostics only.
-5. Do not claim visual success until the hosted page visibly renders the Meshy
-   character and real sabre.
+5. Do not claim visual success until the hosted page visibly renders the requested
+   character and real weapon relationship.
+6. For Crimson sword work, do not use the word "pass" unless
+   `npm run accept:crimson-sword` passed against cloud screenshot evidence.

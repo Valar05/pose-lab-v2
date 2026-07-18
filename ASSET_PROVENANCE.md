@@ -1,6 +1,28 @@
 # Asset Provenance
 
 
+
+## Crimson Plume Knight / Arborblade
+
+- Runtime character file: `public/assets/crimson/crimson_plume_knight_rigged_pbr.glb`
+- Runtime sword file: `public/assets/crimson/arborblade_sword.glb`
+- Runtime manifest: `public/assets/crimson/crimson_manifest.json`
+- Sword calibration: `public/assets/crimson/crimson_sword_calibration.json`
+- Model-viewer constraint contract: `public/assets/crimson/crimson_model_viewer_constraints.json`
+- Vanguard attack reference: `public/assets/crimson/vanguard_swordattack1_reference.json`
+- Rig source archive: `/storage/emulated/0/Download/Meshy_AI_Crimson_Plume_Knight_biped.zip`
+- Rig source files inside archive:
+  - `Meshy_AI_Crimson_Plume_Knight_biped/Meshy_AI_Crimson_Plume_Knight_biped_Animation_Walking_withSkin.glb`
+  - `Meshy_AI_Crimson_Plume_Knight_biped/Meshy_AI_Crimson_Plume_Knight_biped_Animation_Running_withSkin.glb`
+- Full character material source: `/storage/emulated/0/Download/Meshy_AI_Crimson_Plume_Knight_0717211804_texture.glb`
+- Full sword material source: `/storage/emulated/0/Download/Meshy_AI_Arborblade_0717211756_texture.glb`
+- Build script: `tools/import_crimson/build_crimson_assets.mjs` plus `tools/import_crimson/normalize_crimson_sword.mjs` (`npm run build:crimson`)
+- Offline review script: `tools/import_crimson/render_crimson_sword_calibration_blender.py` (`npm run review:crimson-sword`)
+- Hosted review URL script: `tools/crimson_sword_review_url.mjs` (`npm run review:crimson-sword-url`)
+- Cloud visual acceptance gate: `tools/require_crimson_cloud_visual_evidence.mjs` (`npm run accept:crimson-sword`)
+- Reference script: `tools/import_crimson/extract_vanguard_swordattack1_reference.mjs` (`npm run reference:crimson:swordattack1`)
+- Role: Crimson Plume Knight authoring lane with a real static PBR Arborblade sword attached through `RightHand -> SaberGrip -> ArborbladeSword`. The biped source contributes skeleton, skin, walking, and running clips; the static character GLB contributes full PBR texture channels; the static sword GLB contributes the real sword mesh/material. The project-owned runtime sword is a normalized derivative with the hilt anchor at local origin and the blade pointing along local +Z; source download bytes remain the provenance input. The calibration records this offline-normalized socket contract and does not claim hosted visual acceptance. Local Blender diagnostics are fail-closed against the model-viewer constraint contract and cannot invent independent sword placement, scale, camera, or hierarchy. Crimson sword visual acceptance is blocked until `generated/cloud-visual-evidence/crimson-sword/latest.json` contains fresh hosted screenshot evidence accepted by `npm run accept:crimson-sword`. Vanguard `SwordAttack1` is reference-only timing/relationship evidence for a later quarantined Crimson attack candidate.
+
 ## Davin Wingsworth / Kestrel Man
 
 - Source merged file: `public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr.glb`
@@ -45,6 +67,19 @@
 - Sidecar texture copy: `public/assets/ares/security_titan_texture_0.png`
 - Source sidecar texture: `../gravity-fist-threejs/assets/models/SecurityTitan_texture_0.png`
 - Role: imported Mixamo-rigged SecurityTitan authoring model for manual Pose Lab V2 pose work. It is selectable with `?model=security-titan` and shares the same logical-to-Mixamo pose-control mapping. It is kept separate from the Meshy saber-placement baseline.
+
+## Vanguard
+
+- Runtime file: `public/assets/vanguard/vanguard_rigged_animations.glb`
+- Runtime manifest: `public/assets/vanguard/vanguard_manifest.json`
+- Source blend: `/storage/emulated/0/Download/Vanguard.blend`
+- Build script: `tools/import_vanguard/export_vanguard_glb.py` (`npm run build:vanguard`)
+- Inspect script: `tools/import_vanguard/inspect_vanguard_blend.py` (`npm run inspect:vanguard`)
+- Exported objects: `Body`, `Long_Sword`, and `rig`; Rigify widget meshes are excluded.
+- Embedded clips: 20 source actions, including `Idle`, `ClubIdle`, `RunForwardOld`, `SpinAttack`, `SwordAttack1` through `SwordAttack5`, midair sword attacks, jump, land, and ledge clips.
+- Texture status: the blend references `D:/Unity/Warrior Apocalypse/Assets/Textures/LowPolyPropsAlbedoVanguard.jpeg` and `D:/Unity/Warrior Apocalypse/Assets/Textures/Vanguard_albedo.jpeg`, but those images were not packed and loaded as 0x0 missing images during import. The runtime applies a generated fallback palette because the exported body vertex colors are white: light blue plates, dark green underarmor, red helmet feathers, cyan eyeholes, and bounded steel for the sword/props until the original albedo files are recovered.
+- Root motion sidecar: `public/assets/vanguard/vanguard_root_motion.json`, extracted from `pose.bones["root"].location` at 60 fps. Pose Lab does not apply this root motion; the browser resets the imported `root` bone after animation updates so clips preview in-place while game locomotion data remains available.
+- Role: imported Vanguard character/animation inspection lane selectable with `?model=vanguard` and playable with `?model=vanguard&clip=ClipName`. It is not Meshy accepted pose truth and does not use Meshy Ready, Attack1, fist hands, or the real sabre placement lane.
 
 ## Three.js Runtime
 
