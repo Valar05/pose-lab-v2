@@ -60,6 +60,14 @@ look.
 Local render is not final acceptance for this repo. The hosted cloud page remains
 the review surface.
 
+## Crimson Three-Step Reconciliation
+
+Crimson sword work must always run in this order and must not stop after only one surface looks good:
+
+1. Fix it for Blender: the constrained Blender diagnostic must use the same model-viewer contract, dark canvas background, visible sword material policy, hierarchy, camera, normalization, and socket values as Pose Lab.
+2. Verify Pose Lab works: the hosted Pose Lab route must expose browser-side socket proof for the real Arborblade, including attachment, hilt/tip screen coordinates, visible viewport bounds, and blade screen length.
+3. Reconcile the two: if Blender and Pose Lab disagree, the build is red until the shared contract or runtime is corrected. Do not claim progress from Blender-only renders, Pose-Lab-only telemetry, smoke, build, deploy, or stale screenshots.
+
 ## Smoke Is Not Visual Acceptance
 
 `npm run smoke` is useful because it blocks known poison patterns and missing

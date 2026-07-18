@@ -171,6 +171,13 @@ function main() {
   for (const key of REQUIRED_ASSERTIONS) {
     if (assertions[key] !== true) errors.push(`visual assertion must be true: ${key}`);
   }
+  const browserSocketProof = evidence.browserSocketProof || evidence.poseLabSocketProof || {};
+  if (browserSocketProof.status !== 'attached') errors.push('browserSocketProof.status must be attached');
+  if (browserSocketProof.parentBone !== 'RightHand') errors.push('browserSocketProof.parentBone must be RightHand');
+  if (browserSocketProof.visibleInViewport !== true) errors.push('browserSocketProof.visibleInViewport must be true');
+  if (!(Number(browserSocketProof.screenLengthPx) >= 12)) errors.push('browserSocketProof.screenLengthPx must show a visible blade length');
+  if (!(Number(browserSocketProof.bladeWorldLength) >= 0.5)) errors.push('browserSocketProof.bladeWorldLength must be nonzero and sword-sized');
+  if (!Array.isArray(browserSocketProof.hiltScreen) || !Array.isArray(browserSocketProof.tipScreen)) errors.push('browserSocketProof must include hiltScreen and tipScreen');
   if (errors.length) fail(errors, evidenceFile);
   console.log(JSON.stringify({
     ok: true,

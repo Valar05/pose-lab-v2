@@ -170,11 +170,11 @@ anchor, the blade points along local `+Z`, and the browser consumes the saved
 `crimson_sword_calibration.json` grip/sword-local contract. Manual transform
 tools remain useful for authoring, but they are not the basic import/socket
 calibration path. The current calibration is deliberately labeled
-`offline-normalized-not-hosted-visual-accepted`. Vanguard `SwordAttack1` is
+`offline-socket-calibrated-not-hosted-visual-accepted`. Vanguard `SwordAttack1` is
 extracted as timing and relationship reference only; its `Weapon.R` transforms
 are not copied directly as accepted Crimson motion.
 The Crimson download package has walking/running only, so any SwordAttack1 must
-be authored as a quarantined candidate after grip/orientation review. Model-viewer constraints are now a fail-closed contract in `public/assets/crimson/crimson_model_viewer_constraints.json`: local Blender diagnostics must use the same asset paths, `RightHand -> SaberGrip -> ArborbladeSword` hierarchy, calibration transform, browser normalization policy, and review camera/viewport as the hosted model viewer. `npm run review:crimson-sword` validates that contract before Blender can render. Local Blender diagnostic renders for the normalized Crimson sword are written under ignored `generated/crimson-sword-calibration/`; they are agent eyesight, not hosted visual acceptance.
+be authored as a quarantined candidate after grip/orientation review. Model-viewer constraints are now a fail-closed contract in `public/assets/crimson/crimson_model_viewer_constraints.json`: local Blender diagnostics must use the same asset paths, `RightHand -> SaberGrip -> ArborbladeSword` hierarchy, calibration transform, browser normalization policy, and review camera/viewport as the hosted model viewer. `npm run review:crimson-sword` validates that contract before Blender can render. Local Blender diagnostic renders for the normalized Crimson sword are written under ignored `generated/crimson-sword-calibration/`; they are agent eyesight, not hosted visual acceptance. Crimson sword work must pass the three-step loop: fix the constrained Blender view, verify hosted Pose Lab browser socket proof, then reconcile both surfaces before reporting.
 
 Crimson sword checks are deliberately split. `npm run validate:crimson-sword-intake`
 only proves asset intake, normalized hilt origin, local `+Z` blade axis, material

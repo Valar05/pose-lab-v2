@@ -153,6 +153,24 @@ def find_right_hand_matrix(objects: list[bpy.types.Object]) -> Matrix:
     raise RuntimeError('Crimson armature did not expose RightHand')
 
 
+def apply_crimson_sword_review_material(sword_objects: list[bpy.types.Object]) -> None:
+    material = bpy.data.materials.new('CrimsonArborbladeVisibleSteel')
+    material.use_nodes = True
+    bsdf = material.node_tree.nodes.get('Principled BSDF')
+    if bsdf:
+        bsdf.inputs['Base Color'].default_value = (0.58, 0.68, 0.74, 1.0)
+        bsdf.inputs['Metallic'].default_value = 0.78
+        bsdf.inputs['Roughness'].default_value = 0.34
+        bsdf.inputs['Emission Color'].default_value = (0.02, 0.07, 0.08, 1.0)
+        bsdf.inputs['Emission Strength'].default_value = 0.16
+    material.diffuse_color = (0.58, 0.68, 0.74, 1.0)
+    for obj in sword_objects:
+        if obj.type != 'MESH':
+            continue
+        obj.data.materials.clear()
+        obj.data.materials.append(material)
+
+
 def attach_sword_to_contract(character_objects: list[bpy.types.Object], sword_objects: list[bpy.types.Object], contract: dict) -> Matrix:
     hand_world = find_right_hand_matrix(character_objects)
     socket_world = hand_world @ transform_matrix(contract['saberGripLocal']) @ transform_matrix(contract['swordLocal'])
@@ -173,7 +191,7 @@ def setup_scene(contract: dict, samples: int) -> bpy.types.Object:
     scene.render.resolution_y = height
     scene.view_settings.view_transform = 'Filmic'
     scene.view_settings.look = 'Medium High Contrast'
-    scene.world.color = (0.045, 0.05, 0.055)
+    scene.world.color = (16 / 255, 19 / 255, 21 / 255)
     camera = bpy.data.objects.new('crimson_model_viewer_contract_camera', bpy.data.cameras.new('crimson_model_viewer_contract_camera'))
     bpy.context.collection.objects.link(camera)
     scene.camera = camera
@@ -240,6 +258,7 @@ def main() -> None:
     character_objects = import_glb(character_path)
     normalize_character(character_objects, contract)
     sword_objects = import_glb(sword_path)
+    apply_crimson_sword_review_material(sword_objects)
     socket_world = attach_sword_to_contract(character_objects, sword_objects, contract)
     socket_origin = socket_world @ Vector((0, 0, 0))
     add_axis_marker(socket_origin, 0.75)

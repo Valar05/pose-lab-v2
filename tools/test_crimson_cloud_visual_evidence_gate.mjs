@@ -43,6 +43,15 @@ function writeEvidence(dir, overrides = {}) {
       noHandImpale: true,
       noManualAlignmentRequired: true,
     },
+    browserSocketProof: {
+      status: 'attached',
+      parentBone: 'RightHand',
+      visibleInViewport: true,
+      screenLengthPx: 96,
+      bladeWorldLength: 1.02,
+      hiltScreen: [180, 420],
+      tipScreen: [82, 405],
+    },
     ...overrides,
   };
   if (overrides.assertions) evidence.assertions = { ...evidence.assertions, ...overrides.assertions };
@@ -58,6 +67,7 @@ expectFail('Android screenshot evidence', ['--evidence', writeEvidence(tmp, { sc
 expectFail('stale cache evidence', ['--evidence', writeEvidence(tmp, { cacheBust: 'crimson-sword-old', hostedUrl: 'https://valar05.github.io/pose-lab-v2/?model=crimson&cacheBust=crimson-sword-old' }), '--allow-fixture'], /cacheBust/);
 expectFail('false hilt evidence', ['--evidence', writeEvidence(tmp, { assertions: { hiltSeatedInHand: false } }), '--allow-fixture'], /hiltSeatedInHand/);
 expectFail('red visual read evidence', ['--evidence', writeEvidence(tmp, { visualRead: 'Hosted screenshot is red: hilt is not seated and sword is behind the wrist, not held.' }), '--allow-fixture'], /visualRead still describes a red/);
+expectFail('missing browser socket proof', ['--evidence', writeEvidence(tmp, { browserSocketProof: { status: 'attached' } }), '--allow-fixture'], /browserSocketProof/);
 
 const passing = run(['--evidence', writeEvidence(tmp), '--allow-fixture']);
 assert(passing.status === 0, `mock hosted cloud evidence should pass fixture gate: ${passing.stderr || passing.stdout}`);
@@ -66,4 +76,4 @@ const report = JSON.parse(passing.stdout);
 assert(report.ok === true && report.classification === 'visual-acceptance', 'passing fixture report must be visual-acceptance');
 
 if (failures.length) throw new Error(failures.join('\n'));
-console.log(JSON.stringify({ ok: true, checked: ['missing', 'localhost', 'android-screenshot', 'stale-cache', 'false-hilt', 'red-read', 'mock-pass'] }, null, 2));
+console.log(JSON.stringify({ ok: true, checked: ['missing', 'localhost', 'android-screenshot', 'stale-cache', 'false-hilt', 'red-read', 'browser-socket-proof', 'mock-pass'] }, null, 2));

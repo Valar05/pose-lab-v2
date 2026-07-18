@@ -454,6 +454,13 @@ const saberAttachmentProof = {
   parentBone: null,
   hiltToHandDistance: null,
   swordWorldScale: null,
+  bladeWorldLength: null,
+  bladeWorldDirection: null,
+  hiltScreen: null,
+  tipScreen: null,
+  screenLengthPx: null,
+  screenBounds: null,
+  visibleInViewport: false,
 };
 
 const readyProof = {
@@ -768,6 +775,10 @@ function activeSwordLocal() {
   return ACTIVE_CHARACTER.swordLocal || { position: [0, 0, 0], rotationDeg: [0, 0, 0], scale: [1, 1, 1] };
 }
 
+function activeSaberTipLocalPoint() {
+  return ACTIVE_CHARACTER.key === 'crimson' ? [0, 0, 0.898242] : null;
+}
+
 function activeSaberAsset() {
   return ACTIVE_CHARACTER.saberAsset || ASSETS.sabre;
 }
@@ -921,6 +932,22 @@ function applyVanguardMaterialRecovery(object) {
   });
 }
 
+function applyCrimsonSwordReviewMaterial(object) {
+  if (ACTIVE_CHARACTER.key !== 'crimson') return;
+  object.traverse((node) => {
+    if (!node.isMesh) return;
+    node.material = new THREE.MeshStandardMaterial({
+      name: 'CrimsonArborbladeVisibleSteel',
+      color: 0xc8d6df,
+      emissive: 0x182a30,
+      roughness: 0.34,
+      metalness: 0.78,
+      side: THREE.DoubleSide,
+    });
+    node.renderOrder = 3;
+  });
+}
+
 function ensureFpvBodyMasks() {
   if (fpvBodyMasksReady || !meshyRoot) return;
   fpvBodyMasksReady = true;
@@ -972,6 +999,7 @@ function prepareSabre(object) {
       node.receiveShadow = false;
     }
   });
+  applyCrimsonSwordReviewMaterial(object);
   return object;
 }
 
@@ -1121,6 +1149,52 @@ function orientationProbe(position, quaternion, localAxis, length) {
   };
 }
 
+function worldBoundsForObject(object) {
+  object.updateMatrixWorld(true);
+  const box = new THREE.Box3();
+  const corner = new THREE.Vector3();
+  object.traverse((node) => {
+    if (!node.isMesh || !node.geometry) return;
+    if (!node.geometry.boundingBox) node.geometry.computeBoundingBox();
+    const geometryBox = node.geometry.boundingBox;
+    for (const x of [geometryBox.min.x, geometryBox.max.x]) {
+      for (const y of [geometryBox.min.y, geometryBox.max.y]) {
+        for (const z of [geometryBox.min.z, geometryBox.max.z]) {
+          corner.set(x, y, z).applyMatrix4(node.matrixWorld);
+          box.expandByPoint(corner);
+        }
+      }
+    }
+  });
+  return box;
+}
+
+function screenBoundsForWorldBox(box) {
+  const rect = canvas.getBoundingClientRect();
+  if (box.isEmpty()) return null;
+  const min = new THREE.Vector2(Infinity, Infinity);
+  const max = new THREE.Vector2(-Infinity, -Infinity);
+  const point = new THREE.Vector3();
+  for (const x of [box.min.x, box.max.x]) {
+    for (const y of [box.min.y, box.max.y]) {
+      for (const z of [box.min.z, box.max.z]) {
+        point.set(x, y, z);
+        const screen = worldToScreenPixels(point);
+        min.x = Math.min(min.x, screen.x);
+        min.y = Math.min(min.y, screen.y);
+        max.x = Math.max(max.x, screen.x);
+        max.y = Math.max(max.y, screen.y);
+      }
+    }
+  }
+  return {
+    min: [fixedNumber(min.x, 1), fixedNumber(min.y, 1)],
+    max: [fixedNumber(max.x, 1), fixedNumber(max.y, 1)],
+    size: [fixedNumber(max.x - min.x, 1), fixedNumber(max.y - min.y, 1)],
+    intersectsViewport: max.x >= 0 && max.y >= 0 && min.x <= rect.width && min.y <= rect.height,
+  };
+}
+
 function updateSaberAttachmentProof() {
   if (!ACTIVE_CHARACTER.supportsSaber || !saberGrip || !sabreRoot) return;
   root.updateMatrixWorld(true);
@@ -1128,14 +1202,34 @@ function updateSaberAttachmentProof() {
   const hilt = objectWorldPosition(saberGrip);
   const handPosition = hand ? objectWorldPosition(hand) : null;
   const swordScale = objectWorldScale(sabreRoot);
+  const tipLocal = activeSaberTipLocalPoint();
+  const tip = Array.isArray(tipLocal)
+    ? sabreRoot.localToWorld(new THREE.Vector3(...tipLocal))
+    : orientationProbe(objectWorldPosition(sabreRoot), objectWorldQuaternion(sabreRoot), sabreBladeLocalAxis(), SABRE_AXIS_PROOF_LENGTH).end;
+  const bladeVector = tip.clone().sub(hilt);
+  const hiltScreen = worldToScreenPixels(hilt);
+  const tipScreen = worldToScreenPixels(tip);
+  const screenBounds = screenBoundsForWorldBox(worldBoundsForObject(sabreRoot));
+  const screenLengthPx = hiltScreen.distanceTo(tipScreen);
   saberAttachmentProof.status = hand && saberGrip.parent === hand ? 'attached' : 'detached';
   saberAttachmentProof.parentBone = saberGrip.parent?.name || null;
   saberAttachmentProof.hiltToHandDistance = handPosition ? fixedNumber(hilt.distanceTo(handPosition), 5) : null;
   saberAttachmentProof.swordWorldScale = vectorToFixedArray(swordScale);
+  saberAttachmentProof.bladeWorldLength = fixedNumber(bladeVector.length(), 5);
+  saberAttachmentProof.bladeWorldDirection = vectorToFixedArray(bladeVector.normalize());
+  saberAttachmentProof.hiltScreen = [fixedNumber(hiltScreen.x, 1), fixedNumber(hiltScreen.y, 1)];
+  saberAttachmentProof.tipScreen = [fixedNumber(tipScreen.x, 1), fixedNumber(tipScreen.y, 1)];
+  saberAttachmentProof.screenLengthPx = fixedNumber(screenLengthPx, 1);
+  saberAttachmentProof.screenBounds = screenBounds;
+  saberAttachmentProof.visibleInViewport = Boolean(screenBounds?.intersectsViewport && screenLengthPx >= 12);
   document.body.dataset.saberAttachmentStatus = saberAttachmentProof.status;
   document.body.dataset.saberAttachmentParent = saberAttachmentProof.parentBone || '';
   document.body.dataset.saberAttachmentDistance = String(saberAttachmentProof.hiltToHandDistance ?? '');
   document.body.dataset.saberWorldScale = JSON.stringify(saberAttachmentProof.swordWorldScale);
+  document.body.dataset.saberBladeWorldLength = String(saberAttachmentProof.bladeWorldLength ?? '');
+  document.body.dataset.saberScreenLengthPx = String(saberAttachmentProof.screenLengthPx ?? '');
+  document.body.dataset.saberVisibleInViewport = String(saberAttachmentProof.visibleInViewport);
+  document.body.dataset.crimsonSocketProof = JSON.stringify(saberAttachmentProof);
 }
 
 function readySnapshot() {

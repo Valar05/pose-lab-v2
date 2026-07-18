@@ -425,6 +425,8 @@ assert(main.includes('function activeSwordLocal()') && main.includes('sabreRoot.
 assert(!main.includes('rightHand.attach(grip)') && !main.includes('grip.attach(sabreRoot)'), 'SaberGrip must not preserve world placement through Object3D.attach');
 assert(main.includes('function editableSaber()') && main.includes('return saberGrip || sabreRoot'), 'direct transforms must target SaberGrip after hand parenting');
 assert(main.includes('function updateSaberAttachmentProof()') && main.includes('saberAttachmentStatus') && main.includes('hiltToHandDistance'), 'runtime must measure whether the sword hilt is attached to the active RightHand');
+assert(main.includes('applyCrimsonSwordReviewMaterial') && main.includes('CrimsonArborbladeVisibleSteel'), 'runtime must lift Crimson Arborblade material so the real sword is visible on the dark review canvas');
+assert(main.includes('dataset.crimsonSocketProof') && main.includes('visibleInViewport') && main.includes('screenLengthPx'), 'runtime must expose browser-side Crimson socket proof for cloud evidence reconciliation');
 assert(main.includes('supportsAttackReview: false') && main.includes('function canExposeAttackReview()'), 'Crimson locomotion-only route must not expose fake Attack1 review controls');
 assert(main.includes("parentBone: 'RightHand'"), 'export must report SaberGrip as RightHand-owned');
 assert(main.includes("let toolMode = 'saber'") && main.includes('data-tool="saber"') && main.includes('data-tool="pose"'), 'app must distinguish top-level Saber and Pose modes');
