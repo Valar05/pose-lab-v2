@@ -14,6 +14,24 @@ right.
 If a screenshot or cloud review is red, the build is red until fresh visual
 evidence shows the requested relationship is correct.
 
+
+## Red Until Visual Proof
+
+Every Blender render, browser screenshot, contact sheet, and cloud capture starts
+as red evidence. It becomes useful only after a human-readable expected-vs-actual
+visual read proves the requested relationship in the accepted lane.
+
+Blender is a diagnostic authoring surface. It may catch blank output, missing
+meshes, impossible pivots, wrong scale, wrong bounds, bad materials, or a visibly
+wrong sword before promotion. It cannot accept Crimson sword work. A Blender
+render can only reject the build or justify promoting the same constrained state
+to hosted cloud review.
+
+Telemetry is reject-only. Socket proof, blade vectors, hilt/tip numbers, build
+IDs, route labels, deploy status, and Playwright wait conditions may explain or
+block a capture, but they cannot green-light a sword, pose, material, or hand
+relationship when the pixels are wrong or uninspected.
+
 ## Required Order
 
 1. Read the newest relevant visual evidence first.
@@ -133,3 +151,10 @@ mirrors the browser model-viewer assets, hierarchy, calibration transform,
 normalization, and camera. If Blender needs a different camera, scale, socket,
 or placement to look good, the diagnostic is invalid and must fail before any
 render is treated as useful.
+
+The hosted Crimson cloud QA workflow must use the runner's system Chrome channel
+and must not install Chromium during the review job. Installing a fresh Chromium
+browser in the cloud lane changes the review environment, slows the loop, and
+turns a visual acceptance run into environment bootstrap. If system Chrome is
+unavailable, the cloud lane is blocked and must be repaired without accepting
+local or telemetry evidence as a substitute.

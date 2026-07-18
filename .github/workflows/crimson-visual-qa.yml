@@ -19,9 +19,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install --no-save playwright
-      - run: npx playwright install --with-deps chromium
+      - name: Install Playwright package without browser download
+        run: npm install --no-save playwright
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      - name: Verify system Chrome
+        run: google-chrome --version
       - name: Capture hosted Crimson visual evidence
+        env:
+          PLAYWRIGHT_CHROME_CHANNEL: chrome
         run: >-
           node tools/github_crimson_visual_capture.mjs
           --url "${{ inputs.url }}"

@@ -65,6 +65,16 @@ function socketProof(debugPayload) {
   catch (error) { return { status: 'invalid-json', parseError: error.message }; }
 }
 
+function browserLaunchOptions() {
+  const channel = process.env.PLAYWRIGHT_CHROME_CHANNEL || (process.env.CI ? 'chrome' : '');
+  const options = {
+    headless: true,
+    args: ['--no-sandbox', '--disable-dev-shm-usage', '--use-gl=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist'],
+  };
+  if (channel) options.channel = channel;
+  return options;
+}
+
 const args = parseArgs(process.argv);
 const outDir = path.resolve(args.outDir);
 await fs.mkdir(outDir, { recursive: true });
@@ -72,10 +82,8 @@ const consoleEvents = [];
 const pageErrors = [];
 const networkFailures = [];
 const responseStatuses = [];
-const browser = await chromium.launch({
-  headless: true,
-  args: ['--no-sandbox', '--disable-dev-shm-usage', '--use-gl=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist'],
-});
+const launchOptions = browserLaunchOptions();
+const browser = await chromium.launch(launchOptions);
 try {
   const page = await browser.newPage({ viewport: { width: 1366, height: 900 }, deviceScaleFactor: 1 });
   page.on('console', (message) => consoleEvents.push({ type: message.type(), text: message.text().slice(0, 1000) }));
@@ -107,7 +115,13 @@ try {
     capturedAt: new Date().toISOString(),
     screenshotPath,
     screenshotSha256: sha256(screenshotBytes),
-    surface: { runtime: 'github-actions-playwright', browser: 'chromium', mode: 'desktop', viewport: { width: 1366, height: 900 } },
+    surface: {
+      runtime: 'github-actions-playwright',
+      browser: 'system-chrome',
+      channel: launchOptions.channel || 'playwright-default',
+      mode: 'desktop',
+      viewport: { width: 1366, height: 900 },
+    },
     browserSocketProof: socketProof(debugPayload),
     debugPayload,
     consoleEvents,
