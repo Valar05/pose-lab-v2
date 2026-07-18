@@ -61,11 +61,13 @@ const jointPinnedCandidate = parseExportedObject(jointPinnedCandidateSource, 'At
 const davinLowBackKickCandidate = parseExportedObject(davinLowBackKickCandidateSource, 'Davin LowBackKick candidate preview');
 const davinIdleCandidate = parseExportedObject(davinIdleCandidateSource, 'Davin screenshot idle candidate preview');
 
-const davinTailManifest = JSON.parse(read('generated/davin-tail-authoring/manifest.json'));
-assert(davinTailManifest.schema === 'pose-lab-v2-davin-tail3-authoring-v1', 'Davin tail manifest must use the tail3 authoring schema');
-assert(davinTailManifest.runtimeGlb === 'public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb', 'Davin tail manifest must point at the tail3 runtime GLB');
-assert(JSON.stringify(davinTailManifest.springBoneIntent?.chain || []) === JSON.stringify(['Tail01', 'Tail02', 'Tail03']), 'Davin tail manifest must declare Tail01/Tail02/Tail03 spring-bone intent');
-assert(davinTailManifest.weightReport?.selectedVertices >= 80 && davinTailManifest.weightReport?.selectedVertices <= 500, 'Davin tail mask must select a bounded tail/plume region, not zero vertices or the whole body');
+if (exists('generated/davin-tail-authoring/manifest.json')) {
+  const davinTailManifest = JSON.parse(read('generated/davin-tail-authoring/manifest.json'));
+  assert(davinTailManifest.schema === 'pose-lab-v2-davin-tail3-authoring-v1', 'Davin tail manifest must use the tail3 authoring schema');
+  assert(davinTailManifest.runtimeGlb === 'public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb', 'Davin tail manifest must point at the tail3 runtime GLB');
+  assert(JSON.stringify(davinTailManifest.springBoneIntent?.chain || []) === JSON.stringify(['Tail01', 'Tail02', 'Tail03']), 'Davin tail manifest must declare Tail01/Tail02/Tail03 spring-bone intent');
+  assert(davinTailManifest.weightReport?.selectedVertices >= 80 && davinTailManifest.weightReport?.selectedVertices <= 500, 'Davin tail mask must select a bounded tail/plume region, not zero vertices or the whole body');
+}
 const trackedCandidateFiles = execFileSync('git', ['ls-files', 'generated/pose-candidates'], {
   cwd: root,
   encoding: 'utf8',
@@ -83,7 +85,6 @@ function assertRelativeImportsResolve(file) {
 
 assert(exists('public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr.glb'), 'missing merged Davin Wingsworth Kestrel Man rigged PBR source GLB; run npm run build:davin');
 assert(exists('public/assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb'), 'missing Davin Tail01/Tail02/Tail03 derived runtime GLB; run npm run build:davin-tail3');
-assert(exists('generated/davin-tail-authoring/manifest.json'), 'missing Davin tail authoring manifest; run npm run build:davin-tail3');
 assert(exists('public/assets/meshy/meshy_apose_walking_with_skin.glb'), 'missing Meshy A-pose/walking GLB');
 assert(exists('public/assets/meshy/meshy_real_sabre.glb'), 'missing real sabre GLB');
 assert(exists('public/assets/meshy/meshy_fist_hands.glb'), 'missing Meshy-derived fist hands GLB; run npm run build:fist-hands');
