@@ -61,7 +61,7 @@ assert(JSON.stringify(calibration.bladeLocalAxis) === JSON.stringify([0, 0, 1]),
 assert(JSON.stringify(calibration.saberGripLocal?.scale) === JSON.stringify([88, 88, 88]), 'Crimson Arborblade grip scale must compensate Crimson RightHand armature scale so the normalized real sword is visible');
 assert(JSON.stringify(calibration.saberGripLocal?.rotationDeg) === JSON.stringify([96.50876, 0, -0.07512]), 'Crimson SaberGrip rotation must map the normalized +Z blade to character/world +Z from the actual RightHand basis');
 assert(JSON.stringify(calibration.hiltLocalPoint) === JSON.stringify([0, 0, 0]), 'normalized Arborblade hilt anchor must be the asset origin');
-assert(calibration.tipLocalPoint?.[2] > 0.7 && Math.abs(calibration.tipLocalPoint?.[0] || 0) < 0.001 && Math.abs(calibration.tipLocalPoint?.[1] || 0) < 0.001, 'normalized Arborblade tip must point forward on local +Z from the hilt origin');
+assert(calibration.tipLocalPoint?.[2] > 0.3 && Math.abs(calibration.tipLocalPoint?.[0] || 0) < 0.001 && Math.abs(calibration.tipLocalPoint?.[1] || 0) < 0.001, 'normalized Arborblade tip must point forward on local +Z from the hilt origin');
 assert(calibration.normalizedBounds?.dominantAxis === 'z', 'normalized Arborblade bounds must be dominant on local Z');
 assert(sword.asset?.extras?.poseLabV2CrimsonSword?.normalized === true, 'Arborblade GLB must carry normalized sword metadata');
 assert(main.includes('updateSaberAttachmentProof()') && main.includes('saberAttachmentStatus'), 'runtime must measure Crimson sword attachment to the hand');

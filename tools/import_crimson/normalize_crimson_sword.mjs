@@ -174,7 +174,10 @@ function main() {
     0,
     (sourceBounds.min[2] + sourceBounds.max[2]) / 2,
   ];
-  const hiltAnchor = [crossCenter[0], sourceBounds.min[1] + length * 0.1, crossCenter[2]];
+  // The runtime pivot must be the top/middle of the hilt at the guard, not the pommel.
+  // Geometry bins place the Arborblade guard/top-hilt center at about 62.5% of the
+  // source blade-axis bounds; anchoring there keeps the crossguard at RightHand.
+  const hiltAnchor = [crossCenter[0], sourceBounds.min[1] + length * 0.625, crossCenter[2]];
   const sourceTip = [crossCenter[0], sourceBounds.max[1], crossCenter[2]];
   const sourcePommel = [crossCenter[0], sourceBounds.min[1], crossCenter[2]];
   let normalizedBounds = null;
@@ -198,7 +201,7 @@ function main() {
         normalized: true,
         sourceBladeAxis: [0, 1, 0],
         bladeLocalAxis: [0, 0, 1],
-        hiltOriginPolicy: 'source bounds center, 10 percent above pommel along original +Y, remapped to runtime origin',
+        hiltOriginPolicy: 'source bounds center at guard/top-middle hilt, 62.5 percent above pommel along original +Y, remapped to runtime origin',
       },
     },
   };
@@ -230,7 +233,7 @@ function main() {
     swordLocal: {
       position: [0, 0, 0],
       rotationDeg: [0, 0, 0],
-      scale: [88, 88, 88],
+      scale: [1, 1, 1],
     },
     sourceBladeLocalAxis: [0, 1, 0],
     bladeLocalAxis: [0, 0, 1],

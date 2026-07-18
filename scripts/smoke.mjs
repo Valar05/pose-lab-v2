@@ -222,7 +222,7 @@ assert(JSON.stringify(crimsonSwordCalibration.bladeLocalAxis) === JSON.stringify
 assert(JSON.stringify(crimsonSwordCalibration.saberGripLocal?.scale) === JSON.stringify([88, 88, 88]), 'Crimson Arborblade grip scale must compensate Crimson RightHand armature scale so the normalized real sword is visible');
 assert(JSON.stringify(crimsonSwordCalibration.saberGripLocal?.rotationDeg) === JSON.stringify([96.50876, 0, -0.07512]), 'Crimson SaberGrip rotation must map the normalized +Z blade to character/world +Z');
 assert(JSON.stringify(crimsonSwordCalibration.hiltLocalPoint) === JSON.stringify([0, 0, 0]), 'Crimson Arborblade hilt anchor must be the normalized origin');
-assert(crimsonSwordCalibration.tipLocalPoint?.[2] > 0.7, 'Crimson Arborblade tip must point forward on local +Z');
+assert(crimsonSwordCalibration.tipLocalPoint?.[2] > 0.3, 'Crimson Arborblade tip must point forward on local +Z');
 assert(crimsonVanguardAttackReference.schema === 'pose-lab-v2-crimson-vanguard-swordattack1-reference-v1' && crimsonVanguardAttackReference.sourceClip === 'SwordAttack1', 'Crimson Vanguard reference must identify SwordAttack1');
 assert(crimsonVanguardAttackReference.policy?.role === 'reference-only' && crimsonVanguardAttackReference.byNode?.['Weapon.R']?.length >= 1 && crimsonVanguardAttackReference.byNode?.['hand.fk.R']?.length >= 1, 'Vanguard SwordAttack1 reference must stay reference-only and include Weapon.R/right-hand tracks');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
