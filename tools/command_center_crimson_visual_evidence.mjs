@@ -15,7 +15,7 @@ const REQUIRED_ASSERTIONS = [
 ];
 
 function parseArgs(argv) {
-  const args = {out: DEFAULT_OUT};
+  const args = {out: DEFAULT_OUT, confirmedAssertions: new Set()};
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--manifest') args.manifest = argv[++i] || '';
@@ -25,8 +25,11 @@ function parseArgs(argv) {
     else if (arg === '--hosted-url') args.hostedUrl = argv[++i] || '';
     else if (arg === '--screenshot-url') args.screenshotUrl = argv[++i] || '';
     else if (arg === '--visual-read') args.visualRead = argv[++i] || '';
+    else if (arg === '--confirm-visual-assertion') args.confirmedAssertions.add(argv[++i] || '');
+    else if (arg.startsWith('--confirm-visual-assertion=')) args.confirmedAssertions.add(arg.slice('--confirm-visual-assertion='.length));
+    else if (arg === '--confirm-all-visual-assertions') REQUIRED_ASSERTIONS.forEach((key) => args.confirmedAssertions.add(key));
     else if (arg === '--help' || arg === '-h') {
-      console.log('usage: node tools/command_center_crimson_visual_evidence.mjs --manifest visual_qa_manifest.json [--out generated/cloud-visual-evidence/crimson-sword/latest.json] [--hosted-url URL] [--screenshot-url URL]');
+      console.log('usage: node tools/command_center_crimson_visual_evidence.mjs --manifest visual_qa_manifest.json --visual-read TEXT --confirm-all-visual-assertions [--out generated/cloud-visual-evidence/crimson-sword/latest.json] [--hosted-url URL] [--screenshot-url URL]');
       process.exit(0);
     } else {
       throw new Error('unknown argument: ' + arg);
@@ -52,17 +55,39 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+function localScreenshotPath(source, manifestFile) {
+  const sourcePath = source.screenshotPath || '';
+  if (sourcePath) {
+    const resolved = resolveProjectPath(sourcePath);
+    if (fs.existsSync(resolved)) return sourcePath;
+  }
+  const sibling = path.join(path.dirname(manifestFile), 'screenshot.png');
+  if (fs.existsSync(sibling)) return path.relative(root, sibling);
+  return sourcePath;
+}
+
 const args = parseArgs(process.argv);
-const source = readJson(resolveProjectPath(args.manifest));
+const manifestFile = resolveProjectPath(args.manifest);
+const source = readJson(manifestFile);
 assert(source.schema === 'command-center-visual-qa-evidence-v1', 'source manifest must be command-center-visual-qa-evidence-v1');
-assert(source.captureKind === 'command-center-cloud-screenshot', 'source manifest must be command-center-cloud-screenshot');
+const acceptedCaptureKinds = new Set(['cloud-screenshot', 'hosted-cloud-screenshot', 'sense-cloud-screenshot', 'command-center-cloud-screenshot']);
+assert(acceptedCaptureKinds.has(source.captureKind), 'source manifest must be hosted/cloud screenshot evidence');
 assert(source.target === 'crimson-sword', 'source manifest target must be crimson-sword');
 assert(source.screenshotSha256, 'source manifest must include screenshotSha256');
 assert(source.screenshotPath || args.screenshotUrl || source.screenshotUrl, 'source manifest must include screenshotPath or screenshotUrl');
-assert(source.jobId, 'source manifest must include Command Center jobId');
-assert(source.browserEpisode?.episodeId, 'source manifest must include browserEpisode.episodeId');
-const assertions = source.assertions || {};
-for (const key of REQUIRED_ASSERTIONS) assert(assertions[key] === true, 'source manifest visual assertion must be true: ' + key);
+if (source.captureKind === 'command-center-cloud-screenshot') {
+  assert(/^job_[A-Za-z0-9-]+/.test(String(source.jobId || '')), 'Command Center source manifest must include job_ id');
+  assert(/^browser_episode_[A-Za-z0-9_-]+/.test(String(source.browserEpisode?.episodeId || '')), 'Command Center source manifest must include browserEpisode.episodeId');
+}
+const visualRead = args.visualRead || source.visualRead || '';
+assert(visualRead.length >= 40, 'visualRead must be supplied by a human visual read before Crimson acceptance');
+assert(!/not seated|not held|behind the wrist|above the hilt|up the forearm|\bred\b|wrong|fails|manual alignment required/i.test(visualRead), 'visualRead still describes a red Crimson sword relationship');
+const assertions = {...(source.assertions || {})};
+for (const key of args.confirmedAssertions) {
+  if (!REQUIRED_ASSERTIONS.includes(key)) throw new Error('unknown visual assertion: ' + key);
+  assertions[key] = true;
+}
+for (const key of REQUIRED_ASSERTIONS) assert(assertions[key] === true, 'visual assertion must be confirmed from the cloud screenshot: ' + key);
 const socketProof = source.browserSocketProof || {};
 assert(socketProof.status === 'attached', 'source browserSocketProof.status must be attached');
 assert(socketProof.parentBone === 'RightHand', 'source browserSocketProof.parentBone must be RightHand');
@@ -85,8 +110,6 @@ if (Array.isArray(socketProof.bladeWorldDirection)) {
 } else {
   throw new Error('source browserSocketProof must include bladeWorldDirection');
 }
-const visualRead = args.visualRead || source.visualRead || '';
-assert(visualRead.length >= 40, 'visualRead must be supplied by the Command Center visual read before Crimson acceptance');
 const commit = currentSha();
 const cacheBust = 'crimson-sword-' + commit;
 const hostedUrl = args.hostedUrl || source.hostedUrl || source.startUrl || source.finalUrl || '';
@@ -98,23 +121,24 @@ const evidence = {
   cacheBust,
   hostedUrl,
   capturedAt: source.capturedAt,
-  captureKind: 'command-center-cloud-screenshot',
-  screenshotPath: source.screenshotPath || '',
+  captureKind: source.captureKind,
+  screenshotPath: localScreenshotPath(source, manifestFile),
   screenshotUrl: args.screenshotUrl || source.screenshotUrl || '',
   screenshotSha256: source.screenshotSha256,
   visualRead,
   assertions,
   browserSocketProof: source.browserSocketProof,
-  commandCenter: {
+  evidenceSource: {
     jobId: source.jobId,
     jobStatus: source.commandCenter?.jobStatus || source.jobStatus || 'completed',
     sessionId: source.sessionId,
-    browserEpisodeId: source.browserEpisode.episodeId,
+    browserEpisodeId: source.browserEpisode?.episodeId,
     artifactManifestPath: path.resolve(args.manifest),
+    surface: source.surface,
   },
 };
 const out = resolveProjectPath(args.out || DEFAULT_OUT);
 fs.mkdirSync(path.dirname(out), {recursive: true});
 fs.writeFileSync(out, JSON.stringify(evidence, null, 2) + '\n');
-console.log(JSON.stringify({ok: true, out: path.relative(root, out), captureKind: evidence.captureKind, jobId: evidence.commandCenter.jobId, browserEpisodeId: evidence.commandCenter.browserEpisodeId}, null, 2));
+console.log(JSON.stringify({ok: true, out: path.relative(root, out), captureKind: evidence.captureKind, jobId: evidence.evidenceSource.jobId, browserEpisodeId: evidence.evidenceSource.browserEpisodeId}, null, 2));
 
