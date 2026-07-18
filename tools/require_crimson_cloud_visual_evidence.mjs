@@ -196,13 +196,20 @@ function main() {
   if (!(Number(browserSocketProof.bladeWorldLength) >= 0.5)) errors.push('browserSocketProof.bladeWorldLength must be nonzero and sword-sized');
   if (!Array.isArray(browserSocketProof.hiltScreen) || !Array.isArray(browserSocketProof.tipScreen)) errors.push('browserSocketProof must include hiltScreen and tipScreen');
   if (Array.isArray(browserSocketProof.hiltScreen) && Array.isArray(browserSocketProof.tipScreen)) {
+    const hiltX = Number(browserSocketProof.hiltScreen[0]);
     const hiltY = Number(browserSocketProof.hiltScreen[1]);
+    const tipX = Number(browserSocketProof.tipScreen[0]);
     const tipY = Number(browserSocketProof.tipScreen[1]);
-    if (!(tipY >= hiltY - 20)) errors.push('Crimson rest blade point must not climb above the hilt in the review camera or run up/back along the forearm');
+    const dx = tipX - hiltX;
+    const dy = tipY - hiltY;
+    if (!(Math.abs(dy) <= 80)) errors.push('Crimson rest blade tip must stay near hilt height in the review camera; a floor-down or forearm-up sword is red');
+    if (!(Math.abs(dx) >= 35)) errors.push('Crimson rest blade must project visibly out from the wrist in the review camera, not vanish into the hand');
   }
   if (Array.isArray(browserSocketProof.bladeWorldDirection)) {
     const bladeY = Number(browserSocketProof.bladeWorldDirection[1]);
-    if (!(bladeY <= 0.15)) errors.push('Crimson rest blade world direction must not angle upward along the forearm');
+    const bladeZ = Number(browserSocketProof.bladeWorldDirection[2]);
+    if (!(Math.abs(bladeY) <= 0.45)) errors.push('Crimson rest blade world direction must not be mostly vertical');
+    if (!(bladeZ >= 0.4)) errors.push('Crimson rest blade world direction must project forward on positive Z from the wrist');
   }
   if (errors.length) fail(errors, evidenceFile);
   console.log(JSON.stringify({

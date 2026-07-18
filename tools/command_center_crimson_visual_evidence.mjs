@@ -63,6 +63,24 @@ assert(source.jobId, 'source manifest must include Command Center jobId');
 assert(source.browserEpisode?.episodeId, 'source manifest must include browserEpisode.episodeId');
 const assertions = source.assertions || {};
 for (const key of REQUIRED_ASSERTIONS) assert(assertions[key] === true, 'source manifest visual assertion must be true: ' + key);
+const socketProof = source.browserSocketProof || {};
+assert(socketProof.status === 'attached', 'source browserSocketProof.status must be attached');
+assert(socketProof.parentBone === 'RightHand', 'source browserSocketProof.parentBone must be RightHand');
+assert(socketProof.visibleInViewport === true, 'source browserSocketProof.visibleInViewport must be true');
+if (Array.isArray(socketProof.hiltScreen) && Array.isArray(socketProof.tipScreen)) {
+  const dx = Number(socketProof.tipScreen[0]) - Number(socketProof.hiltScreen[0]);
+  const dy = Number(socketProof.tipScreen[1]) - Number(socketProof.hiltScreen[1]);
+  assert(Math.abs(dy) <= 80, 'source Crimson screenshot is red: blade tip is too vertical relative to hilt');
+  assert(Math.abs(dx) >= 35, 'source Crimson screenshot is red: blade does not project visibly out from the wrist');
+} else {
+  throw new Error('source browserSocketProof must include hiltScreen and tipScreen');
+}
+if (Array.isArray(socketProof.bladeWorldDirection)) {
+  assert(Math.abs(Number(socketProof.bladeWorldDirection[1])) <= 0.45, 'source Crimson screenshot is red: blade direction is mostly vertical');
+  assert(Number(socketProof.bladeWorldDirection[2]) >= 0.4, 'source Crimson screenshot is red: blade does not project forward on positive Z');
+} else {
+  throw new Error('source browserSocketProof must include bladeWorldDirection');
+}
 const visualRead = args.visualRead || source.visualRead || '';
 assert(visualRead.length >= 40, 'visualRead must be supplied by the Command Center visual read before Crimson acceptance');
 const commit = currentSha();

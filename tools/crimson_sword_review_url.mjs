@@ -43,8 +43,8 @@ console.log(JSON.stringify({
   expectedVisualPredicates: {
     realSwordVisible: 'the real Arborblade sword mesh is visible',
     hiltSeatedInHand: 'the hilt/grip reads as seated in the right hand',
-    bladeProjectsForwardFromWrist: 'the blade projects forward from the wrist/grip, not backward or through the hand',
-    bladeTipDoesNotClimbForearmInRest: 'the blade point does not climb above the hilt or run up/back along the forearm in the rest/orbit review camera',
+    bladeProjectsForwardFromWrist: 'the blade projects forward from the wrist/grip on positive Z, reading mostly horizontal in the review camera, not backward, upward, downward, or through the hand',
+    bladeTipDoesNotClimbForearmInRest: 'the blade point stays near hilt height in the rest/orbit review camera instead of climbing up the forearm or dropping toward the floor',
     noHandImpale: 'the blade does not visibly impale or pierce the hand',
     noManualAlignmentRequired: 'the route boots to the sane socket without manual dragging',
   },

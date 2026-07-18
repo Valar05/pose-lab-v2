@@ -19,6 +19,8 @@ CONSTRAINTS = ROOT / 'public' / 'assets' / 'crimson' / 'crimson_model_viewer_con
 OUT_ROOT = ROOT / 'generated' / 'crimson-sword-calibration'
 SCHEMA = 'pose-lab-v2-crimson-sword-offline-render-v1'
 CONTRACT_SCHEMA = 'pose-lab-v2-crimson-model-viewer-constraints-v1'
+BROWSER_TO_BLENDER = Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
+BLENDER_TO_BROWSER = BROWSER_TO_BLENDER.inverted()
 
 
 def utc_now() -> str:
@@ -39,6 +41,18 @@ def stable_json(value) -> str:
 
 def contract_hash(contract: dict) -> str:
     return hashlib.sha256(stable_json(contract).encode('utf-8')).hexdigest()
+
+
+def browser_vector(values: list[float]) -> Vector:
+    return (BROWSER_TO_BLENDER @ Vector((values[0], values[1], values[2], 1.0))).to_3d()
+
+
+def browser_matrix(matrix: Matrix) -> Matrix:
+    return BROWSER_TO_BLENDER @ matrix @ BLENDER_TO_BROWSER
+
+
+def browser_transform_matrix(transform: dict) -> Matrix:
+    return browser_matrix(transform_matrix(transform))
 
 
 def project_path(relative: str) -> Path:
@@ -173,7 +187,7 @@ def apply_crimson_sword_review_material(sword_objects: list[bpy.types.Object]) -
 
 def attach_sword_to_contract(character_objects: list[bpy.types.Object], sword_objects: list[bpy.types.Object], contract: dict) -> Matrix:
     hand_world = find_right_hand_matrix(character_objects)
-    socket_world = hand_world @ transform_matrix(contract['saberGripLocal']) @ transform_matrix(contract['swordLocal'])
+    socket_world = hand_world @ browser_transform_matrix(contract['saberGripLocal']) @ browser_transform_matrix(contract['swordLocal'])
     for obj in top_level(sword_objects):
         obj.matrix_world = socket_world @ obj.matrix_world
     bpy.context.view_layer.update()
@@ -195,8 +209,8 @@ def setup_scene(contract: dict, samples: int) -> bpy.types.Object:
     camera = bpy.data.objects.new('crimson_model_viewer_contract_camera', bpy.data.cameras.new('crimson_model_viewer_contract_camera'))
     bpy.context.collection.objects.link(camera)
     scene.camera = camera
-    camera.location = Vector(contract['camera']['position'])
-    target = Vector(contract['camera']['target'])
+    camera.location = browser_vector(contract['camera']['position'])
+    target = browser_vector(contract['camera']['target'])
     direction = target - camera.location
     camera.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
     camera.data.angle = math.radians(contract['camera']['fov'])
@@ -216,7 +230,7 @@ def setup_scene(contract: dict, samples: int) -> bpy.types.Object:
 
 def add_axis_marker(origin: Vector, length: float) -> None:
     mesh = bpy.data.meshes.new('normalized_blade_axis_mesh')
-    mesh.from_pydata([origin, origin + Vector((0, 0, length))], [(0, 1)], [])
+    mesh.from_pydata([origin, origin + browser_vector([0, 0, length])], [(0, 1)], [])
     marker = bpy.data.objects.new('normalized_blade_axis_plus_z', mesh)
     bpy.context.collection.objects.link(marker)
     material = bpy.data.materials.new('cyan_plus_z_axis')

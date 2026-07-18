@@ -70,7 +70,8 @@ expectFail('stale cache evidence', ['--evidence', writeEvidence(tmp, { cacheBust
 expectFail('false hilt evidence', ['--evidence', writeEvidence(tmp, { assertions: { hiltSeatedInHand: false } }), '--allow-fixture'], /hiltSeatedInHand/);
 expectFail('red visual read evidence', ['--evidence', writeEvidence(tmp, { visualRead: 'Hosted screenshot is red: hilt is not seated and sword is behind the wrist, not held.' }), '--allow-fixture'], /visualRead still describes a red/);
 expectFail('missing browser socket proof', ['--evidence', writeEvidence(tmp, { browserSocketProof: { status: 'attached' } }), '--allow-fixture'], /browserSocketProof/);
-expectFail('upward blade point evidence', ['--evidence', writeEvidence(tmp, { browserSocketProof: { status: 'attached', parentBone: 'RightHand', visibleInViewport: true, screenLengthPx: 96, bladeWorldLength: 1.02, bladeWorldDirection: [0.2, 0.84, 0.49], hiltScreen: [180, 420], tipScreen: [126, 320] } }), '--allow-fixture'], /above the hilt|upward/);
+expectFail('upward blade point evidence', ['--evidence', writeEvidence(tmp, { browserSocketProof: { status: 'attached', parentBone: 'RightHand', visibleInViewport: true, screenLengthPx: 96, bladeWorldLength: 1.02, bladeWorldDirection: [0.2, 0.84, 0.49], hiltScreen: [180, 420], tipScreen: [126, 320] } }), '--allow-fixture'], /near hilt height|mostly vertical|positive Z|forward/);
+expectFail('downward blade point evidence', ['--evidence', writeEvidence(tmp, { browserSocketProof: { status: 'attached', parentBone: 'RightHand', visibleInViewport: true, screenLengthPx: 96, bladeWorldLength: 1.02, bladeWorldDirection: [-0.46, -0.88, 0.08], hiltScreen: [180, 420], tipScreen: [126, 532] } }), '--allow-fixture'], /near hilt height|mostly vertical|positive Z|forward/);
 expectFail('command center requested action without episode', ['--evidence', writeEvidence(tmp, {
   captureKind: 'command-center-cloud-screenshot',
   commandCenter: { jobId: 'job_3482abf0-4e12-4c20-92cb-4bfc12cbbf2b', jobStatus: 'completed', actionStatus: 'requested' },
@@ -93,4 +94,4 @@ const commandCenterPassing = run(['--evidence', writeEvidence(tmp, {
 assert(commandCenterPassing.status === 0, `mock Command Center cloud evidence should pass fixture gate: ${commandCenterPassing.stderr || commandCenterPassing.stdout}`);
 
 if (failures.length) throw new Error(failures.join('\n'));
-console.log(JSON.stringify({ ok: true, checked: ['missing', 'localhost', 'android-screenshot', 'stale-cache', 'false-hilt', 'red-read', 'browser-socket-proof', 'upward-blade-point', 'command-center-requested-action', 'mock-pass', 'command-center-pass'] }, null, 2));
+console.log(JSON.stringify({ ok: true, checked: ['missing', 'localhost', 'android-screenshot', 'stale-cache', 'false-hilt', 'red-read', 'browser-socket-proof', 'upward-blade-point', 'downward-blade-point', 'command-center-requested-action', 'mock-pass', 'command-center-pass'] }, null, 2));
