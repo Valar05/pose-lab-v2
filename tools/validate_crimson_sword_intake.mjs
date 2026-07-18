@@ -58,7 +58,7 @@ assert(JSON.stringify(constraints.swordLocal) === JSON.stringify(calibration.swo
 assert(JSON.stringify(constraints.bladeLocalAxis) === JSON.stringify(calibration.bladeLocalAxis), 'Crimson model-viewer constraint blade axis must mirror sword calibration');
 assert(JSON.stringify(constraints.camera) === JSON.stringify({ fov: 36, near: 0.01, far: 80, position: [2.8, 1.75, 4.2], target: [0, 0.95, 0], viewport: [390, 844] }), 'Crimson model-viewer constraint camera must mirror REVIEW_CAMERA_CONTRACT');
 assert(JSON.stringify(calibration.bladeLocalAxis) === JSON.stringify([0, 0, 1]), 'Arborblade blade axis must be normalized to local +Z');
-assert(JSON.stringify(calibration.saberGripLocal?.scale) === JSON.stringify([1, 1, 1]), 'Crimson Arborblade grip scale must stay model-space sane; do not inflate the normalized 1m sword');
+assert(JSON.stringify(calibration.saberGripLocal?.scale) === JSON.stringify([88, 88, 88]), 'Crimson Arborblade grip scale must compensate Crimson RightHand armature scale so the normalized real sword is visible');
 assert(JSON.stringify(calibration.saberGripLocal?.rotationDeg) === JSON.stringify([96.50876, 0, -0.07512]), 'Crimson SaberGrip rotation must map the normalized +Z blade to character/world +Z from the actual RightHand basis');
 assert(JSON.stringify(calibration.hiltLocalPoint) === JSON.stringify([0, 0, 0]), 'normalized Arborblade hilt anchor must be the asset origin');
 assert(calibration.tipLocalPoint?.[2] > 0.7 && Math.abs(calibration.tipLocalPoint?.[0] || 0) < 0.001 && Math.abs(calibration.tipLocalPoint?.[1] || 0) < 0.001, 'normalized Arborblade tip must point forward on local +Z from the hilt origin');

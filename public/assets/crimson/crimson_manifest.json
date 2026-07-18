@@ -137,9 +137,9 @@
         -0.07512
       ],
       "scale": [
-        1,
-        1,
-        1
+        88,
+        88,
+        88
       ]
     },
     "swordLocal": {
@@ -202,7 +202,7 @@
       ],
       "dominantAxis": "z"
     },
-    "acceptanceNote": "Offline socket calibration seats the normalized hilt at RightHand and rotates the normalized +Z blade to character/world +Z. Hosted visual review is still required before claiming Crimson socket acceptance."
+    "acceptanceNote": "Offline socket calibration compensates Crimson RightHand armature scale, seats the normalized hilt at RightHand, and rotates normalized +Z blade to character/world +Z. Hosted visual review is still required before claiming Crimson socket acceptance."
   },
   "vanguardReference": {
     "sourceGlb": "public/assets/vanguard/vanguard_rigged_animations.glb",

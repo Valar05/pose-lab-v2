@@ -225,12 +225,12 @@ function main() {
       parentBone: 'RightHand',
       position: [0, 0, 0],
       rotationDeg: [96.50876, 0, -0.07512],
-      scale: [1, 1, 1],
+      scale: [88, 88, 88],
     },
     swordLocal: {
       position: [0, 0, 0],
       rotationDeg: [0, 0, 0],
-      scale: [1, 1, 1],
+      scale: [88, 88, 88],
     },
     sourceBladeLocalAxis: [0, 1, 0],
     bladeLocalAxis: [0, 0, 1],
@@ -243,7 +243,7 @@ function main() {
       size: roundVec(normalizedBounds.size),
       dominantAxis: 'z',
     },
-    acceptanceNote: 'Offline socket calibration seats the normalized hilt at RightHand and rotates the normalized +Z blade to character/world +Z. Hosted visual review is still required before claiming Crimson socket acceptance.',
+    acceptanceNote: 'Offline socket calibration compensates Crimson RightHand armature scale, seats the normalized hilt at RightHand, and rotates normalized +Z blade to character/world +Z. Hosted visual review is still required before claiming Crimson socket acceptance.',
   };
   fs.writeFileSync(calibrationPath, `${JSON.stringify(calibration, null, 2)}\n`);
   if (fs.existsSync(manifestPath)) {

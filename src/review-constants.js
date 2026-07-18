@@ -9,7 +9,7 @@ export const SABRE_REVIEW_LOCAL_AXIS = [1, 0, 0];
 export const CRIMSON_SABER_GRIP_LOCAL = {
   position: [0, 0, 0],
   rotationDeg: [96.50876, 0, -0.07512],
-  scale: [1, 1, 1],
+  scale: [88, 88, 88],
 };
 
 export const CRIMSON_SWORD_LOCAL = {
