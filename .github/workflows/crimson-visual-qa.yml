@@ -1,0 +1,36 @@
+name: Crimson Visual QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Exact hosted Crimson review URL
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Capture hosted Crimson visual evidence
+        run: >-
+          node tools/github_crimson_visual_capture.mjs
+          --url "${{ inputs.url }}"
+          --out-dir generated/cloud-visual-evidence/crimson-sword/github-actions-${{ github.run_id }}
+          --job-id github_actions_${{ github.run_id }}
+          --session-id browser_session_github_actions_${{ github.run_id }}
+          --episode-id browser_episode_github_actions_${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crimson-visual-evidence-${{ github.run_id }}
+          path: generated/cloud-visual-evidence/crimson-sword/github-actions-${{ github.run_id }}
+          if-no-files-found: error
