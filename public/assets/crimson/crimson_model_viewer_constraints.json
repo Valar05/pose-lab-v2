@@ -32,9 +32,9 @@
   "saberGripLocal": {
     "parentBone": "RightHand",
     "position": [
-      0,
-      0,
-      0
+      0.605291,
+      16.187576,
+      -2.765799
     ],
     "rotationDeg": [
       96.50876,
