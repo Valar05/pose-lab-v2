@@ -212,11 +212,11 @@ const calibration = {
   swordLocal: {
       position: [0, 0, 0],
       rotationDeg: [0, 0, 0],
-      scale: [1, 1, 1],
+      scale: [88, 88, 88],
     },
   bladeLocalAxis: [0, 0, 1],
   hiltLocalPoint: [0, 0, 0],
-  tipLocalPoint: [0, 0, 0.374268],
+  tipLocalPoint: [0, 0, 0.898242],
   acceptanceNote: 'Offline socket calibration compensates Crimson RightHand armature scale, seats the normalized hilt at RightHand, and rotates normalized +Z blade to character/world +Z. Hosted visual review is still required before claiming Crimson socket acceptance.',
 };
 fs.writeFileSync(calibrationPath, `${JSON.stringify(calibration, null, 2)}\n`);
