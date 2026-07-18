@@ -1,6 +1,6 @@
 {
   "schema": "pose-lab-v2-crimson-sword-calibration-v1",
-  "status": "offline-normalized-not-hosted-visual-accepted",
+  "status": "offline-socket-calibrated-not-hosted-visual-accepted",
   "targetCharacter": "crimson",
   "swordAsset": "public/assets/crimson/arborblade_sword.glb",
   "sourceSwordAsset": "/storage/emulated/0/Download/Meshy_AI_Arborblade_0717211756_texture.glb",
@@ -18,14 +18,14 @@
       0
     ],
     "rotationDeg": [
+      96.50876,
       0,
-      0,
-      0
+      -0.07512
     ],
     "scale": [
-      88,
-      88,
-      88
+      1,
+      1,
+      1
     ]
   },
   "swordLocal": {
@@ -88,5 +88,5 @@
     ],
     "dominantAxis": "z"
   },
-  "acceptanceNote": "Offline asset normalization makes hilt origin and +Z blade direction deterministic. Hosted visual review is still required before claiming Crimson socket acceptance."
+  "acceptanceNote": "Offline socket calibration seats the normalized hilt at RightHand and rotates the normalized +Z blade to character/world +Z. Hosted visual review is still required before claiming Crimson socket acceptance."
 }

@@ -199,25 +199,25 @@ writeSwordRuntime(swordSource);
 const skeletonJoints = (target.json.skins?.[0]?.joints || []).map((index) => target.json.nodes[index]?.name || `node_${index}`);
 const calibration = {
   schema: 'pose-lab-v2-crimson-sword-calibration-v1',
-  status: 'calibration-baseline-not-visual-accepted',
+  status: 'offline-socket-calibrated-not-hosted-visual-accepted',
   targetCharacter: 'crimson',
   swordAsset: 'public/assets/crimson/arborblade_sword.glb',
   hierarchy: ['RightHand', 'SaberGrip', 'ArborbladeSword'],
   saberGripLocal: {
-    parentBone: 'RightHand',
-    position: [0, 0, 0],
-    rotationDeg: [0, 0, 0],
-    scale: [88, 88, 88],
-  },
+      parentBone: 'RightHand',
+      position: [0, 0, 0],
+      rotationDeg: [96.50876, 0, -0.07512],
+      scale: [1, 1, 1],
+    },
   swordLocal: {
-    position: [0, 0.48, 0],
-    rotationDeg: [90, 0, 0],
-    scale: [1, 1, 1],
-  },
-  bladeLocalAxis: [0, 1, 0],
-  hiltLocalPoint: [0, -0.42, 0],
-  tipLocalPoint: [0, 0.5, 0],
-  acceptanceNote: 'This only establishes real sword ownership and blade-axis semantics. SwordAttack1 remains quarantined until hosted visual review accepts the attack choreography.',
+      position: [0, 0, 0],
+      rotationDeg: [0, 0, 0],
+      scale: [1, 1, 1],
+    },
+  bladeLocalAxis: [0, 0, 1],
+  hiltLocalPoint: [0, 0, 0],
+  tipLocalPoint: [0, 0, 0.898242],
+  acceptanceNote: 'Offline socket calibration seats the normalized hilt at RightHand and rotates the normalized +Z blade to character/world +Z. Hosted visual review is still required before claiming Crimson socket acceptance.',
 };
 fs.writeFileSync(calibrationPath, `${JSON.stringify(calibration, null, 2)}\n`);
 
@@ -274,7 +274,7 @@ const manifest = {
   acceptance: {
     localChecksAreGuardrails: true,
     hostedCloudReviewRequired: true,
-    currentState: 'asset-intake-and-sword-calibration-baseline',
+    currentState: 'offline-socket-calibrated-pending-hosted-review',
   },
 };
 fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);

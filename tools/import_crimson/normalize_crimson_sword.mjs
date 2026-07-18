@@ -215,7 +215,7 @@ function main() {
 
   const calibration = {
     schema: SCHEMA,
-    status: 'offline-normalized-not-hosted-visual-accepted',
+    status: 'offline-socket-calibrated-not-hosted-visual-accepted',
     targetCharacter: 'crimson',
     swordAsset: 'public/assets/crimson/arborblade_sword.glb',
     sourceSwordAsset: sourceSwordPath,
@@ -224,8 +224,8 @@ function main() {
     saberGripLocal: {
       parentBone: 'RightHand',
       position: [0, 0, 0],
-      rotationDeg: [0, 0, 0],
-      scale: [88, 88, 88],
+      rotationDeg: [96.50876, 0, -0.07512],
+      scale: [1, 1, 1],
     },
     swordLocal: {
       position: [0, 0, 0],
@@ -243,7 +243,7 @@ function main() {
       size: roundVec(normalizedBounds.size),
       dominantAxis: 'z',
     },
-    acceptanceNote: 'Offline asset normalization makes hilt origin and +Z blade direction deterministic. Hosted visual review is still required before claiming Crimson socket acceptance.',
+    acceptanceNote: 'Offline socket calibration seats the normalized hilt at RightHand and rotates the normalized +Z blade to character/world +Z. Hosted visual review is still required before claiming Crimson socket acceptance.',
   };
   fs.writeFileSync(calibrationPath, `${JSON.stringify(calibration, null, 2)}\n`);
   if (fs.existsSync(manifestPath)) {
@@ -252,7 +252,7 @@ function main() {
     manifest.bounds ||= {};
     manifest.bounds.sword = calibration.normalizedBounds;
     manifest.acceptance ||= {};
-    manifest.acceptance.currentState = 'offline-normalized-sword-socket-pending-hosted-review';
+    manifest.acceptance.currentState = 'offline-socket-calibrated-pending-hosted-review';
     manifest.swordNormalization = {
       script: 'tools/import_crimson/normalize_crimson_sword.mjs',
       runtimeSword: 'public/assets/crimson/arborblade_sword.glb',

@@ -31,24 +31,67 @@
   ],
   "saberGripLocal": {
     "parentBone": "RightHand",
-    "position": [0, 0, 0],
-    "rotationDeg": [0, 0, 0],
-    "scale": [88, 88, 88]
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rotationDeg": [
+      96.50876,
+      0,
+      -0.07512
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ]
   },
   "swordLocal": {
-    "position": [0, 0, 0],
-    "rotationDeg": [0, 0, 0],
-    "scale": [1, 1, 1]
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rotationDeg": [
+      0,
+      0,
+      0
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ]
   },
-  "bladeLocalAxis": [0, 0, 1],
-  "hiltLocalPoint": [0, 0, 0],
+  "bladeLocalAxis": [
+    0,
+    0,
+    1
+  ],
+  "hiltLocalPoint": [
+    0,
+    0,
+    0
+  ],
   "camera": {
     "fov": 36,
     "near": 0.01,
     "far": 80,
-    "position": [2.8, 1.75, 4.2],
-    "target": [0, 0.95, 0],
-    "viewport": [390, 844]
+    "position": [
+      2.8,
+      1.75,
+      4.2
+    ],
+    "target": [
+      0,
+      0.95,
+      0
+    ],
+    "viewport": [
+      390,
+      844
+    ]
   },
   "localBlenderCapture": {
     "classification": "diagnostic",

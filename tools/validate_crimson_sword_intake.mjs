@@ -58,14 +58,15 @@ assert(JSON.stringify(constraints.swordLocal) === JSON.stringify(calibration.swo
 assert(JSON.stringify(constraints.bladeLocalAxis) === JSON.stringify(calibration.bladeLocalAxis), 'Crimson model-viewer constraint blade axis must mirror sword calibration');
 assert(JSON.stringify(constraints.camera) === JSON.stringify({ fov: 36, near: 0.01, far: 80, position: [2.8, 1.75, 4.2], target: [0, 0.95, 0], viewport: [390, 844] }), 'Crimson model-viewer constraint camera must mirror REVIEW_CAMERA_CONTRACT');
 assert(JSON.stringify(calibration.bladeLocalAxis) === JSON.stringify([0, 0, 1]), 'Arborblade blade axis must be normalized to local +Z');
-assert(calibration.saberGripLocal?.scale?.[0] >= 40, 'Crimson Arborblade grip scale must compensate for the 0.01 armature scale so the sword is visible');
+assert(JSON.stringify(calibration.saberGripLocal?.scale) === JSON.stringify([1, 1, 1]), 'Crimson Arborblade grip scale must stay model-space sane; do not inflate the normalized 1m sword');
+assert(JSON.stringify(calibration.saberGripLocal?.rotationDeg) === JSON.stringify([96.50876, 0, -0.07512]), 'Crimson SaberGrip rotation must map the normalized +Z blade to character/world +Z from the actual RightHand basis');
 assert(JSON.stringify(calibration.hiltLocalPoint) === JSON.stringify([0, 0, 0]), 'normalized Arborblade hilt anchor must be the asset origin');
 assert(calibration.tipLocalPoint?.[2] > 0.7 && Math.abs(calibration.tipLocalPoint?.[0] || 0) < 0.001 && Math.abs(calibration.tipLocalPoint?.[1] || 0) < 0.001, 'normalized Arborblade tip must point forward on local +Z from the hilt origin');
 assert(calibration.normalizedBounds?.dominantAxis === 'z', 'normalized Arborblade bounds must be dominant on local Z');
 assert(sword.asset?.extras?.poseLabV2CrimsonSword?.normalized === true, 'Arborblade GLB must carry normalized sword metadata');
 assert(main.includes('updateSaberAttachmentProof()') && main.includes('saberAttachmentStatus'), 'runtime must measure Crimson sword attachment to the hand');
 assert(main.includes('supportsAttackReview: false') && main.includes('canExposeAttackReview()'), 'Crimson locomotion-only route must not expose fake Attack1 review controls');
-assert(calibration.status === 'offline-normalized-not-hosted-visual-accepted', 'Crimson calibration must be offline-normalized without claiming hosted visual acceptance');
+assert(calibration.status === 'offline-socket-calibrated-not-hosted-visual-accepted', 'Crimson calibration must be socket-calibrated without claiming hosted visual acceptance');
 assert(reference.sourceClip === 'SwordAttack1' && reference.policy?.role === 'reference-only', 'Vanguard SwordAttack1 must be reference-only');
 assert(reference.byNode?.['Weapon.R']?.length >= 1 && reference.byNode?.['hand.fk.R']?.length >= 1, 'Vanguard reference must include Weapon.R and right hand tracks');
 assert(pkg.scripts?.['build:crimson']?.includes('build_crimson_assets.mjs') && pkg.scripts?.['build:crimson']?.includes('normalize:crimson-sword'), 'build:crimson must rebuild assets and normalize the Arborblade sword');
