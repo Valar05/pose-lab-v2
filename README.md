@@ -152,6 +152,7 @@ npm run test:crimson-model-viewer-constraints
 npm run review:crimson-sword
 npm run review:crimson-sword-url
 npm run validate:crimson-sword-intake
+npm run accept:crimson-sword:cloud -- --visual-read "Hosted cloud screenshot shows..."
 npm run accept:crimson-sword
 npm run validate:crimson-sword
 npm run reference:crimson:swordattack1
@@ -178,21 +179,29 @@ be authored as a quarantined candidate after grip/orientation review. Model-view
 
 Crimson sword checks are deliberately split. `npm run validate:crimson-sword-intake`
 only proves asset intake, normalized hilt origin, local `+Z` blade axis, material
-presence, and runtime wiring. It is a guardrail. Only
-`npm run accept:crimson-sword` can pass Crimson sword visual acceptance, and it
-requires a fresh hosted GitHub Pages screenshot evidence manifest at
+presence, and runtime wiring. It is a guardrail. The normal hosted evidence lane
+is:
+
+```sh
+npm run accept:crimson-sword:cloud -- --visual-read "Hosted cloud screenshot shows..."
+```
+
+That command prints the exact cache-busted Crimson URL, waits for the current
+Pages deploy when available, runs the `Crimson Visual QA` GitHub workflow with
+system Chrome, downloads the cloud screenshot artifact, promotes
+`generated/cloud-visual-evidence/crimson-sword/latest.json`, and runs
+`npm run accept:crimson-sword`. The visual read is mandatory: telemetry cannot
+promote itself. Use `--run-id GITHUB_ACTIONS_RUN_ID` to reuse an already captured
+cloud artifact after visually inspecting its `screenshot.png`.
+
 Only `npm run accept:crimson-sword` can pass Crimson sword visual acceptance.
-`generated/cloud-visual-evidence/crimson-sword/latest.json`. Command Center is
-the named cloud QA lane for this evidence: a green manifest must come from a
-completed Command Center browser-worker visual QA job with a completed browser
-episode, screenshot hash, final-render debug bundle, and explicit visual read.
 The manifest must match the current `crimson-sword-<git-sha>` cache token and
 explicitly assert that the real Arborblade is visible, the hilt is seated in
 the right hand, the blade projects forward from the wrist, the hand is not
 impaled, and no manual alignment was required. Local Android screenshots,
 localhost captures, Blender renders, deploy success, build output, smoke
-output, and Command Center action records with no completed episode are rejected
-for this acceptance gate.
+output, raw telemetry, and cloud action records with no inspected screenshot are
+rejected for this acceptance gate.
 
 Vanguard is exported from `/storage/emulated/0/Download/Vanguard.blend` into
 `public/assets/vanguard/vanguard_rigged_animations.glb`. The runtime GLB keeps
@@ -304,6 +313,7 @@ npm run smoke
 npm run review:attacks
 npm run review:crimson-sword-url
 npm run validate:crimson-sword-intake
+npm run accept:crimson-sword:cloud -- --visual-read "Hosted cloud screenshot shows..."
 npm run accept:crimson-sword
 npm run cloud:agent-preflight
 npm run test:learning-packet
@@ -337,5 +347,7 @@ When waking a cloud URL:
 4. Treat those checks as blank-page diagnostics only.
 5. Do not claim visual success until the hosted page visibly renders the requested
    character and real weapon relationship.
-6. For Crimson sword work, do not use the word "pass" unless
-   `npm run accept:crimson-sword` passed against cloud screenshot evidence.
+6. For Crimson sword work, use `npm run accept:crimson-sword:cloud -- --visual-read ...`
+   as the default review lane, or `--run-id` to reuse an inspected cloud capture.
+7. Do not use the word "pass" unless `npm run accept:crimson-sword` passed
+   against current cloud screenshot evidence.

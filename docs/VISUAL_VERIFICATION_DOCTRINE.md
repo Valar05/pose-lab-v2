@@ -142,6 +142,12 @@ Crimson/Arborblade has a hard evidence split:
 - `npm run validate:crimson-sword` runs both, so it cannot pass from geometry,
   smoke, local render, localhost, or Android screenshot evidence alone.
 
+- `npm run accept:crimson-sword:cloud -- --visual-read ...` is the default
+  Crimson cloud lane. It owns the otherwise fragile sequence: exact URL,
+  current Pages deploy, GitHub cloud capture, artifact download, visual-read
+  promotion, screenshot-byte path reconciliation, and final acceptance. If an
+  inspected capture already exists, pass `--run-id` instead of redispatching.
+
 A red Crimson screenshot means the build is red even when intake, build, smoke,
 Blender diagnostics, and asset metadata are green.
 
