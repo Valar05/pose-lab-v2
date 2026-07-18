@@ -97,11 +97,11 @@ function writeVec4(bin, byteOffset, value) {
 }
 
 function transformPosition(value, anchor) {
-  return [value[0] - anchor[0], value[2] - anchor[2], value[1] - anchor[1]];
+  return [value[0] - anchor[0], value[2] - anchor[2], anchor[1] - value[1]];
 }
 
 function transformDirection(value) {
-  return [value[0], value[2], value[1]];
+  return [value[0], value[2], -value[1]];
 }
 
 function normalizeVec3(value) {
@@ -174,9 +174,10 @@ function main() {
     0,
     (sourceBounds.min[2] + sourceBounds.max[2]) / 2,
   ];
-  const hiltAnchor = [crossCenter[0], sourceBounds.min[1] + length * 0.1, crossCenter[2]];
-  const sourceTip = [crossCenter[0], sourceBounds.max[1], crossCenter[2]];
-  const sourcePommel = [crossCenter[0], sourceBounds.min[1], crossCenter[2]];
+  const hiltTopRatio = 0.62;
+  const hiltAnchor = [crossCenter[0], sourceBounds.min[1] + length * hiltTopRatio, crossCenter[2]];
+  const sourceTip = [crossCenter[0], sourceBounds.min[1], crossCenter[2]];
+  const sourcePommel = [crossCenter[0], sourceBounds.max[1], crossCenter[2]];
   let normalizedBounds = null;
   for (const mesh of target.json.meshes || []) {
     for (const primitive of mesh.primitives || []) {
@@ -196,9 +197,9 @@ function main() {
         sourceSha256: sha256(sourceSwordPath),
         role: 'normalized real static Arborblade sword mesh for Crimson RightHand -> SaberGrip calibration',
         normalized: true,
-        sourceBladeAxis: [0, 1, 0],
+        sourceBladeAxis: [0, -1, 0],
         bladeLocalAxis: [0, 0, 1],
-        hiltOriginPolicy: 'source bounds center, 10 percent above pommel along original +Y, remapped to runtime origin',
+        hiltOriginPolicy: 'source bounds center at the top-middle of the hilt/guard transition, original -Y blade remapped to runtime +Z',
       },
     },
   };
@@ -225,14 +226,14 @@ function main() {
       parentBone: 'RightHand',
       position: [0, 0, 0],
       rotationDeg: [96.50876, 0, -0.07512],
-      scale: [88, 88, 88],
+      scale: [1, 1, 1],
     },
     swordLocal: {
       position: [0, 0, 0],
       rotationDeg: [0, 0, 0],
       scale: [88, 88, 88],
     },
-    sourceBladeLocalAxis: [0, 1, 0],
+    sourceBladeLocalAxis: [0, -1, 0],
     bladeLocalAxis: [0, 0, 1],
     hiltLocalPoint: [0, 0, 0],
     tipLocalPoint: roundVec(transformPosition(sourceTip, hiltAnchor)),
@@ -243,7 +244,7 @@ function main() {
       size: roundVec(normalizedBounds.size),
       dominantAxis: 'z',
     },
-    acceptanceNote: 'Offline socket calibration compensates Crimson RightHand armature scale, seats the normalized hilt at RightHand, and rotates normalized +Z blade to character/world +Z. Hosted visual review is still required before claiming Crimson socket acceptance.',
+    acceptanceNote: 'Offline socket calibration places the normalized origin at the top-middle hilt/guard transition, keeps SaberGrip as an unscaled RightHand child, scales the sword mesh locally for Crimson units, and maps the blade tip to runtime local +Z. Hosted visual review is still required before claiming Crimson socket acceptance.',
   };
   fs.writeFileSync(calibrationPath, `${JSON.stringify(calibration, null, 2)}\n`);
   if (fs.existsSync(manifestPath)) {

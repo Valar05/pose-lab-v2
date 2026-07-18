@@ -13,9 +13,9 @@
   "saberGripLocal": {
     "parentBone": "RightHand",
     "position": [
-      0.605291,
-      16.187576,
-      -2.765799
+      0,
+      0,
+      0
     ],
     "rotationDeg": [
       96.50876,
@@ -23,9 +23,9 @@
       -0.07512
     ],
     "scale": [
-      88,
-      88,
-      88
+      1,
+      1,
+      1
     ]
   },
   "swordLocal": {
@@ -40,14 +40,14 @@
       0
     ],
     "scale": [
-      1,
-      1,
-      1
+      88,
+      88,
+      88
     ]
   },
   "sourceBladeLocalAxis": [
     0,
-    1,
+    -1,
     0
   ],
   "bladeLocalAxis": [
@@ -63,23 +63,23 @@
   "tipLocalPoint": [
     0,
     0,
-    0.898242
+    0.618789
   ],
   "pommelLocalPoint": [
     0,
     0,
-    -0.099805
+    -0.379258
   ],
   "normalizedBounds": {
     "min": [
       -0.0896,
       -0.023987,
-      -0.099805
+      -0.379258
     ],
     "max": [
       0.0896,
       0.023987,
-      0.898242
+      0.618789
     ],
     "size": [
       0.179199,
@@ -88,5 +88,5 @@
     ],
     "dominantAxis": "z"
   },
-  "acceptanceNote": "Offline socket calibration compensates Crimson RightHand armature scale, seats the normalized hilt at RightHand, and rotates normalized +Z blade to character/world +Z. Hosted visual review is still required before claiming Crimson socket acceptance."
+  "acceptanceNote": "Offline socket calibration places the normalized origin at the top-middle hilt/guard transition, keeps SaberGrip as an unscaled RightHand child, scales the sword mesh locally for Crimson units, and maps the blade tip to runtime local +Z. Hosted visual review is still required before claiming Crimson socket acceptance."
 }

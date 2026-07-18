@@ -57,6 +57,7 @@
     "test:crimson-cloud-visual-gate": "node tools/test_crimson_cloud_visual_evidence_gate.mjs",
     "validate:crimson-model-viewer-constraints": "node tools/validate_crimson_model_viewer_constraints.mjs",
     "test:crimson-model-viewer-constraints": "node tools/test_crimson_model_viewer_constraints.mjs",
-    "test:crimson-review-surface": "node tools/test_crimson_review_surface.mjs"
+    "test:crimson-review-surface": "node tools/test_crimson_review_surface.mjs",
+    "evidence:crimson-command-center": "node tools/command_center_crimson_visual_evidence.mjs"
   }
 }

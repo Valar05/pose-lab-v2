@@ -15,6 +15,12 @@ const REQUIRED_ASSERTIONS = [
   'noHandImpale',
   'noManualAlignmentRequired',
 ];
+const ACCEPTED_CAPTURE_KINDS = [
+  'cloud-screenshot',
+  'hosted-cloud-screenshot',
+  'sense-cloud-screenshot',
+  'command-center-cloud-screenshot',
+];
 
 function parseArgs(argv) {
   const args = { evidence: DEFAULT_EVIDENCE, allowFixture: false };
@@ -91,8 +97,18 @@ function validateHostedUrl(evidence, expectedCacheBust, errors) {
 
 function validateCapture(evidence, evidenceFile, args, errors) {
   const captureKind = evidence.captureKind || evidence.screenshotKind || evidence.evidenceLane || '';
-  if (!['cloud-screenshot', 'hosted-cloud-screenshot', 'sense-cloud-screenshot'].includes(captureKind)) {
-    errors.push(`captureKind must be cloud-screenshot/hosted-cloud-screenshot/sense-cloud-screenshot, got ${captureKind || 'missing'}`);
+  if (!ACCEPTED_CAPTURE_KINDS.includes(captureKind)) {
+    errors.push(`captureKind must be ${ACCEPTED_CAPTURE_KINDS.join('/')}, got ${captureKind || 'missing'}`);
+  }
+  if (captureKind === 'command-center-cloud-screenshot') {
+    const commandCenter = evidence.commandCenter || evidence.commandCenterProof || {};
+    const jobId = evidence.commandCenterJobId || commandCenter.jobId || evidence.jobId || '';
+    const episodeId = evidence.browserEpisodeId || evidence.browserEpisode?.episodeId || commandCenter.browserEpisodeId || '';
+    const jobStatus = commandCenter.jobStatus || evidence.commandCenterJobStatus || '';
+    if (!/^job_[A-Za-z0-9-]+/.test(String(jobId))) errors.push('Command Center evidence must include commandCenter.jobId for the terminal visual QA job');
+    if (!/^browser_episode_[A-Za-z0-9_-]+/.test(String(episodeId))) errors.push('Command Center evidence must include a completed browser episode id');
+    if (jobStatus && jobStatus !== 'completed') errors.push(`Command Center visual QA job must be completed when jobStatus is provided, got ${jobStatus}`);
+    if (commandCenter.actionStatus === 'requested' && !episodeId) errors.push('Command Center requested actions are not visual evidence without a completed browser episode');
   }
   const screenshotPath = evidence.screenshotPath || evidence.capturePath || evidence.screenshot?.path || '';
   const screenshotUrl = evidence.screenshotUrl || evidence.screenshot?.url || '';

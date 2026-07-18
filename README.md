@@ -182,13 +182,17 @@ presence, and runtime wiring. It is a guardrail. Only
 `npm run accept:crimson-sword` can pass Crimson sword visual acceptance, and it
 requires a fresh hosted GitHub Pages screenshot evidence manifest at
 Only `npm run accept:crimson-sword` can pass Crimson sword visual acceptance.
-`generated/cloud-visual-evidence/crimson-sword/latest.json`. The manifest must
-match the current `crimson-sword-<git-sha>` cache token and explicitly assert
-that the real Arborblade is visible, the hilt is seated in the right hand, the
-blade projects forward from the wrist, the hand is not impaled, and no manual
-alignment was required. Local Android screenshots, localhost captures, Blender
-renders, deploy success, build output, and smoke output are rejected for this
-acceptance gate.
+`generated/cloud-visual-evidence/crimson-sword/latest.json`. Command Center is
+the named cloud QA lane for this evidence: a green manifest must come from a
+completed Command Center browser-worker visual QA job with a completed browser
+episode, screenshot hash, final-render debug bundle, and explicit visual read.
+The manifest must match the current `crimson-sword-<git-sha>` cache token and
+explicitly assert that the real Arborblade is visible, the hilt is seated in
+the right hand, the blade projects forward from the wrist, the hand is not
+impaled, and no manual alignment was required. Local Android screenshots,
+localhost captures, Blender renders, deploy success, build output, smoke
+output, and Command Center action records with no completed episode are rejected
+for this acceptance gate.
 
 Vanguard is exported from `/storage/emulated/0/Download/Vanguard.blend` into
 `public/assets/vanguard/vanguard_rigged_animations.glb`. The runtime GLB keeps

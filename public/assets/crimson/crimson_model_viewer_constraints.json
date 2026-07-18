@@ -32,9 +32,9 @@
   "saberGripLocal": {
     "parentBone": "RightHand",
     "position": [
-      0.605291,
-      16.187576,
-      -2.765799
+      0,
+      0,
+      0
     ],
     "rotationDeg": [
       96.50876,
@@ -42,9 +42,9 @@
       -0.07512
     ],
     "scale": [
-      88,
-      88,
-      88
+      1,
+      1,
+      1
     ]
   },
   "swordLocal": {
@@ -59,9 +59,9 @@
       0
     ],
     "scale": [
-      1,
-      1,
-      1
+      88,
+      88,
+      88
     ]
   },
   "bladeLocalAxis": [

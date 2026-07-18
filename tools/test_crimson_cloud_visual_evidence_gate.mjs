@@ -68,6 +68,10 @@ expectFail('stale cache evidence', ['--evidence', writeEvidence(tmp, { cacheBust
 expectFail('false hilt evidence', ['--evidence', writeEvidence(tmp, { assertions: { hiltSeatedInHand: false } }), '--allow-fixture'], /hiltSeatedInHand/);
 expectFail('red visual read evidence', ['--evidence', writeEvidence(tmp, { visualRead: 'Hosted screenshot is red: hilt is not seated and sword is behind the wrist, not held.' }), '--allow-fixture'], /visualRead still describes a red/);
 expectFail('missing browser socket proof', ['--evidence', writeEvidence(tmp, { browserSocketProof: { status: 'attached' } }), '--allow-fixture'], /browserSocketProof/);
+expectFail('command center requested action without episode', ['--evidence', writeEvidence(tmp, {
+  captureKind: 'command-center-cloud-screenshot',
+  commandCenter: { jobId: 'job_3482abf0-4e12-4c20-92cb-4bfc12cbbf2b', jobStatus: 'completed', actionStatus: 'requested' },
+}), '--allow-fixture'], /completed browser episode id/);
 
 const passing = run(['--evidence', writeEvidence(tmp), '--allow-fixture']);
 assert(passing.status === 0, `mock hosted cloud evidence should pass fixture gate: ${passing.stderr || passing.stdout}`);
@@ -75,5 +79,15 @@ assert(String(passing.stdout || '').trim().startsWith('{'), `passing fixture sho
 const report = JSON.parse(passing.stdout);
 assert(report.ok === true && report.classification === 'visual-acceptance', 'passing fixture report must be visual-acceptance');
 
+const commandCenterPassing = run(['--evidence', writeEvidence(tmp, {
+  captureKind: 'command-center-cloud-screenshot',
+  commandCenter: {
+    jobId: 'job_3482abf0-4e12-4c20-92cb-4bfc12cbbf2b',
+    jobStatus: 'completed',
+    browserEpisodeId: 'browser_episode_1784342121564_cda069db',
+  },
+}), '--allow-fixture']);
+assert(commandCenterPassing.status === 0, `mock Command Center cloud evidence should pass fixture gate: ${commandCenterPassing.stderr || commandCenterPassing.stdout}`);
+
 if (failures.length) throw new Error(failures.join('\n'));
-console.log(JSON.stringify({ ok: true, checked: ['missing', 'localhost', 'android-screenshot', 'stale-cache', 'false-hilt', 'red-read', 'browser-socket-proof', 'mock-pass'] }, null, 2));
+console.log(JSON.stringify({ ok: true, checked: ['missing', 'localhost', 'android-screenshot', 'stale-cache', 'false-hilt', 'red-read', 'browser-socket-proof', 'command-center-requested-action', 'mock-pass', 'command-center-pass'] }, null, 2));

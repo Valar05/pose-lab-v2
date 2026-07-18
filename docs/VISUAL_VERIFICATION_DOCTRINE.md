@@ -117,7 +117,10 @@ Crimson/Arborblade has a hard evidence split:
 - `npm run accept:crimson-sword` is the visual acceptance gate. It must fail
   unless `generated/cloud-visual-evidence/crimson-sword/latest.json` points to a
   fresh hosted GitHub Pages screenshot for the current cache token and asserts
-  the visible hand/hilt/blade relationship.
+  the visible hand/hilt/blade relationship. Command Center is the accepted cloud
+  QA lane when the manifest records `command-center-cloud-screenshot`, a
+  terminal job id, a completed browser episode id, screenshot SHA, debug bundle,
+  socket proof, and the explicit visual assertions.
 - `npm run validate:crimson-sword` runs both, so it cannot pass from geometry,
   smoke, local render, localhost, or Android screenshot evidence alone.
 
