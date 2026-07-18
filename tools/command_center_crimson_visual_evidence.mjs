@@ -67,6 +67,7 @@ const socketProof = source.browserSocketProof || {};
 assert(socketProof.status === 'attached', 'source browserSocketProof.status must be attached');
 assert(socketProof.parentBone === 'RightHand', 'source browserSocketProof.parentBone must be RightHand');
 assert(socketProof.visibleInViewport === true, 'source browserSocketProof.visibleInViewport must be true');
+assert(Number(socketProof.hiltToHandDistance) >= 0.045 && Number(socketProof.hiltToHandDistance) <= 0.14, 'source Crimson screenshot is red: hilt is still at wrist origin instead of palm-forward grip target');
 if (Array.isArray(socketProof.hiltScreen) && Array.isArray(socketProof.tipScreen)) {
   const dx = Number(socketProof.tipScreen[0]) - Number(socketProof.hiltScreen[0]);
   const dy = Number(socketProof.tipScreen[1]) - Number(socketProof.hiltScreen[1]);

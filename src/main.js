@@ -791,6 +791,10 @@ function activeSaberTipLocalPoint() {
   return ACTIVE_CHARACTER.key === 'crimson' ? [0, 0, 0.618789] : null;
 }
 
+function activeSaberHiltLocalPoint() {
+  return ACTIVE_CHARACTER.key === 'crimson' ? [0, 0, 0] : null;
+}
+
 function activeSaberAsset() {
   return ACTIVE_CHARACTER.saberAsset || ASSETS.sabre;
 }
@@ -1211,7 +1215,10 @@ function updateSaberAttachmentProof() {
   if (!ACTIVE_CHARACTER.supportsSaber || !saberGrip || !sabreRoot) return;
   root.updateMatrixWorld(true);
   const hand = findPoseBone('RightHand');
-  const hilt = objectWorldPosition(saberGrip);
+  const hiltLocal = activeSaberHiltLocalPoint();
+  const hilt = Array.isArray(hiltLocal)
+    ? sabreRoot.localToWorld(new THREE.Vector3(...hiltLocal))
+    : objectWorldPosition(sabreRoot);
   const handPosition = hand ? objectWorldPosition(hand) : null;
   const swordScale = objectWorldScale(sabreRoot);
   const tipLocal = activeSaberTipLocalPoint();

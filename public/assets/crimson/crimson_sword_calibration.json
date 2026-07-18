@@ -30,9 +30,9 @@
   },
   "swordLocal": {
     "position": [
-      0,
-      0,
-      0
+      -1.98175,
+      -1.31896,
+      -7.90654
     ],
     "rotationDeg": [
       90,
@@ -88,5 +88,5 @@
     ],
     "dominantAxis": "z"
   },
-  "acceptanceNote": "Offline socket calibration places the normalized origin at the top-middle hilt/guard transition, keeps SaberGrip as an unscaled RightHand child, scales the sword mesh locally for Crimson units, maps the blade tip to runtime local +Z, and applies a sword-local [90, 30, 0] rest rotation because browser socket proof maps it to dominant world +Z. Hosted visual review is still required before claiming Crimson socket acceptance."
+  "acceptanceNote": "Offline socket calibration places the normalized hilt origin at a palm-forward target derived from the Crimson RightForeArm -> RightHand direction, not at the wrist bone origin. SaberGrip stays an unscaled RightHand child, the sword uses local position [-1.98175, -1.31896, -7.90654], rotation [90, 30, 0], and scale [88, 88, 88] so the hilt sits forward of the wrist while the blade maps to dominant world +Z. Hosted visual review is still required before claiming Crimson socket acceptance."
 }
