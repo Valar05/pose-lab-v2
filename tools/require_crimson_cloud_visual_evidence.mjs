@@ -209,7 +209,8 @@ function main() {
     const bladeY = Number(browserSocketProof.bladeWorldDirection[1]);
     const bladeZ = Number(browserSocketProof.bladeWorldDirection[2]);
     if (!(Math.abs(bladeY) <= 0.45)) errors.push('Crimson rest blade world direction must not be mostly vertical');
-    if (!(bladeZ >= 0.4)) errors.push('Crimson rest blade world direction must project forward on positive Z from the wrist');
+    const bladeX = Number(browserSocketProof.bladeWorldDirection[0]);
+    if (!(bladeZ >= 0.85 && bladeZ > Math.abs(bladeX) * 2 && bladeZ > Math.abs(bladeY) * 4)) errors.push('Crimson rest blade world direction must be dominantly forward on positive Z, not side-leading X or vertical Y');
   }
   if (errors.length) fail(errors, evidenceFile);
   console.log(JSON.stringify({

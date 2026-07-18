@@ -35,8 +35,8 @@
       0
     ],
     "rotationDeg": [
-      0,
-      70,
+      90,
+      30,
       0
     ],
     "scale": [
@@ -88,5 +88,5 @@
     ],
     "dominantAxis": "z"
   },
-  "acceptanceNote": "Offline socket calibration places the normalized origin at the top-middle hilt/guard transition, keeps SaberGrip as an unscaled RightHand child, scales the sword mesh locally for Crimson units, maps the blade tip to runtime local +Z, and applies a sword-local [0, 70, 0] rest rotation chosen from constrained Blender renders so the blade reads forward/lateral from the wrist instead of up the forearm or down at the floor. Hosted visual review is still required before claiming Crimson socket acceptance."
+  "acceptanceNote": "Offline socket calibration places the normalized origin at the top-middle hilt/guard transition, keeps SaberGrip as an unscaled RightHand child, scales the sword mesh locally for Crimson units, maps the blade tip to runtime local +Z, and applies a sword-local [90, 30, 0] rest rotation because browser socket proof maps it to dominant world +Z. Hosted visual review is still required before claiming Crimson socket acceptance."
 }

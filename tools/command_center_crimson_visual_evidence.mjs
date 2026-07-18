@@ -77,7 +77,10 @@ if (Array.isArray(socketProof.hiltScreen) && Array.isArray(socketProof.tipScreen
 }
 if (Array.isArray(socketProof.bladeWorldDirection)) {
   assert(Math.abs(Number(socketProof.bladeWorldDirection[1])) <= 0.45, 'source Crimson screenshot is red: blade direction is mostly vertical');
-  assert(Number(socketProof.bladeWorldDirection[2]) >= 0.4, 'source Crimson screenshot is red: blade does not project forward on positive Z');
+  const bladeX = Number(socketProof.bladeWorldDirection[0]);
+  const bladeY = Number(socketProof.bladeWorldDirection[1]);
+  const bladeZ = Number(socketProof.bladeWorldDirection[2]);
+  assert(bladeZ >= 0.85 && bladeZ > Math.abs(bladeX) * 2 && bladeZ > Math.abs(bladeY) * 4, 'source Crimson screenshot is red: blade direction is not dominantly forward on positive Z');
 } else {
   throw new Error('source browserSocketProof must include bladeWorldDirection');
 }
