@@ -3663,6 +3663,8 @@ async function boot() {
       setPoseState(requestedPoseState);
       if (useManualAttackAuthoring() && poseState === 'attack1') {
         statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
+      } else if (attackPoseSequence && REQUESTED_CANDIDATE && isSequenceReviewState()) {
+        statusEl.textContent = `${REQUESTED_ATTACK_LABEL} candidate preview: ${REQUESTED_CANDIDATE}; ${attackPoseFixedTime === null ? 'playing' : `${attackPoseCurrentTime.toFixed(3)}s`}`;
       } else if (REQUESTED_LOWBACKKICK_REVIEW) {
         statusEl.textContent = `LowBackKick candidate preview: ${REQUESTED_CANDIDATE}; not accepted repo truth`;
       } else if (REQUESTED_ATTACK_QUARANTINED) {
