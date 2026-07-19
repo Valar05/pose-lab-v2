@@ -50,7 +50,7 @@ function writeEvidence(dir, overrides = {}) {
       visibleInViewport: true,
       screenLengthPx: 96,
       bladeWorldLength: 1.02,
-      hiltToHandDistance: 0.18946,
+      hiltToHandDistance: 0.13972,
       bladeWorldDirection: [-0.22, 0.02, 0.97],
       hiltScreen: [180, 420],
       tipScreen: [126, 430],

@@ -92,7 +92,7 @@ const socketProof = source.browserSocketProof || {};
 assert(socketProof.status === 'attached', 'source browserSocketProof.status must be attached');
 assert(socketProof.parentBone === 'RightHand', 'source browserSocketProof.parentBone must be RightHand');
 assert(socketProof.visibleInViewport === true, 'source browserSocketProof.visibleInViewport must be true');
-assert(Number(socketProof.hiltToHandDistance) >= 0.16 && Number(socketProof.hiltToHandDistance) <= 0.23, 'source Crimson screenshot is red: hilt distance is outside the accepted manual-export palm grip band');
+assert(Number(socketProof.hiltToHandDistance) >= 0.12 && Number(socketProof.hiltToHandDistance) <= 0.16, 'source Crimson screenshot is red: hilt distance is outside the latest accepted manual-export palm grip band');
 if (Array.isArray(socketProof.hiltScreen) && Array.isArray(socketProof.tipScreen)) {
   const dx = Number(socketProof.tipScreen[0]) - Number(socketProof.hiltScreen[0]);
   const dy = Number(socketProof.tipScreen[1]) - Number(socketProof.hiltScreen[1]);

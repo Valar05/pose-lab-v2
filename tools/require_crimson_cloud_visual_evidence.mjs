@@ -194,7 +194,7 @@ function main() {
   if (browserSocketProof.visibleInViewport !== true) errors.push('browserSocketProof.visibleInViewport must be true');
   if (!(Number(browserSocketProof.screenLengthPx) >= 12)) errors.push('browserSocketProof.screenLengthPx must show a visible blade length');
   if (!(Number(browserSocketProof.bladeWorldLength) >= 0.5)) errors.push('browserSocketProof.bladeWorldLength must be nonzero and sword-sized');
-  if (!(Number(browserSocketProof.hiltToHandDistance) >= 0.16 && Number(browserSocketProof.hiltToHandDistance) <= 0.23)) errors.push('Crimson hilt distance must match the accepted manual-export palm grip band; wrist-origin pivot is red');
+  if (!(Number(browserSocketProof.hiltToHandDistance) >= 0.12 && Number(browserSocketProof.hiltToHandDistance) <= 0.16)) errors.push('Crimson hilt distance must match the latest accepted manual-export palm grip band; wrist-origin pivot is red');
   if (!Array.isArray(browserSocketProof.hiltScreen) || !Array.isArray(browserSocketProof.tipScreen)) errors.push('browserSocketProof must include hiltScreen and tipScreen');
   if (Array.isArray(browserSocketProof.hiltScreen) && Array.isArray(browserSocketProof.tipScreen)) {
     const hiltX = Number(browserSocketProof.hiltScreen[0]);
