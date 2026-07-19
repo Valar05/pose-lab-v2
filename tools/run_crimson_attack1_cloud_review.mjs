@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 
 const DEFAULT_REPO = 'Valar05/pose-lab-v2';
 const QA_WORKFLOW = 'Crimson Visual QA';
-const CANDIDATE = 'crimson-light-attack1-vanguard-2';
+const CANDIDATE = 'crimson-light-attack1-vanguard-3';
 
 function parseArgs(argv) {
   const args = { repo: DEFAULT_REPO, dispatch: false };
@@ -33,7 +33,7 @@ const review = JSON.parse(run('node', ['tools/attack1_review_urls.mjs']));
 const urls = review.urls
   .filter((entry) => entry.candidate === CANDIDATE && entry.primeKey)
   .map((entry) => ({ label: entry.label, candidate: entry.candidate, primeKey: entry.primeKey, time: entry.time, url: entry.url }));
-if (urls.length !== 5) throw new Error(`expected 5 Crimson Attack1 prime URLs for ${CANDIDATE}, got ${urls.length}`);
+if (urls.length !== 8) throw new Error(`expected 8 Crimson Attack1 prime URLs for ${CANDIDATE}, got ${urls.length}`);
 const urlList = JSON.stringify(urls);
 let runId = null;
 if (args.dispatch) {

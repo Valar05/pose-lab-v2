@@ -6,13 +6,16 @@ const CANDIDATES = [
   { id: 'attack1-candidate-1', extras: {} },
   { id: 'attack1-joint-pinned-3', extras: { worldSocket: '1', view: 'fpv' } },
   {
-    id: 'crimson-light-attack1-vanguard-2',
+    id: 'crimson-light-attack1-vanguard-3',
     extras: { model: 'crimson', view: 'orbit', reviewControls: '1' },
     reviewTimes: [
       ['start', 0],
+      ['earlyWindup', 0.1],
       ['anticipation', 0.183333],
+      ['snapPrep', 0.283333],
       ['contact', 0.383333],
       ['contactHold', 0.5],
+      ['settle', 0.566667],
       ['followThrough', 0.62],
     ],
   },

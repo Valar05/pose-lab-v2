@@ -24,7 +24,7 @@ const tipBasisCandidateSource = read('src/review-candidates/attack1-tip-basis-2.
 const jointPinnedCandidateSource = read('src/review-candidates/attack1-joint-pinned-3.js');
 const davinLowBackKickCandidateSource = read('src/review-candidates/davin-lowbackkick-ares-transfer-1.js');
 const davinIdleCandidateSource = read('src/review-candidates/davin-idle-screenshot-1.js');
-const crimsonLightAttackCandidateSource = read('src/review-candidates/crimson-light-attack1-vanguard-2.js');
+const crimsonLightAttackCandidateSource = read('src/review-candidates/crimson-light-attack1-vanguard-3.js');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
 const githubCrimsonVisualCapture = read('tools/github_crimson_visual_capture.mjs');
 const attack2ReviewUrls = read('tools/attack2_review_urls.mjs');
@@ -238,19 +238,19 @@ assert(JSON.stringify(crimsonSwordCalibration.swordLocal?.scale) === JSON.string
 assert(JSON.stringify(crimsonSwordCalibration.saberGripLocal?.rotationDeg) === JSON.stringify([-15.898, 51.654, 83.103]), 'Crimson SaberGrip rotation must map the normalized +Z blade to character/world +Z');
 assert(JSON.stringify(crimsonSwordCalibration.hiltLocalPoint) === JSON.stringify([0, 0, 0]), 'Crimson Arborblade hilt anchor must be the normalized origin');
 assert(crimsonSwordCalibration.tipLocalPoint?.[2] > 0.5 && crimsonSwordCalibration.pommelLocalPoint?.[2] < 0, 'Crimson Arborblade pivot must be at the hilt top with blade tip forward on local +Z and pommel behind the grip');
-assert(crimsonVanguardAttackReference.schema === 'pose-lab-v2-crimson-vanguard-swordattack1-reference-v1' && crimsonVanguardAttackReference.sourceClip === 'SwordAttack1', 'Crimson Vanguard reference must identify SwordAttack1');
-assert(crimsonVanguardAttackReference.policy?.role === 'reference-only' && crimsonVanguardAttackReference.byNode?.['Weapon.R']?.length >= 1 && crimsonVanguardAttackReference.byNode?.['hand.fk.R']?.length >= 1, 'Vanguard SwordAttack1 reference must stay reference-only and include Weapon.R/right-hand tracks');
-assert(crimsonLightAttackCandidate.id === 'crimson-light-attack1-vanguard-2' && crimsonLightAttackCandidate.source?.character === 'crimson', 'Crimson light Attack1 candidate must target Crimson with a stable v2 id');
+assert(crimsonVanguardAttackReference.schema === 'pose-lab-v2-crimson-vanguard-swordattack1-reference-v2' && crimsonVanguardAttackReference.sourceClip === 'SwordAttack1', 'Crimson Vanguard reference must identify SwordAttack1');
+assert(crimsonVanguardAttackReference.policy?.role === 'full-body-reference-only' && crimsonVanguardAttackReference.samples?.contact?.props?.['Weapon.R'] && crimsonVanguardAttackReference.samples?.contact?.bones?.RightHand && crimsonVanguardAttackReference.samples?.contact?.bodyBasis?.forward?.some((value) => Math.abs(value) > 0.001), 'Vanguard SwordAttack1 reference must stay reference-only and include Weapon.R/right-hand tracks');
+assert(crimsonLightAttackCandidate.id === 'crimson-light-attack1-vanguard-3' && crimsonLightAttackCandidate.source?.character === 'crimson', 'Crimson light Attack1 candidate must target Crimson with a stable v3 id');
 assert(crimsonLightAttackCandidate.source?.policy?.forbiddenUse?.includes('Do not copy Vanguard Weapon.R'), 'Crimson light Attack1 candidate must preserve the no direct Weapon.R copy policy');
 assert(crimsonLightAttackBaseline.schema === 'pose-lab-v2-crimson-light-attack1-weapon-baseline-v1' && JSON.stringify(crimsonLightAttackBaseline.saberGripLocal) === JSON.stringify(crimsonLightAttackCandidate.source?.savedWeapon?.saberGripLocal), 'Crimson light Attack1 candidate must use the saved user weapon baseline');
 assert(crimsonLightAttackCandidate.source?.savedWeapon?.bladeLocalAxis?.join(',') === '0,0,1', 'Crimson light Attack1 candidate must preserve Arborblade +Z blade axis');
-assert(crimsonLightAttackCandidate.frames?.length === 5 && crimsonLightAttackCandidate.frames.some((frame) => frame.label === 'contact'), 'Crimson light Attack1 candidate must include the five review frames and contact frame');
-assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V2?.status === 'PASS', 'Crimson light Attack1 v2 candidate generator guard must pass');
-assert((crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V2?.report || []).find((entry) => entry.label === 'contact')?.bladeAngleErrorDeg <= 7, 'Crimson light Attack1 contact frame must point Arborblade world-forward');
-assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V2?.bodyTravelDeg?.Hips >= 14 && crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V2?.bodyTravelDeg?.LeftUpLeg >= 3 && crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V2?.bodyTravelDeg?.RightArm >= 40, 'Crimson light Attack1 v2 must prove full-body movement, not upper-body-only wrap');
-assert(reviewConstantsSource.includes('crimson-light-attack1-vanguard-2') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-1') && reviewConstantsSource.includes('characterKey: "crimson"'), 'Attack1 review registry must expose only Crimson light Attack1 v2 as the active Crimson candidate');
+assert(crimsonLightAttackCandidate.frames?.length === 8 && crimsonLightAttackCandidate.frames.some((frame) => frame.label === 'contact') && crimsonLightAttackCandidate.frames.some((frame) => frame.label === 'snapPrep'), 'Crimson light Attack1 candidate must include the eight review frames and contact/snapPrep frames');
+assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.status === 'PASS', 'Crimson light Attack1 v3 candidate generator guard must pass');
+assert((crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.report || []).find((entry) => entry.label === 'contact')?.bladeAngleErrorDeg <= 9, 'Crimson light Attack1 contact frame must point Arborblade world-forward');
+assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.Hips >= 18 && crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.LeftUpLeg >= 7 && crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.RightArm >= 48, 'Crimson light Attack1 v3 must prove full-body movement, not upper-body-only wrap');
+assert(reviewConstantsSource.includes('crimson-light-attack1-vanguard-3') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-2') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-1') && reviewConstantsSource.includes('characterKey: "crimson"'), 'Attack1 review registry must expose only Crimson light Attack1 v3 as the active Crimson candidate');
 assert(main.includes('explicitCandidateReview') && main.includes('supportsAttackReview: true'), 'Runtime must allow explicit Crimson attack review without enabling baked pose states');
-assert(attackReviewUrls.includes('crimson-light-attack1-vanguard-2') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-1') && attackReviewUrls.includes("model: 'crimson'"), 'Attack1 cloud review URLs must include only the Crimson light Attack1 v2 candidate');
+assert(attackReviewUrls.includes('crimson-light-attack1-vanguard-3') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-2') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-1') && attackReviewUrls.includes("model: 'crimson'"), 'Attack1 cloud review URLs must include only the Crimson light Attack1 v3 candidate');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
 assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
 assert(attack2ReviewUrls.includes('attack2-candidate-1') && attack2ReviewUrls.includes("pose: 'attack2'") && attack2ReviewUrls.includes('backhandPrep') && attack2ReviewUrls.includes('contactHold'), 'Attack2 review URLs must target the combo backhand candidate and its prime keys');
@@ -584,7 +584,7 @@ if (exists('dist')) {
   assert(exists('dist/src/review-candidates/attack1-tip-match-1.js'), 'dist must include Attack1 tip-match candidate preview module');
   assert(exists('dist/src/review-candidates/attack1-tip-basis-2.js'), 'dist must include Attack1 tip-basis candidate preview module');
   assert(exists('dist/src/review-candidates/attack1-joint-pinned-3.js'), 'dist must include Attack1 joint-pinned candidate preview module');
-  assert(exists('dist/src/review-candidates/crimson-light-attack1-vanguard-2.js'), 'dist must include Crimson light Attack1 Vanguard v2 candidate preview module');
+  assert(exists('dist/src/review-candidates/crimson-light-attack1-vanguard-3.js'), 'dist must include Crimson light Attack1 Vanguard v3 candidate preview module');
   assert(exists('dist/assets/crimson/crimson_light_attack1_weapon_baseline.json'), 'dist must expose Crimson light Attack1 saved weapon baseline');
   assert(exists('dist/src/review-candidates/fist-ready-candidate-1.js'), 'dist must include FistReady candidate preview module');
   assert(exists('dist/src/review-candidates/fist-attack1-candidate-1.js'), 'dist must include FistAttack1 candidate preview module');
@@ -623,7 +623,7 @@ for (const file of [
   'src/review-candidates/attack1-tip-match-1.js',
   'src/review-candidates/attack1-tip-basis-2.js',
   'src/review-candidates/attack1-joint-pinned-3.js',
-  'src/review-candidates/crimson-light-attack1-vanguard-2.js',
+  'src/review-candidates/crimson-light-attack1-vanguard-3.js',
   'vendor/three/examples/jsm/loaders/GLTFLoader.js',
   'vendor/three/examples/jsm/controls/OrbitControls.js',
   'vendor/three/examples/jsm/utils/BufferGeometryUtils.js',

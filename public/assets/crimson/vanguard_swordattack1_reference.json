@@ -1,1067 +1,8087 @@
 {
-  "schema": "pose-lab-v2-crimson-vanguard-swordattack1-reference-v1",
+  "schema": "pose-lab-v2-crimson-vanguard-swordattack1-reference-v2",
   "sourceGlb": "public/assets/vanguard/vanguard_rigged_animations.glb",
   "sourceClip": "SwordAttack1",
   "duration": 0.633333,
-  "primeTimes": {
+  "sampleTimes": {
     "start": 0,
-    "anticipation": 0.18,
-    "contact": 0.38,
+    "earlyWindup": 0.1,
+    "anticipation": 0.183333,
+    "snapPrep": 0.283333,
+    "contact": 0.383333,
     "contactHold": 0.5,
-    "followThrough": 0.7,
-    "recoil": 0.95,
-    "end": 1.25
+    "settle": 0.566667,
+    "followThrough": 0.62
   },
-  "policy": {
-    "role": "reference-only",
-    "target": "Crimson Plume Knight / Arborblade sword authoring",
-    "forbiddenUse": "Do not copy Vanguard Weapon.R transforms directly into Crimson as accepted sword orientation.",
-    "intendedUse": "Use timing plus hand/forearm/weapon relationship predicates to author a quarantined Crimson attack candidate."
+  "logicalBones": {
+    "Hips": "hips",
+    "Spine02": "chest",
+    "Spine01": "spine",
+    "Spine": "spine",
+    "neck": "neck",
+    "Head": "head",
+    "LeftShoulder": "shoulder.L",
+    "LeftArm": "upper_arm.fk.L",
+    "LeftForeArm": "forearm.fk.L",
+    "LeftHand": "hand.fk.L",
+    "RightShoulder": "shoulder.R",
+    "RightArm": "upper_arm.fk.R",
+    "RightForeArm": "forearm.fk.R",
+    "RightHand": "hand.fk.R",
+    "LeftUpLeg": "thigh.fk.L",
+    "LeftLeg": "shin.fk.L",
+    "LeftFoot": "foot.fk.L",
+    "RightUpLeg": "thigh.fk.R",
+    "RightLeg": "shin.fk.R",
+    "RightFoot": "foot.fk.R"
   },
-  "referenceTracks": [
+  "propNodes": [
     "root",
-    "upper_arm.fk.R",
-    "forearm.fk.R",
-    "hand.fk.R",
     "Weapon.R",
     "Long_Sword"
   ],
-  "byNode": {
-    "root": [
-      {
-        "node": "root",
-        "path": "translation",
-        "interpolation": "LINEAR",
-        "keyCount": 39,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "anticipation": {
-            "time": 0.183333,
-            "value": [
-              0,
-              0,
-              0.558837
-            ]
-          },
-          "contact": {
-            "time": 0.383333,
-            "value": [
-              0,
-              0,
-              1.22789
-            ]
-          },
-          "contactHold": {
-            "time": 0.5,
-            "value": [
-              0,
-              0,
-              1.302308
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              1.81257
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              1.81257
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              1.81257
-            ]
-          }
-        }
-      },
-      {
-        "node": "root",
-        "path": "rotation",
-        "interpolation": "STEP",
-        "keyCount": 2,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              -0.707107,
-              0,
-              0,
-              0.707107
-            ]
-          },
-          "anticipation": {
-            "time": 0,
-            "value": [
-              -0.707107,
-              0,
-              0,
-              0.707107
-            ]
-          },
-          "contact": {
-            "time": 0.633333,
-            "value": [
-              -0.707107,
-              0,
-              0,
-              0.707107
-            ]
-          },
-          "contactHold": {
-            "time": 0.633333,
-            "value": [
-              -0.707107,
-              0,
-              0,
-              0.707107
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              -0.707107,
-              0,
-              0,
-              0.707107
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              -0.707107,
-              0,
-              0,
-              0.707107
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              -0.707107,
-              0,
-              0,
-              0.707107
-            ]
-          }
-        }
-      },
-      {
-        "node": "root",
-        "path": "scale",
-        "interpolation": "STEP",
-        "keyCount": 2,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "anticipation": {
-            "time": 0,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "contact": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "contactHold": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          }
-        }
-      }
+  "policy": {
+    "role": "full-body-reference-only",
+    "target": "Crimson Plume Knight / Arborblade sword authoring",
+    "forbiddenUse": "Do not copy Vanguard Weapon.R transforms directly into Crimson as accepted sword orientation.",
+    "intendedUse": "Use full-body source world relationships, limb vectors, roll signatures, timing, and blade predicates to bake a quarantined Crimson attack candidate.",
+    "rootMotion": "root translation is source/game metadata only and is not applied in Pose Lab."
+  },
+  "trackInventory": {
+    "BackSheath": [
+      "rotation",
+      "scale",
+      "translation"
     ],
-    "upper_arm.fk.R": [
-      {
-        "node": "upper_arm.fk.R",
-        "path": "translation",
-        "interpolation": "LINEAR",
-        "keyCount": 2,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "anticipation": {
-            "time": 0,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "contact": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "contactHold": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          }
-        }
-      },
-      {
-        "node": "upper_arm.fk.R",
-        "path": "rotation",
-        "interpolation": "LINEAR",
-        "keyCount": 39,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              0.303104,
-              0.34487,
-              -0.195519,
-              0.866582
-            ]
-          },
-          "anticipation": {
-            "time": 0.183333,
-            "value": [
-              0.470638,
-              0.427913,
-              -0.370051,
-              0.677091
-            ]
-          },
-          "contact": {
-            "time": 0.383333,
-            "value": [
-              0.41963,
-              0.010295,
-              0.463948,
-              0.780101
-            ]
-          },
-          "contactHold": {
-            "time": 0.5,
-            "value": [
-              0.373932,
-              0.049938,
-              0.401992,
-              0.834316
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              0.109596,
-              0.252699,
-              -0.01686,
-              0.96117
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              0.109596,
-              0.252699,
-              -0.01686,
-              0.96117
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              0.109596,
-              0.252699,
-              -0.01686,
-              0.96117
-            ]
-          }
-        }
-      },
-      {
-        "node": "upper_arm.fk.R",
-        "path": "scale",
-        "interpolation": "STEP",
-        "keyCount": 2,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "anticipation": {
-            "time": 0,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "contact": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "contactHold": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          }
-        }
-      }
+    "chest": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-chest": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_index.01.L.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_index.01.L.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_index.01.R.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_index.01.R.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_index.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_index.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_index.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_index.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_middle.01.L.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_middle.01.L.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_middle.01.R.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_middle.01.R.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_middle.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_middle.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_middle.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_middle.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_pinky.01.L.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_pinky.01.L.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_pinky.01.R.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_pinky.01.R.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_pinky.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_pinky.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_pinky.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_pinky.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_ring.01.L.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_ring.01.L.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_ring.01.R.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_ring.01.R.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_ring.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_ring.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_ring.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-f_ring.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-foot.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-foot.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-forearm.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-forearm.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-forearm.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-forearm.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-hand.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-hand.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-head": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-hips": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-neck": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-palm.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-palm.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-palm.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-palm.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-palm.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-palm.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-palm.04.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-palm.04.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-shin.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-shin.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-shin.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-shin.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-shoulder.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-shoulder.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-spine": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thigh.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thigh.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thigh.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thigh.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thumb.01.L.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thumb.01.L.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thumb.01.R.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thumb.01.R.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thumb.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thumb.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thumb.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-thumb.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-toe.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-toe.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-upper_arm.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-upper_arm.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-upper_arm.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "DEF-upper_arm.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "elbow_hose.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "elbow_hose.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "elbow_target.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "elbow_target.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_index.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_index.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_index.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_index.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_index.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_index.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_index.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_index.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_middle.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_middle.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_middle.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_middle.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_middle.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_middle.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_middle.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_middle.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_pinky.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_pinky.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_pinky.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_pinky.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_pinky.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_pinky.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_pinky.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_pinky.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_ring.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_ring.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_ring.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_ring.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_ring.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_ring.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_ring.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "f_ring.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "foot_roll.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "foot_roll.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "foot.fk.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "foot.fk.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "foot.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "foot.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "forearm_hose_end.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "forearm_hose_end.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "forearm_hose.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "forearm_hose.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "forearm.fk.L": [
+      "rotation",
+      "scale",
+      "translation"
     ],
     "forearm.fk.R": [
-      {
-        "node": "forearm.fk.R",
-        "path": "translation",
-        "interpolation": "LINEAR",
-        "keyCount": 2,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "anticipation": {
-            "time": 0,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "contact": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "contactHold": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          }
-        }
-      },
-      {
-        "node": "forearm.fk.R",
-        "path": "rotation",
-        "interpolation": "LINEAR",
-        "keyCount": 39,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              0.760189,
-              -0.033036,
-              -0.054375,
-              0.64658
-            ]
-          },
-          "anticipation": {
-            "time": 0.183333,
-            "value": [
-              0.478035,
-              -0.011359,
-              -0.062602,
-              0.876033
-            ]
-          },
-          "contact": {
-            "time": 0.383333,
-            "value": [
-              0.377345,
-              -0.004306,
-              -0.063478,
-              0.923885
-            ]
-          },
-          "contactHold": {
-            "time": 0.5,
-            "value": [
-              0.469686,
-              -0.010764,
-              -0.062707,
-              0.880538
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              0.845793,
-              -0.040561,
-              -0.049019,
-              0.529705
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              0.845793,
-              -0.040561,
-              -0.049019,
-              0.529705
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              0.845793,
-              -0.040561,
-              -0.049019,
-              0.529705
-            ]
-          }
-        }
-      },
-      {
-        "node": "forearm.fk.R",
-        "path": "scale",
-        "interpolation": "LINEAR",
-        "keyCount": 2,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "anticipation": {
-            "time": 0,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "contact": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "contactHold": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          }
-        }
-      }
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "hand.fk.L": [
+      "rotation",
+      "scale",
+      "translation"
     ],
     "hand.fk.R": [
-      {
-        "node": "hand.fk.R",
-        "path": "translation",
-        "interpolation": "LINEAR",
-        "keyCount": 2,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "anticipation": {
-            "time": 0,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "contact": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "contactHold": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              0,
-              0,
-              0
-            ]
-          }
-        }
-      },
-      {
-        "node": "hand.fk.R",
-        "path": "rotation",
-        "interpolation": "LINEAR",
-        "keyCount": 39,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              0.019832,
-              -0.14399,
-              -0.277929,
-              0.949542
-            ]
-          },
-          "anticipation": {
-            "time": 0.183333,
-            "value": [
-              -0.036248,
-              0.16311,
-              -0.15079,
-              0.974343
-            ]
-          },
-          "contact": {
-            "time": 0.383333,
-            "value": [
-              -0.133018,
-              -0.240633,
-              -0.028371,
-              0.961039
-            ]
-          },
-          "contactHold": {
-            "time": 0.5,
-            "value": [
-              -0.108661,
-              -0.226264,
-              -0.069756,
-              0.96547
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              0.019832,
-              -0.143989,
-              -0.277929,
-              0.949542
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              0.019832,
-              -0.143989,
-              -0.277929,
-              0.949542
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              0.019832,
-              -0.143989,
-              -0.277929,
-              0.949542
-            ]
-          }
-        }
-      },
-      {
-        "node": "hand.fk.R",
-        "path": "scale",
-        "interpolation": "STEP",
-        "keyCount": 2,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "anticipation": {
-            "time": 0,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "contact": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "contactHold": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          }
-        }
-      }
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "hand.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "hand.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "head": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "hips": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "HipSheath": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "knee_hose.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "knee_hose.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "knee_target.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "knee_target.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-chest.flex": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-chest.flex_s": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-chest.reverse": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-elbow_hose_p.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-elbow_hose_p.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-elbow_target.ik_parent.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-elbow_target.ik_parent.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_index.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_index.01.L.tip": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_index.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_index.01.R.tip": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_index.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_index.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_index.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_index.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_middle.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_middle.01.L.tip": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_middle.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_middle.01.R.tip": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_middle.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_middle.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_middle.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_middle.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_pinky.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_pinky.01.L.tip": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_pinky.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_pinky.01.R.tip": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_pinky.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_pinky.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_pinky.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_pinky.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_ring.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_ring.01.L.tip": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_ring.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_ring.01.R.tip": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_ring.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_ring.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_ring.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-f_ring.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.L.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.L.rocker.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.L.rocker.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.L.roll.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.L.roll.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.R.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.R.rocker.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.R.rocker.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.R.roll.01": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-foot.R.roll.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm_antistr.fk.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm_antistr.fk.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm_hose_end_p.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm_hose_end_p.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm_hose_p.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm_hose_p.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm_smth.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm_smth.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm.junc.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm.junc.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm.nostr.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm.nostr.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm.stretch.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-forearm.stretch.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hand.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hand.L.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hand.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hand.R.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-head": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-head.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-head.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-head.socket1": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-head.socket2": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_fk_ns_ch": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_fk_ns_ch.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_fk_ns_intr": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_fk_ns_intr.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_ik_ns_ch": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_ik_ns_ch.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_ik_ns_intr": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_ik_ns_intr.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_rh_ns_ch": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_rh_ns_ch.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_rh_ns_intr": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips_rh_ns_intr.001": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips.flex": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips.flex_s": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-hips.reverse": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-knee_hose_p.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-knee_hose_p.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-knee_target.ik_parent.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-knee_target.ik_parent.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-neck": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-neck.02": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-neck.child": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-neck.follow": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-par_spine": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin_antistr.fk.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin_antistr.fk.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin_hose_end_p.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin_hose_end_p.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin_hose_p.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin_hose_p.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin_smth.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin_smth.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin.junc.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin.junc.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin.nostr.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin.nostr.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin.stretch.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shin.stretch.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_fk_ns_ch.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_fk_ns_ch.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_fk_ns_intr.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_fk_ns_intr.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_ik_ns_ch.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_ik_ns_ch.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_ik_ns_intr.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_ik_ns_intr.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_rh_ns_ch.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_rh_ns_ch.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_rh_ns_intr.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-shoulder_rh_ns_intr.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-spine.flex": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-spine.flex_s": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-spine.reverse": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-sub_chest": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-sub_hips": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-sub_spine": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh_antistr.fk.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh_antistr.fk.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh_hose_end_p.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh_hose_end_p.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh_hose_p.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh_hose_p.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh_smth.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh_smth.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh.fk.L.socket1": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh.fk.L.socket2": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh.fk.R.socket1": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh.fk.R.socket2": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh.nostr.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh.nostr.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh.stretch.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thigh.stretch.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thumb.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thumb.01.L.tip": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thumb.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thumb.01.R.tip": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thumb.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thumb.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thumb.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-thumb.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-toe.L.parent": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-toe.L.socket1": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-toe.L.socket2": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-toe.R.parent": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-toe.R.socket1": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-toe.R.socket2": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm_antistr.fk.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm_antistr.fk.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm_hose_end_p.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm_hose_end_p.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm_hose_p.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm_hose_p.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm_smth.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm_smth.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm.fk.L.socket1": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm.fk.L.socket2": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm.fk.R.socket1": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm.fk.R.socket2": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm.nostr.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm.nostr.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm.stretch.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "MCH-upper_arm.stretch.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "neck": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-chest": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_index.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_index.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_index.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_index.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_index.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_index.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_middle.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_middle.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_middle.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_middle.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_middle.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_middle.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_pinky.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_pinky.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_pinky.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_pinky.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_pinky.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_pinky.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_ring.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_ring.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_ring.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_ring.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_ring.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-f_ring.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-foot.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-foot.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-forearm.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-forearm.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-hand.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-hand.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-head": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-heel.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-heel.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-heel.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-heel.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-hips": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-neck": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-palm.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-palm.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-palm.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-palm.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-palm.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-palm.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-palm.04.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-palm.04.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-shin.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-shin.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-shoulder.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-shoulder.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-spine": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-thigh.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-thigh.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-thumb.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-thumb.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-thumb.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-thumb.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-thumb.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-thumb.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-toe.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-toe.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-upper_arm.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "ORG-upper_arm.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "palm.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "palm.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "Pauldron.helper.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "Pauldron.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "root": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "shin_hose_end.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "shin_hose_end.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "shin_hose.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "shin_hose.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "shin.fk.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "shin.fk.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "shoulder.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "shoulder.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "spine": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thigh_hose_end.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thigh_hose_end.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thigh_hose.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thigh_hose.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thigh.fk.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thigh.fk.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thumb.01.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thumb.01.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thumb.02.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thumb.02.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thumb.03.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thumb.03.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thumb.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "thumb.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "toe.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "toe.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "torso": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "upper_arm_hose_end.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "upper_arm_hose_end.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "upper_arm_hose.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "upper_arm_hose.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "upper_arm.fk.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "upper_arm.fk.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "VIS-foot.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "VIS-foot.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "VIS-hand.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "VIS-hand.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "VIS-thigh_pole.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "VIS-thigh_pole.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "VIS-upper_arm_pole.ik.L": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "VIS-upper_arm_pole.ik.R": [
+      "rotation",
+      "scale",
+      "translation"
+    ],
+    "Weapon.L": [
+      "rotation",
+      "scale",
+      "translation"
     ],
     "Weapon.R": [
-      {
-        "node": "Weapon.R",
-        "path": "translation",
-        "interpolation": "LINEAR",
-        "keyCount": 39,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              0.01797,
-              0.100084,
-              0.031002
-            ]
-          },
-          "anticipation": {
-            "time": 0.183333,
-            "value": [
-              0.021093,
-              0.093805,
-              0.034678
-            ]
-          },
-          "contact": {
-            "time": 0.383333,
-            "value": [
-              0.022841,
-              0.09029,
-              0.036736
-            ]
-          },
-          "contactHold": {
-            "time": 0.5,
-            "value": [
-              0.022042,
-              0.091896,
-              0.035796
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              0.01797,
-              0.100084,
-              0.031002
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              0.01797,
-              0.100084,
-              0.031002
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              0.01797,
-              0.100084,
-              0.031002
-            ]
+      "rotation",
+      "scale",
+      "translation"
+    ]
+  },
+  "samples": {
+    "start": {
+      "label": "start",
+      "requestedTime": 0,
+      "sourceTime": 0,
+      "bones": {
+        "Hips": {
+          "sourceNode": "hips",
+          "worldPosition": [
+            -0.142807,
+            0.971917,
+            0.043672
+          ],
+          "worldQuaternion": [
+            0.213871,
+            -0.515738,
+            0.090333,
+            0.82469
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.819564,
+            0,
+            0,
+            0.572987
+          ]
+        },
+        "Spine02": {
+          "sourceNode": "chest",
+          "worldPosition": [
+            -0.142807,
+            0.971917,
+            0.043672
+          ],
+          "worldQuaternion": [
+            0.046907,
+            -0.771823,
+            -0.053417,
+            0.631851
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.646561,
+            -0.219546,
+            -0.244654,
+            0.688406
+          ]
+        },
+        "Spine01": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.142807,
+            0.971917,
+            0.043672
+          ],
+          "worldQuaternion": [
+            -0.122054,
+            -0.650154,
+            -0.026449,
+            0.749469
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.581939,
+            -0.079142,
+            0.082805,
+            0.805125
+          ]
+        },
+        "Spine": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.142807,
+            0.971917,
+            0.043672
+          ],
+          "worldQuaternion": [
+            -0.122054,
+            -0.650154,
+            -0.026449,
+            0.749469
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.581939,
+            -0.079142,
+            0.082805,
+            0.805125
+          ]
+        },
+        "neck": {
+          "sourceNode": "neck",
+          "worldPosition": [
+            -0.112619,
+            1.413499,
+            0.061117
+          ],
+          "worldQuaternion": [
+            0.242785,
+            -0.692572,
+            0.169359,
+            0.657813
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.283874,
+            0.002084,
+            -0.01026,
+            0.958805
+          ]
+        },
+        "Head": {
+          "sourceNode": "head",
+          "worldPosition": [
+            -0.112619,
+            1.413498,
+            0.061117
+          ],
+          "worldQuaternion": [
+            0.001168,
+            -0.651712,
+            -0.039222,
+            0.757451
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.017084,
+            -0.504541,
+            -0.02412,
+            0.862882
+          ]
+        },
+        "LeftShoulder": {
+          "sourceNode": "shoulder.L",
+          "worldPosition": [
+            -0.155108,
+            1.355267,
+            0.062948
+          ],
+          "worldQuaternion": [
+            -0.115017,
+            0.683446,
+            0.719408,
+            0.046098
+          ],
+          "localPosition": [
+            0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.443912,
+            -0.495016,
+            -0.513736,
+            0.542196
+          ]
+        },
+        "LeftArm": {
+          "sourceNode": "upper_arm.fk.L",
+          "worldPosition": [
+            -0.191419,
+            1.324503,
+            0.200199
+          ],
+          "worldQuaternion": [
+            -0.625457,
+            0.646709,
+            0.033929,
+            0.435224
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.693817,
+            -0.094912,
+            0.133101,
+            0.701351
+          ]
+        },
+        "LeftForeArm": {
+          "sourceNode": "forearm.fk.L",
+          "worldPosition": [
+            -0.415342,
+            1.382,
+            0.06653
+          ],
+          "worldQuaternion": [
+            -0.291458,
+            0.623605,
+            -0.267011,
+            0.674443
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.488823,
+            0.012132,
+            0.062457,
+            0.87006
+          ]
+        },
+        "LeftHand": {
+          "sourceNode": "hand.fk.L",
+          "worldPosition": [
+            -0.416198,
+            1.558317,
+            -0.1197
+          ],
+          "worldQuaternion": [
+            -0.107405,
+            0.88796,
+            -0.374462,
+            0.244478
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.004762,
+            0.526883,
+            0.00455,
+            0.849913
+          ]
+        },
+        "RightShoulder": {
+          "sourceNode": "shoulder.R",
+          "worldPosition": [
+            -0.147893,
+            1.360388,
+            0.027433
+          ],
+          "worldQuaternion": [
+            -0.57257,
+            -0.303604,
+            -0.261952,
+            0.715101
+          ],
+          "localPosition": [
+            -0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.581285,
+            0.317226,
+            0.328847,
+            0.673302
+          ]
+        },
+        "RightArm": {
+          "sourceNode": "upper_arm.fk.R",
+          "worldPosition": [
+            -0.045843,
+            1.369305,
+            -0.075567
+          ],
+          "worldQuaternion": [
+            -0.56209,
+            -0.275728,
+            0.288126,
+            0.724577
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.303104,
+            0.34487,
+            -0.195519,
+            0.866582
+          ]
+        },
+        "RightForeArm": {
+          "sourceNode": "forearm.fk.R",
+          "worldPosition": [
+            -0.07457,
+            1.423269,
+            -0.335523
+          ],
+          "worldQuaternion": [
+            0.21189,
+            -0.01375,
+            0.375072,
+            0.902349
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.760189,
+            -0.033036,
+            -0.054375,
+            0.64658
+          ]
+        },
+        "RightHand": {
+          "sourceNode": "hand.fk.R",
+          "worldPosition": [
+            -0.249658,
+            1.584541,
+            -0.2401
+          ],
+          "worldQuaternion": [
+            0.276922,
+            -0.076656,
+            0.075121,
+            0.95488
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.019832,
+            -0.14399,
+            -0.277929,
+            0.949542
+          ]
+        },
+        "LeftUpLeg": {
+          "sourceNode": "thigh.fk.L",
+          "worldPosition": [
+            -0.041539,
+            0.867864,
+            0.094055
+          ],
+          "worldQuaternion": [
+            0.850327,
+            0.039512,
+            0.524546,
+            0.015297
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "LeftLeg": {
+          "sourceNode": "shin.fk.L",
+          "worldPosition": [
+            -0.019793,
+            0.444233,
+            0.122739
+          ],
+          "worldQuaternion": [
+            0.845497,
+            0.043881,
+            0.528888,
+            -0.059047
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            0.009231,
+            0.035158,
+            0.997206
+          ]
+        },
+        "LeftFoot": {
+          "sourceNode": "foot.fk.L",
+          "worldPosition": [
+            0.058394,
+            -0.121692,
+            0.092169
+          ],
+          "worldQuaternion": [
+            -0.369546,
+            0.553341,
+            0.647818,
+            0.37092
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            0.694227,
+            -0.718491,
+            0.032553
+          ]
+        },
+        "RightUpLeg": {
+          "sourceNode": "thigh.fk.R",
+          "worldPosition": [
+            -0.130074,
+            0.881899,
+            -0.080245
+          ],
+          "worldQuaternion": [
+            0.847743,
+            -0.092342,
+            0.518148,
+            -0.06579
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "RightLeg": {
+          "sourceNode": "shin.fk.R",
+          "worldPosition": [
+            -0.167652,
+            0.467673,
+            -0.168354
+          ],
+          "worldQuaternion": [
+            0.849109,
+            -0.027856,
+            0.517215,
+            -0.103568
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            -0.009231,
+            -0.035158,
+            0.997206
+          ]
+        },
+        "RightFoot": {
+          "sourceNode": "foot.fk.R",
+          "worldPosition": [
+            -0.133423,
+            -0.091284,
+            -0.285464
+          ],
+          "worldQuaternion": [
+            -0.369545,
+            0.553341,
+            0.647818,
+            0.37092
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            -0.694227,
+            0.718491,
+            0.032553
+          ]
+        }
+      },
+      "props": {
+        "root": {
+          "worldPosition": [
+            0,
+            0,
+            0
+          ],
+          "worldQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ]
+        },
+        "Weapon.R": {
+          "worldPosition": [
+            -0.253958,
+            1.653207,
+            -0.159061
+          ],
+          "worldQuaternion": [
+            0.560296,
+            0.74527,
+            0.30351,
+            -0.196271
+          ],
+          "localPosition": [
+            0.01797,
+            0.100084,
+            0.031002
+          ],
+          "localQuaternion": [
+            -0.668618,
+            -0.738557,
+            -0.055227,
+            0.066587
+          ]
+        },
+        "Long_Sword": {
+          "worldPosition": [
+            0,
+            0,
+            0
+          ],
+          "worldQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "bodyBasis": {
+        "origin": [
+          -0.142807,
+          0.971917,
+          0.043672
+        ],
+        "right": [
+          0.201849,
+          0.008401,
+          -0.979381
+        ],
+        "up": [
+          -0.022521,
+          0.999739,
+          0.003934
+        ],
+        "forward": [
+          0.979158,
+          0.021263,
+          0.201985
+        ]
+      },
+      "limbs": {
+        "rightArm": {
+          "chain": [
+            "RightArm",
+            "RightForeArm",
+            "RightHand"
+          ],
+          "parentToMid": [
+            -0.028727,
+            0.053964,
+            -0.259956
+          ],
+          "midToEnd": [
+            -0.175088,
+            0.161272,
+            0.095423
+          ],
+          "parentToEnd": [
+            -0.203815,
+            0.215236,
+            -0.164533
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.339025
+          }
+        },
+        "leftArm": {
+          "chain": [
+            "LeftArm",
+            "LeftForeArm",
+            "LeftHand"
+          ],
+          "parentToMid": [
+            -0.223923,
+            0.057497,
+            -0.133669
+          ],
+          "midToEnd": [
+            -0.000856,
+            0.176317,
+            -0.18623
+          ],
+          "parentToEnd": [
+            -0.224779,
+            0.233814,
+            -0.319899
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.455555
+          }
+        },
+        "rightLeg": {
+          "chain": [
+            "RightUpLeg",
+            "RightLeg",
+            "RightFoot"
+          ],
+          "parentToMid": [
+            -0.037578,
+            -0.414226,
+            -0.088109
+          ],
+          "midToEnd": [
+            0.034229,
+            -0.558957,
+            -0.11711
+          ],
+          "parentToEnd": [
+            -0.003349,
+            -0.973183,
+            -0.205219
+          ],
+          "lengths": {
+            "parentToMid": 0.425157,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994591
+          }
+        },
+        "leftLeg": {
+          "chain": [
+            "LeftUpLeg",
+            "LeftLeg",
+            "LeftFoot"
+          ],
+          "parentToMid": [
+            0.021746,
+            -0.423631,
+            0.028684
+          ],
+          "midToEnd": [
+            0.078187,
+            -0.565925,
+            -0.03057
+          ],
+          "parentToEnd": [
+            0.099933,
+            -0.989556,
+            -0.001886
+          ],
+          "lengths": {
+            "parentToMid": 0.425157,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994591
           }
         }
       },
-      {
-        "node": "Weapon.R",
-        "path": "rotation",
-        "interpolation": "LINEAR",
-        "keyCount": 39,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              -0.668618,
-              -0.738557,
-              -0.055227,
-              0.066587
-            ]
-          },
-          "anticipation": {
-            "time": 0.183333,
-            "value": [
-              -0.735434,
-              -0.675171,
-              -0.012058,
-              0.05599
-            ]
-          },
-          "contact": {
-            "time": 0.383333,
-            "value": [
-              -0.592164,
-              -0.797181,
-              -0.008991,
-              0.117315
-            ]
-          },
-          "contactHold": {
-            "time": 0.5,
-            "value": [
-              -0.605284,
-              -0.788323,
-              -0.01659,
-              0.1091
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              -0.668618,
-              -0.738557,
-              -0.055227,
-              0.066587
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              -0.668618,
-              -0.738557,
-              -0.055227,
-              0.066587
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              -0.668618,
-              -0.738557,
-              -0.055227,
-              0.066587
-            ]
-          }
-        }
-      },
-      {
-        "node": "Weapon.R",
-        "path": "scale",
-        "interpolation": "STEP",
-        "keyCount": 2,
-        "startTime": 0,
-        "endTime": 0.633333,
-        "samples": {
-          "start": {
-            "time": 0,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "anticipation": {
-            "time": 0,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "contact": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "contactHold": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "followThrough": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "recoil": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          },
-          "end": {
-            "time": 0.633333,
-            "value": [
-              1,
-              1,
-              1
-            ]
-          }
-        }
+      "weapon": {
+        "hiltWorld": [
+          -0.253958,
+          1.653207,
+          -0.159061
+        ],
+        "tipWorld": [
+          0,
+          0,
+          0
+        ],
+        "bladeDirectionWorld": [
+          0.151152,
+          -0.983967,
+          0.094671
+        ],
+        "bladeLength": 1
       }
-    ],
-    "Long_Sword": []
+    },
+    "earlyWindup": {
+      "label": "earlyWindup",
+      "requestedTime": 0.1,
+      "sourceTime": 0.1,
+      "bones": {
+        "Hips": {
+          "sourceNode": "hips",
+          "worldPosition": [
+            -0.234567,
+            0.951493,
+            -0.098059
+          ],
+          "worldQuaternion": [
+            0.195407,
+            -0.649343,
+            0.125752,
+            0.724124
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.819564,
+            0,
+            0,
+            0.572987
+          ]
+        },
+        "Spine02": {
+          "sourceNode": "chest",
+          "worldPosition": [
+            -0.234567,
+            0.951493,
+            -0.098059
+          ],
+          "worldQuaternion": [
+            0.048643,
+            0.953019,
+            0.07027,
+            -0.290605
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.517073,
+            -0.398518,
+            -0.342463,
+            0.675676
+          ]
+        },
+        "Spine01": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.234567,
+            0.951493,
+            -0.098059
+          ],
+          "worldQuaternion": [
+            -0.165582,
+            -0.824114,
+            -0.077898,
+            0.536051
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.581939,
+            -0.079142,
+            0.082805,
+            0.805125
+          ]
+        },
+        "Spine": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.234567,
+            0.951493,
+            -0.098059
+          ],
+          "worldQuaternion": [
+            -0.165582,
+            -0.824114,
+            -0.077898,
+            0.536051
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.581939,
+            -0.079142,
+            0.082805,
+            0.805125
+          ]
+        },
+        "neck": {
+          "sourceNode": "neck",
+          "worldPosition": [
+            -0.139017,
+            1.386067,
+            -0.075232
+          ],
+          "worldQuaternion": [
+            -0.100583,
+            0.898483,
+            -0.242334,
+            -0.351973
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.298082,
+            0.003462,
+            -0.017048,
+            0.954382
+          ]
+        },
+        "Head": {
+          "sourceNode": "head",
+          "worldPosition": [
+            -0.139017,
+            1.386067,
+            -0.075232
+          ],
+          "worldQuaternion": [
+            0.011985,
+            0.905338,
+            0.036983,
+            -0.422908
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.01113,
+            -0.76507,
+            -0.038306,
+            0.64271
+          ]
+        },
+        "LeftShoulder": {
+          "sourceNode": "shoulder.L",
+          "worldPosition": [
+            -0.183629,
+            1.337156,
+            -0.103817
+          ],
+          "worldQuaternion": [
+            -0.346735,
+            0.626919,
+            0.56093,
+            0.414856
+          ],
+          "localPosition": [
+            0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.40994,
+            -0.525901,
+            -0.553101,
+            0.499457
+          ]
+        },
+        "LeftArm": {
+          "sourceNode": "upper_arm.fk.L",
+          "worldPosition": [
+            -0.318389,
+            1.334792,
+            -0.049625
+          ],
+          "worldQuaternion": [
+            -0.464498,
+            0.424147,
+            -0.217671,
+            0.746298
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.723186,
+            -0.224604,
+            0.141905,
+            0.637509
+          ]
+        },
+        "LeftForeArm": {
+          "sourceNode": "forearm.fk.L",
+          "worldPosition": [
+            -0.336852,
+            1.461297,
+            -0.284081
+          ],
+          "worldQuaternion": [
+            -0.056448,
+            0.318882,
+            -0.339536,
+            0.883087
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.442667,
+            0.00885,
+            0.063006,
+            0.894426
+          ]
+        },
+        "LeftHand": {
+          "sourceNode": "hand.fk.L",
+          "worldPosition": [
+            -0.192292,
+            1.656989,
+            -0.365184
+          ],
+          "worldQuaternion": [
+            0.151133,
+            0.785373,
+            -0.27755,
+            0.532273
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.014647,
+            0.590802,
+            0.028152,
+            0.806192
+          ]
+        },
+        "RightShoulder": {
+          "sourceNode": "shoulder.R",
+          "worldPosition": [
+            -0.153384,
+            1.335257,
+            -0.12434
+          ],
+          "worldQuaternion": [
+            0.492781,
+            0.492639,
+            0.521155,
+            -0.49282
+          ],
+          "localPosition": [
+            -0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.581285,
+            0.317226,
+            0.328847,
+            0.673302
+          ]
+        },
+        "RightArm": {
+          "sourceNode": "upper_arm.fk.R",
+          "worldPosition": [
+            -0.01039,
+            1.309861,
+            -0.127599
+          ],
+          "worldQuaternion": [
+            -0.544955,
+            -0.442418,
+            -0.050271,
+            0.710466
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.424693,
+            0.411176,
+            -0.285325,
+            0.754427
+          ]
+        },
+        "RightForeArm": {
+          "sourceNode": "forearm.fk.R",
+          "worldPosition": [
+            0.137455,
+            1.416946,
+            -0.322508
+          ],
+          "worldQuaternion": [
+            0.098946,
+            -0.41048,
+            0.232626,
+            0.876128
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.671302,
+            -0.025815,
+            -0.058152,
+            0.738448
+          ]
+        },
+        "RightHand": {
+          "sourceNode": "hand.fk.R",
+          "worldPosition": [
+            0.012086,
+            1.640625,
+            -0.327021
+          ],
+          "worldQuaternion": [
+            0.258908,
+            -0.483808,
+            -0.02872,
+            0.835507
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.019832,
+            -0.14399,
+            -0.277929,
+            0.949542
+          ]
+        },
+        "LeftUpLeg": {
+          "sourceNode": "thigh.fk.L",
+          "worldPosition": [
+            -0.156203,
+            0.847464,
+            -0.016462
+          ],
+          "worldQuaternion": [
+            0.747903,
+            0.036432,
+            0.662453,
+            0.021665
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "LeftLeg": {
+          "sourceNode": "shin.fk.L",
+          "worldPosition": [
+            -0.145238,
+            0.423835,
+            0.017838
+          ],
+          "worldQuaternion": [
+            0.742393,
+            0.053469,
+            0.66589,
+            -0.050833
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            0.009231,
+            0.035158,
+            0.997206
+          ]
+        },
+        "LeftFoot": {
+          "sourceNode": "foot.fk.L",
+          "worldPosition": [
+            -0.061085,
+            -0.142055,
+            0.015396
+          ],
+          "worldQuaternion": [
+            -0.475128,
+            0.4815,
+            0.575063,
+            0.460124
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            0.694227,
+            -0.718491,
+            0.032553
+          ]
+        },
+        "RightUpLeg": {
+          "sourceNode": "thigh.fk.R",
+          "worldPosition": [
+            -0.180719,
+            0.861508,
+            -0.210415
+          ],
+          "worldQuaternion": [
+            0.746472,
+            -0.079584,
+            0.65568,
+            -0.080808
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "RightLeg": {
+          "sourceNode": "shin.fk.R",
+          "worldPosition": [
+            -0.186181,
+            0.447289,
+            -0.306078
+          ],
+          "worldQuaternion": [
+            0.747962,
+            -0.009579,
+            0.654993,
+            -0.106981
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            -0.009231,
+            -0.035158,
+            0.997206
+          ]
+        },
+        "RightFoot": {
+          "sourceNode": "foot.fk.R",
+          "worldPosition": [
+            -0.1142,
+            -0.111628,
+            -0.404817
+          ],
+          "worldQuaternion": [
+            -0.475128,
+            0.4815,
+            0.575063,
+            0.460124
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            -0.694227,
+            0.718491,
+            0.032553
+          ]
+        }
+      },
+      "props": {
+        "root": {
+          "worldPosition": [
+            0,
+            0,
+            -0.141728
+          ],
+          "worldQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ],
+          "localPosition": [
+            0,
+            0,
+            -0.141728
+          ],
+          "localQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ]
+        },
+        "Weapon.R": {
+          "worldPosition": [
+            -0.024181,
+            1.709209,
+            -0.254346
+          ],
+          "worldQuaternion": [
+            0.535887,
+            0.615783,
+            0.562756,
+            0.130161
+          ],
+          "localPosition": [
+            0.01797,
+            0.100084,
+            0.031002
+          ],
+          "localQuaternion": [
+            -0.668618,
+            -0.738557,
+            -0.055227,
+            0.066587
+          ]
+        },
+        "Long_Sword": {
+          "worldPosition": [
+            0,
+            0,
+            0
+          ],
+          "worldQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "bodyBasis": {
+        "origin": [
+          -0.234567,
+          0.951493,
+          -0.098059
+        ],
+        "right": [
+          0.812569,
+          -0.162833,
+          -0.559658
+        ],
+        "up": [
+          0.169094,
+          0.984747,
+          -0.041005
+        ],
+        "forward": [
+          0.557799,
+          -0.061316,
+          0.827708
+        ]
+      },
+      "limbs": {
+        "rightArm": {
+          "chain": [
+            "RightArm",
+            "RightForeArm",
+            "RightHand"
+          ],
+          "parentToMid": [
+            0.147845,
+            0.107085,
+            -0.194909
+          ],
+          "midToEnd": [
+            -0.125369,
+            0.223679,
+            -0.004513
+          ],
+          "parentToEnd": [
+            0.022476,
+            0.330764,
+            -0.199422
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.386884
+          }
+        },
+        "leftArm": {
+          "chain": [
+            "LeftArm",
+            "LeftForeArm",
+            "LeftHand"
+          ],
+          "parentToMid": [
+            -0.018463,
+            0.126505,
+            -0.234456
+          ],
+          "midToEnd": [
+            0.14456,
+            0.195692,
+            -0.081103
+          ],
+          "parentToEnd": [
+            0.126097,
+            0.322197,
+            -0.315559
+          ],
+          "lengths": {
+            "parentToMid": 0.267047,
+            "midToEnd": 0.256458,
+            "parentToEnd": 0.468283
+          }
+        },
+        "rightLeg": {
+          "chain": [
+            "RightUpLeg",
+            "RightLeg",
+            "RightFoot"
+          ],
+          "parentToMid": [
+            -0.005462,
+            -0.414219,
+            -0.095663
+          ],
+          "midToEnd": [
+            0.071981,
+            -0.558917,
+            -0.098739
+          ],
+          "parentToEnd": [
+            0.066519,
+            -0.973136,
+            -0.194402
+          ],
+          "lengths": {
+            "parentToMid": 0.425157,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994591
+          }
+        },
+        "leftLeg": {
+          "chain": [
+            "LeftUpLeg",
+            "LeftLeg",
+            "LeftFoot"
+          ],
+          "parentToMid": [
+            0.010965,
+            -0.423629,
+            0.0343
+          ],
+          "midToEnd": [
+            0.084153,
+            -0.56589,
+            -0.002442
+          ],
+          "parentToEnd": [
+            0.095118,
+            -0.989519,
+            0.031858
+          ],
+          "lengths": {
+            "parentToMid": 0.425157,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.99459
+          }
+        }
+      },
+      "weapon": {
+        "hiltWorld": [
+          -0.024181,
+          1.709209,
+          -0.254346
+        ],
+        "tipWorld": [
+          0,
+          0,
+          0
+        ],
+        "bladeDirectionWorld": [
+          0.013992,
+          -0.989012,
+          0.147174
+        ],
+        "bladeLength": 1
+      }
+    },
+    "anticipation": {
+      "label": "anticipation",
+      "requestedTime": 0.183333,
+      "sourceTime": 0.183333,
+      "bones": {
+        "Hips": {
+          "sourceNode": "hips",
+          "worldPosition": [
+            0.010434,
+            1.142362,
+            0.602501
+          ],
+          "worldQuaternion": [
+            0.149095,
+            0.35669,
+            -0.149221,
+            0.910097
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.819564,
+            0,
+            0,
+            0.572987
+          ]
+        },
+        "Spine02": {
+          "sourceNode": "chest",
+          "worldPosition": [
+            0.010434,
+            1.142362,
+            0.602501
+          ],
+          "worldQuaternion": [
+            -0.216007,
+            -0.128235,
+            -0.007832,
+            0.967902
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.476253,
+            -0.348882,
+            -0.360489,
+            0.722158
+          ]
+        },
+        "Spine01": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            0.010434,
+            1.142362,
+            0.602501
+          ],
+          "worldQuaternion": [
+            -0.23308,
+            0.147111,
+            0.089048,
+            0.957132
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.581939,
+            -0.079142,
+            0.082805,
+            0.805125
+          ]
+        },
+        "Spine": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            0.010434,
+            1.142362,
+            0.602501
+          ],
+          "worldQuaternion": [
+            -0.23308,
+            0.147111,
+            0.089048,
+            0.957132
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.581939,
+            -0.079142,
+            0.082805,
+            0.805125
+          ]
+        },
+        "neck": {
+          "sourceNode": "neck",
+          "worldPosition": [
+            -0.007189,
+            1.544895,
+            0.414841
+          ],
+          "worldQuaternion": [
+            0.167082,
+            -0.100527,
+            0.026638,
+            0.980443
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.276334,
+            0.001355,
+            -0.006672,
+            0.961037
+          ]
+        },
+        "Head": {
+          "sourceNode": "head",
+          "worldPosition": [
+            -0.007189,
+            1.544895,
+            0.414841
+          ],
+          "worldQuaternion": [
+            -0.052033,
+            -0.083933,
+            0.00995,
+            0.995062
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.01681,
+            -0.057785,
+            0.008729,
+            0.998149
+          ]
+        },
+        "LeftShoulder": {
+          "sourceNode": "shoulder.L",
+          "worldPosition": [
+            -0.003308,
+            1.510582,
+            0.478143
+          ],
+          "worldQuaternion": [
+            0.409135,
+            0.709681,
+            0.485193,
+            -0.305858
+          ],
+          "localPosition": [
+            0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.386596,
+            -0.546079,
+            -0.568055,
+            0.479223
+          ]
+        },
+        "LeftArm": {
+          "sourceNode": "upper_arm.fk.L",
+          "worldPosition": [
+            0.120259,
+            1.520217,
+            0.553912
+          ],
+          "worldQuaternion": [
+            -0.324448,
+            0.93457,
+            0.097187,
+            -0.108938
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.752595,
+            -0.2246,
+            0.239513,
+            0.57078
+          ]
+        },
+        "LeftForeArm": {
+          "sourceNode": "forearm.fk.L",
+          "worldPosition": [
+            -0.036034,
+            1.725998,
+            0.6213
+          ],
+          "worldQuaternion": [
+            -0.281857,
+            0.918154,
+            -0.278138,
+            0.013724
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.38433,
+            0.004787,
+            0.063444,
+            0.921001
+          ]
+        },
+        "LeftHand": {
+          "sourceNode": "hand.fk.L",
+          "worldPosition": [
+            -0.166813,
+            1.902028,
+            0.488332
+          ],
+          "worldQuaternion": [
+            -0.210786,
+            -0.652008,
+            0.208825,
+            0.697745
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.183386,
+            0.767072,
+            0.180373,
+            0.587738
+          ]
+        },
+        "RightShoulder": {
+          "sourceNode": "shoulder.R",
+          "worldPosition": [
+            -0.0387,
+            1.509109,
+            0.468934
+          ],
+          "worldQuaternion": [
+            -0.747751,
+            0.296289,
+            0.169954,
+            0.569383
+          ],
+          "localPosition": [
+            -0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.581285,
+            0.317226,
+            0.328847,
+            0.673302
+          ]
+        },
+        "RightArm": {
+          "sourceNode": "upper_arm.fk.R",
+          "worldPosition": [
+            -0.136941,
+            1.465069,
+            0.371404
+          ],
+          "worldQuaternion": [
+            -0.321377,
+            0.550416,
+            0.270026,
+            0.721696
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.470637,
+            0.427913,
+            -0.37005,
+            0.677092
+          ]
+        },
+        "RightForeArm": {
+          "sourceNode": "forearm.fk.R",
+          "worldPosition": [
+            -0.3355,
+            1.63801,
+            0.326909
+          ],
+          "worldQuaternion": [
+            0.03207,
+            0.582948,
+            -0.068096,
+            0.809015
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.478037,
+            -0.011359,
+            -0.062602,
+            0.876033
+          ]
+        },
+        "RightHand": {
+          "sourceNode": "hand.fk.R",
+          "worldPosition": [
+            -0.297655,
+            1.891561,
+            0.319856
+          ],
+          "worldQuaternion": [
+            -0.074874,
+            0.707255,
+            -0.161978,
+            0.684066
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.036248,
+            0.163112,
+            -0.15079,
+            0.974342
+          ]
+        },
+        "LeftUpLeg": {
+          "sourceNode": "thigh.fk.L",
+          "worldPosition": [
+            0.024645,
+            1.02578,
+            0.503368
+          ],
+          "worldQuaternion": [
+            0.923396,
+            0.005328,
+            -0.382845,
+            0.027227
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "LeftLeg": {
+          "sourceNode": "shin.fk.L",
+          "worldPosition": [
+            0.037692,
+            0.601277,
+            0.523012
+          ],
+          "worldQuaternion": [
+            0.926314,
+            -0.051887,
+            -0.372642,
+            -0.019702
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            0.009231,
+            0.035158,
+            0.997206
+          ]
+        },
+        "LeftFoot": {
+          "sourceNode": "foot.fk.L",
+          "worldPosition": [
+            -0.025705,
+            0.032683,
+            0.524253
+          ],
+          "worldQuaternion": [
+            0.326675,
+            0.660453,
+            0.643667,
+            -0.206829
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            0.694227,
+            -0.718491,
+            0.032553
+          ]
+        },
+        "RightUpLeg": {
+          "sourceNode": "thigh.fk.R",
+          "worldPosition": [
+            -0.112753,
+            1.058169,
+            0.639341
+          ],
+          "worldQuaternion": [
+            0.912025,
+            -0.137437,
+            -0.376719,
+            0.086048
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "RightLeg": {
+          "sourceNode": "shin.fk.R",
+          "worldPosition": [
+            -0.191773,
+            0.655369,
+            0.750097
+          ],
+          "worldQuaternion": [
+            0.916447,
+            -0.130368,
+            -0.378141,
+            0.011772
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            -0.009231,
+            -0.035158,
+            0.997206
+          ]
+        },
+        "RightFoot": {
+          "sourceNode": "foot.fk.R",
+          "worldPosition": [
+            -0.323387,
+            0.102856,
+            0.818849
+          ],
+          "worldQuaternion": [
+            0.326675,
+            0.660453,
+            0.643667,
+            -0.206829
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            -0.694227,
+            0.718491,
+            0.032553
+          ]
+        }
+      },
+      "props": {
+        "root": {
+          "worldPosition": [
+            0,
+            0,
+            0.558833
+          ],
+          "worldQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ],
+          "localPosition": [
+            0,
+            0,
+            0.558833
+          ],
+          "localQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ]
+        },
+        "Weapon.R": {
+          "worldPosition": [
+            -0.253521,
+            1.96809,
+            0.268453
+          ],
+          "worldQuaternion": [
+            0.62517,
+            0.30404,
+            -0.553375,
+            -0.458801
+          ],
+          "localPosition": [
+            0.021093,
+            0.093805,
+            0.034678
+          ],
+          "localQuaternion": [
+            -0.735435,
+            -0.67517,
+            -0.012058,
+            0.05599
+          ]
+        },
+        "Long_Sword": {
+          "worldPosition": [
+            0,
+            0,
+            0
+          ],
+          "worldQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "bodyBasis": {
+        "origin": [
+          0.010434,
+          1.142362,
+          0.602501
+        ],
+        "right": [
+          -0.964418,
+          -0.157124,
+          -0.212628
+        ],
+        "up": [
+          -0.080461,
+          0.940524,
+          -0.330062
+        ],
+        "forward": [
+          0.251842,
+          -0.301209,
+          -0.9197
+        ]
+      },
+      "limbs": {
+        "rightArm": {
+          "chain": [
+            "RightArm",
+            "RightForeArm",
+            "RightHand"
+          ],
+          "parentToMid": [
+            -0.198559,
+            0.172941,
+            -0.044495
+          ],
+          "midToEnd": [
+            0.037845,
+            0.253551,
+            -0.007053
+          ],
+          "parentToEnd": [
+            -0.160714,
+            0.426492,
+            -0.051548
+          ],
+          "lengths": {
+            "parentToMid": 0.267047,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.458674
+          }
+        },
+        "leftArm": {
+          "chain": [
+            "LeftArm",
+            "LeftForeArm",
+            "LeftHand"
+          ],
+          "parentToMid": [
+            -0.156293,
+            0.205781,
+            0.067388
+          ],
+          "midToEnd": [
+            -0.130779,
+            0.17603,
+            -0.132968
+          ],
+          "parentToEnd": [
+            -0.287072,
+            0.381811,
+            -0.06558
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.482173
+          }
+        },
+        "rightLeg": {
+          "chain": [
+            "RightUpLeg",
+            "RightLeg",
+            "RightFoot"
+          ],
+          "parentToMid": [
+            -0.07902,
+            -0.4028,
+            0.110756
+          ],
+          "midToEnd": [
+            -0.131614,
+            -0.552513,
+            0.068752
+          ],
+          "parentToEnd": [
+            -0.210634,
+            -0.955313,
+            0.179508
+          ],
+          "lengths": {
+            "parentToMid": 0.425157,
+            "midToEnd": 0.572119,
+            "parentToEnd": 0.994592
+          }
+        },
+        "leftLeg": {
+          "chain": [
+            "LeftUpLeg",
+            "LeftLeg",
+            "LeftFoot"
+          ],
+          "parentToMid": [
+            0.013047,
+            -0.424503,
+            0.019644
+          ],
+          "midToEnd": [
+            -0.063397,
+            -0.568594,
+            0.001241
+          ],
+          "parentToEnd": [
+            -0.05035,
+            -0.993097,
+            0.020885
+          ],
+          "lengths": {
+            "parentToMid": 0.425158,
+            "midToEnd": 0.572119,
+            "parentToEnd": 0.994592
+          }
+        }
+      },
+      "weapon": {
+        "hiltWorld": [
+          -0.253521,
+          1.96809,
+          0.268453
+        ],
+        "tipWorld": [
+          0,
+          0,
+          0
+        ],
+        "bladeDirectionWorld": [
+          0.126607,
+          -0.982852,
+          -0.134064
+        ],
+        "bladeLength": 1
+      }
+    },
+    "snapPrep": {
+      "label": "snapPrep",
+      "requestedTime": 0.283333,
+      "sourceTime": 0.283333,
+      "bones": {
+        "Hips": {
+          "sourceNode": "hips",
+          "worldPosition": [
+            -0.004017,
+            0.713925,
+            1.347671
+          ],
+          "worldQuaternion": [
+            0.343665,
+            0.463236,
+            -0.053758,
+            0.815118
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.819564,
+            0,
+            0,
+            0.572987
+          ]
+        },
+        "Spine02": {
+          "sourceNode": "chest",
+          "worldPosition": [
+            -0.004017,
+            0.713925,
+            1.347671
+          ],
+          "worldQuaternion": [
+            0.476346,
+            0.499052,
+            0.03474,
+            0.723073
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.860644,
+            -0.032676,
+            0.156306,
+            0.483521
+          ]
+        },
+        "Spine01": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.004017,
+            0.713925,
+            1.347671
+          ],
+          "worldQuaternion": [
+            0.195013,
+            0.456308,
+            0.141897,
+            0.856515
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.539594,
+            -0.027302,
+            0.011779,
+            0.8414
+          ]
+        },
+        "Spine": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.004017,
+            0.713925,
+            1.347671
+          ],
+          "worldQuaternion": [
+            0.195013,
+            0.456308,
+            0.141897,
+            0.856515
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.539594,
+            -0.027302,
+            0.011779,
+            0.8414
+          ]
+        },
+        "neck": {
+          "sourceNode": "neck",
+          "worldPosition": [
+            0.108969,
+            1.012511,
+            1.63146
+          ],
+          "worldQuaternion": [
+            0.54155,
+            0.314719,
+            -0.075504,
+            0.77587
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.262262,
+            0,
+            0,
+            0.964997
+          ]
+        },
+        "Head": {
+          "sourceNode": "head",
+          "worldPosition": [
+            0.108969,
+            1.012511,
+            1.63146
+          ],
+          "worldQuaternion": [
+            0.094564,
+            0.113108,
+            0.007497,
+            0.989044
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.022188,
+            -0.000379,
+            0.002579,
+            0.99975
+          ]
+        },
+        "LeftShoulder": {
+          "sourceNode": "shoulder.L",
+          "worldPosition": [
+            0.12395,
+            0.964908,
+            1.579411
+          ],
+          "worldQuaternion": [
+            -0.307012,
+            0.02524,
+            -0.583393,
+            0.751505
+          ],
+          "localPosition": [
+            0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.287948,
+            -0.62402,
+            -0.613181,
+            0.389478
+          ]
+        },
+        "LeftArm": {
+          "sourceNode": "upper_arm.fk.L",
+          "worldPosition": [
+            0.24118,
+            0.968493,
+            1.493696
+          ],
+          "worldQuaternion": [
+            -0.281561,
+            -0.556445,
+            0.775913,
+            -0.095142
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.088446,
+            0.164735,
+            -0.070172,
+            0.979855
+          ]
+        },
+        "LeftForeArm": {
+          "sourceNode": "forearm.fk.L",
+          "worldPosition": [
+            0.364286,
+            0.871653,
+            1.277407
+          ],
+          "worldQuaternion": [
+            -0.319483,
+            0.169404,
+            0.926536,
+            0.103749
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.706617,
+            0.028628,
+            0.05682,
+            0.70473
+          ]
+        },
+        "LeftHand": {
+          "sourceNode": "hand.fk.L",
+          "worldPosition": [
+            0.287221,
+            0.635436,
+            1.340912
+          ],
+          "worldQuaternion": [
+            -0.5106,
+            0.059723,
+            0.85476,
+            -0.071463
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.165269,
+            0.21831,
+            0.087477,
+            0.957797
+          ]
+        },
+        "RightShoulder": {
+          "sourceNode": "shoulder.R",
+          "worldPosition": [
+            0.105669,
+            0.945668,
+            1.604614
+          ],
+          "worldQuaternion": [
+            0.053504,
+            0.388552,
+            0.702372,
+            0.594002
+          ],
+          "localPosition": [
+            -0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.581285,
+            0.317226,
+            0.328847,
+            0.673302
+          ]
+        },
+        "RightArm": {
+          "sourceNode": "upper_arm.fk.R",
+          "worldPosition": [
+            -0.017725,
+            0.930606,
+            1.67978
+          ],
+          "worldQuaternion": [
+            0.581514,
+            -0.133044,
+            0.761628,
+            -0.253107
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.465185,
+            0.034787,
+            0.402154,
+            0.787823
+          ]
+        },
+        "RightForeArm": {
+          "sourceNode": "forearm.fk.R",
+          "worldPosition": [
+            0.043913,
+            0.707228,
+            1.547049
+          ],
+          "worldQuaternion": [
+            0.503188,
+            0.099039,
+            0.787482,
+            -0.341856
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.251635,
+            0.004141,
+            -0.063489,
+            0.965729
+          ]
+        },
+        "RightHand": {
+          "sourceNode": "hand.fk.R",
+          "worldPosition": [
+            0.207553,
+            0.515744,
+            1.498821
+          ],
+          "worldQuaternion": [
+            0.634912,
+            0.1554,
+            0.671436,
+            -0.349157
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.01452,
+            -0.180668,
+            0.030106,
+            0.982976
+          ]
+        },
+        "LeftUpLeg": {
+          "sourceNode": "thigh.fk.L",
+          "worldPosition": [
+            -0.008332,
+            0.657996,
+            1.204583
+          ],
+          "worldQuaternion": [
+            0.86524,
+            0.117592,
+            -0.449015,
+            -0.189521
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "LeftLeg": {
+          "sourceNode": "shin.fk.L",
+          "worldPosition": [
+            0.005824,
+            0.275138,
+            1.020251
+          ],
+          "worldQuaternion": [
+            0.858732,
+            0.05579,
+            -0.454111,
+            -0.230759
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            0.009231,
+            0.035158,
+            0.997206
+          ]
+        },
+        "LeftFoot": {
+          "sourceNode": "foot.fk.L",
+          "worldPosition": [
+            -0.059263,
+            -0.232488,
+            0.76452
+          ],
+          "worldQuaternion": [
+            0.309486,
+            0.471125,
+            0.748708,
+            -0.348849
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            0.694227,
+            -0.718491,
+            0.032553
+          ]
+        },
+        "RightUpLeg": {
+          "sourceNode": "thigh.fk.R",
+          "worldPosition": [
+            -0.119081,
+            0.612768,
+            1.359841
+          ],
+          "worldQuaternion": [
+            0.871715,
+            -0.016909,
+            -0.475404,
+            -0.117554
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "RightLeg": {
+          "sourceNode": "shin.fk.R",
+          "worldPosition": [
+            -0.179135,
+            0.199604,
+            1.279542
+          ],
+          "worldQuaternion": [
+            0.857813,
+            -0.016156,
+            -0.476885,
+            -0.190987
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            -0.009231,
+            -0.035158,
+            0.997206
+          ]
+        },
+        "RightFoot": {
+          "sourceNode": "foot.fk.R",
+          "worldPosition": [
+            -0.299208,
+            -0.330479,
+            1.100897
+          ],
+          "worldQuaternion": [
+            0.309486,
+            0.471125,
+            0.748708,
+            -0.348849
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            -0.694227,
+            0.718491,
+            0.032553
+          ]
+        }
+      },
+      "props": {
+        "root": {
+          "worldPosition": [
+            0,
+            0,
+            1.304003
+          ],
+          "worldQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ],
+          "localPosition": [
+            0,
+            0,
+            1.304003
+          ],
+          "localQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ]
+        },
+        "Weapon.R": {
+          "worldPosition": [
+            0.296182,
+            0.469581,
+            1.504929
+          ],
+          "worldQuaternion": [
+            0.815102,
+            -0.09532,
+            -0.332209,
+            0.46493
+          ],
+          "localPosition": [
+            0.022841,
+            0.09029,
+            0.036736
+          ],
+          "localQuaternion": [
+            -0.592164,
+            -0.797181,
+            -0.008991,
+            0.117315
+          ]
+        },
+        "Long_Sword": {
+          "worldPosition": [
+            0,
+            0,
+            0
+          ],
+          "worldQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "bodyBasis": {
+        "origin": [
+          -0.004017,
+          0.713925,
+          1.347671
+        ],
+        "right": [
+          -0.483899,
+          -0.493435,
+          0.722747
+        ],
+        "up": [
+          0.326962,
+          0.664132,
+          0.672328
+        ],
+        "forward": [
+          -0.81175,
+          0.56165,
+          -0.160039
+        ]
+      },
+      "limbs": {
+        "rightArm": {
+          "chain": [
+            "RightArm",
+            "RightForeArm",
+            "RightHand"
+          ],
+          "parentToMid": [
+            0.061638,
+            -0.223378,
+            -0.132731
+          ],
+          "midToEnd": [
+            0.16364,
+            -0.191484,
+            -0.048228
+          ],
+          "parentToEnd": [
+            0.225278,
+            -0.414862,
+            -0.180959
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.505576
+          }
+        },
+        "leftArm": {
+          "chain": [
+            "LeftArm",
+            "LeftForeArm",
+            "LeftHand"
+          ],
+          "parentToMid": [
+            0.123106,
+            -0.09684,
+            -0.216289
+          ],
+          "midToEnd": [
+            -0.077065,
+            -0.236217,
+            0.063505
+          ],
+          "parentToEnd": [
+            0.046041,
+            -0.333057,
+            -0.152784
+          ],
+          "lengths": {
+            "parentToMid": 0.267047,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.36931
+          }
+        },
+        "rightLeg": {
+          "chain": [
+            "RightUpLeg",
+            "RightLeg",
+            "RightFoot"
+          ],
+          "parentToMid": [
+            -0.060054,
+            -0.413164,
+            -0.080299
+          ],
+          "midToEnd": [
+            -0.120073,
+            -0.530083,
+            -0.178645
+          ],
+          "parentToEnd": [
+            -0.180127,
+            -0.943247,
+            -0.258944
+          ],
+          "lengths": {
+            "parentToMid": 0.425158,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994592
+          }
+        },
+        "leftLeg": {
+          "chain": [
+            "LeftUpLeg",
+            "LeftLeg",
+            "LeftFoot"
+          ],
+          "parentToMid": [
+            0.014156,
+            -0.382858,
+            -0.184332
+          ],
+          "midToEnd": [
+            -0.065087,
+            -0.507626,
+            -0.255731
+          ],
+          "parentToEnd": [
+            -0.050931,
+            -0.890484,
+            -0.440063
+          ],
+          "lengths": {
+            "parentToMid": 0.425158,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994591
+          }
+        }
+      },
+      "weapon": {
+        "hiltWorld": [
+          0.296182,
+          0.469581,
+          1.504929
+        ],
+        "tipWorld": [
+          0,
+          0,
+          0
+        ],
+        "bladeDirectionWorld": [
+          -0.184644,
+          -0.292743,
+          -0.938194
+        ],
+        "bladeLength": 1
+      }
+    },
+    "contact": {
+      "label": "contact",
+      "requestedTime": 0.383333,
+      "sourceTime": 0.383333,
+      "bones": {
+        "Hips": {
+          "sourceNode": "hips",
+          "worldPosition": [
+            -0.006571,
+            0.728942,
+            1.271559
+          ],
+          "worldQuaternion": [
+            0.293227,
+            0.459434,
+            -0.082328,
+            0.834362
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.819564,
+            0,
+            0,
+            0.572987
+          ]
+        },
+        "Spine02": {
+          "sourceNode": "chest",
+          "worldPosition": [
+            -0.006571,
+            0.728942,
+            1.271559
+          ],
+          "worldQuaternion": [
+            0.431342,
+            0.500523,
+            0.003762,
+            0.750604
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.860644,
+            -0.032676,
+            0.156306,
+            0.483521
+          ]
+        },
+        "Spine01": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.006571,
+            0.728942,
+            1.271559
+          ],
+          "worldQuaternion": [
+            0.142421,
+            0.464538,
+            0.113453,
+            0.866631
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.539594,
+            -0.027302,
+            0.011779,
+            0.8414
+          ]
+        },
+        "Spine": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.006571,
+            0.728942,
+            1.271559
+          ],
+          "worldQuaternion": [
+            0.142421,
+            0.464538,
+            0.113453,
+            0.866631
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.539594,
+            -0.027302,
+            0.011779,
+            0.8414
+          ]
+        },
+        "neck": {
+          "sourceNode": "neck",
+          "worldPosition": [
+            0.106812,
+            1.059894,
+            1.516653
+          ],
+          "worldQuaternion": [
+            0.519954,
+            0.306938,
+            -0.093412,
+            0.791651
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.262262,
+            0,
+            0,
+            0.964997
+          ]
+        },
+        "Head": {
+          "sourceNode": "head",
+          "worldPosition": [
+            0.106812,
+            1.059893,
+            1.516652
+          ],
+          "worldQuaternion": [
+            0.094664,
+            0.111944,
+            0.001756,
+            0.989194
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.011136,
+            -0.000184,
+            0.005123,
+            0.999925
+          ]
+        },
+        "LeftShoulder": {
+          "sourceNode": "shoulder.L",
+          "worldPosition": [
+            0.121723,
+            1.006284,
+            1.47079
+          ],
+          "worldQuaternion": [
+            -0.352701,
+            -0.010042,
+            -0.583832,
+            0.731191
+          ],
+          "localPosition": [
+            0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.287948,
+            -0.62402,
+            -0.613181,
+            0.389478
+          ]
+        },
+        "LeftArm": {
+          "sourceNode": "upper_arm.fk.L",
+          "worldPosition": [
+            0.238863,
+            0.999324,
+            1.385161
+          ],
+          "worldQuaternion": [
+            -0.223799,
+            -0.630515,
+            0.729187,
+            -0.143703
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.243883,
+            0.149694,
+            -0.066422,
+            0.955877
+          ]
+        },
+        "LeftForeArm": {
+          "sourceNode": "forearm.fk.L",
+          "worldPosition": [
+            0.370194,
+            0.955635,
+            1.15678
+          ],
+          "worldQuaternion": [
+            -0.312906,
+            0.144378,
+            0.937124,
+            0.05516
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.75346,
+            0.032472,
+            0.054714,
+            0.654408
+          ]
+        },
+        "LeftHand": {
+          "sourceNode": "hand.fk.L",
+          "worldPosition": [
+            0.320509,
+            0.71143,
+            1.217325
+          ],
+          "worldQuaternion": [
+            -0.500771,
+            0.022821,
+            0.857951,
+            -0.112377
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.165269,
+            0.21831,
+            0.087477,
+            0.957797
+          ]
+        },
+        "RightShoulder": {
+          "sourceNode": "shoulder.R",
+          "worldPosition": [
+            0.103462,
+            0.990274,
+            1.498172
+          ],
+          "worldQuaternion": [
+            0.017511,
+            0.431082,
+            0.677146,
+            0.596099
+          ],
+          "localPosition": [
+            -0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.581285,
+            0.317226,
+            0.328847,
+            0.673302
+          ]
+        },
+        "RightArm": {
+          "sourceNode": "upper_arm.fk.R",
+          "worldPosition": [
+            -0.019857,
+            0.984559,
+            1.57474
+          ],
+          "worldQuaternion": [
+            0.577065,
+            -0.163004,
+            0.765103,
+            -0.234611
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.41963,
+            0.010295,
+            0.463948,
+            0.780101
+          ]
+        },
+        "RightForeArm": {
+          "sourceNode": "forearm.fk.R",
+          "worldPosition": [
+            0.025775,
+            0.7611,
+            1.435821
+          ],
+          "worldQuaternion": [
+            0.458254,
+            0.175752,
+            0.780784,
+            -0.386641
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.377345,
+            -0.004306,
+            -0.063478,
+            0.923885
+          ]
+        },
+        "RightHand": {
+          "sourceNode": "hand.fk.R",
+          "worldPosition": [
+            0.221925,
+            0.597162,
+            1.415328
+          ],
+          "worldQuaternion": [
+            0.674727,
+            0.171086,
+            0.67444,
+            -0.246178
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.133018,
+            -0.240633,
+            -0.028371,
+            0.961039
+          ]
+        },
+        "LeftUpLeg": {
+          "sourceNode": "thigh.fk.L",
+          "worldPosition": [
+            -0.011056,
+            0.655962,
+            1.136376
+          ],
+          "worldQuaternion": [
+            0.875002,
+            0.08964,
+            -0.455777,
+            -0.136392
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "LeftLeg": {
+          "sourceNode": "shin.fk.L",
+          "worldPosition": [
+            0.00278,
+            0.253455,
+            1.000156
+          ],
+          "worldQuaternion": [
+            0.871015,
+            0.027622,
+            -0.457072,
+            -0.177919
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            0.009231,
+            0.035158,
+            0.997206
+          ]
+        },
+        "LeftFoot": {
+          "sourceNode": "foot.fk.L",
+          "worldPosition": [
+            -0.062742,
+            -0.281569,
+            0.808387
+          ],
+          "worldQuaternion": [
+            0.330723,
+            0.515797,
+            0.718398,
+            -0.329363
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            0.694227,
+            -0.718491,
+            0.032553
+          ]
+        },
+        "RightUpLeg": {
+          "sourceNode": "thigh.fk.R",
+          "worldPosition": [
+            -0.121655,
+            0.63008,
+            1.296106
+          ],
+          "worldQuaternion": [
+            0.877023,
+            -0.046187,
+            -0.473907,
+            -0.064098
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "RightLeg": {
+          "sourceNode": "shin.fk.R",
+          "worldPosition": [
+            -0.181929,
+            0.21023,
+            1.266917
+          ],
+          "worldQuaternion": [
+            0.867639,
+            -0.045561,
+            -0.47541,
+            -0.138245
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            -0.009231,
+            -0.035158,
+            0.997206
+          ]
+        },
+        "RightFoot": {
+          "sourceNode": "foot.fk.R",
+          "worldPosition": [
+            -0.302364,
+            -0.337645,
+            1.154454
+          ],
+          "worldQuaternion": [
+            0.330724,
+            0.515798,
+            0.718398,
+            -0.329363
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            -0.694227,
+            0.718491,
+            0.032553
+          ]
+        }
+      },
+      "props": {
+        "root": {
+          "worldPosition": [
+            0,
+            0,
+            1.227891
+          ],
+          "worldQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ],
+          "localPosition": [
+            0,
+            0,
+            1.227891
+          ],
+          "localQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ]
+        },
+        "Weapon.R": {
+          "worldPosition": [
+            0.303816,
+            0.541472,
+            1.430018
+          ],
+          "worldQuaternion": [
+            0.761046,
+            -0.176994,
+            -0.355233,
+            0.513119
+          ],
+          "localPosition": [
+            0.022841,
+            0.09029,
+            0.036736
+          ],
+          "localQuaternion": [
+            -0.592164,
+            -0.797181,
+            -0.008991,
+            0.117315
+          ]
+        },
+        "Long_Sword": {
+          "worldPosition": [
+            0,
+            0,
+            0
+          ],
+          "worldQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "bodyBasis": {
+        "origin": [
+          -0.006571,
+          0.728942,
+          1.271559
+        ],
+        "right": [
+          -0.483309,
+          -0.401267,
+          0.778073
+        ],
+        "up": [
+          0.32789,
+          0.741106,
+          0.585875
+        ],
+        "forward": [
+          -0.811727,
+          0.538281,
+          -0.226612
+        ]
+      },
+      "limbs": {
+        "rightArm": {
+          "chain": [
+            "RightArm",
+            "RightForeArm",
+            "RightHand"
+          ],
+          "parentToMid": [
+            0.045632,
+            -0.223459,
+            -0.138919
+          ],
+          "midToEnd": [
+            0.19615,
+            -0.163938,
+            -0.020493
+          ],
+          "parentToEnd": [
+            0.241782,
+            -0.387397,
+            -0.159412
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256458,
+            "parentToEnd": 0.483681
+          }
+        },
+        "leftArm": {
+          "chain": [
+            "LeftArm",
+            "LeftForeArm",
+            "LeftHand"
+          ],
+          "parentToMid": [
+            0.131331,
+            -0.043689,
+            -0.228381
+          ],
+          "midToEnd": [
+            -0.049685,
+            -0.244205,
+            0.060545
+          ],
+          "parentToEnd": [
+            0.081646,
+            -0.287894,
+            -0.167836
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.3431
+          }
+        },
+        "rightLeg": {
+          "chain": [
+            "RightUpLeg",
+            "RightLeg",
+            "RightFoot"
+          ],
+          "parentToMid": [
+            -0.060274,
+            -0.41985,
+            -0.029189
+          ],
+          "midToEnd": [
+            -0.120435,
+            -0.547875,
+            -0.112463
+          ],
+          "parentToEnd": [
+            -0.180709,
+            -0.967725,
+            -0.141652
+          ],
+          "lengths": {
+            "parentToMid": 0.425158,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994592
+          }
+        },
+        "leftLeg": {
+          "chain": [
+            "LeftUpLeg",
+            "LeftLeg",
+            "LeftFoot"
+          ],
+          "parentToMid": [
+            0.013836,
+            -0.402507,
+            -0.13622
+          ],
+          "midToEnd": [
+            -0.065522,
+            -0.535024,
+            -0.191769
+          ],
+          "parentToEnd": [
+            -0.051686,
+            -0.937531,
+            -0.327989
+          ],
+          "lengths": {
+            "parentToMid": 0.425158,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994592
+          }
+        }
+      },
+      "weapon": {
+        "hiltWorld": [
+          0.303816,
+          0.541472,
+          1.430018
+        ],
+        "tipWorld": [
+          0,
+          0,
+          0
+        ],
+        "bladeDirectionWorld": [
+          -0.19488,
+          -0.347322,
+          -0.917273
+        ],
+        "bladeLength": 1
+      }
+    },
+    "contactHold": {
+      "label": "contactHold",
+      "requestedTime": 0.5,
+      "sourceTime": 0.5,
+      "bones": {
+        "Hips": {
+          "sourceNode": "hips",
+          "worldPosition": [
+            -0.005493,
+            0.767452,
+            1.345971
+          ],
+          "worldQuaternion": [
+            0.269272,
+            0.34751,
+            -0.082013,
+            0.894429
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.819564,
+            0,
+            0,
+            0.572987
+          ]
+        },
+        "Spine02": {
+          "sourceNode": "chest",
+          "worldPosition": [
+            -0.005493,
+            0.767452,
+            1.345971
+          ],
+          "worldQuaternion": [
+            0.368521,
+            0.396743,
+            -0.012615,
+            0.840612
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.85441,
+            -0.013337,
+            0.118607,
+            0.505705
+          ]
+        },
+        "Spine01": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.005493,
+            0.767452,
+            1.345971
+          ],
+          "worldQuaternion": [
+            0.088669,
+            0.358517,
+            0.090076,
+            0.924927
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.544218,
+            -0.037187,
+            0.024864,
+            0.837751
+          ]
+        },
+        "Spine": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.005493,
+            0.767452,
+            1.345971
+          ],
+          "worldQuaternion": [
+            0.088669,
+            0.358517,
+            0.090076,
+            0.924927
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.544218,
+            -0.037187,
+            0.024864,
+            0.837751
+          ]
+        },
+        "neck": {
+          "sourceNode": "neck",
+          "worldPosition": [
+            0.069074,
+            1.132951,
+            1.559249
+          ],
+          "worldQuaternion": [
+            0.492192,
+            0.234991,
+            -0.079914,
+            0.83435
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.262262,
+            0,
+            0,
+            0.964997
+          ]
+        },
+        "Head": {
+          "sourceNode": "head",
+          "worldPosition": [
+            0.069074,
+            1.132951,
+            1.559249
+          ],
+          "worldQuaternion": [
+            0.089189,
+            0.085423,
+            0.001483,
+            0.992344
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.000469,
+            -0.000025,
+            0.008385,
+            0.999965
+          ]
+        },
+        "LeftShoulder": {
+          "sourceNode": "shoulder.L",
+          "worldPosition": [
+            0.089949,
+            1.071137,
+            1.528542
+          ],
+          "worldQuaternion": [
+            -0.356273,
+            -0.112983,
+            -0.599429,
+            0.707806
+          ],
+          "localPosition": [
+            0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.321084,
+            -0.601188,
+            -0.59467,
+            0.426434
+          ]
+        },
+        "LeftArm": {
+          "sourceNode": "upper_arm.fk.L",
+          "worldPosition": [
+            0.219253,
+            1.056265,
+            1.464028
+          ],
+          "worldQuaternion": [
+            -0.322366,
+            -0.448988,
+            0.803121,
+            -0.222455
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.108988,
+            0.155618,
+            -0.030648,
+            0.981308
+          ]
+        },
+        "LeftForeArm": {
+          "sourceNode": "forearm.fk.L",
+          "worldPosition": [
+            0.391978,
+            0.923316,
+            1.309739
+          ],
+          "worldQuaternion": [
+            -0.431876,
+            0.282855,
+            0.855073,
+            0.048225
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.722704,
+            0.029933,
+            0.056143,
+            0.688223
+          ]
+        },
+        "LeftHand": {
+          "sourceNode": "hand.fk.L",
+          "worldPosition": [
+            0.30817,
+            0.709089,
+            1.42311
+          ],
+          "worldQuaternion": [
+            -0.625181,
+            0.193736,
+            0.740448,
+            -0.152813
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.139927,
+            0.267362,
+            0.073209,
+            0.950567
+          ]
+        },
+        "RightShoulder": {
+          "sourceNode": "shoulder.R",
+          "worldPosition": [
+            0.064883,
+            1.061211,
+            1.553295
+          ],
+          "worldQuaternion": [
+            -0.10604,
+            0.419938,
+            0.615464,
+            0.658492
+          ],
+          "localPosition": [
+            -0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.581285,
+            0.317226,
+            0.328847,
+            0.673302
+          ]
+        },
+        "RightArm": {
+          "sourceNode": "upper_arm.fk.R",
+          "worldPosition": [
+            -0.072566,
+            1.073903,
+            1.598566
+          ],
+          "worldQuaternion": [
+            0.489074,
+            -0.069239,
+            0.866004,
+            -0.077783
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.373932,
+            0.049938,
+            0.401992,
+            0.834316
+          ]
+        },
+        "RightForeArm": {
+          "sourceNode": "forearm.fk.R",
+          "worldPosition": [
+            -0.054675,
+            0.812647,
+            1.546223
+          ],
+          "worldQuaternion": [
+            0.407778,
+            0.377288,
+            0.794683,
+            -0.244643
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.469686,
+            -0.010764,
+            -0.062707,
+            0.880538
+          ]
+        },
+        "RightHand": {
+          "sourceNode": "hand.fk.R",
+          "worldPosition": [
+            0.123954,
+            0.659899,
+            1.648839
+          ],
+          "worldQuaternion": [
+            0.57377,
+            0.361708,
+            0.733039,
+            -0.051086
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.108661,
+            -0.226264,
+            -0.069756,
+            0.96547
+          ]
+        },
+        "LeftUpLeg": {
+          "sourceNode": "thigh.fk.L",
+          "worldPosition": [
+            0.01866,
+            0.68188,
+            1.220612
+          ],
+          "worldQuaternion": [
+            0.92983,
+            0.069335,
+            -0.349673,
+            -0.091307
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "LeftLeg": {
+          "sourceNode": "shin.fk.L",
+          "worldPosition": [
+            0.046331,
+            0.267899,
+            1.127805
+          ],
+          "worldQuaternion": [
+            0.926938,
+            0.012786,
+            -0.347849,
+            -0.140082
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            0.009231,
+            0.035158,
+            0.997206
+          ]
+        },
+        "LeftFoot": {
+          "sourceNode": "foot.fk.L",
+          "worldPosition": [
+            0.004137,
+            -0.281578,
+            0.974139
+          ],
+          "worldQuaternion": [
+            0.266334,
+            0.578752,
+            0.733182,
+            -0.237814
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            0.694227,
+            -0.718491,
+            0.032553
+          ]
+        },
+        "RightUpLeg": {
+          "sourceNode": "thigh.fk.R",
+          "worldPosition": [
+            -0.127364,
+            0.673954,
+            1.351112
+          ],
+          "worldQuaternion": [
+            0.928364,
+            -0.074848,
+            -0.362273,
+            -0.036002
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "RightLeg": {
+          "sourceNode": "shin.fk.R",
+          "worldPosition": [
+            -0.19754,
+            0.254663,
+            1.345748
+          ],
+          "worldQuaternion": [
+            0.922708,
+            -0.06531,
+            -0.363679,
+            -0.109918
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            -0.009231,
+            -0.035158,
+            0.997206
+          ]
+        },
+        "RightFoot": {
+          "sourceNode": "foot.fk.R",
+          "worldPosition": [
+            -0.312235,
+            -0.29875,
+            1.256876
+          ],
+          "worldQuaternion": [
+            0.266334,
+            0.578752,
+            0.733182,
+            -0.237814
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            -0.694227,
+            0.718491,
+            0.032553
+          ]
+        }
+      },
+      "props": {
+        "root": {
+          "worldPosition": [
+            0,
+            0,
+            1.302308
+          ],
+          "worldQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ],
+          "localPosition": [
+            0,
+            0,
+            1.302308
+          ],
+          "localQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ]
+        },
+        "Weapon.R": {
+          "worldPosition": [
+            0.190354,
+            0.621108,
+            1.714399
+          ],
+          "worldQuaternion": [
+            0.665391,
+            -0.354443,
+            -0.152558,
+            0.639024
+          ],
+          "localPosition": [
+            0.022042,
+            0.091896,
+            0.035796
+          ],
+          "localQuaternion": [
+            -0.605284,
+            -0.788323,
+            -0.01659,
+            0.1091
+          ]
+        },
+        "Long_Sword": {
+          "worldPosition": [
+            0,
+            0,
+            0
+          ],
+          "worldQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "bodyBasis": {
+        "origin": [
+          -0.005493,
+          0.767452,
+          1.345971
+        ],
+        "right": [
+          -0.68128,
+          -0.257985,
+          0.685056
+        ],
+        "up": [
+          0.226394,
+          0.815702,
+          0.532331
+        ],
+        "forward": [
+          -0.696135,
+          0.517759,
+          -0.497315
+        ]
+      },
+      "limbs": {
+        "rightArm": {
+          "chain": [
+            "RightArm",
+            "RightForeArm",
+            "RightHand"
+          ],
+          "parentToMid": [
+            0.017891,
+            -0.261256,
+            -0.052343
+          ],
+          "midToEnd": [
+            0.178629,
+            -0.152748,
+            0.102616
+          ],
+          "parentToEnd": [
+            0.19652,
+            -0.414004,
+            0.050273
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.461028
+          }
+        },
+        "leftArm": {
+          "chain": [
+            "LeftArm",
+            "LeftForeArm",
+            "LeftHand"
+          ],
+          "parentToMid": [
+            0.172725,
+            -0.132949,
+            -0.154289
+          ],
+          "midToEnd": [
+            -0.083808,
+            -0.214227,
+            0.113371
+          ],
+          "parentToEnd": [
+            0.088917,
+            -0.347176,
+            -0.040918
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.36071
+          }
+        },
+        "rightLeg": {
+          "chain": [
+            "RightUpLeg",
+            "RightLeg",
+            "RightFoot"
+          ],
+          "parentToMid": [
+            -0.070176,
+            -0.419291,
+            -0.005364
+          ],
+          "midToEnd": [
+            -0.114695,
+            -0.553413,
+            -0.088872
+          ],
+          "parentToEnd": [
+            -0.184871,
+            -0.972704,
+            -0.094236
+          ],
+          "lengths": {
+            "parentToMid": 0.425157,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994591
+          }
+        },
+        "leftLeg": {
+          "chain": [
+            "LeftUpLeg",
+            "LeftLeg",
+            "LeftFoot"
+          ],
+          "parentToMid": [
+            0.027671,
+            -0.413981,
+            -0.092807
+          ],
+          "midToEnd": [
+            -0.042194,
+            -0.549477,
+            -0.153666
+          ],
+          "parentToEnd": [
+            -0.014523,
+            -0.963458,
+            -0.246473
+          ],
+          "lengths": {
+            "parentToMid": 0.425158,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994591
+          }
+        }
+      },
+      "weapon": {
+        "hiltWorld": [
+          0.190354,
+          0.621108,
+          1.714399
+        ],
+        "tipWorld": [
+          0,
+          0,
+          0
+        ],
+        "bladeDirectionWorld": [
+          -0.103828,
+          -0.338783,
+          -0.935118
+        ],
+        "bladeLength": 1
+      }
+    },
+    "settle": {
+      "label": "settle",
+      "requestedTime": 0.566667,
+      "sourceTime": 0.566667,
+      "bones": {
+        "Hips": {
+          "sourceNode": "hips",
+          "worldPosition": [
+            -0.00187,
+            0.896925,
+            1.682521
+          ],
+          "worldQuaternion": [
+            0.267955,
+            -0.074053,
+            -0.012919,
+            0.960494
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.819564,
+            0,
+            0,
+            0.572987
+          ]
+        },
+        "Spine02": {
+          "sourceNode": "chest",
+          "worldPosition": [
+            -0.00187,
+            0.896925,
+            1.682521
+          ],
+          "worldQuaternion": [
+            0.271507,
+            -0.040713,
+            -0.054906,
+            0.960006
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.818382,
+            0.052501,
+            -0.011348,
+            0.572159
+          ]
+        },
+        "Spine01": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.00187,
+            0.896925,
+            1.682521
+          ],
+          "worldQuaternion": [
+            0.014859,
+            -0.070191,
+            0.046462,
+            0.99634
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.558569,
+            -0.070387,
+            0.068861,
+            0.823592
+          ]
+        },
+        "Spine": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.00187,
+            0.896925,
+            1.682521
+          ],
+          "worldQuaternion": [
+            0.014859,
+            -0.070191,
+            0.046462,
+            0.99634
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.558569,
+            -0.070387,
+            0.068861,
+            0.823592
+          ]
+        },
+        "neck": {
+          "sourceNode": "neck",
+          "worldPosition": [
+            0.007214,
+            1.301129,
+            1.838736
+          ],
+          "worldQuaternion": [
+            0.432752,
+            -0.033588,
+            -0.021537,
+            0.90063
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.262262,
+            0,
+            0,
+            0.964997
+          ]
+        },
+        "Head": {
+          "sourceNode": "head",
+          "worldPosition": [
+            0.007214,
+            1.301129,
+            1.838736
+          ],
+          "worldQuaternion": [
+            0.041997,
+            -0.009686,
+            -0.005678,
+            0.999055
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.024218,
+            -0.000541,
+            0.005637,
+            0.999691
+          ]
+        },
+        "LeftShoulder": {
+          "sourceNode": "shoulder.L",
+          "worldPosition": [
+            0.016266,
+            1.229749,
+            1.843485
+          ],
+          "worldQuaternion": [
+            -0.270612,
+            -0.349583,
+            -0.681983,
+            0.582632
+          ],
+          "localPosition": [
+            0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.426549,
+            -0.511902,
+            -0.516787,
+            0.537534
+          ]
+        },
+        "LeftArm": {
+          "sourceNode": "upper_arm.fk.L",
+          "worldPosition": [
+            0.157138,
+            1.197734,
+            1.85874
+          ],
+          "worldQuaternion": [
+            -0.633825,
+            0.279693,
+            0.693661,
+            -0.197161
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.438669,
+            0.110557,
+            0.11927,
+            0.883811
+          ]
+        },
+        "LeftForeArm": {
+          "sourceNode": "forearm.fk.L",
+          "worldPosition": [
+            0.1355,
+            0.993229,
+            2.029104
+          ],
+          "worldQuaternion": [
+            -0.619047,
+            0.677306,
+            0.353299,
+            0.182256
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.608576,
+            0.020966,
+            0.06007,
+            0.790941
+          ]
+        },
+        "LeftHand": {
+          "sourceNode": "hand.fk.L",
+          "worldPosition": [
+            -0.112584,
+            0.989106,
+            2.09397
+          ],
+          "worldQuaternion": [
+            0.703338,
+            -0.685437,
+            -0.092076,
+            0.16436
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.050133,
+            0.427736,
+            0.022793,
+            0.902225
+          ]
+        },
+        "RightShoulder": {
+          "sourceNode": "shoulder.R",
+          "worldPosition": [
+            -0.019992,
+            1.234416,
+            1.841715
+          ],
+          "worldQuaternion": [
+            -0.371202,
+            0.219758,
+            0.34119,
+            0.835167
+          ],
+          "localPosition": [
+            -0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.581285,
+            0.317226,
+            0.328847,
+            0.673302
+          ]
+        },
+        "RightArm": {
+          "sourceNode": "upper_arm.fk.R",
+          "worldPosition": [
+            -0.132088,
+            1.285753,
+            1.764892
+          ],
+          "worldQuaternion": [
+            -0.011535,
+            -0.055025,
+            0.892931,
+            0.446669
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.203789,
+            0.191653,
+            0.127253,
+            0.951602
+          ]
+        },
+        "RightForeArm": {
+          "sourceNode": "forearm.fk.R",
+          "worldPosition": [
+            -0.34477,
+            1.126881,
+            1.735898
+          ],
+          "worldQuaternion": [
+            0.353327,
+            0.608373,
+            0.615151,
+            0.355854
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.739008,
+            -0.031271,
+            -0.055409,
+            0.670685
+          ]
+        },
+        "RightHand": {
+          "sourceNode": "hand.fk.R",
+          "worldPosition": [
+            -0.346796,
+            1.125214,
+            1.992342
+          ],
+          "worldQuaternion": [
+            0.310875,
+            0.582857,
+            0.470883,
+            0.584725
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.0239,
+            -0.173179,
+            -0.20894,
+            0.962176
+          ]
+        },
+        "LeftUpLeg": {
+          "sourceNode": "thigh.fk.L",
+          "worldPosition": [
+            0.099279,
+            0.79893,
+            1.620986
+          ],
+          "worldQuaternion": [
+            0.995176,
+            0.048122,
+            0.074281,
+            -0.04233
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "LeftLeg": {
+          "sourceNode": "shin.fk.L",
+          "worldPosition": [
+            0.142674,
+            0.377265,
+            1.588206
+          ],
+          "worldQuaternion": [
+            0.990639,
+            0.017456,
+            0.07863,
+            -0.110216
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            0.009231,
+            0.035158,
+            0.997206
+          ]
+        },
+        "LeftFoot": {
+          "sourceNode": "foot.fk.L",
+          "worldPosition": [
+            0.172377,
+            -0.180605,
+            1.464843
+          ],
+          "worldQuaternion": [
+            -0.031843,
+            0.633651,
+            0.769958,
+            0.068094
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            0.694227,
+            -0.718491,
+            0.032553
+          ]
+        },
+        "RightUpLeg": {
+          "sourceNode": "thigh.fk.R",
+          "worldPosition": [
+            -0.094505,
+            0.811573,
+            1.594462
+          ],
+          "worldQuaternion": [
+            0.990877,
+            -0.106042,
+            0.063968,
+            -0.053155
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "RightLeg": {
+          "sourceNode": "shin.fk.R",
+          "worldPosition": [
+            -0.18096,
+            0.398379,
+            1.543907
+          ],
+          "worldQuaternion": [
+            0.988958,
+            -0.066242,
+            0.063432,
+            -0.116405
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            -0.009231,
+            -0.035158,
+            0.997206
+          ]
+        },
+        "RightFoot": {
+          "sourceNode": "foot.fk.R",
+          "worldPosition": [
+            -0.247471,
+            -0.153213,
+            1.407375
+          ],
+          "worldQuaternion": [
+            -0.031843,
+            0.633651,
+            0.769958,
+            0.068094
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            -0.694227,
+            0.718491,
+            0.032553
+          ]
+        }
+      },
+      "props": {
+        "root": {
+          "worldPosition": [
+            0,
+            0,
+            1.638866
+          ],
+          "worldQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ],
+          "localPosition": [
+            0,
+            0,
+            1.638866
+          ],
+          "localQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ]
+        },
+        "Weapon.R": {
+          "worldPosition": [
+            -0.335696,
+            1.18428,
+            2.077748
+          ],
+          "worldQuaternion": [
+            -0.021969,
+            -0.686879,
+            0.156018,
+            0.709488
+          ],
+          "localPosition": [
+            0.019356,
+            0.097296,
+            0.032634
+          ],
+          "localQuaternion": [
+            -0.647784,
+            -0.756319,
+            -0.042129,
+            0.081139
+          ]
+        },
+        "Long_Sword": {
+          "worldPosition": [
+            0,
+            0,
+            0
+          ],
+          "worldQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "bodyBasis": {
+        "origin": [
+          -0.00187,
+          0.896925,
+          1.682521
+        ],
+        "right": [
+          -0.995084,
+          0.0427,
+          -0.089358
+        ],
+        "up": [
+          0.000019,
+          0.902358,
+          0.430987
+        ],
+        "forward": [
+          0.099036,
+          0.428867,
+          -0.897923
+        ]
+      },
+      "limbs": {
+        "rightArm": {
+          "chain": [
+            "RightArm",
+            "RightForeArm",
+            "RightHand"
+          ],
+          "parentToMid": [
+            -0.212682,
+            -0.158872,
+            -0.028994
+          ],
+          "midToEnd": [
+            -0.002026,
+            -0.001667,
+            0.256444
+          ],
+          "parentToEnd": [
+            -0.214708,
+            -0.160539,
+            0.22745
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.351576
+          }
+        },
+        "leftArm": {
+          "chain": [
+            "LeftArm",
+            "LeftForeArm",
+            "LeftHand"
+          ],
+          "parentToMid": [
+            -0.021638,
+            -0.204505,
+            0.170364
+          ],
+          "midToEnd": [
+            -0.248084,
+            -0.004123,
+            0.064866
+          ],
+          "parentToEnd": [
+            -0.269722,
+            -0.208628,
+            0.23523
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.414257
+          }
+        },
+        "rightLeg": {
+          "chain": [
+            "RightUpLeg",
+            "RightLeg",
+            "RightFoot"
+          ],
+          "parentToMid": [
+            -0.086455,
+            -0.413194,
+            -0.050555
+          ],
+          "midToEnd": [
+            -0.066511,
+            -0.551592,
+            -0.136532
+          ],
+          "parentToEnd": [
+            -0.152966,
+            -0.964786,
+            -0.187087
+          ],
+          "lengths": {
+            "parentToMid": 0.425158,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994591
+          }
+        },
+        "leftLeg": {
+          "chain": [
+            "LeftUpLeg",
+            "LeftLeg",
+            "LeftFoot"
+          ],
+          "parentToMid": [
+            0.043395,
+            -0.421665,
+            -0.03278
+          ],
+          "midToEnd": [
+            0.029703,
+            -0.55787,
+            -0.123363
+          ],
+          "parentToEnd": [
+            0.073098,
+            -0.979535,
+            -0.156143
+          ],
+          "lengths": {
+            "parentToMid": 0.425158,
+            "midToEnd": 0.572119,
+            "parentToEnd": 0.994592
+          }
+        }
+      },
+      "weapon": {
+        "hiltWorld": [
+          -0.335696,
+          1.18428,
+          2.077748
+        ],
+        "tipWorld": [
+          0,
+          0,
+          0
+        ],
+        "bladeDirectionWorld": [
+          0.139004,
+          -0.490384,
+          -0.860349
+        ],
+        "bladeLength": 1
+      }
+    },
+    "followThrough": {
+      "label": "followThrough",
+      "requestedTime": 0.62,
+      "sourceTime": 0.62,
+      "bones": {
+        "Hips": {
+          "sourceNode": "hips",
+          "worldPosition": [
+            -0.000096,
+            0.96031,
+            1.847283
+          ],
+          "worldQuaternion": [
+            0.252902,
+            -0.268932,
+            0.021967,
+            0.929104
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.819564,
+            0,
+            0,
+            0.572987
+          ]
+        },
+        "Spine02": {
+          "sourceNode": "chest",
+          "worldPosition": [
+            -0.000096,
+            0.96031,
+            1.847283
+          ],
+          "worldQuaternion": [
+            0.247445,
+            -0.251631,
+            -0.094957,
+            0.930825
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.792872,
+            0.084049,
+            -0.074517,
+            0.598947
+          ]
+        },
+        "Spine01": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.000096,
+            0.96031,
+            1.847283
+          ],
+          "worldQuaternion": [
+            -0.014294,
+            -0.269203,
+            0.018717,
+            0.962796
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.564891,
+            -0.086545,
+            0.090305,
+            0.815631
+          ]
+        },
+        "Spine": {
+          "sourceNode": "spine",
+          "worldPosition": [
+            -0.000096,
+            0.96031,
+            1.847283
+          ],
+          "worldQuaternion": [
+            -0.014294,
+            -0.269203,
+            0.018717,
+            0.962796
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.564891,
+            -0.086545,
+            0.090305,
+            0.815631
+          ]
+        },
+        "neck": {
+          "sourceNode": "neck",
+          "worldPosition": [
+            0.010543,
+            1.368858,
+            1.988804
+          ],
+          "worldQuaternion": [
+            0.4106,
+            -0.165078,
+            -0.006698,
+            0.896723
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.262262,
+            0,
+            0,
+            0.964997
+          ]
+        },
+        "Head": {
+          "sourceNode": "head",
+          "worldPosition": [
+            0.010545,
+            1.368855,
+            1.988808
+          ],
+          "worldQuaternion": [
+            0.025493,
+            -0.054343,
+            -0.015159,
+            0.998082
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.03584,
+            -0.000794,
+            0.00429,
+            0.999348
+          ]
+        },
+        "LeftShoulder": {
+          "sourceNode": "shoulder.L",
+          "worldPosition": [
+            0.002618,
+            1.297709,
+            1.997442
+          ],
+          "worldQuaternion": [
+            0.222146,
+            0.415574,
+            0.726831,
+            -0.499666
+          ],
+          "localPosition": [
+            0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.47385,
+            -0.462041,
+            -0.470376,
+            0.583721
+          ]
+        },
+        "LeftArm": {
+          "sourceNode": "upper_arm.fk.L",
+          "worldPosition": [
+            0.13268,
+            1.254105,
+            2.045248
+          ],
+          "worldQuaternion": [
+            0.656338,
+            -0.551046,
+            -0.5137,
+            0.041012
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.641475,
+            0.077633,
+            0.174876,
+            0.7429
+          ]
+        },
+        "LeftForeArm": {
+          "sourceNode": "forearm.fk.L",
+          "worldPosition": [
+            -0.049235,
+            1.150135,
+            2.210812
+          ],
+          "worldQuaternion": [
+            -0.544718,
+            0.780678,
+            0.113857,
+            0.284359
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.547269,
+            0.016381,
+            0.061479,
+            0.834535
+          ]
+        },
+        "LeftHand": {
+          "sourceNode": "hand.fk.L",
+          "worldPosition": [
+            -0.283958,
+            1.247752,
+            2.176954
+          ],
+          "worldQuaternion": [
+            -0.531946,
+            0.81654,
+            -0.169605,
+            -0.146728
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.005814,
+            0.499691,
+            -0.002017,
+            0.866182
+          ]
+        },
+        "RightShoulder": {
+          "sourceNode": "shoulder.R",
+          "worldPosition": [
+            -0.028687,
+            1.308737,
+            1.982017
+          ],
+          "worldQuaternion": [
+            -0.427095,
+            0.099684,
+            0.174392,
+            0.881613
+          ],
+          "localPosition": [
+            -0.0183,
+            0.232947,
+            0.039946
+          ],
+          "localQuaternion": [
+            -0.581285,
+            0.317226,
+            0.328847,
+            0.673302
+          ]
+        },
+        "RightArm": {
+          "sourceNode": "upper_arm.fk.R",
+          "worldPosition": [
+            -0.091701,
+            1.372787,
+            1.867887
+          ],
+          "worldQuaternion": [
+            -0.235296,
+            -0.171134,
+            0.71851,
+            0.631738
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.114314,
+            0.249884,
+            -0.009758,
+            0.961455
+          ]
+        },
+        "RightForeArm": {
+          "sourceNode": "forearm.fk.R",
+          "worldPosition": [
+            -0.312626,
+            1.334535,
+            1.722823
+          ],
+          "worldQuaternion": [
+            0.442064,
+            0.475281,
+            0.50828,
+            0.565985
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.84092,
+            -0.040111,
+            -0.049387,
+            0.537406
+          ]
+        },
+        "RightHand": {
+          "sourceNode": "hand.fk.R",
+          "worldPosition": [
+            -0.352415,
+            1.358247,
+            1.975063
+          ],
+          "worldQuaternion": [
+            0.373596,
+            0.499614,
+            0.255019,
+            0.738768
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.017605,
+            -0.145505,
+            -0.274462,
+            0.950363
+          ]
+        },
+        "LeftUpLeg": {
+          "sourceNode": "thigh.fk.L",
+          "worldPosition": [
+            0.112589,
+            0.857019,
+            1.831396
+          ],
+          "worldQuaternion": [
+            0.961759,
+            0.036254,
+            0.2708,
+            -0.019318
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "LeftLeg": {
+          "sourceNode": "shin.fk.L",
+          "worldPosition": [
+            0.146685,
+            0.433296,
+            1.823946
+          ],
+          "worldQuaternion": [
+            0.956586,
+            0.019834,
+            0.275876,
+            -0.091887
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            0.009231,
+            0.035158,
+            0.997206
+          ]
+        },
+        "LeftFoot": {
+          "sourceNode": "foot.fk.L",
+          "worldPosition": [
+            0.197399,
+            -0.128711,
+            1.729631
+          ],
+          "worldQuaternion": [
+            -0.172099,
+            0.61655,
+            0.739634,
+            0.20782
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            0.694227,
+            -0.718491,
+            0.032553
+          ]
+        },
+        "RightUpLeg": {
+          "sourceNode": "thigh.fk.R",
+          "worldPosition": [
+            -0.054862,
+            0.875679,
+            1.731276
+          ],
+          "worldQuaternion": [
+            0.956598,
+            -0.112672,
+            0.261779,
+            -0.060807
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "RightLeg": {
+          "sourceNode": "shin.fk.R",
+          "worldPosition": [
+            -0.132976,
+            0.46446,
+            1.656735
+          ],
+          "worldQuaternion": [
+            0.956334,
+            -0.06108,
+            0.261709,
+            -0.114904
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0.065264,
+            -0.009231,
+            -0.035158,
+            0.997206
+          ]
+        },
+        "RightFoot": {
+          "sourceNode": "foot.fk.R",
+          "worldPosition": [
+            -0.165404,
+            -0.088282,
+            1.512708
+          ],
+          "worldQuaternion": [
+            -0.172099,
+            0.61655,
+            0.739634,
+            0.20782
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            -0.027563,
+            -0.694227,
+            0.718491,
+            0.032553
+          ]
+        }
+      },
+      "props": {
+        "root": {
+          "worldPosition": [
+            0,
+            0,
+            1.803631
+          ],
+          "worldQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ],
+          "localPosition": [
+            0,
+            0,
+            1.803631
+          ],
+          "localQuaternion": [
+            -0.707107,
+            0,
+            0,
+            0.707107
+          ]
+        },
+        "Weapon.R": {
+          "worldPosition": [
+            -0.317213,
+            1.421593,
+            2.052695
+          ],
+          "worldQuaternion": [
+            -0.3067,
+            -0.662528,
+            0.034131,
+            0.682515
+          ],
+          "localPosition": [
+            0.018042,
+            0.09994,
+            0.031086
+          ],
+          "localQuaternion": [
+            -0.667566,
+            -0.73949,
+            -0.054555,
+            0.067337
+          ]
+        },
+        "Long_Sword": {
+          "worldPosition": [
+            0,
+            0,
+            0
+          ],
+          "worldQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "localQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "bodyBasis": {
+        "origin": [
+          -0.000096,
+          0.96031,
+          1.847283
+        ],
+        "right": [
+          -0.859484,
+          0.168098,
+          -0.482732
+        ],
+        "up": [
+          -0.034823,
+          0.922931,
+          0.383387
+        ],
+        "forward": [
+          0.509975,
+          0.346325,
+          -0.787391
+        ]
+      },
+      "limbs": {
+        "rightArm": {
+          "chain": [
+            "RightArm",
+            "RightForeArm",
+            "RightHand"
+          ],
+          "parentToMid": [
+            -0.220925,
+            -0.038252,
+            -0.145064
+          ],
+          "midToEnd": [
+            -0.039789,
+            0.023712,
+            0.25224
+          ],
+          "parentToEnd": [
+            -0.260714,
+            -0.01454,
+            0.107176
+          ],
+          "lengths": {
+            "parentToMid": 0.267048,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.282259
+          }
+        },
+        "leftArm": {
+          "chain": [
+            "LeftArm",
+            "LeftForeArm",
+            "LeftHand"
+          ],
+          "parentToMid": [
+            -0.181915,
+            -0.10397,
+            0.165564
+          ],
+          "midToEnd": [
+            -0.234723,
+            0.097617,
+            -0.033858
+          ],
+          "parentToEnd": [
+            -0.416638,
+            -0.006353,
+            0.131706
+          ],
+          "lengths": {
+            "parentToMid": 0.267047,
+            "midToEnd": 0.256457,
+            "parentToEnd": 0.437006
+          }
+        },
+        "rightLeg": {
+          "chain": [
+            "RightUpLeg",
+            "RightLeg",
+            "RightFoot"
+          ],
+          "parentToMid": [
+            -0.078114,
+            -0.411219,
+            -0.074541
+          ],
+          "midToEnd": [
+            -0.032428,
+            -0.552742,
+            -0.144027
+          ],
+          "parentToEnd": [
+            -0.110542,
+            -0.963961,
+            -0.218568
+          ],
+          "lengths": {
+            "parentToMid": 0.425158,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994592
+          }
+        },
+        "leftLeg": {
+          "chain": [
+            "LeftUpLeg",
+            "LeftLeg",
+            "LeftFoot"
+          ],
+          "parentToMid": [
+            0.034096,
+            -0.423723,
+            -0.00745
+          ],
+          "midToEnd": [
+            0.050714,
+            -0.562007,
+            -0.094315
+          ],
+          "parentToEnd": [
+            0.08481,
+            -0.98573,
+            -0.101765
+          ],
+          "lengths": {
+            "parentToMid": 0.425158,
+            "midToEnd": 0.572118,
+            "parentToEnd": 0.994592
+          }
+        }
+      },
+      "weapon": {
+        "hiltWorld": [
+          -0.317213,
+          1.421593,
+          2.052695
+        ],
+        "tipWorld": [
+          0,
+          0,
+          0
+        ],
+        "bladeDirectionWorld": [
+          0.12603,
+          -0.564805,
+          -0.815544
+        ],
+        "bladeLength": 1
+      }
+    }
   }
 }
