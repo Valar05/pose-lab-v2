@@ -47,7 +47,7 @@
     "inspect:vanguard": "node scripts/run-blender-tool.mjs tools/import_vanguard/inspect_vanguard_blend.py --",
     "build:vanguard": "node scripts/run-blender-tool.mjs tools/import_vanguard/export_vanguard_glb.py -- && node scripts/run-blender-tool.mjs tools/import_vanguard/export_vanguard_root_motion.py --",
     "root-motion:vanguard": "node scripts/run-blender-tool.mjs tools/import_vanguard/export_vanguard_root_motion.py --",
-    "build:crimson": "node tools/import_crimson/build_crimson_assets.mjs && npm run normalize:crimson-sword",
+    "build:crimson": "node tools/import_crimson/build_crimson_assets.mjs && npm run normalize:crimson-sword && npm run optimize:crimson-review-assets",
     "reference:crimson:swordattack1": "node tools/import_crimson/extract_vanguard_swordattack1_reference.mjs",
     "validate:crimson-sword": "npm run validate:crimson-sword-intake && npm run accept:crimson-sword",
     "normalize:crimson-sword": "node tools/import_crimson/normalize_crimson_sword.mjs",
@@ -63,6 +63,9 @@
     "test:crimson-visual-evidence-promotion": "node tools/test_crimson_visual_evidence_promotion.mjs",
     "accept:crimson-sword:cloud": "node tools/run_crimson_cloud_acceptance.mjs",
     "test:saber-transform-interaction": "node tools/test_saber_transform_interaction.mjs",
-    "test:crimson-light-attack1": "node tools/test_crimson_light_attack_candidate.mjs"
+    "test:crimson-light-attack1": "node tools/test_crimson_light_attack_candidate.mjs",
+    "optimize:crimson-review-assets": "python3 tools/import_crimson/optimize_crimson_review_assets.py",
+    "test:crimson-review-assets": "node tools/test_crimson_review_assets.mjs",
+    "review:crimson-attack1:cloud": "node tools/run_crimson_attack1_cloud_review.mjs"
   }
 }

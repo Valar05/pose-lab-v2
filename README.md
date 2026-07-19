@@ -138,6 +138,9 @@ The new Meshy downloads are imported as a staged Crimson authoring lane:
 ```text
 public/assets/crimson/crimson_plume_knight_rigged_pbr.glb
 public/assets/crimson/arborblade_sword.glb
+public/assets/crimson/crimson_plume_knight_rigged_pbr_review.glb
+public/assets/crimson/arborblade_sword_review.glb
+public/assets/crimson/crimson_review_assets_manifest.json
 public/assets/crimson/crimson_sword_calibration.json
 public/assets/crimson/crimson_model_viewer_constraints.json
 public/assets/crimson/vanguard_swordattack1_reference.json
@@ -149,6 +152,8 @@ Use:
 npm run build:crimson
 npm run validate:crimson-model-viewer-constraints
 npm run test:crimson-model-viewer-constraints
+npm run optimize:crimson-review-assets
+npm run test:crimson-review-assets
 npm run review:crimson-sword
 npm run review:crimson-sword-url
 npm run validate:crimson-sword-intake
@@ -156,13 +161,22 @@ npm run accept:crimson-sword:cloud -- --visual-read "Hosted cloud screenshot sho
 npm run accept:crimson-sword
 npm run validate:crimson-sword
 npm run reference:crimson:swordattack1
+npm run review:crimson-attack1:cloud -- --dispatch
 ```
 
 Review route:
 
 ```text
 ?model=crimson
+?model=crimson&quality=source
 ```
+
+The default Crimson route uses optimized review GLBs so cloud review does not
+pay the full imported texture payload every frame. The full imported PBR GLBs
+are preserved and selectable with `quality=source`; this is for fidelity and
+provenance inspection, not the fast review loop. Regenerate the review GLBs with
+`npm run optimize:crimson-review-assets` and enforce their payload/material
+contract with `npm run test:crimson-review-assets`.
 
 This route uses the Crimson biped for the body and the real Arborblade static
 PBR sword under `RightHand -> SaberGrip -> ArborbladeSword`. Arborblade is

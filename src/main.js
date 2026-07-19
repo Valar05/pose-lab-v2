@@ -4,11 +4,18 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { POSE_STATUS } from './pose-status.js';
 import { ATTACK1_REVIEW_CANDIDATES, CRIMSON_SABER_GRIP_LOCAL, CRIMSON_SWORD_LOCAL, DAVIN_IDLE_REVIEW_CANDIDATES, LOWBACKKICK_REVIEW_CANDIDATES, SABER_GRIP_LOCAL } from './review-constants.js';
 
+const URL_PARAMS = new URLSearchParams(window.location.search);
+const CRIMSON_ASSET_QUALITY = URL_PARAMS.get('quality') === 'source' ? 'source' : 'review';
+
 const ASSETS = {
   meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
   sabre: './assets/meshy/meshy_real_sabre.glb',
-  crimson: './assets/crimson/crimson_plume_knight_rigged_pbr.glb',
-  arborblade: './assets/crimson/arborblade_sword.glb',
+  crimsonSource: './assets/crimson/crimson_plume_knight_rigged_pbr.glb',
+  arborbladeSource: './assets/crimson/arborblade_sword.glb',
+  crimsonReview: './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb',
+  arborbladeReview: './assets/crimson/arborblade_sword_review.glb',
+  crimson: CRIMSON_ASSET_QUALITY === 'source' ? './assets/crimson/crimson_plume_knight_rigged_pbr.glb' : './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb',
+  arborblade: CRIMSON_ASSET_QUALITY === 'source' ? './assets/crimson/arborblade_sword.glb' : './assets/crimson/arborblade_sword_review.glb',
   fistHands: './assets/meshy/meshy_fist_hands.glb',
   davin: './assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb',
   ares: './assets/ares/ares_rigged_diffuse.glb',
@@ -80,7 +87,7 @@ const CHARACTER_ASSETS = Object.freeze({
     saberGripLocal: CRIMSON_SABER_GRIP_LOCAL,
     swordLocal: CRIMSON_SWORD_LOCAL,
     source: '/storage/emulated/0/Download/Meshy_AI_Crimson_Plume_Knight_biped.zip + /storage/emulated/0/Download/Meshy_AI_Crimson_Plume_Knight_0717211804_texture.glb + /storage/emulated/0/Download/Meshy_AI_Arborblade_0717211756_texture.glb',
-    role: 'Crimson Plume Knight rigged locomotion/PBR authoring model with real Arborblade sword calibration baseline',
+    role: `Crimson Plume Knight rigged locomotion/PBR authoring model with real Arborblade sword calibration baseline; default quality=${CRIMSON_ASSET_QUALITY}, use quality=source for full imported GLBs`,
     boneMap: {},
     supportsSaber: true,
     supportsBakedPoseStates: false,
@@ -169,7 +176,6 @@ const MESHY_PBR_TEXTURES = {
   metallicRoughnessMap: './assets/meshy/character_sheet_pbr/metallic_roughness.jpg',
   normalMap: './assets/meshy/character_sheet_pbr/normal.png',
 };
-const URL_PARAMS = new URLSearchParams(window.location.search);
 const REQUESTED_CHARACTER_KEY = CHARACTER_KEY_ALIASES[URL_PARAMS.get('model')]
   || CHARACTER_KEY_ALIASES[URL_PARAMS.get('character')]
   || 'davin';
@@ -625,6 +631,28 @@ scene.add(root);
 let firstFrameRendered = false;
 let meshyPbrTextures = null;
 let fpvBodyMasksReady = false;
+const bootTimings = {};
+const bootStartedAt = performance.now();
+
+function markBootTiming(name) {
+  if (bootTimings[name] !== undefined) return;
+  bootTimings[name] = fixedNumber(performance.now() - bootStartedAt, 1);
+  document.body.dataset[`bootTiming${name[0].toUpperCase()}${name.slice(1)}`] = String(bootTimings[name]);
+  document.body.dataset.bootTimings = JSON.stringify(bootTimings);
+}
+
+function updateReviewReady() {
+  if (document.body.dataset.reviewReady === '1' || document.body.dataset.bootFailed === '1') return;
+  const saberOk = !ACTIVE_CHARACTER.supportsSaber || (saberAttachmentProof.status === 'attached' && saberAttachmentProof.visibleInViewport === true);
+  const candidateOk = !REQUESTED_CANDIDATE || Boolean(attackPoseSequence);
+  const poseOk = !REQUESTED_ATTACK_QUARANTINED || poseState === 'attack1';
+  if (firstFrameRendered && document.body.dataset.bootReady === '1' && saberOk && candidateOk && poseOk) {
+    markBootTiming('reviewReady');
+    document.body.dataset.reviewReady = '1';
+    document.body.dataset.reviewAssetQuality = CRIMSON_ASSET_QUALITY;
+    document.body.dataset.reviewPoseState = poseState;
+  }
+}
 
 function setBootPhase(message) {
   document.body.dataset.bootState = message;
@@ -633,6 +661,7 @@ function setBootPhase(message) {
 }
 
 function markBootReady() {
+  markBootTiming('bootReady');
   document.body.dataset.bootReady = '1';
   bootPanel.hidden = true;
 }
@@ -2307,6 +2336,7 @@ async function loadReviewCandidate() {
   const candidateModule = await import(`${candidate.module}${suffix}`);
   attackPoseSequence = candidateModule[candidate.exportName];
   if (!attackPoseSequence?.frames?.length) throw new Error(`${REQUESTED_ATTACK_LABEL} review candidate ${REQUESTED_CANDIDATE} has no frames`);
+  markBootTiming('candidateLoaded');
 }
 
 function isSequenceReviewState() {
@@ -3609,6 +3639,7 @@ function snapCamera(view) {
 }
 
 async function boot() {
+  markBootTiming('bootStart');
   const requestedPoseState = initialPoseStateFromUrl();
   setBootPhase(`loading ${ACTIVE_CHARACTER.label}`);
   const characterPromise = loadGltf(ACTIVE_CHARACTER.asset, { announce: false });
@@ -3626,6 +3657,7 @@ async function boot() {
     : Promise.resolve(null);
 
   const characterGltf = await characterPromise;
+  markBootTiming('characterLoaded');
   const meshy = characterGltf.scene;
   setBootPhase(`showing ${ACTIVE_CHARACTER.label}`);
   meshyRoot = normalizeCharacter(meshy);
@@ -3655,12 +3687,15 @@ async function boot() {
   Promise.all([sabrePromise, posePromise, fistHandsPromise])
     .then(([sabre, _posePresets, fistHands]) => {
       if (sabre) {
+        markBootTiming('saberLoaded');
         sabreRoot = prepareSabre(sabre);
         root.add(sabreRoot);
         attachSaberToRightHand();
+        markBootTiming('saberAttached');
       }
       if (fistHands) attachFistHandsToMeshy(fistHands);
       setPoseState(requestedPoseState);
+      updateReviewReady();
       if (useManualAttackAuthoring() && poseState === 'attack1') {
         statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
       } else if (attackPoseSequence && REQUESTED_CANDIDATE && isSequenceReviewState()) {
@@ -3826,7 +3861,9 @@ function animate() {
   if (!firstFrameRendered) {
     firstFrameRendered = true;
     document.body.dataset.firstFrame = '1';
+    markBootTiming('firstFrame');
   }
+  updateReviewReady();
   requestAnimationFrame(animate);
 }
 

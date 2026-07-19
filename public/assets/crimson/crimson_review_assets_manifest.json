@@ -1,0 +1,182 @@
+{
+  "schema": "pose-lab-v2-crimson-review-assets-v1",
+  "policy": "optimized assets are default hosted review payload; full PBR GLBs remain available with quality=source",
+  "character": {
+    "source": "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb",
+    "target": "public/assets/crimson/crimson_plume_knight_rigged_pbr_review.glb",
+    "sourceBytes": 17926664,
+    "reviewBytes": 8883920,
+    "sourceSha256": "f5d8995cc3bd0ce4c705ed092b6333e4f63782df5b3afe7f3d414ac8973f739e",
+    "reviewSha256": "ded1784aa3bc24058a77be33de42eadc12e1841de2113652e878c7014c2afc85",
+    "maxTextureSize": 1024,
+    "jpegQuality": 72,
+    "images": [
+      {
+        "index": 0,
+        "name": "CrimsonPlumeKnight_PBR_0",
+        "sourceBytes": 3757380,
+        "reviewBytes": 162084,
+        "dimensions": {
+          "from": [
+            2048,
+            2048
+          ],
+          "to": [
+            1024,
+            1024
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "name": "CrimsonPlumeKnight_PBR_1",
+        "sourceBytes": 1878390,
+        "reviewBytes": 80497,
+        "dimensions": {
+          "from": [
+            2048,
+            2048
+          ],
+          "to": [
+            1024,
+            1024
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "name": "CrimsonPlumeKnight_PBR_2",
+        "sourceBytes": 3637122,
+        "reviewBytes": 47607,
+        "dimensions": {
+          "from": [
+            2048,
+            2048
+          ],
+          "to": [
+            1024,
+            1024
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "name": "CrimsonPlumeKnight_PBR_3",
+        "sourceBytes": 66620,
+        "reviewBytes": 6430,
+        "dimensions": {
+          "from": [
+            2048,
+            2048
+          ],
+          "to": [
+            1024,
+            1024
+          ]
+        }
+      }
+    ],
+    "animations": [
+      {
+        "name": "CrimsonPlumeKnight|walking|baselayer",
+        "channels": 72,
+        "samplers": 72
+      },
+      {
+        "name": "CrimsonPlumeKnight|running|baselayer",
+        "channels": 72,
+        "samplers": 72
+      }
+    ],
+    "nodes": 26,
+    "meshes": 1,
+    "skins": 1
+  },
+  "sword": {
+    "source": "public/assets/crimson/arborblade_sword.glb",
+    "target": "public/assets/crimson/arborblade_sword_review.glb",
+    "sourceBytes": 9399768,
+    "reviewBytes": 228976,
+    "sourceSha256": "f0bbb709c36afeddd121395657e400730da783eb2ad375dbe1d86c11200adda6",
+    "reviewSha256": "cb8be90e77bda3f7734b365c11af9162977b542b4429e3aa8716148f0d74e7c1",
+    "maxTextureSize": 768,
+    "jpegQuality": 68,
+    "images": [
+      {
+        "index": 0,
+        "name": null,
+        "sourceBytes": 3798400,
+        "reviewBytes": 105285,
+        "dimensions": {
+          "from": [
+            2048,
+            2048
+          ],
+          "to": [
+            768,
+            768
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "name": null,
+        "sourceBytes": 1362941,
+        "reviewBytes": 36879,
+        "dimensions": {
+          "from": [
+            2048,
+            2048
+          ],
+          "to": [
+            768,
+            768
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "name": null,
+        "sourceBytes": 3783350,
+        "reviewBytes": 32812,
+        "dimensions": {
+          "from": [
+            2048,
+            2048
+          ],
+          "to": [
+            768,
+            768
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "name": null,
+        "sourceBytes": 409591,
+        "reviewBytes": 8306,
+        "dimensions": {
+          "from": [
+            2048,
+            2048
+          ],
+          "to": [
+            768,
+            768
+          ]
+        }
+      }
+    ],
+    "animations": [],
+    "nodes": 1,
+    "meshes": 1,
+    "skins": 0
+  },
+  "budgets": {
+    "combinedReviewBytesMax": 14000000,
+    "characterReviewBytesMax": 11500000,
+    "swordReviewBytesMax": 2500000
+  },
+  "combinedReviewBytes": 9112896,
+  "combinedSourceBytes": 27326432
+}

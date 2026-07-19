@@ -158,6 +158,8 @@ normalization, and camera. If Blender needs a different camera, scale, socket,
 or placement to look good, the diagnostic is invalid and must fail before any
 render is treated as useful.
 
+The hosted Crimson cloud QA workflow should use optimized default review assets and wait for browser `reviewReady`, not a fixed long sleep. Boot timings are diagnostics: they can reject a slow or blank capture, but they cannot accept the visible sword/pose relationship without inspected cloud pixels. Batched Attack1 cloud review should capture all prime frames in one browser session when possible.
+
 The hosted Crimson cloud QA workflow must use the runner's system Chrome channel
 and must not install Chromium during the review job. Installing a fresh Chromium
 browser in the cloud lane changes the review environment, slows the loop, and

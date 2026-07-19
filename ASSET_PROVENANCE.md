@@ -4,8 +4,11 @@
 
 ## Crimson Plume Knight / Arborblade
 
-- Runtime character file: `public/assets/crimson/crimson_plume_knight_rigged_pbr.glb`
-- Runtime sword file: `public/assets/crimson/arborblade_sword.glb`
+- Full runtime character file: `public/assets/crimson/crimson_plume_knight_rigged_pbr.glb`
+- Full runtime sword file: `public/assets/crimson/arborblade_sword.glb`
+- Default review character file: `public/assets/crimson/crimson_plume_knight_rigged_pbr_review.glb`
+- Default review sword file: `public/assets/crimson/arborblade_sword_review.glb`
+- Review asset manifest: `public/assets/crimson/crimson_review_assets_manifest.json`
 - Runtime manifest: `public/assets/crimson/crimson_manifest.json`
 - Sword calibration: `public/assets/crimson/crimson_sword_calibration.json`
 - Model-viewer constraint contract: `public/assets/crimson/crimson_model_viewer_constraints.json`
@@ -16,12 +19,12 @@
   - `Meshy_AI_Crimson_Plume_Knight_biped/Meshy_AI_Crimson_Plume_Knight_biped_Animation_Running_withSkin.glb`
 - Full character material source: `/storage/emulated/0/Download/Meshy_AI_Crimson_Plume_Knight_0717211804_texture.glb`
 - Full sword material source: `/storage/emulated/0/Download/Meshy_AI_Arborblade_0717211756_texture.glb`
-- Build script: `tools/import_crimson/build_crimson_assets.mjs` plus `tools/import_crimson/normalize_crimson_sword.mjs` (`npm run build:crimson`)
+- Build script: `tools/import_crimson/build_crimson_assets.mjs` plus `tools/import_crimson/normalize_crimson_sword.mjs` and `tools/import_crimson/optimize_crimson_review_assets.py` (`npm run build:crimson`)
 - Offline review script: `tools/import_crimson/render_crimson_sword_calibration_blender.py` (`npm run review:crimson-sword`)
 - Hosted review URL script: `tools/crimson_sword_review_url.mjs` (`npm run review:crimson-sword-url`)
 - Cloud visual acceptance gate: `tools/require_crimson_cloud_visual_evidence.mjs` (`npm run accept:crimson-sword`)
 - Reference script: `tools/import_crimson/extract_vanguard_swordattack1_reference.mjs` (`npm run reference:crimson:swordattack1`)
-- Role: Crimson Plume Knight authoring lane with a real static PBR Arborblade sword attached through `RightHand -> SaberGrip -> ArborbladeSword`. The biped source contributes skeleton, skin, walking, and running clips; the static character GLB contributes full PBR texture channels; the static sword GLB contributes the real sword mesh/material. The project-owned runtime sword is a normalized derivative with the hilt anchor at local origin and the blade pointing along local +Z; source download bytes remain the provenance input. The calibration records this offline-socket-calibrated contract and does not claim hosted visual acceptance. Crimson sword changes must reconcile constrained Blender diagnostics with hosted Pose Lab browser socket proof before they can be reported. Local Blender diagnostics are fail-closed against the model-viewer constraint contract and cannot invent independent sword placement, scale, camera, or hierarchy. Crimson sword visual acceptance is blocked until `generated/cloud-visual-evidence/crimson-sword/latest.json` contains fresh hosted screenshot evidence accepted by `npm run accept:crimson-sword`. Vanguard `SwordAttack1` is reference-only timing/relationship evidence for a later quarantined Crimson attack candidate.
+- Role: Crimson Plume Knight authoring lane with a real static PBR Arborblade sword attached through `RightHand -> SaberGrip -> ArborbladeSword`. The biped source contributes skeleton, skin, walking, and running clips; the static character GLB contributes full PBR texture channels; the static sword GLB contributes the real sword mesh/material. The project-owned runtime sword is a normalized derivative with the hilt anchor at local origin and the blade pointing along local +Z; source download bytes remain the provenance input. The calibration records this offline-socket-calibrated contract and does not claim hosted visual acceptance. The optimized review GLBs are project-owned derivatives made by resizing embedded PBR JPEG payloads for hosted review speed; they preserve source geometry, skin, animations, materials, and sword calibration while the full imported GLBs remain available with `quality=source`. Crimson sword changes must reconcile constrained Blender diagnostics with hosted Pose Lab browser socket proof before they can be reported. Local Blender diagnostics are fail-closed against the model-viewer constraint contract and cannot invent independent sword placement, scale, camera, or hierarchy. Crimson sword visual acceptance is blocked until `generated/cloud-visual-evidence/crimson-sword/latest.json` contains fresh hosted screenshot evidence accepted by `npm run accept:crimson-sword`. Vanguard `SwordAttack1` is reference-only timing/relationship evidence for a later quarantined Crimson attack candidate.
 
 ## Davin Wingsworth / Kestrel Man
 

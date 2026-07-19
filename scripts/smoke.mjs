@@ -26,6 +26,7 @@ const davinLowBackKickCandidateSource = read('src/review-candidates/davin-lowbac
 const davinIdleCandidateSource = read('src/review-candidates/davin-idle-screenshot-1.js');
 const crimsonLightAttackCandidateSource = read('src/review-candidates/crimson-light-attack1-vanguard-2.js');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
+const githubCrimsonVisualCapture = read('tools/github_crimson_visual_capture.mjs');
 const attack2ReviewUrls = read('tools/attack2_review_urls.mjs');
 const fistAttack1ReviewUrls = read('tools/fist_attack1_review_urls.mjs');
 const combinedAttackReviewUrls = read('tools/attack_review_urls.mjs');
@@ -100,6 +101,15 @@ assert(exists('public/assets/vanguard/vanguard_manifest.json'), 'missing importe
 assert(exists('public/assets/vanguard/vanguard_root_motion.json'), 'missing imported Vanguard root motion sidecar');
 assert(exists('public/assets/crimson/crimson_plume_knight_rigged_pbr.glb'), 'missing Crimson Plume Knight rigged PBR runtime GLB; run npm run build:crimson');
 assert(exists('public/assets/crimson/arborblade_sword.glb'), 'missing Arborblade real sword runtime GLB; run npm run build:crimson');
+
+assert(exists('public/assets/crimson/crimson_plume_knight_rigged_pbr_review.glb'), 'missing optimized Crimson review character GLB; run npm run optimize:crimson-review-assets');
+assert(exists('public/assets/crimson/arborblade_sword_review.glb'), 'missing optimized Arborblade review sword GLB; run npm run optimize:crimson-review-assets');
+assert(exists('public/assets/crimson/crimson_review_assets_manifest.json'), 'missing Crimson review asset optimization manifest');
+const crimsonReviewAssets = JSON.parse(read('public/assets/crimson/crimson_review_assets_manifest.json'));
+assert(crimsonReviewAssets.schema === 'pose-lab-v2-crimson-review-assets-v1', 'Crimson review assets manifest schema must be stable');
+assert(crimsonReviewAssets.combinedReviewBytes <= crimsonReviewAssets.budgets.combinedReviewBytesMax, 'optimized Crimson review assets must stay under combined payload budget');
+assert(crimsonReviewAssets.combinedReviewBytes < crimsonReviewAssets.combinedSourceBytes * 0.55, 'Crimson review assets must materially reduce full imported payload');
+
 assert(exists('public/assets/crimson/crimson_manifest.json'), 'missing Crimson runtime manifest');
 assert(exists('public/assets/crimson/crimson_sword_calibration.json'), 'missing Crimson sword calibration');
 assert(exists('public/assets/crimson/vanguard_swordattack1_reference.json'), 'missing Vanguard SwordAttack1 reference for Crimson; run npm run reference:crimson:swordattack1');
@@ -384,6 +394,11 @@ assert(main.includes('function findPoseBone') && main.includes('activeBoneName(l
 assert(main.includes('supportsBakedPoseStates: false') && main.includes('imported rigged Ares diffuse authoring model'), 'imported Ares profiles must remain manual pose-authoring surfaces, not Meshy baked-pose targets');
 assert(main.includes('const textureLoader = new THREE.TextureLoader()'), 'app must load Meshy PBR channels through Three TextureLoader');
 assert(main.includes('data-boot-panel') && main.includes('function setBootPhase') && main.includes('function markBootFailed'), 'app must expose visible boot phases instead of silent blank/loading states');
+
+assert(main.includes("crimson_plume_knight_rigged_pbr_review.glb") && main.includes("arborblade_sword_review.glb") && main.includes("URL_PARAMS.get('quality') === 'source'"), 'Crimson default runtime must use optimized review assets and keep quality=source full-fidelity escape hatch');
+assert(main.includes('document.body.dataset.reviewReady') && main.includes('document.body.dataset.bootTimings') && main.includes("markBootTiming('reviewReady')"), 'runtime must expose reviewReady and boot timing telemetry for cloud visual QA');
+assert(githubCrimsonVisualCapture.includes('settleMs: 500') && githubCrimsonVisualCapture.includes('--url-list') && githubCrimsonVisualCapture.includes("dataset.reviewReady === '1'"), 'cloud capture must support batched URLs, wait on reviewReady, and avoid fixed 5s settle by default');
+
 assert(main.includes("document.body.dataset.firstFrame = '1'"), 'app must mark first rendered frame for render diagnostics');
 assert(main.includes('async function applyMeshyPbrTextures') && main.includes('applyMeshyPbrToMaterial'), 'app must apply salvaged Meshy PBR channels to character materials');
 assert(main.includes('material.map = textures.map') && main.includes('material.emissiveMap = textures.emissiveMap') && main.includes('material.metalnessMap = textures.metallicRoughnessMap') && main.includes('material.normalMap = textures.normalMap') && main.includes('material.roughnessMap = textures.metallicRoughnessMap'), 'app must assign full Meshy PBR material channels');

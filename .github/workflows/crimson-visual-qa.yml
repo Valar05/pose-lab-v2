@@ -5,7 +5,11 @@ on:
     inputs:
       url:
         description: Exact hosted Crimson review URL
-        required: true
+        required: false
+        type: string
+      url_list:
+        description: JSON array of hosted Crimson review URLs for batched capture
+        required: false
         type: string
 
 permissions:
@@ -28,13 +32,16 @@ jobs:
       - name: Capture hosted Crimson visual evidence
         env:
           PLAYWRIGHT_CHROME_CHANNEL: chrome
-        run: >-
-          node tools/github_crimson_visual_capture.mjs
-          --url "${{ inputs.url }}"
-          --out-dir generated/cloud-visual-evidence/crimson-sword/github-actions-${{ github.run_id }}
-          --job-id github_actions_${{ github.run_id }}
-          --session-id browser_session_github_actions_${{ github.run_id }}
-          --episode-id browser_episode_github_actions_${{ github.run_id }}
+          CRIMSON_VISUAL_QA_URL: ${{ inputs.url }}
+          CRIMSON_VISUAL_QA_URL_LIST: ${{ inputs.url_list }}
+        run: |
+          set -eu
+          if [ -n "${CRIMSON_VISUAL_QA_URL_LIST:-}" ]; then
+            URL_ARGS=(--url-list "$CRIMSON_VISUAL_QA_URL_LIST")
+          else
+            URL_ARGS=(--url "$CRIMSON_VISUAL_QA_URL")
+          fi
+          node tools/github_crimson_visual_capture.mjs             "${URL_ARGS[@]}"             --out-dir generated/cloud-visual-evidence/crimson-sword/github-actions-${{ github.run_id }}             --job-id github_actions_${{ github.run_id }}             --session-id browser_session_github_actions_${{ github.run_id }}             --episode-id browser_episode_github_actions_${{ github.run_id }}
       - uses: actions/upload-artifact@v4
         with:
           name: crimson-visual-evidence-${{ github.run_id }}
