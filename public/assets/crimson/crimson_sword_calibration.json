@@ -13,14 +13,14 @@
   "saberGripLocal": {
     "parentBone": "RightHand",
     "position": [
-      0,
-      0,
-      0
+      15.28165,
+      14.39869,
+      -6.34944
     ],
     "rotationDeg": [
-      96.50876,
-      0,
-      -0.07512
+      -15.898,
+      51.654,
+      83.103
     ],
     "scale": [
       1,
@@ -88,5 +88,5 @@
     ],
     "dominantAxis": "z"
   },
-  "acceptanceNote": "Offline socket calibration places the normalized hilt origin at a palm-forward target derived from the Crimson RightForeArm -> RightHand direction, not at the wrist bone origin. SaberGrip stays an unscaled RightHand child, the sword uses local position [-1.98175, -1.31896, -7.90654], rotation [90, 30, 0], and scale [88, 88, 88] so the hilt sits forward of the wrist while the blade maps to dominant world +Z. Hosted visual review is still required before claiming Crimson socket acceptance."
+  "acceptanceNote": "Manual Crimson sword calibration promoted from pose-lab-v2-sabre-transform-v1 export. SaberGrip stays an unscaled RightHand child, uses exported local position [15.28165, 14.39869, -6.34944] and rotation [-15.898, 51.654, 83.103], while the normalized Arborblade keeps swordLocal position [-1.98175, -1.31896, -7.90654], rotation [90, 30, 0], and scale [88, 88, 88]. Hosted visual review is still required before claiming Crimson socket acceptance."
 }
