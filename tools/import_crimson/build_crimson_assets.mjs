@@ -205,7 +205,7 @@ const calibration = {
   hierarchy: ['RightHand', 'SaberGrip', 'ArborbladeSword'],
   saberGripLocal: {
       parentBone: 'RightHand',
-      position: [15.28165, 14.39869, -6.34944],
+      position: [12.38741, 13.39693, -1.51078],
       rotationDeg: [-15.898, 51.654, 83.103],
       scale: [1, 1, 1],
     },
@@ -217,7 +217,7 @@ const calibration = {
   bladeLocalAxis: [0, 0, 1],
   hiltLocalPoint: [0, 0, 0],
   tipLocalPoint: [0, 0, 0.898242],
-  acceptanceNote: 'Manual Crimson sword calibration promoted from pose-lab-v2-sabre-transform-v1 export. SaberGrip stays an unscaled RightHand child, uses exported local position [15.28165, 14.39869, -6.34944] and rotation [-15.898, 51.654, 83.103], while the normalized Arborblade keeps swordLocal position [-1.98175, -1.31896, -7.90654], rotation [90, 30, 0], and scale [88, 88, 88]. Hosted visual review is still required before claiming Crimson socket acceptance.',
+  acceptanceNote: 'Manual Crimson sword calibration updated from latest pose-lab-v2-sabre-transform-v1 export. SaberGrip stays an unscaled RightHand child, uses exported local position [12.38741, 13.39693, -1.51078] and rotation [-15.898, 51.654, 83.103], while the normalized Arborblade keeps swordLocal position [-1.98175, -1.31896, -7.90654], rotation [90, 30, 0], and scale [88, 88, 88]. Hosted visual review is still required before claiming Crimson socket acceptance.',
 };
 fs.writeFileSync(calibrationPath, `${JSON.stringify(calibration, null, 2)}\n`);
 
