@@ -52,7 +52,7 @@ const source = {
     visibleInViewport: true,
     screenLengthPx: 96,
     bladeWorldLength: 0.56055,
-    hiltToHandDistance: 0.085,
+    hiltToHandDistance: 0.18946,
     bladeWorldDirection: [0.02777, 0.07351, 0.99691],
     hiltScreen: [379.2, 452.1],
     tipScreen: [283.7, 461.9],
