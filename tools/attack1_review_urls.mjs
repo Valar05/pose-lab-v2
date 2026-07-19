@@ -13,7 +13,7 @@ const CANDIDATES = [
       ['anticipation', 0.183333],
       ['contact', 0.383333],
       ['contactHold', 0.5],
-      ['followThrough', 0.633333],
+      ['followThrough', 0.62],
     ],
   },
 ];

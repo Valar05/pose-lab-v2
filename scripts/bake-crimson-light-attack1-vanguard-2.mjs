@@ -18,7 +18,7 @@ const referencePath = path.join(projectRoot, 'public', 'assets', 'crimson', 'van
 const baselinePath = path.join(projectRoot, 'public', 'assets', 'crimson', 'crimson_light_attack1_weapon_baseline.json');
 const candidateId = 'crimson-light-attack1-vanguard-2';
 const exportName = 'CRIMSON_LIGHT_ATTACK1_VANGUARD_2_SEQUENCE';
-const primeKeys = { start: 0, anticipation: 0.183333, contact: 0.383333, contactHold: 0.5, followThrough: 0.633333 };
+const primeKeys = { start: 0, anticipation: 0.183333, contact: 0.383333, contactHold: 0.5, followThrough: 0.62 };
 const boneNames = [
   'Hips', 'Spine02', 'Spine01', 'Spine',
   'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'RightUpLeg', 'RightLeg', 'RightFoot',

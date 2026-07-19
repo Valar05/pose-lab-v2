@@ -7,7 +7,7 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_2_SEQUENCE = {
     "anticipation": 0.183333,
     "contact": 0.383333,
     "contactHold": 0.5,
-    "followThrough": 0.633333
+    "followThrough": 0.62
   },
   "source": {
     "character": "crimson",
@@ -271,7 +271,7 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_2_SEQUENCE = {
             0.9395
           ],
           "bladeAngleErrorDeg": 0.032,
-          "time": 0.633333,
+          "time": 0.62,
           "rightHandSolveRotationDeg": 98.923
         }
       ],
@@ -740,7 +740,7 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_2_SEQUENCE = {
       }
     },
     {
-      "time": 0.633333,
+      "time": 0.62,
       "label": "followThrough",
       "note": "Follow-through: weight and torso continue past contact instead of snapping back to rest.",
       "bones": {
