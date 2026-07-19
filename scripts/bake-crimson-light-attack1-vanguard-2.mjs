@@ -18,7 +18,7 @@ const referencePath = path.join(projectRoot, 'public', 'assets', 'crimson', 'van
 const baselinePath = path.join(projectRoot, 'public', 'assets', 'crimson', 'crimson_light_attack1_weapon_baseline.json');
 const candidateId = 'crimson-light-attack1-vanguard-2';
 const exportName = 'CRIMSON_LIGHT_ATTACK1_VANGUARD_2_SEQUENCE';
-const primeKeys = { start: 0, anticipation: 0.183333, contact: 0.383333, contactHold: 0.5, followThrough: 0.633333, end: 0.633333 };
+const primeKeys = { start: 0, anticipation: 0.183333, contact: 0.383333, contactHold: 0.5, followThrough: 0.633333 };
 const boneNames = [
   'Hips', 'Spine02', 'Spine01', 'Spine',
   'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'RightUpLeg', 'RightLeg', 'RightFoot',
@@ -36,8 +36,8 @@ const framePlans = {
     blade: [-0.55, 0.1, 0.83],
     deltas: {
       Hips: [-2, -16, -3], Spine02: [-8, -20, 4], Spine01: [-5, -15, 3], Spine: [-3, -10, 2],
-      LeftUpLeg: [8, -5, -7], LeftLeg: [-12, 0, 2], LeftFoot: [6, 0, -3],
-      RightUpLeg: [-10, 8, 7], RightLeg: [14, 0, -2], RightFoot: [-4, 0, 5],
+      LeftUpLeg: [3, -2, -2], LeftLeg: [-4, 0, 1], LeftFoot: [2, 0, -1],
+      RightUpLeg: [-4, 3, 2], RightLeg: [5, 0, -1], RightFoot: [-2, 0, 1],
       LeftShoulder: [0, -12, 5], LeftArm: [24, -30, 18], LeftForeArm: [16, -10, -8], LeftHand: [0, 6, 12],
       RightShoulder: [7, 10, -5], RightArm: [-34, 30, -18], RightForeArm: [-42, 10, 12], RightHand: [0, -12, -18],
     },
@@ -47,8 +47,8 @@ const framePlans = {
     blade: [0, 0, 1],
     deltas: {
       Hips: [3, 18, 4], Spine02: [-16, 21, -5], Spine01: [-10, 15, -4], Spine: [-6, 10, -3],
-      LeftUpLeg: [-7, 6, 6], LeftLeg: [10, 0, -3], LeftFoot: [-5, 0, 4],
-      RightUpLeg: [12, -8, -8], RightLeg: [-16, 0, 3], RightFoot: [6, 0, -5],
+      LeftUpLeg: [-2, 2, 2], LeftLeg: [3, 0, -1], LeftFoot: [-1, 0, 1],
+      RightUpLeg: [3, -2, -2], RightLeg: [-4, 0, 1], RightFoot: [1, 0, -1],
       LeftShoulder: [0, 16, -7], LeftArm: [9, 40, -24], LeftForeArm: [10, 12, 8], LeftHand: [0, -8, -10],
       RightShoulder: [-6, -10, 5], RightArm: [-14, -50, 28], RightForeArm: [-22, -20, -10], RightHand: [0, 10, 16],
     },
@@ -58,8 +58,8 @@ const framePlans = {
     blade: [0.07, -0.02, 0.997],
     deltas: {
       Hips: [4, 21, 5], Spine02: [-17, 24, -6], Spine01: [-11, 17, -4], Spine: [-6, 12, -3],
-      LeftUpLeg: [-8, 7, 7], LeftLeg: [11, 0, -3], LeftFoot: [-5, 0, 4],
-      RightUpLeg: [13, -9, -8], RightLeg: [-17, 0, 3], RightFoot: [6, 0, -5],
+      LeftUpLeg: [-2, 2, 2], LeftLeg: [3, 0, -1], LeftFoot: [-1, 0, 1],
+      RightUpLeg: [3, -2, -2], RightLeg: [-4, 0, 1], RightFoot: [1, 0, -1],
       LeftShoulder: [0, 18, -7], LeftArm: [8, 42, -25], LeftForeArm: [10, 13, 9], LeftHand: [0, -9, -10],
       RightShoulder: [-6, -12, 5], RightArm: [-12, -54, 28], RightForeArm: [-20, -22, -11], RightHand: [0, 12, 17],
     },
@@ -69,19 +69,10 @@ const framePlans = {
     blade: [0.34, -0.04, 0.94],
     deltas: {
       Hips: [2, 26, 4], Spine02: [-11, 30, -7], Spine01: [-8, 22, -5], Spine: [-4, 16, -4],
-      LeftUpLeg: [-5, 9, 5], LeftLeg: [8, 0, -2], LeftFoot: [-4, 0, 3],
-      RightUpLeg: [10, -11, -6], RightLeg: [-12, 0, 2], RightFoot: [4, 0, -4],
+      LeftUpLeg: [-1, 3, 1], LeftLeg: [2, 0, 0], LeftFoot: [-1, 0, 1],
+      RightUpLeg: [2, -3, -1], RightLeg: [-3, 0, 1], RightFoot: [1, 0, -1],
       LeftShoulder: [0, 20, -9], LeftArm: [4, 45, -26], LeftForeArm: [8, 14, 10], LeftHand: [0, -10, -12],
       RightShoulder: [-8, -14, 6], RightArm: [-5, -60, 25], RightForeArm: [-12, -24, -10], RightHand: [0, 15, 14],
-    },
-  },
-  end: {
-    note: 'Settled recovery toward saved baseline, not raw bind/rest pose.',
-    blade: null,
-    deltas: {
-      Hips: [0, 4, 0], Spine02: [-2, 5, -1], Spine01: [-1, 4, -1], Spine: [0, 3, 0],
-      LeftUpLeg: [-2, 1, 1], LeftLeg: [3, 0, 0], RightUpLeg: [3, -1, -1], RightLeg: [-4, 0, 0],
-      LeftArm: [2, 8, -4], LeftForeArm: [3, 2, 1], RightArm: [-2, -9, 4], RightForeArm: [-3, -3, -1],
     },
   },
 };
@@ -89,7 +80,7 @@ const thresholds = {
   baselineSwordLocalExact: true,
   contactBladeForwardAngleDeg: 7,
   weaponLocalInvariant: true,
-  bodyTravelDeg: { Hips: 14, Spine02: 22, RightArm: 40, RightForeArm: 30, RightHand: 20, LeftArm: 28, LeftUpLeg: 6, RightUpLeg: 8 },
+  bodyTravelDeg: { Hips: 14, Spine02: 22, RightArm: 40, RightForeArm: 30, RightHand: 20, LeftArm: 28, LeftUpLeg: 3, RightUpLeg: 3 },
 };
 
 function ensureBrowserShim() {

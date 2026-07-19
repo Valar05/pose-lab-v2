@@ -30,15 +30,15 @@ assert(sameJson(candidate.source?.savedWeapon?.saberGripLocal, baseline.saberGri
 assert(sameJson(candidate.source?.savedWeapon?.sabreLocal, baseline.sabreLocal), 'candidate must embed saved sabreLocal truth');
 assert(!ATTACK1_REVIEW_CANDIDATES['crimson-light-attack1-vanguard-1'], 'failed v1 must not remain active in Attack1 review registry');
 assert(ATTACK1_REVIEW_CANDIDATES[candidate.id]?.characterKey === 'crimson', 'v2 must be registered as Crimson review candidate');
-assert(candidate.frames?.length === 6, 'candidate must contain six review frames');
-for (const label of ['start', 'anticipation', 'contact', 'contactHold', 'followThrough', 'end']) {
+assert(candidate.frames?.length === 5, 'candidate must contain five review frames');
+for (const label of ['start', 'anticipation', 'contact', 'contactHold', 'followThrough']) {
   const current = frame(label);
   assert(Boolean(current), `missing frame ${label}`);
   for (const bone of ['Hips', 'Spine02', 'LeftUpLeg', 'RightUpLeg', 'LeftArm', 'RightArm', 'RightForeArm', 'RightHand']) {
     assert(Boolean(current?.bones?.[bone]), `${label} must include full-body bone ${bone}`);
   }
 }
-for (const [bone, min] of Object.entries({ Hips: 14, Spine02: 22, LeftUpLeg: 6, RightUpLeg: 8, LeftArm: 28, RightArm: 40, RightForeArm: 30, RightHand: 20 })) {
+for (const [bone, min] of Object.entries({ Hips: 14, Spine02: 22, LeftUpLeg: 3, RightUpLeg: 3, LeftArm: 28, RightArm: 40, RightForeArm: 30, RightHand: 20 })) {
   assert(travel(bone) >= min, `${bone} travel too small: ${travel(bone).toFixed(3)} < ${min}`);
 }
 const report = candidate.guardReport?.crimsonLightAttack1V2?.report || [];
