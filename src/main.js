@@ -87,7 +87,7 @@ const CHARACTER_ASSETS = Object.freeze({
     supportsFistHands: false,
     supportsAnimationClips: true,
     autoPlayAnimation: false,
-    supportsAttackReview: false,
+    supportsAttackReview: true,
     defaultClip: null,
   },
   meshy: {
@@ -193,6 +193,7 @@ const POSE_STATE_ORDER = ['rest', 'ready', 'fistReady', 'attack1'];
 const IMPORTED_POSE_STATE_ORDER = ['rest'];
 function activePoseStateOrder() {
   if (ACTIVE_CHARACTER.supportsBakedPoseStates) return POSE_STATE_ORDER;
+  if (REQUESTED_ATTACK_QUARANTINED && REQUESTED_CANDIDATE && ACTIVE_CHARACTER.supportsAttackReview !== false) return ['rest', 'attack1'];
   if (REQUESTED_IDLE_REVIEW) return ['rest', 'idle'];
   return REQUESTED_LOWBACKKICK_REVIEW ? ['rest', 'lowBackKick'] : IMPORTED_POSE_STATE_ORDER;
 }
@@ -1674,7 +1675,9 @@ function applyIdlePose() {
 }
 
 function applyAttackPose() {
-  if (!ACTIVE_CHARACTER.supportsBakedPoseStates) {
+  const candidateId = REQUESTED_CANDIDATE;
+  const explicitCandidateReview = Boolean(attackPoseSequence && candidateId && ACTIVE_CHARACTER.supportsAttackReview !== false);
+  if (!ACTIVE_CHARACTER.supportsBakedPoseStates && !explicitCandidateReview) {
     resetPose();
     setToolMode('pose');
     setMode('rotate');
@@ -1699,7 +1702,6 @@ function applyAttackPose() {
     statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
     return;
   }
-  const candidateId = REQUESTED_CANDIDATE;
   if (attackPoseSequence && candidateId) {
     poseState = 'attack1';
     setSabreReviewVisible(!attackPoseSequence.source?.weaponless);
@@ -2214,7 +2216,7 @@ function initialPoseStateFromUrl() {
   if (ACTIVE_CHARACTER.supportsFistHands && (FIST_VISUAL_REVIEW || ['fist', 'fistready', 'fist-ready'].includes(pose))) return 'fistReady';
   if (REQUESTED_IDLE_REVIEW) return 'idle';
   if (REQUESTED_LOWBACKKICK_REVIEW) return 'lowBackKick';
-  if (ACTIVE_CHARACTER.supportsBakedPoseStates && (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED)) return 'attack1';
+  if ((ACTIVE_CHARACTER.supportsBakedPoseStates || (REQUESTED_CANDIDATE && ACTIVE_CHARACTER.supportsAttackReview !== false)) && (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED)) return 'attack1';
   return 'rest';
 }
 

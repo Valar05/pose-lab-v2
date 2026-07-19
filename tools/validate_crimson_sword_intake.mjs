@@ -66,7 +66,7 @@ assert(calibration.tipLocalPoint?.[2] > 0.5 && calibration.pommelLocalPoint?.[2]
 assert(calibration.normalizedBounds?.dominantAxis === 'z', 'normalized Arborblade bounds must be dominant on local Z');
 assert(sword.asset?.extras?.poseLabV2CrimsonSword?.normalized === true, 'Arborblade GLB must carry normalized sword metadata');
 assert(main.includes('updateSaberAttachmentProof()') && main.includes('saberAttachmentStatus'), 'runtime must measure Crimson sword attachment to the hand');
-assert(main.includes('supportsAttackReview: false') && main.includes('canExposeAttackReview()'), 'Crimson locomotion-only route must not expose fake Attack1 review controls');
+assert(main.includes('supportsBakedPoseStates: false') && main.includes('explicitCandidateReview') && main.includes('canExposeAttackReview()'), 'Crimson route must keep baked Attack1 disabled while allowing explicit quarantined attack review candidates');
 assert(calibration.status === 'offline-socket-calibrated-not-hosted-visual-accepted', 'Crimson calibration must be socket-calibrated without claiming hosted visual acceptance');
 assert(reference.sourceClip === 'SwordAttack1' && reference.policy?.role === 'reference-only', 'Vanguard SwordAttack1 must be reference-only');
 assert(reference.byNode?.['Weapon.R']?.length >= 1 && reference.byNode?.['hand.fk.R']?.length >= 1, 'Vanguard reference must include Weapon.R and right hand tracks');
@@ -77,6 +77,8 @@ assert(pkg.scripts?.['validate:crimson-model-viewer-constraints'] === 'node tool
 assert(pkg.scripts?.['test:crimson-model-viewer-constraints'] === 'node tools/test_crimson_model_viewer_constraints.mjs', 'missing Crimson model-viewer constraint divergence test');
 assert(pkg.scripts?.['review:crimson-sword-url'] === 'node tools/crimson_sword_review_url.mjs', 'missing hosted Crimson sword review URL script');
 assert(pkg.scripts?.['reference:crimson:swordattack1'] === 'node tools/import_crimson/extract_vanguard_swordattack1_reference.mjs', 'missing Crimson SwordAttack1 reference script');
+assert(pkg.scripts?.['bake:crimson-light-attack1'] === 'node scripts/bake-crimson-light-attack1-vanguard-candidate.mjs', 'missing Crimson light Attack1 bake script');
+assert(pkg.scripts?.['test:crimson-light-attack1'] === 'node tools/test_crimson_light_attack_candidate.mjs', 'missing Crimson light Attack1 guard test script');
 assert(pkg.scripts?.['validate:crimson-sword-intake']?.includes('validate:crimson-model-viewer-constraints') && pkg.scripts?.['validate:crimson-sword-intake']?.includes('tools/validate_crimson_sword_intake.mjs'), 'Crimson intake guardrail must validate model-viewer constraints before intake checks');
 assert(pkg.scripts?.['accept:crimson-sword'] === 'node tools/require_crimson_cloud_visual_evidence.mjs', 'missing Crimson cloud visual acceptance script');
 assert(pkg.scripts?.['validate:crimson-sword'] === 'npm run validate:crimson-sword-intake && npm run accept:crimson-sword', 'validate:crimson-sword must require cloud visual acceptance after intake guardrails');

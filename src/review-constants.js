@@ -21,6 +21,12 @@ export const CRIMSON_SWORD_LOCAL = {
 export const CRIMSON_SWORD_REVIEW_LOCAL_AXIS = [0, 0, 1];
 
 export const ATTACK1_REVIEW_CANDIDATES = {
+  "crimson-light-attack1-vanguard-1": {
+    module: "./review-candidates/crimson-light-attack1-vanguard-1.js",
+    exportName: "CRIMSON_LIGHT_ATTACK1_VANGUARD_SEQUENCE",
+    label: "Crimson light attack 1 from Vanguard SwordAttack1",
+    characterKey: "crimson",
+  },
   "attack1-candidate-1": {
     module: "./review-candidates/attack1-candidate-1.js",
     exportName: "ATTACK1_POSE_SEQUENCE",

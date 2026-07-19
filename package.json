@@ -9,6 +9,7 @@
     "bake:attack1:tip-match": "node scripts/bake-attack1-tip-match-candidate.mjs",
     "bake:attack1:tip-basis": "node scripts/bake-attack1-tip-basis-candidate.mjs",
     "bake:attack1:joint-pinned": "node scripts/bake-attack1-joint-pinned-candidate.mjs",
+    "bake:crimson-light-attack1": "node scripts/bake-crimson-light-attack1-vanguard-candidate.mjs",
     "bake:attack2:candidate": "node scripts/bake-attack2-candidate.mjs",
     "bake:fist-ready": "node scripts/bake-fist-ready-pose.mjs",
     "bake:fist-attack1:candidate": "node scripts/bake-fist-attack1-candidate.mjs",
@@ -61,6 +62,7 @@
     "evidence:crimson-command-center": "node tools/command_center_crimson_visual_evidence.mjs",
     "test:crimson-visual-evidence-promotion": "node tools/test_crimson_visual_evidence_promotion.mjs",
     "accept:crimson-sword:cloud": "node tools/run_crimson_cloud_acceptance.mjs",
-    "test:saber-transform-interaction": "node tools/test_saber_transform_interaction.mjs"
+    "test:saber-transform-interaction": "node tools/test_saber_transform_interaction.mjs",
+    "test:crimson-light-attack1": "node tools/test_crimson_light_attack_candidate.mjs"
   }
 }

@@ -2,7 +2,11 @@
 import { execFileSync } from 'node:child_process';
 
 const BASE_URL = 'https://valar05.github.io/pose-lab-v2/';
-const CANDIDATES = ['attack1-candidate-1', 'attack1-joint-pinned-3'];
+const CANDIDATES = [
+  { id: 'attack1-candidate-1', extras: {} },
+  { id: 'attack1-joint-pinned-3', extras: { worldSocket: '1', view: 'fpv' } },
+  { id: 'crimson-light-attack1-vanguard-1', extras: { model: 'crimson', view: 'orbit', reviewControls: '1' } },
+];
 const REVIEW_TIMES = [
   ['start', 0],
   ['anticipation', 0.18],
@@ -30,17 +34,17 @@ function urlFor(candidate, time, cacheBust, extras = {}) {
 }
 
 const cacheBust = `attack1-${currentSha()}`;
-const urls = CANDIDATES.flatMap((candidate) => [{
-  label: `${candidate} animated loop`,
-  candidate,
+const urls = CANDIDATES.flatMap(({ id, extras }) => [{
+  label: `${id} animated loop`,
+  candidate: id,
   time: null,
-  url: urlFor(candidate, null, cacheBust, candidate.includes('joint-pinned') ? { worldSocket: '1', view: 'fpv' } : {}),
+  url: urlFor(id, null, cacheBust, extras),
 }, ...REVIEW_TIMES.map(([primeKey, time]) => ({
-  label: `${candidate} ${primeKey} ${time.toFixed(6)}s`,
-  candidate,
+  label: `${id} ${primeKey} ${time.toFixed(6)}s`,
+  candidate: id,
   primeKey,
   time,
-  url: urlFor(candidate, time, cacheBust, candidate.includes('joint-pinned') ? { worldSocket: '1', view: 'fpv' } : {}),
+  url: urlFor(id, time, cacheBust, extras),
 }))]);
 
 console.log(JSON.stringify({
@@ -48,6 +52,6 @@ console.log(JSON.stringify({
   cloudReviewOnly: true,
   wakeBrowser: false,
   cacheBust,
-  candidates: CANDIDATES,
+  candidates: CANDIDATES.map((candidate) => candidate.id),
   urls,
 }, null, 2));

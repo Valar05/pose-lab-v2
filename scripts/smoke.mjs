@@ -24,6 +24,7 @@ const tipBasisCandidateSource = read('src/review-candidates/attack1-tip-basis-2.
 const jointPinnedCandidateSource = read('src/review-candidates/attack1-joint-pinned-3.js');
 const davinLowBackKickCandidateSource = read('src/review-candidates/davin-lowbackkick-ares-transfer-1.js');
 const davinIdleCandidateSource = read('src/review-candidates/davin-idle-screenshot-1.js');
+const crimsonLightAttackCandidateSource = read('src/review-candidates/crimson-light-attack1-vanguard-1.js');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
 const attack2ReviewUrls = read('tools/attack2_review_urls.mjs');
 const fistAttack1ReviewUrls = read('tools/fist_attack1_review_urls.mjs');
@@ -60,6 +61,7 @@ const tipBasisCandidate = parseExportedObject(tipBasisCandidateSource, 'Attack1 
 const jointPinnedCandidate = parseExportedObject(jointPinnedCandidateSource, 'Attack1 joint-pinned candidate preview');
 const davinLowBackKickCandidate = parseExportedObject(davinLowBackKickCandidateSource, 'Davin LowBackKick candidate preview');
 const davinIdleCandidate = parseExportedObject(davinIdleCandidateSource, 'Davin screenshot idle candidate preview');
+const crimsonLightAttackCandidate = parseExportedObject(crimsonLightAttackCandidateSource, 'Crimson light Attack1 candidate preview');
 
 if (exists('generated/davin-tail-authoring/manifest.json')) {
   const davinTailManifest = JSON.parse(read('generated/davin-tail-authoring/manifest.json'));
@@ -226,6 +228,15 @@ assert(JSON.stringify(crimsonSwordCalibration.hiltLocalPoint) === JSON.stringify
 assert(crimsonSwordCalibration.tipLocalPoint?.[2] > 0.5 && crimsonSwordCalibration.pommelLocalPoint?.[2] < 0, 'Crimson Arborblade pivot must be at the hilt top with blade tip forward on local +Z and pommel behind the grip');
 assert(crimsonVanguardAttackReference.schema === 'pose-lab-v2-crimson-vanguard-swordattack1-reference-v1' && crimsonVanguardAttackReference.sourceClip === 'SwordAttack1', 'Crimson Vanguard reference must identify SwordAttack1');
 assert(crimsonVanguardAttackReference.policy?.role === 'reference-only' && crimsonVanguardAttackReference.byNode?.['Weapon.R']?.length >= 1 && crimsonVanguardAttackReference.byNode?.['hand.fk.R']?.length >= 1, 'Vanguard SwordAttack1 reference must stay reference-only and include Weapon.R/right-hand tracks');
+assert(crimsonLightAttackCandidate.id === 'crimson-light-attack1-vanguard-1' && crimsonLightAttackCandidate.source?.character === 'crimson', 'Crimson light Attack1 candidate must target Crimson with a stable id');
+assert(crimsonLightAttackCandidate.source?.policy?.forbiddenUse?.includes('Do not copy Vanguard Weapon.R'), 'Crimson light Attack1 candidate must preserve the no direct Weapon.R copy policy');
+assert(crimsonLightAttackCandidate.source?.preservedSocket?.bladeLocalAxis?.join(',') === '0,0,1', 'Crimson light Attack1 candidate must preserve Arborblade +Z blade axis');
+assert(crimsonLightAttackCandidate.frames?.length === 6 && crimsonLightAttackCandidate.frames.some((frame) => frame.label === 'contact'), 'Crimson light Attack1 candidate must include the six review frames and contact frame');
+assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1?.status === 'PASS', 'Crimson light Attack1 candidate generator guard must pass');
+assert((crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1?.report || []).find((entry) => entry.label === 'contact')?.bladeAngleErrorDeg <= 7, 'Crimson light Attack1 contact frame must point Arborblade world-forward');
+assert(reviewConstantsSource.includes('crimson-light-attack1-vanguard-1') && reviewConstantsSource.includes('characterKey: "crimson"'), 'Attack1 review registry must expose Crimson light Attack1 as a Crimson candidate');
+assert(main.includes('explicitCandidateReview') && main.includes('supportsAttackReview: true'), 'Runtime must allow explicit Crimson attack review without enabling baked pose states');
+assert(attackReviewUrls.includes('crimson-light-attack1-vanguard-1') && attackReviewUrls.includes("model: 'crimson'"), 'Attack1 cloud review URLs must include the Crimson light Attack1 candidate');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
 assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
 assert(attack2ReviewUrls.includes('attack2-candidate-1') && attack2ReviewUrls.includes("pose: 'attack2'") && attack2ReviewUrls.includes('backhandPrep') && attack2ReviewUrls.includes('contactHold'), 'Attack2 review URLs must target the combo backhand candidate and its prime keys');
@@ -428,7 +439,7 @@ assert(main.includes('function editableSaber()') && main.includes('return saberG
 assert(main.includes('function updateSaberAttachmentProof()') && main.includes('saberAttachmentStatus') && main.includes('hiltToHandDistance'), 'runtime must measure whether the sword hilt is attached to the active RightHand');
 assert(main.includes('applyCrimsonSwordReviewMaterial') && main.includes('CrimsonArborbladeVisibleSteel'), 'runtime must lift Crimson Arborblade material so the real sword is visible on the dark review canvas');
 assert(main.includes('dataset.crimsonSocketProof') && main.includes('visibleInViewport') && main.includes('screenLengthPx'), 'runtime must expose browser-side Crimson socket proof for cloud evidence reconciliation');
-assert(main.includes('supportsAttackReview: false') && main.includes('function canExposeAttackReview()'), 'Crimson locomotion-only route must not expose fake Attack1 review controls');
+assert(main.includes('supportsBakedPoseStates: false') && main.includes('explicitCandidateReview') && main.includes('function canExposeAttackReview()'), 'Crimson route must keep baked Attack1 disabled while allowing explicit quarantined attack review candidates');
 assert(main.includes("parentBone: 'RightHand'"), 'export must report SaberGrip as RightHand-owned');
 assert(main.includes("let toolMode = 'saber'") && main.includes('data-tool="saber"') && main.includes('data-tool="pose"'), 'app must distinguish top-level Saber and Pose modes');
 assert(main.includes('const POSE_BONE_NAMES = [') && main.includes("'RightHand'") && main.includes("'LeftFoot'"), 'Pose mode must expose curated real Meshy body bones');
@@ -554,6 +565,7 @@ if (exists('dist')) {
   assert(exists('dist/src/review-candidates/attack1-tip-match-1.js'), 'dist must include Attack1 tip-match candidate preview module');
   assert(exists('dist/src/review-candidates/attack1-tip-basis-2.js'), 'dist must include Attack1 tip-basis candidate preview module');
   assert(exists('dist/src/review-candidates/attack1-joint-pinned-3.js'), 'dist must include Attack1 joint-pinned candidate preview module');
+  assert(exists('dist/src/review-candidates/crimson-light-attack1-vanguard-1.js'), 'dist must include Crimson light Attack1 Vanguard candidate preview module');
   assert(exists('dist/src/review-candidates/fist-ready-candidate-1.js'), 'dist must include FistReady candidate preview module');
   assert(exists('dist/src/review-candidates/fist-attack1-candidate-1.js'), 'dist must include FistAttack1 candidate preview module');
   assert(exists('dist/src/review-candidates/davin-lowbackkick-ares-transfer-1.js'), 'dist must include Davin LowBackKick candidate preview module');
@@ -591,6 +603,7 @@ for (const file of [
   'src/review-candidates/attack1-tip-match-1.js',
   'src/review-candidates/attack1-tip-basis-2.js',
   'src/review-candidates/attack1-joint-pinned-3.js',
+  'src/review-candidates/crimson-light-attack1-vanguard-1.js',
   'vendor/three/examples/jsm/loaders/GLTFLoader.js',
   'vendor/three/examples/jsm/controls/OrbitControls.js',
   'vendor/three/examples/jsm/utils/BufferGeometryUtils.js',
