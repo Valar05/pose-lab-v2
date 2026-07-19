@@ -77,7 +77,7 @@ assert(pkg.scripts?.['validate:crimson-model-viewer-constraints'] === 'node tool
 assert(pkg.scripts?.['test:crimson-model-viewer-constraints'] === 'node tools/test_crimson_model_viewer_constraints.mjs', 'missing Crimson model-viewer constraint divergence test');
 assert(pkg.scripts?.['review:crimson-sword-url'] === 'node tools/crimson_sword_review_url.mjs', 'missing hosted Crimson sword review URL script');
 assert(pkg.scripts?.['reference:crimson:swordattack1'] === 'node tools/import_crimson/extract_vanguard_swordattack1_reference.mjs', 'missing Crimson SwordAttack1 reference script');
-assert(pkg.scripts?.['bake:crimson-light-attack1'] === 'node scripts/bake-crimson-light-attack1-vanguard-candidate.mjs', 'missing Crimson light Attack1 bake script');
+assert(pkg.scripts?.['bake:crimson-light-attack1'] === 'node scripts/bake-crimson-light-attack1-vanguard-2.mjs', 'missing Crimson light Attack1 bake script');
 assert(pkg.scripts?.['test:crimson-light-attack1'] === 'node tools/test_crimson_light_attack_candidate.mjs', 'missing Crimson light Attack1 guard test script');
 assert(pkg.scripts?.['validate:crimson-sword-intake']?.includes('validate:crimson-model-viewer-constraints') && pkg.scripts?.['validate:crimson-sword-intake']?.includes('tools/validate_crimson_sword_intake.mjs'), 'Crimson intake guardrail must validate model-viewer constraints before intake checks');
 assert(pkg.scripts?.['accept:crimson-sword'] === 'node tools/require_crimson_cloud_visual_evidence.mjs', 'missing Crimson cloud visual acceptance script');

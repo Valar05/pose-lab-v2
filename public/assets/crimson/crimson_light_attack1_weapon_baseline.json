@@ -1,0 +1,119 @@
+{
+  "schema": "pose-lab-v2-crimson-light-attack1-weapon-baseline-v1",
+  "source": "latest user-pasted pose-lab-v2-sabre-transform-v1 export before red-build correction",
+  "role": "canonical Crimson light Attack1 saved weapon and pose baseline",
+  "toolMode": "saber",
+  "assets": {
+    "character": "./assets/crimson/crimson_plume_knight_rigged_pbr.glb",
+    "characterKey": "crimson",
+    "characterLabel": "Crimson Knight",
+    "sabre": "./assets/crimson/arborblade_sword.glb",
+    "animations": [
+      "CrimsonPlumeKnight|walking|baselayer",
+      "CrimsonPlumeKnight|running|baselayer"
+    ],
+    "activeAnimation": null,
+    "rootMotion": null
+  },
+  "saberRootWorld": {
+    "position": [
+      -0.45401,
+      0.881,
+      0.1536
+    ],
+    "rotationDeg": [
+      2.581,
+      3.698,
+      -131.729
+    ],
+    "scale": [
+      0.90588,
+      0.90588,
+      0.90588
+    ],
+    "uniformScale": 0.90588
+  },
+  "saberGripLocal": {
+    "parentBone": "RightHand",
+    "position": [
+      12.38741,
+      13.39693,
+      -1.51078
+    ],
+    "rotationDeg": [
+      -15.898,
+      51.654,
+      83.103
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ]
+  },
+  "sabreLocal": {
+    "position": [
+      -1.98175,
+      -1.31896,
+      -7.90654
+    ],
+    "rotationDeg": [
+      90,
+      30,
+      0
+    ],
+    "scale": [
+      88,
+      88,
+      88
+    ]
+  },
+  "bladeLocalAxis": [
+    0,
+    0,
+    1
+  ],
+  "pose": {
+    "state": "rest",
+    "readyPreset": null,
+    "attackPreset": null,
+    "selectedBone": null,
+    "bones": {
+      "Spine02": {
+        "rotationDeg": [
+          -24.003,
+          -1.58,
+          -2.883
+        ]
+      },
+      "Spine": {
+        "rotationDeg": [
+          -12.281,
+          -0.498,
+          0.344
+        ]
+      },
+      "LeftHand": {
+        "rotationDeg": [
+          0.367,
+          9,
+          12.217
+        ]
+      },
+      "RightUpLeg": {
+        "rotationDeg": [
+          164.978,
+          8.225,
+          8.749
+        ]
+      }
+    }
+  },
+  "acceptanceContract": {
+    "doNotRebuildFromRawRest": true,
+    "doNotMoveSwordObjectPerFrame": true,
+    "saberGripAndSabreLocalAreInvariant": true,
+    "rootMotionAppliesInGameOnly": true,
+    "v1CandidateStatus": "failed-red-diagnostic"
+  }
+}
