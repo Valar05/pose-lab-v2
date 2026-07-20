@@ -256,6 +256,7 @@ function useManualAttackAuthoring() {
 }
 
 function canExposeAttackReview() {
+  if (REQUESTED_SHARED_REST) return false;
   if (ACTIVE_CHARACTER.supportsAttackReview === false) return false;
   return ACTIVE_CHARACTER.supportsBakedPoseStates || Boolean(REQUESTED_CANDIDATE);
 }
