@@ -195,7 +195,7 @@ const WORLD_SOCKET_REVIEW = URL_PARAMS.get('worldSocket') === '1';
 const DEBUG_BONES = URL_PARAMS.get('debugBones') === '1';
 const DEBUG_LANDMARKS = URL_PARAMS.get('debugLandmarks') === '1';
 const REVIEW_CONTROLS_OPEN = URL_PARAMS.get('reviewControls') === '1';
-const POSE_STATE_ORDER = ['rest', 'ready', 'fistReady', 'attack1'];
+const POSE_STATE_ORDER = ['rest', 'ready', 'fistReady', 'sharedRest', 'attack1'];
 const IMPORTED_POSE_STATE_ORDER = ['rest'];
 function activePoseStateOrder() {
   if (ACTIVE_CHARACTER.supportsBakedPoseStates) return POSE_STATE_ORDER;
@@ -208,11 +208,14 @@ const POSE_STATE_LABELS = {
   ready: 'Ready',
   fistReady: 'FistReady',
   attack1: 'Attack1',
+  sharedRest: 'SharedRest',
   lowBackKick: 'LowBackKick',
   idle: 'Idle',
   custom: 'Custom',
 };
 const REQUESTED_POSE = URL_PARAMS.get('pose');
+const REQUESTED_SHARED_REST = ACTIVE_CHARACTER.key === 'crimson'
+  && ['shared-rest', 'sharedrest', 'vanguard-rest', 'sword-rest'].includes(String(REQUESTED_POSE || '').toLowerCase());
 const REQUESTED_IMPORTED_CLIP = URL_PARAMS.get('clip') || URL_PARAMS.get('animation') || URL_PARAMS.get('anim') || null;
 const REQUESTED_LOWBACKKICK_REVIEW = ACTIVE_CHARACTER.key === 'davin'
   && ['lowbackkick', 'low-back-kick', 'low_back_kick'].includes(String(REQUESTED_POSE || '').toLowerCase());
@@ -220,7 +223,8 @@ const REQUESTED_IDLE_REVIEW = ACTIVE_CHARACTER.key === 'davin'
   && ['idle', 'screenshot-idle', 'idle-screenshot'].includes(String(REQUESTED_POSE || '').toLowerCase());
 const LOWBACKKICK_DEFAULT_CANDIDATE = 'davin-lowbackkick-ares-transfer-1';
 const IDLE_DEFAULT_CANDIDATE = 'davin-idle-screenshot-1';
-const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate') || (REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_DEFAULT_CANDIDATE : REQUESTED_IDLE_REVIEW ? IDLE_DEFAULT_CANDIDATE : null);
+const SHARED_REST_DEFAULT_CANDIDATE = 'crimson-light-attack1-vanguard-3';
+const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate') || (REQUESTED_SHARED_REST ? SHARED_REST_DEFAULT_CANDIDATE : REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_DEFAULT_CANDIDATE : REQUESTED_IDLE_REVIEW ? IDLE_DEFAULT_CANDIDATE : null);
 const REQUESTED_ATTACK_TIME = URL_PARAMS.get('attackTime');
 const REQUESTED_MANUAL_ATTACK = URL_PARAMS.get('manual') === '1' || URL_PARAMS.get('edit') === 'manual';
 const REQUESTED_ATTACK_QUARANTINED = ['attack1', 'attack', 'onehandattack1'].includes(String(REQUESTED_POSE || '').toLowerCase());
@@ -1703,6 +1707,28 @@ function applyIdlePose() {
   statusEl.textContent = 'Idle candidate missing; showing Davin rest pose';
 }
 
+
+function applySharedRestPose() {
+  resetPose();
+  if (!attackPoseSequence) {
+    setToolMode('pose');
+    setMode('rotate');
+    poseState = 'sharedRest';
+    statusEl.textContent = 'SharedRest candidate missing; showing Crimson rest pose';
+    return;
+  }
+  poseState = 'sharedRest';
+  setSabreReviewVisible(true);
+  attackPoseFixedTime = 0;
+  attackPoseCurrentTime = 0;
+  attackPoseStartedAt = null;
+  applyAttackSequenceAt(0);
+  setToolMode('pose');
+  setMode('rotate');
+  setAttackReviewOpen(false);
+  statusEl.textContent = `SharedRest static pose: ${REQUESTED_CANDIDATE}; no animation playback`;
+}
+
 function applyAttackPose() {
   const candidateId = REQUESTED_CANDIDATE;
   const explicitCandidateReview = Boolean(attackPoseSequence && candidateId && ACTIVE_CHARACTER.supportsAttackReview !== false);
@@ -2225,6 +2251,8 @@ function setPoseState(next) {
     setToolMode('pose');
     setMode('rotate');
     statusEl.textContent = 'fist ready: Meshy-derived fist controls editable in FPV';
+  } else if (next === 'sharedRest') {
+    applySharedRestPose();
   } else if (next === 'attack1') {
     applyAttackPose();
   } else if (next === 'lowBackKick') {
@@ -2243,6 +2271,7 @@ function initialPoseStateFromUrl() {
   const pose = String(URL_PARAMS.get('pose') || '').toLowerCase();
   if (pose === 'ready') return 'ready';
   if (ACTIVE_CHARACTER.supportsFistHands && (FIST_VISUAL_REVIEW || ['fist', 'fistready', 'fist-ready'].includes(pose))) return 'fistReady';
+  if (REQUESTED_SHARED_REST) return 'sharedRest';
   if (REQUESTED_IDLE_REVIEW) return 'idle';
   if (REQUESTED_LOWBACKKICK_REVIEW) return 'lowBackKick';
   if ((ACTIVE_CHARACTER.supportsBakedPoseStates || (REQUESTED_CANDIDATE && ACTIVE_CHARACTER.supportsAttackReview !== false)) && (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED)) return 'attack1';
@@ -2331,7 +2360,7 @@ async function loadReviewCandidate() {
   const candidates = REQUESTED_IDLE_REVIEW ? DAVIN_IDLE_REVIEW_CANDIDATES : REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_REVIEW_CANDIDATES : ATTACK1_REVIEW_CANDIDATES;
   const candidate = candidates[REQUESTED_CANDIDATE];
   if (!candidate) return;
-  const shouldLoad = REQUESTED_IDLE_REVIEW || REQUESTED_LOWBACKKICK_REVIEW || REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED;
+  const shouldLoad = REQUESTED_SHARED_REST || REQUESTED_IDLE_REVIEW || REQUESTED_LOWBACKKICK_REVIEW || REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED;
   if (!shouldLoad) return;
   const candidateModule = await import(`${candidate.module}${suffix}`);
   attackPoseSequence = candidateModule[candidate.exportName];
