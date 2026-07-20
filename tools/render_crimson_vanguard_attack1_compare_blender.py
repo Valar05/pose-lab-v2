@@ -1,0 +1,589 @@
+#!/usr/bin/env python3
+"""Render Vanguard and Crimson Attack1 side by side and fail on broken transforms."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import math
+import re
+import struct
+import sys
+from datetime import datetime, timezone
+from itertools import combinations
+from pathlib import Path
+
+import bpy
+from bpy_extras.object_utils import world_to_camera_view
+from mathutils import Euler, Matrix, Vector
+
+ROOT = Path(__file__).resolve().parents[1]
+VANGUARD_GLB = ROOT / "public" / "assets" / "vanguard" / "vanguard_rigged_animations.glb"
+CRIMSON_GLB = ROOT / "public" / "assets" / "crimson" / "crimson_plume_knight_rigged_pbr.glb"
+SWORD_GLB = ROOT / "public" / "assets" / "crimson" / "arborblade_sword.glb"
+REFERENCE_JSON = ROOT / "public" / "assets" / "crimson" / "vanguard_swordattack1_reference.json"
+CALIBRATION_JSON = ROOT / "public" / "assets" / "crimson" / "crimson_sword_calibration.json"
+CANDIDATE_JS = ROOT / "src" / "review-candidates" / "crimson-light-attack1-vanguard-3.js"
+DEFAULT_OUT = ROOT / "generated" / "crimson-vanguard-attack1-compare" / "latest"
+SCHEMA = "pose-lab-v2-crimson-vanguard-attack1-blender-compare-v1"
+BROWSER_TO_BLENDER = Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
+BLENDER_TO_BROWSER = BROWSER_TO_BLENDER.inverted()
+FRAME_LABELS = ["start", "earlyWindup", "anticipation", "snapPrep", "contact", "contactHold", "settle", "followThrough"]
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def load_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def load_candidate(path: Path) -> dict:
+    text = path.read_text(encoding="utf-8")
+    match = re.search(r"export const \w+ = (.*);\s*$", text, re.S)
+    if not match:
+        raise RuntimeError(f"candidate module is not a plain exported object: {path}")
+    return json.loads(match.group(1))
+
+
+def pad4(data: bytes, byte: bytes = b"\x00") -> bytes:
+    return data + byte * ((-len(data)) % 4)
+
+
+def parse_glb(path: Path) -> tuple[dict, bytes]:
+    raw = path.read_bytes()
+    magic, version, total_length = struct.unpack_from("<4sII", raw, 0)
+    if magic != b"glTF" or version != 2 or total_length != len(raw):
+        raise RuntimeError(f"unsupported GLB header: {path}")
+    offset = 12
+    gltf = None
+    bin_chunk = b""
+    while offset < len(raw):
+        chunk_length, chunk_type = struct.unpack_from("<I4s", raw, offset)
+        offset += 8
+        chunk = raw[offset:offset + chunk_length]
+        offset += chunk_length
+        if chunk_type == b"JSON":
+            gltf = json.loads(chunk.rstrip(b" \t\r\n\x00").decode("utf-8"))
+        elif chunk_type == b"BIN\x00":
+            bin_chunk = chunk
+    if gltf is None:
+        raise RuntimeError(f"GLB has no JSON chunk: {path}")
+    return gltf, bin_chunk
+
+
+def write_glb(path: Path, gltf: dict, bin_chunk: bytes) -> None:
+    json_chunk = pad4(json.dumps(gltf, separators=(",", ":")).encode("utf-8"), b" ")
+    bin_chunk = pad4(bin_chunk, b"\x00")
+    total = 12 + 8 + len(json_chunk) + 8 + len(bin_chunk)
+    out = bytearray()
+    out += struct.pack("<4sII", b"glTF", 2, total)
+    out += struct.pack("<I4s", len(json_chunk), b"JSON")
+    out += json_chunk
+    out += struct.pack("<I4s", len(bin_chunk), b"BIN\x00")
+    out += bin_chunk
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(out)
+
+
+def append_accessor(gltf: dict, bin_chunk: bytes, payload: bytes, accessor: dict) -> tuple[bytes, int]:
+    offset = len(bin_chunk)
+    bin_chunk += payload
+    bin_chunk = pad4(bin_chunk, b"\x00")
+    gltf.setdefault("bufferViews", []).append({"buffer": 0, "byteOffset": offset, "byteLength": len(payload)})
+    view_index = len(gltf["bufferViews"]) - 1
+    gltf.setdefault("accessors", []).append({"bufferView": view_index, **accessor})
+    return bin_chunk, len(gltf["accessors"]) - 1
+
+
+def node_name_map(gltf: dict) -> dict[str, int]:
+    return {node.get("name"): index for index, node in enumerate(gltf.get("nodes", [])) if node.get("name")}
+
+
+def inject_animation(source_glb: Path, frames: list[dict], node_frames: dict[str, dict[str, list]], out_glb: Path, name: str) -> Path:
+    gltf, bin_chunk = parse_glb(source_glb)
+    by_name = node_name_map(gltf)
+    times = [float(frame["time"]) for frame in frames]
+    time_payload = struct.pack("<" + "f" * len(times), *times)
+    bin_chunk, time_accessor = append_accessor(gltf, bin_chunk, time_payload, {
+        "componentType": 5126,
+        "type": "SCALAR",
+        "count": len(times),
+        "min": [min(times)],
+        "max": [max(times)],
+    })
+    samplers = []
+    channels = []
+    animated = []
+    for node_name, paths in sorted(node_frames.items()):
+        node_index = by_name.get(node_name)
+        if node_index is None:
+            continue
+        if "rotation" in paths:
+            values = []
+            for frame in frames:
+                values.extend(float(v) for v in paths["rotation"][frame["label"]])
+            bin_chunk, accessor = append_accessor(gltf, bin_chunk, struct.pack("<" + "f" * len(values), *values), {
+                "componentType": 5126,
+                "type": "VEC4",
+                "count": len(frames),
+            })
+            sampler = len(samplers)
+            samplers.append({"input": time_accessor, "output": accessor, "interpolation": "LINEAR"})
+            channels.append({"sampler": sampler, "target": {"node": node_index, "path": "rotation"}})
+            animated.append(f"{node_name}.rotation")
+        if "translation" in paths:
+            values = []
+            for frame in frames:
+                values.extend(float(v) for v in paths["translation"][frame["label"]])
+            bin_chunk, accessor = append_accessor(gltf, bin_chunk, struct.pack("<" + "f" * len(values), *values), {
+                "componentType": 5126,
+                "type": "VEC3",
+                "count": len(frames),
+            })
+            sampler = len(samplers)
+            samplers.append({"input": time_accessor, "output": accessor, "interpolation": "LINEAR"})
+            channels.append({"sampler": sampler, "target": {"node": node_index, "path": "translation"}})
+            animated.append(f"{node_name}.translation")
+    if not channels:
+        raise RuntimeError(f"no animation channels matched nodes in {source_glb}")
+    gltf.setdefault("animations", []).append({"name": name, "samplers": samplers, "channels": channels})
+    gltf.setdefault("buffers", [{"byteLength": 0}])[0]["byteLength"] = len(bin_chunk)
+    write_glb(out_glb, gltf, bin_chunk)
+    return out_glb
+
+
+def crimson_node_frames(candidate: dict) -> tuple[list[dict], dict[str, dict[str, dict[str, list]]]]:
+    frames = [{"label": frame["label"], "time": float(frame["time"])} for frame in candidate["frames"] if frame["label"] in FRAME_LABELS]
+    node_frames: dict[str, dict[str, dict[str, list]]] = {}
+    for frame in candidate["frames"]:
+        label = frame["label"]
+        if label not in FRAME_LABELS:
+            continue
+        for bone, quat in (frame.get("bones") or {}).items():
+            node_frames.setdefault(bone, {}).setdefault("rotation", {})[label] = quat
+    return frames, node_frames
+
+
+def vanguard_node_frames(reference: dict) -> tuple[list[dict], dict[str, dict[str, dict[str, list]]]]:
+    frames = []
+    node_frames: dict[str, dict[str, dict[str, list]]] = {}
+    for label in FRAME_LABELS:
+        sample = reference["samples"][label]
+        frames.append({"label": label, "time": float(sample["sourceTime"])})
+        for bone in sample.get("bones", {}).values():
+            name = bone["sourceNode"]
+            node_frames.setdefault(name, {}).setdefault("rotation", {})[label] = bone["localQuaternion"]
+            if any(abs(v) > 0.000001 for v in bone.get("localPosition", [])):
+                node_frames.setdefault(name, {}).setdefault("translation", {})[label] = bone["localPosition"]
+        for name, prop in sample.get("props", {}).items():
+            node_frames.setdefault(name, {}).setdefault("rotation", {})[label] = prop["localQuaternion"]
+            node_frames.setdefault(name, {}).setdefault("translation", {})[label] = prop["localPosition"]
+    return frames, node_frames
+
+
+def clear_scene() -> None:
+    bpy.ops.object.select_all(action="SELECT")
+    bpy.ops.object.delete()
+
+
+def import_glb(path: Path) -> list[bpy.types.Object]:
+    before = set(bpy.data.objects)
+    bpy.ops.import_scene.gltf(filepath=str(path))
+    return [obj for obj in bpy.data.objects if obj not in before]
+
+
+def top_level(objects: list[bpy.types.Object]) -> list[bpy.types.Object]:
+    owned = set(objects)
+    return [obj for obj in objects if obj.parent not in owned]
+
+
+def find_armature(objects: list[bpy.types.Object], label: str) -> bpy.types.Object:
+    for obj in objects:
+        if obj.type == "ARMATURE":
+            return obj
+    raise RuntimeError(f"{label} import did not contain an armature")
+
+
+def mesh_bounds(objects: list[bpy.types.Object]) -> tuple[Vector, Vector, Vector]:
+    low = Vector((float("inf"), float("inf"), float("inf")))
+    high = Vector((float("-inf"), float("-inf"), float("-inf")))
+    found = False
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    for obj in objects:
+        if obj.type != "MESH":
+            continue
+        found = True
+        evaluated = obj.evaluated_get(depsgraph)
+        for corner in evaluated.bound_box:
+            world = evaluated.matrix_world @ Vector(corner)
+            low.x = min(low.x, world.x); low.y = min(low.y, world.y); low.z = min(low.z, world.z)
+            high.x = max(high.x, world.x); high.y = max(high.y, world.y); high.z = max(high.z, world.z)
+    if not found:
+        raise RuntimeError("no mesh bounds found")
+    return low, high, high - low
+
+
+def normalize_and_offset(objects: list[bpy.types.Object], target_height: float, offset_x: float) -> None:
+    low, high, size = mesh_bounds(objects)
+    height = max(0.001, size.z if size.z > size.y else size.y)
+    center = (low + high) * 0.5
+    scale = target_height / height
+    transform = Matrix.Translation(Vector((offset_x, 0, -low.z * scale))) @ Matrix.Diagonal((scale, scale, scale, 1.0)) @ Matrix.Translation(Vector((-center.x, -center.y, -low.z)))
+    for obj in top_level(objects):
+        obj.matrix_world = transform @ obj.matrix_world
+    bpy.context.view_layer.update()
+
+
+def activate_last_action(armature: bpy.types.Object) -> None:
+    armature.data.pose_position = "POSE"
+    armature.animation_data_create()
+    if not bpy.data.actions:
+        raise RuntimeError("no imported actions available")
+    armature.animation_data.action = bpy.data.actions[-1]
+    for track in armature.animation_data.nla_tracks:
+        track.mute = True
+
+
+def activate_named_action(armature: bpy.types.Object, action_name: str) -> None:
+    armature.data.pose_position = "POSE"
+    armature.animation_data_create()
+    action = bpy.data.actions.get(action_name)
+    if action is None:
+        available = sorted(action.name for action in bpy.data.actions)
+        raise RuntimeError(f"missing Blender action {action_name}; available={available}")
+    armature.animation_data.action = action
+    for track in armature.animation_data.nla_tracks:
+        track.mute = True
+
+
+def suppress_vanguard_root_motion(armature: bpy.types.Object) -> None:
+    root = armature.pose.bones.get("root")
+    if root:
+        root.location = (0, 0, 0)
+    bpy.context.view_layer.update()
+
+
+def browser_vector(values: list[float]) -> Vector:
+    return (BROWSER_TO_BLENDER @ Vector((values[0], values[1], values[2], 1.0))).to_3d()
+
+
+def browser_matrix(matrix: Matrix) -> Matrix:
+    return BROWSER_TO_BLENDER @ matrix @ BLENDER_TO_BROWSER
+
+
+def transform_matrix(transform: dict) -> Matrix:
+    position = transform.get("position") or [0, 0, 0]
+    rotation_deg = transform.get("rotationDeg") or [0, 0, 0]
+    scale = transform.get("scale") or [1, 1, 1]
+    translation = Matrix.Translation(Vector(position))
+    rotation = Euler(tuple(math.radians(v) for v in rotation_deg), "XYZ").to_matrix().to_4x4()
+    scaling = Matrix.Diagonal((scale[0], scale[1], scale[2], 1.0))
+    return translation @ rotation @ scaling
+
+
+def browser_transform_matrix(transform: dict) -> Matrix:
+    return browser_matrix(transform_matrix(transform))
+
+
+def setup_scene(width: int, height: int, samples: int) -> bpy.types.Object:
+    scene = bpy.context.scene
+    scene.render.engine = "CYCLES"
+    scene.cycles.device = "CPU"
+    scene.cycles.samples = samples
+    scene.cycles.use_denoising = False
+    scene.render.resolution_x = width
+    scene.render.resolution_y = height
+    scene.view_settings.view_transform = "Filmic"
+    scene.view_settings.look = "Medium High Contrast"
+    scene.world.color = (0.04, 0.045, 0.05)
+    camera = bpy.data.objects.new("attack1_compare_camera", bpy.data.cameras.new("attack1_compare_camera"))
+    bpy.context.collection.objects.link(camera)
+    scene.camera = camera
+    camera.location = (0, -7.2, 1.05)
+    target = Vector((0, 0, 0.78))
+    camera.rotation_euler = (target - camera.location).to_track_quat("-Z", "Y").to_euler()
+    camera.data.angle = math.radians(43)
+    camera.data.clip_start = 0.01
+    camera.data.clip_end = 80
+    sun = bpy.data.objects.new("attack1_compare_sun", bpy.data.lights.new("attack1_compare_sun", "SUN"))
+    sun.rotation_euler = (math.radians(45), 0, math.radians(35))
+    sun.data.energy = 2.2
+    bpy.context.collection.objects.link(sun)
+    area = bpy.data.objects.new("attack1_compare_softbox", bpy.data.lights.new("attack1_compare_softbox", "AREA"))
+    area.location = (0, -3, 3.2)
+    area.data.energy = 650
+    area.data.size = 5
+    bpy.context.collection.objects.link(area)
+    return camera
+
+
+def set_frame(time_s: float, fps: int) -> None:
+    bpy.context.scene.frame_set(1 + round(time_s * fps))
+    bpy.context.view_layer.update()
+
+
+def apply_bone_quaternion(armature: bpy.types.Object, bone_name: str, quat_xyzw: list[float]) -> bool:
+    bone = armature.pose.bones.get(bone_name)
+    if not bone:
+        return False
+    bone.rotation_mode = "QUATERNION"
+    bone.rotation_quaternion = (float(quat_xyzw[3]), float(quat_xyzw[0]), float(quat_xyzw[1]), float(quat_xyzw[2]))
+    return True
+
+
+def apply_crimson_candidate_pose(armature: bpy.types.Object, candidate: dict, label: str) -> None:
+    frame = next((entry for entry in candidate.get("frames", []) if entry.get("label") == label), None)
+    if not frame:
+        raise RuntimeError(f"missing Crimson candidate frame {label}")
+    missing = []
+    for bone_name, quat in (frame.get("bones") or {}).items():
+        if not apply_bone_quaternion(armature, bone_name, quat):
+            missing.append(bone_name)
+    if missing:
+        raise RuntimeError(f"Crimson Blender armature missing candidate bones: {missing[:8]}")
+    bpy.context.view_layer.update()
+
+
+def apply_vanguard_reference_pose(armature: bpy.types.Object, reference: dict, label: str) -> None:
+    sample = reference.get("samples", {}).get(label)
+    if not sample:
+        raise RuntimeError(f"missing Vanguard reference sample {label}")
+    missing = []
+    for logical, bone in (sample.get("bones") or {}).items():
+        if not apply_bone_quaternion(armature, bone["sourceNode"], bone["localQuaternion"]):
+            missing.append(bone["sourceNode"])
+    # The exported source has a few helper props outside the armature. The body
+    # pose is the comparison truth here; prop animation from the injected GLB is
+    # left intact when Blender exposes it as object animation.
+    if len(missing) > 4:
+        raise RuntimeError(f"Vanguard Blender armature missing too many reference bones: {missing[:8]}")
+    bpy.context.view_layer.update()
+
+
+def project(camera: bpy.types.Object, point: Vector) -> tuple[float, float, float]:
+    ndc = world_to_camera_view(bpy.context.scene, camera, point)
+    return (float(ndc.x), float(ndc.y), float(ndc.z))
+
+
+def screen_angle(a: tuple[float, float, float], b: tuple[float, float, float]) -> float:
+    return math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))
+
+
+def angle_delta(a: float, b: float) -> float:
+    return abs((a - b + 180) % 360 - 180)
+
+
+def screen_distance(a: tuple[float, float, float], b: tuple[float, float, float]) -> float:
+    return math.hypot(b[0] - a[0], b[1] - a[1])
+
+
+def find_pose_bone_world(armature: bpy.types.Object, name: str) -> Matrix:
+    bone = armature.pose.bones.get(name)
+    if not bone:
+        raise RuntimeError(f"missing pose bone {name}")
+    return armature.matrix_world @ bone.matrix
+
+
+def imported_sword_line(objects: list[bpy.types.Object], camera: bpy.types.Object) -> dict:
+    points = []
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    for obj in objects:
+        if obj.type != "MESH" or "sword" not in obj.name.lower():
+            continue
+        evaluated = obj.evaluated_get(depsgraph)
+        mesh = evaluated.to_mesh()
+        try:
+            step = max(1, len(mesh.vertices) // 80)
+            for vertex_index in range(0, len(mesh.vertices), step):
+                points.append(obj.matrix_world @ mesh.vertices[vertex_index].co)
+        finally:
+            evaluated.to_mesh_clear()
+    if len(points) < 2:
+        low, high, _ = mesh_bounds(objects)
+        points = [low, high]
+    best = None
+    for a, b in combinations(points, 2):
+        pa, pb = project(camera, a), project(camera, b)
+        dist = screen_distance(pa, pb)
+        if not best or dist > best[0]:
+            best = (dist, pa, pb, a, b)
+    dist, pa, pb, wa, wb = best
+    return {"screenA": pa, "screenB": pb, "worldA": wa, "worldB": wb, "screenLength": dist, "screenAngleDeg": screen_angle(pa, pb)}
+
+
+def apply_crimson_sword_material(objects: list[bpy.types.Object]) -> None:
+    material = bpy.data.materials.new("CompareVisibleArborbladeSteel")
+    material.diffuse_color = (0.62, 0.72, 0.78, 1)
+    material.use_nodes = True
+    bsdf = material.node_tree.nodes.get("Principled BSDF")
+    if bsdf:
+        bsdf.inputs["Base Color"].default_value = (0.62, 0.72, 0.78, 1)
+        bsdf.inputs["Metallic"].default_value = 0.75
+        bsdf.inputs["Roughness"].default_value = 0.32
+    for obj in objects:
+        if obj.type == "MESH":
+            obj.data.materials.clear()
+            obj.data.materials.append(material)
+
+
+def place_crimson_sword(sword_roots: list[bpy.types.Object], initial: dict[str, Matrix], hand_world: Matrix, calibration: dict) -> Matrix:
+    socket_world = hand_world @ browser_transform_matrix(calibration["saberGripLocal"]) @ browser_transform_matrix(calibration["swordLocal"])
+    for obj in top_level(sword_roots):
+        obj.matrix_world = socket_world @ initial[obj.name]
+    bpy.context.view_layer.update()
+    return socket_world
+
+
+def body_screen_box(objects: list[bpy.types.Object], camera: bpy.types.Object) -> dict:
+    low, high, _ = mesh_bounds(objects)
+    corners = [Vector((x, y, z)) for x in (low.x, high.x) for y in (low.y, high.y) for z in (low.z, high.z)]
+    projected = [project(camera, corner) for corner in corners]
+    xs = [p[0] for p in projected]
+    ys = [p[1] for p in projected]
+    return {"xMin": min(xs), "xMax": max(xs), "yMin": min(ys), "yMax": max(ys), "height": max(ys) - min(ys), "width": max(xs) - min(xs)}
+
+
+def add_label(text: str, location: tuple[float, float, float]) -> None:
+    font_curve = bpy.data.curves.new(text, "FONT")
+    font_curve.body = text
+    font_curve.size = 0.08
+    font_curve.align_x = "CENTER"
+    obj = bpy.data.objects.new(text, font_curve)
+    obj.location = location
+    bpy.context.collection.objects.link(obj)
+
+
+def evaluate_frame(label: str, camera: bpy.types.Object, vanguard_objects: list[bpy.types.Object], crimson_objects: list[bpy.types.Object], crimson_armature: bpy.types.Object, sword_objects: list[bpy.types.Object], sword_socket: Matrix, calibration: dict) -> dict:
+    hand_world = find_pose_bone_world(crimson_armature, "RightHand")
+    hand_pos = hand_world.translation
+    hilt = sword_socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+    tip = sword_socket @ browser_vector(calibration.get("tipLocalPoint") or [0, 0, 1])
+    hilt_screen = project(camera, hilt)
+    tip_screen = project(camera, tip)
+    hand_screen = project(camera, hand_pos)
+    crimson_line = {"screenLength": screen_distance(hilt_screen, tip_screen), "screenAngleDeg": screen_angle(hilt_screen, tip_screen), "hilt": hilt_screen, "tip": tip_screen}
+    vanguard_line = imported_sword_line(vanguard_objects, camera)
+    cbox = body_screen_box(crimson_objects + sword_objects, camera)
+    vbox = body_screen_box(vanguard_objects, camera)
+    failures = []
+    hilt_hand_world = (hilt - hand_pos).length
+    hilt_hand_screen = screen_distance(hilt_screen, hand_screen)
+    if crimson_line["screenLength"] < 0.055:
+        failures.append({"code": "CRIMSON_SWORD_TOO_SHORT_OR_HIDDEN", "actual": round(crimson_line["screenLength"], 4), "expected": ">= 0.055 screen units"})
+    if hilt_hand_world > 0.28 or hilt_hand_screen > 0.12:
+        failures.append({"code": "CRIMSON_HILT_NOT_OWNED_BY_RIGHT_HAND", "actual": {"world": round(hilt_hand_world, 4), "screen": round(hilt_hand_screen, 4)}, "expected": "hilt seated near right hand"})
+    if label in {"earlyWindup", "anticipation"}:
+        dx = abs(tip_screen[0] - hilt_screen[0])
+        dy = abs(tip_screen[1] - hilt_screen[1])
+        if dy > max(0.001, dx) * 2.3:
+            failures.append({"code": "CRIMSON_WINDUP_BLADE_VERTICAL_CENTERLINE", "actual": {"dx": round(dx, 4), "dy": round(dy, 4)}, "expected": "windup blade should read as chambered/trailing, not a vertical line through the body"})
+    if label in {"snapPrep", "contact", "contactHold"}:
+        if tip_screen[1] < hilt_screen[1] - 0.055:
+            failures.append({"code": "CRIMSON_CONTACT_TIP_TRAILS_DOWN", "actual": {"hiltY": round(hilt_screen[1], 4), "tipY": round(tip_screen[1], 4)}, "expected": "attack tip should lead the strike, not hang below/behind the hand"})
+    if label in {"snapPrep", "contact", "contactHold", "followThrough"}:
+        diff = angle_delta(crimson_line["screenAngleDeg"], vanguard_line["screenAngleDeg"])
+        if diff > 55:
+            failures.append({"code": "CRIMSON_BLADE_LINE_DIVERGES_FROM_VANGUARD", "actual": round(diff, 2), "expected": "<= 55 deg from Vanguard sword screen line"})
+    if label in {"snapPrep", "contact"} and cbox["height"] < vbox["height"] * 0.55:
+        failures.append({"code": "CRIMSON_BODY_SILHOUETTE_COLLAPSED_OR_HIDDEN", "actual": {"crimsonHeight": round(cbox["height"], 4), "vanguardHeight": round(vbox["height"], 4)}, "expected": "Crimson should remain readable beside Vanguard"})
+    return {
+        "label": label,
+        "crimson": {"blade": crimson_line, "hiltHandWorld": round(hilt_hand_world, 5), "hiltHandScreen": round(hilt_hand_screen, 5), "bodyBox": cbox},
+        "vanguard": {"blade": {"screenLength": vanguard_line["screenLength"], "screenAngleDeg": vanguard_line["screenAngleDeg"]}, "bodyBox": vbox},
+        "failures": failures,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--out-dir", default=str(DEFAULT_OUT))
+    parser.add_argument("--samples", type=int, default=8)
+    parser.add_argument("--width", type=int, default=1280)
+    parser.add_argument("--height", type=int, default=720)
+    argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+    args = parser.parse_args(argv)
+    out_dir = Path(args.out_dir)
+    if not out_dir.is_absolute():
+        out_dir = ROOT / out_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    tmp_dir = out_dir / "tmp"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    reference = load_json(REFERENCE_JSON)
+    candidate = load_candidate(CANDIDATE_JS)
+    calibration = load_json(CALIBRATION_JSON)
+    if reference.get("schema") != "pose-lab-v2-crimson-vanguard-swordattack1-reference-v2":
+        raise RuntimeError("Vanguard reference is not full-body v2")
+    if candidate.get("id") != "crimson-light-attack1-vanguard-3":
+        raise RuntimeError("comparison gate is intentionally bound to crimson-light-attack1-vanguard-3")
+    crimson_frames, crimson_nodes = crimson_node_frames(candidate)
+    crimson_anim = inject_animation(CRIMSON_GLB, crimson_frames, crimson_nodes, tmp_dir / "crimson_attack1_compare.glb", "CrimsonAttack1CandidateV3")
+    clear_scene()
+    camera = setup_scene(args.width, args.height, args.samples)
+    vanguard_objects = import_glb(VANGUARD_GLB)
+    vanguard_armature = find_armature(vanguard_objects, "Vanguard")
+    activate_named_action(vanguard_armature, "SwordAttack1_rig")
+    normalize_and_offset(vanguard_objects, 1.35, -1.05)
+    crimson_objects = import_glb(crimson_anim)
+    crimson_armature = find_armature(crimson_objects, "Crimson")
+    activate_last_action(crimson_armature)
+    normalize_and_offset(crimson_objects, 1.35, 1.05)
+    sword_objects = import_glb(SWORD_GLB)
+    apply_crimson_sword_material(sword_objects)
+    sword_initial = {obj.name: obj.matrix_world.copy() for obj in top_level(sword_objects)}
+    add_label("VANGUARD SOURCE", (-1.05, -0.18, 1.9))
+    add_label("CRIMSON CANDIDATE", (1.05, -0.18, 1.9))
+    fps = 60
+    bpy.context.scene.render.fps = fps
+    frames = []
+    all_failures = []
+    for index, label in enumerate(FRAME_LABELS, start=1):
+        source_sample = reference["samples"][label]
+        set_frame(float(source_sample["sourceTime"]), fps)
+        suppress_vanguard_root_motion(vanguard_armature)
+        apply_crimson_candidate_pose(crimson_armature, candidate, label)
+        hand = find_pose_bone_world(crimson_armature, "RightHand")
+        sword_socket = place_crimson_sword(sword_objects, sword_initial, hand, calibration)
+        entry = evaluate_frame(label, camera, vanguard_objects, crimson_objects, crimson_armature, sword_objects, sword_socket, calibration)
+        filename = f"{index:02d}-{label}.png"
+        bpy.context.scene.render.filepath = str(out_dir / filename)
+        bpy.ops.render.render(write_still=True)
+        entry["image"] = filename
+        entry["sha256"] = sha256(out_dir / filename)
+        frames.append(entry)
+        for failure in entry["failures"]:
+            all_failures.append({"frame": label, **failure})
+    manifest = {
+        "schema": SCHEMA,
+        "createdAt": utc_now(),
+        "classification": "diagnostic-blocker-not-acceptance",
+        "candidate": candidate["id"],
+        "source": {"vanguard": str(VANGUARD_GLB.relative_to(ROOT)), "crimson": str(CRIMSON_GLB.relative_to(ROOT)), "sword": str(SWORD_GLB.relative_to(ROOT))},
+        "expected": "Vanguard and Crimson perform the same readable sword attack side by side; Crimson hilt stays in right hand and blade leads contact.",
+        "status": "FAIL" if all_failures else "PASS",
+        "frames": frames,
+        "failureCount": len(all_failures),
+        "brokenTransformsPath": "broken_transforms.json" if all_failures else None,
+        "note": "This Blender diagnostic is agent eyesight and a cloud-dispatch blocker. It is not final hosted visual acceptance.",
+    }
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    if all_failures:
+        broken = {"schema": "pose-lab-v2-broken-transform-report-v1", "createdAt": utc_now(), "candidate": candidate["id"], "failures": all_failures}
+        (out_dir / "broken_transforms.json").write_text(json.dumps(broken, indent=2), encoding="utf-8")
+        print(json.dumps({"ok": False, "outDir": str(out_dir.relative_to(ROOT)), "failureCount": len(all_failures), "brokenTransforms": str((out_dir / "broken_transforms.json").relative_to(ROOT))}, indent=2))
+        sys.exit(1)
+    print(json.dumps({"ok": True, "outDir": str(out_dir.relative_to(ROOT)), "frames": len(frames)}, indent=2))
+
+
+if __name__ == "__main__":
+    main()

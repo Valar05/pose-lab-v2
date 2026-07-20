@@ -26,6 +26,7 @@ const davinLowBackKickCandidateSource = read('src/review-candidates/davin-lowbac
 const davinIdleCandidateSource = read('src/review-candidates/davin-idle-screenshot-1.js');
 const crimsonLightAttackCandidateSource = read('src/review-candidates/crimson-light-attack1-vanguard-3.js');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
+const crimsonAttackCloudRunner = read('tools/run_crimson_attack1_cloud_review.mjs');
 const githubCrimsonVisualCapture = read('tools/github_crimson_visual_capture.mjs');
 const attack2ReviewUrls = read('tools/attack2_review_urls.mjs');
 const fistAttack1ReviewUrls = read('tools/fist_attack1_review_urls.mjs');
@@ -144,6 +145,7 @@ assert(pkg.scripts?.['validate:crimson-model-viewer-constraints'] === 'node tool
 assert(pkg.scripts?.['test:crimson-model-viewer-constraints'] === 'node tools/test_crimson_model_viewer_constraints.mjs', 'Crimson model-viewer divergence test must be explicit');
 assert(pkg.scripts?.['test:crimson-review-surface'] === 'node tools/test_crimson_review_surface.mjs', 'Crimson review surface test must be explicit');
 assert(pkg.scripts?.['review:crimson-sword-url'] === 'node tools/crimson_sword_review_url.mjs', 'Crimson cloud review URL printer must be explicit');
+assert(pkg.scripts?.['review:crimson-attack1:blender-compare'] === 'node scripts/render-crimson-vanguard-attack1-compare.mjs', 'Crimson Attack1 cloud dispatch must have a Blender side-by-side comparison gate');
 assert(pkg.scripts?.['reference:crimson:swordattack1'] === 'node tools/import_crimson/extract_vanguard_swordattack1_reference.mjs', 'Crimson SwordAttack1 Vanguard reference extraction must be reproducible');
 assert(pkg.scripts?.['validate:crimson-sword-intake']?.includes('validate:crimson-model-viewer-constraints') && pkg.scripts?.['validate:crimson-sword-intake']?.includes('tools/validate_crimson_sword_intake.mjs'), 'Crimson sword intake guardrail must validate model-viewer constraints before intake checks');
 assert(pkg.scripts?.['accept:crimson-sword'] === 'node tools/require_crimson_cloud_visual_evidence.mjs', 'Crimson sword visual acceptance must require cloud screenshot evidence');
@@ -189,7 +191,10 @@ assert(exists('tools/author_davin_idle_screenshot_blender.py'), 'missing Davin s
 assert(exists('tools/stitch_davin_idle_diagnostic.py'), 'missing Davin screenshot idle side-by-side diagnostic stitcher');
 assert(exists('scripts/render-davin-idle-diagnostic.mjs'), 'missing Davin screenshot idle diagnostic orchestrator');
 assert(exists('tools/render_davin_lowbackkick_blender.py'), 'missing Davin LowBackKick Blender diagnostic renderer');
+assert(exists('tools/render_crimson_vanguard_attack1_compare_blender.py'), 'missing Crimson/Vanguard Attack1 side-by-side Blender comparison renderer');
 assert(exists('tools/stitch_davin_lowbackkick_contact_sheet.py'), 'missing Davin LowBackKick contact-sheet stitcher');
+assert(exists('tools/stitch_crimson_vanguard_attack1_compare.py'), 'missing Crimson/Vanguard Attack1 comparison contact-sheet stitcher');
+assert(exists('scripts/render-crimson-vanguard-attack1-compare.mjs'), 'missing Crimson/Vanguard Attack1 comparison orchestrator');
 assert(exists('authoring/meshy_fist/blender_build_meshy_fist_authoring.py'), 'missing Blender-first Meshy fist authoring script');
 assert(exists('scripts/build-meshy-fist-authoring.mjs'), 'missing Meshy fist authoring runner');
 assert(exists('tools/validate_meshy_fist_authoring.mjs'), 'missing Meshy fist authoring validator');
@@ -252,6 +257,7 @@ assert(reviewConstantsSource.includes('crimson-light-attack1-vanguard-3') && !re
 assert(main.includes('explicitCandidateReview') && main.includes('supportsAttackReview: true'), 'Runtime must allow explicit Crimson attack review without enabling baked pose states');
 assert(attackReviewUrls.includes('crimson-light-attack1-vanguard-3') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-2') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-1') && attackReviewUrls.includes("model: 'crimson'"), 'Attack1 cloud review URLs must include only the Crimson light Attack1 v3 candidate');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
+assert(crimsonAttackCloudRunner.includes("review:crimson-attack1:blender-compare") && crimsonAttackCloudRunner.indexOf("review:crimson-attack1:blender-compare") < crimsonAttackCloudRunner.indexOf("workflow', 'run'"), 'Crimson Attack1 cloud dispatch must run the Blender side-by-side comparison gate before GitHub workflow dispatch');
 assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
 assert(attack2ReviewUrls.includes('attack2-candidate-1') && attack2ReviewUrls.includes("pose: 'attack2'") && attack2ReviewUrls.includes('backhandPrep') && attack2ReviewUrls.includes('contactHold'), 'Attack2 review URLs must target the combo backhand candidate and its prime keys');
 assert(fistAttack1ReviewUrls.includes('fist-ready-candidate-1') && fistAttack1ReviewUrls.includes('fist-attack1-candidate-1') && fistAttack1ReviewUrls.includes('weaponless FPSPlayer FistReady baseline') && fistAttack1ReviewUrls.includes('windup') && fistAttack1ReviewUrls.includes('contact') && fistAttack1ReviewUrls.includes("view: 'fpv'"), 'FistAttack1 review URLs must target the weaponless FistReady baseline and fist candidate prime keys');

@@ -66,6 +66,7 @@
     "test:crimson-light-attack1": "node tools/test_crimson_light_attack_candidate.mjs",
     "optimize:crimson-review-assets": "python3 tools/import_crimson/optimize_crimson_review_assets.py",
     "test:crimson-review-assets": "node tools/test_crimson_review_assets.mjs",
-    "review:crimson-attack1:cloud": "node tools/run_crimson_attack1_cloud_review.mjs"
+    "review:crimson-attack1:cloud": "node tools/run_crimson_attack1_cloud_review.mjs",
+    "review:crimson-attack1:blender-compare": "node scripts/render-crimson-vanguard-attack1-compare.mjs"
   }
 }

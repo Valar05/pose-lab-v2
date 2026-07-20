@@ -37,6 +37,7 @@ if (urls.length !== 8) throw new Error(`expected 8 Crimson Attack1 prime URLs fo
 const urlList = JSON.stringify(urls);
 let runId = null;
 if (args.dispatch) {
+  run('npm', ['run', 'review:crimson-attack1:blender-compare'], { stdio: 'inherit' });
   run('gh', ['workflow', 'run', QA_WORKFLOW, '--repo', args.repo, '--ref', 'main', '-f', `url_list=${urlList}`]);
   const latest = JSON.parse(run('gh', ['run', 'list', '--repo', args.repo, '--workflow', QA_WORKFLOW, '--branch', 'main', '--limit', '1', '--json', 'databaseId']) || '[]');
   runId = latest[0]?.databaseId ? String(latest[0].databaseId) : null;
