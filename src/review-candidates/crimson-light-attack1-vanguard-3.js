@@ -186,20 +186,31 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
         "Spine": 24.787,
         "neck": 1.006,
         "Head": 33.727,
-        "LeftUpLeg": 27.005,
-        "LeftLeg": 16.51,
+        "LeftUpLeg": 22.196,
+        "LeftLeg": 11.815,
         "LeftFoot": 0,
-        "RightUpLeg": 28.701,
-        "RightLeg": 15.063,
+        "RightUpLeg": 16.048,
+        "RightLeg": 12.136,
         "RightFoot": 0.006,
         "LeftShoulder": 14.088,
-        "LeftArm": 154.149,
-        "LeftForeArm": 98.419,
+        "LeftArm": 101.668,
+        "LeftForeArm": 94.595,
         "LeftHand": 27.638,
         "RightShoulder": 0.159,
-        "RightArm": 129.081,
-        "RightForeArm": 112.457,
-        "RightHand": 117.431
+        "RightArm": 84.656,
+        "RightForeArm": 61.663,
+        "RightHand": 171.413
+      },
+      "startFromSavedBaselineTravel": {
+        "Hips": 0.133,
+        "Spine02": 0,
+        "Spine": 0.136,
+        "RightArm": 68.911,
+        "RightForeArm": 67.416,
+        "RightHand": 88.187,
+        "LeftArm": 127.404,
+        "LeftForeArm": 53.419,
+        "LeftHand": 0.102
       },
       "maxChainError": 0,
       "report": [
@@ -207,55 +218,170 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           "label": "start",
           "sourceTime": 0,
           "hiltWorld": [
-            -0.40974,
-            0.80885,
-            0.14592
+            -0.47883,
+            1.69695,
+            0.25364
           ],
           "rightHandWorld": [
-            -0.43418,
-            0.96562,
-            0.04421
+            -0.36613,
+            1.56537,
+            0.17943
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            0.99536,
-            0.09625,
-            0.00065
+            0.17365,
+            0.98481,
+            0
           ],
           "actualBladeDirectionWorld": [
-            0.0645,
-            -0.04494,
-            0.99691
+            0.17357,
+            0.98482,
+            -0.00002
           ],
-          "bladeAngleErrorDeg": 86.53,
-          "chains": [],
-          "rollClampReport": []
+          "bladeAngleErrorDeg": 0.005,
+          "chains": [
+            {
+              "chain": "rightArm",
+              "targetMid": [
+                -0.37141,
+                1.37877,
+                0.11768
+              ],
+              "actualMid": [
+                -0.37141,
+                1.37877,
+                0.11768
+              ],
+              "targetEnd": [
+                -0.25513,
+                1.54774,
+                0.22867
+              ],
+              "actualEnd": [
+                -0.25513,
+                1.54774,
+                0.22867
+              ],
+              "midError": 0,
+              "endError": 0,
+              "upperRotationDeg": 78.177,
+              "lowerRotationDeg": 79.027
+            },
+            {
+              "chain": "leftArm",
+              "targetMid": [
+                0.08389,
+                1.40972,
+                0.26118
+              ],
+              "actualMid": [
+                0.08389,
+                1.40972,
+                0.26118
+              ],
+              "targetEnd": [
+                -0.07944,
+                1.56883,
+                0.26891
+              ],
+              "actualEnd": [
+                -0.07944,
+                1.56883,
+                0.26891
+              ],
+              "midError": 0,
+              "endError": 0,
+              "upperRotationDeg": 127.404,
+              "lowerRotationDeg": 53.42
+            },
+            {
+              "chain": "rightLeg",
+              "targetMid": [
+                -0.15307,
+                0.56564,
+                0.2411
+              ],
+              "actualMid": [
+                -0.15307,
+                0.56564,
+                0.2411
+              ],
+              "targetEnd": [
+                -0.23293,
+                0.18758,
+                0.29968
+              ],
+              "actualEnd": [
+                -0.23293,
+                0.18758,
+                0.29968
+              ],
+              "midError": 0,
+              "endError": 0,
+              "upperRotationDeg": 18.928,
+              "lowerRotationDeg": 4.626
+            },
+            {
+              "chain": "leftLeg",
+              "targetMid": [
+                0.1163,
+                0.54335,
+                0.17638
+              ],
+              "actualMid": [
+                0.1163,
+                0.54335,
+                0.17638
+              ],
+              "targetEnd": [
+                0.08844,
+                0.1573,
+                0.19465
+              ],
+              "actualEnd": [
+                0.08844,
+                0.1573,
+                0.19465
+              ],
+              "midError": 0,
+              "endError": 0,
+              "upperRotationDeg": 7.576,
+              "lowerRotationDeg": 7.033
+            }
+          ],
+          "rollClampReport": [],
+          "rightArmBladeSolveRotationDeg": {
+            "RightHand": 88.187,
+            "RightForeArm": 22.441,
+            "RightArm": 11.622
+          },
+          "rightHandBladeSolveAngleDeg": 0.005
         },
         {
           "label": "earlyWindup",
           "sourceTime": 0.1,
           "hiltWorld": [
-            -0.10769,
-            1.66168,
-            -0.16829
+            -0.13609,
+            1.48351,
+            0.14566
           ],
           "rightHandWorld": [
-            -0.21245,
-            1.50801,
-            -0.19888
+            -0.24501,
+            1.45982,
+            -0.00632
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            0.99939,
-            0.0349,
+            0.99863,
+            0.05234,
             0
           ],
           "actualBladeDirectionWorld": [
-            0.9994,
-            0.03466,
-            0.00013
+            0.99863,
+            0.05223,
+            0.00008
           ],
-          "bladeAngleErrorDeg": 0.015,
+          "bladeAngleErrorDeg": 0.008,
           "chains": [
             {
               "chain": "rightArm",
@@ -368,37 +494,37 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           ],
           "rollClampReport": [],
           "rightArmBladeSolveRotationDeg": {
-            "RightHand": 66.199,
-            "RightForeArm": 24.51,
-            "RightArm": 16.225
+            "RightHand": 58.133,
+            "RightForeArm": 36.718,
+            "RightArm": 14.257
           },
-          "rightHandBladeSolveAngleDeg": 0.015
+          "rightHandBladeSolveAngleDeg": 0.008
         },
         {
           "label": "anticipation",
           "sourceTime": 0.183333,
           "hiltWorld": [
-            -0.00503,
-            1.4915,
-            0.13665
+            -0.12266,
+            1.51887,
+            0.11805
           ],
           "rightHandWorld": [
-            -0.09404,
-            1.62647,
-            0.23352
+            -0.19285,
+            1.63137,
+            0.25199
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            -0.23684,
-            -0.97155,
+            -0.0349,
+            -0.99939,
             0
           ],
           "actualBladeDirectionWorld": [
-            -0.23684,
-            -0.97155,
-            0.00027
+            -0.03496,
+            -0.99939,
+            -0.00032
           ],
-          "bladeAngleErrorDeg": 0.015,
+          "bladeAngleErrorDeg": 0.019,
           "chains": [
             {
               "chain": "rightArm",
@@ -511,11 +637,11 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           ],
           "rollClampReport": [],
           "rightArmBladeSolveRotationDeg": {
-            "RightHand": 61.766,
-            "RightForeArm": 21.218,
-            "RightArm": 10.738
+            "RightHand": 62.154,
+            "RightForeArm": 19.192,
+            "RightArm": 10.873
           },
-          "rightHandBladeSolveAngleDeg": 0.015
+          "rightHandBladeSolveAngleDeg": 0.019
         },
         {
           "label": "snapPrep",
@@ -1246,7 +1372,7 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
     {
       "time": 0,
       "label": "start",
-      "note": "start: exact saved Crimson weapon baseline; no source motion applied",
+      "note": "start: full-body Vanguard SwordAttack1 relationship baked to Crimson; Arborblade socket remains invariant",
       "sourceTime": 0,
       "bones": {
         "Hips": [
@@ -1286,16 +1412,16 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.997786
         ],
         "LeftUpLeg": [
-          0.99061,
-          0.026888,
-          -0.041329,
-          0.127516
+          0.981639,
+          0.000749,
+          -0.035967,
+          0.187326
         ],
         "LeftLeg": [
-          0.078856,
-          0.032454,
-          0.02344,
-          0.996082
+          0.0345,
+          0.028097,
+          0.065614,
+          0.996853
         ],
         "LeftFoot": [
           -0.412188,
@@ -1304,16 +1430,16 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.910759
         ],
         "RightUpLeg": [
-          0.986701,
-          -0.066079,
-          0.080837,
-          0.124577
+          0.951558,
+          -0.09924,
+          0.071598,
+          0.282067
         ],
         "RightLeg": [
-          0.072182,
-          -0.031345,
-          -0.023072,
-          0.996632
+          0.07211,
+          -0.03426,
+          0.017191,
+          0.99666
         ],
         "RightFoot": [
           -0.407933,
@@ -1328,16 +1454,16 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.368423
         ],
         "LeftArm": [
-          0.42424,
-          0.487791,
-          0.230177,
-          0.727392
+          -0.079889,
+          -0.169475,
+          0.844228,
+          0.502171
         ],
         "LeftForeArm": [
-          -0.158949,
-          -0.100573,
-          -0.003473,
-          0.982145
+          -0.339261,
+          0.091773,
+          0.357423,
+          0.865291
         ],
         "LeftHand": [
           0.011524,
@@ -1352,22 +1478,22 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.377376
         ],
         "RightArm": [
-          0.434581,
-          -0.497353,
-          -0.242454,
-          0.710631
+          -0.117934,
+          -0.411239,
+          -0.162824,
+          0.889079
         ],
         "RightForeArm": [
-          -0.174054,
-          0.130164,
-          0.029152,
-          0.97566
+          -0.648629,
+          0.239761,
+          0.180065,
+          0.699551
         ],
         "RightHand": [
-          0.037282,
-          -0.100795,
-          -0.117858,
-          0.987198
+          0.457344,
+          0.144897,
+          0.412663,
+          0.774306
         ]
       }
     },
@@ -1480,22 +1606,22 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.377376
         ],
         "RightArm": [
-          -0.446599,
-          -0.179566,
-          -0.476483,
-          0.73571
+          -0.496143,
+          -0.124683,
+          -0.45577,
+          0.728403
         ],
         "RightForeArm": [
-          -0.628772,
-          0.18597,
-          0.183473,
-          0.732392
+          -0.598872,
+          -0.030413,
+          -0.271994,
+          0.752627
         ],
         "RightHand": [
-          -0.045633,
-          0.370548,
-          0.181348,
-          0.909794
+          -0.112023,
+          0.356144,
+          0.013486,
+          0.927594
         ]
       }
     },
@@ -1608,22 +1734,22 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.377376
         ],
         "RightArm": [
-          -0.566492,
-          -0.379764,
-          0.109863,
-          0.723046
+          -0.553937,
+          -0.313713,
+          0.067235,
+          0.768256
         ],
         "RightForeArm": [
-          -0.591197,
-          0.20621,
-          0.086299,
-          0.77493
+          -0.562985,
+          0.323138,
+          0.134739,
+          0.748649
         ],
         "RightHand": [
-          -0.460527,
-          0.292082,
-          -0.189503,
-          0.816512
+          -0.463058,
+          0.288052,
+          -0.196621,
+          0.814827
         ]
       }
     },

@@ -247,9 +247,9 @@ const blenderGateVanguardScreenAnglesDeg = {
   // are still measured in the compare manifest; these values account for the
   // glTF/Blender armature import basis so the rendered Arborblade line matches
   // Vanguard instead of solving to a camera-axis sliver.
-  start: 21.9,
-  earlyWindup: 2.0,
-  anticipation: -103.7,
+  start: 80.0,
+  earlyWindup: 3.0,
+  anticipation: -92.0,
   snapPrep: -47.9,
   contact: -46.5,
   contactHold: 65.2,
@@ -265,7 +265,7 @@ function blenderGateScreenPlaneDirection(THREE, label) {
 function screenReadableBladeDirection(THREE, desired, label) {
   const screenTarget = blenderGateScreenPlaneDirection(THREE, label);
   const weightByLabel = {
-    start: 0.78,
+    start: 1,
     earlyWindup: 1,
     anticipation: 1,
     snapPrep: 1,
@@ -364,33 +364,23 @@ async function main() {
   const report = [];
   for (const label of frameLabels) {
     const sourceSample = reference.samples[label];
-    let clampReport = [];
+    const clampReport = applySourceLocalDeltas(THREE, crimsonRoot, baseBones, reference, label);
     const chainReports = [];
-    if (label === 'start') {
-      applyPoseBones(crimsonRoot, baseBones);
-    } else {
-      clampReport = applySourceLocalDeltas(THREE, crimsonRoot, baseBones, reference, label);
-      applyBodyBasisDeltas(THREE, crimsonRoot, basisMatrix(THREE, reference.samples.start.bodyBasis, 'source start body basis'), basisMatrix(THREE, sourceSample.bodyBasis, `${label} source body basis`), targetStartBasis);
-      for (const chain of chains) {
-        const targets = targetForChain(THREE, crimsonRoot, sourceSample, sourceStartBasisInverse, targetStartBasis, chain);
-        const solved = solveChainToTargets(THREE, crimsonRoot, chain.bones, targets.targetMid, targets.targetEnd);
-        chainReports.push(chainReport(THREE, crimsonRoot, chain, targets, solved));
-      }
-      const rawDesiredBlade = safeDirection(THREE, mapSourceVector(THREE, new THREE.Vector3(...sourceSample.weapon.bladeDirectionWorld), sourceStartBasisInverse, targetStartBasis), `${label} raw desired blade`);
-      const desiredBlade = screenReadableBladeDirection(THREE, rawDesiredBlade, label);
-      const handSolved = solveArmBladeForward(THREE, crimsonRoot, [requireNode(crimsonRoot, 'RightHand'), requireNode(crimsonRoot, 'RightForeArm'), requireNode(crimsonRoot, 'RightArm')], grip, swordRoot, desiredBlade);
-      const entry = frameReport(THREE, crimsonRoot, grip, swordRoot, label, sourceSample, desiredBlade, chainReports, clampReport);
-      entry.rightArmBladeSolveRotationDeg = handSolved.rotationFromInputDeg;
-      entry.rightHandBladeSolveAngleDeg = handSolved.angleErrorDeg;
-      report.push(entry);
+    applyBodyBasisDeltas(THREE, crimsonRoot, basisMatrix(THREE, reference.samples.start.bodyBasis, 'source start body basis'), basisMatrix(THREE, sourceSample.bodyBasis, `${label} source body basis`), targetStartBasis);
+    for (const chain of chains) {
+      const targets = targetForChain(THREE, crimsonRoot, sourceSample, sourceStartBasisInverse, targetStartBasis, chain);
+      const solved = solveChainToTargets(THREE, crimsonRoot, chain.bones, targets.targetMid, targets.targetEnd);
+      chainReports.push(chainReport(THREE, crimsonRoot, chain, targets, solved));
     }
+    const rawDesiredBlade = safeDirection(THREE, mapSourceVector(THREE, new THREE.Vector3(...sourceSample.weapon.bladeDirectionWorld), sourceStartBasisInverse, targetStartBasis), `${label} raw desired blade`);
+    const desiredBlade = screenReadableBladeDirection(THREE, rawDesiredBlade, label);
+    const handSolved = solveArmBladeForward(THREE, crimsonRoot, [requireNode(crimsonRoot, 'RightHand'), requireNode(crimsonRoot, 'RightForeArm'), requireNode(crimsonRoot, 'RightArm')], grip, swordRoot, desiredBlade);
+    const entry = frameReport(THREE, crimsonRoot, grip, swordRoot, label, sourceSample, desiredBlade, chainReports, clampReport);
+    entry.rightArmBladeSolveRotationDeg = handSolved.rotationFromInputDeg;
+    entry.rightHandBladeSolveAngleDeg = handSolved.angleErrorDeg;
+    report.push(entry);
     const bones = restBones(crimsonRoot, boneNames);
-    frames.push({ time: primeKeys[label], label, note: label === 'start' ? 'start: exact saved Crimson weapon baseline; no source motion applied' : `${label}: full-body Vanguard SwordAttack1 relationship baked to Crimson; Arborblade socket remains invariant`, sourceTime: sourceSample.sourceTime, bones });
-    if (label === 'start') {
-      const rawDesiredBlade = safeDirection(THREE, mapSourceVector(THREE, new THREE.Vector3(...sourceSample.weapon.bladeDirectionWorld), sourceStartBasisInverse, targetStartBasis), `${label} raw desired blade`);
-      const desiredBlade = screenReadableBladeDirection(THREE, rawDesiredBlade, label);
-      report.push(frameReport(THREE, crimsonRoot, grip, swordRoot, label, sourceSample, desiredBlade, chainReports, clampReport));
-    }
+    frames.push({ time: primeKeys[label], label, note: `${label}: full-body Vanguard SwordAttack1 relationship baked to Crimson; Arborblade socket remains invariant`, sourceTime: sourceSample.sourceTime, bones });
   }
   const startFrame = frames[0];
   const travel = {};
@@ -398,13 +388,20 @@ async function main() {
     const start = new THREE.Quaternion().fromArray(startFrame.bones[name]);
     travel[name] = Number(Math.max(...frames.map((frame) => THREE.MathUtils.radToDeg(start.angleTo(new THREE.Quaternion().fromArray(frame.bones[name]))))).toFixed(3));
   }
+  const startFromSavedBaselineTravel = Object.fromEntries(['Hips', 'Spine02', 'Spine', 'RightArm', 'RightForeArm', 'RightHand', 'LeftArm', 'LeftForeArm', 'LeftHand'].map((name) => {
+    const baselineQ = new THREE.Quaternion().fromArray(baseBones[name]);
+    const startQ = new THREE.Quaternion().fromArray(startFrame.bones[name]);
+    return [name, Number(THREE.MathUtils.radToDeg(baselineQ.angleTo(startQ)).toFixed(3))];
+  }));
   const guardFailures = [];
+  if (startFromSavedBaselineTravel.RightHand < 18 || startFromSavedBaselineTravel.RightForeArm < 12 || startFromSavedBaselineTravel.RightArm < 10) {
+    guardFailures.push(`START_FRAME_IS_SAVED_BASELINE_OR_REST:${JSON.stringify(startFromSavedBaselineTravel)}`);
+  }
   for (const [bone, min] of Object.entries(thresholds.bodyTravelDeg)) if ((travel[bone] || 0) < min) guardFailures.push(`BODY_TRAVEL_TOO_SMALL:${bone}:${travel[bone]}<${min}`);
   const maxChainError = Math.max(...report.flatMap((entry) => entry.chains.flatMap((chain) => [chain.midError, chain.endError])));
   if (maxChainError > thresholds.maxChainError) guardFailures.push(`CHAIN_ERROR_TOO_HIGH:${maxChainError}`);
   const contact = report.find((entry) => entry.label === 'contact');
   if (!contact || contact.bladeAngleErrorDeg > thresholds.maxContactBladeAngleDeg) guardFailures.push(`CONTACT_BLADE_NOT_ALIGNED:${contact?.bladeAngleErrorDeg}`);
-  if (JSON.stringify(frames[0].bones) !== JSON.stringify(baseBones)) guardFailures.push('START_NOT_SAVED_BASELINE');
   for (const frame of frames) for (const [bone, values] of Object.entries(frame.bones)) if (!isFiniteArray(values)) guardFailures.push(`NONFINITE_BONE:${frame.label}:${bone}`);
   for (const entry of report) {
     if (!isFiniteArray(entry.actualBladeDirectionWorld) || !isFiniteArray(entry.desiredBladeDirectionWorld)) guardFailures.push(`NONFINITE_BLADE:${entry.label}`);
@@ -446,7 +443,7 @@ async function main() {
       savedWeapon: { saberGripLocal: baseline.saberGripLocal, sabreLocal: baseline.sabreLocal, bladeLocalAxis: baseline.bladeLocalAxis },
     },
     guardReport: {
-      crimsonLightAttack1V3: { status: guardFailures.length ? 'FAIL' : 'PASS', thresholds, bodyTravelDeg: travel, maxChainError: Number(maxChainError.toFixed(5)), report, guardFailures, note: 'Guardrail only: full-body transfer and weapon invariance must still be judged by hosted cloud screenshots.' },
+      crimsonLightAttack1V3: { status: guardFailures.length ? 'FAIL' : 'PASS', thresholds, bodyTravelDeg: travel, startFromSavedBaselineTravel, maxChainError: Number(maxChainError.toFixed(5)), report, guardFailures, note: 'Guardrail only: full-body transfer and weapon invariance must still be judged by hosted cloud screenshots.' },
     },
     frames,
   };
