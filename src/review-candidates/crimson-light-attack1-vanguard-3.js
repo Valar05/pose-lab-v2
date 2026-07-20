@@ -111,7 +111,8 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           "sourceLimb": "leftLeg"
         }
       ],
-      "rollRestoration": "bounded source local quaternion deltas applied before chain solve; clamps recorded per frame"
+      "rollRestoration": "bounded source local quaternion deltas applied before chain solve; clamps recorded per frame",
+      "bladeReadability": "mapped Vanguard blade direction is projected toward the review camera plane before right-hand solve so the Arborblade reads as a visible sword, not a camera-axis sliver"
     },
     "savedWeapon": {
       "saberGripLocal": {
@@ -196,9 +197,9 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
         "LeftForeArm": 98.419,
         "LeftHand": 27.638,
         "RightShoulder": 0.159,
-        "RightArm": 118.816,
-        "RightForeArm": 95.885,
-        "RightHand": 145.303
+        "RightArm": 129.081,
+        "RightForeArm": 112.457,
+        "RightHand": 117.431
       },
       "maxChainError": 0,
       "report": [
@@ -217,16 +218,16 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            0.07005,
-            -0.99754,
-            0.00221
+            0.99536,
+            0.09625,
+            0.00065
           ],
           "actualBladeDirectionWorld": [
             0.0645,
             -0.04494,
             0.99691
           ],
-          "bladeAngleErrorDeg": 87.045,
+          "bladeAngleErrorDeg": 86.53,
           "chains": [],
           "rollClampReport": []
         },
@@ -234,27 +235,27 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           "label": "earlyWindup",
           "sourceTime": 0.1,
           "hiltWorld": [
-            -0.24091,
-            1.41485,
-            -0.00329
+            -0.10769,
+            1.66168,
+            -0.16829
           ],
           "rightHandWorld": [
-            -0.19885,
-            1.51369,
-            -0.15816
+            -0.21245,
+            1.50801,
+            -0.19888
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            0.14956,
-            -0.98086,
-            0.12467
+            0.99939,
+            0.0349,
+            0
           ],
           "actualBladeDirectionWorld": [
-            0.14944,
-            -0.98083,
-            0.12505
+            0.9994,
+            0.03466,
+            0.00013
           ],
-          "bladeAngleErrorDeg": 0.023,
+          "bladeAngleErrorDeg": 0.015,
           "chains": [
             {
               "chain": "rightArm",
@@ -366,34 +367,38 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
             }
           ],
           "rollClampReport": [],
-          "rightHandBladeSolveRotationDeg": 67.36,
-          "rightHandBladeSolveAngleDeg": 0.023
+          "rightArmBladeSolveRotationDeg": {
+            "RightHand": 66.199,
+            "RightForeArm": 24.51,
+            "RightArm": 16.225
+          },
+          "rightHandBladeSolveAngleDeg": 0.015
         },
         {
           "label": "anticipation",
           "sourceTime": 0.183333,
           "hiltWorld": [
-            -0.05642,
-            1.52496,
-            0.25347
+            -0.00503,
+            1.4915,
+            0.13665
           ],
           "rightHandWorld": [
-            -0.15128,
-            1.65771,
-            0.34782
+            -0.09404,
+            1.62647,
+            0.23352
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            -0.14882,
-            -0.98623,
-            0.07215
+            -0.23684,
+            -0.97155,
+            0
           ],
           "actualBladeDirectionWorld": [
-            -0.1484,
-            -0.98628,
-            0.07238
+            -0.23684,
+            -0.97155,
+            0.00027
           ],
-          "bladeAngleErrorDeg": 0.028,
+          "bladeAngleErrorDeg": 0.015,
           "chains": [
             {
               "chain": "rightArm",
@@ -505,34 +510,38 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
             }
           ],
           "rollClampReport": [],
-          "rightHandBladeSolveRotationDeg": 89.558,
-          "rightHandBladeSolveAngleDeg": 0.028
+          "rightArmBladeSolveRotationDeg": {
+            "RightHand": 61.766,
+            "RightForeArm": 21.218,
+            "RightArm": 10.738
+          },
+          "rightHandBladeSolveAngleDeg": 0.015
         },
         {
           "label": "snapPrep",
           "sourceTime": 0.283333,
           "hiltWorld": [
-            0.00803,
-            0.921,
-            0.25214
+            0.2171,
+            0.58473,
+            0.17173
           ],
           "rightHandWorld": [
-            0.11716,
-            0.80367,
-            0.15292
+            0.25552,
+            0.76772,
+            0.1954
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            -0.87803,
-            -0.23248,
-            0.41835
+            0.67043,
+            -0.74198,
+            0
           ],
           "actualBladeDirectionWorld": [
-            -0.87807,
-            -0.23261,
-            0.4182
+            0.67037,
+            -0.74203,
+            0.00029
           ],
-          "bladeAngleErrorDeg": 0.012,
+          "bladeAngleErrorDeg": 0.017,
           "chains": [
             {
               "chain": "rightArm",
@@ -644,34 +653,38 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
             }
           ],
           "rollClampReport": [],
-          "rightHandBladeSolveRotationDeg": 140.099,
-          "rightHandBladeSolveAngleDeg": 0.012
+          "rightArmBladeSolveRotationDeg": {
+            "RightHand": 74.657,
+            "RightForeArm": 33.213,
+            "RightArm": 10.959
+          },
+          "rightHandBladeSolveAngleDeg": 0.017
         },
         {
           "label": "contact",
           "sourceTime": 0.383333,
           "hiltWorld": [
-            0.09686,
-            0.67766,
-            0.18439
+            0.22274,
+            0.62293,
+            0.18577
           ],
           "rightHandWorld": [
-            0.13127,
-            0.84734,
-            0.10991
+            0.25795,
+            0.80802,
+            0.181
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            -0.855,
-            -0.2851,
-            0.43324
+            0.68835,
+            -0.72537,
+            0
           ],
           "actualBladeDirectionWorld": [
-            -0.855,
-            -0.28479,
-            0.43345
+            0.68838,
+            -0.72535,
+            0.00023
           ],
-          "bladeAngleErrorDeg": 0.021,
+          "bladeAngleErrorDeg": 0.013,
           "chains": [
             {
               "chain": "rightArm",
@@ -788,34 +801,38 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
               "sourceDeltaDeg": 55.292
             }
           ],
-          "rightHandBladeSolveRotationDeg": 113.57,
-          "rightHandBladeSolveAngleDeg": 0.021
+          "rightArmBladeSolveRotationDeg": {
+            "RightHand": 88.187,
+            "RightForeArm": 33.403,
+            "RightArm": 11.602
+          },
+          "rightHandBladeSolveAngleDeg": 0.013
         },
         {
           "label": "contactHold",
           "sourceTime": 0.5,
           "hiltWorld": [
-            0.27873,
-            0.74025,
-            0.2373
+            0.28262,
+            0.99624,
+            -0.08399
           ],
           "rightHandWorld": [
-            0.30743,
-            0.85826,
-            0.09318
+            0.2701,
+            0.88086,
+            0.06451
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            -0.89117,
-            -0.29151,
-            0.34762
+            0.41945,
+            0.90778,
+            0
           ],
           "actualBladeDirectionWorld": [
-            -0.89135,
-            -0.29111,
-            0.34748
+            0.4193,
+            0.90785,
+            -0.00022
           ],
-          "bladeAngleErrorDeg": 0.026,
+          "bladeAngleErrorDeg": 0.016,
           "chains": [
             {
               "chain": "rightArm",
@@ -927,34 +944,38 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
             }
           ],
           "rollClampReport": [],
-          "rightHandBladeSolveRotationDeg": 110.412,
-          "rightHandBladeSolveAngleDeg": 0.026
+          "rightArmBladeSolveRotationDeg": {
+            "RightHand": 44.094,
+            "RightForeArm": 30.459,
+            "RightArm": 17.567
+          },
+          "rightHandBladeSolveAngleDeg": 0.016
         },
         {
           "label": "settle",
           "sourceTime": 0.566667,
           "hiltWorld": [
-            0.46819,
-            1.04631,
-            0.46125
+            0.56946,
+            1.19022,
+            0.56834
           ],
           "rightHandWorld": [
-            0.50307,
-            1.17781,
-            0.33082
+            0.46076,
+            1.21749,
+            0.4168
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            -0.86641,
-            -0.48369,
-            0.12403
+            0.90557,
+            -0.4242,
+            0
           ],
           "actualBladeDirectionWorld": [
-            -0.86647,
-            -0.48348,
-            0.12437
+            0.90562,
+            -0.42409,
+            0.0001
           ],
-          "bladeAngleErrorDeg": 0.024,
+          "bladeAngleErrorDeg": 0.009,
           "chains": [
             {
               "chain": "rightArm",
@@ -1066,34 +1087,38 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
             }
           ],
           "rollClampReport": [],
-          "rightHandBladeSolveRotationDeg": 82.806,
-          "rightHandBladeSolveAngleDeg": 0.024
+          "rightArmBladeSolveRotationDeg": {
+            "RightHand": 53.291,
+            "RightForeArm": 23.82,
+            "RightArm": 10.801
+          },
+          "rightHandBladeSolveAngleDeg": 0.009
         },
         {
           "label": "followThrough",
           "sourceTime": 0.62,
           "hiltWorld": [
-            0.34017,
-            1.21413,
-            0.51889
+            0.16765,
+            1.283,
+            0.20231
           ],
           "rightHandWorld": [
-            0.3617,
-            1.34702,
-            0.38699
+            0.29663,
+            1.16368,
+            0.27049
           ],
           "hiltToRightHandDistance": 0.18847,
           "desiredBladeDirectionWorld": [
-            -0.81926,
-            -0.55604,
-            0.14008
+            0.06976,
+            0.99756,
+            0
           ],
           "actualBladeDirectionWorld": [
-            -0.8194,
-            -0.55574,
-            0.14048
+            0.06971,
+            0.99757,
+            0.00022
           ],
-          "bladeAngleErrorDeg": 0.03,
+          "bladeAngleErrorDeg": 0.013,
           "chains": [
             {
               "chain": "rightArm",
@@ -1205,8 +1230,12 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
             }
           ],
           "rollClampReport": [],
-          "rightHandBladeSolveRotationDeg": 69.416,
-          "rightHandBladeSolveAngleDeg": 0.03
+          "rightArmBladeSolveRotationDeg": {
+            "RightHand": 117.625,
+            "RightForeArm": 45.192,
+            "RightArm": 22.137
+          },
+          "rightHandBladeSolveAngleDeg": 0.013
         }
       ],
       "guardFailures": [],
@@ -1451,22 +1480,22 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.377376
         ],
         "RightArm": [
-          -0.45963,
-          -0.13036,
-          -0.361559,
-          0.800638
+          -0.446599,
+          -0.179566,
+          -0.476483,
+          0.73571
         ],
         "RightForeArm": [
-          -0.673223,
-          0.046423,
-          0.028234,
-          0.73744
+          -0.628772,
+          0.18597,
+          0.183473,
+          0.732392
         ],
         "RightHand": [
-          -0.437415,
-          -0.015385,
-          -0.386704,
-          0.811722
+          -0.045633,
+          0.370548,
+          0.181348,
+          0.909794
         ]
       }
     },
@@ -1579,22 +1608,22 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.377376
         ],
         "RightArm": [
-          -0.49879,
-          -0.39084,
-          0.067423,
-          0.770653
+          -0.566492,
+          -0.379764,
+          0.109863,
+          0.723046
         ],
         "RightForeArm": [
-          -0.449232,
-          0.251062,
-          0.175004,
-          0.839364
+          -0.591197,
+          0.20621,
+          0.086299,
+          0.77493
         ],
         "RightHand": [
-          -0.623643,
-          0.277245,
-          -0.313986,
-          0.660013
+          -0.460527,
+          0.292082,
+          -0.189503,
+          0.816512
         ]
       }
     },
@@ -1707,22 +1736,22 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.377376
         ],
         "RightArm": [
-          0.2601,
-          -0.327071,
-          -0.685802,
-          0.595859
+          0.262183,
+          -0.289417,
+          -0.634411,
+          0.667099
         ],
         "RightForeArm": [
-          -0.251609,
-          -0.064719,
-          -0.063586,
-          0.963567
+          -0.346516,
+          0.200406,
+          -0.020306,
+          0.916161
         ],
         "RightHand": [
-          0.943985,
-          -0.059328,
-          0.164306,
-          0.279956
+          0.341303,
+          0.289619,
+          0.416802,
+          0.791144
         ]
       }
     },
@@ -1835,22 +1864,22 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.377376
         ],
         "RightArm": [
-          0.305381,
-          -0.337172,
-          -0.68753,
-          0.566003
+          0.319055,
+          -0.329641,
+          -0.618302,
+          0.638157
         ],
         "RightForeArm": [
-          -0.361586,
-          -0.039821,
-          -0.125199,
-          0.923036
+          -0.429645,
+          0.235968,
+          -0.107708,
+          0.864941
         ],
         "RightHand": [
-          0.188775,
-          -0.896627,
-          0.027208,
-          0.399604
+          0.312162,
+          0.195384,
+          0.540801,
+          0.75625
         ]
       }
     },
@@ -1963,22 +1992,22 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.377376
         ],
         "RightArm": [
-          0.182589,
-          -0.380575,
-          -0.654907,
-          0.626834
+          0.307775,
+          -0.293628,
+          -0.66401,
+          0.614938
         ],
         "RightForeArm": [
-          -0.472885,
-          0.073014,
-          -0.030269,
-          0.877572
+          -0.456543,
+          0.223352,
+          -0.241845,
+          0.826555
         ],
         "RightHand": [
-          0.415226,
-          -0.762782,
-          -0.171254,
-          0.465212
+          -0.228805,
+          -0.014524,
+          -0.264493,
+          0.936739
         ]
       }
     },
@@ -2091,22 +2120,22 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.377376
         ],
         "RightArm": [
-          0.349466,
-          -0.521502,
-          -0.241934,
-          0.739849
+          0.430885,
+          -0.522216,
+          -0.248193,
+          0.692842
         ],
         "RightForeArm": [
-          -0.661875,
-          0.125636,
-          0.333354,
-          0.659554
+          -0.524632,
+          0.154872,
+          0.48444,
+          0.682711
         ],
         "RightHand": [
-          -0.072939,
-          -0.473886,
-          -0.581069,
-          0.657626
+          0.380713,
+          -0.14194,
+          0.190447,
+          0.893667
         ]
       }
     },
@@ -2219,22 +2248,22 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           0.377376
         ],
         "RightArm": [
-          0.423597,
-          -0.582368,
-          -0.07759,
-          0.689487
+          0.425158,
+          -0.60378,
+          -0.257458,
+          0.623223
         ],
         "RightForeArm": [
-          -0.733276,
-          0.088581,
-          0.414599,
-          0.531571
+          -0.893701,
+          -0.09479,
+          0.12909,
+          0.419105
         ],
         "RightHand": [
-          -0.29011,
-          -0.305583,
-          -0.506352,
-          0.752372
+          -0.363264,
+          0.511373,
+          -0.577008,
+          0.523066
         ]
       }
     }

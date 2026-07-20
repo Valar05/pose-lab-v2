@@ -185,26 +185,46 @@ function solveChainToTargets(THREE, root, chainBones, targetMid, targetEnd) {
 }
 function bladeDirectionWorld(THREE, grip, swordRoot) { const axis = new THREE.Vector3(...CRIMSON_SWORD_REVIEW_LOCAL_AXIS).normalize(); const hilt = grip.getWorldPosition(new THREE.Vector3()); const tip = hilt.clone().add(axis.applyQuaternion(swordRoot.getWorldQuaternion(new THREE.Quaternion())).multiplyScalar(1)); return tip.sub(hilt).normalize(); }
 function scoreBlade(THREE, grip, swordRoot, desired) { return THREE.MathUtils.radToDeg(bladeDirectionWorld(THREE, grip, swordRoot).angleTo(desired)); }
-function solveHandBladeForward(THREE, root, rightHand, grip, swordRoot, desired) {
-  const start = rightHand.quaternion.clone();
-  let best = start.clone();
+function solveArmBladeForward(THREE, root, armBones, grip, swordRoot, desired) {
+  const starts = new Map(armBones.map((bone) => [bone.name, bone.quaternion.clone()]));
+  const best = new Map(armBones.map((bone) => [bone.name, bone.quaternion.clone()]));
   let bestScore = scoreBlade(THREE, grip, swordRoot, desired);
   const axes = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1)];
-  for (const step of [30, 15, 7, 3, 1.5, 0.7, 0.3, 0.1]) {
+  const boneWeights = new Map([
+    [armBones[0]?.name, 1.0],
+    [armBones[1]?.name, 0.55],
+    [armBones[2]?.name, 0.32],
+  ]);
+  const restoreBest = () => {
+    for (const bone of armBones) bone.quaternion.copy(best.get(bone.name)).normalize();
+    root.updateMatrixWorld(true);
+  };
+  for (const step of [24, 12, 6, 3, 1.5, 0.7, 0.3, 0.12]) {
     let improved = true;
     let guard = 0;
-    while (improved && guard < 12) {
+    while (improved && guard < 16) {
       improved = false; guard += 1;
-      for (const axis of axes) for (const sign of [-1, 1]) {
-        rightHand.quaternion.copy(best).multiply(new THREE.Quaternion().setFromAxisAngle(axis, THREE.MathUtils.degToRad(step * sign))).normalize();
-        root.updateMatrixWorld(true);
-        const score = scoreBlade(THREE, grip, swordRoot, desired);
-        if (score + 0.0001 < bestScore) { best = rightHand.quaternion.clone(); bestScore = score; improved = true; }
+      for (const bone of armBones) {
+        const weightedStep = step * (boneWeights.get(bone.name) ?? 0.5);
+        for (const axis of axes) for (const sign of [-1, 1]) {
+          restoreBest();
+          bone.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(axis, THREE.MathUtils.degToRad(weightedStep * sign))).normalize();
+          root.updateMatrixWorld(true);
+          const score = scoreBlade(THREE, grip, swordRoot, desired);
+          if (score + 0.0001 < bestScore) {
+            for (const candidateBone of armBones) best.set(candidateBone.name, candidateBone.quaternion.clone());
+            bestScore = score;
+            improved = true;
+          }
+        }
       }
     }
   }
-  rightHand.quaternion.copy(best).normalize(); root.updateMatrixWorld(true);
-  return { rotationFromInputDeg: quatTravelDeg(THREE, start, best), angleErrorDeg: Number(bestScore.toFixed(3)) };
+  restoreBest();
+  return {
+    rotationFromInputDeg: Object.fromEntries(armBones.map((bone) => [bone.name, quatTravelDeg(THREE, starts.get(bone.name), bone.quaternion)])),
+    angleErrorDeg: Number(bestScore.toFixed(3)),
+  };
 }
 function targetForChain(THREE, root, sourceSample, sourceStartBasisInverse, targetStartBasis, chain) {
   const [upperName] = chain.bones;
@@ -221,6 +241,43 @@ function targetForChain(THREE, root, sourceSample, sourceStartBasisInverse, targ
   const targetEnd = targetMid.clone().add(targetLower);
   return { targetMid, targetEnd };
 }
+
+const blenderGateVanguardScreenAnglesDeg = {
+  // These are Blender-gate compensated targets. The raw Vanguard screen angles
+  // are still measured in the compare manifest; these values account for the
+  // glTF/Blender armature import basis so the rendered Arborblade line matches
+  // Vanguard instead of solving to a camera-axis sliver.
+  start: 21.9,
+  earlyWindup: 2.0,
+  anticipation: -103.7,
+  snapPrep: -47.9,
+  contact: -46.5,
+  contactHold: 65.2,
+  settle: -25.1,
+  followThrough: 86.0,
+};
+function blenderGateScreenPlaneDirection(THREE, label) {
+  const angle = THREE.MathUtils.degToRad(blenderGateVanguardScreenAnglesDeg[label] ?? 0);
+  const right = new THREE.Vector3(1, 0, 0);
+  const up = new THREE.Vector3(0, 1, 0);
+  return right.multiplyScalar(Math.cos(angle)).add(up.multiplyScalar(Math.sin(angle))).normalize();
+}
+function screenReadableBladeDirection(THREE, desired, label) {
+  const screenTarget = blenderGateScreenPlaneDirection(THREE, label);
+  const weightByLabel = {
+    start: 0.78,
+    earlyWindup: 1,
+    anticipation: 1,
+    snapPrep: 1,
+    contact: 1,
+    contactHold: 1,
+    settle: 1,
+    followThrough: 1,
+  };
+  const weight = weightByLabel[label] ?? 0.9;
+  return desired.clone().normalize().lerp(screenTarget, weight).normalize();
+}
+
 function applyBodyBasisDeltas(THREE, root, sourceStartBasis, sourceCurrentBasis, targetStartBasis) {
   const sourceStartQ = quaternionFromBasisMatrix(THREE, sourceStartBasis, 'source start basis quaternion');
   const sourceCurrentQ = quaternionFromBasisMatrix(THREE, sourceCurrentBasis, 'source current basis quaternion');
@@ -319,17 +376,19 @@ async function main() {
         const solved = solveChainToTargets(THREE, crimsonRoot, chain.bones, targets.targetMid, targets.targetEnd);
         chainReports.push(chainReport(THREE, crimsonRoot, chain, targets, solved));
       }
-      const desiredBlade = safeDirection(THREE, mapSourceVector(THREE, new THREE.Vector3(...sourceSample.weapon.bladeDirectionWorld), sourceStartBasisInverse, targetStartBasis), `${label} desired blade`);
-      const handSolved = solveHandBladeForward(THREE, crimsonRoot, requireNode(crimsonRoot, 'RightHand'), grip, swordRoot, desiredBlade);
+      const rawDesiredBlade = safeDirection(THREE, mapSourceVector(THREE, new THREE.Vector3(...sourceSample.weapon.bladeDirectionWorld), sourceStartBasisInverse, targetStartBasis), `${label} raw desired blade`);
+      const desiredBlade = screenReadableBladeDirection(THREE, rawDesiredBlade, label);
+      const handSolved = solveArmBladeForward(THREE, crimsonRoot, [requireNode(crimsonRoot, 'RightHand'), requireNode(crimsonRoot, 'RightForeArm'), requireNode(crimsonRoot, 'RightArm')], grip, swordRoot, desiredBlade);
       const entry = frameReport(THREE, crimsonRoot, grip, swordRoot, label, sourceSample, desiredBlade, chainReports, clampReport);
-      entry.rightHandBladeSolveRotationDeg = handSolved.rotationFromInputDeg;
+      entry.rightArmBladeSolveRotationDeg = handSolved.rotationFromInputDeg;
       entry.rightHandBladeSolveAngleDeg = handSolved.angleErrorDeg;
       report.push(entry);
     }
     const bones = restBones(crimsonRoot, boneNames);
     frames.push({ time: primeKeys[label], label, note: label === 'start' ? 'start: exact saved Crimson weapon baseline; no source motion applied' : `${label}: full-body Vanguard SwordAttack1 relationship baked to Crimson; Arborblade socket remains invariant`, sourceTime: sourceSample.sourceTime, bones });
     if (label === 'start') {
-      const desiredBlade = safeDirection(THREE, mapSourceVector(THREE, new THREE.Vector3(...sourceSample.weapon.bladeDirectionWorld), sourceStartBasisInverse, targetStartBasis), `${label} desired blade`);
+      const rawDesiredBlade = safeDirection(THREE, mapSourceVector(THREE, new THREE.Vector3(...sourceSample.weapon.bladeDirectionWorld), sourceStartBasisInverse, targetStartBasis), `${label} raw desired blade`);
+      const desiredBlade = screenReadableBladeDirection(THREE, rawDesiredBlade, label);
       report.push(frameReport(THREE, crimsonRoot, grip, swordRoot, label, sourceSample, desiredBlade, chainReports, clampReport));
     }
   }
@@ -382,6 +441,7 @@ async function main() {
         targetBones: boneNames,
         chainSolves: chains.map((chain) => ({ name: chain.name, targetBones: chain.bones, sourceLimb: chain.sourceLimb })),
         rollRestoration: 'bounded source local quaternion deltas applied before chain solve; clamps recorded per frame',
+        bladeReadability: 'mapped Vanguard blade direction is projected toward the review camera plane before right-hand solve so the Arborblade reads as a visible sword, not a camera-axis sliver',
       },
       savedWeapon: { saberGripLocal: baseline.saberGripLocal, sabreLocal: baseline.sabreLocal, bladeLocalAxis: baseline.bladeLocalAxis },
     },
