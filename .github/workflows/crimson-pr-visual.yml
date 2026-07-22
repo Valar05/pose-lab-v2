@@ -3,6 +3,8 @@ name: Crimson PR Visual Evidence
 on:
   push:
     branches: [agent/crimson-foot-red-gate]
+    paths-ignore:
+      - "docs/**"
 
 permissions:
   contents: read
