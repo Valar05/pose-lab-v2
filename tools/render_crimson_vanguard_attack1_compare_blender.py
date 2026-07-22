@@ -1168,23 +1168,37 @@ def main() -> None:
                 original_angle = camera.data.angle
                 original_samples = bpy.context.scene.cycles.samples
                 bpy.context.scene.cycles.samples = min(original_samples, 8)
-                for obj in vanguard_objects:
-                    obj.hide_render = True
+                view_specs = [
+                    ("close-front", Vector((0.0, -4.2, 1.05))),
+                    ("close-three-quarter", Vector((3.1, -3.2, 1.2))),
+                    ("close-profile-right", Vector((4.15, 0, 1.15))),
+                    ("close-profile-left", Vector((-4.15, 0, 1.15))),
+                    ("close-rear", Vector((0.0, 4.2, 1.05))),
+                ]
+                entry["referenceViews"] = []
                 entry["crimsonViews"] = []
-                for view_name, location in [
-                    ("close-front", Vector((1.05, -4.2, 1.05))),
-                    ("close-three-quarter", Vector((4.15, -3.2, 1.2))),
-                    ("close-profile-right", Vector((5.2, 0, 1.15))),
-                    ("close-profile-left", Vector((-3.1, 0, 1.15))),
-                    ("close-rear", Vector((1.05, 4.2, 1.05))),
-                ]:
-                    aim_camera(camera, location, Vector((1.05, 0, 0.78)), 46)
-                    view_filename = f"{index:02d}-{label}-{view_name}.png"
-                    bpy.context.scene.render.filepath = str(out_dir / view_filename)
-                    bpy.ops.render.render(write_still=True)
-                    entry["crimsonViews"].append({"view": view_name, "image": view_filename, "sha256": sha256(out_dir / view_filename)})
-                for obj in vanguard_objects:
-                    obj.hide_render = False
+                review_sets = [
+                    ("reference", -1.05, vanguard_objects, crimson_objects + sword_objects, "referenceViews"),
+                    ("crimson", 1.05, crimson_objects + sword_objects, vanguard_objects, "crimsonViews"),
+                ]
+                for subject_name, center_x, visible_objects, hidden_objects, manifest_key in review_sets:
+                    for obj in hidden_objects:
+                        obj.hide_render = True
+                    for obj in visible_objects:
+                        obj.hide_render = False
+                    for view_name, relative_location in view_specs:
+                        location = relative_location + Vector((center_x, 0, 0))
+                        aim_camera(camera, location, Vector((center_x, 0, 0.78)), 46)
+                        view_filename = f"{index:02d}-{label}-{subject_name}-{view_name}.png"
+                        bpy.context.scene.render.filepath = str(out_dir / view_filename)
+                        bpy.ops.render.render(write_still=True)
+                        entry[manifest_key].append({
+                            "view": view_name,
+                            "image": view_filename,
+                            "sha256": sha256(out_dir / view_filename),
+                        })
+                    for obj in hidden_objects:
+                        obj.hide_render = False
                 camera.location = original_location
                 camera.rotation_euler = original_rotation
                 camera.data.angle = original_angle
