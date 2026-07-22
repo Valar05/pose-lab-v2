@@ -569,10 +569,27 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             rotate_pose_bone_world_axis(target_armature, bone_name, axis, degrees)
     for name, world_rotation in resting_feet.items():
         set_pose_bone_world_rotation(target_armature, name, world_rotation)
+    arm_guard = []
+    for side, end_offset in [
+        ("Left", Vector((0.025, -0.035, -0.16))),
+        ("Right", Vector((-0.02, -0.02, -0.18))),
+    ]:
+        chain = [f"{side}Arm", f"{side}ForeArm", f"{side}Hand"]
+        current_mid = find_pose_bone_world(target_armature, chain[1]).translation
+        current_end = find_pose_bone_world(target_armature, chain[2]).translation
+        arm_guard.append(
+            solve_pose_chain(
+                target_armature,
+                chain,
+                current_mid + Vector((0, -0.015, -0.09)),
+                current_end + end_offset,
+            )
+        )
     return {
         "method": "source-world-delta-with-anatomical-stance-corrections",
         "bones": bones,
         "stance": {name: [degrees for _, degrees in corrections] for name, corrections in stance.items()},
+        "armGuard": arm_guard,
     }
 
 
