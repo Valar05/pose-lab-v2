@@ -459,6 +459,40 @@ def export_authored_pose(armature: bpy.types.Object) -> dict[str, list[float]]:
     return result
 
 
+def export_authored_glb(objects: list[bpy.types.Object], armature: bpy.types.Object, path: Path) -> dict:
+    action = bpy.data.actions.new("CrimsonCombatReadyFrameZero")
+    armature.animation_data_create()
+    armature.animation_data.action = action
+    for bone in armature.pose.bones:
+        basis = bone.matrix_basis.copy()
+        bone.rotation_mode = "QUATERNION"
+        bone.location = basis.to_translation()
+        bone.rotation_quaternion = basis.to_quaternion().normalized()
+        bone.scale = basis.to_scale()
+        bone.keyframe_insert(data_path="location", frame=1)
+        bone.keyframe_insert(data_path="rotation_quaternion", frame=1)
+        bone.keyframe_insert(data_path="scale", frame=1)
+    bpy.context.scene.frame_start = 1
+    bpy.context.scene.frame_end = 1
+    bpy.context.scene.frame_set(1)
+    bpy.context.view_layer.update()
+    bpy.ops.object.select_all(action="DESELECT")
+    for obj in objects:
+        obj.select_set(True)
+    bpy.context.view_layer.objects.active = armature
+    bpy.ops.export_scene.gltf(
+        filepath=str(path),
+        export_format="GLB",
+        use_selection=True,
+        export_animations=True,
+        export_frame_range=True,
+        export_force_sampling=True,
+        export_def_bones=True,
+        export_yup=True,
+    )
+    return {"path": path.name, "sha256": sha256(path), "action": action.name}
+
+
 def set_pose_bone_world_rotation(armature: bpy.types.Object, bone_name: str, desired_world: Quaternion) -> None:
     bone = armature.pose.bones.get(bone_name)
     if not bone:
@@ -931,6 +965,9 @@ def main() -> None:
     if args.author_frame_zero:
         author_report["blade"] = align_crimson_blade_to_vanguard(
             vanguard_objects, crimson_armature, sword_objects, sword_initial, calibration, camera
+        )
+        author_report["glbExport"] = export_authored_glb(
+            crimson_objects, crimson_armature, out_dir / "authored_frame_zero.glb"
         )
     add_label("VANGUARD SOURCE", (-1.05, -0.18, 1.9))
     add_label("CRIMSON CANDIDATE", (1.05, -0.18, 1.9))
