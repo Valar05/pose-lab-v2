@@ -26,8 +26,11 @@ jobs:
           PLAYWRIGHT_CHROME_CHANNEL: chrome
         run: |
           set -eu
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/crimson-v4-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
           URL_LIST="$(node --input-type=module - <<'NODE'
-          const base = `https://raw.githack.com/${process.env.GITHUB_REPOSITORY}/${process.env.GITHUB_SHA}/index.html`;
+          const base = 'http://127.0.0.1:4173/index.html';
           const frames = [
             ['start', 0],
             ['earlyWindup', 0.1],
