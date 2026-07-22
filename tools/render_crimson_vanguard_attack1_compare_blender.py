@@ -761,8 +761,8 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             - find_pose_bone_world(target_armature, "Hips").translation
         ).length,
     )
-    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.12 * shoulder_span, -0.30 * torso_height, 0.22 * torso_height))
-    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.05 * shoulder_span, -0.31 * torso_height, 0.34 * torso_height))
+    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.10 * shoulder_span, -0.30 * torso_height, 0.16 * torso_height))
+    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.04 * shoulder_span, -0.31 * torso_height, 0.26 * torso_height))
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
     arm_reports = [
@@ -770,14 +770,14 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             target_armature,
             ["RightArm", "RightForeArm", "RightHand"],
             right_hand_target,
-            right_shoulder + Vector((-0.58 * shoulder_span, -0.10 * torso_height, -0.30 * torso_height)),
+            right_shoulder + Vector((-0.30 * shoulder_span, -0.12 * torso_height, -0.50 * torso_height)),
             iterations=28,
         ),
         solve_chain_with_pole(
             target_armature,
             ["LeftArm", "LeftForeArm", "LeftHand"],
             left_hand_target,
-            left_shoulder + Vector((0.48 * shoulder_span, -0.10 * torso_height, -0.24 * torso_height)),
+            left_shoulder + Vector((0.24 * shoulder_span, -0.10 * torso_height, -0.38 * torso_height)),
             iterations=28,
         ),
     ]
