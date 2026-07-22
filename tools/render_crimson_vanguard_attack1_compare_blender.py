@@ -857,6 +857,31 @@ def canon_bone_name(name: str) -> str:
     return "".join(character for character in str(name).lower() if character.isalnum())
 
 
+def weighted_bone_min_z(objects: list[bpy.types.Object], bone_names: list[str]) -> float:
+    """Return the visible mesh floor carried by named bones, excluding unrelated asset meshes."""
+    wanted = {canon_bone_name(name) for name in bone_names if name}
+    points = []
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    for obj in objects:
+        if obj.type != "MESH":
+            continue
+        group_indices = {group.index for group in obj.vertex_groups if canon_bone_name(group.name) in wanted}
+        if not group_indices:
+            continue
+        evaluated = obj.evaluated_get(depsgraph)
+        mesh = evaluated.to_mesh(preserve_all_data_layers=True, depsgraph=depsgraph)
+        try:
+            for vertex in mesh.vertices:
+                weight = sum(group.weight for group in vertex.groups if group.group in group_indices)
+                if weight >= 0.15:
+                    points.append((evaluated.matrix_world @ vertex.co).z)
+        finally:
+            evaluated.to_mesh_clear()
+    if not points:
+        raise RuntimeError(f"no weighted mesh vertices found for ground bones: {sorted(wanted)}")
+    return min(points)
+
+
 def foot_mesh_contact_metrics(objects: list[bpy.types.Object], armature: bpy.types.Object, side: str, ground_z: float) -> dict | None:
     wanted = {canon_bone_name(f"{side}Foot"), canon_bone_name(f"{side}ToeBase")}
     points = []
@@ -1135,11 +1160,16 @@ def main() -> None:
         source_start_time = float(reference["samples"]["start"]["sourceTime"])
         set_frame(source_start_time, 24)
         suppress_vanguard_root_motion(vanguard_armature)
-        source_ground_offset = mesh_bounds(vanguard_objects)[0].z
+        source_foot_bones = [
+            reference["logicalBones"].get("LeftFoot"),
+            reference["logicalBones"].get("RightFoot"),
+        ]
+        source_ground_offset = weighted_bone_min_z(vanguard_objects, source_foot_bones)
         vanguard_stage.location.z -= source_ground_offset
         bpy.context.view_layer.update()
         author_report = author_crimson_frame_zero(vanguard_armature, crimson_armature, reference["logicalBones"])
         author_report["sourceStartTime"] = source_start_time
+        author_report["sourceGroundBones"] = source_foot_bones
         author_report["sourceGroundOffset"] = round(source_ground_offset, 5)
         author_report["crimsonGroundOffset"] = round(settle_crimson_boots(crimson_objects, crimson_armature), 5)
     else:
