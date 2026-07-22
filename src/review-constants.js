@@ -24,9 +24,10 @@ export const ATTACK1_REVIEW_CANDIDATES = {
   "crimson-light-attack1-vanguard-4": {
     module: "./review-candidates/crimson-light-attack1-vanguard-4.js",
     exportName: "CRIMSON_LIGHT_ATTACK1_VANGUARD_4_SEQUENCE",
-    label: "Crimson light Attack1 v4 (planted-foot visual candidate)",
+    label: "Crimson light Attack1 v4 (planted-foot accepted)",
     characterKey: "crimson",
-    status: "visual-pending",
+    status: "accepted",
+    visualAcceptance: "./assets/crimson/crimson_light_attack1_v4_visual_acceptance.json",
   },
   "attack1-candidate-1": {
     module: "./review-candidates/attack1-candidate-1.js",

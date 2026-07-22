@@ -1,0 +1,52 @@
+{
+  "schema": "pose-lab-v2-visual-acceptance-v1",
+  "candidate": "crimson-light-attack1-vanguard-4",
+  "verdict": "accepted",
+  "acceptedAt": "2026-07-22T15:25:00Z",
+  "reviewer": "human-directed independent visual review",
+  "evidence": {
+    "workflowRunId": 29933001051,
+    "workflowRunUrl": "https://github.com/Valar05/pose-lab-v2/actions/runs/29933001051",
+    "headSha": "58a948640b6e426ecc64e5028a488e165853d17f",
+    "artifactId": 8534889362,
+    "artifactName": "crimson-v4-pr-evidence-29933001051",
+    "artifactDigest": "sha256:bcb00fee0cab4fde844ce92773a6033ee3ee43e9b253a36bf1c2b6b3e465ca5c",
+    "captureCount": 14,
+    "temporalFrames": [
+      "start",
+      "earlyWindup",
+      "anticipation",
+      "snapPrep",
+      "contact",
+      "contactHold",
+      "settle",
+      "followThrough"
+    ],
+    "orthogonalViews": {
+      "frames": [
+        "start",
+        "contact",
+        "followThrough"
+      ],
+      "views": [
+        "left",
+        "right"
+      ]
+    }
+  },
+  "visualJudgment": {
+    "feetRemainOnSupportPlane": true,
+    "noOuterEdgeStanding": true,
+    "noToeOnlyContact": true,
+    "noVisibleFootRollAcrossAttack": true,
+    "swordRemainsAttachedAndVisible": true,
+    "notes": "Inspected all eight temporal captures plus left and right orthogonal captures at start, contact, and follow-through. Both boots retain a supportable planted orientation throughout; the original sideways and toe-down failures are absent."
+  },
+  "independentGeometry": {
+    "frames": 8,
+    "feetPerFrame": 2,
+    "soleUpDot": 1,
+    "maxOrientationErrorDeg": 0,
+    "maxObservedContactHeightError": 0.015
+  }
+}
