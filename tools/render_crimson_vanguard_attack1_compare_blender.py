@@ -259,6 +259,19 @@ def activate_last_action(armature: bpy.types.Object) -> None:
         track.mute = True
 
 
+def activate_action_containing(armature: bpy.types.Object, token: str) -> None:
+    armature.data.pose_position = "POSE"
+    armature.animation_data_create()
+    wanted = re.sub(r"[^a-z0-9]", "", token.lower())
+    matches = [action for action in bpy.data.actions if wanted in re.sub(r"[^a-z0-9]", "", action.name.lower())]
+    if len(matches) != 1:
+        available = sorted(action.name for action in bpy.data.actions)
+        raise RuntimeError(f"expected one action containing {token!r}; matches={[a.name for a in matches]}; available={available}")
+    armature.animation_data.action = matches[0]
+    for track in armature.animation_data.nla_tracks:
+        track.mute = True
+
+
 def activate_named_action(armature: bpy.types.Object, action_name: str) -> None:
     armature.data.pose_position = "POSE"
     armature.animation_data_create()
@@ -546,7 +559,15 @@ def add_label(text: str, location: tuple[float, float, float]) -> None:
     bpy.context.collection.objects.link(obj)
 
 
-def evaluate_frame(label: str, camera: bpy.types.Object, vanguard_objects: list[bpy.types.Object], crimson_objects: list[bpy.types.Object], crimson_armature: bpy.types.Object, sword_objects: list[bpy.types.Object], sword_socket: Matrix, calibration: dict) -> dict:
+def joint_screens(armature: bpy.types.Object, camera: bpy.types.Object, names: dict[str, str]) -> dict:
+    result = {}
+    for logical, bone_name in names.items():
+        if armature.pose.bones.get(bone_name):
+            result[logical] = project(camera, find_pose_bone_world(armature, bone_name).translation)
+    return result
+
+
+def evaluate_frame(label: str, camera: bpy.types.Object, vanguard_objects: list[bpy.types.Object], vanguard_armature: bpy.types.Object, crimson_objects: list[bpy.types.Object], crimson_armature: bpy.types.Object, sword_objects: list[bpy.types.Object], sword_socket: Matrix, calibration: dict, logical_bones: dict[str, str]) -> dict:
     hand_world = find_pose_bone_world(crimson_armature, "RightHand")
     hand_pos = hand_world.translation
     hilt = sword_socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
@@ -591,8 +612,8 @@ def evaluate_frame(label: str, camera: bpy.types.Object, vanguard_objects: list[
             failures.append({"code": f"CRIMSON_{side.upper()}_BOOT_ROLLED_OFF_SOLE", "actual": foot, "expected": "weighted boot contact plane faces ground-up without standing on an outer edge"})
     return {
         "label": label,
-        "crimson": {"blade": crimson_line, "hiltHandWorld": round(hilt_hand_world, 5), "hiltHandScreen": round(hilt_hand_screen, 5), "bodyBox": cbox, "feet": feet},
-        "vanguard": {"blade": {"screenLength": vanguard_line["screenLength"], "screenAngleDeg": vanguard_line["screenAngleDeg"]}, "bodyBox": vbox},
+        "crimson": {"blade": crimson_line, "hiltHandWorld": round(hilt_hand_world, 5), "hiltHandScreen": round(hilt_hand_screen, 5), "bodyBox": cbox, "joints": joint_screens(crimson_armature, camera, {name: name for name in logical_bones}), "feet": feet},
+        "vanguard": {"blade": {"screenLength": vanguard_line["screenLength"], "screenAngleDeg": vanguard_line["screenAngleDeg"]}, "bodyBox": vbox, "joints": joint_screens(vanguard_armature, camera, logical_bones)},
         "failures": failures,
     }
 
@@ -642,7 +663,7 @@ def main() -> None:
     normalize_and_offset(vanguard_objects, 1.7, -1.05)
     crimson_objects = import_glb(crimson_anim)
     crimson_armature = find_armature(crimson_objects, "Crimson")
-    activate_last_action(crimson_armature)
+    activate_action_containing(crimson_armature, candidate["id"])
     normalize_and_offset(crimson_objects, 1.7, 1.05)
     sword_objects = import_glb(SWORD_GLB)
     apply_crimson_sword_material(sword_objects)
@@ -659,7 +680,7 @@ def main() -> None:
         suppress_vanguard_root_motion(vanguard_armature)
         hand = find_pose_bone_world(crimson_armature, "RightHand")
         sword_socket = place_crimson_sword(sword_objects, sword_initial, hand, calibration)
-        entry = evaluate_frame(label, camera, vanguard_objects, crimson_objects, crimson_armature, sword_objects, sword_socket, calibration)
+        entry = evaluate_frame(label, camera, vanguard_objects, vanguard_armature, crimson_objects, crimson_armature, sword_objects, sword_socket, calibration, reference["logicalBones"])
         filename = f"{index:02d}-{label}.png"
         if args.skip_render:
             entry["image"] = None

@@ -31,9 +31,9 @@ export const ATTACK1_REVIEW_CANDIDATES = {
   "crimson-combat-ready-vanguard-frame0-1": {
     module: "./review-candidates/crimson-combat-ready-vanguard-frame0-1.js",
     exportName: "CRIMSON_COMBAT_READY_VANGUARD_FRAME0_1_SEQUENCE",
-    label: "Crimson combat-ready frame zero 1 (visual candidate)",
+    label: "Crimson combat-ready frame zero 1 (rejected: upper-body collapse)",
     characterKey: "crimson",
-    status: "candidate",
+    status: "rejected",
   },
   "attack1-candidate-1": {
     module: "./review-candidates/attack1-candidate-1.js",
