@@ -664,108 +664,126 @@ def solve_chain_with_pole(
     }
 
 
+def pose_bone_world_direction(armature: bpy.types.Object, bone_name: str) -> Vector:
+    bone = armature.pose.bones.get(bone_name)
+    if not bone:
+        raise RuntimeError(f"missing target pose bone {bone_name}")
+    return (armature.matrix_world.to_3x3() @ (bone.tail - bone.head)).normalized()
+
+
+def aim_pose_bone_direction(armature: bpy.types.Object, bone_name: str, desired_world: tuple[float, float, float]) -> float:
+    """Directly pose one Crimson FK bone toward an authored visual direction."""
+    desired = Vector(desired_world).normalized()
+    current = pose_bone_world_direction(armature, bone_name)
+    return rotate_pose_bone_world(armature, bone_name, current, desired)
+
+
 def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> dict:
-    # Vanguard is visible reference only. Crimson begins from her own rest rig;
-    # no Vanguard quaternion, rest delta, endpoint, or bone basis crosses rigs.
+    # Vanguard remains on screen as visual reference only. This function never
+    # reads source_armature or logical_bones. Crimson is posed from her own rest
+    # rig, one FK bone at a time, using authored anatomical directions.
     clear_pose(target_armature)
-    feet = {
+
+    preserved_feet = {
         name: find_pose_bone_world(target_armature, name).to_quaternion()
         for name in ["LeftFoot", "RightFoot"]
     }
 
-    hips = find_pose_bone_world(target_armature, "Hips").translation
-    left_ankle = find_pose_bone_world(target_armature, "LeftFoot").translation
-    right_ankle = find_pose_bone_world(target_armature, "RightFoot").translation
+    # Restrained center: the stance carries the action. The pelvis does not.
+    center_rotations = [
+        ("Hips", (0, 0, 1), -4.0),
+        ("Hips", (1, 0, 0), -2.0),
+        ("Spine", (1, 0, 0), -6.0),
+        ("Spine01", (0, 0, 1), 3.0),
+        ("Spine02", (0, 0, 1), 4.0),
+        ("neck", (0, 0, 1), -2.0),
+    ]
+    for bone_name, axis, degrees in center_rotations:
+        rotate_pose_bone_world_axis(target_armature, bone_name, Vector(axis), degrees)
 
-    # A restrained body sentence: stagger, flex, slight threat-side turn.
-    rotate_pose_bone_world_axis(target_armature, "Hips", Vector((0, 0, 1)), -9)
-    rotate_pose_bone_world_axis(target_armature, "Hips", Vector((1, 0, 0)), 3)
-    rotate_pose_bone_world_axis(target_armature, "Spine", Vector((1, 0, 0)), -5)
-    rotate_pose_bone_world_axis(target_armature, "Spine01", Vector((0, 0, 1)), 4)
-    rotate_pose_bone_world_axis(target_armature, "Spine02", Vector((0, 0, 1)), 5)
+    # Front leg advances toward camera (-Y); both shins return beneath their
+    # knees. Side components keep each knee over its own foot rather than
+    # collapsing inward or corkscrewing at the hip.
+    authored_directions = [
+        ("LeftUpLeg", (0.075, -0.185, -0.980)),
+        ("LeftLeg", (-0.025, 0.135, -0.991)),
+        ("RightUpLeg", (-0.065, 0.115, -0.991)),
+        ("RightLeg", (0.020, -0.075, -0.997)),
+        # Upper arms descend and come forward from neutral clavicles.
+        ("LeftArm", (0.455, -0.565, -0.688)),
+        ("RightArm", (-0.425, -0.600, -0.678)),
+        # Forearms fold inward and upward into a compact two-hand guard.
+        ("LeftForeArm", (-0.610, -0.285, 0.739)),
+        ("RightForeArm", (0.575, -0.320, 0.753)),
+    ]
+    posed = []
+    for bone_name, direction in authored_directions:
+        posed.append({
+            "bone": bone_name,
+            "desiredWorldDirection": list(direction),
+            "rotationAppliedDeg": round(aim_pose_bone_direction(target_armature, bone_name, direction), 3),
+        })
 
-    leg_report = []
-    for side, ankle, target_offset, pole_offset in [
-        ("Left", left_ankle, Vector((-0.035, -0.13, 0.0)), Vector((-0.08, -0.72, -0.34))),
-        ("Right", right_ankle, Vector((0.045, 0.11, -0.02)), Vector((0.08, -0.68, -0.32))),
-    ]:
-        leg_report.append(solve_chain_with_pole(
-            target_armature,
-            [f"{side}UpLeg", f"{side}Leg", f"{side}Foot"],
-            ankle + target_offset,
-            hips + pole_offset,
-        ))
-    for name, rotation in feet.items():
+    # Preserve the boot orientations after composing the leg chains. Ground
+    # settlement happens after the whole pose is authored.
+    for name, rotation in preserved_feet.items():
         set_pose_bone_world_rotation(target_armature, name, rotation)
 
-    # Clavicles remain neutral. Arms are composed on Crimson against body-relative
-    # hand targets; explicit elbow poles prevent endpoint matching from destroying
-    # the shoulder girdle.
-    for name in ["LeftShoulder", "RightShoulder"]:
-        bone = target_armature.pose.bones.get(name)
-        if bone:
-            bone.matrix_basis.identity()
+    # Clavicles are intentionally neutral; hand roll is authored after the arm
+    # silhouette rather than paid for with shoulder distortion.
+    for shoulder_name in ["LeftShoulder", "RightShoulder"]:
+        shoulder = target_armature.pose.bones.get(shoulder_name)
+        if shoulder:
+            shoulder.matrix_basis.identity()
     bpy.context.view_layer.update()
 
-    left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
-    right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
-    shoulder_center = (left_shoulder + right_shoulder) * 0.5
-    chest_z = shoulder_center.z - 0.08
-    guard_center = Vector((shoulder_center.x, shoulder_center.y - 0.24, chest_z))
-    arm_report = [
-        solve_chain_with_pole(
-            target_armature,
-            ["LeftArm", "LeftForeArm", "LeftHand"],
-            guard_center + Vector((-0.075, 0.025, 0.035)),
-            left_shoulder + Vector((-0.48, -0.42, -0.20)),
-        ),
-        solve_chain_with_pole(
-            target_armature,
-            ["RightArm", "RightForeArm", "RightHand"],
-            guard_center + Vector((0.075, -0.025, -0.015)),
-            right_shoulder + Vector((0.48, -0.42, -0.22)),
-        ),
+    hand_rotations = [
+        ("RightHand", (0, 0, 1), 8.0),
+        ("RightHand", (0, 1, 0), -12.0),
+        ("LeftHand", (0, 0, 1), -10.0),
+        ("LeftHand", (0, 1, 0), 8.0),
     ]
+    for bone_name, axis, degrees in hand_rotations:
+        rotate_pose_bone_world_axis(target_armature, bone_name, Vector(axis), degrees)
 
     return {
-        "method": "crimson-native-one-frame-composition",
-        "sourceAuthority": "Vanguard pixels and action intent only; no transforms cross rigs",
-        "body": {
-            "hipsYawDeg": -9,
-            "hipsPitchDeg": 3,
-            "spinePitchDeg": -5,
-            "spineCounterYawDeg": 9,
-        },
-        "legs": leg_report,
-        "arms": arm_report,
+        "method": "crimson-native-direct-fk-world-direction-composition",
+        "sourceAuthority": "Vanguard pixels only; source armature and logical mapping are deliberately unread",
+        "crossRigPoseInputs": [],
+        "centerRotations": [
+            {"bone": bone, "axisWorld": list(axis), "degrees": degrees}
+            for bone, axis, degrees in center_rotations
+        ],
+        "authoredBoneDirections": posed,
+        "handRotations": [
+            {"bone": bone, "axisWorld": list(axis), "degrees": degrees}
+            for bone, axis, degrees in hand_rotations
+        ],
         "keyframeContract": "one authored Crimson pose at frame 1",
     }
 
 
-def align_crimson_blade_to_vanguard(
-    source_objects: list[bpy.types.Object],
+def author_crimson_blade_direction(
     target_armature: bpy.types.Object,
     sword_objects: list[bpy.types.Object],
     sword_initial: dict[str, Matrix],
     calibration: dict,
-    camera: bpy.types.Object,
 ) -> dict:
-    source_line = imported_sword_line(source_objects, camera)
-    source_angle = math.radians(source_line["screenAngleDeg"])
-    # Preserve Vanguard's visible blade angle while pushing the weapon toward
-    # camera-space foreground. A screen-plane-only match ran the blade through
-    # Crimson's helmet and plume when inspected from the side.
-    desired = Vector((math.cos(source_angle), -0.55, math.sin(source_angle))).normalized()
-    rotated = 0.0
-    for _ in range(4):
+    # This threat line is visually authored for Crimson. It is not measured or
+    # imported from Vanguard. The hand is rotated as an FK control until the
+    # actual Arborblade mesh follows this chosen direction.
+    desired = Vector((0.855, -0.245, 0.456)).normalized()
+    applied = 0.0
+    for _ in range(3):
         hand = find_pose_bone_world(target_armature, "RightHand")
         socket = place_crimson_sword(sword_objects, sword_initial, hand, calibration)
         hilt = socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
         tip = socket @ browser_vector(calibration.get("tipLocalPoint") or [0, 0, 1])
-        rotated += rotate_pose_bone_world(target_armature, "RightHand", tip - hilt, desired)
+        applied += rotate_pose_bone_world(target_armature, "RightHand", tip - hilt, desired, 35)
     return {
-        "rightHandCorrectionDeg": round(rotated, 3),
-        "sourceScreenAngleDeg": round(source_line["screenAngleDeg"], 3),
+        "authority": "authored Crimson threat line; no Vanguard measurement",
+        "desiredWorldDirection": [round(v, 6) for v in desired],
+        "rightHandFkCorrectionDeg": round(applied, 3),
     }
 
 
@@ -1060,8 +1078,8 @@ def main() -> None:
     apply_crimson_sword_material(sword_objects)
     sword_initial = {obj.name: obj.matrix_world.copy() for obj in top_level(sword_objects)}
     if args.author_frame_zero:
-        author_report["blade"] = align_crimson_blade_to_vanguard(
-            vanguard_objects, crimson_armature, sword_objects, sword_initial, calibration, camera
+        author_report["blade"] = author_crimson_blade_direction(
+            crimson_armature, sword_objects, sword_initial, calibration
         )
         author_report["glbExport"] = export_authored_glb(
             crimson_objects, crimson_armature, out_dir / "authored_frame_zero.glb"
@@ -1102,7 +1120,9 @@ def main() -> None:
                 for view_name, location in [
                     ("close-front", Vector((1.05, -4.2, 1.05))),
                     ("close-three-quarter", Vector((4.15, -3.2, 1.2))),
-                    ("close-profile", Vector((5.2, 0, 1.15))),
+                    ("close-profile-right", Vector((5.2, 0, 1.15))),
+                    ("close-profile-left", Vector((-3.1, 0, 1.15))),
+                    ("close-rear", Vector((1.05, 4.2, 1.05))),
                 ]:
                     aim_camera(camera, location, Vector((1.05, 0, 0.78)), 46)
                     view_filename = f"{index:02d}-{label}-{view_name}.png"
