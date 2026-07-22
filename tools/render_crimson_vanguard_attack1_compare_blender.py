@@ -345,6 +345,27 @@ def setup_scene(width: int, height: int, samples: int) -> bpy.types.Object:
     return camera
 
 
+def aim_camera(camera: bpy.types.Object, location: Vector, target: Vector, angle_degrees: float) -> None:
+    camera.location = location
+    camera.rotation_euler = (target - location).to_track_quat("-Z", "Y").to_euler()
+    camera.data.angle = math.radians(angle_degrees)
+
+
+def add_ground_plane() -> bpy.types.Object:
+    bpy.ops.mesh.primitive_plane_add(size=8, location=(0, 0, 0))
+    plane = bpy.context.object
+    plane.name = "combat_pose_ground"
+    material = bpy.data.materials.new("combat_pose_ground_material")
+    material.diffuse_color = (0.07, 0.08, 0.09, 1)
+    material.use_nodes = True
+    bsdf = material.node_tree.nodes.get("Principled BSDF")
+    if bsdf:
+        bsdf.inputs["Base Color"].default_value = (0.07, 0.08, 0.09, 1)
+        bsdf.inputs["Roughness"].default_value = 0.86
+    plane.data.materials.append(material)
+    return plane
+
+
 def set_frame(time_s: float, fps: int) -> None:
     bpy.context.scene.frame_set(round(time_s * fps))
     bpy.context.view_layer.update()
@@ -853,6 +874,8 @@ def main() -> None:
         )
     add_label("VANGUARD SOURCE", (-1.05, -0.18, 1.9))
     add_label("CRIMSON CANDIDATE", (1.05, -0.18, 1.9))
+    if args.author_frame_zero:
+        add_ground_plane()
     fps = 24
     bpy.context.scene.render.fps = fps
     frames = []
@@ -873,6 +896,28 @@ def main() -> None:
             bpy.ops.render.render(write_still=True)
             entry["image"] = filename
             entry["sha256"] = sha256(out_dir / filename)
+            if args.author_frame_zero:
+                original_location = camera.location.copy()
+                original_rotation = camera.rotation_euler.copy()
+                original_angle = camera.data.angle
+                for obj in vanguard_objects:
+                    obj.hide_render = True
+                entry["crimsonViews"] = []
+                for view_name, location in [
+                    ("close-front", Vector((1.05, -4.2, 1.05))),
+                    ("close-three-quarter", Vector((4.15, -3.2, 1.2))),
+                    ("close-profile", Vector((5.2, 0, 1.15))),
+                ]:
+                    aim_camera(camera, location, Vector((1.05, 0, 0.85)), 34)
+                    view_filename = f"{index:02d}-{label}-{view_name}.png"
+                    bpy.context.scene.render.filepath = str(out_dir / view_filename)
+                    bpy.ops.render.render(write_still=True)
+                    entry["crimsonViews"].append({"view": view_name, "image": view_filename, "sha256": sha256(out_dir / view_filename)})
+                for obj in vanguard_objects:
+                    obj.hide_render = False
+                camera.location = original_location
+                camera.rotation_euler = original_rotation
+                camera.data.angle = original_angle
         frames.append(entry)
         for failure in entry["failures"]:
             all_failures.append({"frame": label, **failure})
