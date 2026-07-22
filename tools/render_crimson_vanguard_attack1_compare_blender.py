@@ -441,6 +441,24 @@ def clear_pose(armature: bpy.types.Object) -> None:
     bpy.context.view_layer.update()
 
 
+def export_authored_pose(armature: bpy.types.Object) -> dict[str, list[float]]:
+    names = [
+        "Hips", "Spine", "Spine01", "Spine02", "neck", "Head",
+        "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand",
+        "RightShoulder", "RightArm", "RightForeArm", "RightHand",
+        "LeftUpLeg", "LeftLeg", "LeftFoot",
+        "RightUpLeg", "RightLeg", "RightFoot",
+    ]
+    result = {}
+    for name in names:
+        bone = armature.pose.bones.get(name)
+        if not bone:
+            continue
+        quaternion = bone.matrix_basis.to_quaternion().normalized()
+        result[name] = [round(quaternion.x, 8), round(quaternion.y, 8), round(quaternion.z, 8), round(quaternion.w, 8)]
+    return result
+
+
 def set_pose_bone_world_rotation(armature: bpy.types.Object, bone_name: str, desired_world: Quaternion) -> None:
     bone = armature.pose.bones.get(bone_name)
     if not bone:
@@ -972,6 +990,7 @@ def main() -> None:
         "classification": "diagnostic-blocker-not-acceptance",
         "candidate": candidate["id"],
         "authorReport": author_report,
+        "authoredFrameZero": export_authored_pose(crimson_armature) if args.author_frame_zero else None,
         "source": {"vanguard": str(VANGUARD_GLB.relative_to(ROOT)), "crimson": str(CRIMSON_GLB.relative_to(ROOT)), "sword": str(SWORD_GLB.relative_to(ROOT))},
         "expected": "Vanguard and Crimson perform the same readable sword attack side by side; Crimson hilt stays in right hand and blade leads contact.",
         "status": "FAIL" if all_failures else "PASS",
