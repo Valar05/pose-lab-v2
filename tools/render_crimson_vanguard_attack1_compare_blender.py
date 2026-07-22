@@ -662,6 +662,24 @@ def foot_mesh_contact_metrics(objects: list[bpy.types.Object], armature: bpy.typ
     }
 
 
+def translate_import(objects: list[bpy.types.Object], delta: Vector) -> None:
+    transform = Matrix.Translation(delta)
+    for obj in top_level(objects):
+        obj.matrix_world = transform @ obj.matrix_world
+    bpy.context.view_layer.update()
+
+
+def settle_crimson_boots(objects: list[bpy.types.Object], armature: bpy.types.Object) -> float:
+    contacts = [foot_mesh_contact_metrics(objects, armature, side, 0.0) for side in ["Left", "Right"]]
+    contact_z = min(
+        value
+        for contact in contacts if contact
+        for value in [contact["heelWorld"][2], contact["toeWorld"][2]]
+    )
+    translate_import(objects, Vector((0, 0, -contact_z)))
+    return contact_z
+
+
 def imported_sword_line(objects: list[bpy.types.Object], camera: bpy.types.Object) -> dict:
     points = []
     depsgraph = bpy.context.evaluated_depsgraph_get()
@@ -862,7 +880,11 @@ def main() -> None:
     if args.author_frame_zero:
         set_frame(0, 24)
         suppress_vanguard_root_motion(vanguard_armature)
+        source_ground_offset = mesh_bounds(vanguard_objects)[0].z
+        translate_import(vanguard_objects, Vector((0, 0, -source_ground_offset)))
         author_report = author_crimson_frame_zero(vanguard_armature, crimson_armature, reference["logicalBones"])
+        author_report["sourceGroundOffset"] = round(source_ground_offset, 5)
+        author_report["crimsonGroundOffset"] = round(settle_crimson_boots(crimson_objects, crimson_armature), 5)
     else:
         activate_action_containing(crimson_armature, candidate["id"])
     sword_objects = import_glb(SWORD_GLB)
@@ -908,7 +930,7 @@ def main() -> None:
                     ("close-three-quarter", Vector((4.15, -3.2, 1.2))),
                     ("close-profile", Vector((5.2, 0, 1.15))),
                 ]:
-                    aim_camera(camera, location, Vector((1.05, 0, 0.85)), 34)
+                    aim_camera(camera, location, Vector((1.05, 0, 0.78)), 46)
                     view_filename = f"{index:02d}-{label}-{view_name}.png"
                     bpy.context.scene.render.filepath = str(out_dir / view_filename)
                     bpy.ops.render.render(write_still=True)
