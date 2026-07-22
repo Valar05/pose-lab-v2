@@ -15,7 +15,7 @@ jobs:
       - name: Install Blender render runtime
         run: |
           sudo apt-get update
-          sudo apt-get install -y blender python3-pil
+          sudo apt-get install -y blender python3-numpy python3-pil
       - name: Render Vanguard and Crimson frame zero in Blender
         id: blender
         continue-on-error: true
