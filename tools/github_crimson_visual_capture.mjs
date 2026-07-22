@@ -2,9 +2,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { chromium } from 'playwright';
+import { pathToFileURL } from 'node:url';
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const args = {
     outDir: 'generated/cloud-visual-evidence/crimson-sword/github-actions',
     target: 'crimson-sword',
@@ -12,6 +12,9 @@ function parseArgs(argv) {
     episodeId: 'browser_episode_github_actions_crimson',
     timeoutMs: 180000,
     settleMs: 500,
+    expectedCandidateId: '',
+    expectedPoseSha: '',
+    expectedCandidateModuleSha: '',
     urls: [],
   };
   for (let i = 2; i < argv.length; i += 1) {
@@ -27,8 +30,14 @@ function parseArgs(argv) {
     else if (arg === '--episode-id') args.episodeId = argv[++i] || '';
     else if (arg === '--timeout-ms') args.timeoutMs = Number(argv[++i] || args.timeoutMs);
     else if (arg === '--settle-ms') args.settleMs = Number(argv[++i] || args.settleMs);
+    else if (arg === '--expected-candidate-id') args.expectedCandidateId = argv[++i] || '';
+    else if (arg.startsWith('--expected-candidate-id=')) args.expectedCandidateId = arg.slice('--expected-candidate-id='.length);
+    else if (arg === '--expected-pose-sha') args.expectedPoseSha = argv[++i] || '';
+    else if (arg.startsWith('--expected-pose-sha=')) args.expectedPoseSha = arg.slice('--expected-pose-sha='.length);
+    else if (arg === '--expected-candidate-module-sha') args.expectedCandidateModuleSha = argv[++i] || '';
+    else if (arg.startsWith('--expected-candidate-module-sha=')) args.expectedCandidateModuleSha = arg.slice('--expected-candidate-module-sha='.length);
     else if (arg === '--help' || arg === '-h') {
-      console.log('usage: node tools/github_crimson_visual_capture.mjs --url HOSTED_URL | --url-list JSON [--out-dir DIR]');
+      console.log('usage: node tools/github_crimson_visual_capture.mjs --url HOSTED_URL | --url-list JSON [--out-dir DIR] [--expected-candidate-id ID --expected-pose-sha SHA256 --expected-candidate-module-sha SHA256]');
       process.exit(0);
     } else {
       throw new Error('unknown argument: ' + arg);
@@ -44,7 +53,107 @@ function parseArgs(argv) {
         url: entry.url || '',
       });
   if (!args.urls.length || args.urls.some((entry) => !entry.url)) throw new Error('--url or --url-list with urls is required');
+  const parityArgs = [args.expectedCandidateId, args.expectedPoseSha, args.expectedCandidateModuleSha];
+  const suppliedParityArgs = parityArgs.filter(Boolean).length;
+  if (suppliedParityArgs > 0 && suppliedParityArgs !== parityArgs.length) {
+    throw new Error('candidate parity requires --expected-candidate-id, --expected-pose-sha, and --expected-candidate-module-sha together');
+  }
+  if (suppliedParityArgs && (!/^[a-f0-9]{64}$/.test(args.expectedPoseSha) || !/^[a-f0-9]{64}$/.test(args.expectedCandidateModuleSha))) {
+    throw new Error('candidate parity pose and module SHA values must be lowercase 64-character hex');
+  }
   return args;
+}
+
+export function assertBlenderManifestContract(manifest, expectedCandidateId) {
+  const candidateId = String(manifest?.generatedCandidate?.candidateId || '');
+  const authoredPoseSha = String(manifest?.authoredFrameZero?.poseSha256 || '');
+  const generatedPoseSha = String(manifest?.generatedCandidate?.poseSha256 || '');
+  const candidateModuleSha = String(manifest?.sourceHashes?.requestedCandidate?.sha256 || '');
+  const errors = [];
+  if (manifest?.status !== 'PASS') errors.push(`manifest status expected PASS, got ${manifest?.status || 'missing'}`);
+  if (manifest?.candidateParity?.status !== 'PASS') errors.push(`candidate parity status expected PASS, got ${manifest?.candidateParity?.status || 'missing'}`);
+  if (manifest?.candidateParity?.exactFramePayloadMatch !== true) errors.push('candidate parity exactFramePayloadMatch must be true');
+  if (manifest?.candidateParity?.authoredGlbShaMatch !== true) errors.push('candidate parity authoredGlbShaMatch must be true');
+  if (manifest?.candidateParity?.committedStatusMatch !== true) errors.push('candidate parity committedStatusMatch must be true');
+  if (manifest?.candidateParity?.committedAuthorEligibleBeforeCandidateParity !== true) errors.push('candidate parity committed author eligibility must be true');
+  if (manifest?.authoredFrameZero?.exactAuthoredGlb !== true) errors.push('authoredFrameZero.exactAuthoredGlb must be true');
+  if (manifest?.candidate !== expectedCandidateId) errors.push(`manifest candidate expected ${expectedCandidateId}, got ${manifest?.candidate || 'missing'}`);
+  if (candidateId !== expectedCandidateId) errors.push(`generated candidate expected ${expectedCandidateId}, got ${candidateId || 'missing'}`);
+  if (!/^[a-f0-9]{64}$/.test(authoredPoseSha)) errors.push('authored frame pose SHA must be lowercase 64-character hex');
+  if (generatedPoseSha !== authoredPoseSha) errors.push('authored and generated pose SHA values must match');
+  if (manifest?.generatedCandidate?.source?.exactAuthoredGlb !== true) errors.push('generated candidate must declare exactAuthoredGlb');
+  if (manifest?.generatedCandidate?.source?.status !== 'generated-visual-pending-candidate-parity') errors.push('generated candidate must be author-eligible before browser review');
+  if (manifest?.generatedCandidate?.source?.authorEligibleBeforeCandidateParity !== true) errors.push('generated candidate author eligibility must be true');
+  if (manifest?.generatedCandidate?.source?.poseSha256 !== authoredPoseSha) errors.push('generated candidate source pose SHA must match authored pose SHA');
+  if (manifest?.candidateParity?.committedPoseSha256 !== authoredPoseSha) errors.push('committed candidate pose SHA must match authored pose SHA');
+  if (manifest?.candidateParity?.generatedPoseSha256 !== authoredPoseSha) errors.push('candidate parity generated pose SHA must match authored pose SHA');
+  const authoredGlbSha = String(manifest?.authoredFrameZero?.glb?.sha256 || '');
+  if (!/^[a-f0-9]{64}$/.test(authoredGlbSha)) errors.push('authored frame GLB SHA must be lowercase 64-character hex');
+  if (manifest?.candidateParity?.generatedAuthoredGlbSha256 !== authoredGlbSha) errors.push('candidate parity generated GLB SHA must match authored frame GLB');
+  if (manifest?.candidateParity?.committedDeclaredAuthoredGlbSha256 !== authoredGlbSha) errors.push('committed candidate GLB SHA must match authored frame GLB');
+  if (manifest?.generatedCandidate?.source?.authoredGlbSha256 !== authoredGlbSha) errors.push('generated candidate GLB SHA must match authored frame GLB');
+  if (!/^[a-f0-9]{64}$/.test(candidateModuleSha)) errors.push('requested candidate module SHA must be lowercase 64-character hex');
+  if (manifest?.candidateParity?.committedCandidateSha256 !== candidateModuleSha) errors.push('candidate parity module SHA must match requested candidate source hash');
+  if (errors.length) throw new Error(`Blender candidate contract failed: ${errors.join('; ')}`);
+  return { candidateId, poseSha: authoredPoseSha, candidateModuleSha };
+}
+
+function appliedProofFromDataset(dataset) {
+  try { return JSON.parse(dataset?.reviewAppliedProof || ''); }
+  catch { return null; }
+}
+
+export function assertExpectedReviewParity(debugPayload, args) {
+  const expected = {
+    candidateId: String(args.expectedCandidateId || ''),
+    poseSha: String(args.expectedPoseSha || ''),
+    candidateModuleSha: String(args.expectedCandidateModuleSha || ''),
+  };
+  const appliedProof = appliedProofFromDataset(debugPayload?.dataset);
+  const actual = {
+    candidateId: String(debugPayload?.dataset?.reviewCandidateId || ''),
+    poseSha: String(debugPayload?.dataset?.reviewPoseSha || ''),
+    candidateModuleSha: String(debugPayload?.dataset?.reviewCandidateModuleSha || ''),
+    appliedProof,
+  };
+  const mismatches = [];
+  if (expected.candidateId && actual.candidateId !== expected.candidateId) {
+    mismatches.push(`candidate id expected ${expected.candidateId}, got ${actual.candidateId || 'missing'}`);
+  }
+  if (expected.poseSha && actual.poseSha !== expected.poseSha) {
+    mismatches.push(`pose SHA expected ${expected.poseSha}, got ${actual.poseSha || 'missing'}`);
+  }
+  if (expected.candidateModuleSha && actual.candidateModuleSha !== expected.candidateModuleSha) {
+    mismatches.push(`candidate module SHA expected ${expected.candidateModuleSha}, got ${actual.candidateModuleSha || 'missing'}`);
+  }
+  if (expected.candidateId) {
+    if (!appliedProof) mismatches.push('candidate applied proof is missing or invalid JSON');
+    else {
+      if (appliedProof.status !== 'PASS') mismatches.push(`candidate applied proof expected PASS, got ${appliedProof.status || 'missing'}`);
+      if (appliedProof.candidateId !== expected.candidateId) mismatches.push('candidate applied proof id does not match expected candidate');
+      if (appliedProof.poseSha !== expected.poseSha) mismatches.push('candidate applied proof pose SHA does not match expected pose');
+      if (appliedProof.candidateModuleSha !== expected.candidateModuleSha) mismatches.push('candidate applied proof module SHA does not match expected module');
+      if (appliedProof.exactAuthoredGlb !== true) mismatches.push('candidate applied proof must declare exactAuthoredGlb');
+      if (appliedProof.zeroMissingRequestedBones !== true || appliedProof.missingRequestedBones?.length) mismatches.push('candidate applied proof has missing requested bones');
+      if (appliedProof.allRequestedChannelsApplied !== true) mismatches.push('candidate applied proof did not apply every requested channel');
+      if (!(appliedProof.bones?.requestedCount > 0) || appliedProof.bones?.appliedCount !== appliedProof.bones?.requestedCount) mismatches.push('candidate applied proof bone counts do not match');
+      if (appliedProof.positions?.appliedCount !== appliedProof.positions?.requestedCount) mismatches.push('candidate applied proof position counts do not match');
+      if (!(appliedProof.saber?.requestedCount > 0) || appliedProof.saber?.appliedCount !== appliedProof.saber?.requestedCount) mismatches.push('candidate applied proof saber counts do not match');
+    }
+  }
+  const proof = {
+    enforced: Boolean(expected.candidateId),
+    status: mismatches.length ? 'FAIL' : expected.candidateId ? 'PASS' : 'NOT_ENFORCED',
+    expected,
+    actual,
+    mismatches,
+  };
+  if (mismatches.length) {
+    const error = new Error(`rendered candidate parity failed: ${mismatches.join('; ')}`);
+    error.reviewParity = proof;
+    throw error;
+  }
+  return proof;
 }
 
 function sha256(bytes) {
@@ -108,6 +217,27 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
   page.on('requestfailed', onRequestFailed);
   page.on('response', onResponse);
   try {
+    const failCapture = async (phase, error, debugPayload = null) => {
+      const payload = debugPayload || await collectDebug(page);
+      const failureScreenshotPath = path.join(captureDir, 'failure-screenshot.png');
+      await page.screenshot({ path: failureScreenshotPath, fullPage: false });
+      const failure = {
+        schema: 'pose-lab-v2-cloud-visual-capture-failure-v1',
+        phase,
+        label: entry.label,
+        url: page.url(),
+        error: String(error?.message || error),
+        reviewParity: error?.reviewParity || null,
+        debugPayload: payload,
+        consoleEvents,
+        pageErrors,
+        networkFailures,
+        responseStatuses,
+        screenshotPath: failureScreenshotPath,
+      };
+      await fs.writeFile(path.join(captureDir, 'failure.json'), JSON.stringify(failure, null, 2) + '\n');
+      throw new Error(`${phase} failed for ${entry.label}: ${JSON.stringify(failure)}`);
+    };
     await page.goto(entry.url, { waitUntil: 'domcontentloaded', timeout: args.timeoutMs });
     try {
       await page.waitForFunction(() => {
@@ -119,23 +249,14 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
           && (!dataset.saberVisibleInViewport || dataset.saberVisibleInViewport === 'true');
       }, null, { timeout: args.timeoutMs });
     } catch (error) {
-      const debugPayload = await collectDebug(page);
-      const failureScreenshotPath = path.join(captureDir, 'failure-screenshot.png');
-      await page.screenshot({ path: failureScreenshotPath, fullPage: false });
-      const failure = {
-        schema: 'pose-lab-v2-cloud-visual-capture-failure-v1',
-        label: entry.label,
-        url: page.url(),
-        error: String(error?.message || error),
-        debugPayload,
-        consoleEvents,
-        pageErrors,
-        networkFailures,
-        responseStatuses,
-        screenshotPath: failureScreenshotPath,
-      };
-      await fs.writeFile(path.join(captureDir, 'failure.json'), JSON.stringify(failure, null, 2) + '\n');
-      throw new Error(`visual readiness failed for ${entry.label}: ${JSON.stringify(failure)}`);
+      await failCapture('visual readiness', error);
+    }
+    const parityDebugPayload = await collectDebug(page);
+    let reviewParity;
+    try {
+      reviewParity = assertExpectedReviewParity(parityDebugPayload, args);
+    } catch (error) {
+      await failCapture('rendered candidate parity', error, parityDebugPayload);
     }
     if (entry.cameraView) {
       await page.evaluate((cameraView) => {
@@ -172,6 +293,7 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
         viewport: { width: 1366, height: 900 },
       },
       browserSocketProof: socketProof(debugPayload),
+      reviewParity,
       bootTimings: (() => { try { return JSON.parse(debugPayload?.dataset?.bootTimings || '{}'); } catch { return {}; } })(),
       debugPayload,
       consoleEvents,
@@ -179,11 +301,11 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
       networkFailures,
       responseStatuses,
       visualRead: '',
-      assertions: {},
+      assertions: { renderedCandidateParity: reviewParity.enforced ? reviewParity.status === 'PASS' : null },
     };
     await fs.writeFile(path.join(captureDir, 'visual_qa_manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
     await fs.writeFile(path.join(captureDir, 'console_network.json'), JSON.stringify({ consoleEvents, pageErrors, networkFailures, responseStatuses }, null, 2) + '\n');
-    return { label: entry.label, primeKey: entry.primeKey, time: entry.time, manifest: path.join(captureDir, 'visual_qa_manifest.json'), screenshot: screenshotPath, screenshotSha256: manifest.screenshotSha256, bootTimings: manifest.bootTimings };
+    return { label: entry.label, primeKey: entry.primeKey, time: entry.time, manifest: path.join(captureDir, 'visual_qa_manifest.json'), screenshot: screenshotPath, screenshotSha256: manifest.screenshotSha256, reviewParity, bootTimings: manifest.bootTimings };
   } finally {
     page.off('console', onConsole);
     page.off('pageerror', onPageError);
@@ -192,26 +314,36 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
   }
 }
 
-const args = parseArgs(process.argv);
-const outDir = path.resolve(args.outDir);
-await fs.mkdir(outDir, { recursive: true });
-const launchOptions = browserLaunchOptions();
-const browser = await chromium.launch(launchOptions);
-try {
-  const page = await browser.newPage({ viewport: { width: 1366, height: 900 }, deviceScaleFactor: 1 });
-  const captures = [];
-  for (let index = 0; index < args.urls.length; index += 1) {
-    captures.push(await captureOne({ page, args, entry: args.urls[index], outDir, index, launchOptions }));
+export async function main(argv = process.argv) {
+  const args = parseArgs(argv);
+  const { chromium } = await import('playwright');
+  const outDir = path.resolve(args.outDir);
+  await fs.mkdir(outDir, { recursive: true });
+  const launchOptions = browserLaunchOptions();
+  const browser = await chromium.launch(launchOptions);
+  try {
+    const page = await browser.newPage({ viewport: { width: 1366, height: 900 }, deviceScaleFactor: 1 });
+    const captures = [];
+    for (let index = 0; index < args.urls.length; index += 1) {
+      captures.push(await captureOne({ page, args, entry: args.urls[index], outDir, index, launchOptions }));
+    }
+    const batchManifest = {
+      schema: 'pose-lab-v2-cloud-visual-batch-v1',
+      target: args.target,
+      capturedAt: new Date().toISOString(),
+      expectedReviewParity: {
+        candidateId: args.expectedCandidateId || '',
+        poseSha: args.expectedPoseSha || '',
+        candidateModuleSha: args.expectedCandidateModuleSha || '',
+      },
+      captureCount: captures.length,
+      captures,
+    };
+    await fs.writeFile(path.join(outDir, 'batch_manifest.json'), JSON.stringify(batchManifest, null, 2) + '\n');
+    console.log(JSON.stringify({ ok: true, outDir, captures }, null, 2));
+  } finally {
+    await browser.close();
   }
-  const batchManifest = {
-    schema: 'pose-lab-v2-cloud-visual-batch-v1',
-    target: args.target,
-    capturedAt: new Date().toISOString(),
-    captureCount: captures.length,
-    captures,
-  };
-  await fs.writeFile(path.join(outDir, 'batch_manifest.json'), JSON.stringify(batchManifest, null, 2) + '\n');
-  console.log(JSON.stringify({ ok: true, outDir, captures }, null, 2));
-} finally {
-  await browser.close();
 }
+
+if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) await main();

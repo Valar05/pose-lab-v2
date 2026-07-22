@@ -17,13 +17,15 @@ The author owns the pose. The user does not animate it for us.
 ## Operating loop
 
 1. Start from branch `agent/crimson-foot-red-gate`.
-2. Change only one named composition relationship per pass.
-3. Push the pass. The `Crimson PR Visual Evidence` workflow runs Blender.
-4. Retrieve the `crimson-frame-zero-blender-<run-id>` artifact.
-5. Open `contact_sheet.png` and all source PNGs locally.
-6. Record the visual verdict below before changing another variable.
-7. Only after Blender survives review, export the exact keyed GLB and test browser parity.
-8. Keep the candidate `visual-pending` until explicit human approval.
+2. Import and freeze the exact `480eb888` GLB pose as the body seed; do not reconstruct its center or legs.
+3. Reset only both shoulder/arm chains, then project explicit Crimson-local elbow and wrist targets.
+4. Render and inspect the empty-handed arm checkpoint before wrist roll or sword attachment.
+5. Orient and seat the sword on the right palm, then pin the left palm to the actual oriented hilt-to-pommel segment.
+6. Push the pass. The `Crimson PR Visual Evidence` workflow authors the candidate in Blender.
+7. Retrieve the `crimson-frame-zero-blender-<run-id>` artifact and inspect every same-camera old/new pair.
+8. Commit the generated candidate only when all non-parity author gates pass and the arm silhouette is materially different.
+9. Require the browser job to render that exact candidate ID, pose SHA, authored-GLB SHA, and module SHA after Blender parity passes.
+10. Keep the candidate `visual-pending` until explicit human approval.
 
 ## Reproduction command
 
@@ -34,8 +36,8 @@ blender --background --python-exit-code 1 \
   --python tools/render_crimson_vanguard_attack1_compare_blender.py -- \
   --out-dir generated/crimson-frame-zero/<run-id> \
   --frames start \
-  --candidate-js src/review-candidates/crimson-combat-ready-vanguard-frame0-3.js \
-  --candidate-id crimson-combat-ready-vanguard-frame0-3 \
+  --candidate-js src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js \
+  --candidate-id crimson-combat-ready-vanguard-frame0-4 \
   --author-frame-zero \
   --samples 16 \
   --width 1600 \
@@ -50,9 +52,12 @@ Expected artifact contents:
 - `01-start.png`: Vanguard and Crimson together.
 - `01-start-reference-close-*.png`: five same-scale Vanguard reference views.
 - `01-start-crimson-close-*.png`: five matching Crimson views.
-- `contact_sheet.png`: the shared comparison plus all ten close views, large enough to inspect.
+- `contact_sheet.png`: two-column rejected/current pairs first, then the empty-handed checkpoint, shared comparison, and reference views.
 - `manifest.json`: authored inputs, joint/foot diagnostics, hashes, and status.
 - `authored_frame_zero.glb`: the exact one-frame Blender action.
+- `empty_handed_arm_checkpoint.png`: the arm silhouette before wrist roll and sword attachment.
+- `generated_candidate.js`: the exact browser candidate generated from the Blender-authored keyframe.
+- same-camera `rejected-baseline` and `current` views: direct evidence that both wrists and elbows materially moved.
 
 A handoff is invalid until the local file exists, opens successfully, and visibly contains the render.
 
@@ -79,6 +84,10 @@ Do not casually retune these after they pass:
 - keyed Hips translation needed for crouch depth;
 - Blender glTF export as the browser-animation authority;
 - explicit `visual-pending` acceptance state.
+- center and lower-body local transforms captured before arm authoring.
+- the rejected `480eb888` GLB hash `4e57cc6a443b6cdd0cae1177357536234e4c4e7de98069e7027af74070bd0b56` as the no-op baseline.
+- exact protected Hips, center, head, and leg channels from `crimson-frame-zero-480eb888-protected-baseline.json`.
+- a two-hand weapon contract: right palm on the hilt, left hand on the hilt-to-pommel segment, and both forearms clear of the face in the gated views.
 
 ## Verdict ledger
 
@@ -87,10 +96,10 @@ Do not casually retune these after they pass:
 | `fc2cbaba` | Rejected | Ground contact and coherent knee planes | Square vertical torso; centered roof over face; hiked shoulders; lateral-looking stance; weapon presented above body | Increase depth stagger and body turn; move hand cluster off center and down; keep elbows unequal |
 | `c9150bea` | Rejected | Ground contact; coherent depth stagger in profile | Grip and blade still occupy the face plane; shoulders remain lifted; source is too small for reliable next-pass authorship | Add same-scale source and Crimson review angles before another pose edit |
 | `ab616b2f` | Evidence gate passed | Pose unchanged from `c9150bea`; same-scale paired views now exist | Not a pose verdict | Freeze lower body and blade angle; repair the high-hand/low-elbow guard triangle |
-| `fe15d7af` | Agent visual gate passed; still unaccepted | Grounded depth stagger; restrained body turn; above-brow off-center grip; low unequal elbows; face and helmet clear in target views | Vanguard reference views hover because source grounding used animation time zero instead of the rendered start sample | Freeze Crimson pose; correct source evidence timing only |
+| `fe15d7af` | Rejected | Grounded depth stagger; restrained body turn | Arms still obscure the face and the weapon grip is unreadable; the arm-target move was too small to produce a material visual change | Freeze the accepted lower body; replace transform nudges with explicit elbow and wrist projection |
 | `9f783c96` | Rejected evidence repair | Crimson pose byte-for-byte unchanged from `fe15d7af` | Vanguard still hovers: frame evaluation overwrites transforms applied directly to animated imported roots | Ground source through a non-animated parent stage |
 | `357b674d` | Rejected evidence repair | Crimson pose byte-for-byte unchanged from `fe15d7af`; stage transform persists | Whole-asset minimum Z is not the visible boot floor; unrelated imported geometry poisons the ground measurement | Measure only vertices weighted to mapped Vanguard foot bones |
 | `8f67c891` | Rejected in CI | Crimson pose byte-for-byte unchanged from `fe15d7af` | Vanguard exposes no matching foot vertex groups for `FootFK_L/R`; render aborts before artifact creation | Fall back to evaluated mesh vertices spatially local to mapped foot bones |
-| `480eb888` | Evidence gate passed | Crimson pose byte-for-byte unchanged from `fe15d7af`; paired source/target sheet is legible; Vanguard and Crimson boots visibly contact the plane | No human acceptance yet; browser parity intentionally not attempted | Present exact Blender evidence for review; change no pose value without a new verdict |
+| `480eb888` | Rejected baseline | Crimson pose byte-for-byte unchanged from `fe15d7af`; paired source/target sheet is legible; Vanguard and Crimson boots visibly contact the plane | Arms still obscure the face, hilt contact is unreadable, and repeated screenshots did not show a materially new pose | Keep this artifact only as the no-op comparison; do not hand it off again |
 
 Append a row for every pass. Never rewrite a rejection into a success because a later pass improved.

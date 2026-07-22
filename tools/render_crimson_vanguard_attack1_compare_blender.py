@@ -28,12 +28,29 @@ CRIMSON_GLB = ROOT / "public" / "assets" / "crimson" / "crimson_plume_knight_rig
 SWORD_GLB = ROOT / "public" / "assets" / "crimson" / "arborblade_sword.glb"
 REFERENCE_JSON = ROOT / "public" / "assets" / "crimson" / "vanguard_swordattack1_reference.json"
 CALIBRATION_JSON = ROOT / "public" / "assets" / "crimson" / "crimson_sword_calibration.json"
+PROTECTED_BODY_BASELINE_JSON = ROOT / "public" / "assets" / "crimson" / "crimson-frame-zero-480eb888-protected-baseline.json"
 CANDIDATE_JS = ROOT / "src" / "review-candidates" / "crimson-light-attack1-vanguard-4.js"
 DEFAULT_OUT = ROOT / "generated" / "crimson-vanguard-attack1-compare" / "latest"
 SCHEMA = "pose-lab-v2-crimson-vanguard-attack1-blender-compare-v1"
 BROWSER_TO_BLENDER = Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
 BLENDER_TO_BROWSER = BROWSER_TO_BLENDER.inverted()
 FRAME_LABELS = ["start", "earlyWindup", "anticipation", "snapPrep", "contact", "contactHold", "settle", "followThrough"]
+AUTHORED_BONE_NAMES = [
+    "Hips", "Spine", "Spine01", "Spine02", "neck", "Head",
+    "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand",
+    "RightShoulder", "RightArm", "RightForeArm", "RightHand",
+    "LeftUpLeg", "LeftLeg", "LeftFoot",
+    "RightUpLeg", "RightLeg", "RightFoot",
+]
+PROTECTED_BODY_POSITION_NAMES = {"Hips"}
+PROTECTED_BODY_BONE_NAMES = {
+    "Hips", "Spine", "Spine01", "Spine02", "neck", "Head",
+    "LeftUpLeg", "LeftLeg", "LeftFoot",
+    "RightUpLeg", "RightLeg", "RightFoot",
+}
+REJECTED_480_AUTHORED_GLB_SHA256 = "4e57cc6a443b6cdd0cae1177357536234e4c4e7de98069e7027af74070bd0b56"
+REJECTED_480_POSE_SHA256 = "b5ef5555ba060546f4d6dd3921f09cf0e4251dfac8a346d4db7f4f30858bd554"
+REJECTED_480_CANDIDATE_ID = "crimson-frame-zero-480eb888-rejected"
 
 
 def utc_now() -> str:
@@ -48,6 +65,10 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
+
+
 def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -57,7 +78,47 @@ def load_candidate(path: Path) -> dict:
     match = re.search(r"export const \w+ = (.*);\s*$", text, re.S)
     if not match:
         raise RuntimeError(f"candidate module is not a plain exported object: {path}")
-    return json.loads(match.group(1))
+    payload = match.group(1)
+    try:
+        return json.loads(payload)
+    except json.JSONDecodeError:
+        # Historical review candidates are JSON-shaped ESM object literals
+        # (single quoted strings, unquoted keys, and trailing commas). Keep the
+        # reader compatible with those committed candidates while generated
+        # candidates use strict JSON inside the ESM export.
+        payload = re.sub(
+            r'([\{,]\s*)([A-Za-z_$][A-Za-z0-9_$]*)(\s*:)',
+            r'\1"\2"\3',
+            payload,
+        )
+        converted = []
+        index = 0
+        while index < len(payload):
+            if payload[index] != "'":
+                converted.append(payload[index])
+                index += 1
+                continue
+            index += 1
+            value = []
+            while index < len(payload):
+                character = payload[index]
+                if character == "\\" and index + 1 < len(payload):
+                    following = payload[index + 1]
+                    if following == "'":
+                        value.append("'")
+                    else:
+                        value.extend((character, following))
+                    index += 2
+                    continue
+                if character == "'":
+                    index += 1
+                    break
+                value.append(character)
+                index += 1
+            converted.append(json.dumps("".join(value)))
+        payload = "".join(converted)
+        payload = re.sub(r",\s*([}\]])", r"\1", payload)
+        return json.loads(payload)
 
 
 def pad4(data: bytes, byte: bytes = b"\x00") -> bytes:
@@ -84,6 +145,161 @@ def parse_glb(path: Path) -> tuple[dict, bytes]:
     if gltf is None:
         raise RuntimeError(f"GLB has no JSON chunk: {path}")
     return gltf, bin_chunk
+
+
+def read_accessor_values(gltf: dict, bin_chunk: bytes, accessor_index: int) -> list[list[float]]:
+    accessor = gltf["accessors"][accessor_index]
+    if accessor.get("sparse"):
+        raise RuntimeError(f"sparse GLB accessor is unsupported: {accessor_index}")
+    view = gltf["bufferViews"][accessor["bufferView"]]
+    if view.get("buffer", 0) != 0:
+        raise RuntimeError(f"external GLB buffer is unsupported: accessor {accessor_index}")
+    component_formats = {
+        5120: ("b", 1),
+        5121: ("B", 1),
+        5122: ("h", 2),
+        5123: ("H", 2),
+        5125: ("I", 4),
+        5126: ("f", 4),
+    }
+    component_counts = {
+        "SCALAR": 1,
+        "VEC2": 2,
+        "VEC3": 3,
+        "VEC4": 4,
+        "MAT4": 16,
+    }
+    try:
+        component_format, component_size = component_formats[accessor["componentType"]]
+        component_count = component_counts[accessor["type"]]
+    except KeyError as error:
+        raise RuntimeError(f"unsupported GLB accessor layout: {accessor}") from error
+    packed_size = component_size * component_count
+    stride = view.get("byteStride", packed_size)
+    base = view.get("byteOffset", 0) + accessor.get("byteOffset", 0)
+    values = []
+    for index in range(accessor["count"]):
+        values.append(list(struct.unpack_from(
+            "<" + component_format * component_count,
+            bin_chunk,
+            base + index * stride,
+        )))
+    return values
+
+
+def extract_authored_frame_from_glb(
+    path: Path,
+    action_name: str,
+    calibration: dict,
+) -> tuple[dict, dict]:
+    """Extract browser locals from the exact exported glTF animation authority."""
+    gltf, bin_chunk = parse_glb(path)
+    matches = [
+        animation
+        for animation in gltf.get("animations", [])
+        if animation.get("name") == action_name
+    ]
+    if len(matches) != 1:
+        available = [animation.get("name") for animation in gltf.get("animations", [])]
+        raise RuntimeError(
+            f"expected one exported GLB animation named {action_name!r}; "
+            f"matches={len(matches)} available={available}"
+        )
+    animation = matches[0]
+    bones = {}
+    positions = {}
+    extracted_channels = []
+    exported_sample_times = []
+    for channel in animation.get("channels", []):
+        target = channel.get("target", {})
+        node_index = target.get("node")
+        path_name = target.get("path")
+        if node_index is None:
+            continue
+        node_name = gltf["nodes"][node_index].get("name")
+        canonical_channel = (
+            path_name == "rotation" and node_name in AUTHORED_BONE_NAMES
+        ) or (
+            path_name == "translation" and node_name == "Hips"
+        )
+        if not canonical_channel:
+            continue
+        sampler = animation["samplers"][channel["sampler"]]
+        input_samples = read_accessor_values(gltf, bin_chunk, sampler["input"])
+        samples = read_accessor_values(gltf, bin_chunk, sampler["output"])
+        if len(input_samples) != 1 or len(samples) != 1:
+            raise RuntimeError(
+                "canonical exported channel must contain exactly one matching input/output sample: "
+                f"{node_name}.{path_name} inputs={len(input_samples)} outputs={len(samples)}"
+            )
+        expected_components = 4 if path_name == "rotation" else 3
+        if len(input_samples[0]) != 1 or len(samples[0]) != expected_components:
+            raise RuntimeError(
+                "canonical exported channel has the wrong component count: "
+                f"{node_name}.{path_name} inputComponents={len(input_samples[0])} "
+                f"outputComponents={len(samples[0])} expectedOutputComponents={expected_components}"
+            )
+        input_time = float(input_samples[0][0])
+        if not math.isfinite(input_time):
+            raise RuntimeError(
+                f"canonical exported channel has a non-finite sample time: "
+                f"{node_name}.{path_name} time={input_time}"
+            )
+        exported_sample_times.append((f"{node_name}.{path_name}", input_time))
+        if any(not math.isfinite(float(value)) for value in samples[0]):
+            raise RuntimeError(
+                f"canonical exported channel has non-finite output values: {node_name}.{path_name}"
+            )
+        values = [round(float(value), 8) for value in samples[0]]
+        if path_name == "rotation" and node_name in AUTHORED_BONE_NAMES:
+            if node_name in bones:
+                raise RuntimeError(f"duplicate canonical rotation channel: {node_name}")
+            bones[node_name] = values
+            extracted_channels.append(f"{node_name}.rotation")
+        elif path_name == "translation" and node_name == "Hips":
+            if node_name in positions:
+                raise RuntimeError(f"duplicate canonical translation channel: {node_name}")
+            positions[node_name] = values
+            extracted_channels.append(f"{node_name}.translation")
+    missing_rotations = sorted(set(AUTHORED_BONE_NAMES) - set(bones))
+    if missing_rotations or "Hips" not in positions:
+        raise RuntimeError(
+            "exact authored GLB is missing canonical channels: "
+            f"rotations={missing_rotations}, hipsTranslation={'Hips' not in positions}"
+        )
+    exported_time_values = [value for _channel, value in exported_sample_times]
+    exported_input_time = exported_time_values[0]
+    if max(exported_time_values) - min(exported_time_values) > 0.000001:
+        raise RuntimeError(
+            "canonical exported channels do not share one authored sample time: "
+            + ", ".join(
+                f"{channel}={value:.9f}"
+                for channel, value in exported_sample_times
+            )
+        )
+    frame = {
+        "label": "start",
+        "time": 0,
+        "positions": positions,
+        "sabreLocal": authored_sabre_local(calibration),
+        "bones": bones,
+    }
+    pose_sha = sha256_bytes(canonical_frame_bytes(frame))
+    return frame, {
+        "authority": {
+            "bonesAndHips": "authored_frame_zero.glb CrimsonCombatReadyFrameZero animation channels",
+            "sabreLocal": "newly baked calibration and weapon seating solve; the character GLB contains no sword transform",
+        },
+        "animation": action_name,
+        "exportedInputTimeSeconds": round(exported_input_time, 9),
+        "canonicalCandidateTimeSeconds": 0,
+        "timeNormalization": "the sole consistent Blender-authored sample is represented as candidate frame-zero time 0",
+        "canonicalSamplesPerChannel": 1,
+        "channelCount": len(extracted_channels),
+        "channels": sorted(extracted_channels),
+        "poseSha256": pose_sha,
+        "glbSha256": sha256(path),
+    }
 
 
 def write_glb(path: Path, gltf: dict, bin_chunk: bytes) -> None:
@@ -174,6 +390,8 @@ def crimson_node_frames(candidate: dict) -> tuple[list[dict], dict[str, dict[str
         label = frame["label"]
         if label not in FRAME_LABELS:
             continue
+        for bone, position in (frame.get("positions") or {}).items():
+            node_frames.setdefault(bone, {}).setdefault("translation", {})[label] = position
         for bone, quat in (frame.get("bones") or {}).items():
             node_frames.setdefault(bone, {}).setdefault("rotation", {})[label] = quat
     return frames, node_frames
@@ -205,6 +423,32 @@ def import_glb(path: Path) -> list[bpy.types.Object]:
     before = set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=str(path))
     return [obj for obj in bpy.data.objects if obj not in before]
+
+
+def delete_imported_objects_and_actions(
+    objects: list[bpy.types.Object],
+    actions_before: set,
+) -> None:
+    for obj in objects:
+        bpy.data.objects.remove(obj, do_unlink=True)
+    for action in list(bpy.data.actions):
+        if action not in actions_before:
+            bpy.data.actions.remove(action)
+    bpy.context.view_layer.update()
+
+
+def freeze_armature_pose_and_remove_new_actions(
+    armature: bpy.types.Object,
+    actions_before: set,
+) -> None:
+    bases = {bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones}
+    armature.animation_data_clear()
+    for bone_name, basis in bases.items():
+        armature.pose.bones[bone_name].matrix_basis = basis
+    for action in list(bpy.data.actions):
+        if action not in actions_before:
+            bpy.data.actions.remove(action)
+    bpy.context.view_layer.update()
 
 
 def top_level(objects: list[bpy.types.Object]) -> list[bpy.types.Object]:
@@ -313,10 +557,19 @@ def browser_matrix(matrix: Matrix) -> Matrix:
 
 def transform_matrix(transform: dict) -> Matrix:
     position = transform.get("position") or [0, 0, 0]
-    rotation_deg = transform.get("rotationDeg") or [0, 0, 0]
     scale = transform.get("scale") or [1, 1, 1]
     translation = Matrix.Translation(Vector(position))
-    rotation = Euler(tuple(math.radians(v) for v in rotation_deg), "XYZ").to_matrix().to_4x4()
+    quaternion = transform.get("quaternion")
+    if quaternion:
+        rotation = Quaternion((
+            float(quaternion[3]),
+            float(quaternion[0]),
+            float(quaternion[1]),
+            float(quaternion[2]),
+        )).normalized().to_matrix().to_4x4()
+    else:
+        rotation_deg = transform.get("rotationDeg") or [0, 0, 0]
+        rotation = Euler(tuple(math.radians(v) for v in rotation_deg), "XYZ").to_matrix().to_4x4()
     scaling = Matrix.Diagonal((scale[0], scale[1], scale[2], 1.0))
     return translation @ rotation @ scaling
 
@@ -397,12 +650,35 @@ def apply_crimson_candidate_pose(armature: bpy.types.Object, candidate: dict, la
     if not frame:
         raise RuntimeError(f"missing Crimson candidate frame {label}")
     missing = []
+    for bone_name, position in (frame.get("positions") or {}).items():
+        bone = armature.pose.bones.get(bone_name)
+        if not bone:
+            missing.append(bone_name)
+            continue
+        bone.location = tuple(float(value) for value in position)
     for bone_name, quat in (frame.get("bones") or {}).items():
         if not apply_bone_quaternion(armature, bone_name, quat):
             missing.append(bone_name)
     if missing:
         raise RuntimeError(f"Crimson Blender armature missing candidate bones: {missing[:8]}")
     bpy.context.view_layer.update()
+
+
+def validate_requested_candidate(candidate: dict, requested_id: str) -> dict:
+    if candidate.get("id") != requested_id:
+        raise RuntimeError(
+            f"comparison candidate mismatch: expected {requested_id}, got {candidate.get('id')}"
+        )
+    frame = next(
+        (entry for entry in candidate.get("frames", []) if entry.get("label") == "start"),
+        None,
+    )
+    if not frame:
+        raise RuntimeError(f"requested candidate {requested_id} has no start frame")
+    canonical = canonical_frame(frame)
+    if not canonical["bones"]:
+        raise RuntimeError(f"requested candidate {requested_id} start frame has no bones")
+    return canonical
 
 
 def apply_vanguard_reference_pose(armature: bpy.types.Object, reference: dict, label: str) -> None:
@@ -454,21 +730,299 @@ def clear_pose(armature: bpy.types.Object) -> None:
 
 
 def export_authored_pose(armature: bpy.types.Object) -> dict[str, list[float]]:
-    names = [
-        "Hips", "Spine", "Spine01", "Spine02", "neck", "Head",
-        "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand",
-        "RightShoulder", "RightArm", "RightForeArm", "RightHand",
-        "LeftUpLeg", "LeftLeg", "LeftFoot",
-        "RightUpLeg", "RightLeg", "RightFoot",
-    ]
     result = {}
-    for name in names:
+    for name in AUTHORED_BONE_NAMES:
         bone = armature.pose.bones.get(name)
         if not bone:
             continue
         quaternion = bone.matrix_basis.to_quaternion().normalized()
         result[name] = [round(quaternion.x, 8), round(quaternion.y, 8), round(quaternion.z, 8), round(quaternion.w, 8)]
     return result
+
+
+def export_authored_positions(armature: bpy.types.Object) -> dict[str, list[float]]:
+    """Export keyed local translations without laundering tiny rotation noise into positions."""
+    result = {}
+    for name in ["Hips"]:
+        bone = armature.pose.bones.get(name)
+        if not bone:
+            continue
+        translation = bone.matrix_basis.to_translation()
+        result[name] = [round(value, 8) for value in translation]
+    return result
+
+
+def authored_sabre_local(calibration: dict) -> dict:
+    transform = calibration["swordLocal"]
+    quaternion = Euler(
+        tuple(math.radians(value) for value in transform["rotationDeg"]),
+        "XYZ",
+    ).to_quaternion().normalized()
+    return {
+        "position": [round(float(value), 8) for value in transform["position"]],
+        "quaternion": [
+            round(quaternion.x, 8),
+            round(quaternion.y, 8),
+            round(quaternion.z, 8),
+            round(quaternion.w, 8),
+        ],
+        "scale": [round(float(value), 8) for value in transform["scale"]],
+    }
+
+
+def canonical_frame(frame: dict) -> dict:
+    """Return the exact payload whose bytes define one authored pose."""
+    return {
+        "label": frame.get("label"),
+        "time": frame.get("time"),
+        "positions": frame.get("positions") or {},
+        "sabreLocal": frame.get("sabreLocal") or {},
+        "bones": frame.get("bones") or {},
+    }
+
+
+def canonical_frame_bytes(frame: dict) -> bytes:
+    return json.dumps(
+        canonical_frame(frame),
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+
+
+def validate_protected_body_baseline(baseline: dict) -> None:
+    """Reject any baseline that weakens the exact accepted-body lock."""
+    if baseline.get("schema") != "pose-lab-v2-crimson-frame-zero-protected-baseline-v1":
+        raise RuntimeError(
+            f"unexpected protected-body baseline schema: {baseline.get('schema')}"
+        )
+    if baseline.get("authoredGlbSha256") != REJECTED_480_AUTHORED_GLB_SHA256:
+        raise RuntimeError(
+            "protected-body baseline is not bound to the canonical rejected-480 GLB: "
+            f"got {baseline.get('authoredGlbSha256')}"
+        )
+    positions = baseline.get("positions")
+    bones = baseline.get("bones")
+    if not isinstance(positions, dict) or set(positions) != PROTECTED_BODY_POSITION_NAMES:
+        raise RuntimeError(
+            "protected-body baseline position keys must be exact: "
+            f"got={sorted(positions) if isinstance(positions, dict) else positions} "
+            f"expected={sorted(PROTECTED_BODY_POSITION_NAMES)}"
+        )
+    if not isinstance(bones, dict) or set(bones) != PROTECTED_BODY_BONE_NAMES:
+        raise RuntimeError(
+            "protected-body baseline bone keys must be exact: "
+            f"got={sorted(bones) if isinstance(bones, dict) else bones} "
+            f"expected={sorted(PROTECTED_BODY_BONE_NAMES)}"
+        )
+    for channel, values, component_count in [
+        *((f"{name}.translation", positions[name], 3) for name in sorted(positions)),
+        *((f"{name}.rotation", bones[name], 4) for name in sorted(bones)),
+    ]:
+        valid = (
+            isinstance(values, list)
+            and len(values) == component_count
+            and all(
+                isinstance(value, (int, float))
+                and not isinstance(value, bool)
+                and math.isfinite(float(value))
+                for value in values
+            )
+        )
+        if not valid:
+            raise RuntimeError(
+                f"protected-body baseline channel {channel} must contain "
+                f"{component_count} finite numeric components: {values}"
+            )
+
+
+def validate_protected_body_against_rejected_frame(baseline: dict, rejected_frame: dict) -> None:
+    """Bind the separate lock file to the runtime-validated exact rejected frame."""
+    expected_positions = {
+        name: rejected_frame.get("positions", {}).get(name)
+        for name in sorted(PROTECTED_BODY_POSITION_NAMES)
+    }
+    expected_bones = {
+        name: rejected_frame.get("bones", {}).get(name)
+        for name in sorted(PROTECTED_BODY_BONE_NAMES)
+    }
+    if baseline.get("positions") != expected_positions or baseline.get("bones") != expected_bones:
+        raise RuntimeError(
+            "protected-body baseline values do not exactly match the runtime-validated rejected-480 frame"
+        )
+
+
+def protected_body_parity_report(frame: dict, baseline: dict) -> dict:
+    """Prove the new arm pass did not move the canonical center or lower body."""
+    position_tolerance = 0.00001
+    quaternion_tolerance = 0.000001
+    position_reports = {}
+    quaternion_reports = {}
+    failures = []
+
+    for name, expected in baseline.get("positions", {}).items():
+        actual = (frame.get("positions") or {}).get(name)
+        delta = None
+        if actual is not None and len(actual) == len(expected):
+            delta = max(abs(float(left) - float(right)) for left, right in zip(actual, expected))
+        passed = delta is not None and delta <= position_tolerance
+        position_reports[name] = {
+            "baseline": expected,
+            "generated": actual,
+            "maxAbsDelta": round(delta, 9) if delta is not None else None,
+            "status": "PASS" if passed else "FAIL",
+        }
+        if not passed:
+            failures.append({
+                "channel": f"{name}.translation",
+                "actual": position_reports[name],
+                "expected": f"maxAbsDelta <= {position_tolerance}",
+            })
+
+    for name, expected in baseline.get("bones", {}).items():
+        actual = (frame.get("bones") or {}).get(name)
+        delta = None
+        if actual is not None and len(actual) == len(expected):
+            same_sign = max(
+                abs(float(left) - float(right))
+                for left, right in zip(actual, expected)
+            )
+            opposite_sign = max(
+                abs(float(left) + float(right))
+                for left, right in zip(actual, expected)
+            )
+            delta = min(same_sign, opposite_sign)
+        passed = delta is not None and delta <= quaternion_tolerance
+        quaternion_reports[name] = {
+            "baseline": expected,
+            "generated": actual,
+            "signInvariantMaxComponentDelta": round(delta, 9) if delta is not None else None,
+            "status": "PASS" if passed else "FAIL",
+        }
+        if not passed:
+            failures.append({
+                "channel": f"{name}.rotation",
+                "actual": quaternion_reports[name],
+                "expected": f"signInvariantMaxComponentDelta <= {quaternion_tolerance}",
+            })
+
+    position_deltas = [
+        report["maxAbsDelta"]
+        for report in position_reports.values()
+        if report["maxAbsDelta"] is not None
+    ]
+    quaternion_deltas = [
+        report["signInvariantMaxComponentDelta"]
+        for report in quaternion_reports.values()
+        if report["signInvariantMaxComponentDelta"] is not None
+    ]
+    return {
+        "status": "FAIL" if failures else "PASS",
+        "baseline": {
+            "path": str(PROTECTED_BODY_BASELINE_JSON.relative_to(ROOT)),
+            "sha256": sha256(PROTECTED_BODY_BASELINE_JSON),
+            "sourceCommit": baseline.get("sourceCommit"),
+            "authoredGlbSha256": baseline.get("authoredGlbSha256"),
+            "contract": baseline.get("protectedContract"),
+        },
+        "tolerances": {
+            "positionMaxAbs": position_tolerance,
+            "quaternionSignInvariantMaxComponent": quaternion_tolerance,
+        },
+        "maxPositionDelta": max(position_deltas, default=None),
+        "maxQuaternionDelta": max(quaternion_deltas, default=None),
+        "positions": position_reports,
+        "bones": quaternion_reports,
+        "failures": failures,
+    }
+
+
+def pose_basis_snapshot(armature: bpy.types.Object, names: list[str]) -> dict[str, list[float]]:
+    snapshot = {}
+    for name in names:
+        bone = armature.pose.bones.get(name)
+        if bone:
+            snapshot[name] = [round(float(value), 12) for row in bone.matrix_basis for value in row]
+    return snapshot
+
+
+def pose_basis_lock_report(armature: bpy.types.Object, expected: dict[str, list[float]], stage: str) -> dict:
+    actual = pose_basis_snapshot(armature, list(expected))
+    deltas = {
+        name: max(abs(before - after) for before, after in zip(values, actual.get(name, [])))
+        if len(actual.get(name, [])) == len(values)
+        else float("inf")
+        for name, values in expected.items()
+    }
+    maximum = max(deltas.values(), default=0.0)
+    expected_bytes = json.dumps(expected, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    actual_bytes = json.dumps(actual, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return {
+        "stage": stage,
+        "bones": list(expected),
+        "snapshotSha256": sha256_bytes(expected_bytes),
+        "actualSha256": sha256_bytes(actual_bytes),
+        "maxAbsBasisDelta": round(maximum, 12),
+        "unchanged": maximum <= 0.0000001,
+    }
+
+
+def arm_landmarks(armature: bpy.types.Object) -> dict[str, list[float]]:
+    names = [
+        "LeftArm", "LeftForeArm", "LeftHand",
+        "RightArm", "RightForeArm", "RightHand",
+        "neck", "Head",
+    ]
+    return {
+        name: [round(value, 6) for value in find_pose_bone_world(armature, name).translation]
+        for name in names
+        if armature.pose.bones.get(name)
+    }
+
+
+def arm_landmark_delta(before: dict[str, list[float]], after: dict[str, list[float]], body_scale: float) -> dict:
+    required_thresholds = {
+        "LeftHand": 0.10,
+        "RightHand": 0.10,
+        "LeftForeArm": 0.08,
+        "RightForeArm": 0.08,
+    }
+    landmarks = {}
+    for name in sorted(set(before) & set(after)):
+        delta = (Vector(after[name]) - Vector(before[name])).length
+        delta_body_scale = delta / max(body_scale, 0.000001)
+        required_threshold = required_thresholds.get(name)
+        landmarks[name] = {
+            "committedRejectedWorld": before[name],
+            "authoredWorld": after[name],
+            "deltaWorld": round(delta, 6),
+            "deltaBodyScale": round(delta_body_scale, 6),
+            "requiredThresholdBodyScale": required_threshold,
+            "status": (
+                "PASS"
+                if required_threshold is None or delta_body_scale >= required_threshold
+                else "FAIL"
+            ),
+        }
+    required = {}
+    for name, threshold in required_thresholds.items():
+        report = landmarks.get(name)
+        passed = report is not None and report["deltaBodyScale"] >= threshold
+        required[name] = {
+            "role": "wrist" if name.endswith("Hand") else "elbow/forearm head",
+            "thresholdBodyScale": threshold,
+            "deltaBodyScale": report["deltaBodyScale"] if report else None,
+            "status": "PASS" if passed else "FAIL",
+        }
+    materially_different = all(
+        report["status"] == "PASS"
+        for report in required.values()
+    )
+    return {
+        "bodyScale": round(body_scale, 6),
+        "landmarks": landmarks,
+        "requiredLandmarks": required,
+        "materiallyDifferent": materially_different,
+    }
 
 
 def export_authored_glb(objects: list[bpy.types.Object], armature: bpy.types.Object, path: Path) -> dict:
@@ -676,6 +1230,107 @@ def solve_chain_with_pole(
     }
 
 
+def project_elbow_to_two_bone_circle(
+    shoulder: Vector,
+    requested_wrist: Vector,
+    authored_elbow_hint: Vector,
+    upper_length: float,
+    lower_length: float,
+) -> tuple[Vector, Vector, dict]:
+    """Project an authored hint onto the exact elbow circle for a reachable wrist."""
+    shoulder_to_wrist = requested_wrist - shoulder
+    requested_distance = shoulder_to_wrist.length
+    if requested_distance < 0.000001:
+        shoulder_to_wrist = Vector((0.0, -1.0, 0.0))
+        requested_distance = 1.0
+    axis = shoulder_to_wrist.normalized()
+    minimum = abs(upper_length - lower_length) + 0.00001
+    maximum = upper_length + lower_length - 0.00001
+    target_distance = min(max(requested_distance, minimum), maximum)
+    target_wrist = shoulder + axis * target_distance
+    circle_offset = (
+        upper_length * upper_length
+        - lower_length * lower_length
+        + target_distance * target_distance
+    ) / (2.0 * target_distance)
+    circle_radius = math.sqrt(max(0.0, upper_length * upper_length - circle_offset * circle_offset))
+    circle_center = shoulder + axis * circle_offset
+    hint_radial = authored_elbow_hint - circle_center
+    hint_radial -= axis * hint_radial.dot(axis)
+    if hint_radial.length < 0.000001:
+        fallback = axis.cross(Vector((0.0, 0.0, 1.0)))
+        if fallback.length < 0.000001:
+            fallback = axis.cross(Vector((1.0, 0.0, 0.0)))
+        hint_radial = fallback
+    elbow = circle_center + hint_radial.normalized() * circle_radius
+    projection = {
+        "requestedWrist": [round(value, 6) for value in requested_wrist],
+        "reachableWrist": [round(value, 6) for value in target_wrist],
+        "authoredElbowHint": [round(value, 6) for value in authored_elbow_hint],
+        "projectedElbow": [round(value, 6) for value in elbow],
+        "upperLength": round(upper_length, 6),
+        "lowerLength": round(lower_length, 6),
+        "requestedReach": round(requested_distance, 6),
+        "reachableRange": [round(minimum, 6), round(maximum, 6)],
+        "wristClampDistance": round((target_wrist - requested_wrist).length, 6),
+        "circleCenter": [round(value, 6) for value in circle_center],
+        "circleRadius": round(circle_radius, 6),
+        "elbowUpperLengthError": round(abs((elbow - shoulder).length - upper_length), 9),
+        "elbowLowerLengthError": round(abs((target_wrist - elbow).length - lower_length), 9),
+    }
+    return elbow, target_wrist, projection
+
+
+def solve_two_bone_elbow_wrist_pin(
+    armature: bpy.types.Object,
+    chain: list[str],
+    requested_wrist: Vector,
+    authored_elbow_hint: Vector,
+) -> dict:
+    """Solve direction once per segment after projecting a physically valid elbow."""
+    upper_name, lower_name, end_name = chain
+    shoulder = find_pose_bone_world(armature, upper_name).translation
+    initial_elbow = find_pose_bone_world(armature, lower_name).translation
+    initial_wrist = find_pose_bone_world(armature, end_name).translation
+    upper_length = (initial_elbow - shoulder).length
+    lower_length = (initial_wrist - initial_elbow).length
+    target_elbow, target_wrist, projection = project_elbow_to_two_bone_circle(
+        shoulder,
+        requested_wrist,
+        authored_elbow_hint,
+        upper_length,
+        lower_length,
+    )
+
+    rotate_pose_bone_world(
+        armature,
+        upper_name,
+        initial_elbow - shoulder,
+        target_elbow - shoulder,
+    )
+    actual_elbow = find_pose_bone_world(armature, lower_name).translation
+    wrist_after_upper = find_pose_bone_world(armature, end_name).translation
+    rotate_pose_bone_world(
+        armature,
+        lower_name,
+        wrist_after_upper - actual_elbow,
+        target_wrist - actual_elbow,
+    )
+    actual_elbow = find_pose_bone_world(armature, lower_name).translation
+    actual_wrist = find_pose_bone_world(armature, end_name).translation
+    return {
+        "chain": chain,
+        "projection": projection,
+        "targetElbow": [round(value, 6) for value in target_elbow],
+        "actualElbow": [round(value, 6) for value in actual_elbow],
+        "targetWrist": [round(value, 6) for value in target_wrist],
+        "actualWrist": [round(value, 6) for value in actual_wrist],
+        "elbowPinError": round((actual_elbow - target_elbow).length, 9),
+        "wristPinError": round((actual_wrist - target_wrist).length, 9),
+        "requestedWristError": round((actual_wrist - requested_wrist).length, 9),
+    }
+
+
 def pose_bone_world_direction(armature: bpy.types.Object, bone_name: str) -> Vector:
     bone = armature.pose.bones.get(bone_name)
     if not bone:
@@ -693,75 +1348,26 @@ def aim_pose_bone_direction(armature: bpy.types.Object, bone_name: str, desired_
 def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> dict:
     # Vanguard remains on screen as visual reference only. This function never
     # reads source_armature or logical_bones. IK pins relationships deliberately
-    # chosen for Crimson; it does not derive targets from Vanguard.
-    clear_pose(target_armature)
+    # chosen for Crimson; it does not derive targets from Vanguard. The incoming
+    # armature is already frozen at the exact rejected-480 GLB pose. Capture the
+    # complete accepted body before touching only the two arm chains.
+    protected_body_names = sorted(PROTECTED_BODY_BONE_NAMES | {"LeftToeBase", "RightToeBase"})
+    protected_body_basis = pose_basis_snapshot(target_armature, protected_body_names)
 
-    preserved_feet = {
-        name: find_pose_bone_world(target_armature, name).to_quaternion()
-        for name in ["LeftFoot", "RightFoot"]
-    }
-
-    # Restrained center. The body inclines into the guard without asking the
-    # pelvis to manufacture the pose.
-    center_rotations = [
-        ("Hips", (0, 0, 1), -22.0),
-        ("Hips", (1, 0, 0), 5.0),
-        ("Spine", (1, 0, 0), 12.0),
-        ("Spine01", (0, 0, 1), 4.0),
-        ("Spine02", (0, 0, 1), 5.0),
-        ("neck", (0, 0, 1), 3.0),
+    authored_arm_names = [
+        "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand",
+        "RightShoulder", "RightArm", "RightForeArm", "RightHand",
     ]
-    for bone_name, axis, degrees in center_rotations:
-        rotate_pose_bone_world_axis(target_armature, bone_name, Vector(axis), degrees)
-
-    # Native Crimson leg IK. End targets create the stagger; poles establish the
-    # knee planes. Both knees travel toward the threat (-Y), with a small outward
-    # component so neither chain corkscrews inward.
-    left_hip = find_pose_bone_world(target_armature, "LeftUpLeg").translation
-    right_hip = find_pose_bone_world(target_armature, "RightUpLeg").translation
-    left_ankle = find_pose_bone_world(target_armature, "LeftFoot").translation
-    right_ankle = find_pose_bone_world(target_armature, "RightFoot").translation
-    leg_scale = max((left_hip - left_ankle).length, (right_hip - right_ankle).length)
-    hips_bone = target_armature.pose.bones.get("Hips")
-    if not hips_bone:
-        raise RuntimeError("missing target pose bone Hips")
-    hips_drop_world = Vector((0.0, 0.0, -0.20 * leg_scale))
-    hips_matrix = hips_bone.matrix.copy()
-    hips_matrix.translation = hips_matrix.translation + (
-        target_armature.matrix_world.inverted().to_3x3() @ hips_drop_world
-    )
-    hips_bone.matrix = hips_matrix
-    bpy.context.view_layer.update()
-    leg_reports = [
-        solve_chain_with_pole(
-            target_armature,
-            ["LeftUpLeg", "LeftLeg", "LeftFoot"],
-            left_ankle + Vector((0.10 * leg_scale, -0.34 * leg_scale, 0.0)),
-            left_hip + Vector((0.10 * leg_scale, -0.74 * leg_scale, -0.42 * leg_scale)),
-            iterations=24,
-        ),
-        solve_chain_with_pole(
-            target_armature,
-            ["RightUpLeg", "RightLeg", "RightFoot"],
-            right_ankle + Vector((-0.06 * leg_scale, 0.18 * leg_scale, 0.0)),
-            right_hip + Vector((-0.06 * leg_scale, -0.56 * leg_scale, -0.38 * leg_scale)),
-            iterations=24,
-        ),
-    ]
-
-    # Restore flat boot orientation after the leg chains move the ankles.
-    for name, rotation in preserved_feet.items():
-        set_pose_bone_world_rotation(target_armature, name, rotation)
-
-    # Neutral clavicles first. The hands are close enough to own one hilt, but
-    # deliberately offset so the arms do not form a mirrored prayer knot.
-    for shoulder_name in ["LeftShoulder", "RightShoulder"]:
-        shoulder = target_armature.pose.bones.get(shoulder_name)
-        if shoulder:
-            shoulder.matrix_basis.identity()
+    for bone_name in authored_arm_names:
+        bone = target_armature.pose.bones.get(bone_name)
+        if not bone:
+            raise RuntimeError(f"missing target arm bone {bone_name}")
+        bone.matrix_basis.identity()
     bpy.context.view_layer.update()
 
-    chest = find_pose_bone_world(target_armature, "Spine").translation
+    # The rejected candidate placed both hands above the neck and then tried to
+    # repair the silhouette with wrist roll. These targets put the grip cluster
+    # below and viewer-left of the face while the accepted body remains frozen.
     shoulder_span = (
         find_pose_bone_world(target_armature, "LeftArm").translation
         - find_pose_bone_world(target_armature, "RightArm").translation
@@ -773,60 +1379,121 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             - find_pose_bone_world(target_armature, "Hips").translation
         ).length,
     )
-    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.34 * shoulder_span, -0.22 * torso_height, 0.48 * torso_height))
-    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.28 * shoulder_span, -0.20 * torso_height, 0.58 * torso_height))
+    neck = find_pose_bone_world(target_armature, "neck").translation
+    right_hand_target = neck + Vector((-0.48 * shoulder_span, -0.22 * torso_height, -0.24 * torso_height))
+    # The support hand occupies the pommel side of the same grip line. This is
+    # an authored body-scale relationship, not a second independent hand pose.
+    left_hand_target = right_hand_target + Vector((
+        -0.18 * shoulder_span,
+        0.025 * torso_height,
+        -0.04 * torso_height,
+    ))
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
+    right_elbow_hint = right_shoulder + Vector((-0.25 * shoulder_span, -0.10 * torso_height, -0.34 * torso_height))
+    left_elbow_hint = left_shoulder + Vector((-0.15 * shoulder_span, 0.04 * torso_height, -0.30 * torso_height))
     arm_reports = [
-        solve_chain_with_pole(
+        solve_two_bone_elbow_wrist_pin(
             target_armature,
             ["RightArm", "RightForeArm", "RightHand"],
             right_hand_target,
-            right_shoulder + Vector((-0.35 * shoulder_span, -0.04 * torso_height, -0.55 * torso_height)),
-            iterations=28,
+            right_elbow_hint,
         ),
-        solve_chain_with_pole(
+        solve_two_bone_elbow_wrist_pin(
             target_armature,
             ["LeftArm", "LeftForeArm", "LeftHand"],
             left_hand_target,
-            left_shoulder + Vector((0.10 * shoulder_span, -0.02 * torso_height, -0.45 * torso_height)),
-            iterations=28,
+            left_elbow_hint,
         ),
     ]
 
-    # Small wrist rolls align rigid gauntlets after the arm silhouette is set.
+    # These are applied only after the empty-handed checkpoint is captured.
+    # Wrist roll is presentation, never a substitute for elbow/wrist occupancy.
     hand_rotations = [
         ("RightHand", (0, 0, 1), 5.0),
         ("RightHand", (0, 1, 0), -8.0),
         ("LeftHand", (0, 0, 1), -6.0),
         ("LeftHand", (0, 1, 0), 5.0),
     ]
-    for bone_name, axis, degrees in hand_rotations:
-        rotate_pose_bone_world_axis(target_armature, bone_name, Vector(axis), degrees)
+
+    author_failures = []
+    pin_tolerance = max(0.00001, torso_height * 0.002)
+    for report in arm_reports:
+        if report["elbowPinError"] > pin_tolerance or report["wristPinError"] > pin_tolerance:
+            author_failures.append({
+                "code": "AUTHOR_ARM_PIN_ERROR",
+                "chain": report["chain"],
+                "actual": {
+                    "elbow": report["elbowPinError"],
+                    "wrist": report["wristPinError"],
+                },
+                "expected": f"both <= {pin_tolerance:.9f}",
+            })
+        if report["projection"]["wristClampDistance"] > torso_height * 0.02:
+            author_failures.append({
+                "code": "AUTHOR_WRIST_TARGET_OUTSIDE_REACH",
+                "chain": report["chain"],
+                "actual": report["projection"]["wristClampDistance"],
+                "expected": f"<= {torso_height * 0.02:.9f}",
+            })
+
+    empty_handed_lock = pose_basis_lock_report(
+        target_armature,
+        protected_body_basis,
+        "after-arm-pin-before-wrist-roll",
+    )
+    if not empty_handed_lock["unchanged"]:
+        author_failures.append({
+            "code": "AUTHOR_PROTECTED_BODY_BASIS_CHANGED_DURING_ARM_PIN",
+            "actual": empty_handed_lock,
+            "expected": "exact accepted center, head, and lower-body basis lock",
+        })
 
     return {
-        "method": "crimson-native-authored-ik-pins-plus-fk-keyframe",
+        "method": "crimson-native-two-bone-elbow-circle-projection-plus-exact-pins",
         "sourceAuthority": "Vanguard pixels only; source armature and logical mapping are deliberately unread",
         "compositionIntent": {
-            "forceLine": "rear foot through turned pelvis into an offset high guard",
+            "forceLine": "rear foot through turned pelvis into an offset ready guard",
             "stance": "depth-staggered, loaded, and narrower in screen width",
-            "guard": "off-center above-brow hand cluster with unequal low elbows and a readable face",
+            "guard": "materially off-center hand cluster below the face with unequal low elbows",
         },
         "crossRigPoseInputs": [],
-        "centerRotations": [
-            {"bone": bone, "axisWorld": list(axis), "degrees": degrees}
-            for bone, axis, degrees in center_rotations
-        ],
-        "hipsDropWorld": [round(value, 5) for value in hips_drop_world],
-        "legIk": leg_reports,
+        "bodySeed": {
+            "candidateId": REJECTED_480_CANDIDATE_ID,
+            "poseSha256": REJECTED_480_POSE_SHA256,
+            "authoredGlbSha256": REJECTED_480_AUTHORED_GLB_SHA256,
+            "protectedBones": protected_body_names,
+            "contract": "exact imported/frozen 480 body; shoulders and arms only are reset and authored",
+        },
         "armIk": arm_reports,
+        "bodyScale": {
+            "shoulderSpan": round(shoulder_span, 6),
+            "torsoHeight": round(torso_height, 6),
+        },
+        "emptyHandedCheckpoint": {
+            "stage": "after-elbow-wrist-pin-before-wrist-roll-and-sword",
+            "armLandmarks": arm_landmarks(target_armature),
+            "protectedBodyLock": empty_handed_lock,
+        },
         "handRotations": [
             {"bone": bone, "axisWorld": list(axis), "degrees": degrees}
             for bone, axis, degrees in hand_rotations
         ],
-        "weaponContract": "Arborblade remains ordinary RightHand-child FK after the authored pose",
+        "weaponContract": "Empty-handed occupancy first; then wrist roll, blade direction, baked right-palm hilt seating, and left-hand hilt-pommel ownership",
         "keyframeContract": "one authored Crimson pose at frame 1",
+        "authorFailures": author_failures,
+        "_protectedBodyBasis": protected_body_basis,
     }
+
+
+def apply_authored_hand_rotations(armature: bpy.types.Object, author_report: dict) -> None:
+    for rotation in author_report["handRotations"]:
+        rotate_pose_bone_world_axis(
+            armature,
+            rotation["bone"],
+            Vector(rotation["axisWorld"]),
+            rotation["degrees"],
+        )
 
 
 def author_crimson_blade_direction(
@@ -1057,6 +1724,369 @@ def place_crimson_sword(sword_roots: list[bpy.types.Object], initial: dict[str, 
     return socket_world
 
 
+def pose_bone_world_tail(armature: bpy.types.Object, bone_name: str) -> Vector:
+    bone = armature.pose.bones.get(bone_name)
+    if not bone:
+        raise RuntimeError(f"missing target pose bone {bone_name}")
+    return armature.matrix_world @ bone.tail
+
+
+def hand_palm_anchor(armature: bpy.types.Object, bone_name: str) -> Vector:
+    head = find_pose_bone_world(armature, bone_name).translation
+    tail = pose_bone_world_tail(armature, bone_name)
+    return head.lerp(tail, 0.55)
+
+
+def blender_point_to_browser(point: Vector) -> Vector:
+    return (BLENDER_TO_BROWSER @ Vector((point.x, point.y, point.z, 1.0))).to_3d()
+
+
+def seat_sword_hilt_at_right_palm(
+    armature: bpy.types.Object,
+    sword_objects: list[bpy.types.Object],
+    sword_initial: dict[str, Matrix],
+    calibration: dict,
+) -> dict:
+    """Bake swordLocal translation so the hilt origin occupies Crimson's right palm."""
+    hand_world = find_pose_bone_world(armature, "RightHand")
+    palm_anchor = hand_palm_anchor(armature, "RightHand")
+    grip_world = hand_world @ browser_transform_matrix(calibration["saberGripLocal"])
+    desired_hilt_grip_blender = grip_world.inverted() @ palm_anchor
+    desired_hilt_grip_browser = blender_point_to_browser(desired_hilt_grip_blender)
+
+    sword_transform = calibration["swordLocal"]
+    zero_translation_transform = {
+        **sword_transform,
+        "position": [0.0, 0.0, 0.0],
+    }
+    hilt_local = Vector(calibration.get("hiltLocalPoint") or [0.0, 0.0, 0.0])
+    transformed_hilt_offset = transform_matrix(zero_translation_transform) @ hilt_local
+    old_position = [float(value) for value in sword_transform.get("position", [0, 0, 0])]
+    new_position = desired_hilt_grip_browser - transformed_hilt_offset
+    calibration["swordLocal"]["position"] = [float(value) for value in new_position]
+
+    socket = place_crimson_sword(sword_objects, sword_initial, hand_world, calibration)
+    actual_hilt = socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+    return {
+        "authority": "baked swordLocal translation after blade direction; character GLB has no sword transform",
+        "anchorDefinition": "RightHand pose head-to-tail lerp at 0.55",
+        "palmAnchorWorld": [round(value, 6) for value in palm_anchor],
+        "actualHiltWorld": [round(value, 6) for value in actual_hilt],
+        "hiltSeatErrorWorld": round((actual_hilt - palm_anchor).length, 9),
+        "oldSwordLocalPosition": [round(value, 8) for value in old_position],
+        "bakedSwordLocalPosition": [round(value, 8) for value in new_position],
+    }
+
+
+def point_segment_distance_3d(point: Vector, start: Vector, end: Vector) -> tuple[float, float, Vector]:
+    segment = end - start
+    if segment.length_squared < 0.000000000001:
+        return (point - start).length, 0.0, start.copy()
+    parameter = max(0.0, min(1.0, (point - start).dot(segment) / segment.length_squared))
+    closest = start + segment * parameter
+    return (point - closest).length, parameter, closest
+
+
+def weapon_grip_contract(
+    armature: bpy.types.Object,
+    sword_socket: Matrix,
+    calibration: dict,
+    torso_height: float,
+) -> dict:
+    right_hand = find_pose_bone_world(armature, "RightHand").translation
+    left_hand = find_pose_bone_world(armature, "LeftHand").translation
+    right_palm = hand_palm_anchor(armature, "RightHand")
+    left_palm = hand_palm_anchor(armature, "LeftHand")
+    hilt = sword_socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+    pommel = sword_socket @ browser_vector(calibration.get("pommelLocalPoint") or [0, 0, -0.35])
+    right_error = (right_palm - hilt).length
+    left_palm_error, left_palm_parameter, left_palm_closest = point_segment_distance_3d(
+        left_palm,
+        hilt,
+        pommel,
+    )
+    left_hand_error, left_hand_parameter, left_hand_closest = point_segment_distance_3d(
+        left_hand,
+        hilt,
+        pommel,
+    )
+    handle_length = (pommel - hilt).length
+    palm_separation = (left_palm - right_palm).length
+    thresholds = {
+        "rightPalmToHiltBodyScale": 0.01,
+        "leftPalmToHandleBodyScale": 0.07,
+        "leftHandHeadToHandleBodyScale": 0.09,
+        "minimumHandleLengthBodyScale": 0.05,
+        "minimumLeftPalmHandleParameter": 0.20,
+        "minimumPalmSeparationBodyScale": 0.05,
+    }
+    failures = []
+    checks = [
+        (
+            "rightPalmToHilt",
+            right_error,
+            thresholds["rightPalmToHiltBodyScale"],
+        ),
+        (
+            "leftPalmToHandle",
+            left_palm_error,
+            thresholds["leftPalmToHandleBodyScale"],
+        ),
+        (
+            "leftHandHeadToHandle",
+            left_hand_error,
+            thresholds["leftHandHeadToHandleBodyScale"],
+        ),
+    ]
+    for name, distance, body_threshold in checks:
+        if distance > torso_height * body_threshold:
+            failures.append({
+                "check": name,
+                "distanceWorld": round(distance, 6),
+                "distanceBodyScale": round(distance / max(torso_height, 0.000001), 6),
+                "expected": f"<= {body_threshold} torso-height",
+            })
+    if handle_length < torso_height * thresholds["minimumHandleLengthBodyScale"]:
+        failures.append({
+            "check": "nondegenerateHandle",
+            "distanceWorld": round(handle_length, 6),
+            "distanceBodyScale": round(handle_length / max(torso_height, 0.000001), 6),
+            "expected": f">= {thresholds['minimumHandleLengthBodyScale']} torso-height",
+        })
+    if left_palm_parameter < thresholds["minimumLeftPalmHandleParameter"]:
+        failures.append({
+            "check": "leftPalmPommelSide",
+            "handleParameter": round(left_palm_parameter, 6),
+            "expected": f">= {thresholds['minimumLeftPalmHandleParameter']} from hilt toward pommel",
+        })
+    if palm_separation < torso_height * thresholds["minimumPalmSeparationBodyScale"]:
+        failures.append({
+            "check": "distinctTwoHandGrip",
+            "distanceWorld": round(palm_separation, 6),
+            "distanceBodyScale": round(palm_separation / max(torso_height, 0.000001), 6),
+            "expected": f">= {thresholds['minimumPalmSeparationBodyScale']} torso-height",
+        })
+    return {
+        "status": "FAIL" if failures else "PASS",
+        "torsoHeight": round(torso_height, 6),
+        "thresholds": thresholds,
+        "rightHandHeadWorld": [round(value, 6) for value in right_hand],
+        "rightPalmWorld": [round(value, 6) for value in right_palm],
+        "leftHandHeadWorld": [round(value, 6) for value in left_hand],
+        "leftPalmWorld": [round(value, 6) for value in left_palm],
+        "hiltWorld": [round(value, 6) for value in hilt],
+        "pommelWorld": [round(value, 6) for value in pommel],
+        "handleLengthWorld": round(handle_length, 6),
+        "palmSeparationWorld": round(palm_separation, 6),
+        "palmSeparationBodyScale": round(palm_separation / max(torso_height, 0.000001), 6),
+        "rightPalmToHiltWorld": round(right_error, 9),
+        "leftPalmToHandleWorld": round(left_palm_error, 6),
+        "leftPalmHandleParameter": round(left_palm_parameter, 6),
+        "leftPalmClosestHandleWorld": [round(value, 6) for value in left_palm_closest],
+        "leftHandHeadToHandleWorld": round(left_hand_error, 6),
+        "leftHandHeadHandleParameter": round(left_hand_parameter, 6),
+        "leftHandHeadClosestHandleWorld": [round(value, 6) for value in left_hand_closest],
+        "failures": failures,
+    }
+
+
+def pin_left_support_palm_to_handle(
+    armature: bpy.types.Object,
+    sword_socket: Matrix,
+    calibration: dict,
+    torso_height: float,
+) -> dict:
+    """Close the support-hand loop against the actual oriented hilt-pommel segment."""
+    hilt = sword_socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+    pommel = sword_socket @ browser_vector(calibration.get("pommelLocalPoint") or [0, 0, -0.35])
+    handle_length = (pommel - hilt).length
+    target_parameter = 0.62
+    palm_target = hilt.lerp(pommel, target_parameter)
+    wrist_target = find_pose_bone_world(armature, "LeftHand").translation.copy()
+    elbow_hint = find_pose_bone_world(armature, "LeftForeArm").translation.copy()
+    iterations = []
+    for index in range(3):
+        palm_before = hand_palm_anchor(armature, "LeftHand")
+        wrist_target += palm_target - palm_before
+        pin = solve_two_bone_elbow_wrist_pin(
+            armature,
+            ["LeftArm", "LeftForeArm", "LeftHand"],
+            wrist_target,
+            elbow_hint,
+        )
+        palm_after = hand_palm_anchor(armature, "LeftHand")
+        iterations.append({
+            "iteration": index + 1,
+            "wristTarget": [round(value, 6) for value in wrist_target],
+            "palmErrorWorld": round((palm_after - palm_target).length, 9),
+            "pin": pin,
+        })
+    actual_palm = hand_palm_anchor(armature, "LeftHand")
+    palm_error = (actual_palm - palm_target).length
+    tolerance = torso_height * 0.01
+    return {
+        "status": "PASS" if palm_error <= tolerance else "FAIL",
+        "authority": "post-blade-orientation left-arm pin to actual hilt-pommel segment",
+        "targetHandleParameter": target_parameter,
+        "hiltWorld": [round(value, 6) for value in hilt],
+        "pommelWorld": [round(value, 6) for value in pommel],
+        "handleLengthWorld": round(handle_length, 6),
+        "targetPalmWorld": [round(value, 6) for value in palm_target],
+        "actualPalmWorld": [round(value, 6) for value in actual_palm],
+        "palmPinErrorWorld": round(palm_error, 9),
+        "toleranceWorld": round(tolerance, 9),
+        "iterations": iterations,
+    }
+
+
+def point_segment_distance_2d(
+    point: tuple[float, float, float],
+    start: tuple[float, float, float],
+    end: tuple[float, float, float],
+) -> float:
+    segment_x = end[0] - start[0]
+    segment_y = end[1] - start[1]
+    length_squared = segment_x * segment_x + segment_y * segment_y
+    if length_squared < 0.000000000001:
+        return screen_distance(point, start)
+    parameter = max(0.0, min(
+        1.0,
+        ((point[0] - start[0]) * segment_x + (point[1] - start[1]) * segment_y)
+        / length_squared,
+    ))
+    closest = (
+        start[0] + segment_x * parameter,
+        start[1] + segment_y * parameter,
+        0.0,
+    )
+    return screen_distance(point, closest)
+
+
+def crimson_review_view_specs() -> list[tuple[str, Vector]]:
+    return [
+        ("close-front", Vector((0.0, -4.2, 1.05))),
+        ("close-three-quarter", Vector((3.1, -3.2, 1.2))),
+        ("close-profile-right", Vector((4.15, 0, 1.15))),
+        ("close-profile-left", Vector((-4.15, 0, 1.15))),
+        ("close-rear", Vector((0.0, 4.2, 1.05))),
+    ]
+
+
+def face_clearance_at_camera(
+    armature: bpy.types.Object,
+    body_objects: list[bpy.types.Object],
+    camera: bpy.types.Object,
+    view_name: str,
+    gated: bool,
+) -> dict:
+    face_world = {
+        "neck": find_pose_bone_world(armature, "neck").translation,
+        "headBase": find_pose_bone_world(armature, "Head").translation,
+        "headTop": pose_bone_world_tail(armature, "Head"),
+    }
+    face_screen = {name: project(camera, point) for name, point in face_world.items()}
+    body_height = body_screen_box(body_objects, camera)["height"]
+    segment_threshold = body_height * 0.035
+    hand_threshold = body_height * 0.045
+    arms = {}
+    failures = []
+    for side in ["Left", "Right"]:
+        elbow = project(camera, find_pose_bone_world(armature, f"{side}ForeArm").translation)
+        wrist = project(camera, find_pose_bone_world(armature, f"{side}Hand").translation)
+        segment_clearance = min(
+            point_segment_distance_2d(face, elbow, wrist)
+            for face in face_screen.values()
+        )
+        hand_clearance = min(
+            screen_distance(wrist, face)
+            for face in face_screen.values()
+        )
+        side_failures = []
+        if segment_clearance < segment_threshold:
+            side_failures.append("elbow-to-wrist segment")
+        if hand_clearance < hand_threshold:
+            side_failures.append("hand")
+        arms[side.lower()] = {
+            "elbow": [round(value, 6) for value in elbow],
+            "wrist": [round(value, 6) for value in wrist],
+            "segmentFaceClearance": round(segment_clearance, 6),
+            "handFaceClearance": round(hand_clearance, 6),
+            "status": "FAIL" if side_failures and gated else "PASS",
+            "failed": side_failures,
+        }
+        if gated and side_failures:
+            failures.append({
+                "side": side,
+                "failed": side_failures,
+                "actual": arms[side.lower()],
+            })
+    return {
+        "view": view_name,
+        "gated": gated,
+        "status": "FAIL" if failures else "PASS",
+        "bodyScreenHeight": round(body_height, 6),
+        "thresholds": {
+            "segmentFaceClearance": round(segment_threshold, 6),
+            "handFaceClearance": round(hand_threshold, 6),
+        },
+        "face": {
+            name: [round(value, 6) for value in point]
+            for name, point in face_screen.items()
+        },
+        "arms": arms,
+        "failures": failures,
+    }
+
+
+def face_clearance_views(
+    armature: bpy.types.Object,
+    body_objects: list[bpy.types.Object],
+    camera: bpy.types.Object,
+    center_x: float,
+) -> dict:
+    original_location = camera.location.copy()
+    original_rotation = camera.rotation_euler.copy()
+    original_angle = camera.data.angle
+    views = [face_clearance_at_camera(
+        armature,
+        body_objects,
+        camera,
+        "primary",
+        True,
+    )]
+    gated_views = {"close-front", "close-three-quarter"}
+    try:
+        for view_name, relative_location in crimson_review_view_specs():
+            aim_camera(
+                camera,
+                relative_location + Vector((center_x, 0, 0)),
+                Vector((center_x, 0, 0.78)),
+                46,
+            )
+            views.append(face_clearance_at_camera(
+                armature,
+                body_objects,
+                camera,
+                view_name,
+                view_name in gated_views,
+            ))
+    finally:
+        camera.location = original_location
+        camera.rotation_euler = original_rotation
+        camera.data.angle = original_angle
+    failures = [
+        {"view": view["view"], **failure}
+        for view in views
+        for failure in view["failures"]
+    ]
+    return {
+        "status": "FAIL" if failures else "PASS",
+        "gatedViews": ["primary", "close-front", "close-three-quarter"],
+        "views": views,
+        "failures": failures,
+    }
+
+
 def body_screen_box(objects: list[bpy.types.Object], camera: bpy.types.Object) -> dict:
     low, high, _ = mesh_bounds(objects)
     corners = [Vector((x, y, z)) for x in (low.x, high.x) for y in (low.y, high.y) for z in (low.z, high.z)]
@@ -1066,7 +2096,7 @@ def body_screen_box(objects: list[bpy.types.Object], camera: bpy.types.Object) -
     return {"xMin": min(xs), "xMax": max(xs), "yMin": min(ys), "yMax": max(ys), "height": max(ys) - min(ys), "width": max(xs) - min(xs)}
 
 
-def add_label(text: str, location: tuple[float, float, float]) -> None:
+def add_label(text: str, location: tuple[float, float, float]) -> bpy.types.Object:
     font_curve = bpy.data.curves.new(text, "FONT")
     font_curve.body = text
     font_curve.size = 0.08
@@ -1074,6 +2104,253 @@ def add_label(text: str, location: tuple[float, float, float]) -> None:
     obj = bpy.data.objects.new(text, font_curve)
     obj.location = location
     bpy.context.collection.objects.link(obj)
+    return obj
+
+
+def write_empty_handed_checkpoint(
+    out_dir: Path,
+    candidate_id: str,
+    armature: bpy.types.Object,
+    author_report: dict,
+    camera: bpy.types.Object,
+    crimson_objects: list[bpy.types.Object],
+    hidden_objects: list[bpy.types.Object],
+    skip_render: bool,
+) -> dict:
+    payload = {
+        "schema": "pose-lab-v2-empty-handed-arm-checkpoint-v1",
+        "createdAt": utc_now(),
+        "candidate": candidate_id,
+        "stage": "after-elbow-wrist-pin-before-wrist-roll-and-sword",
+        "armIk": author_report["armIk"],
+        "armLandmarks": arm_landmarks(armature),
+        "protectedBodyLock": author_report["emptyHandedCheckpoint"]["protectedBodyLock"],
+        "bones": export_authored_pose(armature),
+    }
+    json_path = out_dir / "empty_handed_arm_checkpoint.json"
+    json_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    result = {
+        "json": json_path.name,
+        "jsonSha256": sha256(json_path),
+        "image": None,
+        "imageSha256": None,
+    }
+    if skip_render:
+        return result
+
+    camera_location = camera.location.copy()
+    camera_rotation = camera.rotation_euler.copy()
+    camera_angle = camera.data.angle
+    render_samples = bpy.context.scene.cycles.samples
+    hidden_states = {obj.name: obj.hide_render for obj in hidden_objects}
+    visible_states = {obj.name: obj.hide_render for obj in crimson_objects}
+    try:
+        for obj in hidden_objects:
+            obj.hide_render = True
+        for obj in crimson_objects:
+            obj.hide_render = False
+        bpy.context.scene.cycles.samples = min(render_samples, 8)
+        aim_camera(
+            camera,
+            Vector((1.05, -4.2, 1.05)),
+            Vector((1.05, 0.0, 0.92)),
+            46,
+        )
+        image_path = out_dir / "empty_handed_arm_checkpoint.png"
+        bpy.context.scene.render.filepath = str(image_path)
+        bpy.ops.render.render(write_still=True)
+        result["image"] = image_path.name
+        result["imageSha256"] = sha256(image_path)
+    finally:
+        camera.location = camera_location
+        camera.rotation_euler = camera_rotation
+        camera.data.angle = camera_angle
+        bpy.context.scene.cycles.samples = render_samples
+        for obj in hidden_objects:
+            obj.hide_render = hidden_states[obj.name]
+        for obj in crimson_objects:
+            obj.hide_render = visible_states[obj.name]
+    return result
+
+
+def write_generated_candidate(
+    committed_candidate: dict,
+    requested_id: str,
+    frame: dict,
+    authored_glb: dict,
+    out_dir: Path,
+    exact_authored_glb: bool,
+    author_eligible: bool,
+) -> dict:
+    canonical = canonical_frame(frame)
+    pose_bytes = canonical_frame_bytes(canonical)
+    pose_sha = sha256_bytes(pose_bytes)
+    generated = json.loads(json.dumps(committed_candidate))
+    generated["schema"] = generated.get("schema") or "pose-lab-v2-attack-candidate-v1"
+    generated["id"] = requested_id
+    generated["primeKeys"] = {"start": 0}
+    generated["frames"] = [canonical]
+    source = generated.setdefault("source", {})
+    source["exactAuthoredGlb"] = exact_authored_glb
+    source["poseSha256"] = pose_sha
+    source["authoredGlbSha256"] = authored_glb["sha256"]
+    source["poseProvenance"] = {
+        "bonesAndHips": "extracted from authored_frame_zero.glb CrimsonCombatReadyFrameZero animation channels",
+        "sabreLocal": "newly baked calibration after blade-direction and two-hand weapon seating solve; not extracted from character GLB",
+    }
+    source["status"] = (
+        "generated-visual-pending-candidate-parity"
+        if exact_authored_glb and author_eligible
+        else (
+            "authoring-red-validation-failed"
+            if exact_authored_glb
+            else "authoring-red-glb-extraction-failed"
+        )
+    )
+    source["authorEligibleBeforeCandidateParity"] = bool(author_eligible)
+
+    export_name = re.sub(r"[^A-Za-z0-9]+", "_", requested_id).strip("_").upper() + "_SEQUENCE"
+    module_text = f"export const {export_name} = {json.dumps(generated, indent=2)};\n"
+    payload_text = json.dumps(canonical, indent=2) + "\n"
+    pose_text = pose_sha + "\n"
+
+    canonical_dir = ROOT / "generated" / "pose-candidates"
+    canonical_dir.mkdir(parents=True, exist_ok=True)
+    canonical_module = canonical_dir / f"{requested_id}.js"
+    canonical_payload = canonical_dir / f"{requested_id}.json"
+    canonical_pose_sha = canonical_dir / f"{requested_id}.pose.sha256"
+    artifact_module = out_dir / "generated_candidate.js"
+    artifact_payload = out_dir / "generated_candidate_payload.json"
+    artifact_pose_sha = out_dir / "pose.sha256"
+    for path, text_payload in [
+        (canonical_module, module_text),
+        (artifact_module, module_text),
+        (canonical_payload, payload_text),
+        (artifact_payload, payload_text),
+        (canonical_pose_sha, pose_text),
+        (artifact_pose_sha, pose_text),
+    ]:
+        path.write_text(text_payload, encoding="utf-8")
+
+    return {
+        "id": requested_id,
+        "candidateId": requested_id,
+        "poseSha256": pose_sha,
+        "module": artifact_module.name,
+        "moduleSha256": sha256(artifact_module),
+        "payload": artifact_payload.name,
+        "payloadSha256": sha256(artifact_payload),
+        "poseShaFile": artifact_pose_sha.name,
+        "poseShaFileSha256": sha256(artifact_pose_sha),
+        "canonicalModule": str(canonical_module.relative_to(ROOT)),
+        "canonicalPayload": str(canonical_payload.relative_to(ROOT)),
+        "canonicalPoseShaFile": str(canonical_pose_sha.relative_to(ROOT)),
+        "source": {
+            "exactAuthoredGlb": exact_authored_glb,
+            "poseSha256": pose_sha,
+            "authoredGlbSha256": authored_glb["sha256"],
+            "status": source["status"],
+            "authorEligibleBeforeCandidateParity": bool(author_eligible),
+        },
+    }
+
+
+def candidate_parity_report(
+    committed_candidate: dict,
+    committed_frame: dict | None,
+    generated_frame: dict,
+    candidate_path: Path,
+    generated_exact_authored_glb: bool,
+    generated_authored_glb_sha: str,
+) -> dict:
+    generated_canonical = canonical_frame(generated_frame)
+    generated_bytes = canonical_frame_bytes(generated_canonical)
+    generated_sha = sha256_bytes(generated_bytes)
+    declared_sha = committed_candidate.get("source", {}).get("poseSha256")
+    declared_valid = bool(
+        isinstance(declared_sha, str)
+        and re.fullmatch(r"[a-f0-9]{64}", declared_sha)
+    )
+    committed_exact_glb = committed_candidate.get("source", {}).get("exactAuthoredGlb") is True
+    committed_status = committed_candidate.get("source", {}).get("status")
+    committed_status_match = committed_status == "generated-visual-pending-candidate-parity"
+    committed_author_eligible = (
+        committed_candidate.get("source", {}).get("authorEligibleBeforeCandidateParity") is True
+    )
+    exact_glb = committed_exact_glb and generated_exact_authored_glb
+    declared_glb_sha = committed_candidate.get("source", {}).get("authoredGlbSha256")
+    declared_glb_valid = bool(
+        isinstance(declared_glb_sha, str)
+        and re.fullmatch(r"[a-f0-9]{64}", declared_glb_sha)
+    )
+    authored_glb_sha_match = (
+        declared_glb_valid
+        and declared_glb_sha == generated_authored_glb_sha
+    )
+    if committed_frame is None:
+        return {
+            "status": "FAIL",
+            "exactFramePayloadMatch": False,
+            "exactAuthoredGlb": exact_glb,
+            "committedExactAuthoredGlb": committed_exact_glb,
+            "committedStatus": committed_status,
+            "committedStatusMatch": committed_status_match,
+            "committedAuthorEligibleBeforeCandidateParity": committed_author_eligible,
+            "generatedExactAuthoredGlb": generated_exact_authored_glb,
+            "committedCandidate": str(candidate_path),
+            "committedCandidateSha256": sha256(candidate_path) if candidate_path.exists() else None,
+            "committedPoseSha256": None,
+            "committedDeclaredPoseSha256": declared_sha,
+            "committedDeclaredPoseShaValid": declared_valid,
+            "declaredPoseShaMatch": False,
+            "generatedPoseSha256": generated_sha,
+            "committedDeclaredAuthoredGlbSha256": declared_glb_sha,
+            "committedDeclaredAuthoredGlbShaValid": declared_glb_valid,
+            "generatedAuthoredGlbSha256": generated_authored_glb_sha,
+            "authoredGlbShaMatch": authored_glb_sha_match,
+            "differentTopLevelFields": list(generated_canonical),
+        }
+    committed_canonical = canonical_frame(committed_frame)
+    committed_bytes = canonical_frame_bytes(committed_canonical)
+    committed_sha = sha256_bytes(committed_bytes)
+    different = [
+        field
+        for field in ["label", "time", "positions", "sabreLocal", "bones"]
+        if json.dumps(committed_canonical[field], sort_keys=True, separators=(",", ":"))
+        != json.dumps(generated_canonical[field], sort_keys=True, separators=(",", ":"))
+    ]
+    exact = committed_bytes == generated_bytes
+    declared_match = declared_valid and declared_sha == generated_sha
+    passed = (
+        exact
+        and declared_match
+        and exact_glb
+        and authored_glb_sha_match
+        and committed_status_match
+        and committed_author_eligible
+    )
+    return {
+        "status": "PASS" if passed else "FAIL",
+        "exactFramePayloadMatch": exact,
+        "exactAuthoredGlb": exact_glb,
+        "committedExactAuthoredGlb": committed_exact_glb,
+        "committedStatus": committed_status,
+        "committedStatusMatch": committed_status_match,
+        "committedAuthorEligibleBeforeCandidateParity": committed_author_eligible,
+        "generatedExactAuthoredGlb": generated_exact_authored_glb,
+        "committedCandidate": str(candidate_path.relative_to(ROOT)) if candidate_path.is_relative_to(ROOT) else str(candidate_path),
+        "committedCandidateSha256": sha256(candidate_path),
+        "committedPoseSha256": committed_sha,
+        "committedDeclaredPoseSha256": declared_sha,
+        "committedDeclaredPoseShaValid": declared_valid,
+        "declaredPoseShaMatch": declared_match,
+        "generatedPoseSha256": generated_sha,
+        "committedDeclaredAuthoredGlbSha256": declared_glb_sha,
+        "committedDeclaredAuthoredGlbShaValid": declared_glb_valid,
+        "generatedAuthoredGlbSha256": generated_authored_glb_sha,
+        "authoredGlbShaMatch": authored_glb_sha_match,
+        "differentTopLevelFields": different,
+    }
 
 
 def joint_screens(armature: bpy.types.Object, camera: bpy.types.Object, names: dict[str, str]) -> dict:
@@ -1099,10 +2376,27 @@ def evaluate_frame(label: str, camera: bpy.types.Object, vanguard_objects: list[
     failures = []
     hilt_hand_world = (hilt - hand_pos).length
     hilt_hand_screen = screen_distance(hilt_screen, hand_screen)
+    torso_height = max(
+        0.000001,
+        (
+            find_pose_bone_world(crimson_armature, "neck").translation
+            - find_pose_bone_world(crimson_armature, "Hips").translation
+        ).length,
+    )
+    grip_contract = weapon_grip_contract(
+        crimson_armature,
+        sword_socket,
+        calibration,
+        torso_height,
+    )
     if crimson_line["screenLength"] < 0.055:
         failures.append({"code": "CRIMSON_SWORD_TOO_SHORT_OR_HIDDEN", "actual": round(crimson_line["screenLength"], 4), "expected": ">= 0.055 screen units"})
-    if hilt_hand_world > 0.28 or hilt_hand_screen > 0.12:
-        failures.append({"code": "CRIMSON_HILT_NOT_OWNED_BY_RIGHT_HAND", "actual": {"world": round(hilt_hand_world, 4), "screen": round(hilt_hand_screen, 4)}, "expected": "hilt seated near right hand"})
+    for grip_failure in grip_contract["failures"]:
+        failures.append({
+            "code": f"CRIMSON_WEAPON_GRIP_{grip_failure['check'].upper()}",
+            "actual": grip_failure,
+            "expected": "strict two-hand hilt/pommel ownership",
+        })
     if label in {"earlyWindup", "anticipation"}:
         dx = abs(tip_screen[0] - hilt_screen[0])
         dy = abs(tip_screen[1] - hilt_screen[1])
@@ -1129,7 +2423,7 @@ def evaluate_frame(label: str, camera: bpy.types.Object, vanguard_objects: list[
             failures.append({"code": f"CRIMSON_{side.upper()}_BOOT_ROLLED_OFF_SOLE", "actual": foot, "expected": "weighted boot contact plane faces ground-up without standing on an outer edge"})
     return {
         "label": label,
-        "crimson": {"blade": crimson_line, "hiltHandWorld": round(hilt_hand_world, 5), "hiltHandScreen": round(hilt_hand_screen, 5), "bodyBox": cbox, "joints": joint_screens(crimson_armature, camera, {name: name for name in logical_bones}), "feet": feet},
+        "crimson": {"blade": crimson_line, "hiltHandWorld": round(hilt_hand_world, 5), "hiltHandScreen": round(hilt_hand_screen, 5), "weaponGripContract": grip_contract, "bodyBox": cbox, "joints": joint_screens(crimson_armature, camera, {name: name for name in logical_bones}), "feet": feet},
         "vanguard": {"blade": {"screenLength": vanguard_line["screenLength"], "screenAngleDeg": vanguard_line["screenAngleDeg"]}, "bodyBox": vbox, "joints": joint_screens(vanguard_armature, camera, logical_bones)},
         "failures": failures,
     }
@@ -1164,16 +2458,113 @@ def main() -> None:
     tmp_dir = out_dir / "tmp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
     reference = load_json(REFERENCE_JSON)
-    candidate = {"id": "crimson-combat-ready-blender-author-2", "frames": [{"label": "start", "time": 0, "bones": {}}]} if args.author_frame_zero else load_candidate(candidate_path)
+    author_failures = []
+    protected_body_baseline = None
+    try:
+        protected_body_baseline = load_json(PROTECTED_BODY_BASELINE_JSON)
+        validate_protected_body_baseline(protected_body_baseline)
+    except Exception as error:
+        if not args.author_frame_zero:
+            raise
+        author_failures.append({
+            "code": "AUTHOR_PROTECTED_BODY_BASELINE_INVALID",
+            "actual": str(error),
+            "expected": "loadable canonical 480eb888 protected-body baseline",
+        })
+    committed_frame = None
+    try:
+        candidate = load_candidate(candidate_path)
+        committed_frame = validate_requested_candidate(candidate, args.candidate_id)
+    except Exception as error:
+        if not args.author_frame_zero:
+            raise
+        author_failures.append({
+            "code": "AUTHOR_REQUESTED_CANDIDATE_INVALID",
+            "actual": str(error),
+            "expected": f"loadable candidate {args.candidate_id} with a populated start frame",
+        })
+        candidate = {
+            "schema": "pose-lab-v2-attack-candidate-v1",
+            "id": args.candidate_id,
+            "label": "authoring fallback after requested candidate validation failure",
+            "primeKeys": {"start": 0},
+            "source": {},
+            "frames": [],
+        }
+    rejected_baseline_candidate = candidate
+    rejected_baseline_frame = committed_frame
+    rejected_baseline_path = candidate_path
+    if args.author_frame_zero:
+        declared_rejected_baseline_id = (
+            candidate.get("source", {})
+            .get("rejectedBaseline", {})
+            .get("candidateId")
+        )
+        if declared_rejected_baseline_id != REJECTED_480_CANDIDATE_ID:
+            author_failures.append({
+                "code": "AUTHOR_REJECTED_BASELINE_DECLARATION_INVALID",
+                "actual": declared_rejected_baseline_id,
+                "expected": REJECTED_480_CANDIDATE_ID,
+            })
+        rejected_baseline_path = (
+            ROOT / "src" / "review-candidates" / f"{REJECTED_480_CANDIDATE_ID}.js"
+        )
+        try:
+            rejected_baseline_candidate = load_candidate(rejected_baseline_path)
+            rejected_baseline_frame = validate_requested_candidate(
+                rejected_baseline_candidate,
+                REJECTED_480_CANDIDATE_ID,
+            )
+            rejected_source = rejected_baseline_candidate.get("source", {})
+            actual_rejected_pose_sha = sha256_bytes(
+                canonical_frame_bytes(rejected_baseline_frame)
+            )
+            if (
+                actual_rejected_pose_sha != REJECTED_480_POSE_SHA256
+                or rejected_source.get("poseSha256") != REJECTED_480_POSE_SHA256
+                or rejected_source.get("authoredGlbSha256") != REJECTED_480_AUTHORED_GLB_SHA256
+            ):
+                raise RuntimeError(
+                    "rejected baseline provenance mismatch: "
+                    f"actualPose={actual_rejected_pose_sha} "
+                    f"declaredPose={rejected_source.get('poseSha256')} "
+                    f"declaredGlb={rejected_source.get('authoredGlbSha256')}"
+                )
+            if protected_body_baseline is None:
+                raise RuntimeError("protected-body baseline is unavailable")
+            validate_protected_body_against_rejected_frame(
+                protected_body_baseline,
+                rejected_baseline_frame,
+            )
+        except Exception as error:
+            author_failures.append({
+                "code": "AUTHOR_REJECTED_BASELINE_INVALID",
+                "actual": str(error),
+                "expected": (
+                    f"exact {REJECTED_480_CANDIDATE_ID} payload "
+                    f"{REJECTED_480_POSE_SHA256} from GLB {REJECTED_480_AUTHORED_GLB_SHA256}"
+                ),
+            })
+            # Do not render a substitute pose under a rejected-480 label.
+            rejected_baseline_candidate = {}
+            rejected_baseline_frame = None
     calibration = load_json(CALIBRATION_JSON)
     if args.author_frame_zero:
         calibration["swordLocal"]["scale"] = [value * 1.55 for value in calibration["swordLocal"]["scale"]]
     if reference.get("schema") != "pose-lab-v2-crimson-vanguard-swordattack1-reference-v2":
         raise RuntimeError("Vanguard reference is not full-body v2")
-    if not args.author_frame_zero and candidate.get("id") != args.candidate_id:
-        raise RuntimeError(f"comparison candidate mismatch: expected {args.candidate_id}, got {candidate.get('id')}")
+    rejected_baseline_anim = None
+    if args.author_frame_zero and rejected_baseline_frame is not None:
+        baseline_frames, baseline_nodes = crimson_node_frames(rejected_baseline_candidate)
+        rejected_baseline_anim = inject_animation(
+            CRIMSON_GLB,
+            baseline_frames,
+            baseline_nodes,
+            tmp_dir / "committed_rejected_candidate.glb",
+            rejected_baseline_candidate["id"],
+        )
     if args.author_frame_zero:
-        crimson_anim = CRIMSON_GLB
+        crimson_anim = rejected_baseline_anim or CRIMSON_GLB
     else:
         crimson_frames, crimson_nodes = crimson_node_frames(candidate)
         crimson_anim = inject_animation(CRIMSON_GLB, crimson_frames, crimson_nodes, tmp_dir / "crimson_attack1_compare.glb", candidate["id"])
@@ -1185,11 +2576,60 @@ def main() -> None:
     activate_named_action(vanguard_armature, "SwordAttack1_rig")
     normalize_and_offset(vanguard_objects, 1.7, -1.05)
     vanguard_stage = create_stage_root(vanguard_objects, "vanguard_evidence_stage")
+    committed_rejected_landmarks = {}
+    baseline_objects = []
+    baseline_armature = None
+    baseline_ground_offset = None
+    if rejected_baseline_anim is not None:
+        actions_before_baseline = set(bpy.data.actions)
+        baseline_objects = import_glb(rejected_baseline_anim)
+        baseline_armature = find_armature(baseline_objects, "Committed rejected Crimson")
+        # Normalize the raw/rest import before activating its candidate action;
+        # posed bounds must never change the authoring camera or body scale.
+        clear_pose(baseline_armature)
+        normalize_and_offset(baseline_objects, 1.7, 1.05)
+        activate_action_containing(
+            baseline_armature,
+            rejected_baseline_candidate["id"],
+        )
+        set_frame(0.0, 24)
+        freeze_armature_pose_and_remove_new_actions(
+            baseline_armature,
+            actions_before_baseline,
+        )
+        baseline_ground_offset = settle_crimson_boots(
+            baseline_objects,
+            baseline_armature,
+        )
+        committed_rejected_landmarks = arm_landmarks(baseline_armature)
+        for obj in baseline_objects:
+            obj.hide_render = True
+    actions_before_crimson = set(bpy.data.actions)
     crimson_objects = import_glb(crimson_anim)
     crimson_armature = find_armature(crimson_objects, "Crimson")
+    if args.author_frame_zero:
+        # Match the rejected evidence normalization contract: rest bounds first,
+        # then activate and freeze the exact rejected pose at the same scale.
+        clear_pose(crimson_armature)
     normalize_and_offset(crimson_objects, 1.7, 1.05)
     author_report = None
+    authored_frame = None
+    generated_candidate = None
+    parity_report = None
+    empty_handed_checkpoint = None
     if args.author_frame_zero:
+        if rejected_baseline_anim is not None:
+            activate_action_containing(
+                crimson_armature,
+                REJECTED_480_CANDIDATE_ID,
+            )
+            set_frame(0.0, 24)
+            freeze_armature_pose_and_remove_new_actions(
+                crimson_armature,
+                actions_before_crimson,
+            )
+        else:
+            clear_pose(crimson_armature)
         source_start_time = float(reference["samples"]["start"]["sourceTime"])
         set_frame(source_start_time, 24)
         suppress_vanguard_root_motion(vanguard_armature)
@@ -1210,31 +2650,286 @@ def main() -> None:
         vanguard_stage.location.z -= source_ground_offset
         bpy.context.view_layer.update()
         author_report = author_crimson_frame_zero(vanguard_armature, crimson_armature, reference["logicalBones"])
+        protected_body_basis = author_report.pop("_protectedBodyBasis")
+        author_failures.extend(author_report.pop("authorFailures"))
         author_report["sourceStartTime"] = source_start_time
         author_report["sourceGroundBones"] = source_foot_bones
         author_report["sourceGroundMethod"] = source_ground_method
         author_report["sourceGroundOffset"] = round(source_ground_offset, 5)
         author_report["crimsonGroundOffset"] = round(settle_crimson_boots(crimson_objects, crimson_armature), 5)
+        add_ground_plane()
+        empty_handed_checkpoint = write_empty_handed_checkpoint(
+            out_dir,
+            args.candidate_id,
+            crimson_armature,
+            author_report,
+            camera,
+            crimson_objects,
+            vanguard_objects,
+            args.skip_render,
+        )
+        author_report["emptyHandedCheckpoint"]["artifact"] = empty_handed_checkpoint
+        apply_authored_hand_rotations(crimson_armature, author_report)
+        after_wrist_lock = pose_basis_lock_report(
+            crimson_armature,
+            protected_body_basis,
+            "after-wrist-roll-before-sword",
+        )
+        author_report["protectedBodyBasisLock"] = [
+            author_report["emptyHandedCheckpoint"]["protectedBodyLock"],
+            after_wrist_lock,
+        ]
+        if not after_wrist_lock["unchanged"]:
+            author_failures.append({
+                "code": "AUTHOR_PROTECTED_BODY_BASIS_CHANGED_DURING_WRIST_ROLL",
+                "actual": after_wrist_lock,
+                "expected": "exact accepted center, head, and lower-body basis lock",
+            })
     else:
         activate_action_containing(crimson_armature, candidate["id"])
     sword_objects = import_glb(SWORD_GLB)
     apply_crimson_sword_material(sword_objects)
     sword_initial = {obj.name: obj.matrix_world.copy() for obj in top_level(sword_objects)}
+    baseline_sword_objects = []
+    baseline_sword_initial = {}
+    baseline_sword_socket = None
+    baseline_calibration = None
+    if args.author_frame_zero and baseline_armature is not None and rejected_baseline_frame is not None:
+        baseline_sword_objects = import_glb(SWORD_GLB)
+        apply_crimson_sword_material(baseline_sword_objects)
+        baseline_sword_initial = {
+            obj.name: obj.matrix_world.copy()
+            for obj in top_level(baseline_sword_objects)
+        }
+        baseline_calibration = json.loads(json.dumps(calibration))
+        baseline_calibration["swordLocal"] = json.loads(json.dumps(
+            rejected_baseline_frame["sabreLocal"]
+        ))
+        baseline_sword_socket = place_crimson_sword(
+            baseline_sword_objects,
+            baseline_sword_initial,
+            find_pose_bone_world(baseline_armature, "RightHand"),
+            baseline_calibration,
+        )
+        for obj in baseline_sword_objects:
+            obj.hide_render = True
     if args.author_frame_zero:
         author_report["blade"] = author_crimson_blade_direction(
             crimson_armature, sword_objects, sword_initial, calibration
         )
+        author_report["swordSeating"] = seat_sword_hilt_at_right_palm(
+            crimson_armature,
+            sword_objects,
+            sword_initial,
+            calibration,
+        )
+        current_sword_socket = place_crimson_sword(
+            sword_objects,
+            sword_initial,
+            find_pose_bone_world(crimson_armature, "RightHand"),
+            calibration,
+        )
+        author_report["supportHandPin"] = pin_left_support_palm_to_handle(
+            crimson_armature,
+            current_sword_socket,
+            calibration,
+            author_report["bodyScale"]["torsoHeight"],
+        )
+        if author_report["supportHandPin"]["status"] != "PASS":
+            author_failures.append({
+                "code": "AUTHOR_LEFT_SUPPORT_PALM_PIN_FAILED",
+                "actual": author_report["supportHandPin"],
+                "expected": "left palm pinned within 0.01 torso-height of the oriented hilt-pommel segment",
+            })
+        author_report["armLandmarkDeltaVsCommittedRejectedCandidate"] = arm_landmark_delta(
+            committed_rejected_landmarks,
+            arm_landmarks(crimson_armature),
+            author_report["bodyScale"]["torsoHeight"],
+        )
+        author_report["armLandmarkDeltaVsCommittedRejectedCandidate"].update({
+            "candidateId": rejected_baseline_candidate.get("id"),
+            "candidatePath": str(rejected_baseline_path.relative_to(ROOT))
+            if rejected_baseline_path.is_relative_to(ROOT)
+            else str(rejected_baseline_path),
+            "candidateSha256": sha256(rejected_baseline_path)
+            if rejected_baseline_path.exists()
+            else None,
+        })
+        if not author_report["armLandmarkDeltaVsCommittedRejectedCandidate"]["materiallyDifferent"]:
+            author_failures.append({
+                "code": "AUTHOR_ARM_LANDMARK_DELTA_TOO_SMALL",
+                "actual": author_report["armLandmarkDeltaVsCommittedRejectedCandidate"],
+                "expected": "both wrists move >= 0.10 torso-height and both elbow/forearm heads move >= 0.08 versus exact 480eb888",
+            })
+        author_report["weaponGripContract"] = weapon_grip_contract(
+            crimson_armature,
+            current_sword_socket,
+            calibration,
+            author_report["bodyScale"]["torsoHeight"],
+        )
+        if author_report["weaponGripContract"]["status"] != "PASS":
+            author_failures.append({
+                "code": "AUTHOR_TWO_HAND_WEAPON_GRIP_FAILED",
+                "actual": author_report["weaponGripContract"],
+                "expected": "hilt seated in defined right palm and left hand occupying the hilt-pommel handle segment",
+            })
+        author_report["faceClearance"] = face_clearance_views(
+            crimson_armature,
+            crimson_objects,
+            camera,
+            1.05,
+        )
+        if author_report["faceClearance"]["status"] != "PASS":
+            author_failures.append({
+                "code": "AUTHOR_ARM_FACE_CLEARANCE_FAILED",
+                "actual": author_report["faceClearance"],
+                "expected": "both hands and elbow-to-wrist segments clear Head/neck in primary, front, and three-quarter views",
+            })
+        if baseline_sword_socket is not None:
+            baseline_torso_height = (
+                find_pose_bone_world(baseline_armature, "neck").translation
+                - find_pose_bone_world(baseline_armature, "Hips").translation
+            ).length
+            author_report["rejectedBaselineEvidence"] = {
+                "candidateId": rejected_baseline_candidate.get("id"),
+                "candidatePath": str(rejected_baseline_path.relative_to(ROOT))
+                if rejected_baseline_path.is_relative_to(ROOT)
+                else str(rejected_baseline_path),
+                "candidateSha256": sha256(rejected_baseline_path),
+                "poseSha256": rejected_baseline_candidate.get("source", {}).get("poseSha256"),
+                "authoredGlbSha256": rejected_baseline_candidate.get("source", {}).get("authoredGlbSha256"),
+                "groundOffset": round(baseline_ground_offset, 6)
+                if baseline_ground_offset is not None
+                else None,
+                "weaponGripContract": weapon_grip_contract(
+                    baseline_armature,
+                    baseline_sword_socket,
+                    baseline_calibration,
+                    baseline_torso_height,
+                ),
+            }
+        after_blade_lock = pose_basis_lock_report(
+            crimson_armature,
+            protected_body_basis,
+            "after-blade-alignment",
+        )
+        author_report["protectedBodyBasisLock"].append(after_blade_lock)
+        if not after_blade_lock["unchanged"]:
+            author_failures.append({
+                "code": "AUTHOR_PROTECTED_BODY_BASIS_CHANGED_DURING_BLADE_ALIGNMENT",
+                "actual": after_blade_lock,
+                "expected": "exact accepted center, head, and lower-body basis lock",
+            })
         author_report["glbExport"] = export_authored_glb(
             crimson_objects, crimson_armature, out_dir / "authored_frame_zero.glb"
         )
-    add_label("VANGUARD SOURCE", (-1.05, -0.18, 1.9))
-    add_label("CRIMSON CANDIDATE", (1.05, -0.18, 1.9))
-    if args.author_frame_zero:
-        add_ground_plane()
+        after_export_lock = pose_basis_lock_report(
+            crimson_armature,
+            protected_body_basis,
+            "after-exact-glb-export",
+        )
+        author_report["protectedBodyBasisLock"].append(after_export_lock)
+        if not after_export_lock["unchanged"]:
+            author_failures.append({
+                "code": "AUTHOR_PROTECTED_BODY_BASIS_CHANGED_DURING_GLB_EXPORT",
+                "actual": after_export_lock,
+                "expected": "exact accepted center, head, and lower-body basis lock",
+            })
+        exact_authored_glb = True
+        try:
+            authored_frame, extraction_report = extract_authored_frame_from_glb(
+                out_dir / author_report["glbExport"]["path"],
+                author_report["glbExport"]["action"],
+                calibration,
+            )
+        except Exception as error:
+            exact_authored_glb = False
+            author_failures.append({
+                "code": "AUTHOR_EXACT_GLB_FRAME_EXTRACTION_FAILED",
+                "actual": str(error),
+                "expected": "canonical frame extracted from CrimsonCombatReadyFrameZero GLB animation channels",
+            })
+            # Diagnostic fallback keeps the red artifact inspectable. It is
+            # explicitly not allowed to claim exact authored-GLB authority.
+            authored_frame = {
+                "label": "start",
+                "time": 0,
+                "positions": export_authored_positions(crimson_armature),
+                "sabreLocal": authored_sabre_local(calibration),
+                "bones": export_authored_pose(crimson_armature),
+            }
+            extraction_report = {
+                "authority": {
+                    "bonesAndHips": "diagnostic Blender matrix-basis fallback; not exact GLB authority",
+                    "sabreLocal": "newly baked calibration and weapon seating solve; not extracted from character GLB",
+                },
+                "error": str(error),
+                "poseSha256": sha256_bytes(canonical_frame_bytes(authored_frame)),
+                "glbSha256": author_report["glbExport"]["sha256"],
+            }
+        author_report["glbFrameExtraction"] = extraction_report
+        if protected_body_baseline is not None:
+            protected_body_parity = protected_body_parity_report(
+                authored_frame,
+                protected_body_baseline,
+            )
+        else:
+            protected_body_parity = {
+                "status": "FAIL",
+                "baseline": {
+                    "path": str(PROTECTED_BODY_BASELINE_JSON.relative_to(ROOT)),
+                    "sha256": sha256(PROTECTED_BODY_BASELINE_JSON)
+                    if PROTECTED_BODY_BASELINE_JSON.exists()
+                    else None,
+                    "sourceCommit": None,
+                },
+                "failures": [{
+                    "channel": "protected-body-baseline",
+                    "actual": None,
+                    "expected": "loadable canonical 480eb888 protected-body baseline",
+                }],
+            }
+        author_report["protectedBodyParity"] = protected_body_parity
+        if protected_body_parity["status"] != "PASS":
+            author_failures.append({
+                "code": "AUTHOR_PROTECTED_BODY_PARITY_MISMATCH",
+                "actual": protected_body_parity,
+                "expected": "exported Hips, center, and lower-body channels match canonical 480eb888; shoulders and arms remain unprotected",
+            })
+        generated_candidate = write_generated_candidate(
+            candidate,
+            args.candidate_id,
+            authored_frame,
+            author_report["glbExport"],
+            out_dir,
+            exact_authored_glb,
+            exact_authored_glb and not author_failures,
+        )
+        parity_report = candidate_parity_report(
+            candidate,
+            committed_frame,
+            authored_frame,
+            candidate_path,
+            exact_authored_glb,
+            author_report["glbExport"]["sha256"],
+        )
+        if parity_report["status"] != "PASS":
+            author_failures.append({
+                "code": "AUTHOR_COMMITTED_CANDIDATE_PARITY_MISMATCH",
+                "actual": parity_report,
+                "expected": "committed candidate contains the exact GLB-extracted frame, declares matching pose and authored-GLB SHAs, and sets source.exactAuthoredGlb=true",
+            })
+    vanguard_label = add_label("VANGUARD SOURCE", (-1.05, -0.18, 1.9))
+    current_label = add_label("CRIMSON CURRENT", (1.05, -0.18, 1.9))
+    baseline_label = add_label("REJECTED 480eb888", (1.05, -0.18, 1.9))
+    baseline_label.hide_render = True
     fps = 24
     bpy.context.scene.render.fps = fps
     frames = []
-    all_failures = []
+    all_failures = [
+        {"frame": "author", **failure}
+        for failure in author_failures
+    ]
     for index, label in enumerate(requested_frames, start=1):
         source_sample = reference["samples"][label]
         set_frame(float(source_sample["sourceTime"]), fps)
@@ -1243,6 +2938,33 @@ def main() -> None:
         sword_socket = place_crimson_sword(sword_objects, sword_initial, hand, calibration)
         entry = evaluate_frame(label, camera, vanguard_objects, vanguard_armature, crimson_objects, crimson_armature, sword_objects, sword_socket, calibration, reference["logicalBones"])
         filename = f"{index:02d}-{label}.png"
+        if args.author_frame_zero:
+            comparison_views = [
+                name
+                for name, _location in crimson_review_view_specs()
+            ]
+            entry["referenceViews"] = []
+            entry["currentViews"] = []
+            entry["crimsonViews"] = []
+            entry["rejectedBaselineViews"] = []
+            entry["baselineComparison"] = {
+                "sameCamera": True,
+                "views": comparison_views,
+                "rejected": {
+                    "candidateId": rejected_baseline_candidate.get("id"),
+                    "poseSha256": rejected_baseline_candidate.get("source", {}).get("poseSha256"),
+                    "moduleSha256": sha256(rejected_baseline_path)
+                    if rejected_baseline_path.exists()
+                    else None,
+                },
+                "current": {
+                    "candidateId": args.candidate_id,
+                    "poseSha256": generated_candidate.get("poseSha256")
+                    if generated_candidate
+                    else None,
+                },
+                "armLandmarkDelta": author_report.get("armLandmarkDeltaVsCommittedRejectedCandidate"),
+            }
         if args.skip_render:
             entry["image"] = None
             entry["sha256"] = None
@@ -1257,21 +2979,33 @@ def main() -> None:
                 original_angle = camera.data.angle
                 original_samples = bpy.context.scene.cycles.samples
                 bpy.context.scene.cycles.samples = min(original_samples, 8)
-                view_specs = [
-                    ("close-front", Vector((0.0, -4.2, 1.05))),
-                    ("close-three-quarter", Vector((3.1, -3.2, 1.2))),
-                    ("close-profile-right", Vector((4.15, 0, 1.15))),
-                    ("close-profile-left", Vector((-4.15, 0, 1.15))),
-                    ("close-rear", Vector((0.0, 4.2, 1.05))),
-                ]
-                entry["referenceViews"] = []
-                entry["crimsonViews"] = []
+                view_specs = crimson_review_view_specs()
                 review_sets = [
-                    ("reference", -1.05, vanguard_objects, crimson_objects + sword_objects, "referenceViews"),
-                    ("crimson", 1.05, crimson_objects + sword_objects, vanguard_objects, "crimsonViews"),
+                    ("reference", -1.05, vanguard_objects + [vanguard_label], crimson_objects + sword_objects, "referenceViews"),
+                    ("current", 1.05, crimson_objects + sword_objects + [current_label], vanguard_objects, "currentViews"),
                 ]
-                for subject_name, center_x, visible_objects, hidden_objects, manifest_key in review_sets:
-                    for obj in hidden_objects:
+                if baseline_objects and baseline_sword_objects:
+                    review_sets.append((
+                        "rejected-baseline",
+                        1.05,
+                        baseline_objects + baseline_sword_objects + [baseline_label],
+                        vanguard_objects,
+                        "rejectedBaselineViews",
+                    ))
+                all_review_objects = (
+                    vanguard_objects
+                    + crimson_objects
+                    + sword_objects
+                    + baseline_objects
+                    + baseline_sword_objects
+                    + [vanguard_label, current_label, baseline_label]
+                )
+                saved_visibility = [
+                    (obj, obj.hide_render)
+                    for obj in all_review_objects
+                ]
+                for subject_name, center_x, visible_objects, _hidden_objects, manifest_key in review_sets:
+                    for obj in all_review_objects:
                         obj.hide_render = True
                     for obj in visible_objects:
                         obj.hide_render = False
@@ -1285,9 +3019,11 @@ def main() -> None:
                             "view": view_name,
                             "image": view_filename,
                             "sha256": sha256(out_dir / view_filename),
+                            "cameraSubject": subject_name,
                         })
-                    for obj in hidden_objects:
-                        obj.hide_render = False
+                for obj, hidden in saved_visibility:
+                    obj.hide_render = hidden
+                entry["crimsonViews"] = list(entry["currentViews"])
                 camera.location = original_location
                 camera.rotation_euler = original_rotation
                 camera.data.angle = original_angle
@@ -1295,14 +3031,53 @@ def main() -> None:
         frames.append(entry)
         for failure in entry["failures"]:
             all_failures.append({"frame": label, **failure})
+    source_paths = {
+        "vanguard": VANGUARD_GLB,
+        "crimson": CRIMSON_GLB,
+        "sword": SWORD_GLB,
+        "reference": REFERENCE_JSON,
+        "calibration": CALIBRATION_JSON,
+        "protectedBodyBaseline": PROTECTED_BODY_BASELINE_JSON,
+        "requestedCandidate": candidate_path,
+        "rejectedBaselineCandidate": rejected_baseline_path,
+    }
+    source_hashes = {
+        name: {
+            "path": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
+            "sha256": sha256(path) if path.exists() else None,
+        }
+        for name, path in source_paths.items()
+    }
+    authored_frame_manifest = None
+    if args.author_frame_zero:
+        authored_frame_manifest = {
+            "frame": authored_frame,
+            "poseSha256": generated_candidate["poseSha256"],
+            "exactAuthoredGlb": generated_candidate["source"]["exactAuthoredGlb"],
+            "glb": author_report["glbExport"],
+        }
     manifest = {
         "schema": SCHEMA,
         "createdAt": utc_now(),
         "classification": "diagnostic-blocker-not-acceptance",
-        "candidate": candidate["id"],
+        "candidate": args.candidate_id,
+        "candidateParity": parity_report,
+        "generatedCandidate": generated_candidate,
         "authorReport": author_report,
-        "authoredFrameZero": export_authored_pose(crimson_armature) if args.author_frame_zero else None,
-        "source": {"vanguard": str(VANGUARD_GLB.relative_to(ROOT)), "crimson": str(CRIMSON_GLB.relative_to(ROOT)), "sword": str(SWORD_GLB.relative_to(ROOT))},
+        "authorFailures": author_failures,
+        "emptyHandedArmCheckpoint": empty_handed_checkpoint,
+        "authoredFrameZero": authored_frame_manifest,
+        "source": {
+            "vanguard": str(VANGUARD_GLB.relative_to(ROOT)),
+            "crimson": str(CRIMSON_GLB.relative_to(ROOT)),
+            "sword": str(SWORD_GLB.relative_to(ROOT)),
+            "reference": str(REFERENCE_JSON.relative_to(ROOT)),
+            "calibration": str(CALIBRATION_JSON.relative_to(ROOT)),
+            "protectedBodyBaseline": str(PROTECTED_BODY_BASELINE_JSON.relative_to(ROOT)),
+            "requestedCandidate": str(candidate_path.relative_to(ROOT)) if candidate_path.is_relative_to(ROOT) else str(candidate_path),
+            "rejectedBaselineCandidate": str(rejected_baseline_path.relative_to(ROOT)) if rejected_baseline_path.is_relative_to(ROOT) else str(rejected_baseline_path),
+        },
+        "sourceHashes": source_hashes,
         "expected": "Vanguard and Crimson perform the same readable sword attack side by side; Crimson hilt stays in right hand and blade leads contact.",
         "status": "FAIL" if all_failures else "PASS",
         "frames": frames,
@@ -1312,7 +3087,7 @@ def main() -> None:
     }
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     if all_failures:
-        broken = {"schema": "pose-lab-v2-broken-transform-report-v1", "createdAt": utc_now(), "candidate": candidate["id"], "failures": all_failures}
+        broken = {"schema": "pose-lab-v2-broken-transform-report-v1", "createdAt": utc_now(), "candidate": args.candidate_id, "failures": all_failures}
         (out_dir / "broken_transforms.json").write_text(json.dumps(broken, indent=2), encoding="utf-8")
         print(json.dumps({"ok": False, "outDir": str(out_dir.relative_to(ROOT)), "failureCount": len(all_failures), "brokenTransforms": str((out_dir / "broken_transforms.json").relative_to(ROOT))}, indent=2))
         sys.exit(1)

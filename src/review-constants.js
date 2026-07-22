@@ -1,3 +1,20 @@
+import { CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE } from './review-candidates/crimson-combat-ready-vanguard-frame0-4.js';
+
+const CRIMSON_FRAME0_3_REJECTED_POSE_SHA = 'b9ec44d3d17527779334e372a79894b07cbd535c4af54927e0cc638f3b1b6c2f';
+const CRIMSON_FRAME0_480EB888_REJECTED_POSE_SHA = 'b5ef5555ba060546f4d6dd3921f09cf0e4251dfac8a346d4db7f4f30858bd554';
+export function crimsonFrame04ReviewStatus(sequence) {
+  const source = sequence?.source || {};
+  const hasAuthoredPose = source.exactAuthoredGlb === true
+    && source.status === 'generated-visual-pending-candidate-parity'
+    && /^[a-f0-9]{64}$/.test(source.poseSha256 || '')
+    && /^[a-f0-9]{64}$/.test(source.authoredGlbSha256 || '')
+    && source.poseSha256 !== CRIMSON_FRAME0_3_REJECTED_POSE_SHA
+    && source.poseSha256 !== CRIMSON_FRAME0_480EB888_REJECTED_POSE_SHA;
+  return hasAuthoredPose ? 'visual-pending' : 'authoring-red';
+}
+
+const CRIMSON_FRAME0_4_STATUS = crimsonFrame04ReviewStatus(CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE);
+
 export const SABER_GRIP_LOCAL = {
   position: [8.52296, 28.41254, -24.44467],
   rotationDeg: [32.35, 74.24, -174.11],
@@ -45,9 +62,18 @@ export const ATTACK1_REVIEW_CANDIDATES = {
   "crimson-combat-ready-vanguard-frame0-3": {
     module: "./review-candidates/crimson-combat-ready-vanguard-frame0-3.js",
     exportName: "CRIMSON_COMBAT_READY_VANGUARD_FRAME0_3_SEQUENCE",
-    label: "Crimson combat-ready frame zero 3 (Blender glTF export; user gate pending)",
+    label: "Crimson combat-ready frame zero 3 (rejected: arms did not materially improve)",
     characterKey: "crimson",
-    status: "visual-pending",
+    status: "rejected",
+  },
+  "crimson-combat-ready-vanguard-frame0-4": {
+    module: "./review-candidates/crimson-combat-ready-vanguard-frame0-4.js",
+    exportName: "CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE",
+    label: CRIMSON_FRAME0_4_STATUS === "visual-pending"
+      ? "Crimson combat-ready frame zero 4 (exact authored GLB; user gate pending)"
+      : "Crimson combat-ready frame zero 4 (authoring red: generated pose not committed)",
+    characterKey: "crimson",
+    status: CRIMSON_FRAME0_4_STATUS,
   },
   "attack1-candidate-1": {
     module: "./review-candidates/attack1-candidate-1.js",

@@ -2,7 +2,7 @@ name: Crimson PR Visual Evidence
 
 on:
   push:
-    branches: [agent/crimson-foot-red-gate]
+    branches: [agent/crimson-foot-red-gate, codex/pose-lab-sane]
     paths-ignore:
       - "docs/**"
 
@@ -26,8 +26,8 @@ jobs:
             --python tools/render_crimson_vanguard_attack1_compare_blender.py -- \
             --out-dir generated/crimson-frame-zero/${GITHUB_RUN_ID} \
             --frames start \
-            --candidate-js src/review-candidates/crimson-combat-ready-vanguard-frame0-3.js \
-            --candidate-id crimson-combat-ready-vanguard-frame0-3 \
+            --candidate-js src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js \
+            --candidate-id crimson-combat-ready-vanguard-frame0-4 \
             --author-frame-zero \
             --samples 16 \
             --width 1600 \
@@ -48,12 +48,34 @@ jobs:
         run: exit 1
 
   capture-frame-zero:
+    needs: blender-frame-zero
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Download successful Blender frame-zero evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: crimson-frame-zero-blender-${{ github.run_id }}
+          path: generated/crimson-frame-zero-blender/${{ github.run_id }}
+      - name: Bind browser candidate to Blender-authored pose
+        id: blender-parity
+        env:
+          BLENDER_MANIFEST: generated/crimson-frame-zero-blender/${{ github.run_id }}/manifest.json
+        run: |
+          set -eu
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import { assertBlenderManifestContract } from './tools/github_crimson_visual_capture.mjs';
+          const manifest = JSON.parse(fs.readFileSync(process.env.BLENDER_MANIFEST, 'utf8'));
+          const bound = assertBlenderManifestContract(manifest, 'crimson-combat-ready-vanguard-frame0-4');
+          fs.appendFileSync(
+            process.env.GITHUB_OUTPUT,
+            `candidate_id=${bound.candidateId}\npose_sha=${bound.poseSha}\ncandidate_module_sha=${bound.candidateModuleSha}\n`,
+          );
+          NODE
       - name: Install Playwright package without browser download
         run: npm install --no-save playwright
         env:
@@ -67,6 +89,9 @@ jobs:
       - name: Capture Crimson combat-ready frame zero
         env:
           PLAYWRIGHT_CHROME_CHANNEL: chrome
+          EXPECTED_CANDIDATE_ID: ${{ steps.blender-parity.outputs.candidate_id }}
+          EXPECTED_POSE_SHA: ${{ steps.blender-parity.outputs.pose_sha }}
+          EXPECTED_CANDIDATE_MODULE_SHA: ${{ steps.blender-parity.outputs.candidate_module_sha }}
         run: |
           set -eu
           python3 -m http.server 4173 --bind 127.0.0.1 --directory dist > /tmp/crimson-v4-http.log 2>&1 &
@@ -79,7 +104,7 @@ jobs:
             const params = new URLSearchParams({
               model: 'crimson',
               pose: 'attack1',
-              candidate: 'crimson-combat-ready-vanguard-frame0-3',
+              candidate: 'crimson-combat-ready-vanguard-frame0-4',
               attackTime: String(time),
               quality: 'source',
               cacheBust: process.env.GITHUB_SHA,
@@ -88,22 +113,6 @@ jobs:
             return { label: `frame-zero ${primeKey}${viewSuffix}`, primeKey, time, cameraView, url: `${base}?${params}` };
           };
           const urls = frames.map(([primeKey, time]) => capture(primeKey, time));
-          const manualParams = new URLSearchParams({
-            model: 'crimson',
-            pose: 'attack1',
-            manual: '1',
-            reviewControls: '1',
-            debugBones: '1',
-            quality: 'source',
-            cacheBust: process.env.GITHUB_SHA,
-          });
-          urls.push({
-            label: 'Crimson direct frame-zero keyframe authoring',
-            primeKey: 'manual-start',
-            time: 0,
-            cameraView: null,
-            url: `${base}?${manualParams}`,
-          });
           for (const [primeKey, time] of [['start', 0]]) {
             urls.push(capture(primeKey, time, 'left'), capture(primeKey, time, 'right'));
           }
@@ -117,6 +126,9 @@ jobs:
             --job-id "github_actions_${GITHUB_RUN_ID}" \
             --session-id "browser_session_${GITHUB_RUN_ID}" \
             --episode-id "browser_episode_${GITHUB_RUN_ID}" \
+            --expected-candidate-id "$EXPECTED_CANDIDATE_ID" \
+            --expected-pose-sha "$EXPECTED_POSE_SHA" \
+            --expected-candidate-module-sha "$EXPECTED_CANDIDATE_MODULE_SHA" \
             --timeout-ms 45000 \
             --settle-ms 1500
       - uses: actions/upload-artifact@v4

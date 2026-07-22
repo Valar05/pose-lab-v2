@@ -653,7 +653,10 @@ function markBootTiming(name) {
 function updateReviewReady() {
   if (document.body.dataset.reviewReady === '1' || document.body.dataset.bootFailed === '1') return;
   const saberOk = !ACTIVE_CHARACTER.supportsSaber || (saberAttachmentProof.status === 'attached' && saberAttachmentProof.visibleInViewport === true);
-  const candidateOk = !REQUESTED_CANDIDATE || Boolean(attackPoseSequence);
+  const candidateOk = !REQUESTED_CANDIDATE || Boolean(
+    attackPoseSequence
+    && (!attackPoseSequence.source?.exactAuthoredGlb || document.body.dataset.reviewApplied === '1')
+  );
   const poseOk = !REQUESTED_ATTACK_QUARANTINED || poseState === 'attack1';
   if (firstFrameRendered && document.body.dataset.bootReady === '1' && saberOk && candidateOk && poseOk) {
     markBootTiming('reviewReady');
@@ -1619,25 +1622,49 @@ function stopPoseAnimation() {
 }
 
 function applyPoseBones(bones = {}) {
+  const report = { requestedCount: 0, appliedCount: 0, appliedBones: [], missingBones: [], invalidBones: [] };
   for (const [name, values] of Object.entries(bones)) {
+    report.requestedCount += 1;
     const bone = poseBones.get(name);
-    if (!bone) continue;
+    if (!bone) {
+      report.missingBones.push(name);
+      continue;
+    }
     if (Array.isArray(values)) bone.quaternion.copy(quaternionFromArray(values));
     else if (Array.isArray(values?.quaternion)) bone.quaternion.copy(quaternionFromArray(values.quaternion));
     else if (Array.isArray(values?.rotationDeg)) bone.quaternion.copy(quaternionFromRotationDeg(values.rotationDeg));
+    else {
+      report.invalidBones.push(name);
+      continue;
+    }
+    report.appliedCount += 1;
+    report.appliedBones.push(name);
   }
   root.updateMatrixWorld(true);
   updatePoseHandles();
+  return report;
 }
 
 function applyPosePositions(positions = {}) {
+  const report = { requestedCount: 0, appliedCount: 0, appliedBones: [], missingBones: [], invalidBones: [] };
   for (const [name, values] of Object.entries(positions)) {
+    report.requestedCount += 1;
     const bone = poseBones.get(name);
-    if (!bone || !Array.isArray(values)) continue;
+    if (!bone) {
+      report.missingBones.push(name);
+      continue;
+    }
+    if (!Array.isArray(values)) {
+      report.invalidBones.push(name);
+      continue;
+    }
     bone.position.fromArray(values);
+    report.appliedCount += 1;
+    report.appliedBones.push(name);
   }
   root.updateMatrixWorld(true);
   updatePoseHandles();
+  return report;
 }
 
 function snapshotPoseBones() {
@@ -1667,17 +1694,37 @@ function snapshotSaberFk() {
 }
 
 function applySaberFkSnapshot(snapshot = {}) {
+  const report = { requestedCount: 0, appliedCount: 0, appliedObjects: [], missingObjects: [], invalidObjects: [] };
+  if (snapshot.saberGrip) report.requestedCount += 1;
   if (saberGrip && snapshot.saberGrip) {
-    saberGrip.position.fromArray(snapshot.saberGrip.position || [0, 0, 0]);
-    saberGrip.quaternion.copy(quaternionFromArray(snapshot.saberGrip.quaternion));
-    saberGrip.scale.fromArray(snapshot.saberGrip.scale || [1, 1, 1]);
+    if (Array.isArray(snapshot.saberGrip.position) && Array.isArray(snapshot.saberGrip.quaternion) && Array.isArray(snapshot.saberGrip.scale)) {
+      saberGrip.position.fromArray(snapshot.saberGrip.position);
+      saberGrip.quaternion.copy(quaternionFromArray(snapshot.saberGrip.quaternion));
+      saberGrip.scale.fromArray(snapshot.saberGrip.scale);
+      report.appliedCount += 1;
+      report.appliedObjects.push('saberGrip');
+    } else {
+      report.invalidObjects.push('saberGrip');
+    }
+  } else if (snapshot.saberGrip) {
+    report.missingObjects.push('saberGrip');
   }
+  if (snapshot.sabreLocal) report.requestedCount += 1;
   if (sabreRoot && snapshot.sabreLocal) {
-    sabreRoot.position.fromArray(snapshot.sabreLocal.position || [0, 0, 0]);
-    sabreRoot.quaternion.copy(quaternionFromArray(snapshot.sabreLocal.quaternion));
-    sabreRoot.scale.fromArray(snapshot.sabreLocal.scale || [1, 1, 1]);
+    if (Array.isArray(snapshot.sabreLocal.position) && Array.isArray(snapshot.sabreLocal.quaternion) && Array.isArray(snapshot.sabreLocal.scale)) {
+      sabreRoot.position.fromArray(snapshot.sabreLocal.position);
+      sabreRoot.quaternion.copy(quaternionFromArray(snapshot.sabreLocal.quaternion));
+      sabreRoot.scale.fromArray(snapshot.sabreLocal.scale);
+      report.appliedCount += 1;
+      report.appliedObjects.push('sabreLocal');
+    } else {
+      report.invalidObjects.push('sabreLocal');
+    }
+  } else if (snapshot.sabreLocal) {
+    report.missingObjects.push('sabreLocal');
   }
   root.updateMatrixWorld(true);
+  return report;
 }
 
 function markCustomPose() {
@@ -2036,16 +2083,58 @@ function interpolatePosePositions(a = {}, b = {}, alpha = 0) {
   return positions;
 }
 
+function publishReviewAppliedProof(frame, bones, positions, saber) {
+  if (!REQUESTED_CANDIDATE || !attackPoseSequence) return;
+  const missingRequestedBones = [...new Set([
+    ...(bones.missingBones || []),
+    ...(positions.missingBones || []),
+  ])].sort();
+  const invalidRequestedBones = [...new Set([
+    ...(bones.invalidBones || []),
+    ...(positions.invalidBones || []),
+  ])].sort();
+  const allRequestedChannelsApplied = bones.requestedCount > 0
+    && bones.appliedCount === bones.requestedCount
+    && positions.appliedCount === positions.requestedCount
+    && saber.appliedCount === saber.requestedCount
+    && missingRequestedBones.length === 0
+    && invalidRequestedBones.length === 0
+    && saber.missingObjects.length === 0
+    && saber.invalidObjects.length === 0;
+  const proof = {
+    schema: 'pose-lab-v2-browser-candidate-apply-proof-v1',
+    status: allRequestedChannelsApplied ? 'PASS' : 'FAIL',
+    candidateId: attackPoseSequence.id || REQUESTED_CANDIDATE,
+    poseSha: attackPoseSequence.source?.poseSha256 || attackPoseSequence.source?.poseSha || '',
+    candidateModuleSha: document.body.dataset.reviewCandidateModuleSha || '',
+    exactAuthoredGlb: attackPoseSequence.source?.exactAuthoredGlb === true,
+    frame: { label: frame.label || null, time: frame.time },
+    zeroMissingRequestedBones: missingRequestedBones.length === 0,
+    allRequestedChannelsApplied,
+    missingRequestedBones,
+    invalidRequestedBones,
+    bones,
+    positions,
+    saber,
+  };
+  document.body.dataset.reviewApplied = proof.status === 'PASS' ? '1' : '0';
+  document.body.dataset.reviewMissingRequestedBones = JSON.stringify(missingRequestedBones);
+  document.body.dataset.reviewAppliedProof = JSON.stringify(proof);
+}
+
 function applyAttackSequenceAt(time, options = {}) {
   const frame = sequenceFrameAt(attackPoseSequence, time, options);
   if (!frame) return;
   setSabreReviewVisible(!attackPoseSequence?.source?.weaponless);
   attackPoseCurrentTime = frame.time;
-  applyPoseBones(frame.bones || {});
-  applyPosePositions(frame.positions || {});
-  applySaberFkSnapshot(frame);
-  alignSaberGripToWorldDirection(attackPoseSequence?.source?.runtimeBladeWorldDirection);
-  seatSaberHiltTowardHand(attackPoseSequence?.source?.runtimeHiltSeatBlend);
+  const boneApplyReport = applyPoseBones(frame.bones || {});
+  const positionApplyReport = applyPosePositions(frame.positions || {});
+  const saberApplyReport = applySaberFkSnapshot(frame);
+  if (!attackPoseSequence?.source?.exactAuthoredGlb) {
+    alignSaberGripToWorldDirection(attackPoseSequence?.source?.runtimeBladeWorldDirection);
+    seatSaberHiltTowardHand(attackPoseSequence?.source?.runtimeHiltSeatBlend);
+  }
+  publishReviewAppliedProof(frame, boneApplyReport, positionApplyReport, saberApplyReport);
   updateAttackReviewControls();
 }
 
@@ -2466,17 +2555,40 @@ async function loadSharedRestBaseline() {
   markBootTiming('sharedRestBaselineLoaded');
 }
 
+async function sha256Hex(bytes) {
+  if (!globalThis.crypto?.subtle) throw new Error('Web Crypto SHA-256 is unavailable');
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, '0')).join('');
+}
+
 async function loadReviewCandidate() {
   const cacheBust = URL_PARAMS.get('cacheBust');
-  const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
   const candidates = REQUESTED_IDLE_REVIEW ? DAVIN_IDLE_REVIEW_CANDIDATES : REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_REVIEW_CANDIDATES : ATTACK1_REVIEW_CANDIDATES;
   const candidate = candidates[REQUESTED_CANDIDATE];
   if (!candidate) return;
   const shouldLoad = REQUESTED_IDLE_REVIEW || REQUESTED_LOWBACKKICK_REVIEW || REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED;
   if (!shouldLoad) return;
-  const candidateModule = await import(`${candidate.module}${suffix}`);
+  const candidateUrl = new URL(candidate.module, import.meta.url);
+  if (cacheBust) candidateUrl.searchParams.set('cacheBust', cacheBust);
+  const response = await fetch(candidateUrl, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`failed review candidate module ${response.status}`);
+  const moduleBytes = await response.arrayBuffer();
+  const candidateModuleSha = await sha256Hex(moduleBytes);
+  const blobUrl = URL.createObjectURL(new Blob([moduleBytes], { type: 'text/javascript' }));
+  let candidateModule;
+  try {
+    candidateModule = await import(blobUrl);
+  } finally {
+    URL.revokeObjectURL(blobUrl);
+  }
   attackPoseSequence = candidateModule[candidate.exportName];
   if (!attackPoseSequence?.frames?.length) throw new Error(`${REQUESTED_ATTACK_LABEL} review candidate ${REQUESTED_CANDIDATE} has no frames`);
+  if (attackPoseSequence.id && attackPoseSequence.id !== REQUESTED_CANDIDATE) {
+    throw new Error(`${REQUESTED_ATTACK_LABEL} review candidate identity mismatch: requested ${REQUESTED_CANDIDATE}, loaded ${attackPoseSequence.id || 'missing id'}`);
+  }
+  document.body.dataset.reviewCandidateId = attackPoseSequence.id || REQUESTED_CANDIDATE;
+  document.body.dataset.reviewPoseSha = attackPoseSequence.source?.poseSha256 || attackPoseSequence.source?.poseSha || '';
+  document.body.dataset.reviewCandidateModuleSha = candidateModuleSha;
   markBootTiming('candidateLoaded');
 }
 
