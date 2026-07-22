@@ -705,16 +705,16 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     # knees. Side components keep each knee over its own foot rather than
     # collapsing inward or corkscrewing at the hip.
     authored_directions = [
-        ("LeftUpLeg", (0.075, -0.185, -0.980)),
-        ("LeftLeg", (-0.025, 0.135, -0.991)),
-        ("RightUpLeg", (-0.065, 0.115, -0.991)),
-        ("RightLeg", (0.020, -0.075, -0.997)),
+        ("LeftUpLeg", (0.070, -0.545, -0.835)),
+        ("LeftLeg", (-0.020, 0.055, -0.998)),
+        ("RightUpLeg", (-0.060, 0.345, -0.937)),
+        ("RightLeg", (0.020, -0.055, -0.998)),
         # Upper arms descend and come forward from neutral clavicles.
-        ("LeftArm", (0.455, -0.565, -0.688)),
-        ("RightArm", (-0.425, -0.600, -0.678)),
+        ("LeftArm", (0.350, -0.400, -0.847)),
+        ("RightArm", (-0.350, -0.430, -0.832)),
         # Forearms fold inward and upward into a compact two-hand guard.
-        ("LeftForeArm", (-0.610, -0.285, 0.739)),
-        ("RightForeArm", (0.575, -0.320, 0.753)),
+        ("LeftForeArm", (-0.820, -0.250, 0.515)),
+        ("RightForeArm", (0.815, -0.270, 0.513)),
     ]
     posed = []
     for bone_name, direction in authored_directions:
@@ -772,7 +772,7 @@ def author_crimson_blade_direction(
     # This threat line is visually authored for Crimson. It is not measured or
     # imported from Vanguard. The hand is rotated as an FK control until the
     # actual Arborblade mesh follows this chosen direction.
-    desired = Vector((0.855, -0.245, 0.456)).normalized()
+    desired = Vector((0.940, -0.200, 0.275)).normalized()
     applied = 0.0
     for _ in range(3):
         hand = find_pose_bone_world(target_armature, "RightHand")
