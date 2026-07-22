@@ -62,6 +62,9 @@ HAND_LANDMARK_MIN_TORSO_FRACTION = 0.20
 HAND_LANDMARK_MAX_TORSO_FRACTION = 0.50
 GRIP_SURFACE_CLEARANCE_TORSO_FRACTION = 0.005
 GRIP_SURFACE_SEAT_CLEARANCE_TORSO_FRACTION = 0.0055
+SUPPORT_GRIP_SURFACE_SEAT_CLEARANCE_TORSO_FRACTION = 0.012
+SUPPORT_PALM_PIN_TOLERANCE_TORSO_FRACTION = 0.004
+SUPPORT_PALM_PIN_MAX_ITERATIONS = 20
 LOW_ELBOW_DROP_TORSO_FRACTION = 0.05
 HEAD_MESH_WEIGHT_MINIMUM = 0.75
 HEAD_MESH_MINIMUM_VERTICES = 500
@@ -1410,9 +1413,9 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     # the support arm nearly straight and mathematically forces its elbow above
     # the wrist, regardless of how low the pole hint is authored.
     right_hand_target = neck + Vector((
-        -0.08 * shoulder_span,
+        -0.03 * shoulder_span,
         -0.34 * torso_height,
-        -0.52 * torso_height,
+        -0.38 * torso_height,
     ))
     # The support hand occupies the pommel side of the same grip line. This is
     # an authored body-scale relationship, not a second independent hand pose.
@@ -1543,15 +1546,34 @@ def author_crimson_blade_direction(
     # face in front/three-quarter views without dropping through the torso.
     desired = Vector((0.875, -0.470, 0.110)).normalized()
     applied = 0.0
-    for _ in range(3):
+    iterations = 0
+    residual_angle = math.inf
+    actual = Vector((0.0, 0.0, 0.0))
+    for _ in range(8):
         hand = find_pose_bone_world(target_armature, "RightHand")
         socket = place_crimson_sword(sword_objects, sword_initial, hand, calibration)
         hilt = socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
         tip = socket @ browser_vector(calibration.get("tipLocalPoint") or [0, 0, 1])
+        actual = (tip - hilt).normalized()
+        residual_angle = math.degrees(actual.angle(desired))
+        if residual_angle <= 0.05:
+            break
         applied += rotate_pose_bone_world(target_armature, "RightHand", tip - hilt, desired, 35)
+        iterations += 1
+    hand = find_pose_bone_world(target_armature, "RightHand")
+    socket = place_crimson_sword(sword_objects, sword_initial, hand, calibration)
+    hilt = socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+    tip = socket @ browser_vector(calibration.get("tipLocalPoint") or [0, 0, 1])
+    actual = (tip - hilt).normalized()
+    residual_angle = math.degrees(actual.angle(desired))
     return {
+        "status": "PASS" if residual_angle <= 0.05 else "FAIL",
         "authority": "authored Crimson threat line; no Vanguard measurement",
         "desiredWorldDirection": [round(v, 6) for v in desired],
+        "actualWorldDirection": [round(v, 6) for v in actual],
+        "residualAngleDeg": round(residual_angle, 6),
+        "maximumResidualAngleDeg": 0.05,
+        "iterations": iterations,
         "rightHandFkCorrectionDeg": round(applied, 3),
     }
 
@@ -2389,11 +2411,25 @@ def pin_left_support_palm_to_handle(
         handle_direction,
     )
     right_center_axis = (right_palm - hilt).dot(handle_direction)
-    surface_gap = torso_height * GRIP_SURFACE_CLEARANCE_TORSO_FRACTION
-    elbow_hint = find_pose_bone_world(armature, "LeftForeArm").translation.copy()
-    tolerance = torso_height * 0.01
+    surface_gap = (
+        torso_height * SUPPORT_GRIP_SURFACE_SEAT_CLEARANCE_TORSO_FRACTION
+    )
+    left_shoulder = find_pose_bone_world(armature, "LeftArm").translation
+    shoulder_span = (
+        left_shoulder
+        - find_pose_bone_world(armature, "RightArm").translation
+    ).length
+    # The grip pin is a new solve after wrist roll and weapon orientation. Keep
+    # its pole authored in body scale instead of inheriting the pre-weapon elbow;
+    # that stale pole can select the upper branch of the exact elbow circle.
+    elbow_hint = left_shoulder + Vector((
+        -0.15 * shoulder_span,
+        0.02 * torso_height,
+        -0.80 * torso_height,
+    ))
+    tolerance = torso_height * SUPPORT_PALM_PIN_TOLERANCE_TORSO_FRACTION
     iterations = []
-    for index in range(12):
+    for index in range(SUPPORT_PALM_PIN_MAX_ITERATIONS):
         wrist_before = find_pose_bone_world(armature, "LeftHand").translation.copy()
         palm_before, points_before, evidence_before = hand_mesh_landmark(
             body_objects,
@@ -2496,6 +2532,8 @@ def pin_left_support_palm_to_handle(
         "rightPommelSideExtentWorld": round(right_pommel_extent, 6),
         "leftBladeSideExtentWorld": round(actual_left_blade_extent, 6),
         "requiredSurfaceGapWorld": round(surface_gap, 6),
+        "requiredSurfaceGapBodyScale": SUPPORT_GRIP_SURFACE_SEAT_CLEARANCE_TORSO_FRACTION,
+        "elbowHintWorld": [round(value, 6) for value in elbow_hint],
         "targetHandleParameter": round(target_parameter, 6),
         "hiltWorld": [round(value, 6) for value in hilt],
         "pommelWorld": [round(value, 6) for value in pommel],
@@ -3710,6 +3748,12 @@ def main() -> None:
         author_report["blade"] = author_crimson_blade_direction(
             crimson_armature, sword_objects, sword_initial, calibration
         )
+        if author_report["blade"]["status"] != "PASS":
+            author_failures.append({
+                "code": "AUTHOR_BLADE_DIRECTION_FAILED",
+                "actual": author_report["blade"],
+                "expected": "actual Arborblade mesh direction within 0.05 degrees of the authored threat line",
+            })
         author_report["swordSeating"] = seat_sword_hilt_at_right_palm(
             crimson_armature,
             crimson_objects,
@@ -3736,7 +3780,7 @@ def main() -> None:
                 "code": "AUTHOR_LEFT_SUPPORT_PALM_PIN_FAILED",
                 "actual": author_report["supportHandPin"],
                 "expected": (
-                    "left visible palm pinned within 0.01 torso-height of the oriented handle, "
+                    "left visible palm pinned within 0.004 torso-height of the oriented handle, "
                     "with at least 0.03 torso-height reach reserve and elbow bend <= 165 degrees"
                 ),
             })

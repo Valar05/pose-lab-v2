@@ -107,6 +107,8 @@ assert "HAND_MESH_MINIMUM_VERTICES = 250" in renderer
 assert "HEAD_MESH_WEIGHT_MINIMUM = 0.75" in renderer
 assert "GRIP_SURFACE_CLEARANCE_TORSO_FRACTION = 0.005" in renderer
 assert "GRIP_SURFACE_SEAT_CLEARANCE_TORSO_FRACTION = 0.0055" in renderer
+assert "SUPPORT_GRIP_SURFACE_SEAT_CLEARANCE_TORSO_FRACTION = 0.012" in renderer
+assert "SUPPORT_PALM_PIN_TOLERANCE_TORSO_FRACTION = 0.004" in renderer
 assert "LOW_ELBOW_DROP_TORSO_FRACTION = 0.05" in renderer
 assert "def hand_mesh_landmark(" in renderer
 assert "weighted centroid of evaluated visible mesh vertices" in renderer
@@ -120,6 +122,7 @@ assert "def low_elbow_guard_contract(" in renderer
 assert '"AUTHOR_LOW_ELBOW_GUARD_FAILED"' in renderer
 assert "bpy.context.view_layer.update()" in renderer
 assert '"AUTHOR_BLADE_FACE_CLEARANCE_FAILED"' in renderer
+assert '"AUTHOR_BLADE_DIRECTION_FAILED"' in renderer
 assert "pose_bone_world_tail" not in renderer
 assert "head.lerp(tail, 0.55)" not in renderer
 assert "PROTECTED_BODY_EXPORT_POSITION_TOLERANCE = 0.00002" in renderer
