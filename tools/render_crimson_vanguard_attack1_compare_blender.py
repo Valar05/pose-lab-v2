@@ -62,6 +62,7 @@ HAND_LANDMARK_MIN_TORSO_FRACTION = 0.20
 HAND_LANDMARK_MAX_TORSO_FRACTION = 0.50
 GRIP_SURFACE_CLEARANCE_TORSO_FRACTION = 0.005
 GRIP_SURFACE_SEAT_CLEARANCE_TORSO_FRACTION = 0.0055
+LOW_ELBOW_DROP_TORSO_FRACTION = 0.05
 HEAD_MESH_WEIGHT_MINIMUM = 0.75
 HEAD_MESH_MINIMUM_VERTICES = 500
 # These are measured Blender 4.3 -> glTF -> parser round-trip floors from the
@@ -1405,8 +1406,11 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     # Mesh-hull review proved that the proxy-era target still put both visible
     # gauntlets at helmet height in the right profile. Lower and extend the
     # whole guard cluster; never weaken the silhouette-clearance thresholds.
+    # Keep it only modestly viewer-left.  Pushing the handle farther left makes
+    # the support arm nearly straight and mathematically forces its elbow above
+    # the wrist, regardless of how low the pole hint is authored.
     right_hand_target = neck + Vector((
-        -0.48 * shoulder_span,
+        -0.08 * shoulder_span,
         -0.34 * torso_height,
         -0.52 * torso_height,
     ))
@@ -1419,7 +1423,7 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     ))
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
-    right_elbow_hint = right_shoulder + Vector((-0.25 * shoulder_span, -0.14 * torso_height, -0.46 * torso_height))
+    right_elbow_hint = right_shoulder + Vector((-0.25 * shoulder_span, -0.14 * torso_height, -0.65 * torso_height))
     left_elbow_hint = left_shoulder + Vector((-0.15 * shoulder_span, 0.02 * torso_height, -0.42 * torso_height))
     arm_reports = [
         solve_two_bone_elbow_wrist_pin(
@@ -2516,6 +2520,54 @@ def pin_left_support_palm_to_handle(
         },
         "failures": failures,
         "iterations": iterations,
+    }
+
+
+def low_elbow_guard_contract(
+    armature: bpy.types.Object,
+    torso_height: float,
+) -> dict:
+    """Reject a nominal grip whose final arm triangle still turns upward."""
+    minimum_drop = torso_height * LOW_ELBOW_DROP_TORSO_FRACTION
+    sides = {}
+    failures = []
+    for side in ("Right", "Left"):
+        shoulder = find_pose_bone_world(armature, f"{side}Arm").translation
+        elbow = find_pose_bone_world(armature, f"{side}ForeArm").translation
+        wrist = find_pose_bone_world(armature, f"{side}Hand").translation
+        elbow_drop = wrist.z - elbow.z
+        side_report = {
+            "shoulderWorld": [round(value, 6) for value in shoulder],
+            "elbowWorld": [round(value, 6) for value in elbow],
+            "wristWorld": [round(value, 6) for value in wrist],
+            "elbowDropBelowWristWorld": round(elbow_drop, 6),
+            "elbowDropBelowWristBodyScale": round(
+                elbow_drop / max(torso_height, 0.000001),
+                6,
+            ),
+            "status": "PASS" if elbow_drop >= minimum_drop else "FAIL",
+        }
+        sides[side.lower()] = side_report
+        if side_report["status"] != "PASS":
+            failures.append({
+                "side": side.lower(),
+                "actualWorld": round(elbow_drop, 6),
+                "actualBodyScale": side_report["elbowDropBelowWristBodyScale"],
+                "expected": (
+                    f">= {LOW_ELBOW_DROP_TORSO_FRACTION} torso-height below the wrist"
+                ),
+            })
+    return {
+        "status": "FAIL" if failures else "PASS",
+        "authority": "final Crimson forearm-head and wrist-bone world occupancy after support-hand pin",
+        "minimumElbowDropBelowWristWorld": round(minimum_drop, 6),
+        "minimumElbowDropBelowWristBodyScale": LOW_ELBOW_DROP_TORSO_FRACTION,
+        "elbowHeightDifferenceWorld": round(
+            abs(sides["left"]["elbowWorld"][2] - sides["right"]["elbowWorld"][2]),
+            6,
+        ),
+        "sides": sides,
+        "failures": failures,
     }
 
 
@@ -3686,6 +3738,19 @@ def main() -> None:
                 "expected": (
                     "left visible palm pinned within 0.01 torso-height of the oriented handle, "
                     "with at least 0.03 torso-height reach reserve and elbow bend <= 165 degrees"
+                ),
+            })
+        author_report["lowElbowGuardContract"] = low_elbow_guard_contract(
+            crimson_armature,
+            author_report["bodyScale"]["torsoHeight"],
+        )
+        if author_report["lowElbowGuardContract"]["status"] != "PASS":
+            author_failures.append({
+                "code": "AUTHOR_LOW_ELBOW_GUARD_FAILED",
+                "actual": author_report["lowElbowGuardContract"],
+                "expected": (
+                    "both final elbow/forearm heads sit at least 0.05 torso-height below "
+                    "their matching wrist bones"
                 ),
             })
         author_report["armLandmarkDeltaVsCommittedRejectedCandidate"] = arm_landmark_delta(
