@@ -61,6 +61,7 @@ HAND_MESH_MINIMUM_VERTICES = 250
 HAND_LANDMARK_MIN_TORSO_FRACTION = 0.20
 HAND_LANDMARK_MAX_TORSO_FRACTION = 0.50
 GRIP_SURFACE_CLEARANCE_TORSO_FRACTION = 0.005
+GRIP_SURFACE_SEAT_CLEARANCE_TORSO_FRACTION = 0.0055
 HEAD_MESH_WEIGHT_MINIMUM = 0.75
 HEAD_MESH_MINIMUM_VERTICES = 500
 # These are measured Blender 4.3 -> glTF -> parser round-trip floors from the
@@ -1987,7 +1988,7 @@ def sword_crossguard_geometry(calibration: dict, handle_length_world: float) -> 
         ),
         **selection,
         "pommelExtentLocal": round(local_extent, 8),
-        "pommelExtentWorld": round(world_extent, 8),
+        "pommelExtentWorld": world_extent,
         "pommelExtentHandleFraction": round(local_extent / local_handle_length, 8),
     }
 
@@ -2055,7 +2056,9 @@ def seat_sword_hilt_at_right_palm(
     )
     crossguard_geometry = sword_crossguard_geometry(calibration, handle_length)
     guard_pommel_extent = crossguard_geometry["pommelExtentWorld"]
-    guard_clearance = torso_height * GRIP_SURFACE_CLEARANCE_TORSO_FRACTION
+    guard_clearance = (
+        torso_height * GRIP_SURFACE_SEAT_CLEARANCE_TORSO_FRACTION
+    )
     desired_hilt_world = palm_anchor + handle_direction * (
         blade_side_extent - guard_pommel_extent - guard_clearance
     )
@@ -2462,8 +2465,25 @@ def pin_left_support_palm_to_handle(
         )
     palm_target = hilt + handle_direction * target_axis
     palm_error = (actual_palm - palm_target).length
+    shoulder = find_pose_bone_world(armature, "LeftArm").translation
+    elbow = find_pose_bone_world(armature, "LeftForeArm").translation
+    wrist = find_pose_bone_world(armature, "LeftHand").translation
+    upper_length = (elbow - shoulder).length
+    lower_length = (wrist - elbow).length
+    arm_reach = (wrist - shoulder).length
+    reach_reserve = upper_length + lower_length - arm_reach
+    elbow_angle = math.degrees((shoulder - elbow).angle(wrist - elbow))
+    minimum_reach_reserve = torso_height * 0.03
+    maximum_elbow_angle = 165.0
+    failures = []
+    if palm_error > tolerance:
+        failures.append("visible palm pin error")
+    if reach_reserve < minimum_reach_reserve:
+        failures.append("support-arm reach reserve")
+    if elbow_angle > maximum_elbow_angle:
+        failures.append("support elbow too straight")
     return {
-        "status": "PASS" if palm_error <= tolerance else "FAIL",
+        "status": "FAIL" if failures else "PASS",
         "authority": "post-blade-orientation left-arm pin to actual hilt-pommel segment",
         "anchorDefinition": actual_palm_evidence["definition"],
         "rightPalmMeshEvidence": right_palm_evidence,
@@ -2481,6 +2501,20 @@ def pin_left_support_palm_to_handle(
         "actualPalmWorld": [round(value, 6) for value in actual_palm],
         "palmPinErrorWorld": round(palm_error, 9),
         "toleranceWorld": round(tolerance, 9),
+        "finalArmGeometry": {
+            "upperLengthWorld": round(upper_length, 6),
+            "lowerLengthWorld": round(lower_length, 6),
+            "shoulderToWristWorld": round(arm_reach, 6),
+            "reachReserveWorld": round(reach_reserve, 6),
+            "reachReserveBodyScale": round(
+                reach_reserve / max(torso_height, 0.000001),
+                6,
+            ),
+            "minimumReachReserveWorld": round(minimum_reach_reserve, 6),
+            "elbowAngleDeg": round(elbow_angle, 3),
+            "maximumElbowAngleDeg": maximum_elbow_angle,
+        },
+        "failures": failures,
         "iterations": iterations,
     }
 
@@ -3649,7 +3683,10 @@ def main() -> None:
             author_failures.append({
                 "code": "AUTHOR_LEFT_SUPPORT_PALM_PIN_FAILED",
                 "actual": author_report["supportHandPin"],
-                "expected": "left palm pinned within 0.01 torso-height of the oriented hilt-pommel segment",
+                "expected": (
+                    "left visible palm pinned within 0.01 torso-height of the oriented handle, "
+                    "with at least 0.03 torso-height reach reserve and elbow bend <= 165 degrees"
+                ),
             })
         author_report["armLandmarkDeltaVsCommittedRejectedCandidate"] = arm_landmark_delta(
             committed_rejected_landmarks,

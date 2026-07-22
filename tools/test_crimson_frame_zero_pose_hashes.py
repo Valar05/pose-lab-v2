@@ -106,6 +106,7 @@ assert "HAND_MESH_MEAN_WEIGHT_MINIMUM = 0.95" in renderer
 assert "HAND_MESH_MINIMUM_VERTICES = 250" in renderer
 assert "HEAD_MESH_WEIGHT_MINIMUM = 0.75" in renderer
 assert "GRIP_SURFACE_CLEARANCE_TORSO_FRACTION = 0.005" in renderer
+assert "GRIP_SURFACE_SEAT_CLEARANCE_TORSO_FRACTION = 0.0055" in renderer
 assert "def hand_mesh_landmark(" in renderer
 assert "weighted centroid of evaluated visible mesh vertices" in renderer
 assert "HAND_PALM_FORWARD_TORSO_FRACTION" not in renderer
@@ -113,6 +114,7 @@ assert "def hand_palm_anchor(" not in renderer
 assert "def segment_segment_distance_2d(" in renderer
 assert "def projected_head_mesh_hull(" in renderer
 assert "def normalized_sword_crossguard_points(" in renderer
+assert '"support-arm reach reserve"' in renderer
 assert "bpy.context.view_layer.update()" in renderer
 assert '"AUTHOR_BLADE_FACE_CLEARANCE_FAILED"' in renderer
 assert "pose_bone_world_tail" not in renderer
