@@ -58,6 +58,8 @@ jobs:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
       - name: Verify system Chrome
         run: google-chrome --version
+      - name: Run repository guardrails
+        run: npm test
       - name: Build the review application
         run: npm run build
       - name: Capture Crimson combat-ready frame zero
@@ -84,6 +86,22 @@ jobs:
             return { label: `frame-zero ${primeKey}${viewSuffix}`, primeKey, time, cameraView, url: `${base}?${params}` };
           };
           const urls = frames.map(([primeKey, time]) => capture(primeKey, time));
+          const manualParams = new URLSearchParams({
+            model: 'crimson',
+            pose: 'attack1',
+            manual: '1',
+            reviewControls: '1',
+            debugBones: '1',
+            quality: 'source',
+            cacheBust: process.env.GITHUB_SHA,
+          });
+          urls.push({
+            label: 'Crimson direct frame-zero keyframe authoring',
+            primeKey: 'manual-start',
+            time: 0,
+            cameraView: null,
+            url: `${base}?${manualParams}`,
+          });
           for (const [primeKey, time] of [['start', 0]]) {
             urls.push(capture(primeKey, time, 'left'), capture(primeKey, time, 'right'));
           }
