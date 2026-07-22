@@ -692,7 +692,7 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     # Restrained center. The body inclines into the guard without asking the
     # pelvis to manufacture the pose.
     center_rotations = [
-        ("Hips", (0, 0, 1), -3.0),
+        ("Hips", (0, 0, 1), -12.0),
         ("Hips", (1, 0, 0), 3.0),
         ("Spine", (1, 0, 0), 8.0),
         ("Spine01", (0, 0, 1), 2.0),
@@ -714,9 +714,11 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     if not hips_bone:
         raise RuntimeError("missing target pose bone Hips")
     hips_drop_world = Vector((0.0, 0.0, -0.18 * leg_scale))
-    hips_bone.matrix.translation += (
+    hips_matrix = hips_bone.matrix.copy()
+    hips_matrix.translation = hips_matrix.translation + (
         target_armature.matrix_world.inverted().to_3x3() @ hips_drop_world
     )
+    hips_bone.matrix = hips_matrix
     bpy.context.view_layer.update()
     leg_reports = [
         solve_chain_with_pole(
@@ -759,8 +761,8 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             - find_pose_bone_world(target_armature, "Hips").translation
         ).length,
     )
-    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.12 * shoulder_span, -0.22 * torso_height, 0.16 * torso_height))
-    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((0.10 * shoulder_span, -0.24 * torso_height, 0.24 * torso_height))
+    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.12 * shoulder_span, -0.34 * torso_height, 0.28 * torso_height))
+    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((0.10 * shoulder_span, -0.36 * torso_height, 0.36 * torso_height))
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
     arm_reports = [
