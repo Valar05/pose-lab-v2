@@ -36,7 +36,13 @@ function parseArgs(argv) {
   }
   args.urls = args.urls.map((entry, index) => typeof entry === 'string'
     ? { label: `capture-${index + 1}`, url: entry }
-    : { label: entry.label || entry.primeKey || `capture-${index + 1}`, primeKey: entry.primeKey || null, time: entry.time ?? null, url: entry.url || '' });
+    : {
+        label: entry.label || entry.primeKey || `capture-${index + 1}`,
+        primeKey: entry.primeKey || null,
+        time: entry.time ?? null,
+        cameraView: entry.cameraView || null,
+        url: entry.url || '',
+      });
   if (!args.urls.length || args.urls.some((entry) => !entry.url)) throw new Error('--url or --url-list with urls is required');
   return args;
 }
@@ -131,6 +137,13 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
       await fs.writeFile(path.join(captureDir, 'failure.json'), JSON.stringify(failure, null, 2) + '\n');
       throw new Error(`visual readiness failed for ${entry.label}: ${JSON.stringify(failure)}`);
     }
+    if (entry.cameraView) {
+      await page.evaluate((cameraView) => {
+        const button = document.querySelector(`[data-camera-view="${cameraView}"]`);
+        if (!button) throw new Error(`missing camera view button: ${cameraView}`);
+        button.click();
+      }, entry.cameraView);
+    }
     await page.waitForTimeout(Math.max(0, Math.min(args.settleMs, 30000)));
     const screenshotPath = path.join(captureDir, 'screenshot.png');
     const screenshotBytes = await page.screenshot({ path: screenshotPath, fullPage: false });
@@ -145,6 +158,7 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
       label: entry.label,
       primeKey: entry.primeKey,
       attackTime: entry.time,
+      cameraView: entry.cameraView,
       startUrl: entry.url,
       finalUrl: page.url(),
       capturedAt: new Date().toISOString(),

@@ -43,7 +43,7 @@ jobs:
             ['settle', 0.566667],
             ['followThrough', 0.62],
           ];
-          const urls = frames.map(([primeKey, time]) => {
+          const capture = (primeKey, time, cameraView = null) => {
             const params = new URLSearchParams({
               model: 'crimson',
               pose: 'attack1',
@@ -52,8 +52,13 @@ jobs:
               quality: 'source',
               cacheBust: process.env.GITHUB_SHA,
             });
-            return { label: `v4 ${primeKey}`, primeKey, time, url: `${base}?${params}` };
-          });
+            const viewSuffix = cameraView ? ` ${cameraView}` : '';
+            return { label: `v4 ${primeKey}${viewSuffix}`, primeKey, time, cameraView, url: `${base}?${params}` };
+          };
+          const urls = frames.map(([primeKey, time]) => capture(primeKey, time));
+          for (const [primeKey, time] of [['start', 0], ['contact', 0.383333], ['followThrough', 0.62]]) {
+            urls.push(capture(primeKey, time, 'left'), capture(primeKey, time, 'right'));
+          }
           process.stdout.write(JSON.stringify(urls));
           NODE
           )"
