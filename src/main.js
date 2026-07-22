@@ -2387,7 +2387,7 @@ async function loadSharedRestBaseline() {
   const response = await fetch(`${SHARED_REST_BASELINE_URL}${suffix}`, { cache: 'no-store' });
   if (!response.ok) throw new Error(`failed SharedRest baseline ${response.status}`);
   sharedRestBaseline = await response.json();
-  if (sharedRestBaseline?.schema !== 'pose-lab-v2-crimson-shared-rest-baseline-v1') throw new Error('SharedRest baseline schema mismatch');
+  if (sharedRestBaseline?.schema !== 'pose-lab-v2-crimson-shared-rest-baseline-v2') throw new Error('SharedRest baseline schema mismatch');
   markBootTiming('sharedRestBaselineLoaded');
 }
 

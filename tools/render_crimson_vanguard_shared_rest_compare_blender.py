@@ -36,6 +36,7 @@ from render_crimson_vanguard_attack1_compare_blender import (
     clear_scene,
     find_armature,
     find_pose_bone_world,
+    foot_mesh_contact_metrics,
     import_glb,
     inject_animation,
     load_candidate,
@@ -165,6 +166,10 @@ def shared_rest_node_frames(shared_rest: dict) -> tuple[list[dict], dict[str, di
     frame = {"label": STATIC_SOURCE_LABEL, "time": 0.0}
     node_frames: dict[str, dict[str, dict[str, list]]] = {}
     for bone, entry in (shared_rest.get("pose", {}).get("bones") or {}).items():
+        quaternion = entry.get("quaternion")
+        if quaternion:
+            node_frames.setdefault(bone, {}).setdefault("rotation", {})[STATIC_SOURCE_LABEL] = [round(float(value), 6) for value in quaternion]
+            continue
         rotation = entry.get("rotationDeg")
         if not rotation:
             continue
@@ -257,6 +262,8 @@ def evaluate_static_angle(
         })
     vanguard_feet = foot_pair_metrics(camera, vanguard_armature, source_names, vanguard_box, vanguard_objects)
     crimson_feet = foot_pair_metrics(camera, crimson_armature, {}, crimson_box, crimson_objects)
+    crimson_ground_z = mesh_bounds(crimson_objects)[0].z
+    crimson_contacts = {side.lower(): foot_mesh_contact_metrics(crimson_objects, crimson_armature, side, crimson_ground_z) for side in ["Left", "Right"]}
     foot_failures = []
     if vanguard_feet["screenSpread"] is None or crimson_feet["screenSpread"] is None:
         foot_failures.append({"code": "FOOT_LANDMARKS_MISSING", "actual": {"vanguard": vanguard_feet, "crimson": crimson_feet}, "expected": "both rigs expose LeftFoot and RightFoot landmarks"})
@@ -273,13 +280,14 @@ def evaluate_static_angle(
             delta = angle_delta_deg(cf["axisAngleDeg"], vf["axisAngleDeg"])
             if delta > 42:
                 foot_failures.append({"code": f"CRIMSON_SHARED_REST_{side.upper()}_FOOT_AXIS_DIVERGES_FROM_VANGUARD", "actual": {"crimsonAxisDeg": cf["axisAngleDeg"], "vanguardAxisDeg": vf["axisAngleDeg"], "deltaDeg": round(delta, 3)}, "expected": "boot bone axis should read like the source foot, not only place the ankle"})
-        crimson_sole = Vector(cf["soleNormalWorld"])
-        vanguard_sole = Vector(vf["soleNormalWorld"])
-        sole_delta = math.degrees(crimson_sole.angle(vanguard_sole))
-        if sole_delta > 32 or cf["soleUpDot"] < 0.58:
-            foot_failures.append({"code": f"CRIMSON_SHARED_REST_{side.upper()}_SOLE_ROLL_DIVERGES_FROM_VANGUARD", "actual": {"crimsonSoleNormal": cf["soleNormalWorld"], "vanguardSoleNormal": vf["soleNormalWorld"], "deltaDeg": round(sole_delta, 3), "crimsonSoleUpDot": cf["soleUpDot"]}, "expected": "sole normal must catch boot roll around the foot longitudinal axis"})
-        if cf["heelGroundDelta"] > 0.18 or cf["toeGroundDelta"] > 0.18:
-            foot_failures.append({"code": f"CRIMSON_SHARED_REST_{side.upper()}_HEEL_TOE_NOT_ON_GROUND", "actual": {"heelGroundDelta": cf["heelGroundDelta"], "toeGroundDelta": cf["toeGroundDelta"], "groundZ": cf["groundZ"]}, "expected": "heel and toe landmarks must stay near the ground plane"})
+        contact = crimson_contacts.get(side)
+        if not contact:
+            foot_failures.append({"code": f"CRIMSON_SHARED_REST_{side.upper()}_FOOT_MESH_CONTACT_MISSING", "actual": None, "expected": "weighted boot vertices expose heel, toe, and sole contact"})
+            continue
+        if contact["soleUpDot"] < 0.82 or contact["lateralEdgeHeightDelta"] > 0.055:
+            foot_failures.append({"code": f"CRIMSON_SHARED_REST_{side.upper()}_BOOT_ROLLED_OFF_SOLE", "actual": contact, "expected": "weighted boot contact plane faces ground-up without standing on an outer edge"})
+        if contact["heelGroundDelta"] > 0.045 or contact["toeGroundDelta"] > 0.045:
+            foot_failures.append({"code": f"CRIMSON_SHARED_REST_{side.upper()}_HEEL_TOE_NOT_ON_GROUND", "actual": contact, "expected": "weighted heel and toe vertices stay near the shared mesh ground plane"})
     if foot_failures:
         failures.append({
             "code": "CRIMSON_SHARED_REST_FEET_NOT_PLANTED_LIKE_VANGUARD",
@@ -289,7 +297,7 @@ def evaluate_static_angle(
     return {
         "label": label,
         "sourcePose": STATIC_SOURCE_LABEL,
-        "crimson": {"bodyBox": crimson_box, "hiltHandWorld": round(hilt_hand_world, 5), "swordScreenLength": round(sword_visible, 5), "feet": crimson_feet},
+        "crimson": {"bodyBox": crimson_box, "hiltHandWorld": round(hilt_hand_world, 5), "swordScreenLength": round(sword_visible, 5), "feet": crimson_feet, "meshContacts": crimson_contacts},
         "vanguard": {"bodyBox": vanguard_box, "feet": vanguard_feet},
         "landmarkWorst": worst,
         "landmarkErrors": landmark_errors,
@@ -313,27 +321,31 @@ def main() -> None:
     reference = load_json(REFERENCE_JSON)
     calibration = load_json(CALIBRATION_JSON)
     shared_rest = load_json(SHARED_REST_JSON)
-    if shared_rest.get("schema") != "pose-lab-v2-crimson-shared-rest-baseline-v1":
+    if shared_rest.get("schema") != "pose-lab-v2-crimson-shared-rest-baseline-v2":
         raise RuntimeError("SharedRest baseline artifact schema mismatch")
     tmp_dir = out_dir / "tmp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
     source_contract_failures = []
-    authored_path = ROOT / shared_rest.get("source", {}).get("authoredFrom", "")
-    expected_sha = shared_rest.get("source", {}).get("authoredFromSha256")
-    if not authored_path.exists() or not expected_sha:
-        source_contract_failures.append({"frame": "source", "code": "SHARED_REST_BASELINE_SOURCE_MISSING", "actual": str(authored_path), "expected": "baseline artifact cites an existing hashed source export"})
-    else:
-        actual_sha = hashlib.sha256(authored_path.read_bytes()).hexdigest()
-        if actual_sha != expected_sha:
-            source_contract_failures.append({"frame": "source", "code": "SHARED_REST_BASELINE_SOURCE_HASH_MISMATCH", "actual": actual_sha, "expected": expected_sha})
+    for path_key, hash_key in [("characterAsset", "characterAssetSha256"), ("authoredPose", "authoredPoseSha256")]:
+        source_path = ROOT / shared_rest.get("source", {}).get(path_key, "")
+        expected_sha = shared_rest.get("source", {}).get(hash_key)
+        if not source_path.exists() or not expected_sha:
+            source_contract_failures.append({"frame": "source", "code": f"SHARED_REST_{path_key.upper()}_MISSING", "actual": str(source_path), "expected": "baseline cites an existing hashed source artifact"})
+        else:
+            actual_sha = hashlib.sha256(source_path.read_bytes()).hexdigest()
+            if actual_sha != expected_sha:
+                source_contract_failures.append({"frame": "source", "code": f"SHARED_REST_{path_key.upper()}_HASH_MISMATCH", "actual": actual_sha, "expected": expected_sha})
     if shared_rest.get("source", {}).get("notDerivedFromVanguardAttackFrameZero") is not True:
         source_contract_failures.append({"frame": "source", "code": "SHARED_REST_BASELINE_PROVENANCE_NOT_INDEPENDENT", "actual": shared_rest.get("source"), "expected": "baseline artifact proves it is not Attack1 frame zero"})
-    if shared_rest.get("footTruth", {}).get("status") != "solved":
+    foot_truth = shared_rest.get("footTruth", {})
+    feet = foot_truth.get("feet", {})
+    required_foot_fields = {"footBone", "toeBone", "ankleWorld", "expectedWorldQuaternion", "heelLocal", "toeLocal", "soleNormalLocal"}
+    if foot_truth.get("status") != "calibrated" or any(not required_foot_fields.issubset((feet.get(side) or {}).keys()) for side in ["left", "right"]):
         source_contract_failures.append({
             "frame": "source",
-            "code": "CRIMSON_SHARED_REST_FOOT_TRUTH_NOT_SOLVED",
-            "actual": shared_rest.get("footTruth", {}).get("status"),
-            "expected": "SharedRest artifact must certify heel/toe/sole or equivalent foot truth before Blender comparison can be useful",
+            "code": "CRIMSON_SHARED_REST_FOOT_CONTRACT_INCOMPLETE",
+            "actual": foot_truth,
+            "expected": "calibrated left/right heel, toe, sole-normal, ankle, and orientation landmarks derived from hashed source artifacts",
         })
     if source_contract_failures:
         manifest = {

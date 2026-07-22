@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 
 const BASE_URL = 'https://valar05.github.io/pose-lab-v2/';
 const CANDIDATES = [
+  { id: 'crimson-light-attack1-vanguard-4', extras: { model: 'crimson', quality: 'source' } },
   { id: 'attack1-candidate-1', extras: {} },
   { id: 'attack1-joint-pinned-3', extras: { worldSocket: '1', view: 'fpv' } },
 ];

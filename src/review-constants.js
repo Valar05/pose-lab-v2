@@ -21,6 +21,13 @@ export const CRIMSON_SWORD_LOCAL = {
 export const CRIMSON_SWORD_REVIEW_LOCAL_AXIS = [0, 0, 1];
 
 export const ATTACK1_REVIEW_CANDIDATES = {
+  "crimson-light-attack1-vanguard-4": {
+    module: "./review-candidates/crimson-light-attack1-vanguard-4.js",
+    exportName: "CRIMSON_LIGHT_ATTACK1_VANGUARD_4_SEQUENCE",
+    label: "Crimson light Attack1 v4 (planted-foot visual candidate)",
+    characterKey: "crimson",
+    status: "visual-pending",
+  },
   "attack1-candidate-1": {
     module: "./review-candidates/attack1-candidate-1.js",
     exportName: "ATTACK1_POSE_SEQUENCE",

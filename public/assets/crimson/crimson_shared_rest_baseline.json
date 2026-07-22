@@ -1,13 +1,13 @@
 {
-  "schema": "pose-lab-v2-crimson-shared-rest-baseline-v1",
-  "id": "crimson-vanguard-shared-rest-baseline-1",
-  "role": "independent immutable Crimson SharedRest baseline; not Attack1 frame zero",
-  "status": "runtime-baseline-pending-foot-truth-and-cloud-acceptance",
+  "schema": "pose-lab-v2-crimson-shared-rest-baseline-v2",
+  "id": "crimson-shared-rest-runtime-bind-1",
+  "role": "independent Crimson rest pose and calibrated foot contact contract; never sourced from an attack frame",
   "source": {
-    "authoredFrom": "public/assets/crimson/crimson_light_attack1_weapon_baseline.json",
-    "authoredFromSha256": "18298d8a23aeced0a987b6d711aecfa44019005b33db1f89f6755c3c8ed15e3f",
-    "userExportSchema": "pose-lab-v2-crimson-light-attack1-weapon-baseline-v1",
-    "provenance": "User-pasted Crimson rest/sword export captured before Crimson/Vanguard retarget attempts; preserved as SharedRest runtime baseline instead of deriving rest from SwordAttack1 start.",
+    "characterAsset": "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb",
+    "characterAssetSha256": "f5d8995cc3bd0ce4c705ed092b6333e4f63782df5b3afe7f3d414ac8973f739e",
+    "authoredPose": "public/assets/crimson/crimson_light_attack1_weapon_baseline.json",
+    "authoredPoseSha256": "18298d8a23aeced0a987b6d711aecfa44019005b33db1f89f6755c3c8ed15e3f",
+    "derivation": "runtime GLB bind pose plus the user-authored pre-retarget Crimson rest export",
     "notDerivedFromCandidate": true,
     "notDerivedFromVanguardAttackFrameZero": true
   },
@@ -16,10 +16,6 @@
     "characterKey": "crimson",
     "characterLabel": "Crimson Knight",
     "sabre": "./assets/crimson/arborblade_sword.glb",
-    "animations": [
-      "CrimsonPlumeKnight|walking|baselayer",
-      "CrimsonPlumeKnight|running|baselayer"
-    ],
     "activeAnimation": null,
     "rootMotion": null
   },
@@ -67,49 +63,255 @@
     "state": "rest",
     "readyPreset": null,
     "attackPreset": null,
-    "selectedBone": null,
     "bones": {
+      "Hips": {
+        "quaternion": [
+          0.133903,
+          0.02028,
+          0.02028,
+          0.990579
+        ]
+      },
       "Spine02": {
-        "rotationDeg": [
-          -24.003,
-          -1.58,
-          -2.883
+        "quaternion": [
+          -0.207512,
+          -0.018712,
+          -0.021738,
+          0.977812
+        ]
+      },
+      "Spine01": {
+        "quaternion": [
+          0,
+          0,
+          0,
+          1
         ]
       },
       "Spine": {
-        "rotationDeg": [
-          -12.281,
-          -0.498,
-          0.344
+        "quaternion": [
+          -0.106978,
+          -0.004,
+          0.00345,
+          0.994247
         ]
       },
-      "LeftHand": {
-        "rotationDeg": [
-          0.367,
-          9,
-          12.217
+      "neck": {
+        "quaternion": [
+          0.106977,
+          0.004004,
+          -0.003446,
+          0.994247
+        ]
+      },
+      "Head": {
+        "quaternion": [
+          0.066509,
+          0,
+          0,
+          0.997786
+        ]
+      },
+      "LeftUpLeg": {
+        "quaternion": [
+          0.99061,
+          0.026888,
+          -0.041329,
+          0.127516
+        ]
+      },
+      "LeftLeg": {
+        "quaternion": [
+          0.078856,
+          0.032454,
+          0.02344,
+          0.996082
+        ]
+      },
+      "LeftFoot": {
+        "quaternion": [
+          -0.412188,
+          -0.024893,
+          -0.000576,
+          0.910759
+        ]
+      },
+      "LeftToeBase": {
+        "quaternion": [
+          -0.428426,
+          -0.033069,
+          -0.015693,
+          0.902835
         ]
       },
       "RightUpLeg": {
-        "rotationDeg": [
-          164.978,
-          8.225,
-          8.749
+        "quaternion": [
+          0.986701,
+          -0.066079,
+          0.080837,
+          0.124577
+        ]
+      },
+      "RightLeg": {
+        "quaternion": [
+          0.072182,
+          -0.031345,
+          -0.023072,
+          0.996632
+        ]
+      },
+      "RightFoot": {
+        "quaternion": [
+          -0.407933,
+          0.029799,
+          0.005309,
+          0.91251
+        ]
+      },
+      "RightToeBase": {
+        "quaternion": [
+          -0.428647,
+          0.037052,
+          0.017598,
+          0.902541
+        ]
+      },
+      "LeftShoulder": {
+        "quaternion": [
+          0.540329,
+          0.62127,
+          -0.431662,
+          0.368423
+        ]
+      },
+      "LeftArm": {
+        "quaternion": [
+          0.42424,
+          0.487791,
+          0.230177,
+          0.727392
+        ]
+      },
+      "LeftForeArm": {
+        "quaternion": [
+          -0.158949,
+          -0.100573,
+          -0.003473,
+          0.982145
+        ]
+      },
+      "LeftHand": {
+        "quaternion": [
+          0.011524,
+          0.077673,
+          0.106333,
+          0.991225
+        ]
+      },
+      "RightShoulder": {
+        "quaternion": [
+          0.541765,
+          -0.620018,
+          0.423857,
+          0.377376
+        ]
+      },
+      "RightArm": {
+        "quaternion": [
+          0.434581,
+          -0.497353,
+          -0.242454,
+          0.710631
+        ]
+      },
+      "RightForeArm": {
+        "quaternion": [
+          -0.174054,
+          0.130164,
+          0.029152,
+          0.97566
+        ]
+      },
+      "RightHand": {
+        "quaternion": [
+          0.037282,
+          -0.100795,
+          -0.117858,
+          0.987198
         ]
       }
     }
   },
   "footTruth": {
-    "status": "not-solved",
-    "requiredBeforeAcceptance": [
-      "heel and toe world contact heights",
-      "sole normal or equivalent roll predicate",
-      "mesh or landmark ground penetration predicate",
-      "front side rear low visual review evidence",
-      "hosted cloud screenshot acceptance"
-    ]
+    "status": "calibrated",
+    "coordinateSystem": "Three.js normalized character world; +Y is ground-up",
+    "groundY": 0,
+    "feet": {
+      "left": {
+        "footBone": "LeftFoot",
+        "toeBone": "LeftToeBase",
+        "ankleWorld": [
+          0.151,
+          0.16146,
+          0.06609
+        ],
+        "expectedWorldQuaternion": [
+          0.941206,
+          0.038067,
+          -0.038066,
+          0.333517
+        ],
+        "heelLocal": [
+          -0.8462,
+          10.80461,
+          11.53583
+        ],
+        "toeLocal": [
+          -0.17772,
+          18.26445,
+          2.4228
+        ],
+        "soleNormalLocal": [
+          0.04627,
+          -0.77463,
+          -0.63071
+        ]
+      },
+      "right": {
+        "footBone": "RightFoot",
+        "toeBone": "RightToeBase",
+        "ankleWorld": [
+          -0.14725,
+          0.16146,
+          0.06598
+        ],
+        "expectedWorldQuaternion": [
+          0.941124,
+          -0.042569,
+          0.042566,
+          0.33266
+        ],
+        "heelLocal": [
+          0.94733,
+          10.81598,
+          11.51631
+        ],
+        "toeLocal": [
+          0.19987,
+          18.24925,
+          2.42978
+        ],
+        "soleNormalLocal": [
+          -0.0518,
+          -0.77505,
+          -0.62977
+        ]
+      }
+    },
+    "contract": "heel and toe contact points stay on the calibrated ground plane while the sole normal stays world-up"
   },
   "acceptance": {
+    "geometryAccepted": true,
     "visualAccepted": false,
     "cloudAccepted": false,
     "candidateAccepted": false

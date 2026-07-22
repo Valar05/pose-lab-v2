@@ -28,7 +28,7 @@ CRIMSON_GLB = ROOT / "public" / "assets" / "crimson" / "crimson_plume_knight_rig
 SWORD_GLB = ROOT / "public" / "assets" / "crimson" / "arborblade_sword.glb"
 REFERENCE_JSON = ROOT / "public" / "assets" / "crimson" / "vanguard_swordattack1_reference.json"
 CALIBRATION_JSON = ROOT / "public" / "assets" / "crimson" / "crimson_sword_calibration.json"
-CANDIDATE_JS = ROOT / "src" / "review-candidates" / "crimson-light-attack1-vanguard-3.js"
+CANDIDATE_JS = ROOT / "src" / "review-candidates" / "crimson-light-attack1-vanguard-4.js"
 DEFAULT_OUT = ROOT / "generated" / "crimson-vanguard-attack1-compare" / "latest"
 SCHEMA = "pose-lab-v2-crimson-vanguard-attack1-blender-compare-v1"
 BROWSER_TO_BLENDER = Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
@@ -399,6 +399,68 @@ def find_pose_bone_world(armature: bpy.types.Object, name: str) -> Matrix:
     return armature.matrix_world @ bone.matrix
 
 
+def canon_bone_name(name: str) -> str:
+    return "".join(character for character in str(name).lower() if character.isalnum())
+
+
+def foot_mesh_contact_metrics(objects: list[bpy.types.Object], armature: bpy.types.Object, side: str, ground_z: float) -> dict | None:
+    wanted = {canon_bone_name(f"{side}Foot"), canon_bone_name(f"{side}ToeBase")}
+    points = []
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    for obj in objects:
+        if obj.type != "MESH":
+            continue
+        group_indices = {group.index for group in obj.vertex_groups if canon_bone_name(group.name) in wanted}
+        if not group_indices:
+            continue
+        evaluated = obj.evaluated_get(depsgraph)
+        mesh = evaluated.to_mesh(preserve_all_data_layers=True, depsgraph=depsgraph)
+        try:
+            for vertex in mesh.vertices:
+                weight = sum(group.weight for group in vertex.groups if group.group in group_indices)
+                if weight >= 0.15:
+                    points.append(evaluated.matrix_world @ vertex.co)
+        finally:
+            evaluated.to_mesh_clear()
+    foot_bone = armature.pose.bones.get(f"{side}Foot")
+    toe_bone = armature.pose.bones.get(f"{side}ToeBase")
+    if len(points) < 12 or not foot_bone or not toe_bone:
+        return None
+    foot_origin = (armature.matrix_world @ foot_bone.matrix).translation
+    toe_origin = (armature.matrix_world @ toe_bone.matrix).translation
+    forward = toe_origin - foot_origin
+    forward.z = 0
+    if forward.length < 0.000001:
+        return None
+    forward.normalize()
+    lateral = Vector((-forward.y, forward.x, 0)).normalized()
+    ordered = sorted(points, key=lambda point: point.z)
+    bottom = ordered[:max(12, len(ordered) // 8)]
+    by_forward = sorted(bottom, key=lambda point: point.dot(forward))
+    by_lateral = sorted(bottom, key=lambda point: point.dot(lateral))
+    sample_count = max(3, len(bottom) // 5)
+    heel = min(by_forward[:sample_count], key=lambda point: point.z)
+    toe = min(by_forward[-sample_count:], key=lambda point: point.z)
+    left_edge = sum((point for point in by_lateral[:sample_count]), Vector((0, 0, 0))) / sample_count
+    right_edge = sum((point for point in by_lateral[-sample_count:]), Vector((0, 0, 0))) / sample_count
+    edge = right_edge - left_edge
+    sole_normal = forward.cross(edge).normalized()
+    if sole_normal.z < 0:
+        sole_normal.negate()
+    return {
+        "vertexCount": len(points),
+        "bottomVertexCount": len(bottom),
+        "heelWorld": [round(value, 5) for value in heel],
+        "toeWorld": [round(value, 5) for value in toe],
+        "groundZ": round(ground_z, 5),
+        "heelGroundDelta": round(heel.z - ground_z, 5),
+        "toeGroundDelta": round(toe.z - ground_z, 5),
+        "soleNormalWorld": [round(value, 5) for value in sole_normal],
+        "soleUpDot": round(sole_normal.z, 5),
+        "lateralEdgeHeightDelta": round(abs(right_edge.z - left_edge.z), 5),
+    }
+
+
 def imported_sword_line(objects: list[bpy.types.Object], camera: bpy.types.Object) -> dict:
     points = []
     depsgraph = bpy.context.evaluated_depsgraph_get()
@@ -501,9 +563,19 @@ def evaluate_frame(label: str, camera: bpy.types.Object, vanguard_objects: list[
             failures.append({"code": "CRIMSON_BLADE_LINE_DIVERGES_FROM_VANGUARD", "actual": round(diff, 2), "expected": "<= 55 deg from Vanguard sword screen line"})
     if label in {"snapPrep", "contact"} and cbox["height"] < vbox["height"] * 0.55:
         failures.append({"code": "CRIMSON_BODY_SILHOUETTE_COLLAPSED_OR_HIDDEN", "actual": {"crimsonHeight": round(cbox["height"], 4), "vanguardHeight": round(vbox["height"], 4)}, "expected": "Crimson should remain readable beside Vanguard"})
+    ground_z = mesh_bounds(crimson_objects)[0].z
+    feet = {side.lower(): foot_mesh_contact_metrics(crimson_objects, crimson_armature, side, ground_z) for side in ["Left", "Right"]}
+    for side, foot in feet.items():
+        if not foot:
+            failures.append({"code": f"CRIMSON_{side.upper()}_FOOT_MESH_CONTACT_MISSING", "actual": None, "expected": "weighted boot vertices for heel/toe/sole evaluation"})
+            continue
+        if foot["heelGroundDelta"] > 0.045 or foot["toeGroundDelta"] > 0.045:
+            failures.append({"code": f"CRIMSON_{side.upper()}_HEEL_TOE_NOT_PLANTED", "actual": foot, "expected": "heel and toe weighted boot vertices remain within 0.045 world units of ground"})
+        if foot["soleUpDot"] < 0.82 or foot["lateralEdgeHeightDelta"] > 0.055:
+            failures.append({"code": f"CRIMSON_{side.upper()}_BOOT_ROLLED_OFF_SOLE", "actual": foot, "expected": "weighted boot contact plane faces ground-up without standing on an outer edge"})
     return {
         "label": label,
-        "crimson": {"blade": crimson_line, "hiltHandWorld": round(hilt_hand_world, 5), "hiltHandScreen": round(hilt_hand_screen, 5), "bodyBox": cbox},
+        "crimson": {"blade": crimson_line, "hiltHandWorld": round(hilt_hand_world, 5), "hiltHandScreen": round(hilt_hand_screen, 5), "bodyBox": cbox, "feet": feet},
         "vanguard": {"blade": {"screenLength": vanguard_line["screenLength"], "screenAngleDeg": vanguard_line["screenAngleDeg"]}, "bodyBox": vbox},
         "failures": failures,
     }
@@ -529,10 +601,10 @@ def main() -> None:
     calibration = load_json(CALIBRATION_JSON)
     if reference.get("schema") != "pose-lab-v2-crimson-vanguard-swordattack1-reference-v2":
         raise RuntimeError("Vanguard reference is not full-body v2")
-    if candidate.get("id") != "crimson-light-attack1-vanguard-3":
-        raise RuntimeError("comparison gate is intentionally bound to crimson-light-attack1-vanguard-3")
+    if candidate.get("id") != "crimson-light-attack1-vanguard-4":
+        raise RuntimeError("comparison gate is intentionally bound to crimson-light-attack1-vanguard-4")
     crimson_frames, crimson_nodes = crimson_node_frames(candidate)
-    crimson_anim = inject_animation(CRIMSON_GLB, crimson_frames, crimson_nodes, tmp_dir / "crimson_attack1_compare.glb", "CrimsonAttack1CandidateV3")
+    crimson_anim = inject_animation(CRIMSON_GLB, crimson_frames, crimson_nodes, tmp_dir / "crimson_attack1_compare.glb", "CrimsonAttack1CandidateV4")
     clear_scene()
     camera = setup_scene(args.width, args.height, args.samples)
     vanguard_objects = import_glb(VANGUARD_GLB)
@@ -541,7 +613,7 @@ def main() -> None:
     normalize_and_offset(vanguard_objects, 1.7, -1.05)
     crimson_objects = import_glb(crimson_anim)
     crimson_armature = find_armature(crimson_objects, "Crimson")
-    activate_named_action(crimson_armature, "CrimsonAttack1CandidateV3_CrimsonPlumeKnight_Armature")
+    activate_named_action(crimson_armature, "CrimsonAttack1CandidateV4_CrimsonPlumeKnight_Armature")
     normalize_and_offset(crimson_objects, 1.7, 1.05)
     sword_objects = import_glb(SWORD_GLB)
     apply_crimson_sword_material(sword_objects)

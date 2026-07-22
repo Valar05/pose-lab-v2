@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -7,18 +8,19 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { CRIMSON_SABER_GRIP_LOCAL, CRIMSON_SWORD_LOCAL, CRIMSON_SWORD_REVIEW_LOCAL_AXIS } from '../src/review-constants.js';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const outputPath = path.join(projectRoot, 'src', 'review-candidates', 'crimson-light-attack1-vanguard-3.js');
 const crimsonPath = path.join(projectRoot, 'public/assets/crimson/crimson_plume_knight_rigged_pbr.glb');
 const swordPath = path.join(projectRoot, 'public/assets/crimson/arborblade_sword.glb');
 const referencePath = path.join(projectRoot, 'public/assets/crimson/vanguard_swordattack1_reference.json');
 const baselinePath = path.join(projectRoot, 'public/assets/crimson/crimson_light_attack1_weapon_baseline.json');
-const candidateId = 'crimson-light-attack1-vanguard-3';
-const exportName = 'CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE';
+const sharedRestPath = path.join(projectRoot, 'public/assets/crimson/crimson_shared_rest_baseline.json');
+const outputPath = path.join(projectRoot, 'src', 'review-candidates', 'crimson-light-attack1-vanguard-4.js');
+const candidateId = 'crimson-light-attack1-vanguard-4';
+const exportName = 'CRIMSON_LIGHT_ATTACK1_VANGUARD_4_SEQUENCE';
 const frameLabels = ['start', 'earlyWindup', 'anticipation', 'snapPrep', 'contact', 'contactHold', 'settle', 'followThrough'];
 const primeKeys = { start: 0, earlyWindup: 0.1, anticipation: 0.183333, snapPrep: 0.283333, contact: 0.383333, contactHold: 0.5, settle: 0.566667, followThrough: 0.62 };
 const boneNames = [
   'Hips', 'Spine02', 'Spine01', 'Spine', 'neck', 'Head',
-  'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'RightUpLeg', 'RightLeg', 'RightFoot',
+  'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase',
   'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand',
   'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand',
 ];
@@ -27,8 +29,8 @@ const sourceDeltaWeights = {
   LeftShoulder: 0.45, RightShoulder: 0.45,
   LeftArm: 0.45, LeftForeArm: 0.55, LeftHand: 0.55,
   RightArm: 0.45, RightForeArm: 0.6, RightHand: 0.65,
-  LeftUpLeg: 0.48, LeftLeg: 0.58, LeftFoot: 0.42,
-  RightUpLeg: 0.48, RightLeg: 0.58, RightFoot: 0.42,
+  LeftUpLeg: 0.48, LeftLeg: 0.58,
+  RightUpLeg: 0.48, RightLeg: 0.58,
 };
 const chains = [
   { name: 'rightArm', bones: ['RightArm', 'RightForeArm', 'RightHand'], sourceLimb: 'rightArm', maxError: 0.18 },
@@ -39,6 +41,9 @@ const chains = [
 const thresholds = {
   maxContactBladeAngleDeg: 9,
   maxChainError: 0.24,
+  maxFootOrientationErrorDeg: 0.25,
+  maxContactHeightError: 0.015,
+  minSoleUpDot: 0.999,
   bodyTravelDeg: {
     Hips: 18, Spine02: 24, Spine: 12,
     LeftArm: 32, LeftForeArm: 22, LeftHand: 16,
@@ -64,6 +69,7 @@ function ensureThreeSandbox() {
   return sandbox;
 }
 function arrayBuffer(file) { const buffer = fs.readFileSync(file); return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength); }
+function sha256(file) { return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'); }
 async function loadGltf(GLTFLoader, file) { return new Promise((resolve, reject) => new GLTFLoader().parse(arrayBuffer(file), path.dirname(file) + '/', resolve, reject)); }
 function canon(name) { return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
 function find(root, name) { const wanted = canon(name); let found = null; root.traverse((node) => { if (!found && canon(node.name) === wanted) found = node; }); return found; }
@@ -137,13 +143,105 @@ function attachCrimsonSword(THREE, crimsonRoot, swordRoot) {
 function applyBaseline(THREE, root, baseline) {
   for (const [name, entry] of Object.entries(baseline.pose?.bones || {})) {
     const bone = find(root, name);
-    if (bone) bone.quaternion.copy(degToQuat(THREE, entry.rotationDeg)).normalize();
+    if (bone && isFiniteArray(entry.quaternion)) bone.quaternion.fromArray(entry.quaternion).normalize();
+    else if (bone && isFiniteArray(entry.rotationDeg)) bone.quaternion.copy(degToQuat(THREE, entry.rotationDeg)).normalize();
   }
   root.updateMatrixWorld(true);
 }
 function applyPoseBones(root, bones) { for (const [name, values] of Object.entries(bones || {})) { const bone = find(root, name); if (bone) bone.quaternion.fromArray(values).normalize(); } root.updateMatrixWorld(true); }
 function restBones(root, names) { return Object.fromEntries(names.map((name) => [name, roundedQuaternion(requireNode(root, name).quaternion)])); }
 function worldPosition(THREE, node) { return node.getWorldPosition(new THREE.Vector3()); }
+function worldQuaternion(THREE, node) { return node.getWorldQuaternion(new THREE.Quaternion()).normalize(); }
+function localPointFromWorld(node, point) { return node.worldToLocal(point.clone()); }
+function buildSharedRestBaseline(THREE, root, weaponBaseline) {
+  root.updateMatrixWorld(true);
+  const groundY = new THREE.Box3().setFromObject(root).min.y;
+  const poseBones = Object.fromEntries(boneNames.map((name) => [name, { quaternion: roundedQuaternion(requireNode(root, name).quaternion) }]));
+  const feet = {};
+  for (const side of ['Left', 'Right']) {
+    const foot = requireNode(root, `${side}Foot`);
+    const toe = requireNode(root, `${side}ToeBase`);
+    const ankleWorld = worldPosition(THREE, foot);
+    const toeWorld = worldPosition(THREE, toe);
+    const forward = toeWorld.clone().sub(ankleWorld);
+    forward.y = 0;
+    safeDirection(THREE, forward, `${side} foot forward`);
+    const footLength = Math.max(0.04, forward.length());
+    forward.normalize();
+    const heelWorld = ankleWorld.clone().addScaledVector(forward, -footLength * 0.22);
+    heelWorld.y = groundY;
+    const toeContactWorld = toeWorld.clone();
+    toeContactWorld.y = groundY;
+    const footWorldQ = worldQuaternion(THREE, foot);
+    const soleNormalLocal = new THREE.Vector3(0, 1, 0).applyQuaternion(footWorldQ.clone().invert()).normalize();
+    feet[side.toLowerCase()] = {
+      footBone: `${side}Foot`,
+      toeBone: `${side}ToeBase`,
+      ankleWorld: vectorArray(ankleWorld),
+      expectedWorldQuaternion: roundedQuaternion(footWorldQ),
+      heelLocal: vectorArray(localPointFromWorld(foot, heelWorld)),
+      toeLocal: vectorArray(localPointFromWorld(foot, toeContactWorld)),
+      soleNormalLocal: vectorArray(soleNormalLocal),
+    };
+  }
+  return {
+    schema: 'pose-lab-v2-crimson-shared-rest-baseline-v2',
+    id: 'crimson-shared-rest-runtime-bind-1',
+    role: 'independent Crimson rest pose and calibrated foot contact contract; never sourced from an attack frame',
+    source: {
+      characterAsset: 'public/assets/crimson/crimson_plume_knight_rigged_pbr.glb',
+      characterAssetSha256: sha256(crimsonPath),
+      authoredPose: 'public/assets/crimson/crimson_light_attack1_weapon_baseline.json',
+      authoredPoseSha256: sha256(baselinePath),
+      derivation: 'runtime GLB bind pose plus the user-authored pre-retarget Crimson rest export',
+      notDerivedFromCandidate: true,
+      notDerivedFromVanguardAttackFrameZero: true,
+    },
+    assets: {
+      character: './assets/crimson/crimson_plume_knight_rigged_pbr.glb',
+      characterKey: 'crimson',
+      characterLabel: 'Crimson Knight',
+      sabre: './assets/crimson/arborblade_sword.glb',
+      activeAnimation: null,
+      rootMotion: null,
+    },
+    saberGripLocal: weaponBaseline.saberGripLocal,
+    sabreLocal: weaponBaseline.sabreLocal,
+    bladeLocalAxis: weaponBaseline.bladeLocalAxis,
+    pose: { state: 'rest', readyPreset: null, attackPreset: null, bones: poseBones },
+    footTruth: {
+      status: 'calibrated',
+      coordinateSystem: 'Three.js normalized character world; +Y is ground-up',
+      groundY: Number(groundY.toFixed(5)),
+      feet,
+      contract: 'heel and toe contact points stay on the calibrated ground plane while the sole normal stays world-up',
+    },
+    acceptance: { geometryAccepted: true, visualAccepted: false, cloudAccepted: false, candidateAccepted: false },
+  };
+}
+function setWorldQuaternion(THREE, root, node, desiredWorld) {
+  const parentWorld = node.parent?.getWorldQuaternion(new THREE.Quaternion()) || new THREE.Quaternion();
+  node.quaternion.copy(parentWorld.invert().multiply(desiredWorld)).normalize();
+  root.updateMatrixWorld(true);
+}
+function enforceFootContract(THREE, root, contract) {
+  const foot = requireNode(root, contract.footBone);
+  const desiredWorld = quaternionFromArray(THREE, contract.expectedWorldQuaternion);
+  setWorldQuaternion(THREE, root, foot, desiredWorld);
+  const heel = foot.localToWorld(new THREE.Vector3(...contract.heelLocal));
+  const toe = foot.localToWorld(new THREE.Vector3(...contract.toeLocal));
+  const sole = new THREE.Vector3(...contract.soleNormalLocal).applyQuaternion(worldQuaternion(THREE, foot)).normalize();
+  return {
+    heelWorld: vectorArray(heel),
+    toeWorld: vectorArray(toe),
+    heelGroundError: Number(Math.abs(heel.y - contract.groundY).toFixed(5)),
+    toeGroundError: Number(Math.abs(toe.y - contract.groundY).toFixed(5)),
+    minGroundClearance: Number((Math.min(heel.y, toe.y) - contract.groundY).toFixed(5)),
+    soleNormalWorld: vectorArray(sole),
+    soleUpDot: Number(sole.dot(new THREE.Vector3(0, 1, 0)).toFixed(6)),
+    orientationErrorDeg: angleDeg(THREE, worldQuaternion(THREE, foot), desiredWorld),
+  };
+}
 function rotateBoneToAlignWorld(THREE, root, bone, fromWorld, toWorld, maxStepDeg = 45) {
   if (!isFiniteVector3(fromWorld) || !isFiniteVector3(toWorld) || fromWorld.lengthSq() < 1e-8 || toWorld.lengthSq() < 1e-8) return 0;
   const from = fromWorld.clone().normalize();
@@ -158,18 +256,25 @@ function rotateBoneToAlignWorld(THREE, root, bone, fromWorld, toWorld, maxStepDe
   assertFiniteQuaternion(bone.quaternion, `${bone.name} after rotateBoneToAlignWorld`);
   return quatTravelDeg(THREE, before, bone.quaternion);
 }
-function solveChainToTargets(THREE, root, chainBones, targetMid, targetEnd) {
+function solveChainToTargets(THREE, root, chainBones, targetMid, targetEnd, iterations = 6, prioritizeEnd = false) {
   const [upperName, lowerName, endName] = chainBones;
   const upper = requireNode(root, upperName);
   const lower = requireNode(root, lowerName);
   const end = requireNode(root, endName);
   const beforeUpper = upper.quaternion.clone();
   const beforeLower = lower.quaternion.clone();
-  for (let i = 0; i < 6; i += 1) {
+  for (let i = 0; i < iterations; i += 1) {
     root.updateMatrixWorld(true);
     rotateBoneToAlignWorld(THREE, root, upper, worldPosition(THREE, lower).sub(worldPosition(THREE, upper)), targetMid.clone().sub(worldPosition(THREE, upper)), 38);
     rotateBoneToAlignWorld(THREE, root, lower, worldPosition(THREE, end).sub(worldPosition(THREE, lower)), targetEnd.clone().sub(worldPosition(THREE, lower)), 38);
     rotateBoneToAlignWorld(THREE, root, upper, worldPosition(THREE, end).sub(worldPosition(THREE, upper)), targetEnd.clone().sub(worldPosition(THREE, upper)), 18);
+  }
+  if (prioritizeEnd) {
+    for (let i = 0; i < 24; i += 1) {
+      root.updateMatrixWorld(true);
+      rotateBoneToAlignWorld(THREE, root, lower, worldPosition(THREE, end).sub(worldPosition(THREE, lower)), targetEnd.clone().sub(worldPosition(THREE, lower)), 8);
+      rotateBoneToAlignWorld(THREE, root, upper, worldPosition(THREE, end).sub(worldPosition(THREE, upper)), targetEnd.clone().sub(worldPosition(THREE, upper)), 8);
+    }
   }
   root.updateMatrixWorld(true);
   return {
@@ -178,6 +283,61 @@ function solveChainToTargets(THREE, root, chainBones, targetMid, targetEnd) {
     upperRotationDeg: quatTravelDeg(THREE, beforeUpper, upper.quaternion),
     lowerRotationDeg: quatTravelDeg(THREE, beforeLower, lower.quaternion),
     midError: Number(worldPosition(THREE, lower).distanceTo(targetMid).toFixed(5)),
+    endError: Number(worldPosition(THREE, end).distanceTo(targetEnd).toFixed(5)),
+  };
+}
+function reachableLegTarget(THREE, root, chainBones, requested) {
+  const [upperName, lowerName, endName] = chainBones;
+  const upper = requireNode(root, upperName);
+  const lower = requireNode(root, lowerName);
+  const end = requireNode(root, endName);
+  const hip = worldPosition(THREE, upper);
+  const upperLength = worldPosition(THREE, lower).distanceTo(hip);
+  const lowerLength = worldPosition(THREE, end).distanceTo(worldPosition(THREE, lower));
+  const maxReach = (upperLength + lowerLength) * 0.995;
+  const delta = requested.clone().sub(hip);
+  const vertical = delta.y;
+  const horizontal = new THREE.Vector3(delta.x, 0, delta.z);
+  const maxHorizontal = Math.sqrt(Math.max(0, maxReach * maxReach - vertical * vertical));
+  if (horizontal.length() > maxHorizontal) horizontal.setLength(maxHorizontal);
+  return hip.clone().add(horizontal).add(new THREE.Vector3(0, vertical, 0));
+}
+function solveTwoBoneLegToGround(THREE, root, chainBones, kneeHint, requestedEnd) {
+  const [upperName, lowerName, endName] = chainBones;
+  const upper = requireNode(root, upperName);
+  const lower = requireNode(root, lowerName);
+  const end = requireNode(root, endName);
+  const beforeUpper = upper.quaternion.clone();
+  const beforeLower = lower.quaternion.clone();
+  const targetEnd = reachableLegTarget(THREE, root, chainBones, requestedEnd);
+  for (let iteration = 0; iteration < 3; iteration += 1) {
+    root.updateMatrixWorld(true);
+    const hip = worldPosition(THREE, upper);
+    const knee = worldPosition(THREE, lower);
+    const ankle = worldPosition(THREE, end);
+    const a = knee.distanceTo(hip);
+    const b = ankle.distanceTo(knee);
+    const toEnd = targetEnd.clone().sub(hip);
+    const c = Math.max(0.00001, Math.min(toEnd.length(), (a + b) * 0.999));
+    const direction = toEnd.normalize();
+    let bend = kneeHint.clone().sub(hip).sub(direction.clone().multiplyScalar(kneeHint.clone().sub(hip).dot(direction)));
+    if (bend.lengthSq() < 1e-8) bend = knee.clone().sub(hip).sub(direction.clone().multiplyScalar(knee.clone().sub(hip).dot(direction)));
+    if (bend.lengthSq() < 1e-8) bend = new THREE.Vector3(0, 0, 1).cross(direction);
+    bend.normalize();
+    const along = (a * a + c * c - b * b) / (2 * c);
+    const height = Math.sqrt(Math.max(0, a * a - along * along));
+    const targetKnee = hip.clone().addScaledVector(direction, along).addScaledVector(bend, height);
+    rotateBoneToAlignWorld(THREE, root, upper, knee.clone().sub(hip), targetKnee.sub(hip), 180);
+    root.updateMatrixWorld(true);
+    const solvedKnee = worldPosition(THREE, lower);
+    rotateBoneToAlignWorld(THREE, root, lower, worldPosition(THREE, end).sub(solvedKnee), targetEnd.clone().sub(solvedKnee), 180);
+  }
+  root.updateMatrixWorld(true);
+  return {
+    targetEnd,
+    upperRotationDeg: quatTravelDeg(THREE, beforeUpper, upper.quaternion),
+    lowerRotationDeg: quatTravelDeg(THREE, beforeLower, lower.quaternion),
+    midError: Number(worldPosition(THREE, lower).distanceTo(kneeHint).toFixed(5)),
     endError: Number(worldPosition(THREE, end).distanceTo(targetEnd).toFixed(5)),
   };
 }
@@ -345,6 +505,9 @@ async function main() {
   const swordRoot = sword.scene;
   const grip = attachCrimsonSword(THREE, crimsonRoot, swordRoot);
   applyBaseline(THREE, crimsonRoot, baseline);
+  const sharedRest = buildSharedRestBaseline(THREE, crimsonRoot, baseline);
+  fs.writeFileSync(sharedRestPath, `${JSON.stringify(sharedRest, null, 2)}\n`);
+  applyBaseline(THREE, crimsonRoot, sharedRest);
   const baseBones = restBones(crimsonRoot, boneNames);
   const sourceStartBasisInverse = basisMatrix(THREE, reference.samples.start.bodyBasis, 'Vanguard start body basis').invert();
   const hips = requireNode(crimsonRoot, 'Hips').getWorldPosition(new THREE.Vector3());
@@ -367,15 +530,25 @@ async function main() {
     applyBodyBasisDeltas(THREE, crimsonRoot, basisMatrix(THREE, reference.samples.start.bodyBasis, 'source start body basis'), basisMatrix(THREE, sourceSample.bodyBasis, `${label} source body basis`), targetStartBasis);
     for (const chain of chains) {
       const targets = targetForChain(THREE, crimsonRoot, sourceSample, sourceStartBasisInverse, targetStartBasis, chain);
-      const solved = solveChainToTargets(THREE, crimsonRoot, chain.bones, targets.targetMid, targets.targetEnd);
+      if (chain.name === 'leftLeg' || chain.name === 'rightLeg') {
+        const side = chain.name === 'leftLeg' ? 'left' : 'right';
+        targets.targetEnd.y = sharedRest.footTruth.feet[side].ankleWorld[1];
+      }
+      const isLeg = chain.name.endsWith('Leg');
+      const solved = isLeg
+        ? solveTwoBoneLegToGround(THREE, crimsonRoot, chain.bones, targets.targetMid, targets.targetEnd)
+        : solveChainToTargets(THREE, crimsonRoot, chain.bones, targets.targetMid, targets.targetEnd);
+      if (isLeg) targets.targetEnd.copy(solved.targetEnd);
       chainReports.push(chainReport(THREE, crimsonRoot, chain, targets, solved));
     }
     const rawDesiredBlade = safeDirection(THREE, mapSourceVector(THREE, new THREE.Vector3(...sourceSample.weapon.bladeDirectionWorld), sourceStartBasisInverse, targetStartBasis), `${label} raw desired blade`);
     const desiredBlade = screenReadableBladeDirection(THREE, rawDesiredBlade, label);
     const handSolved = solveArmBladeForward(THREE, crimsonRoot, [requireNode(crimsonRoot, 'RightHand'), requireNode(crimsonRoot, 'RightForeArm'), requireNode(crimsonRoot, 'RightArm')], grip, swordRoot, desiredBlade);
+    const footReport = Object.fromEntries(['left', 'right'].map((side) => [side, enforceFootContract(THREE, crimsonRoot, { ...sharedRest.footTruth.feet[side], groundY: sharedRest.footTruth.groundY })]));
     const entry = frameReport(THREE, crimsonRoot, grip, swordRoot, label, sourceSample, desiredBlade, chainReports, clampReport);
     entry.rightArmBladeSolveRotationDeg = handSolved.rotationFromInputDeg;
     entry.rightHandBladeSolveAngleDeg = handSolved.angleErrorDeg;
+    entry.feet = footReport;
     report.push(entry);
     const bones = restBones(crimsonRoot, boneNames);
     frames.push({ time: primeKeys[label], label, note: `${label}: full-body Vanguard SwordAttack1 relationship baked to Crimson; Arborblade socket remains invariant`, sourceTime: sourceSample.sourceTime, bones });
@@ -404,6 +577,12 @@ async function main() {
   for (const entry of report) {
     if (!isFiniteArray(entry.actualBladeDirectionWorld) || !isFiniteArray(entry.desiredBladeDirectionWorld)) guardFailures.push(`NONFINITE_BLADE:${entry.label}`);
     if (!Number.isFinite(entry.bladeAngleErrorDeg)) guardFailures.push(`NONFINITE_BLADE_ANGLE:${entry.label}`);
+    for (const [side, foot] of Object.entries(entry.feet)) {
+      if (foot.orientationErrorDeg > thresholds.maxFootOrientationErrorDeg) guardFailures.push(`FOOT_ORIENTATION_DRIFT:${entry.label}:${side}:${foot.orientationErrorDeg}`);
+      if (foot.heelGroundError > thresholds.maxContactHeightError || foot.toeGroundError > thresholds.maxContactHeightError) guardFailures.push(`FOOT_CONTACT_OFF_GROUND:${entry.label}:${side}:${foot.heelGroundError}:${foot.toeGroundError}`);
+      if (foot.minGroundClearance < -thresholds.maxContactHeightError) guardFailures.push(`FOOT_PENETRATES_GROUND:${entry.label}:${side}:${foot.minGroundClearance}`);
+      if (foot.soleUpDot < thresholds.minSoleUpDot) guardFailures.push(`SOLE_NOT_UP:${entry.label}:${side}:${foot.soleUpDot}`);
+    }
   }
   if (guardFailures.some((failure) => failure.startsWith('NONFINITE'))) {
     fs.rmSync(outputPath, { force: true });
@@ -413,7 +592,7 @@ async function main() {
   const payload = {
     schema: 'pose-lab-v2-attack-candidate-v1',
     id: candidateId,
-    label: 'Crimson light attack 1 full-body transfer from Vanguard SwordAttack1',
+    label: 'Crimson light attack 1 full-body transfer with planted-foot contract',
     primeKeys,
     source: {
       character: 'crimson',
@@ -422,10 +601,12 @@ async function main() {
       duration: reference.duration,
       vanguardReference: 'public/assets/crimson/vanguard_swordattack1_reference.json',
       savedWeaponBaseline: 'public/assets/crimson/crimson_light_attack1_weapon_baseline.json',
-      previousReviewCandidate: 'crimson-light-attack1-vanguard-2',
-      method: 'source-local-roll-deltas-plus-body-frame-full-limb-chain-solve',
+      sharedRestBaseline: 'public/assets/crimson/crimson_shared_rest_baseline.json',
+      sharedRestBaselineSha256: sha256(sharedRestPath),
+      previousReviewCandidate: 'crimson-light-attack1-vanguard-3',
+      method: 'source-local-deltas-plus-limb-chain-solve-plus-world-planted-foot-contract',
       policy: {
-        role: 'quarantined review candidate, not accepted repo truth',
+        role: 'geometry-qualified review candidate pending independent rendered visual acceptance',
         noRuntimeRetargeting: true,
         forbiddenUse: 'Do not copy Vanguard Weapon.R transforms directly into Crimson as accepted sword orientation.',
         rootMotion: 'Vanguard root motion is preserved in sidecar data and not applied in Pose Lab.',
@@ -436,12 +617,13 @@ async function main() {
         targetBones: boneNames,
         chainSolves: chains.map((chain) => ({ name: chain.name, targetBones: chain.bones, sourceLimb: chain.sourceLimb })),
         rollRestoration: 'bounded source local quaternion deltas applied before chain solve; clamps recorded per frame',
+        footPlanting: 'leg IK pins each ankle to calibrated rest height; foot world orientation is restored after every solve; heel, toe, penetration, and sole-up metrics are recorded per frame',
         bladeReadability: 'mapped Vanguard blade direction is projected toward the review camera plane before right-hand solve so the Arborblade reads as a visible sword, not a camera-axis sliver',
       },
       savedWeapon: { saberGripLocal: baseline.saberGripLocal, sabreLocal: baseline.sabreLocal, bladeLocalAxis: baseline.bladeLocalAxis },
     },
     guardReport: {
-      crimsonLightAttack1V3: { status: guardFailures.length ? 'FAIL' : 'PASS', thresholds, bodyTravelDeg: travel, startFromSavedBaselineTravel, maxChainError: Number(maxChainError.toFixed(5)), report, guardFailures, note: 'Guardrail only: full-body transfer and weapon invariance must still be judged by hosted cloud screenshots.' },
+      crimsonLightAttack1V4: { status: guardFailures.length ? 'FAIL' : 'PASS', thresholds, bodyTravelDeg: travel, startFromSavedBaselineTravel, maxChainError: Number(maxChainError.toFixed(5)), report, guardFailures, note: 'Geometry gate is independent of visual acceptance. Rendered front/side/rear/low evidence must still be inspected before registry acceptance.' },
     },
     frames,
   };
