@@ -1,0 +1,67 @@
+name: Crimson PR Visual Evidence
+
+on:
+  push:
+    branches: [agent/crimson-foot-red-gate]
+
+permissions:
+  contents: read
+
+jobs:
+  capture-v4:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright package without browser download
+        run: npm install --no-save playwright
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+      - name: Verify system Chrome
+        run: google-chrome --version
+      - name: Capture Crimson Attack1 v4 prime frames
+        env:
+          PLAYWRIGHT_CHROME_CHANNEL: chrome
+        run: |
+          set -eu
+          URL_LIST="$(node --input-type=module - <<'NODE'
+          const base = `https://raw.githack.com/${process.env.GITHUB_REPOSITORY}/${process.env.GITHUB_SHA}/index.html`;
+          const frames = [
+            ['start', 0],
+            ['earlyWindup', 0.1],
+            ['anticipation', 0.183333],
+            ['snapPrep', 0.283333],
+            ['contact', 0.383333],
+            ['contactHold', 0.5],
+            ['settle', 0.566667],
+            ['followThrough', 0.62],
+          ];
+          const urls = frames.map(([primeKey, time]) => {
+            const params = new URLSearchParams({
+              model: 'crimson',
+              pose: 'attack1',
+              candidate: 'crimson-light-attack1-vanguard-4',
+              attackTime: String(time),
+              quality: 'source',
+              cacheBust: process.env.GITHUB_SHA,
+            });
+            return { label: `v4 ${primeKey}`, primeKey, time, url: `${base}?${params}` };
+          });
+          process.stdout.write(JSON.stringify(urls));
+          NODE
+          )"
+          node tools/github_crimson_visual_capture.mjs \
+            --url-list "$URL_LIST" \
+            --out-dir "generated/crimson-v4-pr-evidence/${GITHUB_RUN_ID}" \
+            --target crimson-attack1-v4 \
+            --job-id "github_actions_${GITHUB_RUN_ID}" \
+            --session-id "browser_session_${GITHUB_RUN_ID}" \
+            --episode-id "browser_episode_${GITHUB_RUN_ID}" \
+            --settle-ms 1500
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crimson-v4-pr-evidence-${{ github.run_id }}
+          path: generated/crimson-v4-pr-evidence/${{ github.run_id }}
+          if-no-files-found: error
