@@ -69,9 +69,11 @@
     "review:crimson-attack1:cloud": "node tools/run_crimson_attack1_cloud_review.mjs",
     "review:crimson-attack1:blender-compare": "node scripts/render-crimson-vanguard-attack1-compare.mjs",
     "review:crimson-shared-rest:blender-compare": "node scripts/render-crimson-vanguard-shared-rest-compare.mjs",
-    "test": "npm run test:guardrails",
+    "test": "npm run test:repo-guardrails",
     "test:crimson-light-attack1:quarantine": "node tools/test_crimson_light_attack_quarantine.mjs",
     "test:crimson-light-attack1:geometry": "node tools/test_crimson_light_attack_v4_geometry.mjs",
-    "test:guardrails": "npm run smoke && npm run test:learning-packet && npm run test:cloud-worker-surface && npm run test:crimson-model-viewer-constraints && npm run test:crimson-review-surface && npm run test:crimson-review-assets && npm run test:crimson-cloud-visual-gate && npm run test:crimson-visual-evidence-promotion && npm run test:saber-transform-interaction && npm run test:crimson-light-attack1:quarantine && npm run test:crimson-light-attack1:geometry"
+    "test:guardrails": "npm run test:repo-guardrails",
+    "test:repo-guardrails": "npm run smoke && npm run test:crimson-model-viewer-constraints && npm run test:crimson-review-surface && npm run test:crimson-review-assets && npm run test:crimson-visual-evidence-promotion && npm run test:saber-transform-interaction && npm run test:crimson-light-attack1 && npm run test:crimson-light-attack1:quarantine && npm run test:crimson-light-attack1:geometry",
+    "test:external-integration": "npm run test:learning-packet && npm run test:cloud-worker-surface && npm run test:crimson-cloud-visual-gate"
   }
 }
