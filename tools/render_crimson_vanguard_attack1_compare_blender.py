@@ -692,12 +692,12 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     # Restrained center. The body inclines into the guard without asking the
     # pelvis to manufacture the pose.
     center_rotations = [
-        ("Hips", (0, 0, 1), -7.0),
-        ("Hips", (1, 0, 0), 3.0),
-        ("Spine", (1, 0, 0), 8.0),
-        ("Spine01", (0, 0, 1), 2.0),
-        ("Spine02", (0, 0, 1), 3.0),
-        ("neck", (0, 0, 1), -2.0),
+        ("Hips", (0, 0, 1), -22.0),
+        ("Hips", (1, 0, 0), 5.0),
+        ("Spine", (1, 0, 0), 12.0),
+        ("Spine01", (0, 0, 1), 4.0),
+        ("Spine02", (0, 0, 1), 5.0),
+        ("neck", (0, 0, 1), 3.0),
     ]
     for bone_name, axis, degrees in center_rotations:
         rotate_pose_bone_world_axis(target_armature, bone_name, Vector(axis), degrees)
@@ -713,7 +713,7 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     hips_bone = target_armature.pose.bones.get("Hips")
     if not hips_bone:
         raise RuntimeError("missing target pose bone Hips")
-    hips_drop_world = Vector((0.0, 0.0, -0.18 * leg_scale))
+    hips_drop_world = Vector((0.0, 0.0, -0.20 * leg_scale))
     hips_matrix = hips_bone.matrix.copy()
     hips_matrix.translation = hips_matrix.translation + (
         target_armature.matrix_world.inverted().to_3x3() @ hips_drop_world
@@ -724,15 +724,15 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
         solve_chain_with_pole(
             target_armature,
             ["LeftUpLeg", "LeftLeg", "LeftFoot"],
-            left_ankle + Vector((0.18 * leg_scale, -0.24 * leg_scale, 0.0)),
-            left_hip + Vector((0.18 * leg_scale, -0.72 * leg_scale, -0.38 * leg_scale)),
+            left_ankle + Vector((0.10 * leg_scale, -0.34 * leg_scale, 0.0)),
+            left_hip + Vector((0.10 * leg_scale, -0.74 * leg_scale, -0.42 * leg_scale)),
             iterations=24,
         ),
         solve_chain_with_pole(
             target_armature,
             ["RightUpLeg", "RightLeg", "RightFoot"],
-            right_ankle + Vector((-0.16 * leg_scale, 0.14 * leg_scale, 0.0)),
-            right_hip + Vector((-0.16 * leg_scale, -0.58 * leg_scale, -0.36 * leg_scale)),
+            right_ankle + Vector((-0.06 * leg_scale, 0.18 * leg_scale, 0.0)),
+            right_hip + Vector((-0.06 * leg_scale, -0.56 * leg_scale, -0.38 * leg_scale)),
             iterations=24,
         ),
     ]
@@ -761,8 +761,8 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             - find_pose_bone_world(target_armature, "Hips").translation
         ).length,
     )
-    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.10 * shoulder_span, -0.48 * torso_height, 0.48 * torso_height))
-    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.04 * shoulder_span, -0.49 * torso_height, 0.58 * torso_height))
+    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.34 * shoulder_span, -0.22 * torso_height, 0.30 * torso_height))
+    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.28 * shoulder_span, -0.20 * torso_height, 0.38 * torso_height))
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
     arm_reports = [
@@ -770,14 +770,14 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             target_armature,
             ["RightArm", "RightForeArm", "RightHand"],
             right_hand_target,
-            right_shoulder + Vector((-0.30 * shoulder_span, -0.12 * torso_height, -0.50 * torso_height)),
+            right_shoulder + Vector((-0.35 * shoulder_span, -0.04 * torso_height, -0.40 * torso_height)),
             iterations=28,
         ),
         solve_chain_with_pole(
             target_armature,
             ["LeftArm", "LeftForeArm", "LeftHand"],
             left_hand_target,
-            left_shoulder + Vector((0.24 * shoulder_span, -0.10 * torso_height, -0.38 * torso_height)),
+            left_shoulder + Vector((0.10 * shoulder_span, -0.02 * torso_height, -0.28 * torso_height)),
             iterations=28,
         ),
     ]
@@ -795,6 +795,11 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     return {
         "method": "crimson-native-authored-ik-pins-plus-fk-keyframe",
         "sourceAuthority": "Vanguard pixels only; source armature and logical mapping are deliberately unread",
+        "compositionIntent": {
+            "forceLine": "rear foot through turned pelvis into an offset high guard",
+            "stance": "depth-staggered, loaded, and narrower in screen width",
+            "guard": "off-center hand cluster with unequal low elbows and a readable face",
+        },
         "crossRigPoseInputs": [],
         "centerRotations": [
             {"bone": bone, "axisWorld": list(axis), "degrees": degrees}
@@ -821,7 +826,7 @@ def author_crimson_blade_direction(
     # This threat line is visually authored for Crimson. It is not measured or
     # imported from Vanguard. The hand is rotated as an FK control until the
     # actual Arborblade mesh follows this chosen direction.
-    desired = Vector((0.880, -0.220, 0.420)).normalized()
+    desired = Vector((0.940, -0.180, 0.290)).normalized()
     applied = 0.0
     for _ in range(3):
         hand = find_pose_bone_world(target_armature, "RightHand")
