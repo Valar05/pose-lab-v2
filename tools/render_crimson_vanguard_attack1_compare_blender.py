@@ -586,7 +586,10 @@ def align_crimson_blade_to_vanguard(
 ) -> dict:
     source_line = imported_sword_line(source_objects, camera)
     source_angle = math.radians(source_line["screenAngleDeg"])
-    desired = Vector((math.cos(source_angle), 0, math.sin(source_angle)))
+    # Preserve Vanguard's visible blade angle while pushing the weapon toward
+    # camera-space foreground. A screen-plane-only match ran the blade through
+    # Crimson's helmet and plume when inspected from the side.
+    desired = Vector((math.cos(source_angle), -0.55, math.sin(source_angle))).normalized()
     rotated = 0.0
     for _ in range(4):
         hand = find_pose_bone_world(target_armature, "RightHand")
@@ -922,6 +925,8 @@ def main() -> None:
                 original_location = camera.location.copy()
                 original_rotation = camera.rotation_euler.copy()
                 original_angle = camera.data.angle
+                original_samples = bpy.context.scene.cycles.samples
+                bpy.context.scene.cycles.samples = min(original_samples, 8)
                 for obj in vanguard_objects:
                     obj.hide_render = True
                 entry["crimsonViews"] = []
@@ -940,6 +945,7 @@ def main() -> None:
                 camera.location = original_location
                 camera.rotation_euler = original_rotation
                 camera.data.angle = original_angle
+                bpy.context.scene.cycles.samples = original_samples
         frames.append(entry)
         for failure in entry["failures"]:
             all_failures.append({"frame": label, **failure})
