@@ -13,7 +13,7 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
     "method": "Crimson-native authored elbow and wrist projection; two-bone pins first, wrist roll and sword last",
     "crossRigPoseInputs": [],
     "exactAuthoredGlb": true,
-    "poseSha256": "75c69e76f0fe841292c4979e19fefb2f4c4d0bd22aab5eb3296e7a464f90e0c6",
+    "poseSha256": "4db76a74b24d56411d6429c0c5f35bbe77bedbe92bda086d65a162aaea0ab41a",
     "status": "generated-visual-pending-candidate-parity",
     "rejectedBaseline": {
       "candidateId": "crimson-frame-zero-480eb888-rejected",
@@ -23,7 +23,7 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
     "limitations": [
       "Crimson has rigid open gauntlet meshes and no finger bones; visible hand closure is unavailable in this asset"
     ],
-    "authoredGlbSha256": "29a41c72aa7eda0857a1c4c6251b5d755b84e364f921605310053b00417bede5",
+    "authoredGlbSha256": "d20a0f8f8f82b94ffbf0b96a10e4aa1326c6915f7346abc29385c89bcc8d734b",
     "poseProvenance": {
       "bonesAndHips": "extracted from authored_frame_zero.glb CrimsonCombatReadyFrameZero animation channels",
       "sabreLocal": "newly baked calibration after blade-direction and two-hand weapon seating solve; not extracted from character GLB"
@@ -43,9 +43,9 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
       },
       "sabreLocal": {
         "position": [
-          -9.12207413,
-          11.43897438,
-          -7.90325975
+          0.46006966,
+          2.84260845,
+          -14.83034801
         ],
         "quaternion": [
           0.68301272,
@@ -127,22 +127,22 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
           0.36842278
         ],
         "LeftArm": [
-          0.69112068,
-          0.12561512,
-          0.59973735,
-          0.38325986
+          0.55990779,
+          0.26694843,
+          0.49928895,
+          0.60493994
         ],
         "LeftForeArm": [
-          0.03147558,
-          0.00012812,
-          0.50429946,
-          0.86295503
+          -0.27392077,
+          0.04690295,
+          0.65993595,
+          0.69803447
         ],
         "LeftHand": [
-          0.06135889,
-          0.04253984,
-          0.13654938,
-          0.98781568
+          0.02757126,
+          0.02789319,
+          0.14987648,
+          0.98792654
         ],
         "RightShoulder": [
           0.54176521,
@@ -151,22 +151,22 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
           0.3773762
         ],
         "RightArm": [
-          0.3081488,
-          -0.40513292,
-          -0.38849074,
-          0.76810586
+          0.4217124,
+          -0.2205683,
+          -0.60506999,
+          0.63827777
         ],
         "RightForeArm": [
-          -0.68340456,
-          -0.07638235,
-          -0.60911739,
-          0.39509496
+          -0.19295613,
+          -0.06175434,
+          -0.76808572,
+          0.60745263
         ],
         "RightHand": [
-          -0.07566148,
-          0.08496813,
-          0.51603788,
-          0.84897625
+          -0.21967316,
+          -0.2851795,
+          0.7016902,
+          0.61485541
         ],
         "neck": [
           0.10416708,
