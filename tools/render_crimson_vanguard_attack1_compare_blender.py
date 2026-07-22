@@ -52,9 +52,17 @@ REJECTED_480_AUTHORED_GLB_SHA256 = "4e57cc6a443b6cdd0cae1177357536234e4c4e7de980
 REJECTED_480_POSE_SHA256 = "b5ef5555ba060546f4d6dd3921f09cf0e4251dfac8a346d4db7f4f30858bd554"
 REJECTED_480_CANDIDATE_ID = "crimson-frame-zero-480eb888-rejected"
 # Crimson's imported Hand tails are not palm landmarks: they extend several
-# metres away from the visible gauntlets.  Keep the grip anchor near the wrist
-# by advancing along the solved forearm ray by a small body-relative distance.
-HAND_PALM_FORWARD_TORSO_FRACTION = 0.06
+# metres away from the visible gauntlets. Grip evidence must come from the
+# evaluated, skinned hand mesh instead of a guessed offset from the wrist.
+HAND_MESH_WEIGHT_MINIMUM = 0.75
+HAND_MESH_FOREARM_WEIGHT_MAXIMUM = 0.05
+HAND_MESH_MEAN_WEIGHT_MINIMUM = 0.95
+HAND_MESH_MINIMUM_VERTICES = 250
+HAND_LANDMARK_MIN_TORSO_FRACTION = 0.20
+HAND_LANDMARK_MAX_TORSO_FRACTION = 0.50
+GRIP_SURFACE_CLEARANCE_TORSO_FRACTION = 0.005
+HEAD_MESH_WEIGHT_MINIMUM = 0.75
+HEAD_MESH_MINIMUM_VERTICES = 500
 # These are measured Blender 4.3 -> glTF -> parser round-trip floors from the
 # exact rejected-480 protected channels.  They remain far below a visible pose
 # change while avoiding false failures from 32-bit exporter quantization.
@@ -624,6 +632,7 @@ def aim_camera(camera: bpy.types.Object, location: Vector, target: Vector, angle
     camera.location = location
     camera.rotation_euler = (target - location).to_track_quat("-Z", "Y").to_euler()
     camera.data.angle = math.radians(angle_degrees)
+    bpy.context.view_layer.update()
 
 
 def add_ground_plane() -> bpy.types.Object:
@@ -1520,7 +1529,10 @@ def author_crimson_blade_direction(
     # This threat line is visually authored for Crimson. It is not measured or
     # imported from Vanguard. The hand is rotated as an FK control until the
     # actual Arborblade mesh follows this chosen direction.
-    desired = Vector((0.940, -0.180, 0.290)).normalized()
+    # Keep meaningful depth in the threat line so profile views do not collapse
+    # it into a vertical spike through the helmet. The shallow rise clears the
+    # face in front/three-quarter views without dropping through the torso.
+    desired = Vector((0.875, -0.470, 0.110)).normalized()
     applied = 0.0
     for _ in range(3):
         hand = find_pose_bone_world(target_armature, "RightHand")
@@ -1739,48 +1751,312 @@ def place_crimson_sword(sword_roots: list[bpy.types.Object], initial: dict[str, 
     return socket_world
 
 
-def pose_bone_world_tail(armature: bpy.types.Object, bone_name: str) -> Vector:
-    bone = armature.pose.bones.get(bone_name)
-    if not bone:
-        raise RuntimeError(f"missing target pose bone {bone_name}")
-    return armature.matrix_world @ bone.tail
-
-
-def hand_palm_anchor(
+def hand_mesh_landmark(
+    objects: list[bpy.types.Object],
     armature: bpy.types.Object,
     bone_name: str,
     torso_height: float,
-) -> Vector:
-    """Return a stable gauntlet center without trusting malformed Hand tails."""
+) -> tuple[Vector, list[Vector], dict]:
+    """Return the evaluated center of visible geometry carried by one Hand bone."""
     if bone_name not in {"LeftHand", "RightHand"}:
-        raise RuntimeError(f"palm anchor requires LeftHand or RightHand, got {bone_name}")
+        raise RuntimeError(f"hand mesh landmark requires LeftHand or RightHand, got {bone_name}")
     side = "Left" if bone_name.startswith("Left") else "Right"
+    wanted = canon_bone_name(bone_name)
+    excluded = canon_bone_name(f"{side}ForeArm")
+    samples = []
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    for obj in objects:
+        if obj.type != "MESH":
+            continue
+        group_indices = {
+            group.index
+            for group in obj.vertex_groups
+            if canon_bone_name(group.name) == wanted
+        }
+        excluded_group_indices = {
+            group.index
+            for group in obj.vertex_groups
+            if canon_bone_name(group.name) == excluded
+        }
+        if not group_indices:
+            continue
+        evaluated = obj.evaluated_get(depsgraph)
+        mesh = evaluated.to_mesh(preserve_all_data_layers=True, depsgraph=depsgraph)
+        try:
+            for vertex in mesh.vertices:
+                weight = sum(
+                    group.weight
+                    for group in vertex.groups
+                    if group.group in group_indices
+                )
+                excluded_weight = sum(
+                    group.weight
+                    for group in vertex.groups
+                    if group.group in excluded_group_indices
+                )
+                if (
+                    weight >= HAND_MESH_WEIGHT_MINIMUM
+                    and excluded_weight <= HAND_MESH_FOREARM_WEIGHT_MAXIMUM
+                ):
+                    samples.append((
+                        evaluated.matrix_world @ vertex.co,
+                        weight,
+                        excluded_weight,
+                    ))
+        finally:
+            evaluated.to_mesh_clear()
+    if len(samples) < HAND_MESH_MINIMUM_VERTICES:
+        raise RuntimeError(
+            f"{bone_name} visible mesh landmark has {len(samples)} weighted vertices; "
+            f"expected at least {HAND_MESH_MINIMUM_VERTICES} at weight "
+            f">= {HAND_MESH_WEIGHT_MINIMUM}"
+        )
+    mean_weight = sum(weight for _point, weight, _excluded in samples) / len(samples)
+    if mean_weight < HAND_MESH_MEAN_WEIGHT_MINIMUM:
+        raise RuntimeError(
+            f"{bone_name} visible mesh landmark mean Hand weight is too weak: "
+            f"{mean_weight:.6f} < {HAND_MESH_MEAN_WEIGHT_MINIMUM:.6f}"
+        )
+    total_weight = sum(weight for _point, weight, _excluded in samples)
+    landmark = sum(
+        (point * weight for point, weight, _excluded in samples),
+        Vector((0, 0, 0)),
+    ) / total_weight
     wrist = find_pose_bone_world(armature, bone_name).translation
-    elbow = find_pose_bone_world(armature, f"{side}ForeArm").translation
-    forearm_ray = wrist - elbow
-    if forearm_ray.length_squared < 0.000000000001:
-        raise RuntimeError(f"degenerate {side} forearm cannot define a palm anchor")
-    return wrist + forearm_ray.normalized() * (
-        torso_height * HAND_PALM_FORWARD_TORSO_FRACTION
+    wrist_distance = (landmark - wrist).length
+    minimum_distance = torso_height * HAND_LANDMARK_MIN_TORSO_FRACTION
+    maximum_distance = torso_height * HAND_LANDMARK_MAX_TORSO_FRACTION
+    if wrist_distance < minimum_distance or wrist_distance > maximum_distance:
+        raise RuntimeError(
+            f"{bone_name} visible mesh landmark has an implausible wrist distance: "
+            f"{wrist_distance:.6f} not in [{minimum_distance:.6f}, {maximum_distance:.6f}]"
+        )
+    return landmark, [point for point, _weight, _excluded in samples], {
+        "bone": bone_name,
+        "definition": (
+            "weighted centroid of evaluated visible mesh vertices influenced by "
+            f"{bone_name}; imported Hand tail excluded"
+        ),
+        "minimumVertexWeight": HAND_MESH_WEIGHT_MINIMUM,
+        "maximumForeArmWeight": HAND_MESH_FOREARM_WEIGHT_MAXIMUM,
+        "meanHandWeight": round(mean_weight, 6),
+        "maximumObservedForeArmWeight": round(
+            max(excluded_weight for _point, _weight, excluded_weight in samples),
+            6,
+        ),
+        "vertexCount": len(samples),
+        "world": [round(value, 6) for value in landmark],
+        "wristWorld": [round(value, 6) for value in wrist],
+        "wristDistanceWorld": round(wrist_distance, 6),
+        "wristDistanceBodyScale": round(
+            wrist_distance / max(torso_height, 0.000001),
+            6,
+        ),
+    }
+
+
+def dominant_head_mesh_points(objects: list[bpy.types.Object]) -> list[Vector]:
+    wanted = canon_bone_name("Head")
+    points = []
+    weights = []
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    for obj in objects:
+        if obj.type != "MESH":
+            continue
+        group_indices = {
+            group.index
+            for group in obj.vertex_groups
+            if canon_bone_name(group.name) == wanted
+        }
+        if not group_indices:
+            continue
+        evaluated = obj.evaluated_get(depsgraph)
+        mesh = evaluated.to_mesh(preserve_all_data_layers=True, depsgraph=depsgraph)
+        try:
+            for vertex in mesh.vertices:
+                weight = sum(
+                    group.weight
+                    for group in vertex.groups
+                    if group.group in group_indices
+                )
+                if weight >= HEAD_MESH_WEIGHT_MINIMUM:
+                    points.append(evaluated.matrix_world @ vertex.co)
+                    weights.append(weight)
+        finally:
+            evaluated.to_mesh_clear()
+    if len(points) < HEAD_MESH_MINIMUM_VERTICES:
+        raise RuntimeError(
+            f"visible Head mesh cloud has {len(points)} weighted vertices; "
+            f"expected at least {HEAD_MESH_MINIMUM_VERTICES} at weight "
+            f">= {HEAD_MESH_WEIGHT_MINIMUM}"
+        )
+    return points
+
+
+def percentile(values: list[float], fraction: float) -> float:
+    if not values:
+        raise RuntimeError("cannot compute a percentile of an empty collection")
+    ordered = sorted(values)
+    position = max(0.0, min(1.0, fraction)) * (len(ordered) - 1)
+    lower = math.floor(position)
+    upper = math.ceil(position)
+    if lower == upper:
+        return ordered[lower]
+    blend = position - lower
+    return ordered[lower] * (1.0 - blend) + ordered[upper] * blend
+
+
+def hand_axis_extents(points: list[Vector], center: Vector, direction: Vector) -> tuple[float, float]:
+    projections = [(point - center).dot(direction) for point in points]
+    return percentile(projections, 0.05), percentile(projections, 0.95)
+
+
+def normalized_sword_crossguard_points(calibration: dict) -> tuple[list[Vector], dict]:
+    """Select crossguard vertices from the normalized sword's radial geometry."""
+    gltf, bin_chunk = parse_glb(SWORD_GLB)
+    points = []
+    for mesh in gltf.get("meshes", []):
+        for primitive in mesh.get("primitives", []):
+            accessor_index = primitive.get("attributes", {}).get("POSITION")
+            if accessor_index is not None:
+                points.extend(Vector(values[:3]) for values in read_accessor_values(
+                    gltf,
+                    bin_chunk,
+                    accessor_index,
+                ))
+    if len(points) < 100:
+        raise RuntimeError(f"normalized sword mesh has too few vertices: {len(points)}")
+    hilt_local = Vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+    pommel_local = Vector(calibration.get("pommelLocalPoint") or [0, 0, -0.35])
+    local_handle = pommel_local - hilt_local
+    local_handle_length = local_handle.length
+    if local_handle_length < 0.000001:
+        raise RuntimeError("degenerate local hilt-pommel span cannot select the crossguard")
+    handle_direction = local_handle.normalized()
+    radial_distances = []
+    for point in points:
+        offset = point - hilt_local
+        axial = offset.dot(handle_direction)
+        radial_distances.append((offset - handle_direction * axial).length)
+    maximum_radial = max(radial_distances)
+    radial_threshold = maximum_radial * 0.45
+    crossguard_points = [
+        point
+        for point, radial in zip(points, radial_distances)
+        if radial >= radial_threshold
+    ]
+    if len(crossguard_points) < 50:
+        raise RuntimeError(
+            f"crossguard radial selection is too small: {len(crossguard_points)} vertices"
+        )
+    return crossguard_points, {
+        "meshVertexCount": len(points),
+        "crossguardVertexCount": len(crossguard_points),
+        "maximumRadialLocal": round(maximum_radial, 8),
+        "radialThresholdLocal": round(radial_threshold, 8),
+    }
+
+
+def sword_crossguard_geometry(calibration: dict, handle_length_world: float) -> dict:
+    """Measure the crossguard's pommel-side face from the normalized sword mesh."""
+    crossguard_points, selection = normalized_sword_crossguard_points(calibration)
+    hilt_local = Vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+    pommel_local = Vector(calibration.get("pommelLocalPoint") or [0, 0, -0.35])
+    local_handle = pommel_local - hilt_local
+    local_handle_length = local_handle.length
+    if local_handle_length < 0.000001 or handle_length_world < 0.000001:
+        raise RuntimeError("degenerate hilt-pommel span cannot measure the crossguard")
+    handle_direction = local_handle.normalized()
+    local_extent = max(
+        (point - hilt_local).dot(handle_direction)
+        for point in crossguard_points
     )
+    if local_extent <= 0 or local_extent >= local_handle_length * 0.25:
+        raise RuntimeError(
+            f"crossguard pommel extent is implausible: {local_extent:.6f} local units"
+        )
+    world_extent = handle_length_world * local_extent / local_handle_length
+    return {
+        "definition": (
+            "pommel-side axial extent of normalized sword vertices at or beyond "
+            "45% of maximum radial distance"
+        ),
+        **selection,
+        "pommelExtentLocal": round(local_extent, 8),
+        "pommelExtentWorld": round(world_extent, 8),
+        "pommelExtentHandleFraction": round(local_extent / local_handle_length, 8),
+    }
 
 
 def blender_point_to_browser(point: Vector) -> Vector:
     return (BLENDER_TO_BROWSER @ Vector((point.x, point.y, point.z, 1.0))).to_3d()
 
 
+def weapon_world_axes(sword_socket: Matrix, calibration: dict) -> dict:
+    hilt = sword_socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+    pommel = sword_socket @ browser_vector(
+        calibration.get("pommelLocalPoint") or [0, 0, -0.35]
+    )
+    tip = sword_socket @ browser_vector(calibration.get("tipLocalPoint") or [0, 0, 1])
+    handle = pommel - hilt
+    blade = tip - hilt
+    if handle.length < 0.000001 or blade.length < 0.000001:
+        raise RuntimeError("weapon hilt-pommel and hilt-tip axes must be nondegenerate")
+    opposition = handle.normalized().dot(blade.normalized())
+    if opposition > -0.98:
+        raise RuntimeError(
+            f"weapon blade and handle axes are not opposed: dot={opposition:.6f} > -0.98"
+        )
+    return {
+        "hilt": hilt,
+        "pommel": pommel,
+        "tip": tip,
+        "handleDirection": handle.normalized(),
+        "bladeDirection": blade.normalized(),
+        "handleLength": handle.length,
+        "bladeLength": blade.length,
+        "oppositionDot": opposition,
+    }
+
+
 def seat_sword_hilt_at_right_palm(
     armature: bpy.types.Object,
+    body_objects: list[bpy.types.Object],
     sword_objects: list[bpy.types.Object],
     sword_initial: dict[str, Matrix],
     calibration: dict,
     torso_height: float,
 ) -> dict:
-    """Bake swordLocal translation so the hilt origin occupies Crimson's right palm."""
+    """Bake the handle through the visible right gauntlet with the guard outside it."""
     hand_world = find_pose_bone_world(armature, "RightHand")
-    palm_anchor = hand_palm_anchor(armature, "RightHand", torso_height)
+    palm_anchor, palm_points, palm_evidence = hand_mesh_landmark(
+        body_objects,
+        armature,
+        "RightHand",
+        torso_height,
+    )
+    provisional_socket = place_crimson_sword(
+        sword_objects,
+        sword_initial,
+        hand_world,
+        calibration,
+    )
+    provisional_axes = weapon_world_axes(provisional_socket, calibration)
+    handle_direction = provisional_axes["handleDirection"]
+    handle_length = provisional_axes["handleLength"]
+    blade_side_extent, pommel_side_extent = hand_axis_extents(
+        palm_points,
+        palm_anchor,
+        handle_direction,
+    )
+    crossguard_geometry = sword_crossguard_geometry(calibration, handle_length)
+    guard_pommel_extent = crossguard_geometry["pommelExtentWorld"]
+    guard_clearance = torso_height * GRIP_SURFACE_CLEARANCE_TORSO_FRACTION
+    desired_hilt_world = palm_anchor + handle_direction * (
+        blade_side_extent - guard_pommel_extent - guard_clearance
+    )
     grip_world = hand_world @ browser_transform_matrix(calibration["saberGripLocal"])
-    desired_hilt_grip_blender = grip_world.inverted() @ palm_anchor
+    desired_hilt_grip_blender = grip_world.inverted() @ desired_hilt_world
     desired_hilt_grip_browser = blender_point_to_browser(desired_hilt_grip_blender)
 
     sword_transform = calibration["swordLocal"]
@@ -1795,16 +2071,38 @@ def seat_sword_hilt_at_right_palm(
     calibration["swordLocal"]["position"] = [float(value) for value in new_position]
 
     socket = place_crimson_sword(sword_objects, sword_initial, hand_world, calibration)
-    actual_hilt = socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+    actual_axes = weapon_world_axes(socket, calibration)
+    actual_hilt = actual_axes["hilt"]
+    actual_pommel = actual_axes["pommel"]
+    palm_handle_error, palm_handle_parameter, palm_handle_closest = point_segment_distance_3d(
+        palm_anchor,
+        actual_hilt,
+        actual_pommel,
+    )
+    actual_handle_direction = actual_axes["handleDirection"]
+    actual_guard_face = actual_hilt + actual_handle_direction * guard_pommel_extent
+    palm_blade_side_surface = palm_anchor + actual_handle_direction * blade_side_extent
+    actual_guard_clearance = (
+        palm_blade_side_surface - actual_guard_face
+    ).dot(actual_handle_direction)
     return {
         "authority": "baked swordLocal translation after blade direction; character GLB has no sword transform",
-        "anchorDefinition": (
-            "RightHand wrist advanced along elbow-to-wrist ray by "
-            f"{HAND_PALM_FORWARD_TORSO_FRACTION:.2f} torso-height; Hand tail excluded"
-        ),
+        "anchorDefinition": palm_evidence["definition"],
+        "palmMeshEvidence": palm_evidence,
         "palmAnchorWorld": [round(value, 6) for value in palm_anchor],
+        "bladeSideMeshExtentWorld": round(blade_side_extent, 6),
+        "pommelSideMeshExtentWorld": round(pommel_side_extent, 6),
+        "crossguardGeometry": crossguard_geometry,
+        "weaponAxisOppositionDot": round(actual_axes["oppositionDot"], 8),
+        "guardClearanceWorld": round(guard_clearance, 6),
+        "actualGuardClearanceWorld": round(actual_guard_clearance, 9),
+        "actualGuardPommelFaceWorld": [round(value, 6) for value in actual_guard_face],
+        "desiredHiltWorld": [round(value, 6) for value in desired_hilt_world],
         "actualHiltWorld": [round(value, 6) for value in actual_hilt],
-        "hiltSeatErrorWorld": round((actual_hilt - palm_anchor).length, 9),
+        "hiltSeatErrorWorld": round((actual_hilt - desired_hilt_world).length, 9),
+        "palmToHandleWorld": round(palm_handle_error, 9),
+        "palmHandleParameter": round(palm_handle_parameter, 6),
+        "palmClosestHandleWorld": [round(value, 6) for value in palm_handle_closest],
         "oldSwordLocalPosition": [round(value, 8) for value in old_position],
         "bakedSwordLocalPosition": [round(value, 8) for value in new_position],
     }
@@ -1821,17 +2119,33 @@ def point_segment_distance_3d(point: Vector, start: Vector, end: Vector) -> tupl
 
 def weapon_grip_contract(
     armature: bpy.types.Object,
+    body_objects: list[bpy.types.Object],
     sword_socket: Matrix,
     calibration: dict,
     torso_height: float,
 ) -> dict:
     right_hand = find_pose_bone_world(armature, "RightHand").translation
     left_hand = find_pose_bone_world(armature, "LeftHand").translation
-    right_palm = hand_palm_anchor(armature, "RightHand", torso_height)
-    left_palm = hand_palm_anchor(armature, "LeftHand", torso_height)
-    hilt = sword_socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
-    pommel = sword_socket @ browser_vector(calibration.get("pommelLocalPoint") or [0, 0, -0.35])
-    right_error = (right_palm - hilt).length
+    right_palm, right_points, right_palm_evidence = hand_mesh_landmark(
+        body_objects,
+        armature,
+        "RightHand",
+        torso_height,
+    )
+    left_palm, left_points, left_palm_evidence = hand_mesh_landmark(
+        body_objects,
+        armature,
+        "LeftHand",
+        torso_height,
+    )
+    weapon_axes = weapon_world_axes(sword_socket, calibration)
+    hilt = weapon_axes["hilt"]
+    pommel = weapon_axes["pommel"]
+    right_palm_error, right_palm_parameter, right_palm_closest = point_segment_distance_3d(
+        right_palm,
+        hilt,
+        pommel,
+    )
     left_palm_error, left_palm_parameter, left_palm_closest = point_segment_distance_3d(
         left_palm,
         hilt,
@@ -1842,32 +2156,52 @@ def weapon_grip_contract(
         hilt,
         pommel,
     )
-    handle_length = (pommel - hilt).length
+    handle_length = weapon_axes["handleLength"]
+    handle_direction = weapon_axes["handleDirection"]
+    right_blade_extent, right_pommel_extent = hand_axis_extents(
+        right_points,
+        right_palm,
+        handle_direction,
+    )
+    left_blade_extent, left_pommel_extent = hand_axis_extents(
+        left_points,
+        left_palm,
+        handle_direction,
+    )
+    crossguard_geometry = sword_crossguard_geometry(calibration, handle_length)
+    guard_face_axis = crossguard_geometry["pommelExtentWorld"]
+    right_center_axis = (right_palm - hilt).dot(handle_direction)
+    left_center_axis = (left_palm - hilt).dot(handle_direction)
+    guard_surface_clearance = (
+        right_center_axis + right_blade_extent - guard_face_axis
+    )
+    inter_hand_surface_clearance = (
+        left_center_axis + left_blade_extent
+        - right_center_axis - right_pommel_extent
+    )
     palm_separation = (left_palm - right_palm).length
+    palm_axis_separation = (left_palm - right_palm).dot(handle_direction)
     thresholds = {
-        "rightPalmToHiltBodyScale": 0.01,
-        "leftPalmToHandleBodyScale": 0.07,
-        "leftHandHeadToHandleBodyScale": 0.09,
+        "rightPalmToHandleBodyScale": 0.035,
+        "leftPalmToHandleBodyScale": 0.035,
         "minimumHandleLengthBodyScale": 0.05,
-        "minimumLeftPalmHandleParameter": 0.20,
-        "minimumPalmSeparationBodyScale": 0.05,
+        "minimumRightPalmHandleParameter": 0.03,
+        "minimumGripSurfaceClearanceBodyScale": GRIP_SURFACE_CLEARANCE_TORSO_FRACTION,
+        "maximumGuardSurfaceClearanceBodyScale": 0.03,
+        "minimumPommelEndClearanceBodyScale": GRIP_SURFACE_CLEARANCE_TORSO_FRACTION,
+        "minimumPalmSeparationBodyScale": 0.12,
     }
     failures = []
     checks = [
         (
-            "rightPalmToHilt",
-            right_error,
-            thresholds["rightPalmToHiltBodyScale"],
+            "rightPalmToHandle",
+            right_palm_error,
+            thresholds["rightPalmToHandleBodyScale"],
         ),
         (
             "leftPalmToHandle",
             left_palm_error,
             thresholds["leftPalmToHandleBodyScale"],
-        ),
-        (
-            "leftHandHeadToHandle",
-            left_hand_error,
-            thresholds["leftHandHeadToHandleBodyScale"],
         ),
     ]
     for name, distance, body_threshold in checks:
@@ -1885,11 +2219,66 @@ def weapon_grip_contract(
             "distanceBodyScale": round(handle_length / max(torso_height, 0.000001), 6),
             "expected": f">= {thresholds['minimumHandleLengthBodyScale']} torso-height",
         })
-    if left_palm_parameter < thresholds["minimumLeftPalmHandleParameter"]:
+    if right_palm_parameter < thresholds["minimumRightPalmHandleParameter"]:
         failures.append({
-            "check": "leftPalmPommelSide",
-            "handleParameter": round(left_palm_parameter, 6),
-            "expected": f">= {thresholds['minimumLeftPalmHandleParameter']} from hilt toward pommel",
+            "check": "rightPalmBehindGuard",
+            "handleParameter": round(right_palm_parameter, 6),
+            "expected": f">= {thresholds['minimumRightPalmHandleParameter']} from hilt toward pommel",
+        })
+    minimum_surface_clearance = (
+        torso_height * thresholds["minimumGripSurfaceClearanceBodyScale"]
+    )
+    if guard_surface_clearance < minimum_surface_clearance:
+        failures.append({
+            "check": "crossguardOutsideRightHand",
+            "distanceWorld": round(guard_surface_clearance, 6),
+            "distanceBodyScale": round(
+                guard_surface_clearance / max(torso_height, 0.000001),
+                6,
+            ),
+            "expected": (
+                f">= {thresholds['minimumGripSurfaceClearanceBodyScale']} torso-height "
+                "between the guard's pommel-side face and the right hand's blade-side surface"
+            ),
+        })
+    if guard_surface_clearance > torso_height * thresholds["maximumGuardSurfaceClearanceBodyScale"]:
+        failures.append({
+            "check": "crossguardTooFarFromRightHand",
+            "distanceWorld": round(guard_surface_clearance, 6),
+            "distanceBodyScale": round(
+                guard_surface_clearance / max(torso_height, 0.000001),
+                6,
+            ),
+            "expected": (
+                f"<= {thresholds['maximumGuardSurfaceClearanceBodyScale']} torso-height"
+            ),
+        })
+    if inter_hand_surface_clearance < minimum_surface_clearance:
+        failures.append({
+            "check": "nonoverlappingHandSurfaces",
+            "distanceWorld": round(inter_hand_surface_clearance, 6),
+            "distanceBodyScale": round(
+                inter_hand_surface_clearance / max(torso_height, 0.000001),
+                6,
+            ),
+            "expected": (
+                f">= {thresholds['minimumGripSurfaceClearanceBodyScale']} torso-height "
+                "between right pommel-side and left blade-side hand surfaces"
+            ),
+        })
+    pommel_end_clearance = handle_length - (left_center_axis + left_pommel_extent)
+    if pommel_end_clearance < torso_height * thresholds["minimumPommelEndClearanceBodyScale"]:
+        failures.append({
+            "check": "leftHandInsidePommelEnd",
+            "distanceWorld": round(pommel_end_clearance, 6),
+            "distanceBodyScale": round(
+                pommel_end_clearance / max(torso_height, 0.000001),
+                6,
+            ),
+            "expected": (
+                f">= {thresholds['minimumPommelEndClearanceBodyScale']} torso-height "
+                "between the left hand's pommel-side surface and the pommel endpoint"
+            ),
         })
     if palm_separation < torso_height * thresholds["minimumPalmSeparationBodyScale"]:
         failures.append({
@@ -1902,6 +2291,8 @@ def weapon_grip_contract(
         "status": "FAIL" if failures else "PASS",
         "torsoHeight": round(torso_height, 6),
         "thresholds": thresholds,
+        "rightPalmMeshEvidence": right_palm_evidence,
+        "leftPalmMeshEvidence": left_palm_evidence,
         "rightHandHeadWorld": [round(value, 6) for value in right_hand],
         "rightPalmWorld": [round(value, 6) for value in right_palm],
         "leftHandHeadWorld": [round(value, 6) for value in left_hand],
@@ -1909,9 +2300,41 @@ def weapon_grip_contract(
         "hiltWorld": [round(value, 6) for value in hilt],
         "pommelWorld": [round(value, 6) for value in pommel],
         "handleLengthWorld": round(handle_length, 6),
+        "crossguardGeometry": crossguard_geometry,
+        "weaponAxisOppositionDot": round(weapon_axes["oppositionDot"], 8),
+        "rightHandAxisExtentsWorld": {
+            "bladeSideQ05": round(right_blade_extent, 6),
+            "pommelSideQ95": round(right_pommel_extent, 6),
+        },
+        "leftHandAxisExtentsWorld": {
+            "bladeSideQ05": round(left_blade_extent, 6),
+            "pommelSideQ95": round(left_pommel_extent, 6),
+        },
+        "guardSurfaceClearanceWorld": round(guard_surface_clearance, 6),
+        "guardSurfaceClearanceBodyScale": round(
+            guard_surface_clearance / max(torso_height, 0.000001),
+            6,
+        ),
+        "interHandSurfaceClearanceWorld": round(inter_hand_surface_clearance, 6),
+        "interHandSurfaceClearanceBodyScale": round(
+            inter_hand_surface_clearance / max(torso_height, 0.000001),
+            6,
+        ),
+        "pommelEndClearanceWorld": round(pommel_end_clearance, 6),
+        "pommelEndClearanceBodyScale": round(
+            pommel_end_clearance / max(torso_height, 0.000001),
+            6,
+        ),
         "palmSeparationWorld": round(palm_separation, 6),
         "palmSeparationBodyScale": round(palm_separation / max(torso_height, 0.000001), 6),
-        "rightPalmToHiltWorld": round(right_error, 9),
+        "palmAxisSeparationWorld": round(palm_axis_separation, 6),
+        "palmAxisSeparationBodyScale": round(
+            palm_axis_separation / max(torso_height, 0.000001),
+            6,
+        ),
+        "rightPalmToHandleWorld": round(right_palm_error, 9),
+        "rightPalmHandleParameter": round(right_palm_parameter, 6),
+        "rightPalmClosestHandleWorld": [round(value, 6) for value in right_palm_closest],
         "leftPalmToHandleWorld": round(left_palm_error, 6),
         "leftPalmHandleParameter": round(left_palm_parameter, 6),
         "leftPalmClosestHandleWorld": [round(value, 6) for value in left_palm_closest],
@@ -1924,27 +2347,66 @@ def weapon_grip_contract(
 
 def pin_left_support_palm_to_handle(
     armature: bpy.types.Object,
+    body_objects: list[bpy.types.Object],
     sword_socket: Matrix,
     calibration: dict,
     torso_height: float,
 ) -> dict:
     """Close the support-hand loop against the actual oriented hilt-pommel segment."""
-    hilt = sword_socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
-    pommel = sword_socket @ browser_vector(calibration.get("pommelLocalPoint") or [0, 0, -0.35])
-    handle_length = (pommel - hilt).length
+    weapon_axes = weapon_world_axes(sword_socket, calibration)
+    hilt = weapon_axes["hilt"]
+    pommel = weapon_axes["pommel"]
+    handle_length = weapon_axes["handleLength"]
     # The calibrated hilt-pommel span scales with the standalone sword and is
     # much longer than the character's visible two-hand grip.  Choose the
     # support point by body scale, then express it on the actual handle segment.
-    target_parameter = min(
-        0.35,
-        max(0.20, torso_height * 0.28 / max(handle_length, 0.000001)),
+    right_palm, right_points, right_palm_evidence = hand_mesh_landmark(
+        body_objects,
+        armature,
+        "RightHand",
+        torso_height,
     )
-    palm_target = hilt.lerp(pommel, target_parameter)
+    _right_error, right_parameter, _right_closest = point_segment_distance_3d(
+        right_palm,
+        hilt,
+        pommel,
+    )
+    handle_direction = weapon_axes["handleDirection"]
+    _right_blade_extent, right_pommel_extent = hand_axis_extents(
+        right_points,
+        right_palm,
+        handle_direction,
+    )
+    right_center_axis = (right_palm - hilt).dot(handle_direction)
+    surface_gap = torso_height * GRIP_SURFACE_CLEARANCE_TORSO_FRACTION
     elbow_hint = find_pose_bone_world(armature, "LeftForeArm").translation.copy()
     iterations = []
     for index in range(3):
         wrist_before = find_pose_bone_world(armature, "LeftHand").translation.copy()
-        palm_before = hand_palm_anchor(armature, "LeftHand", torso_height)
+        palm_before, points_before, evidence_before = hand_mesh_landmark(
+            body_objects,
+            armature,
+            "LeftHand",
+            torso_height,
+        )
+        left_blade_extent, _left_pommel_extent = hand_axis_extents(
+            points_before,
+            palm_before,
+            handle_direction,
+        )
+        target_axis = (
+            right_center_axis
+            + right_pommel_extent
+            - left_blade_extent
+            + surface_gap
+        )
+        target_parameter = target_axis / max(handle_length, 0.000001)
+        if not 0.0 < target_parameter < 1.0:
+            raise RuntimeError(
+                f"geometry-derived left support target is outside the handle: "
+                f"parameter={target_parameter:.6f}"
+            )
+        palm_target = hilt + handle_direction * target_axis
         wrist_target = wrist_before + (palm_target - palm_before)
         pin = solve_two_bone_elbow_wrist_pin(
             armature,
@@ -1952,27 +2414,63 @@ def pin_left_support_palm_to_handle(
             wrist_target,
             elbow_hint,
         )
-        palm_after = hand_palm_anchor(armature, "LeftHand", torso_height)
+        palm_after, _points_after, evidence_after = hand_mesh_landmark(
+            body_objects,
+            armature,
+            "LeftHand",
+            torso_height,
+        )
         iterations.append({
             "iteration": index + 1,
+            "targetHandleParameter": round(target_parameter, 6),
+            "leftBladeSideExtentWorld": round(left_blade_extent, 6),
+            "palmMeshEvidenceBefore": evidence_before,
             "wristTarget": [round(value, 6) for value in wrist_target],
             "palmErrorWorld": round((palm_after - palm_target).length, 9),
+            "palmMeshEvidence": evidence_after,
             "pin": pin,
         })
-    actual_palm = hand_palm_anchor(armature, "LeftHand", torso_height)
+    actual_palm, actual_points, actual_palm_evidence = hand_mesh_landmark(
+        body_objects,
+        armature,
+        "LeftHand",
+        torso_height,
+    )
+    actual_left_blade_extent, _actual_left_pommel_extent = hand_axis_extents(
+        actual_points,
+        actual_palm,
+        handle_direction,
+    )
+    target_axis = (
+        right_center_axis
+        + right_pommel_extent
+        - actual_left_blade_extent
+        + surface_gap
+    )
+    target_parameter = target_axis / max(handle_length, 0.000001)
+    if not 0.0 < target_parameter < 1.0:
+        raise RuntimeError(
+            f"final geometry-derived left support target is outside the handle: "
+            f"parameter={target_parameter:.6f}"
+        )
+    palm_target = hilt + handle_direction * target_axis
     palm_error = (actual_palm - palm_target).length
     tolerance = torso_height * 0.01
     return {
         "status": "PASS" if palm_error <= tolerance else "FAIL",
         "authority": "post-blade-orientation left-arm pin to actual hilt-pommel segment",
-        "anchorDefinition": (
-            "LeftHand wrist advanced along elbow-to-wrist ray by "
-            f"{HAND_PALM_FORWARD_TORSO_FRACTION:.2f} torso-height; Hand tail excluded"
-        ),
-        "targetHandleParameter": target_parameter,
+        "anchorDefinition": actual_palm_evidence["definition"],
+        "rightPalmMeshEvidence": right_palm_evidence,
+        "leftPalmMeshEvidence": actual_palm_evidence,
+        "rightPalmHandleParameter": round(right_parameter, 6),
+        "rightPommelSideExtentWorld": round(right_pommel_extent, 6),
+        "leftBladeSideExtentWorld": round(actual_left_blade_extent, 6),
+        "requiredSurfaceGapWorld": round(surface_gap, 6),
+        "targetHandleParameter": round(target_parameter, 6),
         "hiltWorld": [round(value, 6) for value in hilt],
         "pommelWorld": [round(value, 6) for value in pommel],
         "handleLengthWorld": round(handle_length, 6),
+        "weaponAxisOppositionDot": round(weapon_axes["oppositionDot"], 8),
         "targetPalmWorld": [round(value, 6) for value in palm_target],
         "actualPalmWorld": [round(value, 6) for value in actual_palm],
         "palmPinErrorWorld": round(palm_error, 9),
@@ -2004,6 +2502,185 @@ def point_segment_distance_2d(
     return screen_distance(point, closest)
 
 
+def segment_segment_distance_2d(
+    first_start: tuple[float, float, float],
+    first_end: tuple[float, float, float],
+    second_start: tuple[float, float, float],
+    second_end: tuple[float, float, float],
+) -> float:
+    """Return projected segment clearance, including zero for any intersection."""
+    def cross(a, b, c):
+        return (
+            (b[0] - a[0]) * (c[1] - a[1])
+            - (b[1] - a[1]) * (c[0] - a[0])
+        )
+
+    first_a = cross(first_start, first_end, second_start)
+    first_b = cross(first_start, first_end, second_end)
+    second_a = cross(second_start, second_end, first_start)
+    second_b = cross(second_start, second_end, first_end)
+    epsilon = 0.000000000001
+    proper_intersection = (
+        ((first_a > epsilon and first_b < -epsilon) or (first_a < -epsilon and first_b > epsilon))
+        and ((second_a > epsilon and second_b < -epsilon) or (second_a < -epsilon and second_b > epsilon))
+    )
+    endpoint_intersection = any(
+        distance <= epsilon
+        for distance in [
+            point_segment_distance_2d(first_start, second_start, second_end),
+            point_segment_distance_2d(first_end, second_start, second_end),
+            point_segment_distance_2d(second_start, first_start, first_end),
+            point_segment_distance_2d(second_end, first_start, first_end),
+        ]
+    )
+    if proper_intersection or endpoint_intersection:
+        return 0.0
+    return min(
+        point_segment_distance_2d(first_start, second_start, second_end),
+        point_segment_distance_2d(first_end, second_start, second_end),
+        point_segment_distance_2d(second_start, first_start, first_end),
+        point_segment_distance_2d(second_end, first_start, first_end),
+    )
+
+
+def validated_projected_points(
+    camera: bpy.types.Object,
+    world_points: list[Vector],
+    label: str,
+) -> list[tuple[float, float, float]]:
+    projected = [project(camera, point) for point in world_points]
+    invalid = [
+        point
+        for point in projected
+        if (
+            not all(math.isfinite(float(value)) for value in point)
+            or point[2] < camera.data.clip_start
+            or point[2] > camera.data.clip_end
+        )
+    ]
+    if invalid:
+        raise RuntimeError(
+            f"{label} contains {len(invalid)} invalid or behind-camera projections"
+        )
+    return projected
+
+
+def convex_hull_2d(
+    points: list[tuple[float, float, float]],
+) -> list[tuple[float, float, float]]:
+    unique = sorted({(float(point[0]), float(point[1])) for point in points})
+    if len(unique) < 3:
+        raise RuntimeError(f"projected mesh hull has only {len(unique)} unique points")
+
+    def cross(origin, first, second):
+        return (
+            (first[0] - origin[0]) * (second[1] - origin[1])
+            - (first[1] - origin[1]) * (second[0] - origin[0])
+        )
+
+    lower = []
+    for point in unique:
+        while len(lower) >= 2 and cross(lower[-2], lower[-1], point) <= 0:
+            lower.pop()
+        lower.append(point)
+    upper = []
+    for point in reversed(unique):
+        while len(upper) >= 2 and cross(upper[-2], upper[-1], point) <= 0:
+            upper.pop()
+        upper.append(point)
+    hull = [(x, y, 0.0) for x, y in lower[:-1] + upper[:-1]]
+    if len(hull) < 3:
+        raise RuntimeError(f"projected mesh hull collapsed to {len(hull)} points")
+    area = abs(sum(
+        point[0] * hull[(index + 1) % len(hull)][1]
+        - hull[(index + 1) % len(hull)][0] * point[1]
+        for index, point in enumerate(hull)
+    )) * 0.5
+    if area <= 0.00000001:
+        raise RuntimeError(f"projected mesh hull has non-positive area: {area}")
+    return hull
+
+
+def point_inside_convex_polygon_2d(
+    point: tuple[float, float, float],
+    polygon: list[tuple[float, float, float]],
+) -> bool:
+    signs = []
+    for index, start in enumerate(polygon):
+        end = polygon[(index + 1) % len(polygon)]
+        cross = (
+            (end[0] - start[0]) * (point[1] - start[1])
+            - (end[1] - start[1]) * (point[0] - start[0])
+        )
+        if abs(cross) > 0.000000000001:
+            signs.append(cross > 0)
+    return not signs or all(sign == signs[0] for sign in signs)
+
+
+def point_polygon_distance_2d(
+    point: tuple[float, float, float],
+    polygon: list[tuple[float, float, float]],
+) -> float:
+    if point_inside_convex_polygon_2d(point, polygon):
+        return 0.0
+    return min(
+        point_segment_distance_2d(point, start, polygon[(index + 1) % len(polygon)])
+        for index, start in enumerate(polygon)
+    )
+
+
+def segment_polygon_distance_2d(
+    start: tuple[float, float, float],
+    end: tuple[float, float, float],
+    polygon: list[tuple[float, float, float]],
+) -> float:
+    if point_inside_convex_polygon_2d(start, polygon) or point_inside_convex_polygon_2d(end, polygon):
+        return 0.0
+    return min(
+        segment_segment_distance_2d(
+            start,
+            end,
+            edge_start,
+            polygon[(index + 1) % len(polygon)],
+        )
+        for index, edge_start in enumerate(polygon)
+    )
+
+
+def polygon_polygon_distance_2d(
+    first: list[tuple[float, float, float]],
+    second: list[tuple[float, float, float]],
+) -> float:
+    if any(point_inside_convex_polygon_2d(point, second) for point in first):
+        return 0.0
+    if any(point_inside_convex_polygon_2d(point, first) for point in second):
+        return 0.0
+    return min(
+        segment_segment_distance_2d(
+            first_start,
+            first[(first_index + 1) % len(first)],
+            second_start,
+            second[(second_index + 1) % len(second)],
+        )
+        for first_index, first_start in enumerate(first)
+        for second_index, second_start in enumerate(second)
+    )
+
+
+def projected_head_mesh_hull(
+    body_objects: list[bpy.types.Object],
+    camera: bpy.types.Object,
+) -> dict:
+    world_points = dominant_head_mesh_points(body_objects)
+    screen_points = validated_projected_points(camera, world_points, "dominant Head mesh")
+    hull = convex_hull_2d(screen_points)
+    return {
+        "weightedVertexCount": len(world_points),
+        "minimumVertexWeight": HEAD_MESH_WEIGHT_MINIMUM,
+        "hull": hull,
+    }
+
+
 def crimson_review_view_specs() -> list[tuple[str, Vector]]:
     return [
         ("close-front", Vector((0.0, -4.2, 1.05))),
@@ -2021,36 +2698,68 @@ def face_clearance_at_camera(
     view_name: str,
     gated: bool,
 ) -> dict:
-    face_world = {
-        "neck": find_pose_bone_world(armature, "neck").translation,
-        "headBase": find_pose_bone_world(armature, "Head").translation,
-        "headTop": pose_bone_world_tail(armature, "Head"),
-    }
-    face_screen = {name: project(camera, point) for name, point in face_world.items()}
+    head_mesh = projected_head_mesh_hull(body_objects, camera)
+    head_hull = head_mesh["hull"]
     body_height = body_screen_box(body_objects, camera)["height"]
-    segment_threshold = body_height * 0.035
-    hand_threshold = body_height * 0.045
+    segment_threshold = body_height * 0.015
+    hand_threshold = body_height * 0.015
+    torso_height = max(
+        0.000001,
+        (
+            find_pose_bone_world(armature, "neck").translation
+            - find_pose_bone_world(armature, "Hips").translation
+        ).length,
+    )
     arms = {}
     failures = []
     for side in ["Left", "Right"]:
-        elbow = project(camera, find_pose_bone_world(armature, f"{side}ForeArm").translation)
-        wrist = project(camera, find_pose_bone_world(armature, f"{side}Hand").translation)
-        segment_clearance = min(
-            point_segment_distance_2d(face, elbow, wrist)
-            for face in face_screen.values()
+        elbow, wrist = validated_projected_points(
+            camera,
+            [
+                find_pose_bone_world(armature, f"{side}ForeArm").translation,
+                find_pose_bone_world(armature, f"{side}Hand").translation,
+            ],
+            f"{side} elbow-wrist segment",
         )
-        hand_clearance = min(
-            screen_distance(wrist, face)
-            for face in face_screen.values()
+        palm, hand_points, hand_evidence = hand_mesh_landmark(
+            body_objects,
+            armature,
+            f"{side}Hand",
+            torso_height,
+        )
+        palm_screen = validated_projected_points(
+            camera,
+            [palm],
+            f"{side} visible palm centroid",
+        )[0]
+        hand_hull = convex_hull_2d(validated_projected_points(
+            camera,
+            hand_points,
+            f"{side} dominant Hand mesh",
+        ))
+        segment_clearance = segment_polygon_distance_2d(
+            elbow,
+            wrist,
+            head_hull,
+        )
+        hand_clearance = polygon_polygon_distance_2d(
+            hand_hull,
+            head_hull,
         )
         side_failures = []
         if segment_clearance < segment_threshold:
             side_failures.append("elbow-to-wrist segment")
         if hand_clearance < hand_threshold:
-            side_failures.append("hand")
+            side_failures.append("visible hand silhouette")
         arms[side.lower()] = {
             "elbow": [round(value, 6) for value in elbow],
             "wrist": [round(value, 6) for value in wrist],
+            "palm": [round(value, 6) for value in palm_screen],
+            "handMeshEvidence": hand_evidence,
+            "handHull": [
+                [round(value, 6) for value in point]
+                for point in hand_hull
+            ],
             "segmentFaceClearance": round(segment_clearance, 6),
             "handFaceClearance": round(hand_clearance, 6),
             "status": "FAIL" if side_failures and gated else "PASS",
@@ -2071,9 +2780,13 @@ def face_clearance_at_camera(
             "segmentFaceClearance": round(segment_threshold, 6),
             "handFaceClearance": round(hand_threshold, 6),
         },
-        "face": {
-            name: [round(value, 6) for value in point]
-            for name, point in face_screen.items()
+        "headSilhouette": {
+            "weightedVertexCount": head_mesh["weightedVertexCount"],
+            "minimumVertexWeight": head_mesh["minimumVertexWeight"],
+            "hull": [
+                [round(value, 6) for value in point]
+                for point in head_hull
+            ],
         },
         "arms": arms,
         "failures": failures,
@@ -2096,7 +2809,7 @@ def face_clearance_views(
         "primary",
         True,
     )]
-    gated_views = {"close-front", "close-three-quarter"}
+    gated_views = {view_name for view_name, _location in crimson_review_view_specs()}
     try:
         for view_name, relative_location in crimson_review_view_specs():
             aim_camera(
@@ -2116,6 +2829,7 @@ def face_clearance_views(
         camera.location = original_location
         camera.rotation_euler = original_rotation
         camera.data.angle = original_angle
+        bpy.context.view_layer.update()
     failures = [
         {"view": view["view"], **failure}
         for view in views
@@ -2123,7 +2837,151 @@ def face_clearance_views(
     ]
     return {
         "status": "FAIL" if failures else "PASS",
-        "gatedViews": ["primary", "close-front", "close-three-quarter"],
+        "gatedViews": [
+            "primary",
+            *[view_name for view_name, _location in crimson_review_view_specs()],
+        ],
+        "views": views,
+        "failures": failures,
+    }
+
+
+def blade_face_clearance_at_camera(
+    armature: bpy.types.Object,
+    body_objects: list[bpy.types.Object],
+    camera: bpy.types.Object,
+    view_name: str,
+    gated: bool,
+    sword_socket: Matrix,
+    calibration: dict,
+) -> dict:
+    del armature
+    body_height = body_screen_box(body_objects, camera)["height"]
+    head_mesh = projected_head_mesh_hull(body_objects, camera)
+    head_hull = head_mesh["hull"]
+    weapon_axes = weapon_world_axes(sword_socket, calibration)
+    hilt, tip = validated_projected_points(
+        camera,
+        [weapon_axes["hilt"], weapon_axes["tip"]],
+        "hilt-tip blade segment",
+    )
+    crossguard_local_points, crossguard_selection = normalized_sword_crossguard_points(
+        calibration
+    )
+    crossguard_world_points = [
+        sword_socket @ browser_vector(list(point))
+        for point in crossguard_local_points
+    ]
+    crossguard_hull = convex_hull_2d(validated_projected_points(
+        camera,
+        crossguard_world_points,
+        "crossguard mesh",
+    ))
+    blade_threshold = body_height * 0.02
+    guard_threshold = body_height * 0.01
+    blade_clearance = segment_polygon_distance_2d(hilt, tip, head_hull)
+    guard_clearance = polygon_polygon_distance_2d(crossguard_hull, head_hull)
+    failed_checks = []
+    if blade_clearance < blade_threshold:
+        failed_checks.append("blade centerline to head silhouette")
+    if guard_clearance < guard_threshold:
+        failed_checks.append("crossguard silhouette to head silhouette")
+    failed = gated and bool(failed_checks)
+    return {
+        "view": view_name,
+        "gated": gated,
+        "status": "FAIL" if failed else "PASS",
+        "bodyScreenHeight": round(body_height, 6),
+        "thresholds": {
+            "bladeToHeadSilhouette": round(blade_threshold, 6),
+            "crossguardToHeadSilhouette": round(guard_threshold, 6),
+        },
+        "clearances": {
+            "bladeToHeadSilhouette": round(blade_clearance, 6),
+            "crossguardToHeadSilhouette": round(guard_clearance, 6),
+        },
+        "weaponAxisOppositionDot": round(weapon_axes["oppositionDot"], 8),
+        "blade": {
+            "hilt": [round(value, 6) for value in hilt],
+            "tip": [round(value, 6) for value in tip],
+        },
+        "crossguard": {
+            **crossguard_selection,
+            "hull": [
+                [round(value, 6) for value in point]
+                for point in crossguard_hull
+            ],
+        },
+        "headSilhouette": {
+            "weightedVertexCount": head_mesh["weightedVertexCount"],
+            "minimumVertexWeight": head_mesh["minimumVertexWeight"],
+            "hull": [
+                [round(value, 6) for value in point]
+                for point in head_hull
+            ],
+        },
+        "failures": failed_checks if failed else [],
+    }
+
+
+def blade_face_clearance_views(
+    armature: bpy.types.Object,
+    body_objects: list[bpy.types.Object],
+    camera: bpy.types.Object,
+    center_x: float,
+    sword_socket: Matrix,
+    calibration: dict,
+) -> dict:
+    original_location = camera.location.copy()
+    original_rotation = camera.rotation_euler.copy()
+    original_angle = camera.data.angle
+    views = [blade_face_clearance_at_camera(
+        armature,
+        body_objects,
+        camera,
+        "primary",
+        True,
+        sword_socket,
+        calibration,
+    )]
+    gated_views = {view_name for view_name, _location in crimson_review_view_specs()}
+    try:
+        for view_name, relative_location in crimson_review_view_specs():
+            aim_camera(
+                camera,
+                relative_location + Vector((center_x, 0, 0)),
+                Vector((center_x, 0, 0.78)),
+                46,
+            )
+            views.append(blade_face_clearance_at_camera(
+                armature,
+                body_objects,
+                camera,
+                view_name,
+                view_name in gated_views,
+                sword_socket,
+                calibration,
+            ))
+    finally:
+        camera.location = original_location
+        camera.rotation_euler = original_rotation
+        camera.data.angle = original_angle
+        bpy.context.view_layer.update()
+    failures = [
+        {"view": view["view"], "failed": view["failures"], "actual": view}
+        for view in views
+        if view["failures"]
+    ]
+    return {
+        "status": "FAIL" if failures else "PASS",
+        "gatedViews": [
+            "primary",
+            "close-front",
+            "close-three-quarter",
+            "close-profile-right",
+            "close-profile-left",
+            "close-rear",
+        ],
         "views": views,
         "failures": failures,
     }
@@ -2427,6 +3285,7 @@ def evaluate_frame(label: str, camera: bpy.types.Object, vanguard_objects: list[
     )
     grip_contract = weapon_grip_contract(
         crimson_armature,
+        crimson_objects,
         sword_socket,
         calibration,
         torso_height,
@@ -2761,6 +3620,7 @@ def main() -> None:
         )
         author_report["swordSeating"] = seat_sword_hilt_at_right_palm(
             crimson_armature,
+            crimson_objects,
             sword_objects,
             sword_initial,
             calibration,
@@ -2774,6 +3634,7 @@ def main() -> None:
         )
         author_report["supportHandPin"] = pin_left_support_palm_to_handle(
             crimson_armature,
+            crimson_objects,
             current_sword_socket,
             calibration,
             author_report["bodyScale"]["torsoHeight"],
@@ -2806,6 +3667,7 @@ def main() -> None:
             })
         author_report["weaponGripContract"] = weapon_grip_contract(
             crimson_armature,
+            crimson_objects,
             current_sword_socket,
             calibration,
             author_report["bodyScale"]["torsoHeight"],
@@ -2814,7 +3676,10 @@ def main() -> None:
             author_failures.append({
                 "code": "AUTHOR_TWO_HAND_WEAPON_GRIP_FAILED",
                 "actual": author_report["weaponGripContract"],
-                "expected": "hilt seated in defined right palm and left hand occupying the hilt-pommel handle segment",
+                "expected": (
+                    "guard seated just outside the dominant right-hand mesh, handle through both visible "
+                    "hand centroids, nonoverlapping hand surfaces, and support hand inside the pommel"
+                ),
             })
         author_report["faceClearance"] = face_clearance_views(
             crimson_armature,
@@ -2826,7 +3691,27 @@ def main() -> None:
             author_failures.append({
                 "code": "AUTHOR_ARM_FACE_CLEARANCE_FAILED",
                 "actual": author_report["faceClearance"],
-                "expected": "both hands and elbow-to-wrist segments clear Head/neck in primary, front, and three-quarter views",
+                "expected": (
+                    "both visible Hand mesh hulls and elbow-to-wrist segments clear the dominant-Head "
+                    "silhouette in every review camera"
+                ),
+            })
+        author_report["bladeFaceClearance"] = blade_face_clearance_views(
+            crimson_armature,
+            crimson_objects,
+            camera,
+            1.05,
+            current_sword_socket,
+            calibration,
+        )
+        if author_report["bladeFaceClearance"]["status"] != "PASS":
+            author_failures.append({
+                "code": "AUTHOR_BLADE_FACE_CLEARANCE_FAILED",
+                "actual": author_report["bladeFaceClearance"],
+                "expected": (
+                    "blade centerline and projected crossguard mesh clear the dominant-Head silhouette "
+                    "in primary, front, three-quarter, both profiles, and rear review views"
+                ),
             })
         if baseline_sword_socket is not None:
             baseline_torso_height = (
@@ -2846,6 +3731,7 @@ def main() -> None:
                 else None,
                 "weaponGripContract": weapon_grip_contract(
                     baseline_armature,
+                    baseline_objects,
                     baseline_sword_socket,
                     baseline_calibration,
                     baseline_torso_height,
@@ -3071,6 +3957,7 @@ def main() -> None:
                 camera.rotation_euler = original_rotation
                 camera.data.angle = original_angle
                 bpy.context.scene.cycles.samples = original_samples
+                bpy.context.view_layer.update()
         frames.append(entry)
         for failure in entry["failures"]:
             all_failures.append({"frame": label, **failure})

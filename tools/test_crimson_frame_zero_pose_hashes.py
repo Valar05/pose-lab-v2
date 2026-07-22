@@ -100,8 +100,22 @@ assert all(len(values) == 3 for values in protected["positions"].values())
 assert all(len(values) == 4 for values in protected["bones"].values())
 
 renderer = RENDERER_PATH.read_text(encoding="utf-8")
-assert "HAND_PALM_FORWARD_TORSO_FRACTION = 0.06" in renderer
-assert 'hand_palm_anchor(armature: bpy.types.Object, bone_name: str)' not in renderer
+assert "HAND_MESH_WEIGHT_MINIMUM = 0.75" in renderer
+assert "HAND_MESH_FOREARM_WEIGHT_MAXIMUM = 0.05" in renderer
+assert "HAND_MESH_MEAN_WEIGHT_MINIMUM = 0.95" in renderer
+assert "HAND_MESH_MINIMUM_VERTICES = 250" in renderer
+assert "HEAD_MESH_WEIGHT_MINIMUM = 0.75" in renderer
+assert "GRIP_SURFACE_CLEARANCE_TORSO_FRACTION = 0.005" in renderer
+assert "def hand_mesh_landmark(" in renderer
+assert "weighted centroid of evaluated visible mesh vertices" in renderer
+assert "HAND_PALM_FORWARD_TORSO_FRACTION" not in renderer
+assert "def hand_palm_anchor(" not in renderer
+assert "def segment_segment_distance_2d(" in renderer
+assert "def projected_head_mesh_hull(" in renderer
+assert "def normalized_sword_crossguard_points(" in renderer
+assert "bpy.context.view_layer.update()" in renderer
+assert '"AUTHOR_BLADE_FACE_CLEARANCE_FAILED"' in renderer
+assert "pose_bone_world_tail" not in renderer
 assert "head.lerp(tail, 0.55)" not in renderer
 assert "PROTECTED_BODY_EXPORT_POSITION_TOLERANCE = 0.00002" in renderer
 assert "PROTECTED_BODY_RUNTIME_BASIS_TOLERANCE = 0.0000002" in renderer
