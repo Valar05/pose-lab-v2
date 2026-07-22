@@ -8,6 +8,40 @@ permissions:
   contents: read
 
 jobs:
+  blender-frame-zero:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Blender render runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender python3-pil
+      - name: Render Vanguard and Crimson frame zero in Blender
+        id: blender
+        continue-on-error: true
+        run: |
+          blender --background --python-exit-code 1 \
+            --python tools/render_crimson_vanguard_attack1_compare_blender.py -- \
+            --out-dir generated/crimson-frame-zero/${GITHUB_RUN_ID} \
+            --frames start \
+            --samples 16 \
+            --width 1600 \
+            --height 900
+      - name: Stitch frame-zero comparison
+        if: always()
+        run: |
+          python3 tools/stitch_crimson_vanguard_attack1_compare.py \
+            --manifest generated/crimson-frame-zero/${GITHUB_RUN_ID}/manifest.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crimson-frame-zero-blender-${{ github.run_id }}
+          path: generated/crimson-frame-zero/${{ github.run_id }}
+          if-no-files-found: error
+      - name: Preserve Blender rejection as a red job
+        if: steps.blender.outcome == 'failure'
+        run: exit 1
+
   capture-v4:
     runs-on: ubuntu-latest
     steps:

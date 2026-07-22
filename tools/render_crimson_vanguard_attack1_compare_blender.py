@@ -587,9 +587,16 @@ def main() -> None:
     parser.add_argument("--samples", type=int, default=8)
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--height", type=int, default=720)
+    parser.add_argument("--frames", default=",".join(FRAME_LABELS), help="comma-separated frame labels to render")
     parser.add_argument("--skip-render", action="store_true", help="write manifest/broken transform metrics without PNG renders")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     args = parser.parse_args(argv)
+    requested_frames = [label.strip() for label in args.frames.split(",") if label.strip()]
+    unknown_frames = sorted(set(requested_frames) - set(FRAME_LABELS))
+    if unknown_frames:
+        raise RuntimeError(f"unknown frame labels: {unknown_frames}")
+    if not requested_frames:
+        raise RuntimeError("at least one frame label is required")
     out_dir = Path(args.out_dir)
     if not out_dir.is_absolute():
         out_dir = ROOT / out_dir
@@ -624,7 +631,7 @@ def main() -> None:
     bpy.context.scene.render.fps = fps
     frames = []
     all_failures = []
-    for index, label in enumerate(FRAME_LABELS, start=1):
+    for index, label in enumerate(requested_frames, start=1):
         source_sample = reference["samples"][label]
         set_frame(float(source_sample["sourceTime"]), fps)
         suppress_vanguard_root_motion(vanguard_armature)
