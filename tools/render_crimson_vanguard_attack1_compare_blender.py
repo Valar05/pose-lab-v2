@@ -1391,7 +1391,11 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
         ).length,
     )
     neck = find_pose_bone_world(target_armature, "neck").translation
-    right_hand_target = neck + Vector((-0.48 * shoulder_span, -0.22 * torso_height, -0.24 * torso_height))
+    # Keep the entire two-hand guard unmistakably below the face.  The first
+    # palm-proxy render cleared the dedicated front and three-quarter cameras
+    # but missed the shared comparison camera by roughly one pixel at -0.24.
+    # Move the authored target, never the clearance threshold.
+    right_hand_target = neck + Vector((-0.48 * shoulder_span, -0.22 * torso_height, -0.30 * torso_height))
     # The support hand occupies the pommel side of the same grip line. This is
     # an authored body-scale relationship, not a second independent hand pose.
     left_hand_target = right_hand_target + Vector((
