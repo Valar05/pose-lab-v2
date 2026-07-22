@@ -606,42 +606,139 @@ def apply_source_world_deltas(source_armature: bpy.types.Object, target_armature
     return report
 
 
-def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> dict:
-    clear_pose(target_armature)
-    resting_feet = {name: find_pose_bone_world(target_armature, name).to_quaternion() for name in ["LeftFoot", "RightFoot"]}
-    bones = apply_source_world_deltas(source_armature, target_armature, logical_bones)
-    stance = {
-        "LeftUpLeg": [(Vector((1, 0, 0)), -18), (Vector((0, 1, 0)), -8)],
-        "LeftLeg": [(Vector((1, 0, 0)), 32)],
-        "RightUpLeg": [(Vector((1, 0, 0)), -12), (Vector((0, 1, 0)), 7)],
-        "RightLeg": [(Vector((1, 0, 0)), 23)],
-    }
-    for bone_name, corrections in stance.items():
-        for axis, degrees in corrections:
-            rotate_pose_bone_world_axis(target_armature, bone_name, axis, degrees)
-    for name, world_rotation in resting_feet.items():
-        set_pose_bone_world_rotation(target_armature, name, world_rotation)
-    arm_guard = []
-    for side, end_offset in [
-        ("Left", Vector((0.025, -0.035, -0.16))),
-        ("Right", Vector((-0.02, -0.02, -0.18))),
-    ]:
-        chain = [f"{side}Arm", f"{side}ForeArm", f"{side}Hand"]
-        current_mid = find_pose_bone_world(target_armature, chain[1]).translation
-        current_end = find_pose_bone_world(target_armature, chain[2]).translation
-        arm_guard.append(
-            solve_pose_chain(
-                target_armature,
-                chain,
-                current_mid + Vector((0, -0.015, -0.09)),
-                current_end + end_offset,
+def solve_chain_with_pole(
+    armature: bpy.types.Object,
+    chain: list[str],
+    target_end: Vector,
+    pole: Vector,
+    iterations: int = 20,
+) -> dict:
+    """Place one native Crimson limb while keeping its bend plane intentional."""
+    upper_name, lower_name, end_name = chain
+    for _ in range(iterations):
+        lower = find_pose_bone_world(armature, lower_name).translation
+        end = find_pose_bone_world(armature, end_name).translation
+        rotate_pose_bone_world(armature, lower_name, end - lower, target_end - lower, 14)
+        upper = find_pose_bone_world(armature, upper_name).translation
+        end = find_pose_bone_world(armature, end_name).translation
+        rotate_pose_bone_world(armature, upper_name, end - upper, target_end - upper, 10)
+
+    upper = find_pose_bone_world(armature, upper_name).translation
+    lower = find_pose_bone_world(armature, lower_name).translation
+    end = find_pose_bone_world(armature, end_name).translation
+    axis = end - upper
+    if axis.length > 0.000001:
+        axis_n = axis.normalized()
+        current = lower - upper
+        desired = pole - upper
+        current_plane = current - axis_n * current.dot(axis_n)
+        desired_plane = desired - axis_n * desired.dot(axis_n)
+        if current_plane.length > 0.000001 and desired_plane.length > 0.000001:
+            signed = math.atan2(
+                axis_n.dot(current_plane.normalized().cross(desired_plane.normalized())),
+                current_plane.normalized().dot(desired_plane.normalized()),
             )
-        )
+            rotate_pose_bone_world_axis(
+                armature,
+                upper_name,
+                axis_n,
+                math.degrees(signed),
+            )
+
+    for _ in range(8):
+        lower = find_pose_bone_world(armature, lower_name).translation
+        end = find_pose_bone_world(armature, end_name).translation
+        rotate_pose_bone_world(armature, lower_name, end - lower, target_end - lower, 10)
+        upper = find_pose_bone_world(armature, upper_name).translation
+        end = find_pose_bone_world(armature, end_name).translation
+        rotate_pose_bone_world(armature, upper_name, end - upper, target_end - upper, 7)
+
+    actual_mid = find_pose_bone_world(armature, lower_name).translation
+    actual_end = find_pose_bone_world(armature, end_name).translation
     return {
-        "method": "source-world-delta-with-anatomical-stance-corrections",
-        "bones": bones,
-        "stance": {name: [degrees for _, degrees in corrections] for name, corrections in stance.items()},
-        "armGuard": arm_guard,
+        "chain": chain,
+        "targetEnd": [round(v, 5) for v in target_end],
+        "pole": [round(v, 5) for v in pole],
+        "mid": [round(v, 5) for v in actual_mid],
+        "endError": round((actual_end - target_end).length, 5),
+    }
+
+
+def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> dict:
+    # Vanguard is visible reference only. Crimson begins from her own rest rig;
+    # no Vanguard quaternion, rest delta, endpoint, or bone basis crosses rigs.
+    clear_pose(target_armature)
+    feet = {
+        name: find_pose_bone_world(target_armature, name).to_quaternion()
+        for name in ["LeftFoot", "RightFoot"]
+    }
+
+    hips = find_pose_bone_world(target_armature, "Hips").translation
+    left_ankle = find_pose_bone_world(target_armature, "LeftFoot").translation
+    right_ankle = find_pose_bone_world(target_armature, "RightFoot").translation
+
+    # A restrained body sentence: stagger, flex, slight threat-side turn.
+    rotate_pose_bone_world_axis(target_armature, "Hips", Vector((0, 0, 1)), -9)
+    rotate_pose_bone_world_axis(target_armature, "Hips", Vector((1, 0, 0)), -5)
+    rotate_pose_bone_world_axis(target_armature, "Spine", Vector((1, 0, 0)), 7)
+    rotate_pose_bone_world_axis(target_armature, "Spine01", Vector((0, 0, 1)), 4)
+    rotate_pose_bone_world_axis(target_armature, "Spine02", Vector((0, 0, 1)), 5)
+
+    leg_report = []
+    for side, ankle, target_offset, pole_offset in [
+        ("Left", left_ankle, Vector((-0.035, -0.13, 0.0)), Vector((-0.08, -0.72, -0.34))),
+        ("Right", right_ankle, Vector((0.045, 0.11, 0.0)), Vector((0.08, -0.68, -0.32))),
+    ]:
+        leg_report.append(solve_chain_with_pole(
+            target_armature,
+            [f"{side}UpLeg", f"{side}Leg", f"{side}Foot"],
+            ankle + target_offset,
+            hips + pole_offset,
+        ))
+    for name, rotation in feet.items():
+        set_pose_bone_world_rotation(target_armature, name, rotation)
+
+    # Clavicles remain neutral. Arms are composed on Crimson against body-relative
+    # hand targets; explicit elbow poles prevent endpoint matching from destroying
+    # the shoulder girdle.
+    for name in ["LeftShoulder", "RightShoulder"]:
+        bone = target_armature.pose.bones.get(name)
+        if bone:
+            bone.matrix_basis.identity()
+    bpy.context.view_layer.update()
+
+    left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
+    right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
+    shoulder_center = (left_shoulder + right_shoulder) * 0.5
+    chest_z = shoulder_center.z - 0.16
+    guard_center = Vector((shoulder_center.x, shoulder_center.y - 0.24, chest_z))
+    arm_report = [
+        solve_chain_with_pole(
+            target_armature,
+            ["LeftArm", "LeftForeArm", "LeftHand"],
+            guard_center + Vector((-0.035, 0.015, 0.025)),
+            left_shoulder + Vector((-0.48, -0.42, -0.20)),
+        ),
+        solve_chain_with_pole(
+            target_armature,
+            ["RightArm", "RightForeArm", "RightHand"],
+            guard_center + Vector((0.035, -0.015, -0.025)),
+            right_shoulder + Vector((0.48, -0.42, -0.22)),
+        ),
+    ]
+
+    return {
+        "method": "crimson-native-one-frame-composition",
+        "sourceAuthority": "Vanguard pixels and action intent only; no transforms cross rigs",
+        "body": {
+            "hipsYawDeg": -9,
+            "hipsPitchDeg": -5,
+            "spinePitchDeg": 7,
+            "spineCounterYawDeg": 9,
+        },
+        "legs": leg_report,
+        "arms": arm_report,
+        "keyframeContract": "one authored Crimson pose at frame 1",
     }
 
 
