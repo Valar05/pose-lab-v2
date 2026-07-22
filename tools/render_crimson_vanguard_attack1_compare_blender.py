@@ -694,7 +694,7 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     center_rotations = [
         ("Hips", (0, 0, 1), -3.0),
         ("Hips", (1, 0, 0), 3.0),
-        ("Spine", (1, 0, 0), 5.0),
+        ("Spine", (1, 0, 0), 8.0),
         ("Spine01", (0, 0, 1), 2.0),
         ("Spine02", (0, 0, 1), 3.0),
         ("neck", (0, 0, 1), -2.0),
@@ -751,8 +751,8 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             - find_pose_bone_world(target_armature, "Hips").translation
         ).length,
     )
-    right_hand_target = chest + Vector((-0.10 * shoulder_span, -0.56 * torso_height, 0.10 * torso_height))
-    left_hand_target = chest + Vector((0.16 * shoulder_span, -0.59 * torso_height, 0.18 * torso_height))
+    right_hand_target = chest + Vector((-0.08 * shoulder_span, -0.36 * torso_height, -0.13 * torso_height))
+    left_hand_target = chest + Vector((0.14 * shoulder_span, -0.39 * torso_height, -0.04 * torso_height))
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
     arm_reports = [
@@ -760,14 +760,14 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             target_armature,
             ["RightArm", "RightForeArm", "RightHand"],
             right_hand_target,
-            right_shoulder + Vector((-0.95 * shoulder_span, -0.48 * torso_height, -0.08 * torso_height)),
+            right_shoulder + Vector((-0.78 * shoulder_span, -0.24 * torso_height, -0.25 * torso_height)),
             iterations=28,
         ),
         solve_chain_with_pole(
             target_armature,
             ["LeftArm", "LeftForeArm", "LeftHand"],
             left_hand_target,
-            left_shoulder + Vector((0.95 * shoulder_span, -0.44 * torso_height, -0.03 * torso_height)),
+            left_shoulder + Vector((0.78 * shoulder_span, -0.22 * torso_height, -0.18 * torso_height)),
             iterations=28,
         ),
     ]
@@ -810,7 +810,7 @@ def author_crimson_blade_direction(
     # This threat line is visually authored for Crimson. It is not measured or
     # imported from Vanguard. The hand is rotated as an FK control until the
     # actual Arborblade mesh follows this chosen direction.
-    desired = Vector((0.940, -0.200, 0.275)).normalized()
+    desired = Vector((0.900, -0.250, 0.355)).normalized()
     applied = 0.0
     for _ in range(3):
         hand = find_pose_bone_world(target_armature, "RightHand")
@@ -1081,7 +1081,7 @@ def main() -> None:
     candidate = {"id": "crimson-combat-ready-blender-author-2", "frames": [{"label": "start", "time": 0, "bones": {}}]} if args.author_frame_zero else load_candidate(candidate_path)
     calibration = load_json(CALIBRATION_JSON)
     if args.author_frame_zero:
-        calibration["swordLocal"]["scale"] = [value * 2.3 for value in calibration["swordLocal"]["scale"]]
+        calibration["swordLocal"]["scale"] = [value * 1.55 for value in calibration["swordLocal"]["scale"]]
     if reference.get("schema") != "pose-lab-v2-crimson-vanguard-swordattack1-reference-v2":
         raise RuntimeError("Vanguard reference is not full-body v2")
     if not args.author_frame_zero and candidate.get("id") != args.candidate_id:
