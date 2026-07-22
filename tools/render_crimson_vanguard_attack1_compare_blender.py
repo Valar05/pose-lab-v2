@@ -523,8 +523,41 @@ def apply_source_world_deltas(source_armature: bpy.types.Object, target_armature
 
 def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> dict:
     clear_pose(target_armature)
+    resting_feet = {name: find_pose_bone_world(target_armature, name).to_quaternion() for name in ["LeftFoot", "RightFoot"]}
     bones = apply_source_world_deltas(source_armature, target_armature, logical_bones)
-    return {"method": "source-world-delta-full-hierarchy", "bones": bones}
+    stance = []
+    for side, lateral_sign, depth_sign in [("Left", -1.0, -1.0), ("Right", 1.0, 1.0)]:
+        chain = [f"{side}UpLeg", f"{side}Leg", f"{side}Foot"]
+        upper = find_pose_bone_world(target_armature, chain[0]).translation
+        mid = find_pose_bone_world(target_armature, chain[1]).translation
+        end = find_pose_bone_world(target_armature, chain[2]).translation
+        length = (mid - upper).length + (end - mid).length
+        target_end = upper + Vector((lateral_sign * length * 0.28, depth_sign * length * 0.12, -length * 0.82))
+        target_mid = upper + (target_end - upper) * 0.5 + Vector((0, -length * 0.24, length * 0.04))
+        stance.append(solve_pose_chain(target_armature, chain, target_mid, target_end))
+        set_pose_bone_world_rotation(target_armature, chain[2], resting_feet[chain[2]])
+    return {"method": "source-world-delta-with-authored-loaded-stance", "bones": bones, "stance": stance}
+
+
+def align_crimson_blade_to_vanguard(
+    source_objects: list[bpy.types.Object],
+    target_armature: bpy.types.Object,
+    sword_objects: list[bpy.types.Object],
+    sword_initial: dict[str, Matrix],
+    calibration: dict,
+    camera: bpy.types.Object,
+) -> dict:
+    source_line = imported_sword_line(source_objects, camera)
+    hand = find_pose_bone_world(target_armature, "RightHand")
+    socket = place_crimson_sword(sword_objects, sword_initial, hand, calibration)
+    hilt = socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+    tip = socket @ browser_vector(calibration.get("tipLocalPoint") or [0, 0, 1])
+    desired = source_line["worldB"] - source_line["worldA"]
+    rotated = rotate_pose_bone_world(target_armature, "RightHand", tip - hilt, desired)
+    return {
+        "rightHandCorrectionDeg": round(rotated, 3),
+        "sourceScreenAngleDeg": round(source_line["screenAngleDeg"], 3),
+    }
 
 
 def canon_bone_name(name: str) -> str:
@@ -793,6 +826,10 @@ def main() -> None:
     sword_objects = import_glb(SWORD_GLB)
     apply_crimson_sword_material(sword_objects)
     sword_initial = {obj.name: obj.matrix_world.copy() for obj in top_level(sword_objects)}
+    if args.author_frame_zero:
+        author_report["blade"] = align_crimson_blade_to_vanguard(
+            vanguard_objects, crimson_armature, sword_objects, sword_initial, calibration, camera
+        )
     add_label("VANGUARD SOURCE", (-1.05, -0.18, 1.9))
     add_label("CRIMSON CANDIDATE", (1.05, -0.18, 1.9))
     fps = 24
