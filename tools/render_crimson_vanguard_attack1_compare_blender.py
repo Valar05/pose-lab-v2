@@ -564,13 +564,15 @@ def align_crimson_blade_to_vanguard(
     camera: bpy.types.Object,
 ) -> dict:
     source_line = imported_sword_line(source_objects, camera)
-    hand = find_pose_bone_world(target_armature, "RightHand")
-    socket = place_crimson_sword(sword_objects, sword_initial, hand, calibration)
-    hilt = socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
-    tip = socket @ browser_vector(calibration.get("tipLocalPoint") or [0, 0, 1])
     source_angle = math.radians(source_line["screenAngleDeg"])
     desired = Vector((math.cos(source_angle), 0, math.sin(source_angle)))
-    rotated = rotate_pose_bone_world(target_armature, "RightHand", tip - hilt, desired)
+    rotated = 0.0
+    for _ in range(4):
+        hand = find_pose_bone_world(target_armature, "RightHand")
+        socket = place_crimson_sword(sword_objects, sword_initial, hand, calibration)
+        hilt = socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
+        tip = socket @ browser_vector(calibration.get("tipLocalPoint") or [0, 0, 1])
+        rotated += rotate_pose_bone_world(target_armature, "RightHand", tip - hilt, desired)
     return {
         "rightHandCorrectionDeg": round(rotated, 3),
         "sourceScreenAngleDeg": round(source_line["screenAngleDeg"], 3),
@@ -814,6 +816,8 @@ def main() -> None:
     reference = load_json(REFERENCE_JSON)
     candidate = {"id": "crimson-combat-ready-blender-author-2", "frames": [{"label": "start", "time": 0, "bones": {}}]} if args.author_frame_zero else load_candidate(candidate_path)
     calibration = load_json(CALIBRATION_JSON)
+    if args.author_frame_zero:
+        calibration["swordLocal"]["scale"] = [value * 2.3 for value in calibration["swordLocal"]["scale"]]
     if reference.get("schema") != "pose-lab-v2-crimson-vanguard-swordattack1-reference-v2":
         raise RuntimeError("Vanguard reference is not full-body v2")
     if not args.author_frame_zero and candidate.get("id") != args.candidate_id:
