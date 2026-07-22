@@ -44,7 +44,11 @@ def main() -> None:
         status = "FAIL" if frame.get("failures") else "PASS"
         evidence = [("source + candidate", frame.get("image"))]
         evidence.extend(
-            (view.get("view", "view"), view.get("image"))
+            (f"reference / {view.get('view', 'view')}", view.get("image"))
+            for view in frame.get("referenceViews") or []
+        )
+        evidence.extend(
+            (f"Crimson / {view.get('view', 'view')}", view.get("image"))
             for view in frame.get("crimsonViews") or []
         )
         for view_name, filename in evidence:
@@ -71,7 +75,7 @@ def main() -> None:
     sheet.save(out)
     manifest["contactSheet"] = out.name
     manifest["contactSheetImages"] = included
-    manifest["contactSheetContract"] = "source comparison plus every authored orthogonal view; no blank padding lane"
+    manifest["contactSheetContract"] = "same-scale Vanguard reference and Crimson authored views plus the shared comparison; no blank padding lane"
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(json.dumps({"ok": True, "contactSheet": str(out), "images": len(included)}, indent=2))
 
