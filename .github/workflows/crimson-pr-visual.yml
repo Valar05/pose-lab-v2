@@ -62,8 +62,10 @@ jobs:
             --job-id "github_actions_${GITHUB_RUN_ID}" \
             --session-id "browser_session_${GITHUB_RUN_ID}" \
             --episode-id "browser_episode_${GITHUB_RUN_ID}" \
+            --timeout-ms 45000 \
             --settle-ms 1500
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: crimson-v4-pr-evidence-${{ github.run_id }}
           path: generated/crimson-v4-pr-evidence/${{ github.run_id }}

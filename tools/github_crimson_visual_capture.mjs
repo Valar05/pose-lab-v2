@@ -103,14 +103,34 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
   page.on('response', onResponse);
   try {
     await page.goto(entry.url, { waitUntil: 'domcontentloaded', timeout: args.timeoutMs });
-    await page.waitForFunction(() => {
-      const dataset = document.body?.dataset || {};
-      return dataset.reviewReady === '1'
-        && dataset.firstFrame === '1'
-        && dataset.bootReady === '1'
-        && (!dataset.saberAttachmentStatus || dataset.saberAttachmentStatus === 'attached')
-        && (!dataset.saberVisibleInViewport || dataset.saberVisibleInViewport === 'true');
-    }, null, { timeout: args.timeoutMs });
+    try {
+      await page.waitForFunction(() => {
+        const dataset = document.body?.dataset || {};
+        return dataset.reviewReady === '1'
+          && dataset.firstFrame === '1'
+          && dataset.bootReady === '1'
+          && (!dataset.saberAttachmentStatus || dataset.saberAttachmentStatus === 'attached')
+          && (!dataset.saberVisibleInViewport || dataset.saberVisibleInViewport === 'true');
+      }, null, { timeout: args.timeoutMs });
+    } catch (error) {
+      const debugPayload = await collectDebug(page);
+      const failureScreenshotPath = path.join(captureDir, 'failure-screenshot.png');
+      await page.screenshot({ path: failureScreenshotPath, fullPage: false });
+      const failure = {
+        schema: 'pose-lab-v2-cloud-visual-capture-failure-v1',
+        label: entry.label,
+        url: page.url(),
+        error: String(error?.message || error),
+        debugPayload,
+        consoleEvents,
+        pageErrors,
+        networkFailures,
+        responseStatuses,
+        screenshotPath: failureScreenshotPath,
+      };
+      await fs.writeFile(path.join(captureDir, 'failure.json'), JSON.stringify(failure, null, 2) + '\n');
+      throw new Error(`visual readiness failed for ${entry.label}: ${JSON.stringify(failure)}`);
+    }
     await page.waitForTimeout(Math.max(0, Math.min(args.settleMs, 30000)));
     const screenshotPath = path.join(captureDir, 'screenshot.png');
     const screenshotBytes = await page.screenshot({ path: screenshotPath, fullPage: false });
