@@ -26,6 +26,7 @@ jobs:
             --frames start \
             --candidate-js src/review-candidates/crimson-combat-ready-vanguard-frame0-1.js \
             --candidate-id crimson-combat-ready-vanguard-frame0-1 \
+            --author-frame-zero \
             --samples 16 \
             --width 1600 \
             --height 900

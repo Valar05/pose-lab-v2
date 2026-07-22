@@ -20,7 +20,7 @@ from pathlib import Path
 
 import bpy
 from bpy_extras.object_utils import world_to_camera_view
-from mathutils import Euler, Matrix, Vector
+from mathutils import Euler, Matrix, Quaternion, Vector
 
 ROOT = Path(__file__).resolve().parents[1]
 VANGUARD_GLB = ROOT / "public" / "assets" / "vanguard" / "vanguard_rigged_animations.glb"
@@ -412,6 +412,126 @@ def find_pose_bone_world(armature: bpy.types.Object, name: str) -> Matrix:
     return armature.matrix_world @ bone.matrix
 
 
+def clear_pose(armature: bpy.types.Object) -> None:
+    armature.data.pose_position = "POSE"
+    armature.animation_data_clear()
+    for bone in armature.pose.bones:
+        bone.matrix_basis.identity()
+    bpy.context.view_layer.update()
+
+
+def set_pose_bone_world_rotation(armature: bpy.types.Object, bone_name: str, desired_world: Quaternion) -> None:
+    bone = armature.pose.bones.get(bone_name)
+    if not bone:
+        raise RuntimeError(f"missing target pose bone {bone_name}")
+    armature_rotation = armature.matrix_world.to_quaternion()
+    desired_armature = armature_rotation.inverted() @ desired_world @ armature_rotation
+    matrix = desired_armature.to_matrix().to_4x4()
+    matrix.translation = bone.matrix.translation
+    bone.matrix = matrix
+    bpy.context.view_layer.update()
+
+
+def rotate_pose_bone_world(armature: bpy.types.Object, bone_name: str, from_world: Vector, to_world: Vector, max_degrees: float = 180.0) -> float:
+    if from_world.length < 0.000001 or to_world.length < 0.000001:
+        return 0.0
+    delta_world = from_world.normalized().rotation_difference(to_world.normalized())
+    angle_degrees = math.degrees(delta_world.angle)
+    if angle_degrees > max_degrees:
+        delta_world = Quaternion().slerp(delta_world, max_degrees / angle_degrees)
+        angle_degrees = max_degrees
+    bone = armature.pose.bones.get(bone_name)
+    if not bone:
+        raise RuntimeError(f"missing target pose bone {bone_name}")
+    armature_rotation = armature.matrix_world.to_quaternion()
+    delta_armature = armature_rotation.inverted() @ delta_world @ armature_rotation
+    head = bone.head.copy()
+    bone.matrix = Matrix.Translation(head) @ delta_armature.to_matrix().to_4x4() @ Matrix.Translation(-head) @ bone.matrix
+    bpy.context.view_layer.update()
+    return angle_degrees
+
+
+def solve_pose_chain(armature: bpy.types.Object, chain: list[str], target_mid: Vector, target_end: Vector) -> dict:
+    upper_name, lower_name, end_name = chain
+    for _ in range(16):
+        upper = find_pose_bone_world(armature, upper_name).translation
+        lower = find_pose_bone_world(armature, lower_name).translation
+        end = find_pose_bone_world(armature, end_name).translation
+        rotate_pose_bone_world(armature, lower_name, end - lower, target_end - lower, 18)
+        upper = find_pose_bone_world(armature, upper_name).translation
+        end = find_pose_bone_world(armature, end_name).translation
+        rotate_pose_bone_world(armature, upper_name, end - upper, target_end - upper, 12)
+        upper = find_pose_bone_world(armature, upper_name).translation
+        lower = find_pose_bone_world(armature, lower_name).translation
+        rotate_pose_bone_world(armature, upper_name, lower - upper, target_mid - upper, 8)
+    actual_mid = find_pose_bone_world(armature, lower_name).translation
+    actual_end = find_pose_bone_world(armature, end_name).translation
+    return {
+        "chain": chain,
+        "targetMid": [round(v, 5) for v in target_mid],
+        "targetEnd": [round(v, 5) for v in target_end],
+        "midError": round((actual_mid - target_mid).length, 5),
+        "endError": round((actual_end - target_end).length, 5),
+    }
+
+
+def source_direction_targets(source_armature: bpy.types.Object, target_armature: bpy.types.Object, source_chain: list[str], target_chain: list[str]) -> tuple[Vector, Vector]:
+    source_upper = find_pose_bone_world(source_armature, source_chain[0]).translation
+    source_mid = find_pose_bone_world(source_armature, source_chain[1]).translation
+    source_end = find_pose_bone_world(source_armature, source_chain[2]).translation
+    upper_direction = (source_mid - source_upper).normalized()
+    lower_direction = (source_end - source_mid).normalized()
+    target_upper = find_pose_bone_world(target_armature, target_chain[0]).translation
+    target_mid_now = find_pose_bone_world(target_armature, target_chain[1]).translation
+    target_end_now = find_pose_bone_world(target_armature, target_chain[2]).translation
+    upper_length = (target_mid_now - target_upper).length
+    lower_length = (target_end_now - target_mid_now).length
+    target_mid = target_upper + upper_direction * upper_length
+    target_end = target_mid + lower_direction * lower_length
+    return target_mid, target_end
+
+
+def apply_source_core_deltas(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> list[dict]:
+    weights = {"Spine": 0.5, "Spine01": 0.5, "Spine02": 0.7, "neck": 0.6, "Head": 0.65}
+    names = ["Hips", "Spine", "Spine01", "Spine02", "neck", "Head", "LeftShoulder", "RightShoulder"]
+    report = []
+    for target_name in names:
+        source_name = logical_bones[target_name]
+        source_bone = source_armature.pose.bones.get(source_name)
+        target_bone = target_armature.pose.bones.get(target_name)
+        if not source_bone or not target_bone:
+            continue
+        source_rest = (source_armature.matrix_world @ source_bone.bone.matrix_local).to_quaternion()
+        source_pose = (source_armature.matrix_world @ source_bone.matrix).to_quaternion()
+        source_delta = source_pose @ source_rest.inverted()
+        weight = weights.get(target_name, 1.0)
+        weighted_delta = Quaternion().slerp(source_delta, weight)
+        target_rest = (target_armature.matrix_world @ target_bone.bone.matrix_local).to_quaternion()
+        desired = weighted_delta @ target_rest
+        set_pose_bone_world_rotation(target_armature, target_name, desired)
+        report.append({"bone": target_name, "source": source_name, "weight": weight, "deltaDeg": round(math.degrees(source_delta.angle), 3)})
+    return report
+
+
+def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> dict:
+    clear_pose(target_armature)
+    foot_world = {name: find_pose_bone_world(target_armature, name).to_quaternion() for name in ["LeftFoot", "RightFoot"]}
+    core = apply_source_core_deltas(source_armature, target_armature, logical_bones)
+    chains = []
+    chain_specs = [
+        ([logical_bones["LeftArm"], logical_bones["LeftForeArm"], logical_bones["LeftHand"]], ["LeftArm", "LeftForeArm", "LeftHand"]),
+        ([logical_bones["RightArm"], logical_bones["RightForeArm"], logical_bones["RightHand"]], ["RightArm", "RightForeArm", "RightHand"]),
+        ([logical_bones["LeftUpLeg"], logical_bones["LeftLeg"], logical_bones["LeftFoot"]], ["LeftUpLeg", "LeftLeg", "LeftFoot"]),
+        ([logical_bones["RightUpLeg"], logical_bones["RightLeg"], logical_bones["RightFoot"]], ["RightUpLeg", "RightLeg", "RightFoot"]),
+    ]
+    for source_chain, target_chain in chain_specs:
+        target_mid, target_end = source_direction_targets(source_armature, target_armature, source_chain, target_chain)
+        chains.append(solve_pose_chain(target_armature, target_chain, target_mid, target_end))
+    for name, world_rotation in foot_world.items():
+        set_pose_bone_world_rotation(target_armature, name, world_rotation)
+    return {"core": core, "chains": chains}
+
+
 def canon_bone_name(name: str) -> str:
     return "".join(character for character in str(name).lower() if character.isalnum())
 
@@ -627,6 +747,7 @@ def main() -> None:
     parser.add_argument("--frames", default=",".join(FRAME_LABELS), help="comma-separated frame labels to render")
     parser.add_argument("--candidate-js", default=str(CANDIDATE_JS))
     parser.add_argument("--candidate-id", default="crimson-light-attack1-vanguard-4")
+    parser.add_argument("--author-frame-zero", action="store_true", help="author frame zero directly in Blender from evaluated Vanguard joints")
     parser.add_argument("--skip-render", action="store_true", help="write manifest/broken transform metrics without PNG renders")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     args = parser.parse_args(argv)
@@ -646,14 +767,17 @@ def main() -> None:
     tmp_dir = out_dir / "tmp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
     reference = load_json(REFERENCE_JSON)
-    candidate = load_candidate(candidate_path)
+    candidate = {"id": "crimson-combat-ready-blender-author-2", "frames": [{"label": "start", "time": 0, "bones": {}}]} if args.author_frame_zero else load_candidate(candidate_path)
     calibration = load_json(CALIBRATION_JSON)
     if reference.get("schema") != "pose-lab-v2-crimson-vanguard-swordattack1-reference-v2":
         raise RuntimeError("Vanguard reference is not full-body v2")
-    if candidate.get("id") != args.candidate_id:
+    if not args.author_frame_zero and candidate.get("id") != args.candidate_id:
         raise RuntimeError(f"comparison candidate mismatch: expected {args.candidate_id}, got {candidate.get('id')}")
-    crimson_frames, crimson_nodes = crimson_node_frames(candidate)
-    crimson_anim = inject_animation(CRIMSON_GLB, crimson_frames, crimson_nodes, tmp_dir / "crimson_attack1_compare.glb", candidate["id"])
+    if args.author_frame_zero:
+        crimson_anim = CRIMSON_GLB
+    else:
+        crimson_frames, crimson_nodes = crimson_node_frames(candidate)
+        crimson_anim = inject_animation(CRIMSON_GLB, crimson_frames, crimson_nodes, tmp_dir / "crimson_attack1_compare.glb", candidate["id"])
     clear_scene()
     camera = setup_scene(args.width, args.height, args.samples)
     vanguard_objects = import_glb(VANGUARD_GLB)
@@ -663,8 +787,14 @@ def main() -> None:
     normalize_and_offset(vanguard_objects, 1.7, -1.05)
     crimson_objects = import_glb(crimson_anim)
     crimson_armature = find_armature(crimson_objects, "Crimson")
-    activate_action_containing(crimson_armature, candidate["id"])
     normalize_and_offset(crimson_objects, 1.7, 1.05)
+    author_report = None
+    if args.author_frame_zero:
+        set_frame(0, 24)
+        suppress_vanguard_root_motion(vanguard_armature)
+        author_report = author_crimson_frame_zero(vanguard_armature, crimson_armature, reference["logicalBones"])
+    else:
+        activate_action_containing(crimson_armature, candidate["id"])
     sword_objects = import_glb(SWORD_GLB)
     apply_crimson_sword_material(sword_objects)
     sword_initial = {obj.name: obj.matrix_world.copy() for obj in top_level(sword_objects)}
@@ -698,6 +828,7 @@ def main() -> None:
         "createdAt": utc_now(),
         "classification": "diagnostic-blocker-not-acceptance",
         "candidate": candidate["id"],
+        "authorReport": author_report,
         "source": {"vanguard": str(VANGUARD_GLB.relative_to(ROOT)), "crimson": str(CRIMSON_GLB.relative_to(ROOT)), "sword": str(SWORD_GLB.relative_to(ROOT))},
         "expected": "Vanguard and Crimson perform the same readable sword attack side by side; Crimson hilt stays in right hand and blade leads contact.",
         "status": "FAIL" if all_failures else "PASS",
