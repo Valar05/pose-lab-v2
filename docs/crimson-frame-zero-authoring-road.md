@@ -20,7 +20,7 @@ The author owns the pose. The user does not animate it for us.
 2. Import and freeze the exact `480eb888` GLB pose as the body seed; do not reconstruct its center or legs.
 3. Reset only both shoulder/arm chains, then project explicit Crimson-local elbow and wrist targets.
 4. Render and inspect the empty-handed arm checkpoint before wrist roll or sword attachment.
-5. Orient and seat the sword on the right palm, then pin the left palm to the actual oriented hilt-to-pommel segment.
+5. Orient and seat the sword on a torso-scaled forearm-to-wrist palm proxy, then pin the matching left proxy to a body-scaled point on the actual oriented hilt-to-pommel segment. Never use this rig's malformed Hand tails as palm landmarks.
 6. Push the pass. The `Crimson PR Visual Evidence` workflow authors the candidate in Blender.
 7. Retrieve the `crimson-frame-zero-blender-<run-id>` artifact and inspect every same-camera old/new pair.
 8. Commit the generated candidate only when all non-parity author gates pass and the arm silhouette is materially different.
@@ -88,6 +88,8 @@ Do not casually retune these after they pass:
 - the rejected `480eb888` GLB hash `4e57cc6a443b6cdd0cae1177357536234e4c4e7de98069e7027af74070bd0b56` as the no-op baseline.
 - exact protected Hips, center, head, and leg channels from `crimson-frame-zero-480eb888-protected-baseline.json`.
 - a two-hand weapon contract: right palm on the hilt, left hand on the hilt-to-pommel segment, and both forearms clear of the face in the gated views.
+- a `0.06` torso-height palm proxy advanced from each wrist along its solved forearm ray; imported Hand tails are explicitly outside the grip contract.
+- measured protected-body round-trip tolerances (`0.00002` position, `0.000001` sign-invariant quaternion, `0.0000002` in-memory basis) that cover Blender/glTF numeric quantization but not authored motion.
 
 ## Verdict ledger
 

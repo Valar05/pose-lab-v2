@@ -14,6 +14,7 @@ V3_PATH = ROOT / "src/review-candidates/crimson-combat-ready-vanguard-frame0-3.j
 V480_PATH = ROOT / "src/review-candidates/crimson-frame-zero-480eb888-rejected.js"
 V4_PATH = ROOT / "src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js"
 CONSTANTS_PATH = ROOT / "src/review-constants.js"
+RENDERER_PATH = ROOT / "tools/render_crimson_vanguard_attack1_compare_blender.py"
 PROTECTED_BASELINE_PATH = ROOT / "public/assets/crimson/crimson-frame-zero-480eb888-protected-baseline.json"
 EXPECTED_GLB_SHA = "4e57cc6a443b6cdd0cae1177357536234e4c4e7de98069e7027af74070bd0b56"
 EXPECTED_PROTECTED_BONES = {
@@ -97,6 +98,13 @@ assert set(protected["positions"]) == {"Hips"}
 assert set(protected["bones"]) == EXPECTED_PROTECTED_BONES
 assert all(len(values) == 3 for values in protected["positions"].values())
 assert all(len(values) == 4 for values in protected["bones"].values())
+
+renderer = RENDERER_PATH.read_text(encoding="utf-8")
+assert "HAND_PALM_FORWARD_TORSO_FRACTION = 0.06" in renderer
+assert 'hand_palm_anchor(armature: bpy.types.Object, bone_name: str)' not in renderer
+assert "head.lerp(tail, 0.55)" not in renderer
+assert "PROTECTED_BODY_EXPORT_POSITION_TOLERANCE = 0.00002" in renderer
+assert "PROTECTED_BODY_RUNTIME_BASIS_TOLERANCE = 0.0000002" in renderer
 
 print(json.dumps({
     "ok": True,
