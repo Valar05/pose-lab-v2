@@ -155,11 +155,13 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
         0,
         1
       ]
-    }
+    },
+    "reviewVerdict": "rejected-foot-blind-counterfeit-shared-rest",
+    "reviewVerdictReason": "Rejected after screenshot review: SharedRest reused SwordAttack1 start and the leg solver/gates only placed ankle origins, leaving boots visibly wrong."
   },
   "guardReport": {
     "crimsonLightAttack1V3": {
-      "status": "PASS",
+      "status": "FAIL",
       "thresholds": {
         "maxContactBladeAngleDeg": 9,
         "maxChainError": 0.24,
@@ -1364,8 +1366,11 @@ export const CRIMSON_LIGHT_ATTACK1_VANGUARD_3_SEQUENCE = {
           "rightHandBladeSolveAngleDeg": 0.013
         }
       ],
-      "guardFailures": [],
-      "note": "Guardrail only: full-body transfer and weapon invariance must still be judged by hosted cloud screenshots."
+      "guardFailures": [
+        "SHARED_REST_IS_COUNTERFEIT_ATTACK_START",
+        "FOOT_CONTACT_TRUTH_NOT_SOLVED"
+      ],
+      "note": "Rejected diagnostic: sword/upper-body metrics are preserved for debugging, but this candidate is not accepted because SharedRest is attack start and feet are foot-blind."
     }
   },
   "frames": [

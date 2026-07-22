@@ -38,6 +38,7 @@ const sword = readGlbJson('public/assets/crimson/arborblade_sword.glb');
 const crimsonReview = readGlbJson('public/assets/crimson/crimson_plume_knight_rigged_pbr_review.glb');
 const swordReview = readGlbJson('public/assets/crimson/arborblade_sword_review.glb');
 const reviewAssets = readJson('public/assets/crimson/crimson_review_assets_manifest.json');
+const sharedRest = readJson('public/assets/crimson/crimson_shared_rest_baseline.json');
 
 assert(exists('public/assets/crimson/crimson_plume_knight_rigged_pbr.glb'), 'missing Crimson runtime GLB');
 assert(exists('public/assets/crimson/arborblade_sword.glb'), 'missing Arborblade sword runtime GLB');
@@ -50,6 +51,7 @@ assert((crimsonReview.images || []).length >= 4 && (swordReview.images || []).le
 assert(manifest.schema === 'pose-lab-v2-crimson-runtime-asset-v1', 'Crimson manifest schema mismatch');
 assert(calibration.schema === 'pose-lab-v2-crimson-sword-calibration-v1', 'Crimson sword calibration schema mismatch');
 assert(reference.schema === 'pose-lab-v2-crimson-vanguard-swordattack1-reference-v2', 'Vanguard SwordAttack1 reference schema mismatch');
+assert(sharedRest.schema === 'pose-lab-v2-crimson-shared-rest-baseline-v1' && sharedRest.source?.notDerivedFromVanguardAttackFrameZero === true && sharedRest.footTruth?.status === 'not-solved', 'SharedRest baseline must be independent and must not self-certify solved foot truth');
 assert(manifest.runtimeGlb === 'public/assets/crimson/crimson_plume_knight_rigged_pbr.glb', 'manifest runtime GLB path mismatch');
 assert(manifest.swordGlb === 'public/assets/crimson/arborblade_sword.glb', 'manifest sword GLB path mismatch');
 assert(manifest.skeleton?.rightHand && manifest.skeleton?.rightForeArm && manifest.skeleton?.rightArm, 'Crimson rig must expose RightArm/RightForeArm/RightHand');
@@ -87,7 +89,8 @@ assert(pkg.scripts?.['test:crimson-model-viewer-constraints'] === 'node tools/te
 assert(pkg.scripts?.['review:crimson-sword-url'] === 'node tools/crimson_sword_review_url.mjs', 'missing hosted Crimson sword review URL script');
 assert(pkg.scripts?.['reference:crimson:swordattack1'] === 'node tools/import_crimson/extract_vanguard_swordattack1_reference.mjs', 'missing Crimson SwordAttack1 reference script');
 assert(pkg.scripts?.['bake:crimson-light-attack1'] === 'node scripts/bake-crimson-light-attack1-vanguard-3.mjs', 'missing Crimson light Attack1 bake script');
-assert(pkg.scripts?.['test:crimson-light-attack1'] === 'node tools/test_crimson_light_attack_candidate.mjs', 'missing Crimson light Attack1 guard test script');
+assert(pkg.scripts?.['test:crimson-light-attack1'] === 'node tools/test_crimson_light_attack_candidate.mjs', 'Crimson light Attack1 main test must be positive acceptance, not rejected-candidate quarantine');
+assert(pkg.scripts?.['test:crimson-light-attack1:quarantine'] === 'node tools/test_crimson_light_attack_quarantine.mjs', 'missing Crimson light Attack1 quarantine regression test');
 assert(pkg.scripts?.['validate:crimson-sword-intake']?.includes('validate:crimson-model-viewer-constraints') && pkg.scripts?.['validate:crimson-sword-intake']?.includes('tools/validate_crimson_sword_intake.mjs'), 'Crimson intake guardrail must validate model-viewer constraints before intake checks');
 assert(pkg.scripts?.['accept:crimson-sword'] === 'node tools/require_crimson_cloud_visual_evidence.mjs', 'missing Crimson cloud visual acceptance script');
 assert(pkg.scripts?.['validate:crimson-sword'] === 'npm run validate:crimson-sword-intake && npm run accept:crimson-sword', 'validate:crimson-sword must require cloud visual acceptance after intake guardrails');

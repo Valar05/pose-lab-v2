@@ -4,14 +4,19 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import sys
+
+DEBIAN_DIST_PACKAGES = "/usr/lib/python3/dist-packages"
+if DEBIAN_DIST_PACKAGES not in sys.path:
+    sys.path.append(DEBIAN_DIST_PACKAGES)
 from datetime import datetime, timezone
 from pathlib import Path
 
 import bpy
-from mathutils import Vector
+from mathutils import Euler, Vector
 
 TOOL_DIR = Path(__file__).resolve().parent
 if str(TOOL_DIR) not in sys.path:
@@ -51,7 +56,9 @@ from render_crimson_vanguard_attack1_compare_blender import (
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUT = ROOT / "generated" / "crimson-vanguard-shared-rest-compare" / "latest"
 SCHEMA = "pose-lab-v2-crimson-vanguard-shared-rest-blender-compare-v1"
-STATIC_SOURCE_LABEL = "start"
+SHARED_REST_JSON = ROOT / "public" / "assets" / "crimson" / "crimson_shared_rest_baseline.json"
+STATIC_SOURCE_LABEL = "baseline"
+VANGUARD_SOURCE_LABEL = "start"
 CAMERA_ANGLES = [
     ("01-front", 0, 0.95, 7.2),
     ("02-front-left", -35, 0.95, 7.2),
@@ -101,6 +108,83 @@ def normalized_screen_point(camera: bpy.types.Object, point: Vector, box: dict) 
     height = max(0.000001, box["yMax"] - box["yMin"])
     return ((screen[0] - box["xMin"]) / width, (screen[1] - box["yMin"]) / height)
 
+
+def screen_angle_2d(a: tuple[float, float], b: tuple[float, float]) -> float:
+    return math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))
+
+
+def angle_delta_deg(a: float, b: float) -> float:
+    return abs((a - b + 180) % 360 - 180)
+
+
+def bone_world_points(armature: bpy.types.Object, source_names: dict[str, str], logical_name: str) -> dict | None:
+    node_name = source_names.get(logical_name, logical_name)
+    bone = armature.pose.bones.get(node_name)
+    if not bone:
+        return None
+    matrix = armature.matrix_world @ bone.matrix
+    axes = [
+        (matrix.to_3x3() @ Vector((1, 0, 0))).normalized(),
+        (matrix.to_3x3() @ Vector((0, 1, 0))).normalized(),
+        (matrix.to_3x3() @ Vector((0, 0, 1))).normalized(),
+    ]
+    sole_normal = max(axes, key=lambda axis: abs(axis.z))
+    if sole_normal.z < 0:
+        sole_normal.negate()
+    return {
+        "origin": matrix.translation,
+        "head": armature.matrix_world @ bone.head,
+        "tail": armature.matrix_world @ bone.tail,
+        "soleNormal": sole_normal,
+    }
+
+
+def foot_screen_metrics(camera: bpy.types.Object, armature: bpy.types.Object, source_names: dict[str, str], box: dict, logical_name: str) -> dict | None:
+    points = bone_world_points(armature, source_names, logical_name)
+    if not points:
+        return None
+    head = normalized_screen_point(camera, points["head"], box)
+    tail = normalized_screen_point(camera, points["tail"], box)
+    origin = normalized_screen_point(camera, points["origin"], box)
+    length = math.hypot(tail[0] - head[0], tail[1] - head[1])
+    return {
+        "origin": [round(origin[0], 5), round(origin[1], 5)],
+        "head": [round(head[0], 5), round(head[1], 5)],
+        "tail": [round(tail[0], 5), round(tail[1], 5)],
+        "axisAngleDeg": round(screen_angle_2d(head, tail), 3),
+        "axisLength": round(length, 5),
+        "worldOriginZ": round(points["origin"].z, 5),
+        "worldHeadZ": round(points["head"].z, 5),
+        "worldTailZ": round(points["tail"].z, 5),
+        "soleNormalWorld": [round(value, 5) for value in points["soleNormal"]],
+        "soleUpDot": round(points["soleNormal"].dot(Vector((0, 0, 1))), 5),
+    }
+
+
+def shared_rest_node_frames(shared_rest: dict) -> tuple[list[dict], dict[str, dict[str, dict[str, list]]]]:
+    frame = {"label": STATIC_SOURCE_LABEL, "time": 0.0}
+    node_frames: dict[str, dict[str, dict[str, list]]] = {}
+    for bone, entry in (shared_rest.get("pose", {}).get("bones") or {}).items():
+        rotation = entry.get("rotationDeg")
+        if not rotation:
+            continue
+        quat = Euler(tuple(math.radians(float(value)) for value in rotation), "XYZ").to_quaternion()
+        node_frames.setdefault(bone, {}).setdefault("rotation", {})[STATIC_SOURCE_LABEL] = [round(quat.x, 6), round(quat.y, 6), round(quat.z, 6), round(quat.w, 6)]
+    return [frame], node_frames
+
+
+def foot_pair_metrics(camera: bpy.types.Object, armature: bpy.types.Object, source_names: dict[str, str], box: dict, objects: list[bpy.types.Object]) -> dict:
+    left = foot_screen_metrics(camera, armature, source_names, box, "LeftFoot")
+    right = foot_screen_metrics(camera, armature, source_names, box, "RightFoot")
+    low, _, _ = mesh_bounds(objects)
+    spread = None
+    if left and right:
+        spread = abs(left["origin"][0] - right["origin"][0])
+        for foot in [left, right]:
+            foot["groundZ"] = round(low.z, 5)
+            foot["heelGroundDelta"] = round(abs(foot["worldHeadZ"] - low.z), 5)
+            foot["toeGroundDelta"] = round(abs(foot["worldTailZ"] - low.z), 5)
+    return {"left": left, "right": right, "screenSpread": None if spread is None else round(spread, 5), "groundZ": round(low.z, 5)}
 
 
 
@@ -171,11 +255,42 @@ def evaluate_static_angle(
             "actual": round(sword_visible, 4),
             "expected": ">= 0.04 screen units",
         })
+    vanguard_feet = foot_pair_metrics(camera, vanguard_armature, source_names, vanguard_box, vanguard_objects)
+    crimson_feet = foot_pair_metrics(camera, crimson_armature, {}, crimson_box, crimson_objects)
+    foot_failures = []
+    if vanguard_feet["screenSpread"] is None or crimson_feet["screenSpread"] is None:
+        foot_failures.append({"code": "FOOT_LANDMARKS_MISSING", "actual": {"vanguard": vanguard_feet, "crimson": crimson_feet}, "expected": "both rigs expose LeftFoot and RightFoot landmarks"})
+    else:
+        ratio = crimson_feet["screenSpread"] / max(0.000001, vanguard_feet["screenSpread"])
+        if crimson_feet["screenSpread"] < 0.1 or ratio < 0.72 or ratio > 1.32:
+            foot_failures.append({"code": "CRIMSON_SHARED_REST_FOOT_SPREAD_DOES_NOT_MATCH_VANGUARD", "actual": {"crimsonSpread": crimson_feet["screenSpread"], "vanguardSpread": vanguard_feet["screenSpread"], "ratio": round(ratio, 4)}, "expected": "Crimson feet keep a comparable planted stance width"})
+    for side in ["left", "right"]:
+        vf = vanguard_feet.get(side)
+        cf = crimson_feet.get(side)
+        if not vf or not cf:
+            continue
+        if vf["axisLength"] >= 0.015 and cf["axisLength"] >= 0.015:
+            delta = angle_delta_deg(cf["axisAngleDeg"], vf["axisAngleDeg"])
+            if delta > 42:
+                foot_failures.append({"code": f"CRIMSON_SHARED_REST_{side.upper()}_FOOT_AXIS_DIVERGES_FROM_VANGUARD", "actual": {"crimsonAxisDeg": cf["axisAngleDeg"], "vanguardAxisDeg": vf["axisAngleDeg"], "deltaDeg": round(delta, 3)}, "expected": "boot bone axis should read like the source foot, not only place the ankle"})
+        crimson_sole = Vector(cf["soleNormalWorld"])
+        vanguard_sole = Vector(vf["soleNormalWorld"])
+        sole_delta = math.degrees(crimson_sole.angle(vanguard_sole))
+        if sole_delta > 32 or cf["soleUpDot"] < 0.58:
+            foot_failures.append({"code": f"CRIMSON_SHARED_REST_{side.upper()}_SOLE_ROLL_DIVERGES_FROM_VANGUARD", "actual": {"crimsonSoleNormal": cf["soleNormalWorld"], "vanguardSoleNormal": vf["soleNormalWorld"], "deltaDeg": round(sole_delta, 3), "crimsonSoleUpDot": cf["soleUpDot"]}, "expected": "sole normal must catch boot roll around the foot longitudinal axis"})
+        if cf["heelGroundDelta"] > 0.18 or cf["toeGroundDelta"] > 0.18:
+            foot_failures.append({"code": f"CRIMSON_SHARED_REST_{side.upper()}_HEEL_TOE_NOT_ON_GROUND", "actual": {"heelGroundDelta": cf["heelGroundDelta"], "toeGroundDelta": cf["toeGroundDelta"], "groundZ": cf["groundZ"]}, "expected": "heel and toe landmarks must stay near the ground plane"})
+    if foot_failures:
+        failures.append({
+            "code": "CRIMSON_SHARED_REST_FEET_NOT_PLANTED_LIKE_VANGUARD",
+            "actual": foot_failures,
+            "expected": "Feet must satisfy spread and visible foot-axis predicates, not only ankle origins",
+        })
     return {
         "label": label,
         "sourcePose": STATIC_SOURCE_LABEL,
-        "crimson": {"bodyBox": crimson_box, "hiltHandWorld": round(hilt_hand_world, 5), "swordScreenLength": round(sword_visible, 5)},
-        "vanguard": {"bodyBox": vanguard_box},
+        "crimson": {"bodyBox": crimson_box, "hiltHandWorld": round(hilt_hand_world, 5), "swordScreenLength": round(sword_visible, 5), "feet": crimson_feet},
+        "vanguard": {"bodyBox": vanguard_box, "feet": vanguard_feet},
         "landmarkWorst": worst,
         "landmarkErrors": landmark_errors,
         "failures": failures,
@@ -196,14 +311,53 @@ def main() -> None:
         out_dir = ROOT / out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     reference = load_json(REFERENCE_JSON)
-    candidate = load_candidate(CANDIDATE_JS)
     calibration = load_json(CALIBRATION_JSON)
-    if candidate.get("id") != "crimson-light-attack1-vanguard-3":
-        raise RuntimeError("shared rest is bound to the current Crimson/Vanguard candidate source")
+    shared_rest = load_json(SHARED_REST_JSON)
+    if shared_rest.get("schema") != "pose-lab-v2-crimson-shared-rest-baseline-v1":
+        raise RuntimeError("SharedRest baseline artifact schema mismatch")
     tmp_dir = out_dir / "tmp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
-    all_frames, crimson_nodes = crimson_node_frames(candidate)
-    static_frames = [frame for frame in all_frames if frame["label"] == STATIC_SOURCE_LABEL]
+    source_contract_failures = []
+    authored_path = ROOT / shared_rest.get("source", {}).get("authoredFrom", "")
+    expected_sha = shared_rest.get("source", {}).get("authoredFromSha256")
+    if not authored_path.exists() or not expected_sha:
+        source_contract_failures.append({"frame": "source", "code": "SHARED_REST_BASELINE_SOURCE_MISSING", "actual": str(authored_path), "expected": "baseline artifact cites an existing hashed source export"})
+    else:
+        actual_sha = hashlib.sha256(authored_path.read_bytes()).hexdigest()
+        if actual_sha != expected_sha:
+            source_contract_failures.append({"frame": "source", "code": "SHARED_REST_BASELINE_SOURCE_HASH_MISMATCH", "actual": actual_sha, "expected": expected_sha})
+    if shared_rest.get("source", {}).get("notDerivedFromVanguardAttackFrameZero") is not True:
+        source_contract_failures.append({"frame": "source", "code": "SHARED_REST_BASELINE_PROVENANCE_NOT_INDEPENDENT", "actual": shared_rest.get("source"), "expected": "baseline artifact proves it is not Attack1 frame zero"})
+    if shared_rest.get("footTruth", {}).get("status") != "solved":
+        source_contract_failures.append({
+            "frame": "source",
+            "code": "CRIMSON_SHARED_REST_FOOT_TRUTH_NOT_SOLVED",
+            "actual": shared_rest.get("footTruth", {}).get("status"),
+            "expected": "SharedRest artifact must certify heel/toe/sole or equivalent foot truth before Blender comparison can be useful",
+        })
+    if source_contract_failures:
+        manifest = {
+            "schema": SCHEMA,
+            "createdAt": utc_now(),
+            "classification": "diagnostic-blocker-not-acceptance",
+            "sourcePose": {
+                "vanguard": "blocked before Blender import",
+                "crimson": shared_rest.get("id"),
+                "animationPlayback": False,
+            },
+            "expected": "SharedRest must be an independent authored pose with solved foot truth before side-by-side Blender review.",
+            "status": "FAIL",
+            "frames": [],
+            "failureCount": len(source_contract_failures),
+            "brokenTransformsPath": "broken_shared_rest_pose.json",
+            "note": "Fail-closed source contract gate. Blender import/render is skipped because the independent SharedRest baseline artifact is missing solved foot truth.",
+        }
+        (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        broken = {"schema": "pose-lab-v2-broken-shared-rest-pose-v1", "createdAt": utc_now(), "failures": source_contract_failures}
+        (out_dir / "broken_shared_rest_pose.json").write_text(json.dumps(broken, indent=2), encoding="utf-8")
+        print(json.dumps({"ok": False, "outDir": str(out_dir.relative_to(ROOT)), "failureCount": len(source_contract_failures), "brokenTransforms": str((out_dir / "broken_shared_rest_pose.json").relative_to(ROOT))}, indent=2))
+        sys.exit(1)
+    static_frames, crimson_nodes = shared_rest_node_frames(shared_rest)
     if len(static_frames) != 1:
         raise RuntimeError("missing one static Crimson shared-rest frame")
     crimson_anim = inject_animation(CRIMSON_GLB, static_frames, crimson_nodes, tmp_dir / "crimson_shared_rest_compare.glb", "CrimsonSharedRestStatic")
@@ -213,7 +367,7 @@ def main() -> None:
     vanguard_armature = find_armature(vanguard_objects, "Vanguard")
     activate_named_action(vanguard_armature, "SwordAttack1_rig")
     normalize_and_offset(vanguard_objects, 1.7, -1.05)
-    set_frame(float(reference["samples"][STATIC_SOURCE_LABEL]["sourceTime"]), 24)
+    set_frame(float(reference["samples"][VANGUARD_SOURCE_LABEL]["sourceTime"]), 24)
     suppress_vanguard_root_motion(vanguard_armature)
     crimson_objects = import_glb(crimson_anim)
     crimson_armature = find_armature(crimson_objects, "Crimson")
@@ -230,7 +384,7 @@ def main() -> None:
     add_label("CRIMSON SHARED REST", (1.05, -0.18, 1.9))
     source_names = reference.get("logicalBones") or {}
     frames = []
-    all_failures = []
+    all_failures = list(source_contract_failures)
     for index, (label, yaw, target_z, distance) in enumerate(CAMERA_ANGLES, start=1):
         set_camera_view(camera, yaw, target_z, distance)
         entry = evaluate_static_angle(label, camera, vanguard_objects, crimson_objects, vanguard_armature, crimson_armature, sword_objects, sword_socket, calibration, source_names)
@@ -251,8 +405,8 @@ def main() -> None:
         "createdAt": utc_now(),
         "classification": "diagnostic-blocker-not-acceptance",
         "sourcePose": {
-            "vanguard": "SwordAttack1 sample start/sourceTime 0, applied as static pose",
-            "crimson": "crimson-light-attack1-vanguard-3 frame start, applied as static pose",
+            "vanguard": "SwordAttack1 sample start/sourceTime 0, applied as static comparison pose",
+            "crimson": "independent SharedRest baseline artifact",
             "animationPlayback": False,
         },
         "expected": "Ten screenshots show Crimson and Vanguard in one shared static rest pose; no timeline or animation playback hides pose mismatch.",

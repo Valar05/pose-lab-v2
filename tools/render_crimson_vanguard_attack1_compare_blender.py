@@ -10,6 +10,10 @@ import math
 import re
 import struct
 import sys
+
+DEBIAN_DIST_PACKAGES = "/usr/lib/python3/dist-packages"
+if DEBIAN_DIST_PACKAGES not in sys.path:
+    sys.path.append(DEBIAN_DIST_PACKAGES)
 from datetime import datetime, timezone
 from itertools import combinations
 from pathlib import Path
@@ -239,7 +243,7 @@ def normalize_and_offset(objects: list[bpy.types.Object], target_height: float, 
     height = max(0.001, size.z if size.z > size.y else size.y)
     center = (low + high) * 0.5
     scale = target_height / height
-    transform = Matrix.Translation(Vector((offset_x, 0, -low.z * scale))) @ Matrix.Diagonal((scale, scale, scale, 1.0)) @ Matrix.Translation(Vector((-center.x, -center.y, -low.z)))
+    transform = Matrix.Translation(Vector((offset_x, 0, 0))) @ Matrix.Diagonal((scale, scale, scale, 1.0)) @ Matrix.Translation(Vector((-center.x, -center.y, -low.z)))
     for obj in top_level(objects):
         obj.matrix_world = transform @ obj.matrix_world
     bpy.context.view_layer.update()

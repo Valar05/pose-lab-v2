@@ -1,0 +1,117 @@
+{
+  "schema": "pose-lab-v2-crimson-shared-rest-baseline-v1",
+  "id": "crimson-vanguard-shared-rest-baseline-1",
+  "role": "independent immutable Crimson SharedRest baseline; not Attack1 frame zero",
+  "status": "runtime-baseline-pending-foot-truth-and-cloud-acceptance",
+  "source": {
+    "authoredFrom": "public/assets/crimson/crimson_light_attack1_weapon_baseline.json",
+    "authoredFromSha256": "18298d8a23aeced0a987b6d711aecfa44019005b33db1f89f6755c3c8ed15e3f",
+    "userExportSchema": "pose-lab-v2-crimson-light-attack1-weapon-baseline-v1",
+    "provenance": "User-pasted Crimson rest/sword export captured before Crimson/Vanguard retarget attempts; preserved as SharedRest runtime baseline instead of deriving rest from SwordAttack1 start.",
+    "notDerivedFromCandidate": true,
+    "notDerivedFromVanguardAttackFrameZero": true
+  },
+  "assets": {
+    "character": "./assets/crimson/crimson_plume_knight_rigged_pbr.glb",
+    "characterKey": "crimson",
+    "characterLabel": "Crimson Knight",
+    "sabre": "./assets/crimson/arborblade_sword.glb",
+    "animations": [
+      "CrimsonPlumeKnight|walking|baselayer",
+      "CrimsonPlumeKnight|running|baselayer"
+    ],
+    "activeAnimation": null,
+    "rootMotion": null
+  },
+  "saberGripLocal": {
+    "parentBone": "RightHand",
+    "position": [
+      12.38741,
+      13.39693,
+      -1.51078
+    ],
+    "rotationDeg": [
+      -15.898,
+      51.654,
+      83.103
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ]
+  },
+  "sabreLocal": {
+    "position": [
+      -1.98175,
+      -1.31896,
+      -7.90654
+    ],
+    "rotationDeg": [
+      90,
+      30,
+      0
+    ],
+    "scale": [
+      88,
+      88,
+      88
+    ]
+  },
+  "bladeLocalAxis": [
+    0,
+    0,
+    1
+  ],
+  "pose": {
+    "state": "rest",
+    "readyPreset": null,
+    "attackPreset": null,
+    "selectedBone": null,
+    "bones": {
+      "Spine02": {
+        "rotationDeg": [
+          -24.003,
+          -1.58,
+          -2.883
+        ]
+      },
+      "Spine": {
+        "rotationDeg": [
+          -12.281,
+          -0.498,
+          0.344
+        ]
+      },
+      "LeftHand": {
+        "rotationDeg": [
+          0.367,
+          9,
+          12.217
+        ]
+      },
+      "RightUpLeg": {
+        "rotationDeg": [
+          164.978,
+          8.225,
+          8.749
+        ]
+      }
+    }
+  },
+  "footTruth": {
+    "status": "not-solved",
+    "requiredBeforeAcceptance": [
+      "heel and toe world contact heights",
+      "sole normal or equivalent roll predicate",
+      "mesh or landmark ground penetration predicate",
+      "front side rear low visual review evidence",
+      "hosted cloud screenshot acceptance"
+    ]
+  },
+  "acceptance": {
+    "visualAccepted": false,
+    "cloudAccepted": false,
+    "candidateAccepted": false
+  }
+}

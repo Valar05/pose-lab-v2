@@ -43,6 +43,7 @@ const crimsonSwordCalibration = JSON.parse(read('public/assets/crimson/crimson_s
 const crimsonModelViewerConstraints = JSON.parse(read('public/assets/crimson/crimson_model_viewer_constraints.json'));
 const crimsonVanguardAttackReference = JSON.parse(read('public/assets/crimson/vanguard_swordattack1_reference.json'));
 const crimsonLightAttackBaseline = JSON.parse(read('public/assets/crimson/crimson_light_attack1_weapon_baseline.json'));
+const crimsonSharedRestBaseline = JSON.parse(read('public/assets/crimson/crimson_shared_rest_baseline.json'));
 const importFromRegex = /from\s+['"]([^'"]+)['"]/g;
 const moduleExportRegex = /export const \w+ = (.*);\s*$/s;
 
@@ -115,6 +116,7 @@ assert(exists('public/assets/crimson/crimson_manifest.json'), 'missing Crimson r
 assert(exists('public/assets/crimson/crimson_sword_calibration.json'), 'missing Crimson sword calibration');
 assert(exists('public/assets/crimson/vanguard_swordattack1_reference.json'), 'missing Vanguard SwordAttack1 reference for Crimson; run npm run reference:crimson:swordattack1');
 assert(exists('public/assets/crimson/crimson_light_attack1_weapon_baseline.json'), 'missing Crimson light Attack1 saved weapon baseline');
+assert(exists('public/assets/crimson/crimson_shared_rest_baseline.json'), 'missing independent Crimson SharedRest baseline artifact');
 assert(exists('public/assets/crimson/crimson_model_viewer_constraints.json'), 'missing Crimson model-viewer constraint contract');
 for (const texture of [
   'base_color.jpg',
@@ -248,16 +250,17 @@ assert(crimsonVanguardAttackReference.policy?.role === 'full-body-reference-only
 assert(crimsonLightAttackCandidate.id === 'crimson-light-attack1-vanguard-3' && crimsonLightAttackCandidate.source?.character === 'crimson', 'Crimson light Attack1 candidate must target Crimson with a stable v3 id');
 assert(crimsonLightAttackCandidate.source?.policy?.forbiddenUse?.includes('Do not copy Vanguard Weapon.R'), 'Crimson light Attack1 candidate must preserve the no direct Weapon.R copy policy');
 assert(crimsonLightAttackBaseline.schema === 'pose-lab-v2-crimson-light-attack1-weapon-baseline-v1' && JSON.stringify(crimsonLightAttackBaseline.saberGripLocal) === JSON.stringify(crimsonLightAttackCandidate.source?.savedWeapon?.saberGripLocal), 'Crimson light Attack1 candidate must use the saved user weapon baseline');
+assert(crimsonSharedRestBaseline.schema === 'pose-lab-v2-crimson-shared-rest-baseline-v1' && crimsonSharedRestBaseline.source?.notDerivedFromVanguardAttackFrameZero === true && crimsonSharedRestBaseline.footTruth?.status === 'not-solved', 'Crimson SharedRest baseline must be independent and must not claim solved foot truth');
 assert(crimsonLightAttackCandidate.source?.savedWeapon?.bladeLocalAxis?.join(',') === '0,0,1', 'Crimson light Attack1 candidate must preserve Arborblade +Z blade axis');
 assert(crimsonLightAttackCandidate.frames?.length === 8 && crimsonLightAttackCandidate.frames.some((frame) => frame.label === 'contact') && crimsonLightAttackCandidate.frames.some((frame) => frame.label === 'snapPrep'), 'Crimson light Attack1 candidate must include the eight review frames and contact/snapPrep frames');
-assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.status === 'PASS', 'Crimson light Attack1 v3 candidate generator guard must pass');
+assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.status !== 'PASS' && crimsonLightAttackCandidate.source?.reviewVerdict === 'rejected-foot-blind-counterfeit-shared-rest', 'Crimson light Attack1 v3 must remain rejected until independent shared-rest foot truth exists');
 assert((crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.report || []).find((entry) => entry.label === 'contact')?.bladeAngleErrorDeg <= 9, 'Crimson light Attack1 contact frame must point Arborblade world-forward');
-assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.Hips >= 18 && crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.LeftUpLeg >= 7 && crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.RightArm >= 48, 'Crimson light Attack1 v3 must prove full-body movement, not upper-body-only wrap');
-assert(reviewConstantsSource.includes('crimson-light-attack1-vanguard-3') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-2') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-1') && reviewConstantsSource.includes('characterKey: "crimson"'), 'Attack1 review registry must expose only Crimson light Attack1 v3 as the active Crimson candidate');
-assert(main.includes('explicitCandidateReview') && main.includes('supportsAttackReview: true'), 'Runtime must allow explicit Crimson attack review without enabling baked pose states');
-assert(attackReviewUrls.includes('crimson-light-attack1-vanguard-3') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-2') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-1') && attackReviewUrls.includes("model: 'crimson'"), 'Attack1 cloud review URLs must include only the Crimson light Attack1 v3 candidate');
+assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.Hips >= 18 && crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.LeftUpLeg >= 7 && crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.RightArm >= 48, 'Crimson light Attack1 v3 diagnostic must still expose full-body movement metrics even though visual acceptance is rejected');
+assert(!reviewConstantsSource.includes('crimson-light-attack1-vanguard-3') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-2') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-1'), 'Attack1 review registry must not expose rejected Crimson light Attack1 candidates');
+assert(main.includes('explicitCandidateReview') && main.includes('supportsAttackReview: true') && main.includes('loadSharedRestBaseline') && main.includes('SHARED_REST_BASELINE_URL'), 'Runtime must allow explicit attack review and load Crimson SharedRest from its independent baseline artifact');
+assert(!attackReviewUrls.includes('crimson-light-attack1-vanguard-3') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-2') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-1'), 'Attack1 cloud review URLs must not include rejected Crimson light Attack1 candidates');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
-assert(crimsonAttackCloudRunner.includes("review:crimson-attack1:blender-compare") && crimsonAttackCloudRunner.indexOf("review:crimson-attack1:blender-compare") < crimsonAttackCloudRunner.indexOf("workflow', 'run'"), 'Crimson Attack1 cloud dispatch must run the Blender side-by-side comparison gate before GitHub workflow dispatch');
+assert(crimsonAttackCloudRunner.includes('No accepted Crimson Attack1 candidate is registered') && crimsonAttackCloudRunner.includes('quarantine-only'), 'Crimson Attack1 cloud dispatch must be blocked while only rejected v3 exists');
 assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
 assert(attack2ReviewUrls.includes('attack2-candidate-1') && attack2ReviewUrls.includes("pose: 'attack2'") && attack2ReviewUrls.includes('backhandPrep') && attack2ReviewUrls.includes('contactHold'), 'Attack2 review URLs must target the combo backhand candidate and its prime keys');
 assert(fistAttack1ReviewUrls.includes('fist-ready-candidate-1') && fistAttack1ReviewUrls.includes('fist-attack1-candidate-1') && fistAttack1ReviewUrls.includes('weaponless FPSPlayer FistReady baseline') && fistAttack1ReviewUrls.includes('windup') && fistAttack1ReviewUrls.includes('contact') && fistAttack1ReviewUrls.includes("view: 'fpv'"), 'FistAttack1 review URLs must target the weaponless FistReady baseline and fist candidate prime keys');
@@ -592,6 +595,7 @@ if (exists('dist')) {
   assert(exists('dist/src/review-candidates/attack1-joint-pinned-3.js'), 'dist must include Attack1 joint-pinned candidate preview module');
   assert(exists('dist/src/review-candidates/crimson-light-attack1-vanguard-3.js'), 'dist must include Crimson light Attack1 Vanguard v3 candidate preview module');
   assert(exists('dist/assets/crimson/crimson_light_attack1_weapon_baseline.json'), 'dist must expose Crimson light Attack1 saved weapon baseline');
+  assert(exists('dist/assets/crimson/crimson_shared_rest_baseline.json'), 'dist must expose independent Crimson SharedRest baseline artifact');
   assert(exists('dist/src/review-candidates/fist-ready-candidate-1.js'), 'dist must include FistReady candidate preview module');
   assert(exists('dist/src/review-candidates/fist-attack1-candidate-1.js'), 'dist must include FistAttack1 candidate preview module');
   assert(exists('dist/src/review-candidates/davin-lowbackkick-ares-transfer-1.js'), 'dist must include Davin LowBackKick candidate preview module');

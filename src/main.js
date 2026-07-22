@@ -223,8 +223,8 @@ const REQUESTED_IDLE_REVIEW = ACTIVE_CHARACTER.key === 'davin'
   && ['idle', 'screenshot-idle', 'idle-screenshot'].includes(String(REQUESTED_POSE || '').toLowerCase());
 const LOWBACKKICK_DEFAULT_CANDIDATE = 'davin-lowbackkick-ares-transfer-1';
 const IDLE_DEFAULT_CANDIDATE = 'davin-idle-screenshot-1';
-const SHARED_REST_DEFAULT_CANDIDATE = 'crimson-light-attack1-vanguard-3';
-const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate') || (REQUESTED_SHARED_REST ? SHARED_REST_DEFAULT_CANDIDATE : REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_DEFAULT_CANDIDATE : REQUESTED_IDLE_REVIEW ? IDLE_DEFAULT_CANDIDATE : null);
+const SHARED_REST_BASELINE_URL = './assets/crimson/crimson_shared_rest_baseline.json';
+const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate') || (REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_DEFAULT_CANDIDATE : REQUESTED_IDLE_REVIEW ? IDLE_DEFAULT_CANDIDATE : null);
 const REQUESTED_ATTACK_TIME = URL_PARAMS.get('attackTime');
 const REQUESTED_MANUAL_ATTACK = URL_PARAMS.get('manual') === '1' || URL_PARAMS.get('edit') === 'manual';
 const REQUESTED_ATTACK_QUARANTINED = ['attack1', 'attack', 'onehandattack1'].includes(String(REQUESTED_POSE || '').toLowerCase());
@@ -769,6 +769,7 @@ const fistHandVisuals = [];
 const fistHandControlBones = new Map();
 let readyPosePreset = null;
 let fistReadyPosePreset = null;
+let sharedRestBaseline = null;
 let attackPoseSequence = null;
 let attackPoseStartedAt = null;
 let attackPoseFixedTime = null;
@@ -1121,6 +1122,15 @@ function quaternionFromArray(values) {
     Number(values?.[2] || 0),
     Number(values?.[3] ?? 1)
   ).normalize();
+}
+
+function quaternionFromRotationDeg(values = [0, 0, 0]) {
+  return new THREE.Quaternion().setFromEuler(new THREE.Euler(
+    THREE.MathUtils.degToRad(Number(values[0]) || 0),
+    THREE.MathUtils.degToRad(Number(values[1]) || 0),
+    THREE.MathUtils.degToRad(Number(values[2]) || 0),
+    'XYZ'
+  )).normalize();
 }
 
 function vectorToFixedArray(vector) {
@@ -1572,7 +1582,10 @@ function stopPoseAnimation() {
 function applyPoseBones(bones = {}) {
   for (const [name, values] of Object.entries(bones)) {
     const bone = poseBones.get(name);
-    if (bone) bone.quaternion.copy(quaternionFromArray(values));
+    if (!bone) continue;
+    if (Array.isArray(values)) bone.quaternion.copy(quaternionFromArray(values));
+    else if (Array.isArray(values?.quaternion)) bone.quaternion.copy(quaternionFromArray(values.quaternion));
+    else if (Array.isArray(values?.rotationDeg)) bone.quaternion.copy(quaternionFromRotationDeg(values.rotationDeg));
   }
   root.updateMatrixWorld(true);
   updatePoseHandles();
@@ -1711,23 +1724,30 @@ function applyIdlePose() {
 
 function applySharedRestPose() {
   resetPose();
-  if (!attackPoseSequence) {
-    setToolMode('pose');
-    setMode('rotate');
-    poseState = 'sharedRest';
-    statusEl.textContent = 'SharedRest candidate missing; showing Crimson rest pose';
-    return;
-  }
   poseState = 'sharedRest';
   setSabreReviewVisible(true);
-  attackPoseFixedTime = 0;
-  attackPoseCurrentTime = 0;
-  attackPoseStartedAt = null;
-  applyAttackSequenceAt(0);
+  if (sharedRestBaseline) {
+    applyPoseBones(sharedRestBaseline.pose?.bones || {});
+    applySaberFkSnapshot({
+      saberGrip: {
+        position: sharedRestBaseline.saberGripLocal?.position,
+        quaternion: quaternionToFixedArray(quaternionFromRotationDeg(sharedRestBaseline.saberGripLocal?.rotationDeg)),
+        scale: sharedRestBaseline.saberGripLocal?.scale,
+      },
+      sabreLocal: {
+        position: sharedRestBaseline.sabreLocal?.position,
+        quaternion: quaternionToFixedArray(quaternionFromRotationDeg(sharedRestBaseline.sabreLocal?.rotationDeg)),
+        scale: sharedRestBaseline.sabreLocal?.scale,
+      },
+    });
+  }
   setToolMode('pose');
   setMode('rotate');
   setAttackReviewOpen(false);
-  statusEl.textContent = `SharedRest static pose: ${REQUESTED_CANDIDATE}; no animation playback`;
+  const footStatus = sharedRestBaseline?.footTruth?.status || 'missing-foot-truth';
+  statusEl.textContent = sharedRestBaseline
+    ? `SharedRest baseline: ${sharedRestBaseline.id}; foot truth ${footStatus}; no animation playback`
+    : 'SharedRest baseline missing; showing Crimson rest pose';
 }
 
 function applyAttackPose() {
@@ -1910,12 +1930,17 @@ function saveManualAttackKey() {
   persistManualAttackKey();
 }
 
-function sequenceFrameAt(sequence, time) {
+function sequenceFrameAt(sequence, time, { loop = false } = {}) {
   const frames = sequence?.frames || [];
   if (!frames.length) return null;
-  if (frames.length === 1 || time <= frames[0].time) return frames[0];
-  const duration = sequence.source?.duration || frames[frames.length - 1].time || 0;
-  const normalizedTime = duration > 0 ? ((time % duration) + duration) % duration : time;
+  const first = frames[0];
+  const last = frames[frames.length - 1];
+  const duration = sequence.source?.duration || last.time || 0;
+  const rawTime = Number(time) || 0;
+  const normalizedTime = loop && duration > 0
+    ? ((rawTime % duration) + duration) % duration
+    : THREE.MathUtils.clamp(rawTime, first.time, duration || last.time);
+  if (frames.length === 1 || normalizedTime <= first.time) return first;
   for (let i = 1; i < frames.length; i += 1) {
     const previous = frames[i - 1];
     const next = frames[i];
@@ -1925,7 +1950,7 @@ function sequenceFrameAt(sequence, time) {
       return { time: normalizedTime, bones: interpolatePoseBones(previous.bones, next.bones, alpha) };
     }
   }
-  return frames[frames.length - 1];
+  return last;
 }
 
 function interpolatePoseBones(a = {}, b = {}, alpha = 0) {
@@ -1940,8 +1965,8 @@ function interpolatePoseBones(a = {}, b = {}, alpha = 0) {
   return bones;
 }
 
-function applyAttackSequenceAt(time) {
-  const frame = sequenceFrameAt(attackPoseSequence, time);
+function applyAttackSequenceAt(time, options = {}) {
+  const frame = sequenceFrameAt(attackPoseSequence, time, options);
   if (!frame) return;
   setSabreReviewVisible(!attackPoseSequence?.source?.weaponless);
   attackPoseCurrentTime = frame.time;
@@ -2355,13 +2380,24 @@ async function loadPosePresets({ announce = true } = {}) {
   });
 }
 
+async function loadSharedRestBaseline() {
+  if (!REQUESTED_SHARED_REST) return;
+  const cacheBust = URL_PARAMS.get('cacheBust');
+  const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
+  const response = await fetch(`${SHARED_REST_BASELINE_URL}${suffix}`, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`failed SharedRest baseline ${response.status}`);
+  sharedRestBaseline = await response.json();
+  if (sharedRestBaseline?.schema !== 'pose-lab-v2-crimson-shared-rest-baseline-v1') throw new Error('SharedRest baseline schema mismatch');
+  markBootTiming('sharedRestBaselineLoaded');
+}
+
 async function loadReviewCandidate() {
   const cacheBust = URL_PARAMS.get('cacheBust');
   const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
   const candidates = REQUESTED_IDLE_REVIEW ? DAVIN_IDLE_REVIEW_CANDIDATES : REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_REVIEW_CANDIDATES : ATTACK1_REVIEW_CANDIDATES;
   const candidate = candidates[REQUESTED_CANDIDATE];
   if (!candidate) return;
-  const shouldLoad = REQUESTED_SHARED_REST || REQUESTED_IDLE_REVIEW || REQUESTED_LOWBACKKICK_REVIEW || REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED;
+  const shouldLoad = REQUESTED_IDLE_REVIEW || REQUESTED_LOWBACKKICK_REVIEW || REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED;
   if (!shouldLoad) return;
   const candidateModule = await import(`${candidate.module}${suffix}`);
   attackPoseSequence = candidateModule[candidate.exportName];
@@ -3680,6 +3716,7 @@ async function boot() {
     ACTIVE_CHARACTER.supportsBakedPoseStates
       ? loadPosePresets({ announce: false })
       : Promise.resolve(null),
+    loadSharedRestBaseline(),
     loadReviewCandidate(),
   ]);
   const fistHandsPromise = FIST_VISUAL_REVIEW && ACTIVE_CHARACTER.supportsFistHands
@@ -3882,7 +3919,7 @@ function animate() {
     applyManualAttackFrameAt(elapsed);
   } else if (isSequenceReviewState() && attackPoseSequence) {
     const elapsed = attackPoseFixedTime ?? ((performance.now() - (attackPoseStartedAt ?? performance.now())) / 1000);
-    applyAttackSequenceAt(elapsed);
+    applyAttackSequenceAt(elapsed, { loop: true });
   }
   if (viewMode === 'orbit') controls.update();
   else updateFirstPersonCamera();

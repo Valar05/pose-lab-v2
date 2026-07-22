@@ -79,11 +79,9 @@ function ensureBrowserShim() {
 function ensureThreeSandbox() {
   const sandbox = path.join(os.tmpdir(), 'pose-lab-v2-three-node');
   const threeDir = path.join(sandbox, 'node_modules', 'three');
-  if (!fs.existsSync(path.join(threeDir, 'build', 'three.module.js'))) {
-    fs.rmSync(sandbox, { recursive: true, force: true });
-    fs.mkdirSync(path.dirname(threeDir), { recursive: true });
-    execFileSync('cp', ['-R', path.join(projectRoot, 'vendor', 'three'), threeDir]);
-  }
+  fs.rmSync(sandbox, { recursive: true, force: true });
+  fs.mkdirSync(path.dirname(threeDir), { recursive: true });
+  execFileSync('cp', ['-R', path.join(projectRoot, 'vendor', 'three'), threeDir]);
   return sandbox;
 }
 
