@@ -42,6 +42,13 @@ export const ATTACK1_REVIEW_CANDIDATES = {
     characterKey: "crimson",
     status: "rejected",
   },
+  "crimson-combat-ready-vanguard-frame0-3": {
+    module: "./review-candidates/crimson-combat-ready-vanguard-frame0-3.js",
+    exportName: "CRIMSON_COMBAT_READY_VANGUARD_FRAME0_3_SEQUENCE",
+    label: "Crimson combat-ready frame zero 3 (Blender glTF export; user gate pending)",
+    characterKey: "crimson",
+    status: "visual-pending",
+  },
   "attack1-candidate-1": {
     module: "./review-candidates/attack1-candidate-1.js",
     exportName: "ATTACK1_POSE_SEQUENCE",
