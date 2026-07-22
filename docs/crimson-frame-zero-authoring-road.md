@@ -48,12 +48,9 @@ python3 tools/stitch_crimson_vanguard_attack1_compare.py \
 Expected artifact contents:
 
 - `01-start.png`: Vanguard and Crimson together.
-- `01-start-close-front.png`
-- `01-start-close-three-quarter.png`
-- `01-start-close-profile-left.png`
-- `01-start-close-profile-right.png`
-- `01-start-close-rear.png`
-- `contact_sheet.png`: all six views, large enough to inspect.
+- `01-start-reference-close-*.png`: five same-scale Vanguard reference views.
+- `01-start-crimson-close-*.png`: five matching Crimson views.
+- `contact_sheet.png`: the shared comparison plus all ten close views, large enough to inspect.
 - `manifest.json`: authored inputs, joint/foot diagnostics, hashes, and status.
 - `authored_frame_zero.glb`: the exact one-frame Blender action.
 
@@ -88,6 +85,7 @@ Do not casually retune these after they pass:
 | Commit | Verdict | Preserved | Rejected because | Next bounded change |
 |---|---|---|---|---|
 | `fc2cbaba` | Rejected | Ground contact and coherent knee planes | Square vertical torso; centered roof over face; hiked shoulders; lateral-looking stance; weapon presented above body | Increase depth stagger and body turn; move hand cluster off center and down; keep elbows unequal |
-| `c9150bea` | Pending render | Grounding code unchanged | Not yet visually judged | Inspect the six-view artifact before any new pose edit |
+| `c9150bea` | Rejected | Ground contact; coherent depth stagger in profile | Grip and blade still occupy the face plane; shoulders remain lifted; source is too small for reliable next-pass authorship | Add same-scale source and Crimson review angles before another pose edit |
+| `ab616b2f` | Pending evidence | Pose unchanged from `c9150bea` | Not a pose verdict; this pass repairs visual authority | Inspect paired same-scale source/Crimson views, then name one bounded pose correction |
 
 Append a row for every pass. Never rewrite a rejection into a success because a later pass improved.
