@@ -1401,10 +1401,14 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     )
     neck = find_pose_bone_world(target_armature, "neck").translation
     # Keep the entire two-hand guard unmistakably below the face.  The first
-    # palm-proxy render cleared the dedicated front and three-quarter cameras
-    # but missed the shared comparison camera by roughly one pixel at -0.24.
-    # Move the authored target, never the clearance threshold.
-    right_hand_target = neck + Vector((-0.48 * shoulder_span, -0.22 * torso_height, -0.30 * torso_height))
+    # Mesh-hull review proved that the proxy-era target still put both visible
+    # gauntlets at helmet height in the right profile. Lower and extend the
+    # whole guard cluster; never weaken the silhouette-clearance thresholds.
+    right_hand_target = neck + Vector((
+        -0.48 * shoulder_span,
+        -0.34 * torso_height,
+        -0.52 * torso_height,
+    ))
     # The support hand occupies the pommel side of the same grip line. This is
     # an authored body-scale relationship, not a second independent hand pose.
     left_hand_target = right_hand_target + Vector((
@@ -1414,8 +1418,8 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     ))
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
-    right_elbow_hint = right_shoulder + Vector((-0.25 * shoulder_span, -0.10 * torso_height, -0.34 * torso_height))
-    left_elbow_hint = left_shoulder + Vector((-0.15 * shoulder_span, 0.04 * torso_height, -0.30 * torso_height))
+    right_elbow_hint = right_shoulder + Vector((-0.25 * shoulder_span, -0.14 * torso_height, -0.46 * torso_height))
+    left_elbow_hint = left_shoulder + Vector((-0.15 * shoulder_span, 0.02 * torso_height, -0.42 * torso_height))
     arm_reports = [
         solve_two_bone_elbow_wrist_pin(
             target_armature,
@@ -2380,8 +2384,9 @@ def pin_left_support_palm_to_handle(
     right_center_axis = (right_palm - hilt).dot(handle_direction)
     surface_gap = torso_height * GRIP_SURFACE_CLEARANCE_TORSO_FRACTION
     elbow_hint = find_pose_bone_world(armature, "LeftForeArm").translation.copy()
+    tolerance = torso_height * 0.01
     iterations = []
-    for index in range(3):
+    for index in range(12):
         wrist_before = find_pose_bone_world(armature, "LeftHand").translation.copy()
         palm_before, points_before, evidence_before = hand_mesh_landmark(
             body_objects,
@@ -2430,6 +2435,8 @@ def pin_left_support_palm_to_handle(
             "palmMeshEvidence": evidence_after,
             "pin": pin,
         })
+        if (palm_after - palm_target).length <= tolerance:
+            break
     actual_palm, actual_points, actual_palm_evidence = hand_mesh_landmark(
         body_objects,
         armature,
@@ -2455,7 +2462,6 @@ def pin_left_support_palm_to_handle(
         )
     palm_target = hilt + handle_direction * target_axis
     palm_error = (actual_palm - palm_target).length
-    tolerance = torso_height * 0.01
     return {
         "status": "PASS" if palm_error <= tolerance else "FAIL",
         "authority": "post-blade-orientation left-arm pin to actual hilt-pommel segment",

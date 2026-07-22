@@ -71,8 +71,8 @@ Inspect in this order:
 4. Force line: rear foot → pelvis → trunk → hands.
 5. Shoulders: clavicles remain quiet; upper arms do not manufacture a shrug.
 6. Guard: hands form one off-center grip cluster; elbows are unequal and below the hands.
-7. Face: readable from front and three-quarter views.
-8. Weapon: hilt meets the weapon hand; blade clears helmet and body in both profiles.
+7. Face: readable from primary, front, three-quarter, both profiles, and rear views.
+8. Weapon: guard sits outside the top hand, handle crosses both visible gauntlets, and blade clears the helmet/plume silhouette in every review view.
 9. Silhouette: Crimson expresses the same loaded sentence as Vanguard without copying his transforms.
 
 ## Protected working facts
@@ -87,8 +87,9 @@ Do not casually retune these after they pass:
 - center and lower-body local transforms captured before arm authoring.
 - the rejected `480eb888` GLB hash `4e57cc6a443b6cdd0cae1177357536234e4c4e7de98069e7027af74070bd0b56` as the no-op baseline.
 - exact protected Hips, center, head, and leg channels from `crimson-frame-zero-480eb888-protected-baseline.json`.
-- a two-hand weapon contract: right palm on the hilt, left hand on the hilt-to-pommel segment, and both forearms clear of the face in the gated views.
-- a `0.06` torso-height palm proxy advanced from each wrist along its solved forearm ray; imported Hand tails are explicitly outside the grip contract.
+- a two-hand weapon contract built from dominant skinned Hand vertices: the crossguard's pommel-side face sits just outside the top hand, the handle passes through both visible hand centroids, the hand surfaces do not overlap, and the support hand remains inside the pommel.
+- dominant Hand mesh landmarks (`Hand >= 0.75`, same-side `ForeArm <= 0.05`, at least 250 vertices, mean Hand weight `>= 0.95`, wrist distance `0.20–0.50` torso-height); imported Hand tails and guessed wrist offsets are explicitly outside the grip contract.
+- a dominant-Head mesh silhouette (`Head >= 0.75`) plus freshly evaluated camera matrices for every arm, hand, blade, and crossguard clearance view; `Head.tail` is explicitly outside the visual contract.
 - measured protected-body round-trip tolerances (`0.00002` position, `0.000001` sign-invariant quaternion, `0.0000002` in-memory basis) that cover Blender/glTF numeric quantization but not authored motion.
 
 ## Verdict ledger
@@ -105,5 +106,7 @@ Do not casually retune these after they pass:
 | `480eb888` | Rejected baseline | Crimson pose byte-for-byte unchanged from `fe15d7af`; paired source/target sheet is legible; Vanguard and Crimson boots visibly contact the plane | Arms still obscure the face, hilt contact is unreadable, and repeated screenshots did not show a materially new pose | Keep this artifact only as the no-op comparison; do not hand it off again |
 | `d5a26d45` | Rejected in authoring CI | Exact `480eb888` center/lower body; materially new arm silhouette; stable palm proxies; converged two-hand grip; sword visible; front and three-quarter face clearance pass | The right hand misses the shared comparison-camera face-clearance gate by about one pixel; committed placeholder parity is also intentionally red | Lower the authored two-hand guard target while preserving every accepted body and grip contract |
 | `faf6e22e` | Blender gates passed; visual-pending | Exact `480eb888` center/lower body; materially lowered arms; readable face; converged two-hand grip; visible sword; all authored geometry gates pass | Browser candidate parity has not run because the committed candidate is still the intentional red placeholder | Commit only the exact generated candidate bytes, then require browser ID/pose/GLB/module/apply-proof parity before handoff |
+| `87338ea7` | Rejected after exact browser parity | Exact authored candidate/GLB/module/application parity; accepted center/lower body; arms materially clear the face | Close browser views reveal the blade crossing the visor/plume and the guard sitting beside the wrist; the small contact sheet hid both defects | Replace proxy grip evidence with visible skinned hand geometry and gate blade/crossguard against the actual head silhouette |
+| `76187af1` | Rejected in authoring CI | Exact accepted center/lower body; dominant-hand grip geometry and crossguard seating pass; fresh-camera mesh gates expose the true view state | Support-hand iteration stops before convergence; both gauntlets touch the head silhouette in the right profile; blade misses the head margin in primary/front/three-quarter/rear | Lower and extend the whole guard cluster while preserving the grip geometry; iterate support-hand pin to measured tolerance |
 
 Append a row for every pass. Never rewrite a rejection into a success because a later pass improved.
