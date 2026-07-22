@@ -1119,11 +1119,13 @@ def main() -> None:
     normalize_and_offset(crimson_objects, 1.7, 1.05)
     author_report = None
     if args.author_frame_zero:
-        set_frame(0, 24)
+        source_start_time = float(reference["samples"]["start"]["sourceTime"])
+        set_frame(source_start_time, 24)
         suppress_vanguard_root_motion(vanguard_armature)
         source_ground_offset = mesh_bounds(vanguard_objects)[0].z
         translate_import(vanguard_objects, Vector((0, 0, -source_ground_offset)))
         author_report = author_crimson_frame_zero(vanguard_armature, crimson_armature, reference["logicalBones"])
+        author_report["sourceStartTime"] = source_start_time
         author_report["sourceGroundOffset"] = round(source_ground_offset, 5)
         author_report["crimsonGroundOffset"] = round(settle_crimson_boots(crimson_objects, crimson_armature), 5)
     else:
