@@ -86,6 +86,7 @@ Do not casually retune these after they pass:
 |---|---|---|---|---|
 | `fc2cbaba` | Rejected | Ground contact and coherent knee planes | Square vertical torso; centered roof over face; hiked shoulders; lateral-looking stance; weapon presented above body | Increase depth stagger and body turn; move hand cluster off center and down; keep elbows unequal |
 | `c9150bea` | Rejected | Ground contact; coherent depth stagger in profile | Grip and blade still occupy the face plane; shoulders remain lifted; source is too small for reliable next-pass authorship | Add same-scale source and Crimson review angles before another pose edit |
-| `ab616b2f` | Pending evidence | Pose unchanged from `c9150bea` | Not a pose verdict; this pass repairs visual authority | Inspect paired same-scale source/Crimson views, then name one bounded pose correction |
+| `ab616b2f` | Evidence gate passed | Pose unchanged from `c9150bea`; same-scale paired views now exist | Not a pose verdict | Freeze lower body and blade angle; repair the high-hand/low-elbow guard triangle |
+| `fe15d7af` | Pending render | Lower body, body turn, and blade direction frozen | Awaiting paired-view inspection | Accept or reject the guard triangle before changing another relationship |
 
 Append a row for every pass. Never rewrite a rejection into a success because a later pass improved.
