@@ -201,7 +201,7 @@ const POSE_STATE_ORDER = ['rest', 'ready', 'fistReady', 'sharedRest', 'attack1']
 const IMPORTED_POSE_STATE_ORDER = ['rest'];
 function activePoseStateOrder() {
   if (ACTIVE_CHARACTER.supportsBakedPoseStates) return POSE_STATE_ORDER;
-  if (REQUESTED_ATTACK_QUARANTINED && REQUESTED_CANDIDATE && ACTIVE_CHARACTER.supportsAttackReview !== false) return ['rest', 'attack1'];
+  if (REQUESTED_ATTACK_QUARANTINED && (REQUESTED_MANUAL_ATTACK || REQUESTED_CANDIDATE) && ACTIVE_CHARACTER.supportsAttackReview !== false) return ['rest', 'attack1'];
   if (REQUESTED_IDLE_REVIEW) return ['rest', 'idle'];
   return REQUESTED_LOWBACKKICK_REVIEW ? ['rest', 'lowBackKick'] : IMPORTED_POSE_STATE_ORDER;
 }
@@ -254,7 +254,9 @@ function poseIsAccepted(name) {
 }
 
 function useManualAttackAuthoring() {
-  return ACTIVE_CHARACTER.supportsBakedPoseStates && !REQUESTED_ATTACK2_QUARANTINED && (REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE);
+  return !REQUESTED_ATTACK2_QUARANTINED
+    && (ACTIVE_CHARACTER.supportsBakedPoseStates || (REQUESTED_MANUAL_ATTACK && ACTIVE_CHARACTER.supportsAttackReview !== false))
+    && (REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE);
 }
 
 function canExposeAttackReview() {
@@ -1787,7 +1789,7 @@ function applySharedRestPose() {
 function applyAttackPose() {
   const candidateId = REQUESTED_CANDIDATE;
   const explicitCandidateReview = Boolean(attackPoseSequence && candidateId && ACTIVE_CHARACTER.supportsAttackReview !== false);
-  if (!ACTIVE_CHARACTER.supportsBakedPoseStates && !explicitCandidateReview) {
+  if (!ACTIVE_CHARACTER.supportsBakedPoseStates && !explicitCandidateReview && !useManualAttackAuthoring()) {
     resetPose();
     setToolMode('pose');
     setMode('rotate');
@@ -1809,7 +1811,7 @@ function applyAttackPose() {
     setMode('rotate');
     setupAttackReviewControls();
     setAttackReviewOpen(true);
-    statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
+    statusEl.textContent = `Attack1 manual: compose ${ACTIVE_CHARACTER.label} directly; Save Key stores frame zero`;
     return;
   }
   if (attackPoseSequence && candidateId) {
@@ -1851,10 +1853,10 @@ function createManualAttackDraft() {
   }
   manualAttackDraft = {
     schema: 'pose-lab-v2-manual-animation-v1',
-    label: 'Attack1 manual blank-Ready draft',
+    label: `${ACTIVE_CHARACTER.label} Attack1 manual keyframe draft`,
     source: {
       readyPreset: readyPosePreset?.label || null,
-      seed: 'blank-ready-per-key',
+      seed: ACTIVE_CHARACTER.supportsBakedPoseStates ? 'blank-ready-per-key' : 'character-rest-per-key',
       candidateFramesUsed: false,
     },
     duration: MANUAL_ATTACK_DURATION,
@@ -2336,7 +2338,7 @@ function initialPoseStateFromUrl() {
   if (REQUESTED_SHARED_REST) return 'sharedRest';
   if (REQUESTED_IDLE_REVIEW) return 'idle';
   if (REQUESTED_LOWBACKKICK_REVIEW) return 'lowBackKick';
-  if ((ACTIVE_CHARACTER.supportsBakedPoseStates || (REQUESTED_CANDIDATE && ACTIVE_CHARACTER.supportsAttackReview !== false)) && (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED)) return 'attack1';
+  if ((ACTIVE_CHARACTER.supportsBakedPoseStates || ((REQUESTED_MANUAL_ATTACK || REQUESTED_CANDIDATE) && ACTIVE_CHARACTER.supportsAttackReview !== false)) && (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED)) return 'attack1';
   return 'rest';
 }
 
@@ -2893,7 +2895,7 @@ function exportManualAttackDraft() {
     schema: 'pose-lab-v2-manual-animation-v1',
     toolMode,
     status: 'manual-review',
-    label: 'Attack1 manual blank-Ready draft',
+    label: `${ACTIVE_CHARACTER.label} Attack1 manual keyframe draft`,
     assets: {
       character: ACTIVE_CHARACTER.asset,
       characterKey: ACTIVE_CHARACTER.key,
@@ -2904,7 +2906,7 @@ function exportManualAttackDraft() {
     },
     source: {
       readyPreset: readyPosePreset?.label || null,
-      seed: 'blank-ready-per-key',
+      seed: ACTIVE_CHARACTER.supportsBakedPoseStates ? 'blank-ready-per-key' : 'character-rest-per-key',
       candidateFramesUsed: false,
     },
     duration: manualAttackDraft.duration,
@@ -3800,7 +3802,7 @@ async function boot() {
       setPoseState(requestedPoseState);
       updateReviewReady();
       if (useManualAttackAuthoring() && poseState === 'attack1') {
-        statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
+        statusEl.textContent = `Attack1 manual: compose ${ACTIVE_CHARACTER.label} directly; Save Key stores frame zero`;
       } else if (attackPoseSequence && REQUESTED_CANDIDATE && isSequenceReviewState()) {
         statusEl.textContent = `${REQUESTED_ATTACK_LABEL} candidate preview: ${REQUESTED_CANDIDATE}; ${attackPoseFixedTime === null ? 'playing' : `${attackPoseCurrentTime.toFixed(3)}s`}`;
       } else if (REQUESTED_LOWBACKKICK_REVIEW) {
