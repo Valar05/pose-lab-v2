@@ -877,8 +877,41 @@ def weighted_bone_min_z(objects: list[bpy.types.Object], bone_names: list[str]) 
                     points.append((evaluated.matrix_world @ vertex.co).z)
         finally:
             evaluated.to_mesh_clear()
+    if points:
+        return min(points)
+    raise RuntimeError(f"no weighted mesh vertices found for ground bones: {sorted(wanted)}")
+
+
+def nearby_bone_mesh_min_z(
+    objects: list[bpy.types.Object],
+    armature: bpy.types.Object,
+    bone_names: list[str],
+    radius: float = 0.28,
+) -> float:
+    """Ground unweighted source rigs from visible vertices local to mapped foot bones."""
+    origins = [
+        find_pose_bone_world(armature, name).translation
+        for name in bone_names
+        if name and armature.pose.bones.get(name)
+    ]
+    if not origins:
+        raise RuntimeError(f"source armature has none of the mapped ground bones: {bone_names}")
+    points = []
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    for obj in objects:
+        if obj.type != "MESH":
+            continue
+        evaluated = obj.evaluated_get(depsgraph)
+        mesh = evaluated.to_mesh()
+        try:
+            for vertex in mesh.vertices:
+                world = evaluated.matrix_world @ vertex.co
+                if min((world - origin).length for origin in origins) <= radius:
+                    points.append(world.z)
+        finally:
+            evaluated.to_mesh_clear()
     if not points:
-        raise RuntimeError(f"no weighted mesh vertices found for ground bones: {sorted(wanted)}")
+        raise RuntimeError(f"no visible mesh vertices found near mapped ground bones: {bone_names}")
     return min(points)
 
 
@@ -1164,12 +1197,22 @@ def main() -> None:
             reference["logicalBones"].get("LeftFoot"),
             reference["logicalBones"].get("RightFoot"),
         ]
-        source_ground_offset = weighted_bone_min_z(vanguard_objects, source_foot_bones)
+        try:
+            source_ground_offset = weighted_bone_min_z(vanguard_objects, source_foot_bones)
+            source_ground_method = "foot-weighted vertices"
+        except RuntimeError:
+            source_ground_offset = nearby_bone_mesh_min_z(
+                vanguard_objects,
+                vanguard_armature,
+                source_foot_bones,
+            )
+            source_ground_method = "mesh vertices near mapped foot bones"
         vanguard_stage.location.z -= source_ground_offset
         bpy.context.view_layer.update()
         author_report = author_crimson_frame_zero(vanguard_armature, crimson_armature, reference["logicalBones"])
         author_report["sourceStartTime"] = source_start_time
         author_report["sourceGroundBones"] = source_foot_bones
+        author_report["sourceGroundMethod"] = source_ground_method
         author_report["sourceGroundOffset"] = round(source_ground_offset, 5)
         author_report["crimsonGroundOffset"] = round(settle_crimson_boots(crimson_objects, crimson_armature), 5)
     else:
