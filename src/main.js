@@ -797,6 +797,7 @@ const pointers = new Map();
 const poseBones = new Map();
 const poseHandles = new Map();
 const poseBoneRestQuaternions = new Map();
+const poseBoneRestPositions = new Map();
 const readyDeltaMarkers = {
   restHand: new THREE.Mesh(readyDeltaGeometry, readyRestMaterial),
   readyHand: new THREE.Mesh(readyDeltaGeometry, readyReadyMaterial),
@@ -1513,12 +1514,14 @@ function setupPoseHandles() {
   poseBones.clear();
   poseHandles.clear();
   poseBoneRestQuaternions.clear();
+  poseBoneRestPositions.clear();
   for (const name of activePoseHandleNames()) {
     const bone = findPoseBone(name);
     if (!bone) continue;
     poseBones.set(name, bone);
     bone.userData.poseLabV2LogicalName = name;
     poseBoneRestQuaternions.set(name, bone.quaternion.clone());
+    poseBoneRestPositions.set(name, bone.position.clone());
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(POSE_HANDLE_POSITION_FLOATS), 3));
     const handle = new THREE.Mesh(geometry, poseHandleMaterial.clone());
@@ -1627,6 +1630,16 @@ function applyPoseBones(bones = {}) {
   updatePoseHandles();
 }
 
+function applyPosePositions(positions = {}) {
+  for (const [name, values] of Object.entries(positions)) {
+    const bone = poseBones.get(name);
+    if (!bone || !Array.isArray(values)) continue;
+    bone.position.fromArray(values);
+  }
+  root.updateMatrixWorld(true);
+  updatePoseHandles();
+}
+
 function snapshotPoseBones() {
   const bones = {};
   for (const [name, bone] of poseBones) {
@@ -1682,7 +1695,9 @@ function resetPose() {
   setSabreReviewVisible(true);
   for (const [name, bone] of poseBones) {
     const rest = poseBoneRestQuaternions.get(name);
+    const restPosition = poseBoneRestPositions.get(name);
     if (rest) bone.quaternion.copy(rest);
+    if (restPosition) bone.position.copy(restPosition);
   }
   poseState = 'rest';
   selectedPoseBone = null;
@@ -1983,7 +1998,13 @@ function sequenceFrameAt(sequence, time, { loop = false } = {}) {
     if (normalizedTime <= next.time) {
       const span = Math.max(0.000001, next.time - previous.time);
       const alpha = THREE.MathUtils.clamp((normalizedTime - previous.time) / span, 0, 1);
-      return { time: normalizedTime, bones: interpolatePoseBones(previous.bones, next.bones, alpha) };
+      return {
+        time: normalizedTime,
+        bones: interpolatePoseBones(previous.bones, next.bones, alpha),
+        positions: interpolatePosePositions(previous.positions, next.positions, alpha),
+        saberGrip: alpha < 0.5 ? previous.saberGrip : next.saberGrip,
+        sabreLocal: alpha < 0.5 ? previous.sabreLocal : next.sabreLocal,
+      };
     }
   }
   return last;
@@ -2001,12 +2022,28 @@ function interpolatePoseBones(a = {}, b = {}, alpha = 0) {
   return bones;
 }
 
+function interpolatePosePositions(a = {}, b = {}, alpha = 0) {
+  const positions = {};
+  const names = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
+  for (const name of names) {
+    const left = a?.[name] || b?.[name];
+    const right = b?.[name] || left;
+    if (!left || !right) continue;
+    positions[name] = vectorToFixedArray(
+      new THREE.Vector3().fromArray(left).lerp(new THREE.Vector3().fromArray(right), alpha),
+    );
+  }
+  return positions;
+}
+
 function applyAttackSequenceAt(time, options = {}) {
   const frame = sequenceFrameAt(attackPoseSequence, time, options);
   if (!frame) return;
   setSabreReviewVisible(!attackPoseSequence?.source?.weaponless);
   attackPoseCurrentTime = frame.time;
   applyPoseBones(frame.bones || {});
+  applyPosePositions(frame.positions || {});
+  applySaberFkSnapshot(frame);
   alignSaberGripToWorldDirection(attackPoseSequence?.source?.runtimeBladeWorldDirection);
   seatSaberHiltTowardHand(attackPoseSequence?.source?.runtimeHiltSeatBlend);
   updateAttackReviewControls();
