@@ -212,6 +212,18 @@ def top_level(objects: list[bpy.types.Object]) -> list[bpy.types.Object]:
     return [obj for obj in objects if obj.parent not in owned]
 
 
+def create_stage_root(objects: list[bpy.types.Object], name: str) -> bpy.types.Object:
+    """Parent imported roots under one non-animated transform that survives frame evaluation."""
+    stage = bpy.data.objects.new(name, None)
+    bpy.context.collection.objects.link(stage)
+    for obj in top_level(objects):
+        world = obj.matrix_world.copy()
+        obj.parent = stage
+        obj.matrix_world = world
+    bpy.context.view_layer.update()
+    return stage
+
+
 def find_armature(objects: list[bpy.types.Object], label: str) -> bpy.types.Object:
     for obj in objects:
         if obj.type == "ARMATURE":
@@ -1114,6 +1126,7 @@ def main() -> None:
     vanguard_armature = find_armature(vanguard_objects, "Vanguard")
     activate_named_action(vanguard_armature, "SwordAttack1_rig")
     normalize_and_offset(vanguard_objects, 1.7, -1.05)
+    vanguard_stage = create_stage_root(vanguard_objects, "vanguard_evidence_stage")
     crimson_objects = import_glb(crimson_anim)
     crimson_armature = find_armature(crimson_objects, "Crimson")
     normalize_and_offset(crimson_objects, 1.7, 1.05)
@@ -1123,7 +1136,8 @@ def main() -> None:
         set_frame(source_start_time, 24)
         suppress_vanguard_root_motion(vanguard_armature)
         source_ground_offset = mesh_bounds(vanguard_objects)[0].z
-        translate_import(vanguard_objects, Vector((0, 0, -source_ground_offset)))
+        vanguard_stage.location.z -= source_ground_offset
+        bpy.context.view_layer.update()
         author_report = author_crimson_frame_zero(vanguard_armature, crimson_armature, reference["logicalBones"])
         author_report["sourceStartTime"] = source_start_time
         author_report["sourceGroundOffset"] = round(source_ground_offset, 5)
