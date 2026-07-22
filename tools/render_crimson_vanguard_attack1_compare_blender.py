@@ -761,8 +761,8 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             - find_pose_bone_world(target_armature, "Hips").translation
         ).length,
     )
-    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.10 * shoulder_span, -0.48 * torso_height, 0.26 * torso_height))
-    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.04 * shoulder_span, -0.49 * torso_height, 0.36 * torso_height))
+    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.10 * shoulder_span, -0.48 * torso_height, 0.48 * torso_height))
+    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.04 * shoulder_span, -0.49 * torso_height, 0.58 * torso_height))
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
     arm_reports = [
