@@ -680,8 +680,8 @@ def aim_pose_bone_direction(armature: bpy.types.Object, bone_name: str, desired_
 
 def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> dict:
     # Vanguard remains on screen as visual reference only. This function never
-    # reads source_armature or logical_bones. Crimson is posed from her own rest
-    # rig, one FK bone at a time, using authored anatomical directions.
+    # reads source_armature or logical_bones. IK pins relationships deliberately
+    # chosen for Crimson; it does not derive targets from Vanguard.
     clear_pose(target_armature)
 
     preserved_feet = {
@@ -689,76 +689,114 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
         for name in ["LeftFoot", "RightFoot"]
     }
 
-    # Restrained center: the stance carries the action. The pelvis does not.
+    # Restrained center. The body inclines into the guard without asking the
+    # pelvis to manufacture the pose.
     center_rotations = [
-        ("Hips", (0, 0, 1), -4.0),
-        ("Hips", (1, 0, 0), -2.0),
-        ("Spine", (1, 0, 0), -6.0),
-        ("Spine01", (0, 0, 1), 3.0),
-        ("Spine02", (0, 0, 1), 4.0),
+        ("Hips", (0, 0, 1), -3.0),
+        ("Hips", (1, 0, 0), 3.0),
+        ("Spine", (1, 0, 0), 5.0),
+        ("Spine01", (0, 0, 1), 2.0),
+        ("Spine02", (0, 0, 1), 3.0),
         ("neck", (0, 0, 1), -2.0),
     ]
     for bone_name, axis, degrees in center_rotations:
         rotate_pose_bone_world_axis(target_armature, bone_name, Vector(axis), degrees)
 
-    # Front leg advances toward camera (-Y); both shins return beneath their
-    # knees. Side components keep each knee over its own foot rather than
-    # collapsing inward or corkscrewing at the hip.
-    authored_directions = [
-        ("LeftUpLeg", (0.070, -0.545, -0.835)),
-        ("LeftLeg", (-0.020, 0.055, -0.998)),
-        ("RightUpLeg", (-0.060, 0.345, -0.937)),
-        ("RightLeg", (0.020, -0.055, -0.998)),
-        # Upper arms descend and come forward from neutral clavicles.
-        ("LeftArm", (0.350, -0.400, -0.847)),
-        ("RightArm", (-0.350, -0.430, -0.832)),
-        # Forearms fold inward and upward into a compact two-hand guard.
-        ("LeftForeArm", (-0.820, -0.250, 0.515)),
-        ("RightForeArm", (0.815, -0.270, 0.513)),
+    # Native Crimson leg IK. End targets create the stagger; poles establish the
+    # knee planes. Both knees travel toward the threat (-Y), with a small outward
+    # component so neither chain corkscrews inward.
+    left_hip = find_pose_bone_world(target_armature, "LeftUpLeg").translation
+    right_hip = find_pose_bone_world(target_armature, "RightUpLeg").translation
+    left_ankle = find_pose_bone_world(target_armature, "LeftFoot").translation
+    right_ankle = find_pose_bone_world(target_armature, "RightFoot").translation
+    leg_scale = max((left_hip - left_ankle).length, (right_hip - right_ankle).length)
+    leg_reports = [
+        solve_chain_with_pole(
+            target_armature,
+            ["LeftUpLeg", "LeftLeg", "LeftFoot"],
+            left_ankle + Vector((0.10 * leg_scale, -0.24 * leg_scale, 0.0)),
+            left_hip + Vector((0.18 * leg_scale, -0.72 * leg_scale, -0.38 * leg_scale)),
+            iterations=24,
+        ),
+        solve_chain_with_pole(
+            target_armature,
+            ["RightUpLeg", "RightLeg", "RightFoot"],
+            right_ankle + Vector((-0.08 * leg_scale, 0.14 * leg_scale, 0.0)),
+            right_hip + Vector((-0.16 * leg_scale, -0.58 * leg_scale, -0.36 * leg_scale)),
+            iterations=24,
+        ),
     ]
-    posed = []
-    for bone_name, direction in authored_directions:
-        posed.append({
-            "bone": bone_name,
-            "desiredWorldDirection": list(direction),
-            "rotationAppliedDeg": round(aim_pose_bone_direction(target_armature, bone_name, direction), 3),
-        })
 
-    # Preserve the boot orientations after composing the leg chains. Ground
-    # settlement happens after the whole pose is authored.
+    # Restore flat boot orientation after the leg chains move the ankles.
     for name, rotation in preserved_feet.items():
         set_pose_bone_world_rotation(target_armature, name, rotation)
 
-    # Clavicles are intentionally neutral; hand roll is authored after the arm
-    # silhouette rather than paid for with shoulder distortion.
+    # Neutral clavicles first. The hands are close enough to own one hilt, but
+    # deliberately offset so the arms do not form a mirrored prayer knot.
     for shoulder_name in ["LeftShoulder", "RightShoulder"]:
         shoulder = target_armature.pose.bones.get(shoulder_name)
         if shoulder:
             shoulder.matrix_basis.identity()
     bpy.context.view_layer.update()
 
+    chest = find_pose_bone_world(target_armature, "Spine").translation
+    shoulder_span = (
+        find_pose_bone_world(target_armature, "LeftArm").translation
+        - find_pose_bone_world(target_armature, "RightArm").translation
+    ).length
+    torso_height = max(
+        0.001,
+        (
+            find_pose_bone_world(target_armature, "neck").translation
+            - find_pose_bone_world(target_armature, "Hips").translation
+        ).length,
+    )
+    right_hand_target = chest + Vector((-0.10 * shoulder_span, -0.56 * torso_height, 0.10 * torso_height))
+    left_hand_target = chest + Vector((0.16 * shoulder_span, -0.59 * torso_height, 0.18 * torso_height))
+    right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
+    left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
+    arm_reports = [
+        solve_chain_with_pole(
+            target_armature,
+            ["RightArm", "RightForeArm", "RightHand"],
+            right_hand_target,
+            right_shoulder + Vector((-0.95 * shoulder_span, -0.48 * torso_height, -0.08 * torso_height)),
+            iterations=28,
+        ),
+        solve_chain_with_pole(
+            target_armature,
+            ["LeftArm", "LeftForeArm", "LeftHand"],
+            left_hand_target,
+            left_shoulder + Vector((0.95 * shoulder_span, -0.44 * torso_height, -0.03 * torso_height)),
+            iterations=28,
+        ),
+    ]
+
+    # Small wrist rolls align rigid gauntlets after the arm silhouette is set.
     hand_rotations = [
-        ("RightHand", (0, 0, 1), 8.0),
-        ("RightHand", (0, 1, 0), -12.0),
-        ("LeftHand", (0, 0, 1), -10.0),
-        ("LeftHand", (0, 1, 0), 8.0),
+        ("RightHand", (0, 0, 1), 5.0),
+        ("RightHand", (0, 1, 0), -8.0),
+        ("LeftHand", (0, 0, 1), -6.0),
+        ("LeftHand", (0, 1, 0), 5.0),
     ]
     for bone_name, axis, degrees in hand_rotations:
         rotate_pose_bone_world_axis(target_armature, bone_name, Vector(axis), degrees)
 
     return {
-        "method": "crimson-native-direct-fk-world-direction-composition",
+        "method": "crimson-native-authored-ik-pins-plus-fk-keyframe",
         "sourceAuthority": "Vanguard pixels only; source armature and logical mapping are deliberately unread",
         "crossRigPoseInputs": [],
         "centerRotations": [
             {"bone": bone, "axisWorld": list(axis), "degrees": degrees}
             for bone, axis, degrees in center_rotations
         ],
-        "authoredBoneDirections": posed,
+        "legIk": leg_reports,
+        "armIk": arm_reports,
         "handRotations": [
             {"bone": bone, "axisWorld": list(axis), "degrees": degrees}
             for bone, axis, degrees in hand_rotations
         ],
+        "weaponContract": "Arborblade remains ordinary RightHand-child FK after the authored pose",
         "keyframeContract": "one authored Crimson pose at frame 1",
     }
 
@@ -993,7 +1031,7 @@ def evaluate_frame(label: str, camera: bpy.types.Object, vanguard_objects: list[
             failures.append({"code": "CRIMSON_BLADE_LINE_DIVERGES_FROM_VANGUARD", "actual": round(diff, 2), "expected": "<= 55 deg from Vanguard sword screen line"})
     if label in {"snapPrep", "contact"} and cbox["height"] < vbox["height"] * 0.55:
         failures.append({"code": "CRIMSON_BODY_SILHOUETTE_COLLAPSED_OR_HIDDEN", "actual": {"crimsonHeight": round(cbox["height"], 4), "vanguardHeight": round(vbox["height"], 4)}, "expected": "Crimson should remain readable beside Vanguard"})
-    ground_z = mesh_bounds(crimson_objects)[0].z
+    ground_z = 0.0
     feet = {side.lower(): foot_mesh_contact_metrics(crimson_objects, crimson_armature, side, ground_z) for side in ["Left", "Right"]}
     for side, foot in feet.items():
         if not foot:
