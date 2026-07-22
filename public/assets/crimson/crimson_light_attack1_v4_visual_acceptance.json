@@ -1,7 +1,9 @@
 {
   "schema": "pose-lab-v2-visual-acceptance-v1",
   "candidate": "crimson-light-attack1-vanguard-4",
-  "verdict": "accepted",
+  "verdict": "invalidated",
+  "invalidatedAt": "2026-07-22T16:16:00Z",
+  "invalidatedReason": "Human screenshot review proved the candidate is not a combat pose: Vanguard frame zero was erased by start-relative transfer, Crimson remained upright with flared arms and a vertical unowned sword, and floor-contact metrics substituted for weight-bearing stance.",
   "acceptedAt": "2026-07-22T15:25:00Z",
   "reviewer": "human-directed independent visual review",
   "evidence": {

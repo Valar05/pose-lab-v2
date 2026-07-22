@@ -10,14 +10,15 @@ import { CRIMSON_SABER_GRIP_LOCAL, CRIMSON_SWORD_LOCAL, CRIMSON_SWORD_REVIEW_LOC
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const crimsonPath = path.join(projectRoot, 'public/assets/crimson/crimson_plume_knight_rigged_pbr.glb');
 const swordPath = path.join(projectRoot, 'public/assets/crimson/arborblade_sword.glb');
+const vanguardPath = path.join(projectRoot, 'public/assets/vanguard/vanguard_rigged_animations.glb');
 const referencePath = path.join(projectRoot, 'public/assets/crimson/vanguard_swordattack1_reference.json');
 const baselinePath = path.join(projectRoot, 'public/assets/crimson/crimson_light_attack1_weapon_baseline.json');
 const sharedRestPath = path.join(projectRoot, 'public/assets/crimson/crimson_shared_rest_baseline.json');
-const outputPath = path.join(projectRoot, 'src', 'review-candidates', 'crimson-light-attack1-vanguard-4.js');
-const candidateId = 'crimson-light-attack1-vanguard-4';
-const exportName = 'CRIMSON_LIGHT_ATTACK1_VANGUARD_4_SEQUENCE';
-const frameLabels = ['start', 'earlyWindup', 'anticipation', 'snapPrep', 'contact', 'contactHold', 'settle', 'followThrough'];
-const primeKeys = { start: 0, earlyWindup: 0.1, anticipation: 0.183333, snapPrep: 0.283333, contact: 0.383333, contactHold: 0.5, settle: 0.566667, followThrough: 0.62 };
+const outputPath = path.join(projectRoot, 'src', 'review-candidates', 'crimson-combat-ready-vanguard-frame0-1.js');
+const candidateId = 'crimson-combat-ready-vanguard-frame0-1';
+const exportName = 'CRIMSON_COMBAT_READY_VANGUARD_FRAME0_1_SEQUENCE';
+const frameLabels = ['start'];
+const primeKeys = { start: 0 };
 const boneNames = [
   'Hips', 'Spine02', 'Spine01', 'Spine', 'neck', 'Head',
   'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase',
@@ -400,6 +401,51 @@ function targetForChain(THREE, root, sourceSample, sourceStartBasisInverse, targ
   return { targetMid, targetEnd };
 }
 
+function bodyBasisFromRig(THREE, root, names, label) {
+  const hips = requireNode(root, names.Hips).getWorldPosition(new THREE.Vector3());
+  const chest = requireNode(root, names.Spine02).getWorldPosition(new THREE.Vector3());
+  const leftShoulder = requireNode(root, names.LeftShoulder).getWorldPosition(new THREE.Vector3());
+  const rightShoulder = requireNode(root, names.RightShoulder).getWorldPosition(new THREE.Vector3());
+  const up = safeDirection(THREE, chest.clone().sub(hips), `${label} up`);
+  let right = safeDirection(THREE, rightShoulder.clone().sub(leftShoulder), `${label} right`);
+  right = safeDirection(THREE, right.sub(up.clone().multiplyScalar(right.dot(up))), `${label} orthogonal right`);
+  let forward = safeDirection(THREE, new THREE.Vector3().crossVectors(right, up), `${label} forward`);
+  right = safeDirection(THREE, new THREE.Vector3().crossVectors(up, forward), `${label} reorthogonalized right`);
+  forward = safeDirection(THREE, new THREE.Vector3().crossVectors(right, up), `${label} reorthogonalized forward`);
+  return new THREE.Matrix4().makeBasis(right, up, forward);
+}
+
+function captureWorldQuaternions(THREE, root, names) {
+  return Object.fromEntries(names.map((name) => [name, worldQuaternion(THREE, requireNode(root, name))]));
+}
+
+function applyAbsoluteSourceFrameZero(THREE, targetRoot, targetRestWorld, sourceRoot, reference, targetBodyBasis) {
+  const sourceNames = reference.logicalBones;
+  const sourceBodyBasis = basisMatrix(THREE, reference.samples.start.bodyBasis, 'Vanguard frame-zero body basis');
+  const sourceBodyQ = quaternionFromBasisMatrix(THREE, sourceBodyBasis, 'Vanguard frame-zero body basis');
+  const targetBodyQ = quaternionFromBasisMatrix(THREE, targetBodyBasis, 'Crimson bind basis');
+  const sourceToTarget = targetBodyQ.clone().multiply(sourceBodyQ.clone().invert()).normalize();
+  const sourceToTargetInverse = sourceToTarget.clone().invert();
+  const splitWeights = { Spine: 0.5, Spine01: 0.5 };
+  const applied = [];
+  for (const name of boneNames) {
+    const sourceName = sourceNames[name];
+    const sample = reference.samples.start.bones[name];
+    const targetBone = find(targetRoot, name);
+    const sourceBone = sourceName ? find(sourceRoot, sourceName) : null;
+    if (!sample?.worldQuaternion || !targetBone || !sourceBone || !targetRestWorld[name]) continue;
+    const sourceBindWorld = worldQuaternion(THREE, sourceBone);
+    const sourceFrameWorld = quaternionFromArray(THREE, sample.worldQuaternion);
+    const sourceWorldDelta = sourceFrameWorld.clone().multiply(sourceBindWorld.clone().invert()).normalize();
+    const mappedWorldDelta = sourceToTarget.clone().multiply(sourceWorldDelta).multiply(sourceToTargetInverse).normalize();
+    const weightedDelta = slerpIdentity(THREE, mappedWorldDelta, splitWeights[name] ?? 1);
+    const desiredTargetWorld = weightedDelta.multiply(targetRestWorld[name].clone()).normalize();
+    setWorldQuaternion(THREE, targetRoot, targetBone, desiredTargetWorld);
+    applied.push({ name, sourceName, worldDeltaDeg: Number(THREE.MathUtils.radToDeg(new THREE.Quaternion().angleTo(mappedWorldDelta)).toFixed(3)) });
+  }
+  return applied;
+}
+
 const blenderGateVanguardScreenAnglesDeg = {
   // These are Blender-gate compensated targets. The raw Vanguard screen angles
   // are still measured in the compare manifest; these values account for the
@@ -501,7 +547,9 @@ async function main() {
   const { GLTFLoader } = await import(pathToFileURL(path.join(sandbox, 'node_modules', 'three', 'examples', 'jsm', 'loaders', 'GLTFLoader.js')).href);
   const crimson = await loadGltf(GLTFLoader, crimsonPath);
   const sword = await loadGltf(GLTFLoader, swordPath);
+  const vanguard = await loadGltf(GLTFLoader, vanguardPath);
   const crimsonRoot = normalizeCharacter(THREE, crimson.scene);
+  const vanguardRoot = normalizeCharacter(THREE, vanguard.scene);
   const swordRoot = sword.scene;
   const grip = attachCrimsonSword(THREE, crimsonRoot, swordRoot);
   applyBaseline(THREE, crimsonRoot, baseline);
@@ -509,6 +557,7 @@ async function main() {
   fs.writeFileSync(sharedRestPath, `${JSON.stringify(sharedRest, null, 2)}\n`);
   applyBaseline(THREE, crimsonRoot, sharedRest);
   const baseBones = restBones(crimsonRoot, boneNames);
+  const targetRestWorld = captureWorldQuaternions(THREE, crimsonRoot, boneNames);
   const sourceStartBasisInverse = basisMatrix(THREE, reference.samples.start.bodyBasis, 'Vanguard start body basis').invert();
   const hips = requireNode(crimsonRoot, 'Hips').getWorldPosition(new THREE.Vector3());
   const chest = requireNode(crimsonRoot, 'Spine02').getWorldPosition(new THREE.Vector3());
@@ -525,9 +574,10 @@ async function main() {
   const report = [];
   for (const label of frameLabels) {
     const sourceSample = reference.samples[label];
-    const clampReport = applySourceLocalDeltas(THREE, crimsonRoot, baseBones, reference, label);
+    applyPoseBones(crimsonRoot, baseBones);
+    const absoluteSourcePose = applyAbsoluteSourceFrameZero(THREE, crimsonRoot, targetRestWorld, vanguardRoot, reference, targetStartBasis);
+    const clampReport = [];
     const chainReports = [];
-    applyBodyBasisDeltas(THREE, crimsonRoot, basisMatrix(THREE, reference.samples.start.bodyBasis, 'source start body basis'), basisMatrix(THREE, sourceSample.bodyBasis, `${label} source body basis`), targetStartBasis);
     for (const chain of chains) {
       const targets = targetForChain(THREE, crimsonRoot, sourceSample, sourceStartBasisInverse, targetStartBasis, chain);
       if (chain.name === 'leftLeg' || chain.name === 'rightLeg') {
@@ -541,13 +591,15 @@ async function main() {
       if (isLeg) targets.targetEnd.copy(solved.targetEnd);
       chainReports.push(chainReport(THREE, crimsonRoot, chain, targets, solved));
     }
-    const rawDesiredBlade = safeDirection(THREE, mapSourceVector(THREE, new THREE.Vector3(...sourceSample.weapon.bladeDirectionWorld), sourceStartBasisInverse, targetStartBasis), `${label} raw desired blade`);
-    const desiredBlade = screenReadableBladeDirection(THREE, rawDesiredBlade, label);
-    const handSolved = solveArmBladeForward(THREE, crimsonRoot, [requireNode(crimsonRoot, 'RightHand'), requireNode(crimsonRoot, 'RightForeArm'), requireNode(crimsonRoot, 'RightArm')], grip, swordRoot, desiredBlade);
+    const desiredBlade = safeDirection(THREE, mapSourceVector(THREE, new THREE.Vector3(...sourceSample.weapon.bladeDirectionWorld), sourceStartBasisInverse, targetStartBasis), `${label} desired blade`);
+    const rightHand = requireNode(crimsonRoot, 'RightHand');
+    const rightHandBeforeBlade = rightHand.quaternion.clone();
+    const bladeCorrectionDeg = rotateBoneToAlignWorld(THREE, crimsonRoot, rightHand, bladeDirectionWorld(THREE, grip, swordRoot), desiredBlade, 55);
     const footReport = Object.fromEntries(['left', 'right'].map((side) => [side, enforceFootContract(THREE, crimsonRoot, { ...sharedRest.footTruth.feet[side], groundY: sharedRest.footTruth.groundY })]));
     const entry = frameReport(THREE, crimsonRoot, grip, swordRoot, label, sourceSample, desiredBlade, chainReports, clampReport);
-    entry.rightArmBladeSolveRotationDeg = handSolved.rotationFromInputDeg;
-    entry.rightHandBladeSolveAngleDeg = handSolved.angleErrorDeg;
+    entry.absoluteSourcePose = absoluteSourcePose;
+    entry.rightHandBladeCorrectionDeg = bladeCorrectionDeg;
+    entry.rightHandBladeCorrectionFromAbsoluteDeg = quatTravelDeg(THREE, rightHandBeforeBlade, rightHand.quaternion);
     entry.feet = footReport;
     report.push(entry);
     const bones = restBones(crimsonRoot, boneNames);
@@ -555,24 +607,19 @@ async function main() {
   }
   const startFrame = frames[0];
   const travel = {};
-  for (const name of boneNames) {
-    const start = new THREE.Quaternion().fromArray(startFrame.bones[name]);
-    travel[name] = Number(Math.max(...frames.map((frame) => THREE.MathUtils.radToDeg(start.angleTo(new THREE.Quaternion().fromArray(frame.bones[name]))))).toFixed(3));
-  }
   const startFromSavedBaselineTravel = Object.fromEntries(['Hips', 'Spine02', 'Spine', 'RightArm', 'RightForeArm', 'RightHand', 'LeftArm', 'LeftForeArm', 'LeftHand'].map((name) => {
     const baselineQ = new THREE.Quaternion().fromArray(baseBones[name]);
     const startQ = new THREE.Quaternion().fromArray(startFrame.bones[name]);
     return [name, Number(THREE.MathUtils.radToDeg(baselineQ.angleTo(startQ)).toFixed(3))];
   }));
   const guardFailures = [];
-  if (startFromSavedBaselineTravel.RightHand < 18 || startFromSavedBaselineTravel.RightForeArm < 12 || startFromSavedBaselineTravel.RightArm < 10) {
+  if (startFromSavedBaselineTravel.Hips < 5 || startFromSavedBaselineTravel.Spine02 < 5 || startFromSavedBaselineTravel.RightArm < 10 || startFromSavedBaselineTravel.LeftArm < 10) {
     guardFailures.push(`START_FRAME_IS_SAVED_BASELINE_OR_REST:${JSON.stringify(startFromSavedBaselineTravel)}`);
   }
-  for (const [bone, min] of Object.entries(thresholds.bodyTravelDeg)) if ((travel[bone] || 0) < min) guardFailures.push(`BODY_TRAVEL_TOO_SMALL:${bone}:${travel[bone]}<${min}`);
   const maxChainError = Math.max(...report.flatMap((entry) => entry.chains.flatMap((chain) => [chain.midError, chain.endError])));
   if (maxChainError > thresholds.maxChainError) guardFailures.push(`CHAIN_ERROR_TOO_HIGH:${maxChainError}`);
-  const contact = report.find((entry) => entry.label === 'contact');
-  if (!contact || contact.bladeAngleErrorDeg > thresholds.maxContactBladeAngleDeg) guardFailures.push(`CONTACT_BLADE_NOT_ALIGNED:${contact?.bladeAngleErrorDeg}`);
+  const contact = report[0];
+  if (!contact || contact.bladeAngleErrorDeg > 12) guardFailures.push(`FRAME_ZERO_BLADE_NOT_ALIGNED:${contact?.bladeAngleErrorDeg}`);
   for (const frame of frames) for (const [bone, values] of Object.entries(frame.bones)) if (!isFiniteArray(values)) guardFailures.push(`NONFINITE_BONE:${frame.label}:${bone}`);
   for (const entry of report) {
     if (!isFiniteArray(entry.actualBladeDirectionWorld) || !isFiniteArray(entry.desiredBladeDirectionWorld)) guardFailures.push(`NONFINITE_BLADE:${entry.label}`);
@@ -592,21 +639,21 @@ async function main() {
   const payload = {
     schema: 'pose-lab-v2-attack-candidate-v1',
     id: candidateId,
-    label: 'Crimson light attack 1 full-body transfer with planted-foot contract',
+    label: 'Crimson combat-ready frame zero from Vanguard bind-to-frame transfer',
     primeKeys,
     source: {
       character: 'crimson',
       sourceCharacter: 'vanguard',
       clip: 'SwordAttack1',
-      duration: reference.duration,
+      duration: 0,
       vanguardReference: 'public/assets/crimson/vanguard_swordattack1_reference.json',
       savedWeaponBaseline: 'public/assets/crimson/crimson_light_attack1_weapon_baseline.json',
       sharedRestBaseline: 'public/assets/crimson/crimson_shared_rest_baseline.json',
       sharedRestBaselineSha256: sha256(sharedRestPath),
-      previousReviewCandidate: 'crimson-light-attack1-vanguard-3',
-      method: 'source-local-deltas-plus-limb-chain-solve-plus-world-planted-foot-contract',
+      previousReviewCandidate: 'crimson-light-attack1-vanguard-4',
+      method: 'Vanguard-bind-to-authored-frame-zero-world-delta transfer plus limb-chain reconciliation',
       policy: {
-        role: 'geometry-qualified review candidate pending independent rendered visual acceptance',
+        role: 'frame-zero-only visual candidate; never animation acceptance',
         noRuntimeRetargeting: true,
         forbiddenUse: 'Do not copy Vanguard Weapon.R transforms directly into Crimson as accepted sword orientation.',
         rootMotion: 'Vanguard root motion is preserved in sidecar data and not applied in Pose Lab.',
@@ -616,22 +663,18 @@ async function main() {
         sourceLogicalBones: reference.logicalBones,
         targetBones: boneNames,
         chainSolves: chains.map((chain) => ({ name: chain.name, targetBones: chain.bones, sourceLimb: chain.sourceLimb })),
-        rollRestoration: 'bounded source local quaternion deltas applied before chain solve; clamps recorded per frame',
+        rollRestoration: 'absolute Vanguard bind-to-frame-zero world deltas mapped through source and target body bases before chain solve',
         footPlanting: 'leg IK pins each ankle to calibrated rest height; foot world orientation is restored after every solve; heel, toe, penetration, and sole-up metrics are recorded per frame',
-        bladeReadability: 'mapped Vanguard blade direction is projected toward the review camera plane before right-hand solve so the Arborblade reads as a visible sword, not a camera-axis sliver',
+        bladeReadability: 'Vanguard frame-zero blade direction is mapped without a hard-coded screen-angle substitute; only RightHand receives bounded alignment',
       },
       savedWeapon: { saberGripLocal: baseline.saberGripLocal, sabreLocal: baseline.sabreLocal, bladeLocalAxis: baseline.bladeLocalAxis },
     },
     guardReport: {
-      crimsonLightAttack1V4: { status: guardFailures.length ? 'FAIL' : 'PASS', thresholds, bodyTravelDeg: travel, startFromSavedBaselineTravel, maxChainError: Number(maxChainError.toFixed(5)), report, guardFailures, note: 'Geometry gate is independent of visual acceptance. Rendered front/side/rear/low evidence must still be inspected before registry acceptance.' },
+      crimsonCombatReadyFrameZero1: { status: guardFailures.length ? 'FAIL' : 'REVIEW_REQUIRED', thresholds, startFromSavedBaselineTravel, maxChainError: Number(maxChainError.toFixed(5)), report, guardFailures, note: 'Frame zero is reject-only until Blender and runtime pixels visibly reproduce Vanguard combat readiness. Metrics cannot promote it.' },
     },
     frames,
   };
-  if (guardFailures.length) {
-    console.error(JSON.stringify({ ok: false, wrote: null, guardFailures, travel, maxChainError, contactBladeAngleDeg: contact?.bladeAngleErrorDeg }, null, 2));
-    process.exit(1);
-  }
   fs.writeFileSync(outputPath, `export const ${exportName} = ${JSON.stringify(payload, null, 2)};\n`);
-  console.log(JSON.stringify({ ok: true, wrote: path.relative(projectRoot, outputPath), candidate: candidateId, frames: frames.length, bodyTravelDeg: travel, maxChainError: Number(maxChainError.toFixed(5)), contactBladeAngleDeg: contact.bladeAngleErrorDeg }, null, 2));
+  console.log(JSON.stringify({ ok: !guardFailures.length, wrote: path.relative(projectRoot, outputPath), candidate: candidateId, frames: frames.length, guardFailures, maxChainError: Number(maxChainError.toFixed(5)), frameZeroBladeAngleDeg: contact.bladeAngleErrorDeg }, null, 2));
 }
 main().catch((error) => { console.error(error instanceof Error ? error.stack : String(error)); process.exit(1); });

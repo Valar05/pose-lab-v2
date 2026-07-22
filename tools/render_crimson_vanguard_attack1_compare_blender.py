@@ -500,7 +500,23 @@ def apply_crimson_sword_material(objects: list[bpy.types.Object]) -> None:
     for obj in objects:
         if obj.type == "MESH":
             obj.data.materials.clear()
-            obj.data.materials.append(material)
+        obj.data.materials.append(material)
+
+
+def apply_source_debug_material(objects: list[bpy.types.Object]) -> None:
+    material = bpy.data.materials.new("Vanguard source readable gray")
+    material.diffuse_color = (0.16, 0.21, 0.28, 1.0)
+    material.use_nodes = True
+    principled = material.node_tree.nodes.get("Principled BSDF")
+    if principled:
+        principled.inputs["Base Color"].default_value = (0.16, 0.21, 0.28, 1.0)
+        principled.inputs["Roughness"].default_value = 0.62
+        principled.inputs["Metallic"].default_value = 0.08
+    for obj in objects:
+        if obj.type != "MESH":
+            continue
+        obj.data.materials.clear()
+        obj.data.materials.append(material)
 
 
 def place_crimson_sword(sword_roots: list[bpy.types.Object], initial: dict[str, Matrix], hand_world: Matrix, calibration: dict) -> Matrix:
@@ -588,6 +604,8 @@ def main() -> None:
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--height", type=int, default=720)
     parser.add_argument("--frames", default=",".join(FRAME_LABELS), help="comma-separated frame labels to render")
+    parser.add_argument("--candidate-js", default=str(CANDIDATE_JS))
+    parser.add_argument("--candidate-id", default="crimson-light-attack1-vanguard-4")
     parser.add_argument("--skip-render", action="store_true", help="write manifest/broken transform metrics without PNG renders")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     args = parser.parse_args(argv)
@@ -597,6 +615,9 @@ def main() -> None:
         raise RuntimeError(f"unknown frame labels: {unknown_frames}")
     if not requested_frames:
         raise RuntimeError("at least one frame label is required")
+    candidate_path = Path(args.candidate_js)
+    if not candidate_path.is_absolute():
+        candidate_path = ROOT / candidate_path
     out_dir = Path(args.out_dir)
     if not out_dir.is_absolute():
         out_dir = ROOT / out_dir
@@ -604,23 +625,24 @@ def main() -> None:
     tmp_dir = out_dir / "tmp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
     reference = load_json(REFERENCE_JSON)
-    candidate = load_candidate(CANDIDATE_JS)
+    candidate = load_candidate(candidate_path)
     calibration = load_json(CALIBRATION_JSON)
     if reference.get("schema") != "pose-lab-v2-crimson-vanguard-swordattack1-reference-v2":
         raise RuntimeError("Vanguard reference is not full-body v2")
-    if candidate.get("id") != "crimson-light-attack1-vanguard-4":
-        raise RuntimeError("comparison gate is intentionally bound to crimson-light-attack1-vanguard-4")
+    if candidate.get("id") != args.candidate_id:
+        raise RuntimeError(f"comparison candidate mismatch: expected {args.candidate_id}, got {candidate.get('id')}")
     crimson_frames, crimson_nodes = crimson_node_frames(candidate)
-    crimson_anim = inject_animation(CRIMSON_GLB, crimson_frames, crimson_nodes, tmp_dir / "crimson_attack1_compare.glb", "CrimsonAttack1CandidateV4")
+    crimson_anim = inject_animation(CRIMSON_GLB, crimson_frames, crimson_nodes, tmp_dir / "crimson_attack1_compare.glb", candidate["id"])
     clear_scene()
     camera = setup_scene(args.width, args.height, args.samples)
     vanguard_objects = import_glb(VANGUARD_GLB)
+    apply_source_debug_material(vanguard_objects)
     vanguard_armature = find_armature(vanguard_objects, "Vanguard")
     activate_named_action(vanguard_armature, "SwordAttack1_rig")
     normalize_and_offset(vanguard_objects, 1.7, -1.05)
     crimson_objects = import_glb(crimson_anim)
     crimson_armature = find_armature(crimson_objects, "Crimson")
-    activate_named_action(crimson_armature, "CrimsonAttack1CandidateV4_CrimsonPlumeKnight_Armature")
+    activate_last_action(crimson_armature)
     normalize_and_offset(crimson_objects, 1.7, 1.05)
     sword_objects = import_glb(SWORD_GLB)
     apply_crimson_sword_material(sword_objects)

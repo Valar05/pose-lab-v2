@@ -24,6 +24,8 @@ jobs:
             --python tools/render_crimson_vanguard_attack1_compare_blender.py -- \
             --out-dir generated/crimson-frame-zero/${GITHUB_RUN_ID} \
             --frames start \
+            --candidate-js src/review-candidates/crimson-combat-ready-vanguard-frame0-1.js \
+            --candidate-id crimson-combat-ready-vanguard-frame0-1 \
             --samples 16 \
             --width 1600 \
             --height 900
@@ -42,7 +44,7 @@ jobs:
         if: steps.blender.outcome == 'failure'
         run: exit 1
 
-  capture-v4:
+  capture-frame-zero:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -57,7 +59,7 @@ jobs:
         run: google-chrome --version
       - name: Build the review application
         run: npm run build
-      - name: Capture Crimson Attack1 v4 prime frames
+      - name: Capture Crimson combat-ready frame zero
         env:
           PLAYWRIGHT_CHROME_CHANNEL: chrome
         run: |
@@ -67,30 +69,21 @@ jobs:
           trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
           URL_LIST="$(node --input-type=module - <<'NODE'
           const base = 'http://127.0.0.1:4173/index.html';
-          const frames = [
-            ['start', 0],
-            ['earlyWindup', 0.1],
-            ['anticipation', 0.183333],
-            ['snapPrep', 0.283333],
-            ['contact', 0.383333],
-            ['contactHold', 0.5],
-            ['settle', 0.566667],
-            ['followThrough', 0.62],
-          ];
+          const frames = [['start', 0]];
           const capture = (primeKey, time, cameraView = null) => {
             const params = new URLSearchParams({
               model: 'crimson',
               pose: 'attack1',
-              candidate: 'crimson-light-attack1-vanguard-4',
+              candidate: 'crimson-combat-ready-vanguard-frame0-1',
               attackTime: String(time),
               quality: 'source',
               cacheBust: process.env.GITHUB_SHA,
             });
             const viewSuffix = cameraView ? ` ${cameraView}` : '';
-            return { label: `v4 ${primeKey}${viewSuffix}`, primeKey, time, cameraView, url: `${base}?${params}` };
+            return { label: `frame-zero ${primeKey}${viewSuffix}`, primeKey, time, cameraView, url: `${base}?${params}` };
           };
           const urls = frames.map(([primeKey, time]) => capture(primeKey, time));
-          for (const [primeKey, time] of [['start', 0], ['contact', 0.383333], ['followThrough', 0.62]]) {
+          for (const [primeKey, time] of [['start', 0]]) {
             urls.push(capture(primeKey, time, 'left'), capture(primeKey, time, 'right'));
           }
           process.stdout.write(JSON.stringify(urls));
@@ -98,8 +91,8 @@ jobs:
           )"
           node tools/github_crimson_visual_capture.mjs \
             --url-list "$URL_LIST" \
-            --out-dir "generated/crimson-v4-pr-evidence/${GITHUB_RUN_ID}" \
-            --target crimson-attack1-v4 \
+            --out-dir "generated/crimson-frame-zero-browser/${GITHUB_RUN_ID}" \
+            --target crimson-combat-ready-frame-zero \
             --job-id "github_actions_${GITHUB_RUN_ID}" \
             --session-id "browser_session_${GITHUB_RUN_ID}" \
             --episode-id "browser_episode_${GITHUB_RUN_ID}" \
@@ -108,6 +101,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: crimson-v4-pr-evidence-${{ github.run_id }}
-          path: generated/crimson-v4-pr-evidence/${{ github.run_id }}
+          name: crimson-frame-zero-browser-${{ github.run_id }}
+          path: generated/crimson-frame-zero-browser/${{ github.run_id }}
           if-no-files-found: error

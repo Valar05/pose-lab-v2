@@ -24,10 +24,16 @@ export const ATTACK1_REVIEW_CANDIDATES = {
   "crimson-light-attack1-vanguard-4": {
     module: "./review-candidates/crimson-light-attack1-vanguard-4.js",
     exportName: "CRIMSON_LIGHT_ATTACK1_VANGUARD_4_SEQUENCE",
-    label: "Crimson light Attack1 v4 (planted-foot accepted)",
+    label: "Crimson light Attack1 v4 (rejected random-bone transfer)",
     characterKey: "crimson",
-    status: "accepted",
-    visualAcceptance: "./assets/crimson/crimson_light_attack1_v4_visual_acceptance.json",
+    status: "rejected",
+  },
+  "crimson-combat-ready-vanguard-frame0-1": {
+    module: "./review-candidates/crimson-combat-ready-vanguard-frame0-1.js",
+    exportName: "CRIMSON_COMBAT_READY_VANGUARD_FRAME0_1_SEQUENCE",
+    label: "Crimson combat-ready frame zero 1 (visual candidate)",
+    characterKey: "crimson",
+    status: "candidate",
   },
   "attack1-candidate-1": {
     module: "./review-candidates/attack1-candidate-1.js",
