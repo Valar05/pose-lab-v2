@@ -679,15 +679,15 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
 
     # A restrained body sentence: stagger, flex, slight threat-side turn.
     rotate_pose_bone_world_axis(target_armature, "Hips", Vector((0, 0, 1)), -9)
-    rotate_pose_bone_world_axis(target_armature, "Hips", Vector((1, 0, 0)), -5)
-    rotate_pose_bone_world_axis(target_armature, "Spine", Vector((1, 0, 0)), 7)
+    rotate_pose_bone_world_axis(target_armature, "Hips", Vector((1, 0, 0)), 3)
+    rotate_pose_bone_world_axis(target_armature, "Spine", Vector((1, 0, 0)), -5)
     rotate_pose_bone_world_axis(target_armature, "Spine01", Vector((0, 0, 1)), 4)
     rotate_pose_bone_world_axis(target_armature, "Spine02", Vector((0, 0, 1)), 5)
 
     leg_report = []
     for side, ankle, target_offset, pole_offset in [
         ("Left", left_ankle, Vector((-0.035, -0.13, 0.0)), Vector((-0.08, -0.72, -0.34))),
-        ("Right", right_ankle, Vector((0.045, 0.11, 0.0)), Vector((0.08, -0.68, -0.32))),
+        ("Right", right_ankle, Vector((0.045, 0.11, -0.02)), Vector((0.08, -0.68, -0.32))),
     ]:
         leg_report.append(solve_chain_with_pole(
             target_armature,
@@ -710,19 +710,19 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     shoulder_center = (left_shoulder + right_shoulder) * 0.5
-    chest_z = shoulder_center.z - 0.16
+    chest_z = shoulder_center.z - 0.08
     guard_center = Vector((shoulder_center.x, shoulder_center.y - 0.24, chest_z))
     arm_report = [
         solve_chain_with_pole(
             target_armature,
             ["LeftArm", "LeftForeArm", "LeftHand"],
-            guard_center + Vector((-0.035, 0.015, 0.025)),
+            guard_center + Vector((-0.075, 0.025, 0.035)),
             left_shoulder + Vector((-0.48, -0.42, -0.20)),
         ),
         solve_chain_with_pole(
             target_armature,
             ["RightArm", "RightForeArm", "RightHand"],
-            guard_center + Vector((0.035, -0.015, -0.025)),
+            guard_center + Vector((0.075, -0.025, -0.015)),
             right_shoulder + Vector((0.48, -0.42, -0.22)),
         ),
     ]
@@ -732,8 +732,8 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
         "sourceAuthority": "Vanguard pixels and action intent only; no transforms cross rigs",
         "body": {
             "hipsYawDeg": -9,
-            "hipsPitchDeg": -5,
-            "spinePitchDeg": 7,
+            "hipsPitchDeg": 3,
+            "spinePitchDeg": -5,
             "spineCounterYawDeg": 9,
         },
         "legs": leg_report,
