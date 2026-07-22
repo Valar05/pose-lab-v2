@@ -88,6 +88,7 @@ Do not casually retune these after they pass:
 | `c9150bea` | Rejected | Ground contact; coherent depth stagger in profile | Grip and blade still occupy the face plane; shoulders remain lifted; source is too small for reliable next-pass authorship | Add same-scale source and Crimson review angles before another pose edit |
 | `ab616b2f` | Evidence gate passed | Pose unchanged from `c9150bea`; same-scale paired views now exist | Not a pose verdict | Freeze lower body and blade angle; repair the high-hand/low-elbow guard triangle |
 | `fe15d7af` | Agent visual gate passed; still unaccepted | Grounded depth stagger; restrained body turn; above-brow off-center grip; low unequal elbows; face and helmet clear in target views | Vanguard reference views hover because source grounding used animation time zero instead of the rendered start sample | Freeze Crimson pose; correct source evidence timing only |
-| `9f783c96` | Pending evidence | Crimson pose byte-for-byte unchanged from `fe15d7af` | Awaiting proof that Vanguard is grounded at the rendered start sample | Inspect final paired sheet; do not reinterpret this as human acceptance |
+| `9f783c96` | Rejected evidence repair | Crimson pose byte-for-byte unchanged from `fe15d7af` | Vanguard still hovers: frame evaluation overwrites transforms applied directly to animated imported roots | Ground source through a non-animated parent stage |
+| `357b674d` | Pending evidence | Crimson pose byte-for-byte unchanged from `fe15d7af` | Awaiting grounded-reference proof | Inspect paired sheet and stage-root persistence |
 
 Append a row for every pass. Never rewrite a rejection into a success because a later pass improved.
