@@ -6,21 +6,23 @@ import { ATTACK1_REVIEW_CANDIDATES, CRIMSON_SABER_GRIP_LOCAL, CRIMSON_SWORD_LOCA
 
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const CRIMSON_ASSET_QUALITY = URL_PARAMS.get('quality') === 'source' ? 'source' : 'review';
+const ASSET_ROOT = URL_PARAMS.get('assetRoot') === 'public' ? './public/assets' : './assets';
+const assetUrl = (relativePath) => `${ASSET_ROOT}/${relativePath}`;
 
 const ASSETS = {
-  meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
-  sabre: './assets/meshy/meshy_real_sabre.glb',
-  crimsonSource: './assets/crimson/crimson_plume_knight_rigged_pbr.glb',
-  arborbladeSource: './assets/crimson/arborblade_sword.glb',
-  crimsonReview: './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb',
-  arborbladeReview: './assets/crimson/arborblade_sword_review.glb',
-  crimson: CRIMSON_ASSET_QUALITY === 'source' ? './assets/crimson/crimson_plume_knight_rigged_pbr.glb' : './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb',
-  arborblade: CRIMSON_ASSET_QUALITY === 'source' ? './assets/crimson/arborblade_sword.glb' : './assets/crimson/arborblade_sword_review.glb',
-  fistHands: './assets/meshy/meshy_fist_hands.glb',
-  davin: './assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb',
-  ares: './assets/ares/ares_rigged_diffuse.glb',
-  securityTitan: './assets/ares/security_titan_rigged_diffuse.glb',
-  vanguard: './assets/vanguard/vanguard_rigged_animations.glb',
+  meshy: assetUrl('meshy/meshy_apose_walking_with_skin.glb'),
+  sabre: assetUrl('meshy/meshy_real_sabre.glb'),
+  crimsonSource: assetUrl('crimson/crimson_plume_knight_rigged_pbr.glb'),
+  arborbladeSource: assetUrl('crimson/arborblade_sword.glb'),
+  crimsonReview: assetUrl('crimson/crimson_plume_knight_rigged_pbr_review.glb'),
+  arborbladeReview: assetUrl('crimson/arborblade_sword_review.glb'),
+  crimson: assetUrl(CRIMSON_ASSET_QUALITY === 'source' ? 'crimson/crimson_plume_knight_rigged_pbr.glb' : 'crimson/crimson_plume_knight_rigged_pbr_review.glb'),
+  arborblade: assetUrl(CRIMSON_ASSET_QUALITY === 'source' ? 'crimson/arborblade_sword.glb' : 'crimson/arborblade_sword_review.glb'),
+  fistHands: assetUrl('meshy/meshy_fist_hands.glb'),
+  davin: assetUrl('davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb'),
+  ares: assetUrl('ares/ares_rigged_diffuse.glb'),
+  securityTitan: assetUrl('ares/security_titan_rigged_diffuse.glb'),
+  vanguard: assetUrl('vanguard/vanguard_rigged_animations.glb'),
 };
 const MIXAMO_BONE_MAP = Object.freeze({
   Hips: 'mixamorig:Hips',
@@ -171,10 +173,10 @@ const CHARACTER_KEY_ALIASES = Object.freeze({
 });
 const CHARACTER_KEYS = Object.freeze(Object.keys(CHARACTER_ASSETS));
 const MESHY_PBR_TEXTURES = {
-  map: './assets/meshy/character_sheet_pbr/base_color.jpg',
-  emissiveMap: './assets/meshy/character_sheet_pbr/emissive.jpg',
-  metallicRoughnessMap: './assets/meshy/character_sheet_pbr/metallic_roughness.jpg',
-  normalMap: './assets/meshy/character_sheet_pbr/normal.png',
+  map: assetUrl('meshy/character_sheet_pbr/base_color.jpg'),
+  emissiveMap: assetUrl('meshy/character_sheet_pbr/emissive.jpg'),
+  metallicRoughnessMap: assetUrl('meshy/character_sheet_pbr/metallic_roughness.jpg'),
+  normalMap: assetUrl('meshy/character_sheet_pbr/normal.png'),
 };
 const REQUESTED_CHARACTER_KEY = CHARACTER_KEY_ALIASES[URL_PARAMS.get('model')]
   || CHARACTER_KEY_ALIASES[URL_PARAMS.get('character')]
@@ -223,7 +225,7 @@ const REQUESTED_IDLE_REVIEW = ACTIVE_CHARACTER.key === 'davin'
   && ['idle', 'screenshot-idle', 'idle-screenshot'].includes(String(REQUESTED_POSE || '').toLowerCase());
 const LOWBACKKICK_DEFAULT_CANDIDATE = 'davin-lowbackkick-ares-transfer-1';
 const IDLE_DEFAULT_CANDIDATE = 'davin-idle-screenshot-1';
-const SHARED_REST_BASELINE_URL = './assets/crimson/crimson_shared_rest_baseline.json';
+const SHARED_REST_BASELINE_URL = assetUrl('crimson/crimson_shared_rest_baseline.json');
 const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate') || (REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_DEFAULT_CANDIDATE : REQUESTED_IDLE_REVIEW ? IDLE_DEFAULT_CANDIDATE : null);
 const REQUESTED_ATTACK_TIME = URL_PARAMS.get('attackTime');
 const REQUESTED_MANUAL_ATTACK = URL_PARAMS.get('manual') === '1' || URL_PARAMS.get('edit') === 'manual';
@@ -2817,7 +2819,7 @@ function exportTransform() {
       animations: importedClipNames(),
       activeAnimation: activeImportedAnimationClip?.name || null,
       rootMotion: ACTIVE_CHARACTER.key === 'vanguard' ? {
-        sidecar: './assets/vanguard/vanguard_root_motion.json',
+        sidecar: assetUrl('vanguard/vanguard_root_motion.json'),
         applyInPoseLab: false,
         suppressedBone: importedRootMotionBone?.name || null,
       } : null,

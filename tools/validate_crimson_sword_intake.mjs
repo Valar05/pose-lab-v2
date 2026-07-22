@@ -96,8 +96,9 @@ assert(pkg.scripts?.['validate:crimson-sword-intake']?.includes('validate:crimso
 assert(pkg.scripts?.['accept:crimson-sword'] === 'node tools/require_crimson_cloud_visual_evidence.mjs', 'missing Crimson cloud visual acceptance script');
 assert(pkg.scripts?.['validate:crimson-sword'] === 'npm run validate:crimson-sword-intake && npm run accept:crimson-sword', 'validate:crimson-sword must require cloud visual acceptance after intake guardrails');
 assert(pkg.scripts?.['test:crimson-cloud-visual-gate'] === 'node tools/test_crimson_cloud_visual_evidence_gate.mjs', 'missing Crimson cloud visual gate fixture test');
-assert(main.includes("crimsonReview: './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb'") && main.includes("crimsonSource: './assets/crimson/crimson_plume_knight_rigged_pbr.glb'"), 'runtime must register Crimson review and source GLB assets');
-assert(main.includes("arborbladeReview: './assets/crimson/arborblade_sword_review.glb'") && main.includes("arborbladeSource: './assets/crimson/arborblade_sword.glb'"), 'runtime must register Arborblade review and source sword assets');
+assert(main.includes("crimsonReview: assetUrl('crimson/crimson_plume_knight_rigged_pbr_review.glb')") && main.includes("crimsonSource: assetUrl('crimson/crimson_plume_knight_rigged_pbr.glb')"), 'runtime must register Crimson review and source GLB assets');
+assert(main.includes("arborbladeReview: assetUrl('crimson/arborblade_sword_review.glb')") && main.includes("arborbladeSource: assetUrl('crimson/arborblade_sword.glb')"), 'runtime must register Arborblade review and source sword assets');
+assert(main.includes("URL_PARAMS.get('assetRoot') === 'public' ? './public/assets' : './assets'"), 'runtime must support unbuilt public assets for immutable source review');
 assert(main.includes("URL_PARAMS.get('quality') === 'source'"), 'runtime must keep quality=source full-fidelity escape hatch');
 assert(main.includes("saberAsset: ASSETS.arborblade"), 'Crimson route must select Arborblade as its saber asset');
 assert(main.includes("crimson: 'crimson'") && main.includes("'crimson-knight': 'crimson'"), 'Crimson aliases missing');
