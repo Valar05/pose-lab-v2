@@ -90,6 +90,7 @@ Do not casually retune these after they pass:
 | `fe15d7af` | Agent visual gate passed; still unaccepted | Grounded depth stagger; restrained body turn; above-brow off-center grip; low unequal elbows; face and helmet clear in target views | Vanguard reference views hover because source grounding used animation time zero instead of the rendered start sample | Freeze Crimson pose; correct source evidence timing only |
 | `9f783c96` | Rejected evidence repair | Crimson pose byte-for-byte unchanged from `fe15d7af` | Vanguard still hovers: frame evaluation overwrites transforms applied directly to animated imported roots | Ground source through a non-animated parent stage |
 | `357b674d` | Rejected evidence repair | Crimson pose byte-for-byte unchanged from `fe15d7af`; stage transform persists | Whole-asset minimum Z is not the visible boot floor; unrelated imported geometry poisons the ground measurement | Measure only vertices weighted to mapped Vanguard foot bones |
-| `8f67c891` | Pending evidence | Crimson pose byte-for-byte unchanged from `fe15d7af` | Awaiting foot-weighted ground proof | Inspect paired sheet and confirm source boots contact the plane |
+| `8f67c891` | Rejected in CI | Crimson pose byte-for-byte unchanged from `fe15d7af` | Vanguard exposes no matching foot vertex groups for `FootFK_L/R`; render aborts before artifact creation | Fall back to evaluated mesh vertices spatially local to mapped foot bones |
+| `480eb888` | Pending evidence | Crimson pose byte-for-byte unchanged from `fe15d7af` | Awaiting unweighted-rig ground proof | Inspect paired sheet and confirm source boots contact the plane |
 
 Append a row for every pass. Never rewrite a rejection into a success because a later pass improved.
