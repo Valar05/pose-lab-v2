@@ -798,7 +798,8 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             {"bone": bone, "axisWorld": list(axis), "degrees": degrees}
             for bone, axis, degrees in center_rotations
         ],
-        "hipsDropWorld": [round(value, 5) for value in hips_drop_world],\n        "legIk": leg_reports,
+        "hipsDropWorld": [round(value, 5) for value in hips_drop_world],
+        "legIk": leg_reports,
         "armIk": arm_reports,
         "handRotations": [
             {"bone": bone, "axisWorld": list(axis), "degrees": degrees}
