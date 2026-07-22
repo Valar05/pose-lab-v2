@@ -1298,6 +1298,23 @@ function updateSaberAttachmentProof() {
   document.body.dataset.crimsonSocketProof = JSON.stringify(saberAttachmentProof);
 }
 
+function alignSaberGripToWorldDirection(values) {
+  if (!saberGrip?.parent || !sabreRoot || !Array.isArray(values) || values.length !== 3) return;
+  root.updateMatrixWorld(true);
+  const hilt = sabreRoot.localToWorld(new THREE.Vector3(...activeSaberHiltLocalPoint()));
+  const tip = sabreRoot.localToWorld(new THREE.Vector3(...activeSaberTipLocalPoint()));
+  const current = tip.sub(hilt).normalize();
+  const desired = new THREE.Vector3(...values).normalize();
+  if (!Number.isFinite(desired.lengthSq()) || desired.lengthSq() < 0.99) return;
+  const delta = new THREE.Quaternion().setFromUnitVectors(current, desired);
+  const gripWorld = objectWorldQuaternion(saberGrip);
+  const desiredWorld = delta.multiply(gripWorld).normalize();
+  const parentWorld = objectWorldQuaternion(saberGrip.parent);
+  saberGrip.quaternion.copy(parentWorld.invert().multiply(desiredWorld).normalize());
+  root.updateMatrixWorld(true);
+  updateSaberAttachmentProof();
+}
+
 function readySnapshot() {
   root.updateMatrixWorld(true);
   const rightHand = poseBones.get('RightHand');
@@ -1973,6 +1990,7 @@ function applyAttackSequenceAt(time, options = {}) {
   setSabreReviewVisible(!attackPoseSequence?.source?.weaponless);
   attackPoseCurrentTime = frame.time;
   applyPoseBones(frame.bones || {});
+  alignSaberGripToWorldDirection(attackPoseSequence?.source?.runtimeBladeWorldDirection);
   updateAttackReviewControls();
 }
 
