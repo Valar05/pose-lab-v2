@@ -44,10 +44,9 @@ for (const entry of guard?.report || []) {
 }
 const registry = ATTACK1_REVIEW_CANDIDATES[candidate.id];
 assert(registry?.characterKey === 'crimson', 'v4 must be registered for explicit Crimson visual review');
-assert(registry?.status === 'accepted', 'v4 must be accepted only after rendered evidence is recorded');
-assert(registry?.visualAcceptance === './assets/crimson/crimson_light_attack1_v4_visual_acceptance.json', 'v4 registry must cite its visual acceptance record');
+assert(registry?.status === 'rejected', 'v4 must remain rejected after the rendered pose disproved its geometry-only qualification');
 assert(visualAcceptance.schema === 'pose-lab-v2-visual-acceptance-v1', 'v4 visual acceptance must use the committed acceptance schema');
-assert(visualAcceptance.candidate === candidate.id && visualAcceptance.verdict === 'accepted', 'v4 visual acceptance must explicitly accept this candidate');
+assert(visualAcceptance.candidate === candidate.id && visualAcceptance.verdict === 'invalidated', 'v4 former visual acceptance must remain invalidated');
 assert(visualAcceptance.evidence?.workflowRunId === 29933001051 && visualAcceptance.evidence?.captureCount === 14, 'v4 visual acceptance must cite the inspected 14-view workflow run');
 
 if (failures.length) {

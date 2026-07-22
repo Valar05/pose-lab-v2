@@ -75,7 +75,7 @@ jobs:
             const params = new URLSearchParams({
               model: 'crimson',
               pose: 'attack1',
-              candidate: 'crimson-combat-ready-vanguard-frame0-1',
+              candidate: 'crimson-combat-ready-vanguard-frame0-2',
               attackTime: String(time),
               quality: 'source',
               cacheBust: process.env.GITHUB_SHA,
