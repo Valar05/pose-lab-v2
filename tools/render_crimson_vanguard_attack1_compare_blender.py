@@ -491,9 +491,19 @@ def source_direction_targets(source_armature: bpy.types.Object, target_armature:
     return target_mid, target_end
 
 
-def apply_source_core_deltas(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> list[dict]:
-    weights = {"Spine": 0.5, "Spine01": 0.5, "Spine02": 0.7, "neck": 0.6, "Head": 0.65}
-    names = ["Hips", "Spine", "Spine01", "Spine02", "neck", "Head", "LeftShoulder", "RightShoulder"]
+def apply_source_world_deltas(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> list[dict]:
+    # Retarget the authored world-space change from each Vanguard rest bone onto
+    # Crimson's corresponding rest bone. Setting the complete hierarchy in
+    # parent-to-child order preserves the source action and adapts bone bases;
+    # solving chains independently only matched endpoints and discarded roll,
+    # torso causality, and the two-hand weapon relationship.
+    names = [
+        "Hips", "Spine", "Spine01", "Spine02", "neck", "Head",
+        "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand",
+        "RightShoulder", "RightArm", "RightForeArm", "RightHand",
+        "LeftUpLeg", "LeftLeg", "LeftFoot",
+        "RightUpLeg", "RightLeg", "RightFoot",
+    ]
     report = []
     for target_name in names:
         source_name = logical_bones[target_name]
@@ -504,32 +514,17 @@ def apply_source_core_deltas(source_armature: bpy.types.Object, target_armature:
         source_rest = (source_armature.matrix_world @ source_bone.bone.matrix_local).to_quaternion()
         source_pose = (source_armature.matrix_world @ source_bone.matrix).to_quaternion()
         source_delta = source_pose @ source_rest.inverted()
-        weight = weights.get(target_name, 1.0)
-        weighted_delta = Quaternion().slerp(source_delta, weight)
         target_rest = (target_armature.matrix_world @ target_bone.bone.matrix_local).to_quaternion()
-        desired = weighted_delta @ target_rest
+        desired = source_delta @ target_rest
         set_pose_bone_world_rotation(target_armature, target_name, desired)
-        report.append({"bone": target_name, "source": source_name, "weight": weight, "deltaDeg": round(math.degrees(source_delta.angle), 3)})
+        report.append({"bone": target_name, "source": source_name, "deltaDeg": round(math.degrees(source_delta.angle), 3)})
     return report
 
 
 def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature: bpy.types.Object, logical_bones: dict[str, str]) -> dict:
     clear_pose(target_armature)
-    foot_world = {name: find_pose_bone_world(target_armature, name).to_quaternion() for name in ["LeftFoot", "RightFoot"]}
-    core = apply_source_core_deltas(source_armature, target_armature, logical_bones)
-    chains = []
-    chain_specs = [
-        ([logical_bones["LeftArm"], logical_bones["LeftForeArm"], logical_bones["LeftHand"]], ["LeftArm", "LeftForeArm", "LeftHand"]),
-        ([logical_bones["RightArm"], logical_bones["RightForeArm"], logical_bones["RightHand"]], ["RightArm", "RightForeArm", "RightHand"]),
-        ([logical_bones["LeftUpLeg"], logical_bones["LeftLeg"], logical_bones["LeftFoot"]], ["LeftUpLeg", "LeftLeg", "LeftFoot"]),
-        ([logical_bones["RightUpLeg"], logical_bones["RightLeg"], logical_bones["RightFoot"]], ["RightUpLeg", "RightLeg", "RightFoot"]),
-    ]
-    for source_chain, target_chain in chain_specs:
-        target_mid, target_end = source_direction_targets(source_armature, target_armature, source_chain, target_chain)
-        chains.append(solve_pose_chain(target_armature, target_chain, target_mid, target_end))
-    for name, world_rotation in foot_world.items():
-        set_pose_bone_world_rotation(target_armature, name, world_rotation)
-    return {"core": core, "chains": chains}
+    bones = apply_source_world_deltas(source_armature, target_armature, logical_bones)
+    return {"method": "source-world-delta-full-hierarchy", "bones": bones}
 
 
 def canon_bone_name(name: str) -> str:
