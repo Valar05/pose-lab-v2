@@ -451,6 +451,18 @@ def rotate_pose_bone_world(armature: bpy.types.Object, bone_name: str, from_worl
     return angle_degrees
 
 
+def rotate_pose_bone_world_axis(armature: bpy.types.Object, bone_name: str, axis_world: Vector, degrees: float) -> None:
+    bone = armature.pose.bones.get(bone_name)
+    if not bone:
+        raise RuntimeError(f"missing target pose bone {bone_name}")
+    delta_world = Quaternion(axis_world.normalized(), math.radians(degrees))
+    armature_rotation = armature.matrix_world.to_quaternion()
+    delta_armature = armature_rotation.inverted() @ delta_world @ armature_rotation
+    head = bone.head.copy()
+    bone.matrix = Matrix.Translation(head) @ delta_armature.to_matrix().to_4x4() @ Matrix.Translation(-head) @ bone.matrix
+    bpy.context.view_layer.update()
+
+
 def solve_pose_chain(armature: bpy.types.Object, chain: list[str], target_mid: Vector, target_end: Vector) -> dict:
     upper_name, lower_name, end_name = chain
     for _ in range(16):
@@ -525,18 +537,22 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     clear_pose(target_armature)
     resting_feet = {name: find_pose_bone_world(target_armature, name).to_quaternion() for name in ["LeftFoot", "RightFoot"]}
     bones = apply_source_world_deltas(source_armature, target_armature, logical_bones)
-    stance = []
-    for side, lateral_sign, depth_sign in [("Left", -1.0, -1.0), ("Right", 1.0, 1.0)]:
-        chain = [f"{side}UpLeg", f"{side}Leg", f"{side}Foot"]
-        upper = find_pose_bone_world(target_armature, chain[0]).translation
-        mid = find_pose_bone_world(target_armature, chain[1]).translation
-        end = find_pose_bone_world(target_armature, chain[2]).translation
-        length = (mid - upper).length + (end - mid).length
-        target_end = upper + Vector((lateral_sign * length * 0.28, depth_sign * length * 0.12, -length * 0.82))
-        target_mid = upper + (target_end - upper) * 0.5 + Vector((0, -length * 0.24, length * 0.04))
-        stance.append(solve_pose_chain(target_armature, chain, target_mid, target_end))
-        set_pose_bone_world_rotation(target_armature, chain[2], resting_feet[chain[2]])
-    return {"method": "source-world-delta-with-authored-loaded-stance", "bones": bones, "stance": stance}
+    stance = {
+        "LeftUpLeg": [(Vector((1, 0, 0)), -18), (Vector((0, 1, 0)), -8)],
+        "LeftLeg": [(Vector((1, 0, 0)), 32)],
+        "RightUpLeg": [(Vector((1, 0, 0)), -12), (Vector((0, 1, 0)), 7)],
+        "RightLeg": [(Vector((1, 0, 0)), 23)],
+    }
+    for bone_name, corrections in stance.items():
+        for axis, degrees in corrections:
+            rotate_pose_bone_world_axis(target_armature, bone_name, axis, degrees)
+    for name, world_rotation in resting_feet.items():
+        set_pose_bone_world_rotation(target_armature, name, world_rotation)
+    return {
+        "method": "source-world-delta-with-anatomical-stance-corrections",
+        "bones": bones,
+        "stance": {name: [degrees for _, degrees in corrections] for name, corrections in stance.items()},
+    }
 
 
 def align_crimson_blade_to_vanguard(
@@ -552,7 +568,8 @@ def align_crimson_blade_to_vanguard(
     socket = place_crimson_sword(sword_objects, sword_initial, hand, calibration)
     hilt = socket @ browser_vector(calibration.get("hiltLocalPoint") or [0, 0, 0])
     tip = socket @ browser_vector(calibration.get("tipLocalPoint") or [0, 0, 1])
-    desired = source_line["worldB"] - source_line["worldA"]
+    source_angle = math.radians(source_line["screenAngleDeg"])
+    desired = Vector((math.cos(source_angle), 0, math.sin(source_angle)))
     rotated = rotate_pose_bone_world(target_armature, "RightHand", tip - hilt, desired)
     return {
         "rightHandCorrectionDeg": round(rotated, 3),
