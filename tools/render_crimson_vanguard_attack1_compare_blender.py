@@ -692,7 +692,7 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
     # Restrained center. The body inclines into the guard without asking the
     # pelvis to manufacture the pose.
     center_rotations = [
-        ("Hips", (0, 0, 1), -12.0),
+        ("Hips", (0, 0, 1), -7.0),
         ("Hips", (1, 0, 0), 3.0),
         ("Spine", (1, 0, 0), 8.0),
         ("Spine01", (0, 0, 1), 2.0),
@@ -724,14 +724,14 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
         solve_chain_with_pole(
             target_armature,
             ["LeftUpLeg", "LeftLeg", "LeftFoot"],
-            left_ankle + Vector((0.10 * leg_scale, -0.24 * leg_scale, 0.0)),
+            left_ankle + Vector((0.18 * leg_scale, -0.24 * leg_scale, 0.0)),
             left_hip + Vector((0.18 * leg_scale, -0.72 * leg_scale, -0.38 * leg_scale)),
             iterations=24,
         ),
         solve_chain_with_pole(
             target_armature,
             ["RightUpLeg", "RightLeg", "RightFoot"],
-            right_ankle + Vector((-0.08 * leg_scale, 0.14 * leg_scale, 0.0)),
+            right_ankle + Vector((-0.16 * leg_scale, 0.14 * leg_scale, 0.0)),
             right_hip + Vector((-0.16 * leg_scale, -0.58 * leg_scale, -0.36 * leg_scale)),
             iterations=24,
         ),
@@ -761,8 +761,8 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             - find_pose_bone_world(target_armature, "Hips").translation
         ).length,
     )
-    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.24 * shoulder_span, -0.34 * torso_height, 0.28 * torso_height))
-    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.04 * shoulder_span, -0.36 * torso_height, 0.36 * torso_height))
+    right_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.12 * shoulder_span, -0.30 * torso_height, 0.22 * torso_height))
+    left_hand_target = find_pose_bone_world(target_armature, "neck").translation + Vector((-0.05 * shoulder_span, -0.31 * torso_height, 0.34 * torso_height))
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
     arm_reports = [
@@ -770,14 +770,14 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
             target_armature,
             ["RightArm", "RightForeArm", "RightHand"],
             right_hand_target,
-            right_shoulder + Vector((-0.42 * shoulder_span, -0.16 * torso_height, -0.12 * torso_height)),
+            right_shoulder + Vector((-0.58 * shoulder_span, -0.10 * torso_height, -0.30 * torso_height)),
             iterations=28,
         ),
         solve_chain_with_pole(
             target_armature,
             ["LeftArm", "LeftForeArm", "LeftHand"],
             left_hand_target,
-            left_shoulder + Vector((0.25 * shoulder_span, -0.14 * torso_height, -0.02 * torso_height)),
+            left_shoulder + Vector((0.48 * shoulder_span, -0.10 * torso_height, -0.24 * torso_height)),
             iterations=28,
         ),
     ]
