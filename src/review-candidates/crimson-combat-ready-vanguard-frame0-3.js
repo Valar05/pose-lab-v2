@@ -10,6 +10,7 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_3_SEQUENCE = {
     duration: 0,
     method: 'Inspected Blender pose keyed and exported through Blender glTF; rotations extracted from CrimsonCombatReadyFrameZero',
     runtimeBladeWorldDirection: [-0.75, 0.25, 0.61],
+    runtimeHiltSeatBlend: 0.68,
     status: 'visual-pending-user-gate',
     previousReviewCandidate: 'crimson-combat-ready-vanguard-frame0-2',
     limitations: ['Crimson has rigid open gauntlet meshes and no finger bones; left hand is posed as a brace, not certified as a closed grip'],

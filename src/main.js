@@ -1315,6 +1315,21 @@ function alignSaberGripToWorldDirection(values) {
   updateSaberAttachmentProof();
 }
 
+function seatSaberHiltTowardHand(blendValue) {
+  if (!saberGrip?.parent || !sabreRoot) return;
+  const blend = THREE.MathUtils.clamp(Number(blendValue) || 0, 0, 1);
+  if (blend <= 0) return;
+  root.updateMatrixWorld(true);
+  const hand = findPoseBone('RightHand');
+  if (!hand) return;
+  const hilt = sabreRoot.localToWorld(new THREE.Vector3(...activeSaberHiltLocalPoint()));
+  const handWorld = objectWorldPosition(hand);
+  const gripWorld = objectWorldPosition(saberGrip).add(handWorld.clone().sub(hilt).multiplyScalar(blend));
+  saberGrip.position.copy(saberGrip.parent.worldToLocal(gripWorld));
+  root.updateMatrixWorld(true);
+  updateSaberAttachmentProof();
+}
+
 function readySnapshot() {
   root.updateMatrixWorld(true);
   const rightHand = poseBones.get('RightHand');
@@ -1991,6 +2006,7 @@ function applyAttackSequenceAt(time, options = {}) {
   attackPoseCurrentTime = frame.time;
   applyPoseBones(frame.bones || {});
   alignSaberGripToWorldDirection(attackPoseSequence?.source?.runtimeBladeWorldDirection);
+  seatSaberHiltTowardHand(attackPoseSequence?.source?.runtimeHiltSeatBlend);
   updateAttackReviewControls();
 }
 
