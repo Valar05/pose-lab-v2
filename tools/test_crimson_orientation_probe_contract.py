@@ -45,6 +45,8 @@ assert "calibration-measurement-not-pose-acceptance" in probe
 assert "REJECTED_FOR_HANDOFF_MEASUREMENT_WORTHY" in probe
 assert "REST_AIM_AXIS_MIN_DOT_Y = 0.999" in probe
 assert "NON_TARGET_EXPORT_DELTA_MAX_DEGREES = 0.001" in probe
+assert "bone.roll" not in probe
+assert '"zeroAuthority": "parentRelativeRest.quaternion"' in probe
 assert "EXPECTED_BONES" in validator
 assert "visualVerdict" in validator
 assert "probe_crimson_bone_orientations_blender.py" in workflow

@@ -278,7 +278,11 @@ def rest_contract(armature: bpy.types.Object, bone_name: str) -> dict:
         "parent": bone.parent.name if bone.parent else None,
         "children": sorted(child.name for child in bone.children),
         "length": round(float(bone.length), 8),
-        "rollDegrees": round(math.degrees(float(bone.roll)), 8),
+        "rollBasis": {
+            "axis": "local +Y aim axis",
+            "zeroAuthority": "parentRelativeRest.quaternion",
+            "note": "rest roll is encoded by the full parent-relative basis; no context-free scalar roll is claimed",
+        },
         "parentRelativeRest": {
             "translation": vector_payload(parent_relative.to_translation()),
             "quaternion": quaternion_payload(parent_relative.to_quaternion()),
