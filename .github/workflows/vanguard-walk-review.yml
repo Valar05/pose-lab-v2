@@ -1,0 +1,53 @@
+name: Vanguard Walk Render Review
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  BLENDER_VERSION: "4.4.0"
+jobs:
+  render-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - id: blender-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+          fail-on-cache-miss: true
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/pip
+          key: pose-packet-pip-pillow-11.3.0
+      - name: Render legacy evidence, author Walk, and verify
+        env: {BLENDER_BIN: .toolcache/blender-4.4.0/blender, LIBGL_ALWAYS_SOFTWARE: "1"}
+        run: |
+          sudo apt-get update && sudo apt-get install -y libegl1 libgl1-mesa-dri
+          python3 -c 'from PIL import Image' || python3 -m pip install --user pillow==11.3.0
+          npm run export:vanguard-walk
+      - name: Verify playback and approved asset invariance
+        run: |
+          git diff --exit-code HEAD -- public/assets/vanguard/fleshpunk/idle public/assets/vanguard/fleshpunk/swordattack1
+          npm run test:2d
+          npm run build
+          npm run smoke
+          git diff --check
+      - name: Commit canonical Walk playback assets
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add public/assets/vanguard/fleshpunk/animations.json public/assets/vanguard/fleshpunk/walk
+          git diff --cached --quiet || { git commit -m 'Render canonical Vanguard Walk review'; git push; }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vanguard-walk-review
+          path: generated/vanguard/walk/
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-pages-artifact@v3
+        with: {path: dist}
