@@ -144,9 +144,12 @@ orthographic model-right camera, and transparent RGBA output. It writes the
 numbered sequence, contact sheet, GIF, and metadata under
 `generated/vanguard/idle/`. Verification fails closed when the camera changes,
 the background is not transparent, frame dimensions differ, or the projected
-two-foot anchor moves more than two pixels. Set `BLENDER_BIN` to an existing
-Blender executable; without it, the repo-owned runner continues to use the
-existing Debian `proot-distro` Blender installation.
+two-foot anchor moves more than two pixels. The game export translates the
+whole rig in the camera plane to keep the frame-zero two-foot midpoint fixed;
+native joint articulation is unchanged and each correction is recorded in
+metadata. Set `BLENDER_BIN` to an existing Blender executable; without it, the
+repo-owned runner continues to use the existing Debian `proot-distro` Blender
+installation.
 
 
 ## Crimson Plume Knight / Arborblade

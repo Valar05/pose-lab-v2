@@ -18,11 +18,11 @@ if str(TOOL_DIR) not in sys.path:
 from render_animation_pose_packet import (  # noqa: E402
     capture_weapon,
     clear_scene,
+    evaluated_world_vertices,
     flatten_matrix,
     is_weapon_object,
     lock_camera,
     make_camera,
-    sampled_bounds,
     select_action,
     select_armature,
     set_native_pose,
@@ -72,6 +72,66 @@ def resolve_bone(armature: bpy.types.Object, names: tuple[str, ...]) -> bpy.type
 
 def bone_world_head(armature: bpy.types.Object, bone: bpy.types.PoseBone) -> Vector:
     return armature.matrix_world @ bone.head
+
+
+def foot_midpoint_world(
+    armature: bpy.types.Object,
+    left_foot: bpy.types.PoseBone,
+    right_foot: bpy.types.PoseBone,
+) -> Vector:
+    return (
+        bone_world_head(armature, left_foot)
+        + bone_world_head(armature, right_foot)
+    ) * 0.5
+
+
+def anchor_corrections(
+    scene: bpy.types.Scene,
+    armature: bpy.types.Object,
+    left_foot: bpy.types.PoseBone,
+    right_foot: bpy.types.PoseBone,
+    frames: list[float],
+) -> tuple[Vector, list[Vector]]:
+    raw_anchors: list[Vector] = []
+    for frame in frames:
+        set_native_pose(scene, armature, frame)
+        raw_anchors.append(foot_midpoint_world(armature, left_foot, right_foot))
+    baseline = raw_anchors[0]
+    corrections = [
+        Vector((0.0, baseline.y - anchor.y, baseline.z - anchor.z))
+        for anchor in raw_anchors
+    ]
+    return baseline, corrections
+
+
+def set_game_export_pose(
+    scene: bpy.types.Scene,
+    armature: bpy.types.Object,
+    frame: float,
+    correction: Vector,
+) -> None:
+    set_native_pose(scene, armature, frame)
+    armature.location = correction
+    bpy.context.view_layer.update()
+
+
+def stabilized_bounds(
+    scene: bpy.types.Scene,
+    armature: bpy.types.Object,
+    mesh_objects: list[bpy.types.Object],
+    frames: list[float],
+    corrections: list[Vector],
+) -> tuple[Vector, Vector]:
+    lower = Vector((float("inf"), float("inf"), float("inf")))
+    upper = Vector((-float("inf"), -float("inf"), -float("inf")))
+    for frame, correction in zip(frames, corrections):
+        set_game_export_pose(scene, armature, frame, correction)
+        for obj in mesh_objects:
+            for point in evaluated_world_vertices(obj):
+                for axis in range(3):
+                    lower[axis] = min(lower[axis], point[axis])
+                    upper[axis] = max(upper[axis], point[axis])
+    return lower, upper
 
 
 def projected_pixel(
@@ -215,7 +275,20 @@ def main() -> None:
         args.height,
         args.output_fps,
     )
-    lower, upper = sampled_bounds(scene, armature, mesh_objects, render_frames)
+    baseline_foot_world, corrections = anchor_corrections(
+        scene,
+        armature,
+        left_foot,
+        right_foot,
+        render_frames,
+    )
+    lower, upper = stabilized_bounds(
+        scene,
+        armature,
+        mesh_objects,
+        render_frames,
+        corrections,
+    )
     camera = make_camera(scene)
     lock_camera(camera, args.camera_side, lower, upper, args.width / args.height)
     camera_matrix = flatten_matrix(camera.matrix_world)
@@ -223,16 +296,16 @@ def main() -> None:
     frame_duration_ms = 1000.0 / args.output_fps
 
     frames: list[dict[str, object]] = []
-    for index, blender_frame in enumerate(render_frames):
-        set_native_pose(scene, armature, blender_frame)
+    for index, (blender_frame, correction) in enumerate(
+        zip(render_frames, corrections)
+    ):
+        set_game_export_pose(scene, armature, blender_frame, correction)
         actual_matrix = flatten_matrix(camera.matrix_world)
         actual_scale = round(float(camera.data.ortho_scale), 9)
         if actual_matrix != camera_matrix or actual_scale != camera_ortho_scale:
             raise RuntimeError(f"Locked camera changed before frame {index}")
 
-        left_world = bone_world_head(armature, left_foot)
-        right_world = bone_world_head(armature, right_foot)
-        foot_world = (left_world + right_world) * 0.5
+        foot_world = foot_midpoint_world(armature, left_foot, right_foot)
         pivot_world = bone_world_head(armature, root_bone)
         weapon = capture_weapon(scene, camera, armature, mesh_objects)
         if not isinstance(weapon, dict) or weapon.get("status") != "measured":
@@ -266,6 +339,12 @@ def main() -> None:
                     "bones": [left_foot.name, right_foot.name],
                     "method": "projected midpoint of canonical left/right FK foot heads",
                 },
+                "footAnchorCorrectionWorld": {
+                    "x": round(float(correction.x), 8),
+                    "y": round(float(correction.y), 8),
+                    "z": round(float(correction.z), 8),
+                    "method": "whole-rig translation in camera plane; articulation unchanged",
+                },
                 "swordRoot": projected_weapon_pixel(
                     weapon, "hilt", args.width, args.height
                 ),
@@ -295,6 +374,9 @@ def main() -> None:
             "samplePolicy": "uniform loop samples; terminal duplicate excluded",
             "rootMotionSuppressed": True,
             "mutedRootMotionCurves": muted_root_curves,
+            "rawFootAnchorBaselineWorld": [
+                round(float(value), 8) for value in baseline_foot_world
+            ],
         },
         "output": {
             "width": args.width,
@@ -315,6 +397,9 @@ def main() -> None:
             "cameraOrthoScale": camera_ortho_scale,
             "cameraTransformTolerance": 0.0,
             "footAnchorTolerancePx": args.foot_anchor_tolerance_px,
+            "footAnchorStabilization": (
+                "whole-rig camera-plane translation to frame-zero two-foot midpoint"
+            ),
             "retargeting": False,
             "poseAuthoring": False,
             "nativeIdleOnly": True,
