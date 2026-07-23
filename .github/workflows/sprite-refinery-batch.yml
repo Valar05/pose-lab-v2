@@ -41,7 +41,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: sprite-refinery-${{ github.ref }}-${{ inputs.manifest }}
+  group: sprite-refinery-${{ github.ref }}-${{ inputs.manifest || 'vanguard-fleshpunk-001' }}
   cancel-in-progress: false
 
 env:
@@ -66,8 +66,8 @@ jobs:
         run: |
           set -euo pipefail
           node tools/sprite_refinery_plan.mjs \
-            --manifest "${{ inputs.manifest }}" \
-            --provider "${{ inputs.provider }}" \
+            --manifest "${{ inputs.manifest || 'vanguard-fleshpunk-001' }}" \
+            --provider "${{ inputs.provider || 'fixture' }}" \
             --out generated/sprite-refinery/plan.json
           node - <<'NODE' >> "$GITHUB_OUTPUT"
           const fs = require('fs');
@@ -96,14 +96,14 @@ jobs:
         with:
           node-version: 22
       - name: Restore Blender cache
-        if: inputs.provider == 'openai'
+        if: (inputs.provider || 'fixture') == 'openai'
         id: blender-cache
         uses: actions/cache/restore@v4
         with:
           path: .toolcache/blender-4.4.0
           key: blender-linux-x64-4.4.0-official-sha256-v2
       - name: Materialize Blender once
-        if: inputs.provider == 'openai' && steps.blender-cache.outputs.cache-hit != 'true'
+        if: (inputs.provider || 'fixture') == 'openai' && steps.blender-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p .toolcache/blender-4.4.0
           curl --fail --location --retry 3 "$BLENDER_URL" --output "$RUNNER_TEMP/$BLENDER_ARCHIVE"
@@ -111,7 +111,7 @@ jobs:
           ( cd "$RUNNER_TEMP" && grep -E "[[:space:]]+$BLENDER_ARCHIVE$" blender-4.4.0.sha256 | sha256sum --check --strict - )
           tar --extract --file "$RUNNER_TEMP/$BLENDER_ARCHIVE" --directory .toolcache/blender-4.4.0 --strip-components 1
       - name: Save Blender cache
-        if: inputs.provider == 'openai' && steps.blender-cache.outputs.cache-hit != 'true'
+        if: (inputs.provider || 'fixture') == 'openai' && steps.blender-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           path: .toolcache/blender-4.4.0
@@ -119,19 +119,19 @@ jobs:
       - name: Install render dependencies
         run: |
           python3 -c "from PIL import Image; print(Image.__version__)" || python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
-          if [ "${{ inputs.provider }}" = "openai" ]; then sudo apt-get update && sudo apt-get install -y libegl1 libgl1-mesa-dri; fi
+          if [ "${{ inputs.provider || 'fixture' }}" = "openai" ]; then sudo apt-get update && sudo apt-get install -y libegl1 libgl1-mesa-dri; fi
       - name: Render/edit/split/verify clip
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           BLENDER_BIN: .toolcache/blender-4.4.0/blender
           LIBGL_ALWAYS_SOFTWARE: "1"
-          SPRITE_REFINERY_SKIP_RENDER: ${{ inputs.provider == 'fixture' && '1' || '0' }}
+          SPRITE_REFINERY_SKIP_RENDER: ${{ (inputs.provider || 'fixture') == 'fixture' && '1' || '0' }}
         continue-on-error: true
         run: |
           node tools/sprite_refinery_worker.mjs \
             --manifest "${{ matrix.manifest }}" \
             --clip "${{ matrix.clip_id }}" \
-            --provider "${{ inputs.provider }}" \
+            --provider "${{ inputs.provider || 'fixture' }}" \
             --out-dir "generated/sprite-refinery/workers/${{ matrix.batch_id }}/${{ matrix.clip_id }}"
       - uses: actions/upload-artifact@v4
         with:
@@ -167,8 +167,8 @@ jobs:
       - name: Collect ready clips and build review surface
         run: |
           node tools/sprite_refinery_collect.mjs \
-            --manifest "${{ inputs.manifest }}" \
-            --publish "${{ inputs.publish }}"
+            --manifest "${{ inputs.manifest || 'vanguard-fleshpunk-001' }}" \
+            --publish "${{ inputs.publish || false }}"
           npm run test:2d
           npm run build
           npm run smoke
