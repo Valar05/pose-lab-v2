@@ -199,6 +199,63 @@
         "sourceToFleshpunkOffsetPx": 47,
         "tolerancePx": 0
       }
+    },
+    {
+      "id": "walk",
+      "label": "Walk",
+      "loop": true,
+      "contactSheet": "walk/contact-sheet.png",
+      "sourceMetadata": "walk/source-metadata.json",
+      "groundGuideY": 400,
+      "contract": [
+        "screen-right",
+        "canonical Steel Walk",
+        "fixed camera",
+        "eight authored poses",
+        "two-handed visible sword"
+      ],
+      "frames": [
+        {
+          "src": "walk/frames/walk_0000.png",
+          "durationMs": 110,
+          "sha256": "a134327a16aa6f286d58218826ab7b7a963c3419e325ba1aaafa67b5f88fb52b"
+        },
+        {
+          "src": "walk/frames/walk_0001.png",
+          "durationMs": 90,
+          "sha256": "4e1a91d45f963ed86a15fcb6edc964bea08d4ef6eca51dbceff76d5727b55bcc"
+        },
+        {
+          "src": "walk/frames/walk_0002.png",
+          "durationMs": 100,
+          "sha256": "d785be2461724b12dc6410348c98aec6759e576ef91e8a3f84675ca82bb23d1f"
+        },
+        {
+          "src": "walk/frames/walk_0003.png",
+          "durationMs": 110,
+          "sha256": "cd7f9f27ea83dccc69274c2364887243729b7f4c27545f75d2d4b82ef65aee8d"
+        },
+        {
+          "src": "walk/frames/walk_0004.png",
+          "durationMs": 110,
+          "sha256": "6953285689ce825f7aa4d228336872075638ee92be3b7d4133e591a2330d65ea"
+        },
+        {
+          "src": "walk/frames/walk_0005.png",
+          "durationMs": 90,
+          "sha256": "ad4f21c7a26e6a0f956ce14d82b5fbc650ae954ac1902f259754dff845f3422c"
+        },
+        {
+          "src": "walk/frames/walk_0006.png",
+          "durationMs": 100,
+          "sha256": "754f87737f130ec7cb06431f08ed59cdd031dddedfd6a582434a10b5c6ad49ee"
+        },
+        {
+          "src": "walk/frames/walk_0007.png",
+          "durationMs": 110,
+          "sha256": "cc1ee58e22721e7b836ec22f4328422688e1e26344f6f8178243011e1c244893"
+        }
+      ]
     }
   ]
 }
