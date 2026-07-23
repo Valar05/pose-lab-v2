@@ -389,55 +389,59 @@ def bake_target(
     target.animation_data_create()
     target.animation_data.action = action
 
-    # Transfer the complete rest-relative world orientation. The previous
-    # direction-only solve aligned parent->child segments but discarded roll,
-    # so an ordinary idle folded Crimson even without a weapon in the scene.
+    # Retarget local rest-relative motion, not world orientations. Blender may
+    # reconstruct different bone rolls when importing BVH; the local delta is
+    # the invariant carried by the animation channels.
     order = [entry["name"] for entry in skeleton["joints"] if entry["name"] != "root"]
     parent_by_name = {
         entry["name"]: None if entry["parent"] == "root" else entry["parent"]
         for entry in skeleton["joints"]
         if entry["name"] != "root"
     }
-    canonical_rest = {
-        name: (canonical.matrix_world @ canonical.data.bones[name].matrix_local).copy()
+    canonical_rest_local = {
+        name: rest_local(canonical, name)
         for name in order
     }
-    target_rest = {
-        name: target.data.bones[target_map[name]].matrix_local.copy()
+    target_rest_local = {
+        name: rest_local(target, target_map[name])
         for name in order
     }
-    target_rest_world = {
-        name: (target.matrix_world @ target_rest[name]).copy()
-        for name in order
-    }
-    target_local = {name: rest_local(target, target_map[name]) for name in order}
-    target_world_rotation_inverse = target.matrix_world.to_quaternion().inverted()
 
     for frame in frames:
         bpy.context.scene.frame_set(frame + 1)
         bpy.context.view_layer.update()
         desired: dict[str, Matrix] = {}
+
         for name in order:
-            source_pose_world = canonical.matrix_world @ canonical.pose.bones[name].matrix
-            motion_world = (
-                source_pose_world.to_quaternion()
-                @ canonical_rest[name].to_quaternion().inverted()
+            canonical_bone = canonical.pose.bones[name]
+            if canonical_bone.parent:
+                canonical_pose_local = (
+                    canonical_bone.parent.matrix.inverted() @ canonical_bone.matrix
+                )
+            else:
+                canonical_pose_local = canonical_bone.matrix.copy()
+            motion_local = (
+                canonical_rest_local[name].inverted() @ canonical_pose_local
+            ).to_quaternion()
+            desired_local_rotation = (
+                target_rest_local[name].to_quaternion() @ motion_local
             )
-            desired_world_rotation = motion_world @ target_rest_world[name].to_quaternion()
-            desired_target_rotation = target_world_rotation_inverse @ desired_world_rotation
 
             parent = parent_by_name[name]
             if parent:
-                head = desired[parent] @ target_local[name].translation
+                parent_matrix = desired[parent]
+                head = parent_matrix @ target_rest_local[name].translation
+                rotation = parent_matrix.to_quaternion() @ desired_local_rotation
             else:
-                # Idle baseline deliberately suppresses object/root translation.
-                head = target_rest[name].translation.copy()
-            desired[name] = Matrix.LocRotScale(
-                head, desired_target_rotation, Vector((1, 1, 1))
-            )
-            target.pose.bones[target_map[name]].matrix = desired[name]
+                # Crimson has no root pose bone; keep the hips at target rest
+                # while applying only the imported hips' rest-relative rotation.
+                head = target_rest_local[name].translation.copy()
+                rotation = desired_local_rotation
 
-        bpy.context.view_layer.update()
+            desired[name] = Matrix.LocRotScale(head, rotation, Vector((1, 1, 1)))
+            target.pose.bones[target_map[name]].matrix = desired[name]
+            bpy.context.view_layer.update()
+
         for name in order:
             bone = target.pose.bones[target_map[name]]
             bone.rotation_mode = "QUATERNION"
