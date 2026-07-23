@@ -81,6 +81,12 @@ app.innerHTML = `
         </fieldset>
 
         <div class="sprite-contract" data-contract aria-label="Animation contract"></div>
+        <section class="sprite-batch-panel" data-batch-panel hidden aria-labelledby="sprite-batch-title">
+          <div class="sprite-console-heading">
+            <div><p class="sprite-eyebrow">Refinery batch</p><h3 id="sprite-batch-title" data-batch-title>Batch evidence</h3></div>
+          </div>
+          <div data-batch-clips role="list" aria-label="Batch clip states"></div>
+        </section>
         <div class="sprite-frame-strip" data-frame-strip role="tablist" aria-label="Frames"></div>
         <p class="sprite-shortcuts">Space: play/pause · ←/→: step · Home/End: first/last</p>
         <p class="sr-only" data-live-status aria-live="polite"></p>
@@ -115,6 +121,9 @@ const zoomInput = app.querySelector('[data-zoom]');
 const zoomOutput = app.querySelector('[data-zoom-output]');
 const frameStrip = app.querySelector('[data-frame-strip]');
 const contract = app.querySelector('[data-contract]');
+const batchPanel = app.querySelector('[data-batch-panel]');
+const batchTitle = app.querySelector('[data-batch-title]');
+const batchClips = app.querySelector('[data-batch-clips]');
 const liveStatus = app.querySelector('[data-live-status]');
 const backgroundButtons = [...app.querySelectorAll('[data-background]')];
 
@@ -161,6 +170,44 @@ function announce(message) {
   requestAnimationFrame(() => {
     liveStatus.textContent = message;
   });
+}
+
+async function loadBatchEvidence() {
+  const requested = URL_PARAMS.get('batch');
+  if (!requested) return;
+  const batchUrl = new URL(requested, window.location.href);
+  const response = await fetch(batchUrl);
+  if (!response.ok) throw new Error(`Batch state returned ${response.status}`);
+  const state = await response.json();
+  if (state.schema !== 'vanguard-sprite-refinery-state-v1' || typeof state.clips !== 'object') {
+    throw new Error('Unsupported refinery batch state');
+  }
+  batchTitle.textContent = state.batchId;
+  batchClips.replaceChildren(...Object.entries(state.clips).map(([clipId, clip]) => {
+    const row = document.createElement('article');
+    row.className = `sprite-batch-clip state-${clip.state}`;
+    row.role = 'listitem';
+    const heading = document.createElement('h4');
+    heading.textContent = clipId;
+    const status = document.createElement('span');
+    status.className = 'sprite-state-badge';
+    status.textContent = clip.state;
+    status.setAttribute('aria-label', `${clipId} state: ${clip.state}`);
+    row.append(heading, status);
+    const evidence = [clip.workPacket, ...Object.values(clip.attempts || {}).map((attempt) => attempt.provenance)].filter(Boolean);
+    let attemptNumber = 0;
+    evidence.forEach((relative) => {
+      const link = document.createElement('a');
+      link.href = new URL(relative, batchUrl).href;
+      link.target = '_blank'; link.rel = 'noreferrer';
+      if (clip.workPacket === relative) link.textContent = 'Work packet';
+      else { attemptNumber += 1; link.textContent = `Attempt evidence ${attemptNumber}`; }
+      row.append(link);
+    });
+    return row;
+  }));
+  batchPanel.hidden = false;
+  announce(`Loaded refinery batch ${state.batchId} with ${Object.keys(state.clips).length} clips`);
 }
 
 function deltaCacheKey() {
@@ -440,6 +487,7 @@ async function boot() {
     animation = manifest.animations.find((entry) => entry.id === requestedId) || manifest.animations[0];
     await Promise.all(animation.frames.map((frame) => preloadFrame(frame.src)));
     setAnimation(animation.id);
+    await loadBatchEvidence();
     document.title = `${manifest.character} · 2D Review`;
     document.body.dataset.reviewReady = '1';
     document.body.dataset.reviewMode = '2d';

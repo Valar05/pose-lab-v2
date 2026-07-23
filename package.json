@@ -34,6 +34,8 @@
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs",
     "test:2d": "node tools/test_sprite_review_surface.mjs",
+    "refinery:vanguard": "python3 tools/vanguard_sprite_refinery.py",
+    "test:vanguard-refinery": "python3 tools/test_vanguard_sprite_refinery.py",
     "build:fist-hands": "node scripts/build-meshy-fist-authoring.mjs",
     "validate:fist-hands": "node tools/validate_meshy_fist_authoring.mjs",
     "build:davin": "node tools/build_davin_wingsworth_glb.mjs",

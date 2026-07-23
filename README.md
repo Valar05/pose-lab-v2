@@ -282,6 +282,13 @@ original albedo files are still not present. Root
 motion is saved separately in `public/assets/vanguard/vanguard_root_motion.json`
 for game use and is intentionally suppressed in Pose Lab playback.
 
+The resumable multi-clip appearance handoff extends the same native pose-packet
+truth through one repository command: `npm run refinery:vanguard --`. See
+[Vanguard Sprite Refinery](docs/VANGUARD_SPRITE_REFINERY.md) for preparation,
+manual ChatGPT handoff, ingestion, structural verification, explicit approval,
+collection, workflow fan-out, and the machine-readable batch contract. This
+lane never automates an appearance provider.
+
 ## Davin Tail Chain
 
 Davin's default runtime model is a derived GLB with a three-segment tail chain:

@@ -83,6 +83,9 @@ assert(viewer.includes("stack.classList.toggle('show-onion'"), '2D review must e
 assert(viewer.includes('buildDeltaImage') && viewer.includes("stack.classList.toggle('show-delta'"), '2D review must expose exact pixel-delta inspection');
 assert(!css.includes('sprite-onion-previous {\n  transform:') && !css.includes('sprite-onion-next {\n  transform:'), '2D inspection must not invent frame motion');
 assert(viewer.includes("document.body.dataset.reviewReady = '1'"), '2D review must expose a visual-capture readiness signal');
+assert(viewer.includes("URL_PARAMS.get('batch')") && viewer.includes('data-batch-clips'), '2D review must expose refinery batch and clip state');
+assert(viewer.includes("status.setAttribute('aria-label'") && viewer.includes("role = 'listitem'"), 'batch evidence state must be labeled for assistive technology');
+assert(viewer.includes("link.target = '_blank'") && viewer.includes('attempt.provenance'), 'batch review must link work packet and attempt evidence');
 assert(css.includes('.sprite-stage.checker') && css.includes('.sprite-frame-strip'), '2D review styles are incomplete');
 
 const swarmlingManifestPath = 'public/assets/swarmling/fleshpunk/animations.json';
@@ -129,5 +132,6 @@ console.log(JSON.stringify({
     'onion-skin inspection',
     'pixel-delta inspection',
     'no inspection-authored frame motion',
+    'accessible refinery batch state and evidence links',
   ],
 }, null, 2));

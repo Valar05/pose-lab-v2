@@ -356,6 +356,15 @@ body,
   font-size: 11px;
 }
 
+.sprite-batch-panel { border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; padding: 12px; }
+.sprite-batch-panel [data-batch-clips] { display: grid; gap: 8px; }
+.sprite-batch-clip { display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(0, 0, 0, 0.18); border-radius: 8px; }
+.sprite-batch-clip h4 { margin: 0 auto 0 0; }
+.sprite-batch-clip a { color: #9ddcff; }
+.sprite-state-badge { padding: 3px 8px; border: 1px solid currentColor; border-radius: 999px; text-transform: uppercase; font-size: 0.72rem; }
+.state-red .sprite-state-badge, .state-blocked .sprite-state-badge { color: #ff9e9e; }
+.state-approved .sprite-state-badge, .state-ready .sprite-state-badge { color: #9eebae; }
+
 .sprite-frame-strip {
   display: flex;
   gap: 7px;

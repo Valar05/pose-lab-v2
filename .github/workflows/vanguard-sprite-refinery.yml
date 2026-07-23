@@ -1,0 +1,92 @@
+name: Vanguard Sprite Refinery Prepare
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: Repository-relative validated batch manifest
+        required: true
+        default: refinery/vanguard-batch.example.json
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      concurrency: ${{ steps.plan.outputs.concurrency }}
+      batch: ${{ steps.plan.outputs.batch }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        env:
+          MANIFEST: ${{ inputs.manifest }}
+        run: |
+          plan="$(python3 tools/vanguard_sprite_refinery.py queue --manifest "$MANIFEST")"
+          echo "matrix=$(jq -c '.matrix' <<<"$plan")" >> "$GITHUB_OUTPUT"
+          echo "concurrency=$(jq -r '.maxConcurrency' <<<"$plan")" >> "$GITHUB_OUTPUT"
+          echo "batch=$(jq -r '.batchId' "$MANIFEST")" >> "$GITHUB_OUTPUT"
+
+  prepare-clip:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJSON(needs.plan.outputs.concurrency) }}
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install --disable-pip-version-check pillow==11.3.0
+      - uses: actions/cache/restore@v4
+        id: blender-cache
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+      - name: Require trusted cached Blender
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        run: echo 'Trusted Blender cache missing; infrastructure is blocked, not artwork red.' >&2; exit 2
+      - name: Render and verify isolated native packet
+        env:
+          MANIFEST: ${{ inputs.manifest }}
+          CLIP: ${{ matrix.clip }}
+        run: |
+          action="$(jq -r --arg clip "$CLIP" '.clips[] | select(.id == $clip) | .nativeAction' "$MANIFEST")"
+          frames="$(jq -r --arg clip "$CLIP" '.clips[] | select(.id == $clip) | .frameSamples | join(",")' "$MANIFEST")"
+          columns="$(jq -r --arg clip "$CLIP" '.clips[] | select(.id == $clip) | .grid.columns' "$MANIFEST")"
+          rows="$(jq -r --arg clip "$CLIP" '.clips[] | select(.id == $clip) | .grid.rows' "$MANIFEST")"
+          packet="$(jq -r --arg clip "$CLIP" '.clips[] | select(.id == $clip) | .posePacket' "$MANIFEST")"
+          .toolcache/blender-4.4.0/blender --background --python-exit-code 1 --python tools/render_animation_pose_packet.py -- --asset public/assets/vanguard/vanguard_rigged_animations.glb --out-dir "$packet" --action "$action" --frames "$frames" --source-fps 60 --camera-side right --columns "$columns" --rows "$rows"
+          python3 tools/assemble_animation_pose_packet.py --root "$packet"
+          python3 tools/verify_animation_pose_packet.py --root "$packet" --report "$packet/verification.json"
+          python3 tools/vanguard_sprite_refinery.py prepare --manifest "$MANIFEST" --clip "$CLIP" --root "generated/refinery-workers/$CLIP"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: refinery-${{ needs.plan.outputs.batch }}-${{ matrix.clip }}
+          path: generated/refinery-workers/${{ matrix.clip }}/
+          if-no-files-found: error
+
+  collect-work-packets:
+    if: always() && needs.plan.result == 'success'
+    needs: [plan, prepare-clip]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: refinery-${{ needs.plan.outputs.batch }}-*
+          path: generated/refinery-worker-artifacts
+      - name: Single shared-state collector
+        env:
+          MANIFEST: ${{ inputs.manifest }}
+        run: python3 tools/vanguard_sprite_refinery.py collect --manifest "$MANIFEST" --worker-artifacts generated/refinery-worker-artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: refinery-${{ needs.plan.outputs.batch }}-collection
+          path: generated/vanguard-refinery/
+          if-no-files-found: error

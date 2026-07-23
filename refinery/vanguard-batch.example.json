@@ -1,0 +1,32 @@
+{
+  "schema": "vanguard-sprite-refinery-batch-v1",
+  "batchId": "vanguard-native-review-001",
+  "maxConcurrency": 2,
+  "concept": {
+    "id": "file_00000000500881f4adab6e2f24ce0c7d",
+    "sha256": "a81310b22ed537ec0aac39133bcf810d965ff2f2d00d7f9a8a56472c04c6878e",
+    "target": "public/assets/vanguard/concepts/fleshpunk-vanguard-v1.jpg"
+  },
+  "clips": [
+    {
+      "id": "idle-native-sample",
+      "nativeAction": "Idle",
+      "frameSamples": [0, 10, 20, 30, 40, 50],
+      "timingMs": [170, 170, 160, 170, 170, 160],
+      "facing": "screen-right",
+      "cameraProfile": "vanguard-orthographic-screen-right-v1",
+      "grid": {"columns": 3, "rows": 2},
+      "posePacket": "generated/vanguard-refinery/pose-packets/idle-native-sample"
+    },
+    {
+      "id": "swordattack1-native-sample",
+      "nativeAction": "SwordAttack1",
+      "frameSamples": [0, 3, 6, 9, 12, 15, 18, 21, 24, 28, 33, 38],
+      "timingMs": [50, 50, 50, 50, 50, 50, 50, 50, 70, 80, 80, 120],
+      "facing": "screen-right",
+      "cameraProfile": "vanguard-orthographic-screen-right-v1",
+      "grid": {"columns": 4, "rows": 3},
+      "posePacket": "generated/vanguard-refinery/pose-packets/swordattack1-native-sample"
+    }
+  ]
+}

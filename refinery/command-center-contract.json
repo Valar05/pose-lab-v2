@@ -1,0 +1,22 @@
+{
+  "schema": "command-center-tool-contract-v1",
+  "tool": "vanguard-sprite-refinery",
+  "entrypoint": "npm run refinery:vanguard --",
+  "states": ["planned", "rendering", "awaiting_skin", "candidate", "red", "approved", "ready", "blocked"],
+  "failureKinds": {"blocked": "infrastructure or missing transport", "red": "artwork or structural rejection"},
+  "externalWrites": "none; interactive ChatGPT handoff is performed by a human",
+  "jobs": {
+    "prepare-batch": {
+      "inputs": ["validated batch manifest", "native Steel pose packets", "exact-hash concept materialization"],
+      "outputs": ["one immutable work packet per clip", "awaiting_skin state"],
+      "stopConditions": ["wrong concept hash", "missing native packet", "camera/facing contract mismatch"],
+      "example": "npm run refinery:vanguard -- prepare --manifest refinery/vanguard-batch.example.json"
+    },
+    "collect-batch": {
+      "inputs": ["batch state", "explicit approval records"],
+      "outputs": ["single shared registry update", "ready state for approved clips"],
+      "stopConditions": ["zero or multiple approved attempts for a clip", "approval/hash identity mismatch"],
+      "example": "npm run refinery:vanguard -- collect --manifest refinery/vanguard-batch.example.json --registry generated/vanguard-refinery/registry.json"
+    }
+  }
+}
