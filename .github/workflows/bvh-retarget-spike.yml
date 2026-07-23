@@ -1,0 +1,75 @@
+name: ORG BVH Retarget Spike
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/bvh-retarget-spike
+    paths:
+      - tools/bake_bvh_retarget_spike_blender.py
+      - tools/test_bvh_retarget_contract.py
+      - experiments/bvh-retarget/**
+      - .github/workflows/bvh-retarget-spike.yml
+
+permissions:
+  contents: read
+
+env:
+  BLENDER_VERSION: "4.4.0"
+  BLENDER_ARCHIVE: "blender-4.4.0-linux-x64.tar.xz"
+  BLENDER_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0-linux-x64.tar.xz"
+  BLENDER_CHECKSUM_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0.sha256"
+
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify ORG contract
+        run: python3 tools/test_bvh_retarget_contract.py
+
+      - name: Restore persistent Blender
+        id: blender-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+
+      - name: Materialize verified Blender
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .toolcache/blender-4.4.0
+          curl --fail --location --retry 3 "$BLENDER_URL" --output "$RUNNER_TEMP/$BLENDER_ARCHIVE"
+          curl --fail --location --retry 3 "$BLENDER_CHECKSUM_URL" --output "$RUNNER_TEMP/blender-4.4.0.sha256"
+          (
+            cd "$RUNNER_TEMP"
+            grep -E "[[:space:]]+$BLENDER_ARCHIVE$" blender-4.4.0.sha256 | sha256sum --check --strict -
+          )
+          tar --extract --file "$RUNNER_TEMP/$BLENDER_ARCHIVE" --directory .toolcache/blender-4.4.0 --strip-components 1
+
+      - name: Save persistent Blender
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+
+      - name: Bake, round-trip, retarget, and render
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          .toolcache/blender-4.4.0/blender --background \
+            --python-exit-code 1 \
+            --python tools/bake_bvh_retarget_spike_blender.py \
+            -- \
+            --out-dir generated/bvh-retarget-spike
+
+      - name: Upload diagnostic evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: org-bvh-retarget-spike
+          path: generated/bvh-retarget-spike/
+          if-no-files-found: error
+          retention-days: 30
