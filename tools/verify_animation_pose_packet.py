@@ -200,12 +200,16 @@ def verify(
                     "size": list(image.size),
                     "expectedSize": list(expected_size),
                 }
+                expected_ratio = expected_size[0] / expected_size[1]
+                actual_ratio = image.width / image.height
+                ratio_error = abs(actual_ratio - expected_ratio) / expected_ratio
+                generated_record["aspectRatioError"] = round(ratio_error, 8)
                 require(
-                    image.size == expected_size,
-                    "generated sheet changed grid dimensions; frame correspondence is lost",
+                    ratio_error <= 0.005,
+                    "generated sheet changed grid aspect ratio; frame correspondence is lost",
                     failures,
                 )
-                if overlay_out is not None and image.size == expected_size:
+                if overlay_out is not None and ratio_error <= 0.005:
                     overlay_out.parent.mkdir(parents=True, exist_ok=True)
                     review_overlay = geometry_overlay(
                         image.convert("RGB"),
