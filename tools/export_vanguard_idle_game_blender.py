@@ -60,6 +60,30 @@ def require_positive(name: str, value: float) -> None:
         raise RuntimeError(f"{name} must be positive, received {value}")
 
 
+def source_action_range(asset: Path, action_name: str) -> tuple[float, float]:
+    manifest_path = asset.with_name("vanguard_manifest.json")
+    if not manifest_path.is_file():
+        raise FileNotFoundError(
+            f"Canonical Vanguard manifest not found beside rig: {manifest_path}"
+        )
+    manifest = json.loads(manifest_path.read_text())
+    matches = [
+        entry
+        for entry in manifest.get("animations", [])
+        if entry.get("name") == action_name
+    ]
+    if len(matches) != 1:
+        raise RuntimeError(
+            f"Expected one {action_name!r} entry in {manifest_path}, found {matches}"
+        )
+    values = matches[0].get("frameRange")
+    if not isinstance(values, list) or len(values) != 2:
+        raise RuntimeError(
+            f"Canonical Vanguard {action_name!r} frameRange is invalid: {values}"
+        )
+    return float(values[0]), float(values[1])
+
+
 def resolve_bone(armature: bpy.types.Object, names: tuple[str, ...]) -> bpy.types.PoseBone:
     for name in names:
         bone = armature.pose.bones.get(name)
@@ -242,11 +266,29 @@ def main() -> None:
     armature.animation_data.action = action
     muted_root_curves = suppress_root_motion(action, armature)
     action_start, action_end = (float(value) for value in action.frame_range)
+    imported_blender_fps = float(scene.render.fps) / float(scene.render.fps_base)
+    source_start, source_end = source_action_range(asset, args.action)
     action_span = action_end - action_start
+    source_span = source_end - source_start
     if action_span <= 0:
         raise RuntimeError(f"Idle action has invalid frame range {action.frame_range[:]}")
+    if source_span <= 0:
+        raise RuntimeError(
+            f"Source Idle action has invalid frame range {[source_start, source_end]}"
+        )
+    imported_duration = action_span / imported_blender_fps
+    source_duration = source_span / args.source_fps
+    if abs(imported_duration - source_duration) > 0.0001:
+        raise RuntimeError(
+            "Canonical Vanguard Idle duration changed between source manifest and "
+            f"Blender import: {source_duration}s != {imported_duration}s"
+        )
     render_frames = [
         action_start + action_span * (index / args.frame_count)
+        for index in range(args.frame_count)
+    ]
+    source_frames = [
+        source_start + source_span * (index / args.frame_count)
         for index in range(args.frame_count)
     ]
 
@@ -296,8 +338,8 @@ def main() -> None:
     frame_duration_ms = 1000.0 / args.output_fps
 
     frames: list[dict[str, object]] = []
-    for index, (blender_frame, correction) in enumerate(
-        zip(render_frames, corrections)
+    for index, (source_frame, blender_frame, correction) in enumerate(
+        zip(source_frames, render_frames, corrections)
     ):
         set_game_export_pose(scene, armature, blender_frame, correction)
         actual_matrix = flatten_matrix(camera.matrix_world)
@@ -326,7 +368,8 @@ def main() -> None:
         frames.append(
             {
                 "frame": index,
-                "sourceFrame": round(blender_frame, 6),
+                "sourceFrame": round(source_frame, 6),
+                "blenderImportedFrame": round(blender_frame, 6),
                 "image": file_name,
                 "imageSha256": sha256(image_path),
                 "pivot": projected_pixel(
@@ -367,10 +410,16 @@ def main() -> None:
             "actionRequested": args.action,
             "actionResolved": action.name,
             "actionFrameRange": [
+                round(source_start, 6),
+                round(source_end, 6),
+            ],
+            "importedBlenderActionFrameRange": [
                 round(action_start, 6),
                 round(action_end, 6),
             ],
             "sourceFps": args.source_fps,
+            "importedBlenderFps": imported_blender_fps,
+            "durationSeconds": round(source_duration, 8),
             "samplePolicy": "uniform loop samples; terminal duplicate excluded",
             "rootMotionSuppressed": True,
             "mutedRootMotionCurves": muted_root_curves,
