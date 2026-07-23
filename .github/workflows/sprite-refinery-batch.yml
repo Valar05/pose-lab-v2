@@ -5,13 +5,13 @@ on:
     branches:
       - agent/sprite-refinery-mvp
     paths:
-      - .github/workflows/sprite-refinery-batch.yml
-      - authoring/sprite-refinery/**
-      - tools/sprite_refinery_*
-      - tools/test_sprite_refinery.mjs
-      - src/sprite-viewer.js
-      - src/styles.css
-      - package.json
+      - '.github/workflows/sprite-refinery-batch.yml'
+      - 'authoring/sprite-refinery/**'
+      - 'tools/sprite_refinery_*'
+      - 'tools/test_sprite_refinery.mjs'
+      - 'src/sprite-viewer.js'
+      - 'src/styles.css'
+      - 'package.json'
   workflow_dispatch:
     inputs:
       manifest:
@@ -20,7 +20,7 @@ on:
         default: vanguard-fleshpunk-001
         type: string
       provider:
-        description: Provider to use: fixture or openai
+        description: Provider to use
         required: true
         default: fixture
         type: choice
@@ -51,17 +51,13 @@ env:
   SPRITE_REFINERY_MANIFEST: ${{ github.event.inputs.manifest || 'vanguard-fleshpunk-001' }}
   SPRITE_REFINERY_PROVIDER: ${{ github.event.inputs.provider || 'fixture' }}
   SPRITE_REFINERY_PUBLISH: ${{ github.event.inputs.publish || 'false' }}
-  BLENDER_VERSION: "4.4.0"
-  BLENDER_ARCHIVE: "blender-4.4.0-linux-x64.tar.xz"
-  BLENDER_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0-linux-x64.tar.xz"
-  BLENDER_CHECKSUM_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0.sha256"
+  BLENDER_BIN: .toolcache/blender-4.4.0/blender
+  LIBGL_ALWAYS_SOFTWARE: '1'
 
 jobs:
   planner:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.plan.outputs.matrix }}
-      max_concurrency: ${{ steps.plan.outputs.max_concurrency }}
       batch_id: ${{ steps.plan.outputs.batch_id }}
     steps:
       - uses: actions/checkout@v4
@@ -72,14 +68,12 @@ jobs:
         run: |
           set -euo pipefail
           node tools/sprite_refinery_plan.mjs \
-            --manifest "${{ env.SPRITE_REFINERY_MANIFEST }}" \
-            --provider "${{ env.SPRITE_REFINERY_PROVIDER }}" \
+            --manifest "$SPRITE_REFINERY_MANIFEST" \
+            --provider "$SPRITE_REFINERY_PROVIDER" \
             --out generated/sprite-refinery/plan.json
           node - <<'NODE' >> "$GITHUB_OUTPUT"
           const fs = require('fs');
           const plan = JSON.parse(fs.readFileSync('generated/sprite-refinery/plan.json', 'utf8'));
-          console.log(`matrix=${JSON.stringify({ include: plan.matrix })}`);
-          console.log(`max_concurrency=${plan.max_concurrency}`);
           console.log(`batch_id=${plan.batch_id}`);
           NODE
       - uses: actions/upload-artifact@v4
@@ -88,66 +82,66 @@ jobs:
           path: generated/sprite-refinery/plan.json
           if-no-files-found: error
 
-  clip-worker:
+  idle-worker:
     needs: planner
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      max-parallel: 2
-      matrix: ${{ fromJSON(needs.planner.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Restore Blender cache
-        if: ${{ env.SPRITE_REFINERY_PROVIDER == 'openai' }}
-        id: blender-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: .toolcache/blender-4.4.0
-          key: blender-linux-x64-4.4.0-official-sha256-v2
-      - name: Materialize Blender once
-        if: ${{ env.SPRITE_REFINERY_PROVIDER == 'openai' && steps.blender-cache.outputs.cache-hit != 'true' }}
-        run: |
-          mkdir -p .toolcache/blender-4.4.0
-          curl --fail --location --retry 3 "$BLENDER_URL" --output "$RUNNER_TEMP/$BLENDER_ARCHIVE"
-          curl --fail --location --retry 3 "$BLENDER_CHECKSUM_URL" --output "$RUNNER_TEMP/blender-4.4.0.sha256"
-          ( cd "$RUNNER_TEMP" && grep -E "[[:space:]]+$BLENDER_ARCHIVE$" blender-4.4.0.sha256 | sha256sum --check --strict - )
-          tar --extract --file "$RUNNER_TEMP/$BLENDER_ARCHIVE" --directory .toolcache/blender-4.4.0 --strip-components 1
-      - name: Save Blender cache
-        if: ${{ env.SPRITE_REFINERY_PROVIDER == 'openai' && steps.blender-cache.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v4
-        with:
-          path: .toolcache/blender-4.4.0
-          key: blender-linux-x64-4.4.0-official-sha256-v2
-      - name: Install render dependencies
-        run: |
-          python3 -c "from PIL import Image; print(Image.__version__)" || python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
-          if [ "$SPRITE_REFINERY_PROVIDER" = "openai" ]; then sudo apt-get update && sudo apt-get install -y libegl1 libgl1-mesa-dri; fi
-      - name: Render/edit/split/verify clip
+      - name: Install Python image dependency
+        run: python3 -c "from PIL import Image; print(Image.__version__)" || python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
+      - name: Render/edit/split/verify Idle
+        continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          BLENDER_BIN: .toolcache/blender-4.4.0/blender
-          LIBGL_ALWAYS_SOFTWARE: "1"
           SPRITE_REFINERY_SKIP_RENDER: ${{ env.SPRITE_REFINERY_PROVIDER == 'fixture' && '1' || '0' }}
-        continue-on-error: true
         run: |
           node tools/sprite_refinery_worker.mjs \
-            --manifest "${{ matrix.manifest }}" \
-            --clip "${{ matrix.clip_id }}" \
-            --provider "${{ env.SPRITE_REFINERY_PROVIDER }}" \
-            --out-dir "generated/sprite-refinery/workers/${{ matrix.batch_id }}/${{ matrix.clip_id }}"
+            --manifest "$SPRITE_REFINERY_MANIFEST" \
+            --clip idle \
+            --provider "$SPRITE_REFINERY_PROVIDER" \
+            --out-dir "generated/sprite-refinery/workers/${{ needs.planner.outputs.batch_id }}/idle"
       - uses: actions/upload-artifact@v4
         with:
-          name: sprite-refinery-worker-${{ matrix.clip_id }}
-          path: generated/sprite-refinery/workers/${{ matrix.batch_id }}/${{ matrix.clip_id }}
+          name: sprite-refinery-worker-idle
+          path: generated/sprite-refinery/workers/${{ needs.planner.outputs.batch_id }}/idle
+          if-no-files-found: error
+          retention-days: 30
+
+  swordattack1-worker:
+    needs: planner
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Python image dependency
+        run: python3 -c "from PIL import Image; print(Image.__version__)" || python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
+      - name: Render/edit/split/verify SwordAttack1
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SPRITE_REFINERY_SKIP_RENDER: ${{ env.SPRITE_REFINERY_PROVIDER == 'fixture' && '1' || '0' }}
+        run: |
+          node tools/sprite_refinery_worker.mjs \
+            --manifest "$SPRITE_REFINERY_MANIFEST" \
+            --clip swordattack1 \
+            --provider "$SPRITE_REFINERY_PROVIDER" \
+            --out-dir "generated/sprite-refinery/workers/${{ needs.planner.outputs.batch_id }}/swordattack1"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sprite-refinery-worker-swordattack1
+          path: generated/sprite-refinery/workers/${{ needs.planner.outputs.batch_id }}/swordattack1
           if-no-files-found: error
           retention-days: 30
 
   collector:
-    needs: [planner, clip-worker]
+    needs: [planner, idle-worker, swordattack1-worker]
     if: ${{ always() && needs.planner.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -166,31 +160,19 @@ jobs:
         run: |
           mkdir -p "generated/sprite-refinery/workers/${{ needs.planner.outputs.batch_id }}"
           find generated/sprite-refinery/downloaded -name result.json -print | while read -r result; do
-            clip=$(node -e "const r=require('./'$result); console.log(r.clip_id || 'unknown')")
+            clip=$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); console.log(r.clip_id || 'unknown')" "$result")
             mkdir -p "generated/sprite-refinery/workers/${{ needs.planner.outputs.batch_id }}/$clip"
             cp -R "$(dirname "$result")"/. "generated/sprite-refinery/workers/${{ needs.planner.outputs.batch_id }}/$clip/"
           done
       - name: Collect ready clips and build review surface
         run: |
           node tools/sprite_refinery_collect.mjs \
-            --manifest "${{ env.SPRITE_REFINERY_MANIFEST }}" \
-            --publish "${{ env.SPRITE_REFINERY_PUBLISH }}"
+            --manifest "$SPRITE_REFINERY_MANIFEST" \
+            --publish "$SPRITE_REFINERY_PUBLISH"
           npm run test:2d
           npm run build
           npm run smoke
           git diff --check
-      - name: Commit collector output once
-        if: ${{ env.SPRITE_REFINERY_PUBLISH == 'true' }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/assets/vanguard/fleshpunk public/reviews/sprite-refinery
-          if git diff --cached --quiet; then
-            echo "No collector changes to commit."
-          else
-            git commit -m "Collect Sprite Refinery batch ${{ needs.planner.outputs.batch_id }}"
-            git push
-          fi
       - name: Open or update draft batch PR
         env:
           GH_TOKEN: ${{ github.token }}
