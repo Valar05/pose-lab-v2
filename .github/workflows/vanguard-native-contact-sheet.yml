@@ -30,7 +30,7 @@ jobs:
 
       - name: Restore persistent Blender toolchain
         id: blender-cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: .toolcache/blender-4.4.0
           key: blender-linux-x64-4.4.0-official-sha256-v2
@@ -54,6 +54,13 @@ jobs:
             --file "$RUNNER_TEMP/$BLENDER_ARCHIVE" \
             --directory .toolcache/blender-4.4.0 \
             --strip-components 1
+
+      - name: Save persistent Blender toolchain
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
 
       - name: Restore Python package cache
         uses: actions/cache@v4
