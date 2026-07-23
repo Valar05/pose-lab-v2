@@ -48,17 +48,25 @@ def write_fixture(root: Path) -> None:
                 "image": path.name,
                 "imageSha256": sha256(path),
                 "pivot": {"x": 4.0, "y": 7.0},
+                "leftFootAnchor": {"x": 3.0, "y": 6.0},
+                "rightFootAnchor": {"x": 5.0, "y": 6.0},
                 "footAnchor": {"x": 4.0, "y": 6.0},
                 "swordRoot": {"x": 4.0, "y": 3.0},
                 "swordTip": {"x": 2.0, "y": 1.0},
                 "frameDurationMs": 83.333333,
                 "cameraMatrixWorld": CAMERA,
                 "cameraOrthoScale": 2.0,
+                "armatureMatrixWorld": CAMERA,
+                "rootLocation": [0.0, 0.0, 0.0],
             }
         )
     metadata = {
         "schema": SCHEMA,
         "status": "rendered-pending-verification",
+        "source": {
+            "rootMotionSuppressed": False,
+            "animationModified": False,
+        },
         "output": {
             "width": 8,
             "height": 8,
@@ -68,7 +76,11 @@ def write_fixture(root: Path) -> None:
             "cameraType": "ORTHO",
             "cameraMatrixWorld": CAMERA,
             "cameraOrthoScale": 2.0,
+            "armatureMatrixWorld": CAMERA,
             "footAnchorTolerancePx": 1.0,
+            "renderedGroundContactTolerancePx": 1.0,
+            "footAnchorStabilization": False,
+            "animationModifications": [],
         },
         "frames": records,
     }
@@ -98,6 +110,24 @@ def expect_failure(name: str, mutator, expected: str) -> None:
 
 
 def main() -> None:
+    exporter_source = (
+        Path(__file__).with_name("export_vanguard_idle_game_blender.py").read_text()
+    )
+    banned_exporter_motion = (
+        "armature.location =",
+        "armature.matrix_world =",
+        "root.location =",
+        "suppress_root_motion",
+        "footAnchorCorrectionWorld",
+        "anchor_corrections",
+        "stabilized_bounds",
+        "set_game_export_pose",
+    )
+    for banned in banned_exporter_motion:
+        assert banned not in exporter_source, (
+            f"exporter reintroduced artificial motion through {banned!r}"
+        )
+
     with tempfile.TemporaryDirectory(prefix="vanguard-idle-pass-") as tmp:
         root = Path(tmp)
         write_fixture(root)
@@ -138,12 +168,66 @@ def main() -> None:
     expect_failure("dimensions", dimensions, "frame dimensions differ")
 
     expect_failure(
-        "foot",
+        "left-foot",
         lambda root: mutate_metadata(
             root,
-            lambda data: data["frames"][1]["footAnchor"].update({"x": 8.0}),
+            lambda data: data["frames"][1]["leftFootAnchor"].update({"x": 8.0}),
         ),
-        "foot anchor drifts",
+        "leftFootAnchor drifts",
+    )
+
+    expect_failure(
+        "armature",
+        lambda root: mutate_metadata(
+            root,
+            lambda data: data["frames"][1].update(
+                {"armatureMatrixWorld": [2.0, *CAMERA[1:]]}
+            ),
+        ),
+        "armature object transform changes",
+    )
+
+    expect_failure(
+        "stabilization",
+        lambda root: mutate_metadata(
+            root,
+            lambda data: data["contract"].update(
+                {"footAnchorStabilization": "whole-rig translation"}
+            ),
+        ),
+        "foot anchor stabilization must be disabled",
+    )
+
+    expect_failure(
+        "native-root-motion",
+        lambda root: mutate_metadata(
+            root,
+            lambda data: data["frames"][1].update(
+                {"rootLocation": [0.0, 0.25, 0.0]}
+            ),
+        ),
+        "native root motion appears",
+    )
+
+    def ground_contact(root: Path) -> None:
+        path = root / "idle_0001.png"
+        with Image.open(path) as opened:
+            image = opened.convert("RGBA")
+        for x in range(image.width):
+            for y in range(5, image.height):
+                image.putpixel((x, y), (0, 0, 0, 0))
+        image.save(path)
+        mutate_metadata(
+            root,
+            lambda data: data["frames"][1].update(
+                {"imageSha256": sha256(path)}
+            ),
+        )
+
+    expect_failure(
+        "ground-contact",
+        ground_contact,
+        "rendered ground contact drifts",
     )
 
     print(
@@ -153,9 +237,14 @@ def main() -> None:
                 "checked": [
                     "valid export",
                     "camera transform change",
+                    "armature object transform change",
+                    "artificial stabilization contract",
+                    "artificial exporter motion",
+                    "native root motion",
                     "opaque background",
                     "dimension mismatch",
-                    "foot anchor drift",
+                    "individual IK foot anchor drift",
+                    "rendered ground contact drift",
                 ],
             },
             indent=2,

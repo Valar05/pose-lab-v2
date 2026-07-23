@@ -25,16 +25,14 @@ from render_animation_pose_packet import (  # noqa: E402
     make_camera,
     select_action,
     select_armature,
-    set_native_pose,
     sha256,
-    suppress_root_motion,
 )
 
 
 SCHEMA = "pose-lab-v2-vanguard-idle-game-export-v1"
-FOOT_BONE_CANDIDATES = {
-    "left": ("foot.fk.L", "foot.ik.L", "DEF-foot.L", "foot.L"),
-    "right": ("foot.fk.R", "foot.ik.R", "DEF-foot.R", "foot.R"),
+FOOT_BONES = {
+    "left": "foot.ik.L",
+    "right": "foot.ik.R",
 }
 
 
@@ -84,13 +82,12 @@ def source_action_range(asset: Path, action_name: str) -> tuple[float, float]:
     return float(values[0]), float(values[1])
 
 
-def resolve_bone(armature: bpy.types.Object, names: tuple[str, ...]) -> bpy.types.PoseBone:
-    for name in names:
-        bone = armature.pose.bones.get(name)
-        if bone is not None:
-            return bone
+def resolve_bone(armature: bpy.types.Object, name: str) -> bpy.types.PoseBone:
+    bone = armature.pose.bones.get(name)
+    if bone is not None:
+        return bone
     raise RuntimeError(
-        f"Canonical Vanguard rig is missing required bone; searched {list(names)}"
+        f"Canonical Vanguard rig is missing required bone {name!r}"
     )
 
 
@@ -98,58 +95,40 @@ def bone_world_head(armature: bpy.types.Object, bone: bpy.types.PoseBone) -> Vec
     return armature.matrix_world @ bone.head
 
 
-def foot_midpoint_world(
-    armature: bpy.types.Object,
-    left_foot: bpy.types.PoseBone,
-    right_foot: bpy.types.PoseBone,
-) -> Vector:
-    return (
-        bone_world_head(armature, left_foot)
-        + bone_world_head(armature, right_foot)
-    ) * 0.5
-
-
-def anchor_corrections(
+def set_source_pose(
     scene: bpy.types.Scene,
-    armature: bpy.types.Object,
-    left_foot: bpy.types.PoseBone,
-    right_foot: bpy.types.PoseBone,
-    frames: list[float],
-) -> tuple[Vector, list[Vector]]:
-    raw_anchors: list[Vector] = []
-    for frame in frames:
-        set_native_pose(scene, armature, frame)
-        raw_anchors.append(foot_midpoint_world(armature, left_foot, right_foot))
-    baseline = raw_anchors[0]
-    corrections = [
-        Vector((0.0, baseline.y - anchor.y, baseline.z - anchor.z))
-        for anchor in raw_anchors
-    ]
-    return baseline, corrections
-
-
-def set_game_export_pose(
-    scene: bpy.types.Scene,
-    armature: bpy.types.Object,
     frame: float,
-    correction: Vector,
 ) -> None:
-    set_native_pose(scene, armature, frame)
-    armature.location = correction
+    scene.frame_set(int(frame), subframe=frame - int(frame))
     bpy.context.view_layer.update()
 
 
-def stabilized_bounds(
+def require_fixed_transform(
+    obj: bpy.types.Object,
+    expected: list[float],
+    label: str,
+) -> None:
+    actual = flatten_matrix(obj.matrix_world)
+    if actual != expected:
+        raise RuntimeError(f"{label} transform changed: {actual} != {expected}")
+
+
+def source_bounds(
     scene: bpy.types.Scene,
     armature: bpy.types.Object,
     mesh_objects: list[bpy.types.Object],
     frames: list[float],
-    corrections: list[Vector],
+    armature_matrix: list[float],
 ) -> tuple[Vector, Vector]:
     lower = Vector((float("inf"), float("inf"), float("inf")))
     upper = Vector((-float("inf"), -float("inf"), -float("inf")))
-    for frame, correction in zip(frames, corrections):
-        set_game_export_pose(scene, armature, frame, correction)
+    for frame in frames:
+        set_source_pose(scene, frame)
+        require_fixed_transform(
+            armature,
+            armature_matrix,
+            "Canonical Vanguard armature object",
+        )
         for obj in mesh_objects:
             for point in evaluated_world_vertices(obj):
                 for axis in range(3):
@@ -264,7 +243,7 @@ def main() -> None:
     action = select_action(args.action)
     armature.animation_data_create()
     armature.animation_data.action = action
-    muted_root_curves = suppress_root_motion(action, armature)
+    armature_matrix = flatten_matrix(armature.matrix_world)
     action_start, action_end = (float(value) for value in action.frame_range)
     imported_blender_fps = float(scene.render.fps) / float(scene.render.fps_base)
     source_start, source_end = source_action_range(asset, args.action)
@@ -304,8 +283,8 @@ def main() -> None:
             f"{[obj.name for obj in weapon_objects]}"
         )
 
-    left_foot = resolve_bone(armature, FOOT_BONE_CANDIDATES["left"])
-    right_foot = resolve_bone(armature, FOOT_BONE_CANDIDATES["right"])
+    left_foot = resolve_bone(armature, FOOT_BONES["left"])
+    right_foot = resolve_bone(armature, FOOT_BONES["right"])
     root_bone = armature.pose.bones.get("root") or armature.pose.bones.get("Root")
     if root_bone is None:
         raise RuntimeError("Canonical Vanguard rig is missing required root bone")
@@ -317,19 +296,12 @@ def main() -> None:
         args.height,
         args.output_fps,
     )
-    baseline_foot_world, corrections = anchor_corrections(
-        scene,
-        armature,
-        left_foot,
-        right_foot,
-        render_frames,
-    )
-    lower, upper = stabilized_bounds(
+    lower, upper = source_bounds(
         scene,
         armature,
         mesh_objects,
         render_frames,
-        corrections,
+        armature_matrix,
     )
     camera = make_camera(scene)
     lock_camera(camera, args.camera_side, lower, upper, args.width / args.height)
@@ -338,16 +310,23 @@ def main() -> None:
     frame_duration_ms = 1000.0 / args.output_fps
 
     frames: list[dict[str, object]] = []
-    for index, (source_frame, blender_frame, correction) in enumerate(
-        zip(source_frames, render_frames, corrections)
+    for index, (source_frame, blender_frame) in enumerate(
+        zip(source_frames, render_frames)
     ):
-        set_game_export_pose(scene, armature, blender_frame, correction)
+        set_source_pose(scene, blender_frame)
+        require_fixed_transform(
+            armature,
+            armature_matrix,
+            f"Canonical Vanguard armature object at frame {index}",
+        )
         actual_matrix = flatten_matrix(camera.matrix_world)
         actual_scale = round(float(camera.data.ortho_scale), 9)
         if actual_matrix != camera_matrix or actual_scale != camera_ortho_scale:
             raise RuntimeError(f"Locked camera changed before frame {index}")
 
-        foot_world = foot_midpoint_world(armature, left_foot, right_foot)
+        left_foot_world = bone_world_head(armature, left_foot)
+        right_foot_world = bone_world_head(armature, right_foot)
+        foot_world = (left_foot_world + right_foot_world) * 0.5
         pivot_world = bone_world_head(armature, root_bone)
         weapon = capture_weapon(scene, camera, armature, mesh_objects)
         if not isinstance(weapon, dict) or weapon.get("status") != "measured":
@@ -364,6 +343,11 @@ def main() -> None:
             or round(float(camera.data.ortho_scale), 9) != camera_ortho_scale
         ):
             raise RuntimeError(f"Locked camera changed while rendering frame {index}")
+        require_fixed_transform(
+            armature,
+            armature_matrix,
+            f"Canonical Vanguard armature object while rendering frame {index}",
+        )
 
         frames.append(
             {
@@ -375,18 +359,29 @@ def main() -> None:
                 "pivot": projected_pixel(
                     scene, camera, pivot_world, args.width, args.height
                 ),
+                "leftFootAnchor": {
+                    **projected_pixel(
+                        scene, camera, left_foot_world, args.width, args.height
+                    ),
+                    "bone": left_foot.name,
+                    "method": "projected canonical IK foot control; measurement only",
+                },
+                "rightFootAnchor": {
+                    **projected_pixel(
+                        scene, camera, right_foot_world, args.width, args.height
+                    ),
+                    "bone": right_foot.name,
+                    "method": "projected canonical IK foot control; measurement only",
+                },
                 "footAnchor": {
                     **projected_pixel(
                         scene, camera, foot_world, args.width, args.height
                     ),
                     "bones": [left_foot.name, right_foot.name],
-                    "method": "projected midpoint of canonical left/right FK foot heads",
-                },
-                "footAnchorCorrectionWorld": {
-                    "x": round(float(correction.x), 8),
-                    "y": round(float(correction.y), 8),
-                    "z": round(float(correction.z), 8),
-                    "method": "whole-rig translation in camera plane; articulation unchanged",
+                    "method": (
+                        "projected midpoint of canonical left/right IK foot controls; "
+                        "measurement only"
+                    ),
                 },
                 "swordRoot": projected_weapon_pixel(
                     weapon, "hilt", args.width, args.height
@@ -397,6 +392,10 @@ def main() -> None:
                 "frameDurationMs": round(frame_duration_ms, 6),
                 "cameraMatrixWorld": actual_matrix,
                 "cameraOrthoScale": actual_scale,
+                "armatureMatrixWorld": flatten_matrix(armature.matrix_world),
+                "rootLocation": [
+                    round(float(value), 9) for value in root_bone.location
+                ],
             }
         )
 
@@ -421,11 +420,8 @@ def main() -> None:
             "importedBlenderFps": imported_blender_fps,
             "durationSeconds": round(source_duration, 8),
             "samplePolicy": "uniform loop samples; terminal duplicate excluded",
-            "rootMotionSuppressed": True,
-            "mutedRootMotionCurves": muted_root_curves,
-            "rawFootAnchorBaselineWorld": [
-                round(float(value), 8) for value in baseline_foot_world
-            ],
+            "rootMotionSuppressed": False,
+            "animationModified": False,
         },
         "output": {
             "width": args.width,
@@ -445,10 +441,13 @@ def main() -> None:
             "cameraMatrixWorld": camera_matrix,
             "cameraOrthoScale": camera_ortho_scale,
             "cameraTransformTolerance": 0.0,
+            "armatureMatrixWorld": armature_matrix,
+            "armatureObjectTransform": "unchanged from imported asset",
+            "rootMotionPolicy": "native source must remain stationary; fail instead of modify",
             "footAnchorTolerancePx": args.foot_anchor_tolerance_px,
-            "footAnchorStabilization": (
-                "whole-rig camera-plane translation to frame-zero two-foot midpoint"
-            ),
+            "renderedGroundContactTolerancePx": args.foot_anchor_tolerance_px,
+            "footAnchorStabilization": False,
+            "animationModifications": [],
             "retargeting": False,
             "poseAuthoring": False,
             "nativeIdleOnly": True,

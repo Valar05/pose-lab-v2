@@ -126,7 +126,11 @@ def finalize(root: Path) -> dict[str, object]:
     frame_count = int(output.get("frameCount", 0))
     expected_camera = contract.get("cameraMatrixWorld")
     expected_scale = contract.get("cameraOrthoScale")
+    expected_armature = contract.get("armatureMatrixWorld")
     tolerance = float(contract.get("footAnchorTolerancePx", -1))
+    ground_tolerance = float(
+        contract.get("renderedGroundContactTolerancePx", -1)
+    )
 
     require(width > 0 and height > 0, "invalid output dimensions", failures)
     require(frame_count > 0, "invalid frame count", failures)
@@ -142,11 +146,45 @@ def finalize(root: Path) -> dict[str, object]:
         "locked camera scale must be positive",
         failures,
     )
+    require(
+        isinstance(expected_armature, list) and len(expected_armature) == 16,
+        "fixed armature matrix must have 16 values",
+        failures,
+    )
     require(tolerance >= 0, "foot anchor tolerance cannot be negative", failures)
+    require(
+        ground_tolerance >= 0,
+        "rendered ground contact tolerance cannot be negative",
+        failures,
+    )
+    require(
+        contract.get("footAnchorStabilization") is False,
+        "foot anchor stabilization must be disabled",
+        failures,
+    )
+    require(
+        contract.get("animationModifications") == [],
+        "animation modifications must be empty",
+        failures,
+    )
+    require(
+        metadata.get("source", {}).get("rootMotionSuppressed") is False,
+        "native Idle root motion must not be suppressed",
+        failures,
+    )
+    require(
+        metadata.get("source", {}).get("animationModified") is False,
+        "native Idle animation must not be modified",
+        failures,
+    )
 
     images: list[Image.Image] = []
-    baseline_foot: tuple[float, float] | None = None
-    max_foot_drift = 0.0
+    foot_keys = ("leftFootAnchor", "rightFootAnchor", "footAnchor")
+    baseline_feet: dict[str, tuple[float, float]] = {}
+    max_foot_drift: dict[str, float] = {key: 0.0 for key in foot_keys}
+    baseline_ground_y: int | None = None
+    max_ground_drift = 0.0
+    baseline_root_location: list[float] | None = None
     alpha_records: list[dict[str, object]] = []
     seen_frames: set[int] = set()
     for expected_index, record in enumerate(records):
@@ -164,7 +202,43 @@ def finalize(root: Path) -> dict[str, object]:
             f"camera orthographic scale changes at frame {frame}",
             failures,
         )
-        for key in ("pivot", "footAnchor", "swordRoot", "swordTip"):
+        require(
+            record.get("armatureMatrixWorld") == expected_armature,
+            f"armature object transform changes at frame {frame}",
+            failures,
+        )
+        root_location = record.get("rootLocation")
+        require(
+            isinstance(root_location, list)
+            and len(root_location) == 3
+            and all(
+                isinstance(value, (int, float)) and math.isfinite(float(value))
+                for value in root_location
+            ),
+            f"frame {frame} has invalid native root location",
+            failures,
+        )
+        if (
+            isinstance(root_location, list)
+            and len(root_location) == 3
+            and all(isinstance(value, (int, float)) for value in root_location)
+        ):
+            numeric_root = [float(value) for value in root_location]
+            if baseline_root_location is None:
+                baseline_root_location = numeric_root
+            require(
+                numeric_root == baseline_root_location,
+                f"native root motion appears at frame {frame}",
+                failures,
+            )
+        for key in (
+            "pivot",
+            "leftFootAnchor",
+            "rightFootAnchor",
+            "footAnchor",
+            "swordRoot",
+            "swordTip",
+        ):
             require(point_is_finite(record.get(key)), f"frame {frame} has invalid {key}", failures)
         require(
             isinstance(record.get("frameDurationMs"), (int, float))
@@ -173,16 +247,21 @@ def finalize(root: Path) -> dict[str, object]:
             failures,
         )
 
-        foot = record.get("footAnchor")
-        if point_is_finite(foot):
+        for key in foot_keys:
+            foot = record.get(key)
+            if not point_is_finite(foot):
+                continue
             current_foot = (float(foot["x"]), float(foot["y"]))
-            if baseline_foot is None:
-                baseline_foot = current_foot
-            drift = math.dist(baseline_foot, current_foot)
-            max_foot_drift = max(max_foot_drift, drift)
+            if key not in baseline_feet:
+                baseline_feet[key] = current_foot
+            drift = math.dist(baseline_feet[key], current_foot)
+            max_foot_drift[key] = max(max_foot_drift[key], drift)
             require(
                 drift <= tolerance,
-                f"foot anchor drifts {drift:.4f}px at frame {frame}; tolerance is {tolerance:.4f}px",
+                (
+                    f"{key} drifts {drift:.4f}px at frame {frame}; "
+                    f"tolerance is {tolerance:.4f}px"
+                ),
                 failures,
             )
 
@@ -214,6 +293,34 @@ def finalize(root: Path) -> dict[str, object]:
             failures,
         )
         require(alpha_max > 0, f"frame {frame} contains no visible sprite pixels", failures)
+        contact_pixels = [
+            (x, y)
+            for y in range(height)
+            for x in range(width)
+            if alpha.getpixel((x, y)) > 8
+        ]
+        if contact_pixels:
+            ground_y = max(y for _, y in contact_pixels)
+            ground_x = [x for x, y in contact_pixels if y == ground_y]
+            if baseline_ground_y is None:
+                baseline_ground_y = ground_y
+            ground_drift = abs(ground_y - baseline_ground_y)
+            max_ground_drift = max(max_ground_drift, float(ground_drift))
+            require(
+                ground_drift <= ground_tolerance,
+                (
+                    f"rendered ground contact drifts {ground_drift:.4f}px "
+                    f"at frame {frame}; tolerance is {ground_tolerance:.4f}px"
+                ),
+                failures,
+            )
+            record["renderedGroundContact"] = {
+                "y": ground_y,
+                "xMin": min(ground_x),
+                "xMax": max(ground_x),
+                "alphaThreshold": 8,
+                "method": "lowest visible sprite pixels; measurement only",
+            }
         transparent_pixels = sum(1 for value in alpha.getdata() if value == 0)
         alpha_records.append(
             {
@@ -236,7 +343,10 @@ def finalize(root: Path) -> dict[str, object]:
         metadata["verification"] = {
             "status": "FAIL",
             "failures": failures,
-            "maxFootAnchorDriftPx": round(max_foot_drift, 6),
+            "maxFootAnchorDriftPx": {
+                key: round(value, 6) for key, value in max_foot_drift.items()
+            },
+            "maxRenderedGroundContactDriftPx": round(max_ground_drift, 6),
         }
         metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
         raise ValidationFailure(failures)
@@ -263,7 +373,13 @@ def finalize(root: Path) -> dict[str, object]:
         "transparentRgba": True,
         "uniformFrameDimensions": [width, height],
         "footAnchorTolerancePx": tolerance,
-        "maxFootAnchorDriftPx": round(max_foot_drift, 6),
+        "maxFootAnchorDriftPx": {
+            key: round(value, 6) for key, value in max_foot_drift.items()
+        },
+        "renderedGroundContactTolerancePx": ground_tolerance,
+        "maxRenderedGroundContactDriftPx": round(max_ground_drift, 6),
+        "armatureObjectTransformLocked": True,
+        "animationModifications": [],
         "alpha": alpha_records,
         "failures": [],
     }
@@ -300,6 +416,9 @@ def main() -> None:
                 "previewGif": metadata["artifacts"]["previewGif"]["path"],
                 "maxFootAnchorDriftPx": metadata["verification"][
                     "maxFootAnchorDriftPx"
+                ],
+                "maxRenderedGroundContactDriftPx": metadata["verification"][
+                    "maxRenderedGroundContactDriftPx"
                 ],
             },
             indent=2,
