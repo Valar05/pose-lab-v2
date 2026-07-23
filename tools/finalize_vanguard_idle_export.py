@@ -352,7 +352,12 @@ def finalize(root: Path) -> dict[str, object]:
         raise ValidationFailure(failures)
 
     frame_duration_ms = float(records[0]["frameDurationMs"])
-    contact_sheet = assemble_contact_sheet(images, root / "contact_sheet.png")
+    contact_sheet_columns = 3 if frame_count == 6 else 4
+    contact_sheet = assemble_contact_sheet(
+        images,
+        root / "contact_sheet.png",
+        columns=contact_sheet_columns,
+    )
     preview_gif = assemble_gif(images, root / "idle.gif", frame_duration_ms)
     require(
         int(preview_gif["frames"]) == frame_count,
