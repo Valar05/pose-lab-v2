@@ -393,13 +393,27 @@ def project_point(
     }
 
 
+def weighted_bone_names(mesh_objects: list[bpy.types.Object]) -> set[str]:
+    names: set[str] = set()
+    for obj in mesh_objects:
+        for vertex in obj.data.vertices:
+            for membership in vertex.groups:
+                if membership.weight <= 1e-6 or membership.group >= len(obj.vertex_groups):
+                    continue
+                names.add(obj.vertex_groups[membership.group].name)
+    return names
+
+
 def capture_joints(
     scene: bpy.types.Scene,
     camera: bpy.types.Object,
     armature: bpy.types.Object,
+    weighted_bones: set[str],
 ) -> list[dict[str, object]]:
     joints = []
     for bone in armature.pose.bones:
+        if bone.name not in weighted_bones:
+            continue
         role = semantic_role(bone.name)
         if not role:
             continue
@@ -555,6 +569,9 @@ def main() -> None:
         mesh_objects,
         render_frames,
     )
+    weighted_bones = weighted_bone_names(mesh_objects)
+    if not weighted_bones:
+        raise RuntimeError("Source asset has no nonzero weighted bone groups")
 
     records: list[dict[str, object]] = []
     for index, (source_frame, render_frame_value) in enumerate(zip(source_frames, render_frames)):
@@ -568,7 +585,7 @@ def main() -> None:
             "blenderImportedFrame": round(render_frame_value, 8),
             "cameraMatrixWorld": actual_camera_matrix,
             "cameraOrthoScale": actual_ortho_scale,
-            "joints": capture_joints(scene, camera, armature),
+            "joints": capture_joints(scene, camera, armature, weighted_bones),
             "weapon": capture_weapon(scene, camera, armature, mesh_objects),
             "passes": {},
         }
@@ -636,6 +653,7 @@ def main() -> None:
             role: [round(channel, 4) for channel in color]
             for role, color in LIMB_COLORS.items()
         },
+        "weightedDeformBones": sorted(weighted_bones),
         "frames": records,
     }
     out_dir.mkdir(parents=True, exist_ok=True)
