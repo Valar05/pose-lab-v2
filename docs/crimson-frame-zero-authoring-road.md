@@ -17,9 +17,9 @@ The author owns the pose. The user does not animate it for us.
 ## Operating loop
 
 1. Start from branch `agent/crimson-foot-red-gate`.
-2. Freeze the accepted center, head, legs, shoulders, right upper arm, and right forearm from the exact `3d6a57a9` browser seed.
-3. Author only `RightHand`, `LeftArm`, `LeftForeArm`, and `LeftHand` in Three.js model-local space. Rotate the blade around the exact center-camera forward axis, pin the support wrist with an explicit low elbow pole, and solve hand roll last.
-4. Gate the dominant-Head mesh against the complete blade and crossguard mesh plus both visible Hand meshes in the exact 986×900 center, left, and right review cameras.
+2. Freeze the accepted center, head, shoulders, Hips, and complete lower body from the exact `3d6a57a9` browser seed.
+3. Author both complete arm chains—`LeftArm`, `LeftForeArm`, `LeftHand`, `RightArm`, `RightForeArm`, and `RightHand`—in Three.js model-local space. Project the high roof-guard wrists and opposed low elbow planes first, rotate the blade around the exact center-camera forward axis second, pin the support palm to the visible handle third, and solve roll last.
+4. Require the final wrists to remain high, laterally offset, and vertically stepped. Gate the full helmet/plume against the blade, the lower visible face against the crossguard, and the central face aperture against both visible Hand meshes in the exact 986×900 center, left, and right review cameras. Forearm proximity is recorded as an advisory because Vanguard's source silhouette deliberately frames the head with opposed forearms; the rendered pixels decide whether that framing remains readable.
 5. Generate a deterministic one-frame GLB containing all 20 bone rotations and the keyed Hips translation. Reload it through `GLTFLoader`; require exactly 21 unique `t=0` channels and require the reconstructed pose hash to match the candidate.
 6. Run `--check` so the generated module bytes must exactly equal the committed candidate. A geometry PASS without committed-byte parity is not review evidence.
 7. Push the pass. The `Crimson PR Visual Evidence` workflow repeats runtime authoring, GLB round-trip, committed-module parity, repository tests, and the production build.
@@ -33,7 +33,7 @@ GitHub Actions executes the canonical authoring check:
 
 ```bash
 node tools/author_crimson_frame_zero_runtime.mjs \
-  --angle-deg -30 \
+  --angle-deg 48 \
   --check \
   --report generated/crimson-frame-zero-runtime/<run-id>/runtime_authoring_report.json
 ```
@@ -58,7 +58,7 @@ Inspect in this order:
 3. Pelvis: restrained turn over the support polygon; no compensation twist.
 4. Force line: rear foot → pelvis → trunk → hands.
 5. Shoulders: clavicles remain quiet; upper arms do not manufacture a shrug.
-6. Guard: hands form one off-center grip cluster; elbows are unequal and below the hands.
+6. Guard: hands form one high, off-center, vertically stepped grip cluster; both elbows are clearly below the hands and open to opposing sides instead of collapsing into the face.
 7. Face: readable from primary, front, three-quarter, both profiles, and rear views.
 8. Weapon: guard sits outside the top hand, handle crosses both visible gauntlets, and blade clears the helmet/plume silhouette in every review view.
 9. Silhouette: Crimson expresses the same loaded sentence as Vanguard without copying his transforms.
@@ -77,6 +77,8 @@ Do not casually retune these after they pass:
 - center and lower-body local transforms captured before arm authoring.
 - the rejected `480eb888` GLB hash `4e57cc6a443b6cdd0cae1177357536234e4c4e7de98069e7027af74070bd0b56` as the no-op baseline.
 - exact protected Hips, center, head, and leg channels from `crimson-frame-zero-480eb888-protected-baseline.json`.
+- bilateral runtime arm ownership: all six shoulder-to-hand channels may change, while the accepted center, head, shoulders, Hips, and lower body remain frozen.
+- a Vanguard-recognition gate: dominant wrist at least `0.20` torso-height above the neck, support wrist at least `0.03`, grip step at least `0.12`, and the hand cluster offset at least `0.08` shoulder-span beside the head.
 - a two-hand weapon contract built from dominant skinned Hand vertices: the crossguard's pommel-side face sits just outside the top hand, the handle passes through both visible hand centroids, the hand surfaces do not overlap, and the support hand remains inside the pommel.
 - a final low-elbow guard contract: after the support-hand pin, both `ForeArm` heads must remain at least `0.05` torso-height below their matching wrist bones. Reachability and convergence alone cannot promote a flat or upward arm triangle.
 - an exact authored blade-direction contract: wrist FK must converge the actual Arborblade mesh to within `0.05` degrees of the threat line before sword seating or support-hand projection.
@@ -107,6 +109,7 @@ Do not casually retune these after they pass:
 | `3d6a57a9` | Blender gates and independent visual bind gate passed | Exact accepted center/lower body; exact authored blade direction; both elbows visibly low; support palm and separated hand surfaces own the handle; face, plume, blade, crossguard, reach, and protected-body gates all pass | The committed browser candidate is intentionally stale, so exact candidate and browser application parity have not run | Bind only the artifact's byte-identical `generated_candidate.js`, then require full Blender plus browser parity before any review handoff |
 | `8e6c8e07` | Rejected for handoff; frozen for orientation calibration | Exact candidate ID, pose, module, channel application, stable joint positions, and seated two-hand grip | The center runtime screenshot still has the blade touching the plume and running tangent to the visor. Blender predicted blade direction `[0.875602, -0.470323, 0.110076]`; the browser rendered `[0.50903, 0.85413, 0.10653]`, proving the parented-sword basis was not portable. The legacy green checks certified a different picture. | Preserve this payload as the orientation specimen, then move frame-zero weapon/arm authorship and all three clearance cameras into the exact Three.js runtime with live hilt/tip parity |
 | `ae8ea7dc` | Runtime and independent visual gates passed; user gate pending | Exact protected body and legs; runtime-native `RightHand` plus support-chain solve; 21-channel authored-GLB round-trip; exact committed module; center/left/right live endpoint parity; frozen orientation specimen remains drift-checked | No internal visual rejection: the blade clears plume and visor, both hands visibly own the handle, arms stay below the face, and all three views are distinct. This is still not user acceptance. | Hand off only the exact commit-pinned route and preserve this frame unchanged until the user verdict |
+| pose `ab63161e` | Runtime geometry passed; browser visual verdict pending | Exact accepted body and legs; measured six-bone bilateral arm authoring; high staggered grip; opposed low elbows; shallow overhead blade line; full blade/guard/hand mesh clearances | Forearm segments intentionally frame the face aperture as Vanguard does, so only close browser pixels can decide whether the pose is recognizable and readable | Run exact browser parity, inspect center/left/right at full size, and bind no handoff unless the rendered performance reads as Vanguard |
 
 Append a row for every pass. Never rewrite a rejection into a success because a later pass improved.
 

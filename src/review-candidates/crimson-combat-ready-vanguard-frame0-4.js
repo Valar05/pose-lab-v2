@@ -10,10 +10,10 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
     "sourceCharacter": "vanguard",
     "clip": "SwordAttack1",
     "duration": 0,
-    "method": "Three.js model-local Pin First, Roll Last correction from the exact 3d6a57a9 browser seed",
+    "method": "Three.js model-local bilateral roof-guard projection, then Pin First, Roll Last correction from the exact 3d6a57a9 browser seed",
     "crossRigPoseInputs": [],
     "exactAuthoredGlb": true,
-    "poseSha256": "3178d548ce6d127f672a727d2fd180eff2b510d10b04d57dfa33e46d1377f464",
+    "poseSha256": "ab63161e7d4e3366182a09102b760a95a9557efde57d02233a0c6defb5279af0",
     "status": "generated-visual-pending-candidate-parity",
     "rejectedBaseline": {
       "candidateId": "crimson-frame-zero-480eb888-rejected",
@@ -23,9 +23,9 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
     "limitations": [
       "Crimson has rigid open gauntlet meshes and no finger bones; visible hand closure is unavailable in this asset"
     ],
-    "authoredGlbSha256": "d685642fe4e69ba72a6ad2fae7bd8906361a9908ae6e31fbf84a35c0e79a88ef",
+    "authoredGlbSha256": "017034e3d82c5097c230f662c629d10992a07706a241c2d7362b22cf2340dec7",
     "poseProvenance": {
-      "bonesAndHips": "protected body and right-arm seed remain exact to 3d6a57a9; RightHand and support chain are authored in the browser bone-child basis",
+      "bonesAndHips": "protected center, head, shoulders, legs, and Hips remain exact to 3d6a57a9; both arm chains are authored in the measured browser bone-child basis",
       "sabreLocal": "unchanged mesh-seated 3d6a57a9 transform; sword direction comes from runtime-basis RightHand rotation"
     },
     "authorEligibleBeforeCandidateParity": true,
@@ -58,6 +58,18 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
           0.14987648,
           0.98792653
         ],
+        "RightArm": [
+          0.42171242,
+          -0.22056831,
+          -0.60507001,
+          0.63827779
+        ],
+        "RightForeArm": [
+          -0.19295613,
+          -0.06175434,
+          -0.76808571,
+          0.60745262
+        ],
         "RightHand": [
           -0.21967316,
           -0.28517951,
@@ -69,11 +81,13 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
         "LeftArm",
         "LeftForeArm",
         "LeftHand",
+        "RightArm",
+        "RightForeArm",
         "RightHand"
       ],
       "authoredGlb": {
         "animation": "CrimsonRuntimeCombatReadyFrameZero",
-        "sha256": "d685642fe4e69ba72a6ad2fae7bd8906361a9908ae6e31fbf84a35c0e79a88ef",
+        "sha256": "017034e3d82c5097c230f662c629d10992a07706a241c2d7362b22cf2340dec7",
         "byteLength": 17931836,
         "channels": [
           "Head.rotation",
@@ -99,110 +113,285 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
           "Hips.translation"
         ]
       },
-      "bladeScreenRotationDeg": -30,
+      "bladeScreenRotationDeg": 48,
+      "highGuardTarget": {
+        "lateralShoulders": 0.33,
+        "heightTorso": 0.93,
+        "depthTorso": -0.18,
+        "elbowSpreadShoulders": -0.72,
+        "elbowPoleDropTorso": 0.8
+      },
       "bladeWorldDirection": [
-        0.134918,
-        0.930165,
-        0.341452
+        0.461269,
+        0.146782,
+        -0.875035
       ],
-      "supportHandMethod": "explicit low pole plus exact two-bone elbow-circle projection and iterative visible-palm pin",
+      "supportHandMethod": "bilateral high-guard wrist projection with explicit low poles, then exact elbow-circle projection and iterative visible-palm pin",
       "gates": {
         "status": "PASS",
-        "angleDeg": -30,
+        "angleDeg": 48,
         "checks": {
           "silhouette": true,
           "supportPalmPin": true,
+          "vanguardHighGuard": true,
           "leftLowElbow": true,
           "rightLowElbow": true,
           "supportReachReserve": true,
-          "supportElbowBend": true
+          "supportElbowBend": true,
+          "dominantReachReserve": true,
+          "dominantElbowBend": true
         },
         "blade": {
           "desiredWorldDirection": [
-            0.134918,
-            0.930166,
-            0.341452
+            0.461269,
+            0.146782,
+            -0.875035
           ],
           "actualWorldDirection": [
-            0.134918,
-            0.930165,
-            0.341452
+            0.461269,
+            0.146782,
+            -0.875035
           ],
-          "residualAngleDeg": 0.000011
+          "residualAngleDeg": 0.000013
         },
         "supportHand": {
           "palmPinErrorWorld": 2e-8,
           "palmPinErrorTorso": 0,
-          "palmToHandleWorld": 0.01903121,
-          "handleParameter": 0.223873,
-          "reachReserveTorso": 0.430473,
-          "elbowAngleDeg": 80.0566
+          "palmToHandleWorld": 0.0430213,
+          "handleParameter": 0.15582,
+          "reachReserveTorso": 0.204388,
+          "elbowAngleDeg": 112.3165
         },
         "lowElbows": {
-          "leftDropTorso": 0.081217,
-          "rightDropTorso": 0.19667
+          "leftDropTorso": 0.454049,
+          "rightDropTorso": 0.499487
+        },
+        "vanguardHighGuard": {
+          "intent": "high loaded roof guard beside the helmet with vertically stepped hands",
+          "authoredTarget": {
+            "lateralShoulders": 0.33,
+            "heightTorso": 0.93,
+            "depthTorso": -0.18,
+            "elbowSpreadShoulders": -0.72,
+            "elbowPoleDropTorso": 0.8
+          },
+          "dominantHandAboveNeckTorso": 0.93,
+          "minimumDominantHandAboveNeckTorso": 0.2,
+          "supportHandAboveNeckTorso": 0.778274,
+          "minimumSupportHandAboveNeckTorso": 0.03,
+          "handClusterBesideHeadShoulders": 0.147498,
+          "minimumHandClusterBesideHeadShoulders": 0.08,
+          "gripStepTorso": 0.151726,
+          "minimumGripStepTorso": 0.12,
+          "rightWristWorld": [
+            0.127444,
+            1.572316,
+            0.063382
+          ],
+          "leftWristWorld": [
+            0.022659,
+            1.514298,
+            0.070156
+          ],
+          "handCenterWorld": [
+            0.075052,
+            1.543307,
+            0.066769
+          ]
+        },
+        "reachAndBend": {
+          "leftReachReserveTorso": 0.204388,
+          "rightReachReserveTorso": 0.020115,
+          "minimumDominantReachReserveTorso": 0.018,
+          "leftElbowAngleDeg": 112.3165,
+          "rightElbowAngleDeg": 158.9514
         },
         "authoredTravel": {
           "boneLocalDegrees": {
-            "LeftArm": 11.1397,
-            "LeftForeArm": 8.8231,
-            "LeftHand": 24.0526,
-            "RightHand": 25.903
+            "LeftArm": 134.3258,
+            "LeftForeArm": 71.6106,
+            "LeftHand": 38.9692,
+            "RightArm": 140.4411,
+            "RightForeArm": 86.4083,
+            "RightHand": 42.7617
           },
-          "leftElbowWorld": 0.045273,
-          "leftWristWorld": 0.045575
+          "leftElbowWorld": 0.428482,
+          "leftWristWorld": 0.573269,
+          "rightElbowWorld": 0.42192,
+          "rightWristWorld": 0.551193
         },
         "silhouette": {
           "status": "PASS",
           "thresholds": {
             "bladeHeadPixels": 12,
             "guardHeadPixels": 8,
-            "armHeadPixels": 8,
-            "handHeadPixels": 8
+            "armHeadPixels": 0,
+            "armFaceAdvisoryPixels": 8,
+            "handHeadPixels": 8,
+            "bladeAuthority": "full weighted helmet and plume hull",
+            "guardAuthority": "lower visible face hull through 0.62 of Head-skinned world height",
+            "armHandAuthority": "0.66 central aperture of the lower visible face hull",
+            "armFaceDisposition": "advisory because Vanguard frame zero intentionally frames the head with opposed forearms; browser pixels remain decisive"
           },
           "views": {
             "center": {
               "status": "PASS",
-              "bladeHeadPixels": 30.105,
-              "guardHeadPixels": 47.119,
-              "minimumArmHeadPixels": 43.453,
-              "minimumHandHeadPixels": 39.903,
+              "bladeHeadPixels": 23.038,
+              "guardHeadPixels": 35.682,
+              "minimumArmHeadPixels": 0,
+              "minimumHandHeadPixels": 19.555,
               "hands": {
                 "left": {
-                  "armHeadPixels": 71.023,
-                  "handHeadPixels": 56.07
+                  "armHeadPixels": 0,
+                  "handHeadPixels": 19.555,
+                  "elbow": [
+                    528.31,
+                    345.46
+                  ],
+                  "wrist": [
+                    487.39,
+                    297.24
+                  ],
+                  "bounds": {
+                    "left": 465.61,
+                    "right": 498.36,
+                    "top": 238.22,
+                    "bottom": 297.21
+                  }
                 },
                 "right": {
-                  "armHeadPixels": 43.453,
-                  "handHeadPixels": 39.903
+                  "armHeadPixels": 0,
+                  "handHeadPixels": 32.949,
+                  "elbow": [
+                    476.8,
+                    334.8
+                  ],
+                  "wrist": [
+                    513.07,
+                    281.44
+                  ],
+                  "bounds": {
+                    "left": 479.23,
+                    "right": 522.7,
+                    "top": 227.21,
+                    "bottom": 281.96
+                  }
                 }
+              },
+              "headBounds": {
+                "left": 443.41,
+                "right": 537.76,
+                "top": 260.88,
+                "bottom": 383.22
+              },
+              "faceBounds": {
+                "left": 443.41,
+                "right": 536.99,
+                "top": 305.06,
+                "bottom": 383.22
+              },
+              "faceApertureBounds": {
+                "left": 457.24,
+                "right": 519,
+                "top": 314.9,
+                "bottom": 366.49
+              },
+              "bladeBounds": {
+                "left": 524.99,
+                "right": 695.51,
+                "top": 211.27,
+                "bottom": 247.14
+              },
+              "guardBounds": {
+                "left": 475.32,
+                "right": 515.9,
+                "top": 223.93,
+                "bottom": 269.94
               },
               "bladeScreen": {
                 "hilt": [
-                  410.92,
-                  423.94
+                  499.71,
+                  246.15
                 ],
                 "tip": [
-                  381.99,
-                  187.68
+                  695.21,
+                  211.51
                 ]
               }
             },
             "left": {
               "status": "PASS",
-              "bladeHeadPixels": 26.648,
-              "guardHeadPixels": 45.455,
-              "minimumArmHeadPixels": 40.451,
-              "minimumHandHeadPixels": 37.54,
+              "bladeHeadPixels": 21.264,
+              "guardHeadPixels": 35.506,
+              "minimumArmHeadPixels": 0,
+              "minimumHandHeadPixels": 12.314,
               "hands": {
                 "left": {
-                  "armHeadPixels": 65.212,
-                  "handHeadPixels": 50.325
+                  "armHeadPixels": 0,
+                  "handHeadPixels": 12.314,
+                  "elbow": [
+                    481.06,
+                    538.36
+                  ],
+                  "wrist": [
+                    505.73,
+                    498.74
+                  ],
+                  "bounds": {
+                    "left": 496.3,
+                    "right": 530.44,
+                    "top": 443.48,
+                    "bottom": 499.96
+                  }
                 },
                 "right": {
-                  "armHeadPixels": 40.451,
-                  "handHeadPixels": 37.54
+                  "armHeadPixels": 0,
+                  "handHeadPixels": 32.518,
+                  "elbow": [
+                    515.04,
+                    534.98
+                  ],
+                  "wrist": [
+                    503.72,
+                    478.97
+                  ],
+                  "bounds": {
+                    "left": 496.3,
+                    "right": 532.19,
+                    "top": 431.42,
+                    "bottom": 479.58
+                  }
                 }
+              },
+              "headBounds": {
+                "left": 447.16,
+                "right": 569.99,
+                "top": 462.02,
+                "bottom": 577.44
+              },
+              "faceBounds": {
+                "left": 447.16,
+                "right": 569.99,
+                "top": 502.17,
+                "bottom": 577.44
+              },
+              "faceApertureBounds": {
+                "left": 470.92,
+                "right": 551.99,
+                "top": 510.91,
+                "bottom": 560.59
+              },
+              "bladeBounds": {
+                "left": 302.71,
+                "right": 466.99,
+                "top": 404.6,
+                "bottom": 447.96
+              },
+              "guardBounds": {
+                "left": 482.96,
+                "right": 513.06,
+                "top": 432.04,
+                "bottom": 468.63
               },
               "bladeScreen": {
                 "hilt": [
@@ -210,26 +399,84 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
                   450
                 ],
                 "tip": [
-                  572.55,
-                  231.03
+                  302.88,
+                  404.8
                 ]
               }
             },
             "right": {
               "status": "PASS",
-              "bladeHeadPixels": 25.863,
-              "guardHeadPixels": 46.83,
-              "minimumArmHeadPixels": 42.597,
-              "minimumHandHeadPixels": 38.053,
+              "bladeHeadPixels": 19.704,
+              "guardHeadPixels": 30.717,
+              "minimumArmHeadPixels": 0,
+              "minimumHandHeadPixels": 17.478,
               "hands": {
                 "left": {
-                  "armHeadPixels": 67.932,
-                  "handHeadPixels": 45.563
+                  "armHeadPixels": 0,
+                  "handHeadPixels": 17.478,
+                  "elbow": [
+                    505.37,
+                    548.45
+                  ],
+                  "wrist": [
+                    480.37,
+                    496.81
+                  ],
+                  "bounds": {
+                    "left": 456.14,
+                    "right": 489.76,
+                    "top": 441.45,
+                    "bottom": 495.79
+                  }
                 },
                 "right": {
-                  "armHeadPixels": 42.597,
-                  "handHeadPixels": 38.053
+                  "armHeadPixels": 0,
+                  "handHeadPixels": 26.877,
+                  "elbow": [
+                    471.32,
+                    530.44
+                  ],
+                  "wrist": [
+                    481.93,
+                    486.07
+                  ],
+                  "bounds": {
+                    "left": 453.47,
+                    "right": 489.57,
+                    "top": 433.07,
+                    "bottom": 486.43
+                  }
                 }
+              },
+              "headBounds": {
+                "left": 417.09,
+                "right": 539.7,
+                "top": 465.16,
+                "bottom": 573.42
+              },
+              "faceBounds": {
+                "left": 417.09,
+                "right": 539.7,
+                "top": 504.98,
+                "bottom": 573.42
+              },
+              "faceApertureBounds": {
+                "left": 435.09,
+                "right": 516.01,
+                "top": 512.88,
+                "bottom": 558.05
+              },
+              "bladeBounds": {
+                "left": 519.87,
+                "right": 715.04,
+                "top": 428.39,
+                "bottom": 454.22
+              },
+              "guardBounds": {
+                "left": 472.61,
+                "right": 502.71,
+                "top": 426.07,
+                "bottom": 475.13
               },
               "bladeScreen": {
                 "hilt": [
@@ -237,8 +484,8 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
                   450
                 ],
                 "tip": [
-                  409.7,
-                  229.65
+                  714.95,
+                  428.99
                 ]
               }
             }
@@ -344,22 +591,22 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
           0.36842278
         ],
         "LeftArm": [
-          0.5529443,
-          0.33330655,
-          0.43289971,
-          0.62909234
+          -0.78908336,
+          -0.55638683,
+          0.13620442,
+          0.22187719
         ],
         "LeftForeArm": [
-          0.30051795,
-          -0.03541242,
-          -0.70429164,
-          -0.64219022
+          0.13236642,
+          0.49179387,
+          0.5409416,
+          0.66932815
         ],
         "LeftHand": [
-          0.18450077,
-          0.02996471,
-          0.01119209,
-          0.98231173
+          0.20629582,
+          -0.07100325,
+          -0.11927182,
+          0.96859425
         ],
         "RightShoulder": [
           0.54176521,
@@ -368,22 +615,22 @@ export const CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE = {
           0.3773762
         ],
         "RightArm": [
-          0.4217124,
-          -0.2205683,
-          -0.60506999,
-          0.63827777
+          -0.22876246,
+          -0.42590347,
+          0.83437401,
+          0.2647526
         ],
         "RightForeArm": [
-          -0.19295613,
-          -0.06175434,
-          -0.76808572,
-          0.60745263
+          0.03300629,
+          -0.19672804,
+          -0.17964599,
+          0.96329433
         ],
         "RightHand": [
-          -0.20465012,
-          -0.07442142,
-          0.77689165,
-          0.59077841
+          -0.26562399,
+          -0.56158668,
+          0.45934448,
+          0.63487554
         ],
         "neck": [
           0.10416708,

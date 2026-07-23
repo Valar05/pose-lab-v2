@@ -1418,9 +1418,14 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
         bone.matrix_basis.identity()
     bpy.context.view_layer.update()
 
-    # The rejected candidate placed both hands above the neck and then tried to
-    # repair the silhouette with wrist roll. These targets put the grip cluster
-    # below and viewer-left of the face while the accepted body remains frozen.
+    # The rejected baseline put both hands above the face without a coherent
+    # elbow plane.  The later calibration specimen over-corrected into a low,
+    # forward guard that was mechanically clean but no longer read as Vanguard.
+    # Frame zero is a high loaded roof guard: the dominant hand is high and
+    # viewer-right of the helmet, the support hand steps down the same grip line,
+    # and both elbows remain visibly below their wrists.  These are Crimson-local
+    # body-scale relationships authored from the reference pixels; no Vanguard
+    # joint coordinate enters this function.
     shoulder_span = (
         find_pose_bone_world(target_armature, "LeftArm").translation
         - find_pose_bone_world(target_armature, "RightArm").translation
@@ -1433,29 +1438,25 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
         ).length,
     )
     neck = find_pose_bone_world(target_armature, "neck").translation
-    # Keep the entire two-hand guard unmistakably below the face.  The first
-    # Mesh-hull review proved that the proxy-era target still put both visible
-    # gauntlets at helmet height in the right profile. Lower and extend the
-    # whole guard cluster; never weaken the silhouette-clearance thresholds.
-    # Keep it only modestly viewer-left.  Pushing the handle farther left makes
-    # the support arm nearly straight and mathematically forces its elbow above
-    # the wrist, regardless of how low the pole hint is authored.
+    # Keep the handle to the helmet's viewer-right rather than running it through
+    # the visor.  The vertical separation preserves a readable two-hand grip
+    # instead of collapsing both gauntlets into one armored knot.
     right_hand_target = neck + Vector((
-        -0.03 * shoulder_span,
-        -0.34 * torso_height,
-        -0.38 * torso_height,
+        0.42 * shoulder_span,
+        -0.25 * torso_height,
+        0.32 * torso_height,
     ))
     # The support hand occupies the pommel side of the same grip line. This is
     # an authored body-scale relationship, not a second independent hand pose.
     left_hand_target = right_hand_target + Vector((
-        -0.18 * shoulder_span,
-        0.025 * torso_height,
-        -0.04 * torso_height,
+        -0.24 * shoulder_span,
+        0.02 * torso_height,
+        -0.24 * torso_height,
     ))
     right_shoulder = find_pose_bone_world(target_armature, "RightArm").translation
     left_shoulder = find_pose_bone_world(target_armature, "LeftArm").translation
-    right_elbow_hint = right_shoulder + Vector((-0.25 * shoulder_span, -0.14 * torso_height, -0.65 * torso_height))
-    left_elbow_hint = left_shoulder + Vector((-0.15 * shoulder_span, 0.02 * torso_height, -0.42 * torso_height))
+    right_elbow_hint = right_shoulder + Vector((0.30 * shoulder_span, -0.10 * torso_height, -0.10 * torso_height))
+    left_elbow_hint = left_shoulder + Vector((0.30 * shoulder_span, 0.02 * torso_height, -0.22 * torso_height))
     arm_reports = [
         solve_two_bone_elbow_wrist_pin(
             target_armature,
@@ -1519,7 +1520,7 @@ def author_crimson_frame_zero(source_armature: bpy.types.Object, target_armature
         "compositionIntent": {
             "forceLine": "rear foot through turned pelvis into an offset ready guard",
             "stance": "depth-staggered, loaded, and narrower in screen width",
-            "guard": "materially off-center hand cluster below the face with unequal low elbows",
+            "guard": "Vanguard-readable high roof guard beside the helmet with vertically stepped hands and unequal low elbows",
         },
         "crossRigPoseInputs": [],
         "bodySeed": {
@@ -2637,6 +2638,58 @@ def low_elbow_guard_contract(
     }
 
 
+def vanguard_frame_zero_guard_contract(
+    armature: bpy.types.Object,
+    shoulder_span: float,
+    torso_height: float,
+) -> dict:
+    """Require the visible high, offset guard that makes frame zero read as Vanguard."""
+    neck = find_pose_bone_world(armature, "neck").translation
+    head = find_pose_bone_world(armature, "Head").translation
+    right_wrist = find_pose_bone_world(armature, "RightHand").translation
+    left_wrist = find_pose_bone_world(armature, "LeftHand").translation
+    hand_center = (right_wrist + left_wrist) * 0.5
+    minimum_right_height = torso_height * 0.20
+    minimum_support_height = torso_height * 0.03
+    minimum_lateral_offset = shoulder_span * 0.08
+    minimum_hand_step = torso_height * 0.12
+    checks = {
+        "dominantHandAboveNeck": {
+            "actualWorld": round(right_wrist.z - neck.z, 6),
+            "minimumWorld": round(minimum_right_height, 6),
+        },
+        "supportHandAboveNeck": {
+            "actualWorld": round(left_wrist.z - neck.z, 6),
+            "minimumWorld": round(minimum_support_height, 6),
+        },
+        "handClusterBesideHead": {
+            "actualWorld": round(hand_center.x - head.x, 6),
+            "minimumWorld": round(minimum_lateral_offset, 6),
+        },
+        "steppedGrip": {
+            "actualWorld": round(abs(right_wrist.z - left_wrist.z), 6),
+            "minimumWorld": round(minimum_hand_step, 6),
+        },
+    }
+    failures = [
+        {"check": name, **values}
+        for name, values in checks.items()
+        if values["actualWorld"] < values["minimumWorld"]
+    ]
+    return {
+        "status": "FAIL" if failures else "PASS",
+        "authority": "final Crimson-native wrist occupancy after visible-mesh support-hand pin",
+        "intent": "high loaded roof guard beside the helmet; not a low forward guard and not arms through the face",
+        "neckWorld": [round(value, 6) for value in neck],
+        "headWorld": [round(value, 6) for value in head],
+        "rightWristWorld": [round(value, 6) for value in right_wrist],
+        "leftWristWorld": [round(value, 6) for value in left_wrist],
+        "handCenterWorld": [round(value, 6) for value in hand_center],
+        "checks": checks,
+        "failures": failures,
+    }
+
+
 def point_segment_distance_2d(
     point: tuple[float, float, float],
     start: tuple[float, float, float],
@@ -2849,6 +2902,22 @@ def crimson_review_view_specs() -> list[tuple[str, Vector]]:
     ]
 
 
+def aim_browser_center_review_camera(
+    camera: bpy.types.Object,
+    center_x: float,
+) -> None:
+    """Mirror Pose Lab's default orbit camera in Blender's glTF coordinate basis."""
+    # Three.js [x, y, z] maps to Blender [x, -z, y] for these imported glTF
+    # assets.  This exact view caught the calibration specimen's blade/plume
+    # collision after the older generic three-quarter camera had gone green.
+    aim_camera(
+        camera,
+        Vector((center_x + 2.8, -4.2, 1.75)),
+        Vector((center_x, 0.0, 0.95)),
+        36,
+    )
+
+
 def face_clearance_at_camera(
     armature: bpy.types.Object,
     body_objects: list[bpy.types.Object],
@@ -2983,6 +3052,14 @@ def face_clearance_views(
                 view_name,
                 view_name in gated_views,
             ))
+        aim_browser_center_review_camera(camera, center_x)
+        views.append(face_clearance_at_camera(
+            armature,
+            body_objects,
+            camera,
+            "browser-center",
+            True,
+        ))
     finally:
         camera.location = original_location
         camera.rotation_euler = original_rotation
@@ -2998,6 +3075,7 @@ def face_clearance_views(
         "gatedViews": [
             "primary",
             *[view_name for view_name, _location in crimson_review_view_specs()],
+            "browser-center",
         ],
         "views": views,
         "failures": failures,
@@ -3120,6 +3198,16 @@ def blade_face_clearance_views(
                 sword_socket,
                 calibration,
             ))
+        aim_browser_center_review_camera(camera, center_x)
+        views.append(blade_face_clearance_at_camera(
+            armature,
+            body_objects,
+            camera,
+            "browser-center",
+            True,
+            sword_socket,
+            calibration,
+        ))
     finally:
         camera.location = original_location
         camera.rotation_euler = original_rotation
@@ -3139,6 +3227,7 @@ def blade_face_clearance_views(
             "close-profile-right",
             "close-profile-left",
             "close-rear",
+            "browser-center",
         ],
         "views": views,
         "failures": failures,
@@ -3468,6 +3557,14 @@ def evaluate_frame(label: str, camera: bpy.types.Object, vanguard_objects: list[
         diff = angle_delta(crimson_line["screenAngleDeg"], vanguard_line["screenAngleDeg"])
         if diff > 55:
             failures.append({"code": "CRIMSON_BLADE_LINE_DIVERGES_FROM_VANGUARD", "actual": round(diff, 2), "expected": "<= 55 deg from Vanguard sword screen line"})
+    if label == "start":
+        diff = angle_delta(crimson_line["screenAngleDeg"], vanguard_line["screenAngleDeg"])
+        if diff > 25:
+            failures.append({
+                "code": "CRIMSON_FRAME_ZERO_BLADE_LINE_NOT_VANGUARD",
+                "actual": round(diff, 2),
+                "expected": "<= 25 deg from Vanguard's loaded frame-zero sword line in the shared review camera",
+            })
     if label in {"snapPrep", "contact"} and cbox["height"] < vbox["height"] * 0.55:
         failures.append({"code": "CRIMSON_BODY_SILHOUETTE_COLLAPSED_OR_HIDDEN", "actual": {"crimsonHeight": round(cbox["height"], 4), "vanguardHeight": round(vbox["height"], 4)}, "expected": "Crimson should remain readable beside Vanguard"})
     ground_z = 0.0
@@ -3823,6 +3920,20 @@ def main() -> None:
                 "expected": (
                     "both final elbow/forearm heads sit at least 0.05 torso-height below "
                     "their matching wrist bones"
+                ),
+            })
+        author_report["vanguardFrameZeroGuardContract"] = vanguard_frame_zero_guard_contract(
+            crimson_armature,
+            author_report["bodyScale"]["shoulderSpan"],
+            author_report["bodyScale"]["torsoHeight"],
+        )
+        if author_report["vanguardFrameZeroGuardContract"]["status"] != "PASS":
+            author_failures.append({
+                "code": "AUTHOR_VANGUARD_FRAME_ZERO_GUARD_FAILED",
+                "actual": author_report["vanguardFrameZeroGuardContract"],
+                "expected": (
+                    "dominant and support hands form a vertically stepped high roof guard "
+                    "beside the helmet after the final visible-mesh support-hand pin"
                 ),
             })
         author_report["armLandmarkDeltaVsCommittedRejectedCandidate"] = arm_landmark_delta(

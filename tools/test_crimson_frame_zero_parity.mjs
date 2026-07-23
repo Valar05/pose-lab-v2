@@ -125,7 +125,7 @@ const goodRuntimeReport = {
     },
   },
   selected: structuredClone(candidateV4.source.runtimeAuthoring.gates),
-  testedAnglesDeg: [-30],
+  testedAnglesDeg: [48],
   trials: [structuredClone(candidateV4.source.runtimeAuthoring.gates)],
 };
 assert.deepEqual(
@@ -139,8 +139,8 @@ for (const [label, mutate] of [
   ['module SHA', (value) => { value.candidateModuleSha256 = 'pending'; }],
   ['selected geometry', (value) => { value.selected.checks.supportPalmPin = false; }],
   ['center view', (value) => { value.selected.silhouette.views.center.status = 'FAIL'; }],
-  ['bound angle', (value) => { value.selected.angleDeg = -28; }],
-  ['tested angle', (value) => { value.testedAnglesDeg = [-28]; }],
+  ['bound angle', (value) => { value.selected.angleDeg = 46; }],
+  ['tested angle', (value) => { value.testedAnglesDeg = [46]; }],
   ['trial parity', (value) => { value.trials = []; }],
   ['round-trip status', (value) => { value.authoredGlb.roundTrip.status = 'FAIL'; }],
   ['round-trip channels', (value) => { value.authoredGlb.roundTrip.uniqueChannelCount = 20; }],
@@ -219,10 +219,20 @@ assert.match(main, /const viewGate = runtimeAuthoring\.gates\?\.silhouette\?\.vi
 assert.match(main, /!attackPoseSequence\.source\?\.exactAuthoredGlb \|\| document\.body\.dataset\.reviewApplied === '1'/);
 assert.match(main, /if \(!attackPoseSequence\?\.source\?\.exactAuthoredGlb\) \{\s*alignSaberGripToWorldDirection[\s\S]*?seatSaberHiltTowardHand/);
 
+const blenderAuthor = fs.readFileSync('tools/render_crimson_vanguard_attack1_compare_blender.py', 'utf8');
+assert.match(blenderAuthor, /def vanguard_frame_zero_guard_contract\(/);
+assert.match(blenderAuthor, /AUTHOR_VANGUARD_FRAME_ZERO_GUARD_FAILED/);
+assert.match(blenderAuthor, /CRIMSON_FRAME_ZERO_BLADE_LINE_NOT_VANGUARD/);
+assert.match(blenderAuthor, /aim_browser_center_review_camera/);
+assert.match(blenderAuthor, /"browser-center"/);
+assert.match(blenderAuthor, /0\.42 \* shoulder_span/);
+assert.match(blenderAuthor, /0\.32 \* torso_height/);
+assert.doesNotMatch(blenderAuthor, /-0\.38 \* torso_height/);
+
 const workflow = fs.readFileSync('.github/workflows/crimson-pr-visual.yml', 'utf8');
 assert.match(workflow, /runtime_frame_zero:/);
 assert.match(workflow, /capture-frame-zero:\s*needs: runtime_frame_zero/);
-assert.match(workflow, /author_crimson_frame_zero_runtime\.mjs[\s\S]*?--angle-deg -30[\s\S]*?--check/);
+assert.match(workflow, /author_crimson_frame_zero_runtime\.mjs[\s\S]*?--angle-deg 48[\s\S]*?--check/);
 assert.match(workflow, /assertRuntimeAuthoringReportContract/);
 assert.match(workflow, /--expected-candidate-id "\$EXPECTED_CANDIDATE_ID"/);
 assert.match(workflow, /--expected-pose-sha "\$EXPECTED_POSE_SHA"/);
@@ -234,7 +244,7 @@ assert.ok(!workflow.includes('crimson-combat-ready-vanguard-frame0-3'));
 
 const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 assert.match(packageJson.scripts['test:repo-guardrails'], /test:crimson-frame-zero-runtime-authoring/);
-assert.match(packageJson.scripts['test:crimson-frame-zero-runtime-authoring'], /--angle-deg -30 --check/);
+assert.match(packageJson.scripts['test:crimson-frame-zero-runtime-authoring'], /--angle-deg 48 --check/);
 
 console.log(JSON.stringify({
   ok: true,

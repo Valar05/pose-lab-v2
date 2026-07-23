@@ -127,15 +127,18 @@ export function assertRuntimeAuthoringReportContract(report, expectedCandidateId
   for (const check of [
     'silhouette',
     'supportPalmPin',
+    'vanguardHighGuard',
     'leftLowElbow',
     'rightLowElbow',
     'supportReachReserve',
     'supportElbowBend',
+    'dominantReachReserve',
+    'dominantElbowBend',
   ]) {
     if (selectedChecks[check] !== true) errors.push(`selected runtime geometry check ${check} must be true`);
   }
-  if (report?.selected?.angleDeg !== -30) errors.push(`selected runtime angle expected -30, got ${report?.selected?.angleDeg ?? 'missing'}`);
-  if (JSON.stringify(report?.testedAnglesDeg) !== JSON.stringify([-30])) errors.push('runtime authoring must test exactly the bound -30 degree correction');
+  if (report?.selected?.angleDeg !== 48) errors.push(`selected runtime angle expected 48, got ${report?.selected?.angleDeg ?? 'missing'}`);
+  if (JSON.stringify(report?.testedAnglesDeg) !== JSON.stringify([48])) errors.push('runtime authoring must test exactly the bound 48 degree correction');
   if (!Array.isArray(report?.trials) || report.trials.length !== 1
     || JSON.stringify(report.trials[0]) !== JSON.stringify(report.selected)) {
     errors.push('runtime authoring trials must contain the exact selected trial');
@@ -165,6 +168,12 @@ export function assertRuntimeAuthoringReportContract(report, expectedCandidateId
     report?.selected?.supportHand?.elbowAngleDeg,
     report?.selected?.lowElbows?.leftDropTorso,
     report?.selected?.lowElbows?.rightDropTorso,
+    report?.selected?.vanguardHighGuard?.dominantHandAboveNeckTorso,
+    report?.selected?.vanguardHighGuard?.supportHandAboveNeckTorso,
+    report?.selected?.vanguardHighGuard?.handClusterBesideHeadShoulders,
+    report?.selected?.vanguardHighGuard?.gripStepTorso,
+    report?.selected?.reachAndBend?.rightReachReserveTorso,
+    report?.selected?.reachAndBend?.rightElbowAngleDeg,
     ...['center', 'left', 'right'].flatMap((view) => {
       const gate = report?.selected?.silhouette?.views?.[view] || {};
       return [
@@ -188,6 +197,9 @@ export function assertRuntimeAuthoringReportContract(report, expectedCandidateId
   if (runtimeAuthoring.authoredGlb?.animation !== report?.authoredGlb?.animation) errors.push('runtime-authoring animation must match the report');
   if (runtimeAuthoring.authoredGlb?.channels?.length !== 21) errors.push('runtime-authoring metadata must contain 21 channels');
   if (runtimeAuthoring.authoredGlb?.byteLength !== report?.authoredGlb?.byteLength) errors.push('runtime-authoring GLB byteLength must match the report');
+  if (JSON.stringify(runtimeAuthoring.authoredBones) !== JSON.stringify([
+    'LeftArm', 'LeftForeArm', 'LeftHand', 'RightArm', 'RightForeArm', 'RightHand',
+  ])) errors.push('runtime authoring must own both complete arm chains');
   if (runtimeAuthoring.gates?.status !== 'PASS') errors.push('committed runtime-authoring gates must be PASS');
   if (JSON.stringify(runtimeAuthoring.gates) !== JSON.stringify(report?.selected)) errors.push('committed runtime-authoring gates must exactly match the report selection');
   if (JSON.stringify(runtimeAuthoring.viewport) !== JSON.stringify([986, 900])) errors.push('committed runtime-authoring viewport must be 986x900');

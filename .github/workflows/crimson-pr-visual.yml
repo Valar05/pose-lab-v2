@@ -26,7 +26,7 @@ jobs:
       - name: Re-author frame zero in the exact Three.js runtime basis
         run: |
           node tools/author_crimson_frame_zero_runtime.mjs \
-            --angle-deg -30 \
+            --angle-deg 48 \
             --check \
             --report "generated/crimson-frame-zero-runtime/${GITHUB_RUN_ID}/runtime_authoring_report.json"
       - name: Bind the runtime report to the committed candidate

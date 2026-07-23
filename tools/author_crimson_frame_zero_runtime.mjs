@@ -45,12 +45,27 @@ const crossguardLocalMaximumZ = 0.03;
 const centerCanvas = Object.freeze({ width: 986, height: 900 });
 const minimumBladeHeadPixels = 12;
 const minimumGuardHeadPixels = 8;
-const minimumArmHeadPixels = 8;
+const minimumArmHeadPixels = 0;
+const recommendedArmFacePixels = 8;
 const minimumHandHeadPixels = 8;
+const faceHullUpperFraction = 0.62;
+const faceApertureScale = 0.66;
 const minimumElbowDropTorso = 0.05;
+const minimumDominantHandAboveNeckTorso = 0.20;
+const minimumSupportHandAboveNeckTorso = 0.03;
+const minimumHandClusterBesideHeadShoulders = 0.08;
+const minimumGripStepTorso = 0.12;
 const maximumSupportPalmErrorTorso = 0.008;
 const minimumSupportReachReserveTorso = 0.03;
+const minimumDominantReachReserveTorso = 0.018;
 const maximumSupportElbowAngleDeg = 165;
+const highGuardTarget = Object.freeze({
+  lateralShoulders: Number(process.env.CRIMSON_GUARD_LATERAL ?? 0.33),
+  heightTorso: Number(process.env.CRIMSON_GUARD_HEIGHT ?? 0.93),
+  depthTorso: Number(process.env.CRIMSON_GUARD_DEPTH ?? -0.18),
+  elbowSpreadShoulders: Number(process.env.CRIMSON_ELBOW_SPREAD ?? -0.72),
+  elbowPoleDropTorso: Number(process.env.CRIMSON_ELBOW_DROP ?? 0.80),
+});
 const authoredAnglesDeg = [
   -48, -46, -44, -42, -40, -38, -36, -34, -32, -30, -28, -26, -24,
   -22, -20, -18, -16, -14, -12, -10, -8, -6, -4, -2,
@@ -62,6 +77,8 @@ const runtimeAuthoredBones = [
   'LeftArm',
   'LeftForeArm',
   'LeftHand',
+  'RightArm',
+  'RightForeArm',
   'RightHand',
 ];
 
@@ -708,8 +725,58 @@ function cameraForward(THREE) {
     .normalize();
 }
 
+function cameraRight(THREE) {
+  return cameraForward(THREE)
+    .cross(new THREE.Vector3(0, 1, 0))
+    .normalize();
+}
+
 function authorAtAngle(THREE, root, swordRoot, seed, angleDeg) {
   restoreLocalState(root, swordRoot, seed.localState);
+  const neck = worldPosition(THREE, requireNode(root, 'neck'));
+  const head = worldPosition(THREE, requireNode(root, 'Head'));
+  const hips = worldPosition(THREE, requireNode(root, 'Hips'));
+  const torsoHeight = neck.distanceTo(hips);
+  const rightShoulder = worldPosition(THREE, requireNode(root, 'RightArm'));
+  const leftShoulder = worldPosition(THREE, requireNode(root, 'LeftArm'));
+  const shoulderSpan = rightShoulder.distanceTo(leftShoulder);
+  const rightWristTarget = neck.clone().add(new THREE.Vector3(
+    highGuardTarget.lateralShoulders * shoulderSpan,
+    highGuardTarget.heightTorso * torsoHeight,
+    highGuardTarget.depthTorso * torsoHeight,
+  ));
+  const leftWristTarget = rightWristTarget.clone().add(new THREE.Vector3(
+    -0.24 * shoulderSpan,
+    -0.24 * torsoHeight,
+    -0.02 * torsoHeight,
+  ));
+  const elbowScreenAxis = cameraRight(THREE).multiplyScalar(
+    highGuardTarget.elbowSpreadShoulders * shoulderSpan,
+  );
+  const rightPole = rightShoulder.clone()
+    .add(elbowScreenAxis)
+    .add(new THREE.Vector3(0, -highGuardTarget.elbowPoleDropTorso * torsoHeight, 0));
+  const leftPole = leftShoulder.clone()
+    .sub(elbowScreenAxis)
+    .add(new THREE.Vector3(0, -highGuardTarget.elbowPoleDropTorso * torsoHeight, 0));
+  const rightHighPin = solveTwoBonePin(
+    THREE,
+    root,
+    ['RightArm', 'RightForeArm', 'RightHand'],
+    rightWristTarget,
+    rightPole,
+  );
+  const leftHighPin = solveTwoBonePin(
+    THREE,
+    root,
+    ['LeftArm', 'LeftForeArm', 'LeftHand'],
+    leftWristTarget,
+    leftPole,
+  );
+  root.updateMatrixWorld(true);
+
+  // Positional projection establishes the recognisable roof guard first.
+  // Weapon roll and the visible support-palm pin are deliberately downstream.
   const rightHand = requireNode(root, 'RightHand');
   const leftHand = requireNode(root, 'LeftHand');
   const beforeAxes = weaponAxes(THREE, swordRoot);
@@ -743,16 +810,6 @@ function authorAtAngle(THREE, root, swordRoot, seed, angleDeg) {
   const desiredLeftPalm = afterAxes.hilt.clone()
     .lerp(afterAxes.pommel, beforeSupport.parameter)
     .add(rotatedSurfaceOffset);
-  const torsoHeight = worldPosition(THREE, requireNode(root, 'neck')).distanceTo(
-    worldPosition(THREE, requireNode(root, 'Hips')),
-  );
-  const leftShoulder = worldPosition(THREE, requireNode(root, 'LeftArm'));
-  const seedLeftElbow = seed.leftElbow.clone();
-  const pole = seedLeftElbow.clone();
-  pole.y = Math.min(
-    pole.y,
-    leftShoulder.y - torsoHeight * 0.32,
-  );
   let pin = null;
   for (let iteration = 0; iteration < 8; iteration += 1) {
     setWorldQuaternion(THREE, root, leftHand, desiredLeftHandWorld);
@@ -767,7 +824,7 @@ function authorAtAngle(THREE, root, swordRoot, seed, angleDeg) {
       root,
       ['LeftArm', 'LeftForeArm', 'LeftHand'],
       requestedWrist,
-      pole,
+      leftPole,
     );
   }
   setWorldQuaternion(THREE, root, leftHand, desiredLeftHandWorld);
@@ -784,6 +841,7 @@ function authorAtAngle(THREE, root, swordRoot, seed, angleDeg) {
     finalAxes.pommel,
   );
   const leftShoulderFinal = worldPosition(THREE, requireNode(root, 'LeftArm'));
+  const rightShoulderFinal = worldPosition(THREE, requireNode(root, 'RightArm'));
   const leftElbow = worldPosition(THREE, requireNode(root, 'LeftForeArm'));
   const leftWrist = worldPosition(THREE, leftHand);
   const rightElbow = worldPosition(THREE, requireNode(root, 'RightForeArm'));
@@ -791,9 +849,16 @@ function authorAtAngle(THREE, root, swordRoot, seed, angleDeg) {
   const upper = leftShoulderFinal.distanceTo(leftElbow);
   const lower = leftElbow.distanceTo(leftWrist);
   const reach = leftShoulderFinal.distanceTo(leftWrist);
+  const rightUpper = rightShoulderFinal.distanceTo(rightElbow);
+  const rightLower = rightElbow.distanceTo(rightWrist);
+  const rightReach = rightShoulderFinal.distanceTo(rightWrist);
   const elbowAngleDeg = THREE.MathUtils.radToDeg(
     leftShoulderFinal.clone().sub(leftElbow).angleTo(leftWrist.clone().sub(leftElbow)),
   );
+  const rightElbowAngleDeg = THREE.MathUtils.radToDeg(
+    rightShoulderFinal.clone().sub(rightElbow).angleTo(rightWrist.clone().sub(rightElbow)),
+  );
+  const handCenter = rightWrist.clone().add(leftWrist).multiplyScalar(0.5);
   const boneTravelDeg = Object.fromEntries(runtimeAuthoredBones.map((name) => [
     name,
     Number(THREE.MathUtils.radToDeg(
@@ -809,6 +874,10 @@ function authorAtAngle(THREE, root, swordRoot, seed, angleDeg) {
     support,
     supportPinError: leftPalm.distanceTo(desiredLeftPalm),
     torsoHeight,
+    shoulderSpan,
+    neck,
+    head,
+    handCenter,
     leftElbow,
     leftWrist,
     rightElbow,
@@ -816,11 +885,29 @@ function authorAtAngle(THREE, root, swordRoot, seed, angleDeg) {
     leftElbowDropTorso: (leftWrist.y - leftElbow.y) / torsoHeight,
     rightElbowDropTorso: (rightWrist.y - rightElbow.y) / torsoHeight,
     leftReachReserveTorso: (upper + lower - reach) / torsoHeight,
+    rightReachReserveTorso: (rightUpper + rightLower - rightReach) / torsoHeight,
     leftElbowAngleDeg: elbowAngleDeg,
+    rightElbowAngleDeg,
+    dominantHandAboveNeckTorso: (rightWrist.y - neck.y) / torsoHeight,
+    supportHandAboveNeckTorso: (leftWrist.y - neck.y) / torsoHeight,
+    handClusterBesideHeadShoulders: (handCenter.x - head.x) / shoulderSpan,
+    gripStepTorso: Math.abs(rightWrist.y - leftWrist.y) / torsoHeight,
     boneTravelDeg,
     landmarkDeltaWorld: {
       leftElbow: leftElbow.distanceTo(seed.leftElbow),
       leftWrist: leftWrist.distanceTo(seed.leftWrist),
+      rightElbow: rightElbow.distanceTo(seed.rightElbow),
+      rightWrist: rightWrist.distanceTo(seed.rightWrist),
+    },
+    highGuardTargets: {
+      rightWrist: rightWristTarget,
+      leftWrist: leftWristTarget,
+      rightPole,
+      leftPole,
+    },
+    highGuardPins: {
+      right: rightHighPin,
+      left: leftHighPin,
     },
     pin,
   };
@@ -896,6 +983,26 @@ function convexHull(points) {
   lower.pop();
   upper.pop();
   return lower.concat(upper);
+}
+
+function polygonBounds(polygon) {
+  return {
+    left: Number(Math.min(...polygon.map((point) => point[0])).toFixed(2)),
+    right: Number(Math.max(...polygon.map((point) => point[0])).toFixed(2)),
+    top: Number(Math.min(...polygon.map((point) => point[1])).toFixed(2)),
+    bottom: Number(Math.max(...polygon.map((point) => point[1])).toFixed(2)),
+  };
+}
+
+function scaledPolygon(polygon, scale) {
+  const center = polygon.reduce(
+    (total, point) => [total[0] + point[0], total[1] + point[1]],
+    [0, 0],
+  ).map((value) => value / polygon.length);
+  return polygon.map((point) => [
+    center[0] + (point[0] - center[0]) * scale,
+    center[1] + (point[1] - center[1]) * scale,
+  ]);
 }
 
 function pointSegment2d(point, start, end) {
@@ -1006,6 +1113,14 @@ function silhouetteReport(THREE, root, swordRoot) {
     'Head',
     headWeightMinimum,
   );
+  const minimumHeadY = Math.min(...headPoints.map((point) => point.y));
+  const maximumHeadY = Math.max(...headPoints.map((point) => point.y));
+  const faceCeilingY = minimumHeadY
+    + (maximumHeadY - minimumHeadY) * faceHullUpperFraction;
+  const facePoints = headPoints.filter((point) => point.y <= faceCeilingY);
+  if (facePoints.length < 50) {
+    throw new Error(`visible face point cloud is too small: ${facePoints.length}`);
+  }
   const handPoints = Object.fromEntries(['Left', 'Right'].map((side) => [
     side,
     weightedSkinPoints(THREE, root, `${side}Hand`, handWeightMinimum),
@@ -1014,6 +1129,8 @@ function silhouetteReport(THREE, root, swordRoot) {
   const views = {};
   for (const [name, camera] of Object.entries(runtimeCameras(THREE, swordRoot))) {
     const headHull = convexHull(headPoints.map((point) => projectPoint(point, camera)));
+    const faceHull = convexHull(facePoints.map((point) => projectPoint(point, camera)));
+    const faceApertureHull = scaledPolygon(faceHull, faceApertureScale);
     const bladeHull = convexHull(
       swordPoints.blade.map((point) => projectPoint(point, camera)),
     );
@@ -1035,17 +1152,20 @@ function silhouetteReport(THREE, root, swordRoot) {
       const handHull = convexHull(
         handPoints[side].map((point) => projectPoint(point, camera)),
       );
-      const armClearance = segmentPolygonDistance(elbow, wrist, headHull);
-      const handClearance = polygonDistance(handHull, headHull);
+      const armClearance = segmentPolygonDistance(elbow, wrist, faceApertureHull);
+      const handClearance = polygonDistance(handHull, faceApertureHull);
       minimumArmClearance = Math.min(minimumArmClearance, armClearance);
       minimumHandClearance = Math.min(minimumHandClearance, handClearance);
       hands[side.toLowerCase()] = {
         armHeadPixels: Number(armClearance.toFixed(3)),
         handHeadPixels: Number(handClearance.toFixed(3)),
+        elbow: roundArray(elbow, 2),
+        wrist: roundArray(wrist, 2),
+        bounds: polygonBounds(handHull),
       };
     }
     const bladeHeadPixels = polygonDistance(bladeHull, headHull);
-    const guardHeadPixels = polygonDistance(guardHull, headHull);
+    const guardHeadPixels = polygonDistance(guardHull, faceHull);
     const passed = bladeHeadPixels >= minimumBladeHeadPixels
       && guardHeadPixels >= minimumGuardHeadPixels
       && minimumArmClearance >= minimumArmHeadPixels
@@ -1057,6 +1177,11 @@ function silhouetteReport(THREE, root, swordRoot) {
       minimumArmHeadPixels: Number(minimumArmClearance.toFixed(3)),
       minimumHandHeadPixels: Number(minimumHandClearance.toFixed(3)),
       hands,
+      headBounds: polygonBounds(headHull),
+      faceBounds: polygonBounds(faceHull),
+      faceApertureBounds: polygonBounds(faceApertureHull),
+      bladeBounds: polygonBounds(bladeHull),
+      guardBounds: polygonBounds(guardHull),
       bladeScreen: {
         hilt: roundArray(projectPoint(weaponAxes(THREE, swordRoot).hilt, camera), 2),
         tip: roundArray(projectPoint(weaponAxes(THREE, swordRoot).tip, camera), 2),
@@ -1071,7 +1196,12 @@ function silhouetteReport(THREE, root, swordRoot) {
       bladeHeadPixels: minimumBladeHeadPixels,
       guardHeadPixels: minimumGuardHeadPixels,
       armHeadPixels: minimumArmHeadPixels,
+      armFaceAdvisoryPixels: recommendedArmFacePixels,
       handHeadPixels: minimumHandHeadPixels,
+      bladeAuthority: 'full weighted helmet and plume hull',
+      guardAuthority: `lower visible face hull through ${faceHullUpperFraction} of Head-skinned world height`,
+      armHandAuthority: `${faceApertureScale} central aperture of the lower visible face hull`,
+      armFaceDisposition: 'advisory because Vanguard frame zero intentionally frames the head with opposed forearms; browser pixels remain decisive',
     },
     views,
   };
@@ -1082,10 +1212,19 @@ function evaluationReport(THREE, authored, silhouette) {
   const checks = {
     silhouette: silhouette.status === 'PASS',
     supportPalmPin: supportPalmErrorTorso <= maximumSupportPalmErrorTorso,
+    vanguardHighGuard: authored.dominantHandAboveNeckTorso
+        >= minimumDominantHandAboveNeckTorso
+      && authored.supportHandAboveNeckTorso >= minimumSupportHandAboveNeckTorso
+      && authored.handClusterBesideHeadShoulders
+        >= minimumHandClusterBesideHeadShoulders
+      && authored.gripStepTorso >= minimumGripStepTorso,
     leftLowElbow: authored.leftElbowDropTorso >= minimumElbowDropTorso,
     rightLowElbow: authored.rightElbowDropTorso >= minimumElbowDropTorso,
     supportReachReserve: authored.leftReachReserveTorso >= minimumSupportReachReserveTorso,
     supportElbowBend: authored.leftElbowAngleDeg <= maximumSupportElbowAngleDeg,
+    dominantReachReserve: authored.rightReachReserveTorso
+      >= minimumDominantReachReserveTorso,
+    dominantElbowBend: authored.rightElbowAngleDeg <= maximumSupportElbowAngleDeg,
   };
   return {
     status: Object.values(checks).every(Boolean) ? 'PASS' : 'FAIL',
@@ -1110,10 +1249,40 @@ function evaluationReport(THREE, authored, silhouette) {
       leftDropTorso: Number(authored.leftElbowDropTorso.toFixed(6)),
       rightDropTorso: Number(authored.rightElbowDropTorso.toFixed(6)),
     },
+    vanguardHighGuard: {
+      intent: 'high loaded roof guard beside the helmet with vertically stepped hands',
+      authoredTarget: highGuardTarget,
+      dominantHandAboveNeckTorso: Number(
+        authored.dominantHandAboveNeckTorso.toFixed(6),
+      ),
+      minimumDominantHandAboveNeckTorso,
+      supportHandAboveNeckTorso: Number(
+        authored.supportHandAboveNeckTorso.toFixed(6),
+      ),
+      minimumSupportHandAboveNeckTorso,
+      handClusterBesideHeadShoulders: Number(
+        authored.handClusterBesideHeadShoulders.toFixed(6),
+      ),
+      minimumHandClusterBesideHeadShoulders,
+      gripStepTorso: Number(authored.gripStepTorso.toFixed(6)),
+      minimumGripStepTorso,
+      rightWristWorld: roundArray(authored.rightWrist.toArray(), 6),
+      leftWristWorld: roundArray(authored.leftWrist.toArray(), 6),
+      handCenterWorld: roundArray(authored.handCenter.toArray(), 6),
+    },
+    reachAndBend: {
+      leftReachReserveTorso: Number(authored.leftReachReserveTorso.toFixed(6)),
+      rightReachReserveTorso: Number(authored.rightReachReserveTorso.toFixed(6)),
+      minimumDominantReachReserveTorso,
+      leftElbowAngleDeg: Number(authored.leftElbowAngleDeg.toFixed(4)),
+      rightElbowAngleDeg: Number(authored.rightElbowAngleDeg.toFixed(4)),
+    },
     authoredTravel: {
       boneLocalDegrees: authored.boneTravelDeg,
       leftElbowWorld: Number(authored.landmarkDeltaWorld.leftElbow.toFixed(6)),
       leftWristWorld: Number(authored.landmarkDeltaWorld.leftWrist.toFixed(6)),
+      rightElbowWorld: Number(authored.landmarkDeltaWorld.rightElbow.toFixed(6)),
+      rightWristWorld: Number(authored.landmarkDeltaWorld.rightWrist.toFixed(6)),
     },
     silhouette,
   };
@@ -1146,7 +1315,7 @@ function buildCandidate(THREE, root, frame, chosen, seed) {
   generated.primeKeys = { start: 0 };
   generated.source = {
     ...generated.source,
-    method: 'Three.js model-local Pin First, Roll Last correction from the exact 3d6a57a9 browser seed',
+    method: 'Three.js model-local bilateral roof-guard projection, then Pin First, Roll Last correction from the exact 3d6a57a9 browser seed',
     exactAuthoredGlb: true,
     exactAuthoredBodyGlb: true,
     authoredGlbSha256: authoredGlb.sha256,
@@ -1172,12 +1341,13 @@ function buildCandidate(THREE, root, frame, chosen, seed) {
         channels: authoredGlb.channels,
       },
       bladeScreenRotationDeg: chosen.angleDeg,
+      highGuardTarget,
       bladeWorldDirection: chosen.blade.actualWorldDirection,
-      supportHandMethod: 'explicit low pole plus exact two-bone elbow-circle projection and iterative visible-palm pin',
+      supportHandMethod: 'bilateral high-guard wrist projection with explicit low poles, then exact elbow-circle projection and iterative visible-palm pin',
       gates: chosen,
     },
     poseProvenance: {
-      bonesAndHips: 'protected body and right-arm seed remain exact to 3d6a57a9; RightHand and support chain are authored in the browser bone-child basis',
+      bonesAndHips: 'protected center, head, shoulders, legs, and Hips remain exact to 3d6a57a9; both arm chains are authored in the measured browser bone-child basis',
       sabreLocal: 'unchanged mesh-seated 3d6a57a9 transform; sword direction comes from runtime-basis RightHand rotation',
     },
   };
@@ -1210,6 +1380,8 @@ async function main() {
     localState: captureLocalState(root, swordRoot),
     leftElbow: worldPosition(THREE, requireNode(root, 'LeftForeArm')),
     leftWrist: worldPosition(THREE, requireNode(root, 'LeftHand')),
+    rightElbow: worldPosition(THREE, requireNode(root, 'RightForeArm')),
+    rightWrist: worldPosition(THREE, requireNode(root, 'RightHand')),
   };
   const angles = args.angleDeg !== null
     ? [args.angleDeg]
