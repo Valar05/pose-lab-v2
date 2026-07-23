@@ -131,17 +131,22 @@ def create_proxy(
         bone = data.edit_bones.new(name)
         if source_bone is not None:
             original = source.data.bones[source_bone]
-            bone.head = source.matrix_world @ original.head_local
-            bone.tail = source.matrix_world @ original.tail_local
-            bone.roll = original.matrix_local.to_euler().y
-        else:
-            lower = source.data.bones[source_map["spineLower"]]
-            chest = source.data.bones[source_map["chest"]]
-            bone.head = (source.matrix_world @ lower.head_local).lerp(
-                source.matrix_world @ chest.head_local, 0.5
+            rest_world = source.matrix_world @ original.matrix_local
+            bone.matrix = rest_world
+            bone.length = max(
+                0.001,
+                (source.matrix_world @ original.tail_local - source.matrix_world @ original.head_local).length,
             )
-            bone.tail = (source.matrix_world @ lower.tail_local).lerp(
-                source.matrix_world @ chest.tail_local, 0.5
+        else:
+            rest_world = canonical_source_matrix(source, source_map, name, rest=True)
+            bone.matrix = rest_world
+            bone.length = max(
+                0.001,
+                (
+                    canonical_source_matrix(source, source_map, "chest", rest=True).translation
+                    - canonical_source_matrix(source, source_map, "spineLower", rest=True).translation
+                ).length
+                * 0.5,
             )
         if (bone.tail - bone.head).length < 0.001:
             bone.tail = bone.head + Vector((0, 0.05, 0))
@@ -168,19 +173,42 @@ def bake_proxy(
     proxy.animation_data_create()
     proxy.animation_data.action = action
     sampled: dict[int, dict[str, Matrix]] = {}
+    proxy_rest = {bone.name: bone.matrix_local.copy() for bone in proxy.data.bones}
     for frame in frames:
         bpy.context.scene.frame_set(frame)
         bpy.context.view_layer.update()
         sampled[frame] = {}
         for canonical in source_map:
             desired_world = canonical_source_matrix(source, source_map, canonical, rest=False)
-            proxy.pose.bones[canonical].matrix = proxy.matrix_world.inverted() @ desired_world
-            sampled[frame][canonical] = desired_world.copy()
+            bone = proxy.pose.bones[canonical]
+            desired_proxy_rotation = (
+                proxy.matrix_world.inverted() @ desired_world
+            ).to_quaternion()
+            if bone.parent:
+                parent_pose_rotation = bone.parent.matrix.to_quaternion()
+                rest_local_rotation = (
+                    proxy_rest[bone.parent.name].inverted() @ proxy_rest[canonical]
+                ).to_quaternion()
+                desired_local_rotation = parent_pose_rotation.inverted() @ desired_proxy_rotation
+                basis_rotation = rest_local_rotation.inverted() @ desired_local_rotation
+            else:
+                basis_rotation = proxy_rest[canonical].to_quaternion().inverted() @ desired_proxy_rotation
+            bone.location = (0, 0, 0)
+            bone.rotation_quaternion = basis_rotation
+            bone.scale = (1, 1, 1)
+            if canonical == "root":
+                desired_proxy = proxy.matrix_world.inverted() @ desired_world
+                bone.location = desired_proxy.translation - proxy_rest[canonical].translation
+        bpy.context.view_layer.update()
+        for canonical in source_map:
+            sampled[frame][canonical] = (
+                proxy.matrix_world @ proxy.pose.bones[canonical].matrix
+            ).copy()
         bpy.context.view_layer.update()
         for bone in proxy.pose.bones:
-            bone.keyframe_insert("location", frame=frame, group=bone.name)
+            if bone.name == "root":
+                bone.keyframe_insert("location", frame=frame, group=bone.name)
             bone.keyframe_insert("rotation_quaternion", frame=frame, group=bone.name)
-            bone.keyframe_insert("scale", frame=frame, group=bone.name)
     return action, sampled
 
 
@@ -196,7 +224,7 @@ def export_proxy_bvh(proxy: bpy.types.Object, output: Path, frame_start: int, fr
         frame_end=frame_end,
         global_scale=1.0,
         rotate_mode="ZXY",
-        root_transform_only=False,
+        root_transform_only=True,
     )
 
 
@@ -221,9 +249,11 @@ def import_bvh(path: Path) -> bpy.types.Object:
 
 
 def matrix_error(a: Matrix, b: Matrix) -> dict:
+    angle = a.to_quaternion().rotation_difference(b.to_quaternion()).angle
+    angle = min(angle, math.tau - angle)
     return {
         "position": (a.translation - b.translation).length,
-        "rotationDeg": math.degrees(a.to_quaternion().rotation_difference(b.to_quaternion()).angle),
+        "rotationDeg": math.degrees(angle),
     }
 
 
@@ -445,6 +475,12 @@ def main() -> None:
     proxy.hide_render = True
     canonical = import_bvh(bvh_path)
     roundtrip = verify_roundtrip(canonical, sampled, source_proxy_world)
+    if roundtrip["maxPositionError"] > 0.002 or roundtrip["maxRotationErrorDeg"] > 0.25:
+        raise RuntimeError(
+            "BVH round trip exceeded tolerance: "
+            f"position={roundtrip['maxPositionError']:.6f}m "
+            f"rotation={roundtrip['maxRotationErrorDeg']:.6f}deg"
+        )
 
     target_objects = import_glb(TARGET)
     target = find_armature(target_objects, "Crimson")
