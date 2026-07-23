@@ -215,46 +215,14 @@
         "two-handed visible sword"
       ],
       "frames": [
-        {
-          "src": "walk/frames/walk_0000.png",
-          "durationMs": 110,
-          "sha256": "a134327a16aa6f286d58218826ab7b7a963c3419e325ba1aaafa67b5f88fb52b"
-        },
-        {
-          "src": "walk/frames/walk_0001.png",
-          "durationMs": 90,
-          "sha256": "4e1a91d45f963ed86a15fcb6edc964bea08d4ef6eca51dbceff76d5727b55bcc"
-        },
-        {
-          "src": "walk/frames/walk_0002.png",
-          "durationMs": 100,
-          "sha256": "d785be2461724b12dc6410348c98aec6759e576ef91e8a3f84675ca82bb23d1f"
-        },
-        {
-          "src": "walk/frames/walk_0003.png",
-          "durationMs": 110,
-          "sha256": "cd7f9f27ea83dccc69274c2364887243729b7f4c27545f75d2d4b82ef65aee8d"
-        },
-        {
-          "src": "walk/frames/walk_0004.png",
-          "durationMs": 110,
-          "sha256": "6953285689ce825f7aa4d228336872075638ee92be3b7d4133e591a2330d65ea"
-        },
-        {
-          "src": "walk/frames/walk_0005.png",
-          "durationMs": 90,
-          "sha256": "ad4f21c7a26e6a0f956ce14d82b5fbc650ae954ac1902f259754dff845f3422c"
-        },
-        {
-          "src": "walk/frames/walk_0006.png",
-          "durationMs": 100,
-          "sha256": "754f87737f130ec7cb06431f08ed59cdd031dddedfd6a582434a10b5c6ad49ee"
-        },
-        {
-          "src": "walk/frames/walk_0007.png",
-          "durationMs": 110,
-          "sha256": "cc1ee58e22721e7b836ec22f4328422688e1e26344f6f8178243011e1c244893"
-        }
+        {"src": "walk/frames/walk_0000.png", "durationMs": 110, "sha256": "1b152cb8278c80153af6e178b6f8ed298b49e3825fef3c60078e7b978dd99556"},
+        {"src": "walk/frames/walk_0001.png", "durationMs": 90, "sha256": "c248e00ac14f0a78502917d2d9750f6decc58f204e2c8d303846fe6419890d5a"},
+        {"src": "walk/frames/walk_0002.png", "durationMs": 100, "sha256": "d279ed258203bb948d706004e773c980af4d2e1366847345d141871ceab510ab"},
+        {"src": "walk/frames/walk_0003.png", "durationMs": 110, "sha256": "2cfafada10bd6bfb98262bfee08ffbedf39bb47158b593ce5ae3b95cb9c9167f"},
+        {"src": "walk/frames/walk_0004.png", "durationMs": 110, "sha256": "956cdabc8cb6a1f400b31160d8d6a4227cc3f7bf909a805a582d241f30224d7b"},
+        {"src": "walk/frames/walk_0005.png", "durationMs": 90, "sha256": "85a7b8b50526eebf7fbb6da80e811d5fac8b155e3b747ecee8caa28276bf1160"},
+        {"src": "walk/frames/walk_0006.png", "durationMs": 100, "sha256": "465bb6d969743833a23943b2b65452e816c6304e3b277a2018c9c3087bbec031"},
+        {"src": "walk/frames/walk_0007.png", "durationMs": 110, "sha256": "f0947391284d70b0c8d7f9dcbbbcf109e99585121a6bff64fea6d854f4708843"}
       ]
     }
   ]
