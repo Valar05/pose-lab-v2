@@ -1,6 +1,6 @@
 # Crimson BVH Retarget Spike
 
-Status: **contract GREEN; Blender motion bake RED / not yet executed**.
+Status: **BVH transport GREEN; Crimson visual acceptance RED**.
 
 The executable spike is `tools/bake_bvh_retarget_spike_blender.py`. Run it with:
 
@@ -44,15 +44,17 @@ BVH is useful only after the evaluated Vanguard pose is reduced to the
 The Blender pass must:
 
 1. Import Vanguard and activate native `SwordAttack1`.
-2. Create the canonical proxy armature in a normalized rest pose.
+2. Create the canonical proxy armature from the ORG anatomical rest pose.
 3. At 60 fps, sample the evaluated source `ORG-*` anatomical joints in world
    space.
-4. Solve the proxy from joint positions plus distal orientation for net twist.
+4. Solve the proxy from joint positions and anatomical segment directions.
 5. Bake the proxy action.
 6. Export only the proxy as BVH.
 7. Clear the scene and re-import the BVH.
-8. Normalize Crimson against the same rest/facing/height contract.
-9. Apply canonical world-pose deltas through each Crimson parent/rest basis.
+8. Select the BVH import axes by testing all 24 legal forward/up pairs against
+   source joint trajectories.
+9. Apply canonical parent-to-child segment directions to Crimson while
+   preserving Crimson's bone lengths.
 10. Bake a Crimson action and render diagnostic plus fixed-camera evidence.
 
 Directly exporting Vanguard's 437-joint armature as BVH is explicitly rejected.
@@ -94,6 +96,30 @@ python3 tools/test_bvh_retarget_contract.py
 This verifies the checked-in GLB facts and all mapped nodes without Blender.
 It generates `rig-diff.json`.
 
-The visual/BVH proof is still RED because the existing Cloud Run Codex executor
-accepted the job but exited on account quota before running Blender. No Blender
-installation was attempted, in accordance with the repository constraint.
+GitHub Actions run
+[`30053465441`](https://github.com/Valar05/pose-lab-v2/actions/runs/30053465441)
+executed the complete Blender 4.4 proof at commit
+`300f7c5ac1cf035c0f55902fe276762bf6843a85`.
+
+BVH transport is GREEN:
+
+- 21 ORG-derived canonical joints
+- five sampled frames / 105 joint samples
+- best Blender import basis: forward `Y`, up `Z`
+- maximum joint-position error: `0.000002458 m`
+- maximum anatomical segment-direction error: `0.030818°`
+
+Crimson visual acceptance is RED:
+
+- the target mesh is visibly folded and stretched in every locked-camera frame
+- the primary sword attachment remains about `0.168 m` from the right hand
+- the unsupported left hand reaches as much as `2.921 m` from the blade axis
+- there is no bilateral grip closure, foot locking, twist reconstruction, or
+  armor correction
+
+The experiment therefore separates the problem cleanly: BVH is a viable,
+inspectable carrier for evaluated ORG motion, but copying anatomical segment
+directions onto Crimson is not retargeting. The next layer must solve target
+joint positions under target bone lengths, pole/elbow hypotheses, foot
+contacts, and a rigid two-hand sword constraint. Do not promote the generated
+Crimson action.
