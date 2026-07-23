@@ -46,10 +46,10 @@ assert(manifest.defaultAnimation === 'idle', 'Idle must remain the default 2D an
 assert(manifest.frameSpace?.width === 512 && manifest.frameSpace?.height === 512, 'all 2D frames must use the 512x512 game frame');
 assert(manifest.frameSpace?.background === 'transparent', '2D frame background must be transparent');
 assert(manifest.frameSpace?.facing === 'screen-right', '2D frame set must remain screen-right');
-assert(manifest.animations?.length === 2, 'initial 2D set must contain Idle and Sword Attack 1');
+assert([2, 3].includes(manifest.animations?.length), '2D set must contain approved clips and optional canonical Walk');
 
 const ids = manifest.animations.map((animation) => animation.id);
-assert(JSON.stringify(ids) === JSON.stringify(['idle', 'swordattack1']), '2D animation order must be Idle then Sword Attack 1');
+assert(JSON.stringify(ids) === JSON.stringify(['idle', 'swordattack1']) || JSON.stringify(ids) === JSON.stringify(['idle', 'swordattack1', 'walk']), '2D animation order must preserve Idle and Sword Attack 1, then Walk');
 
 for (const animation of manifest.animations) {
   assert(animation.frames.length > 1, `${animation.id} must contain multiple frames`);
@@ -79,6 +79,37 @@ assert(attack.frames.reduce((sum, frame) => sum + frame.durationMs, 0) === 750, 
 assert(attack.registration?.schema === 'pose-lab-v2-source-envelope-registration-v1', 'Sword Attack 1 must declare source-derived registration');
 assert(attack.registration?.axis === 'y' && attack.registration?.tolerancePx === 0, 'Sword Attack 1 registration must fail closed on vertical drift');
 assert(attack.frames.every((frame) => Number.isInteger(frame.pivot?.y)), 'every Sword Attack 1 frame must expose its registered pivot');
+const walk = manifest.animations.find((animation) => animation.id === 'walk');
+if (walk) {
+  assert(walk.frames.length === 8, 'canonical Walk must contain exactly eight authored poses');
+  assert(walk.contract?.includes('fixed camera'), 'canonical Walk must declare its fixed camera');
+  assert(walk.contract?.includes('two-handed visible sword'), 'canonical Walk must declare two-handed sword ownership');
+}
+
+const walkCandidateRoot = 'public/assets/vanguard/fleshpunk/candidates/walk/attempt-001';
+const walkCandidateManifestPath = path.join(walkCandidateRoot, 'animations.json');
+if (fs.existsSync(path.join(root, walkCandidateManifestPath))) {
+  const candidateManifest = JSON.parse(read(walkCandidateManifestPath).toString('utf8'));
+  const candidateProvenance = JSON.parse(read(path.join(walkCandidateRoot, 'provenance.json')).toString('utf8'));
+  const candidateWalk = candidateManifest.animations?.[0];
+
+  assert(candidateManifest.defaultAnimation === 'walk', 'Walk candidate preview must open on Walk');
+  assert(candidateManifest.authority?.reviewState === 'candidate', 'transferred Walk must remain a candidate until explicit approval');
+  assert(candidateWalk?.frames?.length === 8, 'transferred Walk candidate must contain exactly eight frames');
+  assert(candidateWalk?.frames?.reduce((sum, frame) => sum + frame.durationMs, 0) === 820, 'transferred Walk must preserve authored timing');
+  assert(candidateProvenance.state === 'candidate' && candidateProvenance.approval === null, 'transferred Walk must not claim approval');
+  assert(candidateProvenance.provider?.model === 'undeclared', 'unknown image model must remain undeclared');
+
+  for (const [index, frame] of candidateWalk?.frames?.entries() || []) {
+    const relativeFramePath = path.join(walkCandidateRoot, frame.src);
+    assert(fs.existsSync(path.join(root, relativeFramePath)), `transferred Walk frame ${index} is missing`);
+    if (!fs.existsSync(path.join(root, relativeFramePath))) continue;
+    const bytes = read(relativeFramePath);
+    const size = pngSize(bytes);
+    assert(size.width === 512 && size.height === 512, `transferred Walk frame ${index} must remain 512x512`);
+    assert(sha256(bytes) === frame.sha256, `transferred Walk frame ${index} changed candidate bytes`);
+  }
+}
 
 assert(html.includes("startupParams.get('view')"), 'HTML must route the requested Pose Lab view');
 assert(html.includes("'./src/sprite-viewer.js'"), 'HTML must expose the 2D review entry');

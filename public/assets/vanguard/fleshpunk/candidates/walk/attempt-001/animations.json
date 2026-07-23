@@ -1,0 +1,88 @@
+{
+  "schema": "pose-lab-v2-2d-animation-set-v1",
+  "character": "Fleshpunk Vanguard · Walk candidate 001",
+  "defaultAnimation": "walk",
+  "frameSpace": {
+    "width": 512,
+    "height": 512,
+    "colorMode": "RGBA",
+    "background": "transparent",
+    "facing": "screen-right",
+    "camera": "fixed"
+  },
+  "authority": {
+    "poseCameraFacingTiming": "Approved Steel Walk v1 at 605e8f128c9be8f586526517945e6747db44df7a",
+    "appearance": "Approved Fleshpunk Vanguard concept, SHA-256 a81310b22ed537ec0aac39133bcf810d965ff2f2d00d7f9a8a56472c04c6878e",
+    "reviewState": "candidate",
+    "excluded": [
+      "canonical promotion",
+      "pose correction",
+      "camera change",
+      "mirroring",
+      "per-cell reframing",
+      "stabilization",
+      "interpolation",
+      "frame invention"
+    ]
+  },
+  "animations": [
+    {
+      "id": "walk",
+      "label": "Transferred Fleshpunk Walk · Candidate 001",
+      "loop": true,
+      "contactSheet": "contact-sheet.png",
+      "sourceMetadata": "provenance.json",
+      "groundGuideY": 400,
+      "contract": [
+        "screen-right",
+        "approved Steel Walk v1 pose order",
+        "fixed camera",
+        "eight transferred poses",
+        "two-handed visible sword",
+        "candidate only"
+      ],
+      "frames": [
+        {
+          "src": "frames/walk_0000.png",
+          "durationMs": 110,
+          "sha256": "0aaadfaea888db3f6d2e9e66acf5551c98305a53efa8153699e67c0a51fe40c9"
+        },
+        {
+          "src": "frames/walk_0001.png",
+          "durationMs": 90,
+          "sha256": "c192f1550caaba8ba3601004f30700d21f8a829bac21fd97281a7867d994a822"
+        },
+        {
+          "src": "frames/walk_0002.png",
+          "durationMs": 100,
+          "sha256": "6a2d809e0daf21a52cb60998f1966a769dd1326cdb62dfbea0a1a2e22d8da53c"
+        },
+        {
+          "src": "frames/walk_0003.png",
+          "durationMs": 110,
+          "sha256": "64cab45793cc69d0ed242ca9b3c7f2ed72700160584780d39b207071a6abc9db"
+        },
+        {
+          "src": "frames/walk_0004.png",
+          "durationMs": 110,
+          "sha256": "b80e5e698d99f6701362c6a848032825b50aabb6956f89741b2d867d971baccf"
+        },
+        {
+          "src": "frames/walk_0005.png",
+          "durationMs": 90,
+          "sha256": "d07fe2f1bbe70c340dcfc7be31f9c9d0c4d0b6c2d50b9f21a7ca06773d05cb3a"
+        },
+        {
+          "src": "frames/walk_0006.png",
+          "durationMs": 100,
+          "sha256": "45c64feaa39530bad24c3771d6b08049d19cb2bece066cb400f6b9e993bb443a"
+        },
+        {
+          "src": "frames/walk_0007.png",
+          "durationMs": 110,
+          "sha256": "f8cdee3d1dbf0672c8ca3e1bd3be26b4438e680d4296da06a4ff629dbc08cdd5"
+        }
+      ]
+    }
+  ]
+}

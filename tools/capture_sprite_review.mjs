@@ -91,7 +91,13 @@ try {
   const pageErrors = [];
   page.on('pageerror', (error) => pageErrors.push(String(error.message || error)));
 
-  for (const animation of ['idle', 'swordattack1']) {
+  const reviewAnimations = [
+    { id: 'idle', frame: '2', count: 6 },
+    { id: 'swordattack1', frame: '6', count: 12 },
+    { id: 'walk', frame: '3', count: 8 },
+  ];
+  for (const review of reviewAnimations) {
+    const animation = review.id;
     const url = new URL(args.url);
     url.searchParams.set('view', '2d');
     url.searchParams.set('animation', animation);
@@ -108,7 +114,7 @@ try {
     if ((await page.locator('[data-play]').textContent()) === 'Pause') {
       await page.locator('[data-play]').click();
     }
-    await page.locator('[data-scrubber]').fill(animation === 'idle' ? '2' : '6');
+    await page.locator('[data-scrubber]').fill(review.frame);
     await page.waitForTimeout(120);
 
     const cleanPath = path.join(outDir, `${animation}-clean.png`);
@@ -125,7 +131,7 @@ try {
     const deltaBytes = await page.screenshot({ path: deltaPath, fullPage: false });
     const deltaInspection = await inspect(page);
 
-    if (cleanInspection.frameCount !== (animation === 'idle' ? 6 : 12)) {
+    if (cleanInspection.frameCount !== review.count) {
       throw new Error(`${animation} rendered ${cleanInspection.frameCount} frame controls`);
     }
     if (cleanInspection.currentFrame?.naturalWidth !== 512 || cleanInspection.currentFrame?.naturalHeight !== 512) {
