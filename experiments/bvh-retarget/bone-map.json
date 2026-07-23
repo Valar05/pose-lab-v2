@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-bvh-bone-map-v1",
   "source": {
     "asset": "public/assets/vanguard/vanguard_rigged_animations.glb",
-    "clip": "SwordAttack1",
+    "clip": "Idle",
     "rigKind": "Rigify export with control, mechanism, deform, IK, FK, hose, weapon, and prop nodes",
     "map": {
       "root": "root",
@@ -66,18 +66,20 @@
     "applicationPolicy": {
       "copyBvhEulerChannelsDirectly": false,
       "method": "Apply canonical world-space pose deltas relative to a normalized rest pose, convert each delta through the target parent/rest basis, then bake target local rotations.",
-      "translation": "Root only unless an explicit per-joint translation exception is documented.",
-      "scale": "Normalize source and target height before applying root translation."
+      "translation": "Root/object motion suppressed for this idle-only experiment; joint translations remain rest-derived.",
+      "scale": "Preserve target proportions and bone lengths; no per-model weights in the baseline pass."
     }
   },
-  "attachmentsOutsideBvh": {
-    "weapon": {
-      "sourceHilt": "Weapon.R",
-      "sourceTip": "Long_Sword",
-      "targetPrimaryGrip": "RightHand -> SaberGrip -> arborblade_sword.glb",
-      "targetOffHand": "A separate left-hand grip/contact constraint over named frame intervals"
-    },
-    "contacts": "Sidecar JSON keyed by frame/phase; BVH has no contact channel.",
-    "reviewCamera": "Existing fixed beat-em-up camera remains downstream evidence, never a retarget transform."
+  "idleTransfer": {
+    "workflow": "animation transfer, not sword transfer",
+    "sourceLayer": "ORG only",
+    "weaponLoaded": false,
+    "constraintLayers": [],
+    "acceptance": [
+      "recognizable target anatomy in every frame",
+      "stable feet and root through the loop",
+      "hands and arms arrive naturally from the transferred idle",
+      "add per-model weights or IK only if the unassisted transfer demonstrates a specific need"
+    ]
   }
 }
