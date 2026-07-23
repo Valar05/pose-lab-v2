@@ -56,6 +56,11 @@ jobs:
           path: .toolcache/blender-4.4.0
           key: blender-linux-x64-4.4.0-official-sha256-v2
 
+      - name: Install headless render libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1-mesa-dri
+
       - name: Bake, round-trip, retarget, and render
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
