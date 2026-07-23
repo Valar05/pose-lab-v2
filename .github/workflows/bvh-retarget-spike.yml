@@ -2,14 +2,6 @@ name: ORG BVH Retarget Spike
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - agent/bvh-retarget-spike
-    paths:
-      - tools/bake_bvh_retarget_spike_blender.py
-      - tools/test_bvh_retarget_contract.py
-      - experiments/bvh-retarget/**
-      - .github/workflows/bvh-retarget-spike.yml
 
 permissions:
   contents: read
