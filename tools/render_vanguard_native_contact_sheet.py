@@ -54,7 +54,11 @@ def select_action(name: str) -> bpy.types.Action:
     exact = bpy.data.actions.get(name)
     if exact:
         return exact
-    candidates = [action for action in bpy.data.actions if action.name.endswith(name)]
+    candidates = [
+        action
+        for action in bpy.data.actions
+        if action.name == f"{name}_rig"
+    ]
     if len(candidates) != 1:
         raise RuntimeError(
             f"Expected one {name!r} action, found {[action.name for action in bpy.data.actions]}"
