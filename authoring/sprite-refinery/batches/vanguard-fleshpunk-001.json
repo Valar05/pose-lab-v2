@@ -1,0 +1,42 @@
+{
+  "schema": "pose-lab-v2-sprite-refinery-batch-v1",
+  "batch_id": "vanguard-fleshpunk-001",
+  "character": "vanguard",
+  "model_authority": "public/assets/vanguard/vanguard_rigged_animations.glb",
+  "concept": {
+    "id": "fleshpunk-vanguard-v1",
+    "path": "public/assets/vanguard/concepts/fleshpunk-vanguard-v1.png",
+    "sha256": "APPROVED_CONCEPT_ASSET_NOT_FOUND"
+  },
+  "camera_profile": "screen-right-v1",
+  "provider": {
+    "default": "openai",
+    "model": "gpt-image-1",
+    "quality": "medium",
+    "size": "1536x1024",
+    "output_format": "png"
+  },
+  "limits": {
+    "max_concurrency": 2,
+    "max_clips": 8,
+    "max_frames_per_clip": 12
+  },
+  "clips": [
+    {
+      "id": "idle",
+      "action": "Idle",
+      "frame_count": 6,
+      "frames": [0, 12, 24, 36, 48, 60],
+      "timing_ms": [167, 167, 167, 167, 166, 166],
+      "grid": { "columns": 3, "rows": 2 }
+    },
+    {
+      "id": "swordattack1",
+      "action": "SwordAttack1",
+      "frame_count": 12,
+      "frames": [0, 3, 6, 9, 12, 15, 18, 21, 24, 28, 33, 38],
+      "timing_ms": [50, 50, 50, 50, 50, 50, 60, 60, 70, 80, 90, 140],
+      "grid": { "columns": 4, "rows": 3 }
+    }
+  ]
+}

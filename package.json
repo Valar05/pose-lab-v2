@@ -74,6 +74,10 @@
     "test:vanguard-idle-export": "python3 tools/test_vanguard_idle_export.py",
     "inspect:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/inspect_swarmling_blend.py --",
     "build:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/export_swarmling_glb.py --",
-    "export:swarmling-idle": "node scripts/export-swarmling-idle.mjs"
+    "export:swarmling-idle": "node scripts/export-swarmling-idle.mjs",
+    "sprite-refinery:plan": "node tools/sprite_refinery_plan.mjs",
+    "sprite-refinery:worker": "node tools/sprite_refinery_worker.mjs",
+    "sprite-refinery:collect": "node tools/sprite_refinery_collect.mjs",
+    "test:sprite-refinery": "node tools/test_sprite_refinery.mjs"
   }
 }

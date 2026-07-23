@@ -34,7 +34,13 @@ app.innerHTML = `
             <p class="sprite-eyebrow">Animation</p>
             <h2 data-animation-title>Loading…</h2>
           </div>
-          <a data-contact-sheet target="_blank" rel="noreferrer">Open contact sheet</a>
+          <div class="sprite-evidence-links" aria-label="Animation evidence">
+            <span data-status-badge class="sprite-status-badge">status</span>
+            <a data-contact-sheet target="_blank" rel="noreferrer">Steel/styled sheet</a>
+            <a data-final-frames target="_blank" rel="noreferrer">Final frames</a>
+            <a data-provenance target="_blank" rel="noreferrer">Provenance</a>
+            <a data-verifier target="_blank" rel="noreferrer">Verifier</a>
+          </div>
         </div>
 
         <div class="sprite-animation-picker" data-animation-picker role="tablist" aria-label="Animations"></div>
@@ -80,6 +86,7 @@ app.innerHTML = `
           <button type="button" data-background="chroma" aria-pressed="false">Chroma</button>
         </fieldset>
 
+        <div class="sprite-batch-status" data-batch-status aria-label="Batch status"></div>
         <div class="sprite-contract" data-contract aria-label="Animation contract"></div>
         <div class="sprite-frame-strip" data-frame-strip role="tablist" aria-label="Frames"></div>
         <p class="sprite-shortcuts">Space: play/pause · ←/→: step · Home/End: first/last</p>
@@ -100,6 +107,11 @@ const groundGuide = app.querySelector('[data-ground-guide]');
 const animationTitle = app.querySelector('[data-animation-title]');
 const animationPicker = app.querySelector('[data-animation-picker]');
 const contactSheetLink = app.querySelector('[data-contact-sheet]');
+const statusBadge = app.querySelector('[data-status-badge]');
+const finalFramesLink = app.querySelector('[data-final-frames]');
+const provenanceLink = app.querySelector('[data-provenance]');
+const verifierLink = app.querySelector('[data-verifier]');
+const batchStatus = app.querySelector('[data-batch-status]');
 const playButton = app.querySelector('[data-play]');
 const previousButton = app.querySelector('[data-previous]');
 const nextButton = app.querySelector('[data-next]');
@@ -387,6 +399,13 @@ function setAnimation(id, { speak = false } = {}) {
   animationTitle.textContent = animation.label;
   scrubber.max = String(animation.frames.length - 1);
   contactSheetLink.href = assetUrl(animation.contactSheet);
+  const status = animation.status || 'ready';
+  statusBadge.textContent = status;
+  statusBadge.dataset.status = status;
+  const firstFrame = animation.frames[0]?.src || '';
+  finalFramesLink.href = firstFrame ? assetUrl(firstFrame.replace(/[^/]+$/, '')) : assetUrl(animation.contactSheet);
+  provenanceLink.href = animation.sourceMetadata ? assetUrl(animation.sourceMetadata) : assetUrl(animation.contactSheet);
+  verifierLink.href = animation.verifierReport ? assetUrl(animation.verifierReport) : assetUrl(animation.sourceMetadata || animation.contactSheet);
   contract.replaceChildren(...animation.contract.map((item) => {
     const badge = document.createElement('span');
     badge.textContent = item;
@@ -403,7 +422,7 @@ function setAnimation(id, { speak = false } = {}) {
   nextUrl.searchParams.set('animation', animation.id);
   history.replaceState(null, '', nextUrl);
   if (wasPlaying) play();
-  if (speak) announce(`${animation.label}, ${animation.frames.length} frames, ${animationDurationMs()} milliseconds`);
+  if (speak) announce(`${animation.label}, ${animation.frames.length} frames, ${animationDurationMs()} milliseconds, status ${animation.status || 'ready'}`);
 }
 
 function preloadFrame(src) {
@@ -436,6 +455,10 @@ async function boot() {
     }
 
     buildAnimationPicker();
+    const statuses = manifest.statuses || {};
+    batchStatus.textContent = manifest.batch_id
+      ? `Batch ${manifest.batch_id} · ready ${(statuses.ready || []).length} · red ${(statuses.red || []).length} · blocked ${(statuses.blocked || []).length}`
+      : 'Approved tracked animation set';
     const requestedId = URL_PARAMS.get('animation') || manifest.defaultAnimation;
     animation = manifest.animations.find((entry) => entry.id === requestedId) || manifest.animations[0];
     await Promise.all(animation.frames.map((frame) => preloadFrame(frame.src)));
