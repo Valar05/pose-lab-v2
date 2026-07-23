@@ -79,6 +79,6 @@
     "test:crimson-frame-zero-parity": "node tools/test_crimson_frame_zero_parity.mjs",
     "test:crimson-frame-zero-pose-hashes": "python3 tools/test_crimson_frame_zero_pose_hashes.py",
     "test:crimson-orientation-probe-contract": "python3 tools/test_crimson_orientation_probe_contract.py",
-    "test:crimson-orientation-space": "python3 tools/validate_crimson_orientation_ledger.py public/assets/crimson/crimson-bone-orientation-ledger.json && python3 tools/test_crimson_orientation_space.py"
+    "test:crimson-orientation-space": "python3 tools/validate_crimson_orientation_ledger.py public/assets/crimson/crimson-bone-orientation-ledger.json && python3 tools/test_crimson_orientation_space.py && python3 tools/test_crimson_orientation_ledger_comparison.py && python3 tools/compare_crimson_orientation_ledgers.py public/assets/crimson/crimson-bone-orientation-ledger.json public/assets/crimson/crimson-bone-orientation-ledger.json"
   }
 }

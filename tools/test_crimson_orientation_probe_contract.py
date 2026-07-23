@@ -58,6 +58,7 @@ assert "directAssignmentErrorRangeDegrees" in space_test
 assert "probe_crimson_bone_orientations_blender.py" in workflow
 assert "validate_crimson_orientation_ledger.py" in workflow
 assert "actions/upload-artifact@v4" in workflow
+assert "compare_crimson_orientation_ledgers.py" in workflow
 assert "crimson-orientation-ledger-${{ github.run_id }}" in workflow
 
 print(json.dumps({

@@ -9,6 +9,8 @@ on:
       - "tools/test_crimson_orientation_probe_contract.py"
       - "tools/crimson_orientation_space.py"
       - "tools/test_crimson_orientation_space.py"
+      - "tools/compare_crimson_orientation_ledgers.py"
+      - "tools/test_crimson_orientation_ledger_comparison.py"
       - "tools/render_crimson_vanguard_attack1_compare_blender.py"
       - "src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js"
       - "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb"
@@ -35,6 +37,7 @@ jobs:
           python3 tools/validate_crimson_orientation_ledger.py \
             public/assets/crimson/crimson-bone-orientation-ledger.json
           python3 tools/test_crimson_orientation_space.py
+          python3 tools/test_crimson_orientation_ledger_comparison.py
       - name: Measure Crimson bone orientations
         run: |
           blender --background --python-exit-code 1 \
@@ -43,6 +46,9 @@ jobs:
       - name: Validate measured ledger
         run: |
           python3 tools/validate_crimson_orientation_ledger.py \
+            generated/crimson-orientation-ledger/${GITHUB_RUN_ID}/crimson-bone-orientation-ledger.json
+          python3 tools/compare_crimson_orientation_ledgers.py \
+            public/assets/crimson/crimson-bone-orientation-ledger.json \
             generated/crimson-orientation-ledger/${GITHUB_RUN_ID}/crimson-bone-orientation-ledger.json
       - uses: actions/upload-artifact@v4
         if: always()
