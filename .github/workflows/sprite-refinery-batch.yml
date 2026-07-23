@@ -31,7 +31,10 @@ on:
         description: Publish ready clips into canonical Pose Lab assets
         required: true
         default: false
-        type: boolean
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 permissions:
   contents: write
@@ -41,7 +44,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: sprite-refinery-${{ github.ref }}-${{ inputs.manifest || 'vanguard-fleshpunk-001' }}
+  group: sprite-refinery-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -174,7 +177,7 @@ jobs:
           npm run smoke
           git diff --check
       - name: Commit collector output once
-        if: ${{ inputs.publish == true }}
+        if: ${{ (inputs.publish || 'false') == 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
