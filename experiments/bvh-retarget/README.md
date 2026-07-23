@@ -2,6 +2,16 @@
 
 Status: **contract GREEN; Blender motion bake RED / not yet executed**.
 
+The executable spike is `tools/bake_bvh_retarget_spike_blender.py`. Run it with:
+
+```sh
+npm run experiment:bvh-retarget
+```
+
+GitHub Actions runs the same proof on pushes to `agent/bvh-retarget-spike` and
+uploads the canonical BVH, round-trip metrics, baked Crimson `.blend`, locked
+side-view frames, orthogonal diagnostic renders, and `manifest.json`.
+
 This branch replaces the previous transform-transfer experiment with one narrow
 question:
 
