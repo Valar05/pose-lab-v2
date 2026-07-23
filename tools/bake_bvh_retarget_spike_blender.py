@@ -168,11 +168,11 @@ def bake_proxy(
     proxy: bpy.types.Object,
     source_map: dict[str, str | None],
     frames: tuple[int, ...],
-) -> tuple[bpy.types.Action, dict[int, dict[str, Matrix]]]:
+) -> tuple[bpy.types.Action, dict[int, dict[str, dict[str, Matrix]]]]:
     action = bpy.data.actions.new("CanonicalSwordAttack1")
     proxy.animation_data_create()
     proxy.animation_data.action = action
-    sampled: dict[int, dict[str, Matrix]] = {}
+    sampled: dict[int, dict[str, dict[str, Matrix]]] = {}
     proxy_rest = {bone.name: bone.matrix_local.copy() for bone in proxy.data.bones}
     for frame in frames:
         bpy.context.scene.frame_set(frame)
@@ -201,9 +201,20 @@ def bake_proxy(
                 bone.location = desired_proxy.translation - proxy_rest[canonical].translation
         bpy.context.view_layer.update()
         for canonical in source_map:
-            sampled[frame][canonical] = (
-                proxy.matrix_world @ proxy.pose.bones[canonical].matrix
-            ).copy()
+            pose_bone = proxy.pose.bones[canonical]
+            rest = proxy.data.bones[canonical].matrix_local
+            if pose_bone.parent:
+                local_pose = pose_bone.parent.matrix.inverted() @ pose_bone.matrix
+                local_rest = (
+                    proxy.data.bones[pose_bone.parent.name].matrix_local.inverted() @ rest
+                )
+            else:
+                local_pose = pose_bone.matrix.copy()
+                local_rest = rest.copy()
+            sampled[frame][canonical] = {
+                "world": (proxy.matrix_world @ pose_bone.matrix).copy(),
+                "delta": (local_rest.inverted() @ local_pose).copy(),
+            }
         bpy.context.view_layer.update()
         for bone in proxy.pose.bones:
             if bone.name == "root":
@@ -259,27 +270,37 @@ def matrix_error(a: Matrix, b: Matrix) -> dict:
 
 def verify_roundtrip(
     imported: bpy.types.Object,
-    sampled: dict[int, dict[str, Matrix]],
+    sampled: dict[int, dict[str, dict[str, Matrix]]],
     source_proxy_world: Matrix,
 ) -> dict:
     errors = []
     for frame, bones in sampled.items():
         bpy.context.scene.frame_set(frame)
         bpy.context.view_layer.update()
-        for name, original_world in bones.items():
+        for name, original in bones.items():
             imported_bone = imported.pose.bones.get(name)
             if imported_bone is None:
                 raise RuntimeError(f"BVH round trip lost {name}")
-            imported_world = imported.matrix_world @ imported_bone.matrix
-            error = matrix_error(imported_world, original_world)
+            rest = imported.data.bones[name].matrix_local
+            if imported_bone.parent:
+                local_pose = imported_bone.parent.matrix.inverted() @ imported_bone.matrix
+                local_rest = (
+                    imported.data.bones[imported_bone.parent.name].matrix_local.inverted() @ rest
+                )
+            else:
+                local_pose = imported_bone.matrix.copy()
+                local_rest = rest.copy()
+            actual_delta = local_rest.inverted() @ local_pose
+            expected_delta = original["delta"]
+            error = matrix_error(actual_delta, expected_delta)
             errors.append({
                 "frame": frame,
                 "bone": name,
                 **error,
-                "expectedPosition": list(original_world.translation),
-                "actualPosition": list(imported_world.translation),
-                "expectedRotation": list(original_world.to_quaternion()),
-                "actualRotation": list(imported_world.to_quaternion()),
+                "expectedPosition": list(expected_delta.translation),
+                "actualPosition": list(actual_delta.translation),
+                "expectedRotation": list(expected_delta.to_quaternion()),
+                "actualRotation": list(actual_delta.to_quaternion()),
             })
     return {
         "maxPositionError": max(entry["position"] for entry in errors),
