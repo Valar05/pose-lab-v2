@@ -167,37 +167,23 @@ def bake_proxy(
     proxy.animation_data_create()
     proxy.animation_data.action = action
     sampled: dict[int, dict[str, dict[str, Matrix]]] = {}
-    proxy_rest = {bone.name: bone.matrix_local.copy() for bone in proxy.data.bones}
+
     for frame in frames:
         bpy.context.scene.frame_set(frame)
         bpy.context.view_layer.update()
         sampled[frame] = {}
+
+        # The imported GLTF action is fully baked: evaluated ORG joints carry
+        # translation as well as orientation. Copy the evaluated matrices
+        # exactly into the small proxy and let BVH transport those channels.
         for canonical in source_map:
-            desired_world = canonical_source_matrix(source, source_map, canonical, rest=False)
+            desired_world = canonical_source_matrix(
+                source, source_map, canonical, rest=False
+            )
             bone = proxy.pose.bones[canonical]
-            desired_proxy_rotation = (
-                proxy.matrix_world.inverted() @ desired_world
-            ).to_quaternion()
-            if bone.parent:
-                parent_pose_rotation = bone.parent.matrix.to_quaternion()
-                rest_local_rotation = (
-                    proxy_rest[bone.parent.name].inverted() @ proxy_rest[canonical]
-                ).to_quaternion()
-                desired_local_rotation = parent_pose_rotation.inverted() @ desired_proxy_rotation
-                basis_rotation = rest_local_rotation.inverted() @ desired_local_rotation
-            else:
-                basis_rotation = proxy_rest[canonical].to_quaternion().inverted() @ desired_proxy_rotation
-            bone.location = (0, 0, 0)
-            bone.rotation_quaternion = basis_rotation
-            bone.scale = (1, 1, 1)
-            if canonical == "root":
-                desired_proxy = proxy.matrix_world.inverted() @ desired_world
-                bone.location = desired_proxy.translation - proxy_rest[canonical].translation
-            # Child basis conversion depends on the evaluated parent matrix.
-            # Without this update, the proxy bakes a malformed hierarchy and
-            # BVH merely preserves that corruption accurately.
+            bone.matrix = proxy.matrix_world.inverted() @ desired_world
             bpy.context.view_layer.update()
-        bpy.context.view_layer.update()
+
         for canonical in source_map:
             pose_bone = proxy.pose.bones[canonical]
             rest = proxy.data.bones[canonical].matrix_local
@@ -222,13 +208,13 @@ def bake_proxy(
                     else local_rest @ basis_delta @ local_rest.inverted()
                 ).copy(),
             }
-        bpy.context.view_layer.update()
-        for bone in proxy.pose.bones:
-            if bone.name == "root":
-                bone.keyframe_insert("location", frame=frame, group=bone.name)
-            bone.keyframe_insert("rotation_quaternion", frame=frame, group=bone.name)
+            pose_bone.rotation_mode = "QUATERNION"
+            pose_bone.keyframe_insert("location", frame=frame, group=pose_bone.name)
+            pose_bone.keyframe_insert(
+                "rotation_quaternion", frame=frame, group=pose_bone.name
+            )
+            pose_bone.keyframe_insert("scale", frame=frame, group=pose_bone.name)
     return action, sampled
-
 
 def verify_source_proxy(
     sampled: dict[int, dict[str, dict[str, Matrix]]],
@@ -259,7 +245,7 @@ def export_proxy_bvh(proxy: bpy.types.Object, output: Path, frame_start: int, fr
         frame_end=frame_end,
         global_scale=1.0,
         rotate_mode="ZXY",
-        root_transform_only=True,
+        root_transform_only=False,
     )
 
 
