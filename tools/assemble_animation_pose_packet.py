@@ -52,7 +52,7 @@ def grid_sheet(
     return sheet
 
 
-def point_xy(point: dict[str, object], width: int, height: int) -> tuple[int, int]:
+def point_xy(point: dict[str, object], width: float, height: float) -> tuple[int, int]:
     return (
         round(float(point["x"]) * width),
         round(float(point["y"]) * height),
@@ -80,16 +80,19 @@ def geometry_overlay(
         0.58,
     )
     draw = ImageDraw.Draw(sheet)
-    line_width = max(2, frame_width // 140)
-    radius = max(3, frame_width // 95)
+    rows = (len(records) + columns - 1) // columns
+    target_frame_width = beauty.width / columns
+    target_frame_height = beauty.height / rows
+    line_width = max(2, round(target_frame_width / 140))
+    radius = max(3, round(target_frame_width / 95))
     for record in records:
         index = int(record["index"])
-        cell_x = (index % columns) * frame_width
-        cell_y = (index // columns) * frame_height
+        cell_x = (index % columns) * target_frame_width
+        cell_y = (index // columns) * target_frame_height
         for joint in record["joints"]:
             color = joint_color(str(joint["role"]))
-            head = point_xy(joint["head"], frame_width, frame_height)
-            tail = point_xy(joint["tail"], frame_width, frame_height)
+            head = point_xy(joint["head"], target_frame_width, target_frame_height)
+            tail = point_xy(joint["tail"], target_frame_width, target_frame_height)
             head = (head[0] + cell_x, head[1] + cell_y)
             tail = (tail[0] + cell_x, tail[1] + cell_y)
             draw.line((head, tail), fill=color, width=line_width)
@@ -104,8 +107,8 @@ def geometry_overlay(
             )
         weapon = record.get("weapon")
         if weapon and weapon.get("status") == "measured":
-            hilt = point_xy(weapon["hilt"], frame_width, frame_height)
-            tip = point_xy(weapon["tip"], frame_width, frame_height)
+            hilt = point_xy(weapon["hilt"], target_frame_width, target_frame_height)
+            tip = point_xy(weapon["tip"], target_frame_width, target_frame_height)
             hilt = (hilt[0] + cell_x, hilt[1] + cell_y)
             tip = (tip[0] + cell_x, tip[1] + cell_y)
             draw.line((hilt, tip), fill=ROLE_COLORS["weapon"], width=line_width + 2)
