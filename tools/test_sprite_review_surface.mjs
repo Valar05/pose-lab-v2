@@ -76,6 +76,9 @@ assert(idle.frames.length === 6, 'approved Idle must retain six key frames');
 assert(idle.frames.reduce((sum, frame) => sum + frame.durationMs, 0) === 1000, 'approved Idle timing must remain one second');
 assert(attack.frames.length === 12, 'approved Sword Attack 1 must retain twelve frames');
 assert(attack.frames.reduce((sum, frame) => sum + frame.durationMs, 0) === 750, 'approved Sword Attack 1 timing must remain 750ms');
+assert(attack.registration?.schema === 'pose-lab-v2-source-envelope-registration-v1', 'Sword Attack 1 must declare source-derived registration');
+assert(attack.registration?.axis === 'y' && attack.registration?.tolerancePx === 0, 'Sword Attack 1 registration must fail closed on vertical drift');
+assert(attack.frames.every((frame) => Number.isInteger(frame.pivot?.y)), 'every Sword Attack 1 frame must expose its registered pivot');
 
 assert(html.includes("startupParams.get('view')"), 'HTML must route the requested Pose Lab view');
 assert(html.includes("'./src/sprite-viewer.js'"), 'HTML must expose the 2D review entry');

@@ -34,6 +34,8 @@
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs",
     "test:2d": "node tools/test_sprite_review_surface.mjs",
+    "register:vanguard-attack1": "python3 tools/register_vanguard_attack1_frames.py",
+    "test:vanguard-attack1-registration": "python3 tools/test_vanguard_attack1_registration.py",
     "refinery:vanguard": "python3 tools/vanguard_sprite_refinery.py",
     "test:vanguard-refinery": "python3 tools/test_vanguard_sprite_refinery.py",
     "build:fist-hands": "node scripts/build-meshy-fist-authoring.mjs",
