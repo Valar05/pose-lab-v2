@@ -378,57 +378,55 @@ def bake_target(
     action = bpy.data.actions.new("CrimsonCanonicalIdle")
     target.animation_data_create()
     target.animation_data.action = action
-    # Crimson's GLB has no root *bone*.  Its map intentionally names the
-    # armature object for the canonical root, while Hips is the first skinned
-    # joint.  Root/object motion is therefore a sidecar concern in this spike;
-    # body retargeting starts at hips instead of pretending the object is a
-    # pose bone.
+
+    # Transfer the complete rest-relative world orientation. The previous
+    # direction-only solve aligned parent->child segments but discarded roll,
+    # so an ordinary idle folded Crimson even without a weapon in the scene.
     order = [entry["name"] for entry in skeleton["joints"] if entry["name"] != "root"]
     parent_by_name = {
         entry["name"]: None if entry["parent"] == "root" else entry["parent"]
         for entry in skeleton["joints"]
         if entry["name"] != "root"
     }
-    primary_child = {}
-    for entry in skeleton["joints"]:
-        parent = entry["parent"]
-        if parent and parent not in primary_child:
-            primary_child[parent] = entry["name"]
-    canonical_rest = {name: canonical.data.bones[name].matrix_local.copy() for name in order}
-    target_rest = {name: target.data.bones[target_map[name]].matrix_local.copy() for name in order}
+    canonical_rest = {
+        name: (canonical.matrix_world @ canonical.data.bones[name].matrix_local).copy()
+        for name in order
+    }
+    target_rest = {
+        name: target.data.bones[target_map[name]].matrix_local.copy()
+        for name in order
+    }
+    target_rest_world = {
+        name: (target.matrix_world @ target_rest[name]).copy()
+        for name in order
+    }
     target_local = {name: rest_local(target, target_map[name]) for name in order}
+    target_world_rotation_inverse = target.matrix_world.to_quaternion().inverted()
+
     for frame in frames:
         bpy.context.scene.frame_set(frame + 1)
         bpy.context.view_layer.update()
         desired: dict[str, Matrix] = {}
         for name in order:
-            source_pose = canonical.matrix_world @ canonical.pose.bones[name].matrix
-            child_name = primary_child.get(name)
-            if child_name:
-                source_child = (
-                    canonical.matrix_world @ canonical.pose.bones[child_name].matrix
-                ).translation
-                source_direction_world = (
-                    source_child - source_pose.translation
-                ).normalized()
-            else:
-                source_direction_world = direction(source_pose)
-            source_direction_target = (
-                target.matrix_world.inverted().to_3x3() @ source_direction_world
-            ).normalized()
-            target_rest_direction = direction(target_rest[name])
-            rotation = (
-                target_rest_direction.rotation_difference(source_direction_target)
-                @ target_rest[name].to_quaternion()
+            source_pose_world = canonical.matrix_world @ canonical.pose.bones[name].matrix
+            motion_world = (
+                source_pose_world.to_quaternion()
+                @ canonical_rest[name].to_quaternion().inverted()
             )
+            desired_world_rotation = motion_world @ target_rest_world[name].to_quaternion()
+            desired_target_rotation = target_world_rotation_inverse @ desired_world_rotation
+
             parent = parent_by_name[name]
             if parent:
                 head = desired[parent] @ target_local[name].translation
             else:
-                root_delta = source_pose.translation - canonical_rest[name].translation
-                head = target_rest[name].translation + root_delta
-            desired[name] = Matrix.LocRotScale(head, rotation, Vector((1, 1, 1)))
+                # Idle baseline deliberately suppresses object/root translation.
+                head = target_rest[name].translation.copy()
+            desired[name] = Matrix.LocRotScale(
+                head, desired_target_rotation, Vector((1, 1, 1))
+            )
             target.pose.bones[target_map[name]].matrix = desired[name]
+
         bpy.context.view_layer.update()
         for name in order:
             bone = target.pose.bones[target_map[name]]
@@ -437,7 +435,6 @@ def bake_target(
             bone.keyframe_insert("rotation_quaternion", frame=frame, group=bone.name)
             bone.keyframe_insert("scale", frame=frame, group=bone.name)
     return action
-
 
 def top_level(objects: list[bpy.types.Object]) -> list[bpy.types.Object]:
     owned = set(objects)
