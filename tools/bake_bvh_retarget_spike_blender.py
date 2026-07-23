@@ -211,9 +211,15 @@ def bake_proxy(
             else:
                 local_pose = pose_bone.matrix.copy()
                 local_rest = rest.copy()
+            basis_delta = local_rest.inverted() @ local_pose
             sampled[frame][canonical] = {
                 "world": (proxy.matrix_world @ pose_bone.matrix).copy(),
-                "delta": (local_rest.inverted() @ local_pose).copy(),
+                "delta": basis_delta.copy(),
+                "motion": (
+                    basis_delta
+                    if pose_bone.parent is None
+                    else local_rest @ basis_delta @ local_rest.inverted()
+                ).copy(),
             }
         bpy.context.view_layer.update()
         for bone in proxy.pose.bones:
@@ -275,7 +281,9 @@ def verify_roundtrip(
 ) -> dict:
     errors = []
     for frame, bones in sampled.items():
-        bpy.context.scene.frame_set(frame)
+        # Blender's BVH importer places the first motion row at frame 1 even
+        # when frame_start=0. The canonical authoring contract remains 0-based.
+        bpy.context.scene.frame_set(frame + 1)
         bpy.context.view_layer.update()
         for name, original in bones.items():
             imported_bone = imported.pose.bones.get(name)
@@ -290,17 +298,22 @@ def verify_roundtrip(
             else:
                 local_pose = imported_bone.matrix.copy()
                 local_rest = rest.copy()
-            actual_delta = local_rest.inverted() @ local_pose
-            expected_delta = original["delta"]
-            error = matrix_error(actual_delta, expected_delta)
+            basis_delta = local_rest.inverted() @ local_pose
+            actual_motion = (
+                basis_delta
+                if imported_bone.parent is None
+                else local_rest @ basis_delta @ local_rest.inverted()
+            )
+            expected_motion = original["motion"]
+            error = matrix_error(actual_motion, expected_motion)
             errors.append({
                 "frame": frame,
                 "bone": name,
                 **error,
-                "expectedPosition": list(expected_delta.translation),
-                "actualPosition": list(actual_delta.translation),
-                "expectedRotation": list(expected_delta.to_quaternion()),
-                "actualRotation": list(actual_delta.to_quaternion()),
+                "expectedPosition": list(expected_motion.translation),
+                "actualPosition": list(actual_motion.translation),
+                "expectedRotation": list(expected_motion.to_quaternion()),
+                "actualRotation": list(actual_motion.to_quaternion()),
             })
     return {
         "maxPositionError": max(entry["position"] for entry in errors),
@@ -341,7 +354,7 @@ def bake_target(
     target_rest = {name: target.data.bones[target_map[name]].matrix_local.copy() for name in order}
     target_local = {name: rest_local(target, target_map[name]) for name in order}
     for frame in frames:
-        bpy.context.scene.frame_set(frame)
+        bpy.context.scene.frame_set(frame + 1)
         bpy.context.view_layer.update()
         desired: dict[str, Matrix] = {}
         for name in order:
