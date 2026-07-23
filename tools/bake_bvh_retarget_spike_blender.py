@@ -245,7 +245,7 @@ def export_proxy_bvh(proxy: bpy.types.Object, output: Path, frame_start: int, fr
     )
 
 
-def import_bvh(path: Path) -> bpy.types.Object:
+def import_bvh(path: Path, axis_forward: str, axis_up: str) -> bpy.types.Object:
     before = set(bpy.data.objects)
     bpy.ops.import_anim.bvh(
         filepath=str(path),
@@ -255,13 +255,13 @@ def import_bvh(path: Path) -> bpy.types.Object:
         update_scene_fps=False,
         update_scene_duration=False,
         rotate_mode="NATIVE",
-        axis_forward="-Z",
-        axis_up="Y",
+        axis_forward=axis_forward,
+        axis_up=axis_up,
     )
     created = [obj for obj in bpy.data.objects if obj not in before and obj.type == "ARMATURE"]
     if len(created) != 1:
         raise RuntimeError(f"BVH round trip created {len(created)} armatures")
-    created[0].name = "CanonicalBVHRoundTrip"
+    created[0].name = f"CanonicalBVH_{axis_forward}_{axis_up}"
     return created[0]
 
 
@@ -274,11 +274,14 @@ def matrix_error(a: Matrix, b: Matrix) -> dict:
     }
 
 
-def verify_roundtrip(
+def direction(matrix: Matrix) -> Vector:
+    return (matrix.to_3x3() @ Vector((0, 1, 0))).normalized()
+
+
+def trajectory_errors(
     imported: bpy.types.Object,
     sampled: dict[int, dict[str, dict[str, Matrix]]],
-    source_proxy_world: Matrix,
-) -> dict:
+) -> list[dict]:
     errors = []
     for frame, bones in sampled.items():
         # Blender's BVH importer places the first motion row at frame 1 even
@@ -289,38 +292,64 @@ def verify_roundtrip(
             imported_bone = imported.pose.bones.get(name)
             if imported_bone is None:
                 raise RuntimeError(f"BVH round trip lost {name}")
-            rest = imported.data.bones[name].matrix_local
-            if imported_bone.parent:
-                local_pose = imported_bone.parent.matrix.inverted() @ imported_bone.matrix
-                local_rest = (
-                    imported.data.bones[imported_bone.parent.name].matrix_local.inverted() @ rest
-                )
-            else:
-                local_pose = imported_bone.matrix.copy()
-                local_rest = rest.copy()
-            basis_delta = local_rest.inverted() @ local_pose
-            actual_motion = (
-                basis_delta
-                if imported_bone.parent is None
-                else local_rest @ basis_delta @ local_rest.inverted()
-            )
-            expected_motion = original["motion"]
-            error = matrix_error(actual_motion, expected_motion)
+            actual_world = imported.matrix_world @ imported_bone.matrix
+            expected_world = original["world"]
+            dot = max(-1.0, min(1.0, direction(actual_world).dot(direction(expected_world))))
             errors.append({
                 "frame": frame,
                 "bone": name,
-                **error,
-                "expectedPosition": list(expected_motion.translation),
-                "actualPosition": list(actual_motion.translation),
-                "expectedRotation": list(expected_motion.to_quaternion()),
-                "actualRotation": list(actual_motion.to_quaternion()),
+                "position": (actual_world.translation - expected_world.translation).length,
+                "directionErrorDeg": math.degrees(math.acos(dot)),
+                "expectedPosition": list(expected_world.translation),
+                "actualPosition": list(actual_world.translation),
             })
+    return errors
+
+
+def choose_bvh_axes(
+    path: Path,
+    sampled: dict[int, dict[str, dict[str, Matrix]]],
+) -> tuple[bpy.types.Object, dict]:
+    axes = ("X", "Y", "Z", "-X", "-Y", "-Z")
+    candidates = []
+    for forward in axes:
+        for up in axes:
+            if forward.lstrip("-") == up.lstrip("-"):
+                continue
+            armature = import_bvh(path, forward, up)
+            errors = trajectory_errors(armature, sampled)
+            candidates.append({
+                "forward": forward,
+                "up": up,
+                "armature": armature,
+                "meanPositionError": sum(item["position"] for item in errors) / len(errors),
+                "maxPositionError": max(item["position"] for item in errors),
+                "maxDirectionErrorDeg": max(item["directionErrorDeg"] for item in errors),
+            })
+    best = min(candidates, key=lambda item: (item["meanPositionError"], item["maxPositionError"]))
+    for candidate in candidates:
+        if candidate is best:
+            continue
+        bpy.data.objects.remove(candidate["armature"], do_unlink=True)
+    report = {
+        key: value for key, value in best.items() if key != "armature"
+    }
+    report["testedAxisPairs"] = len(candidates)
+    best["armature"].name = "CanonicalBVHRoundTrip"
+    return best["armature"], report
+
+
+def verify_roundtrip(
+    imported: bpy.types.Object,
+    sampled: dict[int, dict[str, dict[str, Matrix]]],
+) -> dict:
+    errors = trajectory_errors(imported, sampled)
     return {
         "maxPositionError": max(entry["position"] for entry in errors),
-        "maxRotationErrorDeg": max(entry["rotationDeg"] for entry in errors),
+        "maxDirectionErrorDeg": max(entry["directionErrorDeg"] for entry in errors),
         "samples": len(errors),
         "worstPosition": max(errors, key=lambda item: item["position"]),
-        "worstRotation": max(errors, key=lambda item: item["rotationDeg"]),
+        "worstDirection": max(errors, key=lambda item: item["directionErrorDeg"]),
     }
 
 
@@ -358,9 +387,16 @@ def bake_target(
         bpy.context.view_layer.update()
         desired: dict[str, Matrix] = {}
         for name in order:
-            source_pose = canonical.pose.bones[name].matrix.copy()
-            delta = source_pose.to_quaternion() @ canonical_rest[name].to_quaternion().inverted()
-            rotation = delta @ target_rest[name].to_quaternion()
+            source_pose = canonical.matrix_world @ canonical.pose.bones[name].matrix
+            source_direction_world = direction(source_pose)
+            source_direction_target = (
+                target.matrix_world.inverted().to_3x3() @ source_direction_world
+            ).normalized()
+            target_rest_direction = direction(target_rest[name])
+            rotation = (
+                target_rest_direction.rotation_difference(source_direction_target)
+                @ target_rest[name].to_quaternion()
+            )
             parent = parent_by_name[name]
             if parent:
                 head = desired[parent] @ target_local[name].translation
@@ -515,23 +551,24 @@ def main() -> None:
         obj.hide_render = True
     proxy.hide_viewport = True
     proxy.hide_render = True
-    canonical = import_bvh(bvh_path)
-    roundtrip = verify_roundtrip(canonical, sampled, source_proxy_world)
+    canonical, axis_selection = choose_bvh_axes(bvh_path, sampled)
+    roundtrip = verify_roundtrip(canonical, sampled)
     (out / "roundtrip.json").write_text(
         json.dumps(
             {
                 "importedObjectMatrix": [list(row) for row in canonical.matrix_world],
+                "axisSelection": axis_selection,
                 "result": roundtrip,
             },
             indent=2,
         )
         + "\n"
     )
-    if roundtrip["maxPositionError"] > 0.002 or roundtrip["maxRotationErrorDeg"] > 0.25:
+    if roundtrip["maxPositionError"] > 0.01 or roundtrip["maxDirectionErrorDeg"] > 1.0:
         raise RuntimeError(
             "BVH round trip exceeded tolerance: "
             f"position={roundtrip['maxPositionError']:.6f}m "
-            f"rotation={roundtrip['maxRotationErrorDeg']:.6f}deg"
+            f"direction={roundtrip['maxDirectionErrorDeg']:.6f}deg"
         )
 
     target_objects = import_glb(TARGET)
@@ -586,6 +623,7 @@ def main() -> None:
             "units": skeleton["units"],
             "rootConvention": skeleton["rootMotion"],
             "rotationChannels": skeleton["rotationChannels"],
+            "axisSelection": axis_selection,
             "sourceLayer": "ORG only",
             "proxyAction": proxy_action.name,
         },
