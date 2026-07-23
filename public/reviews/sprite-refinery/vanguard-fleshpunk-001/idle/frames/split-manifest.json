@@ -1,0 +1,89 @@
+{
+  "schema": "pose-lab-v2-sprite-refinery-split-v1",
+  "clip_id": "idle",
+  "source_sheet": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/raw-styled-contact-sheet.png",
+  "source_size": [
+    1536,
+    1024
+  ],
+  "grid": {
+    "columns": 3,
+    "rows": 2,
+    "cell_width": 512,
+    "cell_height": 512
+  },
+  "frame_space": {
+    "width": 512,
+    "height": 512,
+    "color_mode": "RGBA",
+    "background": "transparent"
+  },
+  "frames": [
+    {
+      "index": 0,
+      "path": "idle_0000.png",
+      "sha256": "0683e8300ecec7d6962eb0200256541fc9dcf65b9bb2bfc9b9ccb87d52355c42",
+      "bbox": [
+        187,
+        35,
+        321,
+        378
+      ]
+    },
+    {
+      "index": 1,
+      "path": "idle_0001.png",
+      "sha256": "3d049396e5f770bdb52a1da5a71620f8c9402367102588a7ec3de654bbe9aadf",
+      "bbox": [
+        186,
+        40,
+        320,
+        378
+      ]
+    },
+    {
+      "index": 2,
+      "path": "idle_0002.png",
+      "sha256": "d2408700bd16c1af02f5fdf058b8013e644682e2f1d2a48bc992e14d2569f969",
+      "bbox": [
+        185,
+        50,
+        319,
+        377
+      ]
+    },
+    {
+      "index": 3,
+      "path": "idle_0003.png",
+      "sha256": "39f9b8146fb44c81aba2c5500aa89dd42cc59476b4c01fa62dca69c486be01cf",
+      "bbox": [
+        187,
+        49,
+        322,
+        377
+      ]
+    },
+    {
+      "index": 4,
+      "path": "idle_0004.png",
+      "sha256": "c1cdb1e411c48eaeea12849c84c15ae79b9a636e801377872fa31459c07f8788",
+      "bbox": [
+        188,
+        43,
+        323,
+        377
+      ]
+    },
+    {
+      "index": 5,
+      "path": "idle_0005.png",
+      "sha256": "2b411accb7414a3403fa0c3a9c8ba6d8d782a0ab7e504c49dba22e8863d5eb08",
+      "bbox": [
+        188,
+        36,
+        319,
+        376
+      ]
+    }
+  ]
+}

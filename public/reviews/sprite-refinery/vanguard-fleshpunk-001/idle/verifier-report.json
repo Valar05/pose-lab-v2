@@ -1,0 +1,57 @@
+{
+  "schema": "pose-lab-v2-sprite-refinery-verification-v1",
+  "status": "ready",
+  "clip_id": "idle",
+  "frame_count": 6,
+  "timing_ms": [
+    167,
+    167,
+    167,
+    167,
+    166,
+    166
+  ],
+  "checks": [
+    "512x512 RGBA PNG",
+    "transparent alpha present",
+    "frame order by filename",
+    "timing count",
+    "basic ground-contact bbox",
+    "no adjacent duplicate bytes"
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "path": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/frames/idle_0000.png",
+      "sha256": "0683e8300ecec7d6962eb0200256541fc9dcf65b9bb2bfc9b9ccb87d52355c42"
+    },
+    {
+      "index": 1,
+      "path": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/frames/idle_0001.png",
+      "sha256": "3d049396e5f770bdb52a1da5a71620f8c9402367102588a7ec3de654bbe9aadf"
+    },
+    {
+      "index": 2,
+      "path": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/frames/idle_0002.png",
+      "sha256": "d2408700bd16c1af02f5fdf058b8013e644682e2f1d2a48bc992e14d2569f969"
+    },
+    {
+      "index": 3,
+      "path": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/frames/idle_0003.png",
+      "sha256": "39f9b8146fb44c81aba2c5500aa89dd42cc59476b4c01fa62dca69c486be01cf"
+    },
+    {
+      "index": 4,
+      "path": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/frames/idle_0004.png",
+      "sha256": "c1cdb1e411c48eaeea12849c84c15ae79b9a636e801377872fa31459c07f8788"
+    },
+    {
+      "index": 5,
+      "path": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/frames/idle_0005.png",
+      "sha256": "2b411accb7414a3403fa0c3a9c8ba6d8d782a0ab7e504c49dba22e8863d5eb08"
+    }
+  ],
+  "failures": [],
+  "structural_report": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/pose-packet/verification.json",
+  "provider_provenance": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/provider-provenance.json"
+}

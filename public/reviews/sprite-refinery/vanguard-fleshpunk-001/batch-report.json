@@ -1,0 +1,45 @@
+{
+  "schema": "pose-lab-v2-sprite-refinery-batch-report-v1",
+  "batch_id": "vanguard-fleshpunk-001",
+  "status": "ready",
+  "results": [
+    {
+      "schema": "pose-lab-v2-sprite-refinery-worker-result-v1",
+      "status": "ready",
+      "batch_id": "vanguard-fleshpunk-001",
+      "clip_id": "idle",
+      "action": "Idle",
+      "provider": "fixture",
+      "artifact_root": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle",
+      "pose_packet": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/pose-packet",
+      "raw_styled_sheet": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/raw-styled-contact-sheet.png",
+      "frames_dir": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/frames",
+      "provenance": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/provider-provenance.json",
+      "verifier_report": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/idle/verifier-report.json",
+      "output_hashes": {
+        "raw_styled_sheet": "10fe6380317045ae71a449706196a489365f35672760325d48d2d51c6f369fa2",
+        "verifier_report": "64809eb30637e53d6d1edeaba30993a78c3397f8d018090da075ff58f5d5a9ad"
+      }
+    },
+    {
+      "schema": "pose-lab-v2-sprite-refinery-worker-result-v1",
+      "status": "ready",
+      "batch_id": "vanguard-fleshpunk-001",
+      "clip_id": "swordattack1",
+      "action": "SwordAttack1",
+      "provider": "fixture",
+      "artifact_root": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/swordattack1",
+      "pose_packet": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/swordattack1/pose-packet",
+      "raw_styled_sheet": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/swordattack1/raw-styled-contact-sheet.png",
+      "frames_dir": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/swordattack1/frames",
+      "provenance": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/swordattack1/provider-provenance.json",
+      "verifier_report": "generated/sprite-refinery/workers/vanguard-fleshpunk-001/swordattack1/verifier-report.json",
+      "output_hashes": {
+        "raw_styled_sheet": "d7adbb24eb051ec39a15d6343240878a3ffaf2c7681d1cd4629fcfa57a2068c6",
+        "verifier_report": "5adffe20a5a18d152ec249a658932df34e0122dd50cd2c39135fc51b9f469d4c"
+      }
+    }
+  ],
+  "review_manifest": "public/reviews/sprite-refinery/vanguard-fleshpunk-001/animations.json",
+  "review_url_path": "/?view=2d&manifest=./reviews/sprite-refinery/vanguard-fleshpunk-001/animations.json"
+}

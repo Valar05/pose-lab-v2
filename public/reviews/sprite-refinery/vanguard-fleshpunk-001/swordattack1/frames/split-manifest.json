@@ -1,0 +1,155 @@
+{
+  "schema": "pose-lab-v2-sprite-refinery-split-v1",
+  "clip_id": "swordattack1",
+  "source_sheet": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-refinery/workers/vanguard-fleshpunk-001/swordattack1/raw-styled-contact-sheet.png",
+  "source_size": [
+    2048,
+    1536
+  ],
+  "grid": {
+    "columns": 4,
+    "rows": 3,
+    "cell_width": 512,
+    "cell_height": 512
+  },
+  "frame_space": {
+    "width": 512,
+    "height": 512,
+    "color_mode": "RGBA",
+    "background": "transparent"
+  },
+  "frames": [
+    {
+      "index": 0,
+      "path": "swordattack1_0000.png",
+      "sha256": "8a9b15d023237b3f1b587fdd0c5a99ffcec68fd2a12d2c37c502524ba5977370",
+      "bbox": [
+        167,
+        108,
+        326,
+        385
+      ]
+    },
+    {
+      "index": 1,
+      "path": "swordattack1_0001.png",
+      "sha256": "258d43a64afb196990ec8048d558a84a86544a18ff439f30d3185452504c674b",
+      "bbox": [
+        188,
+        127,
+        331,
+        385
+      ]
+    },
+    {
+      "index": 2,
+      "path": "swordattack1_0002.png",
+      "sha256": "2d76e8a2c56e11dba5adc253b0c04c6c437c00f8fc481fd98267f82be15658ef",
+      "bbox": [
+        193,
+        127,
+        391,
+        385
+      ]
+    },
+    {
+      "index": 3,
+      "path": "swordattack1_0003.png",
+      "sha256": "e9ee0a4e11c113ec181a2d438f4f19195cb5dc8271c34e973f1fdb280472deba",
+      "bbox": [
+        38,
+        116,
+        317,
+        385
+      ]
+    },
+    {
+      "index": 4,
+      "path": "swordattack1_0004.png",
+      "sha256": "8a1a8fcfbb7bd5301ae80c39378cd43693a77f15f5cade4830350e473dcac3f9",
+      "bbox": [
+        65,
+        100,
+        330,
+        378
+      ]
+    },
+    {
+      "index": 5,
+      "path": "swordattack1_0005.png",
+      "sha256": "2ea9767adc9e881076de58ed11b0d19a5aae25ccf9faefa2cea6ad52aa2d5124",
+      "bbox": [
+        127,
+        154,
+        457,
+        378
+      ]
+    },
+    {
+      "index": 6,
+      "path": "swordattack1_0006.png",
+      "sha256": "a739db65f8d629e18b6c64cf77793af0ac40d3212d9b4697077eb17266a1ddb4",
+      "bbox": [
+        124,
+        185,
+        419,
+        402
+      ]
+    },
+    {
+      "index": 7,
+      "path": "swordattack1_0007.png",
+      "sha256": "95ff0cd3c79a1fbfa92c8b0fd1f0ce5e734a23c52095dab0b947e7983db5628a",
+      "bbox": [
+        125,
+        185,
+        429,
+        382
+      ]
+    },
+    {
+      "index": 8,
+      "path": "swordattack1_0008.png",
+      "sha256": "3150943c2cc73721b6e01c097334bbf8eaa28f58a1441152fc979f95fbe91204",
+      "bbox": [
+        125,
+        166,
+        429,
+        364
+      ]
+    },
+    {
+      "index": 9,
+      "path": "swordattack1_0009.png",
+      "sha256": "ee4a1440bd2b0af070a2881bc0082ae6cdeb8a4a16628ba38db4004e7bfedce6",
+      "bbox": [
+        140,
+        168,
+        435,
+        364
+      ]
+    },
+    {
+      "index": 10,
+      "path": "swordattack1_0010.png",
+      "sha256": "47a04b4748b5c580140927f74017fb0a4890971c955a5a9120aa5fb640f7282a",
+      "bbox": [
+        202,
+        77,
+        327,
+        364
+      ]
+    },
+    {
+      "index": 11,
+      "path": "swordattack1_0011.png",
+      "sha256": "afb4558b2d3b215c8c22033d42a34ca30178ded4f1b9df44b225db379770a80d",
+      "bbox": [
+        182,
+        62,
+        309,
+        364
+      ]
+    }
+  ]
+}

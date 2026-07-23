@@ -1,0 +1,12 @@
+{
+  "schema": "pose-lab-v2-sprite-refinery-provider-provenance-v1",
+  "provider": "fixture",
+  "model": "fixture-copy-beauty-grid",
+  "attempt": 1,
+  "clip_id": "idle",
+  "prompt_version": "appearance-only-v1",
+  "concept_hash": "APPROVED_CONCEPT_ASSET_NOT_FOUND",
+  "pose_packet_hash": "7912df7c5ae5f108da0f64ceea40728833b71b7fdf874fb8d7c89365cf15c5b5",
+  "output_hash": "10fe6380317045ae71a449706196a489365f35672760325d48d2d51c6f369fa2",
+  "paid_call": false
+}

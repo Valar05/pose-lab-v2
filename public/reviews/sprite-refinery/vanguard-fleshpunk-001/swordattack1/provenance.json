@@ -1,0 +1,12 @@
+{
+  "schema": "pose-lab-v2-sprite-refinery-provider-provenance-v1",
+  "provider": "fixture",
+  "model": "fixture-copy-beauty-grid",
+  "attempt": 1,
+  "clip_id": "swordattack1",
+  "prompt_version": "appearance-only-v1",
+  "concept_hash": "APPROVED_CONCEPT_ASSET_NOT_FOUND",
+  "pose_packet_hash": "80a3afe6db2036b11b192514a9371b4f25c125f7bd0e8dab2f880ad95e7bf375",
+  "output_hash": "d7adbb24eb051ec39a15d6343240878a3ffaf2c7681d1cd4629fcfa57a2068c6",
+  "paid_call": false
+}
