@@ -63,7 +63,7 @@ def bounds(scene, arm, meshes, actions):
     for action,frames in actions:
         arm.animation_data.action=action
         for f in frames:
-            scene.frame_set(f); bpy.context.view_layer.update()
+            scene.frame_set(int(f),subframe=f-int(f)); bpy.context.view_layer.update()
             for obj in meshes:
                 for v in evaluated_world_vertices(obj):
                     for i in range(3): lo[i]=min(lo[i],v[i]); hi[i]=max(hi[i],v[i])
@@ -80,7 +80,7 @@ def render_set(scene,arm,action,frames,camera,meshes,out,label,legacy):
     out.mkdir(parents=True,exist_ok=True); records=[]; cm=flatten_matrix(camera.matrix_world); cs=round(camera.data.ortho_scale,9)
     arm.animation_data.action=action
     for i,f in enumerate(frames):
-        scene.frame_set(f); bpy.context.view_layer.update()
+        scene.frame_set(int(f),subframe=f-int(f)); bpy.context.view_layer.update()
         root=arm.pose.bones.get('root');
         if not legacy and root and root.location.length>1e-6: raise RuntimeError(f'Walk root moved at pose {i}')
         weapon=capture_weapon(scene,camera,arm,meshes)
