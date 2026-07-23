@@ -96,14 +96,14 @@ jobs:
         with:
           node-version: 22
       - name: Restore Blender cache
-        if: (inputs.provider || 'fixture') == 'openai'
+        if: ${{ (inputs.provider || 'fixture') == 'openai' }}
         id: blender-cache
         uses: actions/cache/restore@v4
         with:
           path: .toolcache/blender-4.4.0
           key: blender-linux-x64-4.4.0-official-sha256-v2
       - name: Materialize Blender once
-        if: (inputs.provider || 'fixture') == 'openai' && steps.blender-cache.outputs.cache-hit != 'true'
+        if: ${{ (inputs.provider || 'fixture') == 'openai' && steps.blender-cache.outputs.cache-hit != 'true' }}
         run: |
           mkdir -p .toolcache/blender-4.4.0
           curl --fail --location --retry 3 "$BLENDER_URL" --output "$RUNNER_TEMP/$BLENDER_ARCHIVE"
@@ -111,7 +111,7 @@ jobs:
           ( cd "$RUNNER_TEMP" && grep -E "[[:space:]]+$BLENDER_ARCHIVE$" blender-4.4.0.sha256 | sha256sum --check --strict - )
           tar --extract --file "$RUNNER_TEMP/$BLENDER_ARCHIVE" --directory .toolcache/blender-4.4.0 --strip-components 1
       - name: Save Blender cache
-        if: (inputs.provider || 'fixture') == 'openai' && steps.blender-cache.outputs.cache-hit != 'true'
+        if: ${{ (inputs.provider || 'fixture') == 'openai' && steps.blender-cache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v4
         with:
           path: .toolcache/blender-4.4.0
@@ -174,7 +174,7 @@ jobs:
           npm run smoke
           git diff --check
       - name: Commit collector output once
-        if: inputs.publish == true
+        if: ${{ inputs.publish == true }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
