@@ -13,6 +13,7 @@ on:
       - tools/export_swarmling_idle_game_blender.py
       - tools/finalize_swarmling_idle_export.py
       - tools/import_swarmling/inspect_swarmling_blend.py
+      - tools/render_swarmling_action_audit_blender.py
       - package.json
 
 permissions:
@@ -93,13 +94,32 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libegl1 libgl1-mesa-dri
 
-      - name: Render and verify native Swarmling Idle
+      - name: Inventory native Swarmling actions
         env:
           BLENDER_BIN: .toolcache/blender-4.4.3/blender
           LIBGL_ALWAYS_SOFTWARE: "1"
         run: |
           npm run inspect:swarmling
           python3 -m json.tool generated/swarmling/source-inventory.json
+
+      - name: Render fixed-camera native action audit
+        env:
+          BLENDER_BIN: .toolcache/blender-4.4.3/blender
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: npm run audit:swarmling-actions
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: swarmling-native-action-audit
+          path: generated/swarmling/action-audit/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Render and verify native Swarmling Idle
+        env:
+          BLENDER_BIN: .toolcache/blender-4.4.3/blender
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
           npm run export:swarmling-idle
 
       - name: Verify review assets
