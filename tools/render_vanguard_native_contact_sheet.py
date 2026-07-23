@@ -79,10 +79,26 @@ def set_native_pose(
     frame: float,
 ) -> None:
     scene.frame_set(int(frame), subframe=frame - int(frame))
+    armature.location = (0.0, 0.0, 0.0)
     root = armature.pose.bones.get("root") or armature.pose.bones.get("Root")
     if root:
         root.location = (0.0, 0.0, 0.0)
     bpy.context.view_layer.update()
+
+
+def suppress_root_motion(action: bpy.types.Action, armature: bpy.types.Object) -> list[str]:
+    root_names = {
+        bone.name
+        for bone in armature.pose.bones
+        if bone.name.lower() == "root"
+    }
+    root_paths = {f'pose.bones["{name}"].location' for name in root_names}
+    muted: list[str] = []
+    for fcurve in action.fcurves:
+        if fcurve.data_path == "location" or fcurve.data_path in root_paths:
+            fcurve.mute = True
+            muted.append(f"{fcurve.data_path}[{fcurve.array_index}]")
+    return muted
 
 
 def evaluated_world_vertices(obj: bpy.types.Object) -> list[Vector]:
@@ -165,11 +181,11 @@ def main() -> None:
     args = cli_args()
     asset = Path(args.asset).resolve()
     out_dir = Path(args.out_dir).resolve()
-    frames = [float(value) for value in args.frames.split(",") if value.strip()]
+    source_frames = [float(value) for value in args.frames.split(",") if value.strip()]
     if not asset.is_file():
         raise FileNotFoundError(asset)
-    if len(frames) != 12:
-        raise RuntimeError(f"Expected 12 source frames, received {frames}")
+    if len(source_frames) != 12:
+        raise RuntimeError(f"Expected 12 source frames, received {source_frames}")
 
     clear_scene()
     bpy.ops.import_scene.gltf(filepath=str(asset))
@@ -178,6 +194,18 @@ def main() -> None:
     action = select_action(args.action)
     armature.animation_data_create()
     armature.animation_data.action = action
+    muted_root_curves = suppress_root_motion(action, armature)
+    action_start, action_end = (float(value) for value in action.frame_range)
+    source_start = min(source_frames)
+    source_end = max(source_frames)
+    source_span = source_end - source_start
+    if source_span <= 0:
+        raise RuntimeError(f"Invalid source frame range: {source_frames}")
+    render_frames = [
+        action_start
+        + ((source_frame - source_start) / source_span) * (action_end - action_start)
+        for source_frame in source_frames
+    ]
     mesh_objects = [
         obj
         for obj in scene.objects
@@ -194,16 +222,16 @@ def main() -> None:
     scene.render.fps = 60
     set_workbench_style(scene, mesh_objects)
 
-    lower, upper = sampled_bounds(scene, armature, mesh_objects, frames)
+    lower, upper = sampled_bounds(scene, armature, mesh_objects, render_frames)
     camera = make_camera(scene)
     manifest_frames: list[dict[str, object]] = []
     for side in ("left", "right"):
         side_dir = out_dir / side
         side_dir.mkdir(parents=True, exist_ok=True)
         aim_camera(camera, side, lower, upper, args.width / args.height)
-        for index, frame in enumerate(frames):
-            set_native_pose(scene, armature, frame)
-            file_name = f"f{index:02d}_source-frame-{frame:05.1f}.png"
+        for index, (source_frame, render_frame) in enumerate(zip(source_frames, render_frames)):
+            set_native_pose(scene, armature, render_frame)
+            file_name = f"f{index:02d}_source-frame-{source_frame:05.1f}.png"
             path = side_dir / file_name
             scene.render.filepath = str(path)
             bpy.ops.render.render(write_still=True)
@@ -211,8 +239,9 @@ def main() -> None:
                 {
                     "view": side,
                     "index": index,
-                    "sourceFrame": frame,
-                    "sourceSecondsAt60Fps": round(frame / 60.0, 6),
+                    "sourceFrame": source_frame,
+                    "sourceSecondsAt60Fps": round(source_frame / 60.0, 6),
+                    "blenderImportedFrame": round(render_frame, 6),
                     "image": str(path.relative_to(out_dir)),
                     "sha256": sha256(path),
                 }
@@ -228,6 +257,7 @@ def main() -> None:
             "assetSha256": sha256(asset),
             "action": action.name,
             "actionFrameRange": [round(value, 6) for value in action.frame_range],
+            "mutedRootMotionCurves": muted_root_curves,
         },
         "contract": {
             "poseAuthority": "native Vanguard SwordAttack1 only",
@@ -237,7 +267,8 @@ def main() -> None:
             "poseAuthoring": False,
             "rootMotionSuppressed": True,
         },
-        "sampleFrames": frames,
+        "sampleFrames": source_frames,
+        "mappedBlenderFrames": [round(frame, 6) for frame in render_frames],
         "bounds": {
             "minimum": [round(value, 6) for value in lower],
             "maximum": [round(value, 6) for value in upper],
