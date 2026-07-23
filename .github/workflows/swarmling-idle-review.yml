@@ -12,6 +12,7 @@ on:
       - scripts/run-blender-tool.mjs
       - tools/export_swarmling_idle_game_blender.py
       - tools/finalize_swarmling_idle_export.py
+      - tools/import_swarmling/inspect_swarmling_blend.py
       - package.json
 
 permissions:
@@ -96,7 +97,10 @@ jobs:
         env:
           BLENDER_BIN: .toolcache/blender-4.4.3/blender
           LIBGL_ALWAYS_SOFTWARE: "1"
-        run: npm run export:swarmling-idle
+        run: |
+          npm run inspect:swarmling
+          python3 -m json.tool generated/swarmling/source-inventory.json
+          npm run export:swarmling-idle
 
       - name: Verify review assets
         run: |
