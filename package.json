@@ -73,6 +73,7 @@
     "export:vanguard-idle": "node scripts/export-vanguard-idle.mjs",
     "test:vanguard-idle-export": "python3 tools/test_vanguard_idle_export.py",
     "inspect:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/inspect_swarmling_blend.py --",
-    "build:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/export_swarmling_glb.py --"
+    "build:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/export_swarmling_glb.py --",
+    "export:swarmling-idle": "node scripts/export-swarmling-idle.mjs"
   }
 }

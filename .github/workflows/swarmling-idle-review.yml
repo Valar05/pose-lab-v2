@@ -1,0 +1,106 @@
+name: Swarmling Idle Review
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/vanguard-native-contact-sheet
+    paths:
+      - .github/workflows/swarmling-idle-review.yml
+      - authoring/swarmling/Swarmling.blend
+      - scripts/export-swarmling-idle.mjs
+      - scripts/run-blender-tool.mjs
+      - tools/export_swarmling_idle_game_blender.py
+      - tools/finalize_swarmling_idle_export.py
+      - package.json
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: swarmling-idle-review
+  cancel-in-progress: true
+
+jobs:
+  render-publish-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Restore existing Blender 4.4 cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+          fail-on-cache-miss: true
+
+      - name: Restore Python package cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/pip
+          key: pose-packet-pip-pillow-11.3.0
+
+      - name: Reuse cached Pillow dependency
+        run: |
+          python3 -c "from PIL import Image; print(Image.__version__)" \
+            || python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
+
+      - name: Provide headless render runtime libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1-mesa-dri
+
+      - name: Render and verify native Swarmling Idle
+        env:
+          BLENDER_BIN: .toolcache/blender-4.4.0/blender
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: npm run export:swarmling-idle
+
+      - name: Verify review assets
+        run: |
+          test -f generated/swarmling/idle/idle_0000.png
+          test -f generated/swarmling/idle/contact-sheet.png
+          test -f generated/swarmling/idle/idle.gif
+          test -f public/assets/swarmling/fleshpunk/animations.json
+          npm run test:2d
+          npm run build
+          npm run smoke
+          git diff --check
+
+      - name: Commit rendered review evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/swarmling/fleshpunk
+          if git diff --cached --quiet; then
+            echo "Rendered review evidence already current."
+          else
+            git commit -m "Render native Swarmling idle review"
+            git push
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: swarmling-idle-game-export
+          path: generated/swarmling/idle/
+          if-no-files-found: error
+          retention-days: 30
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

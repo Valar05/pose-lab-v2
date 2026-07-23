@@ -85,6 +85,29 @@ assert(!css.includes('sprite-onion-previous {\n  transform:') && !css.includes('
 assert(viewer.includes("document.body.dataset.reviewReady = '1'"), '2D review must expose a visual-capture readiness signal');
 assert(css.includes('.sprite-stage.checker') && css.includes('.sprite-frame-strip'), '2D review styles are incomplete');
 
+const swarmlingManifestPath = 'public/assets/swarmling/fleshpunk/animations.json';
+if (fs.existsSync(path.join(root, swarmlingManifestPath))) {
+  const swarmling = JSON.parse(read(swarmlingManifestPath).toString('utf8'));
+  assert(swarmling.schema === 'pose-lab-v2-2d-animation-set-v1', 'Swarmling 2D manifest schema must be stable');
+  assert(swarmling.character === 'Fleshpunk Swarmling', 'Swarmling manifest must identify the character');
+  assert(swarmling.defaultAnimation === 'idle', 'Swarmling Idle must be the default animation');
+  assert(swarmling.frameSpace?.width === 512 && swarmling.frameSpace?.height === 512, 'Swarmling frames must use the 512x512 game frame');
+  assert(swarmling.frameSpace?.background === 'transparent', 'Swarmling frames must retain transparency');
+  assert(swarmling.frameSpace?.facing === 'screen-left', 'Swarmling must face screen-left toward Vanguard');
+  assert(swarmling.animations?.length === 1, 'Swarmling test set must contain only native Idle');
+  const swarmlingIdle = swarmling.animations[0];
+  assert(swarmlingIdle.id === 'idle' && swarmlingIdle.frames.length === 6, 'Swarmling Idle must contain six frames');
+  for (const [index, frame] of swarmlingIdle.frames.entries()) {
+    const relativeFramePath = path.join('public/assets/swarmling/fleshpunk', frame.src);
+    assert(fs.existsSync(path.join(root, relativeFramePath)), `Swarmling Idle frame ${index} is missing`);
+    if (!fs.existsSync(path.join(root, relativeFramePath))) continue;
+    const bytes = read(relativeFramePath);
+    const size = pngSize(bytes);
+    assert(size.width === 512 && size.height === 512, `Swarmling Idle frame ${index} changed dimensions`);
+    assert(sha256(bytes) === frame.sha256, `Swarmling Idle frame ${index} changed approved bytes`);
+  }
+}
+
 if (failures.length) {
   console.error(JSON.stringify({ ok: false, failures }, null, 2));
   process.exit(1);
