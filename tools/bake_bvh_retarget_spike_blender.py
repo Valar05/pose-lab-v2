@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Bake Vanguard ORG motion through a canonical BVH proxy onto Crimson.
+"""Transfer Vanguard's native Idle through an ORG-only BVH proxy onto Crimson.
 
-This is an experiment, not a production retargeter.  It deliberately proves the
-interchange boundary before weapon closure, contact solving, or mesh correction.
+This experiment isolates ordinary anatomical animation transfer. It loads no
+weapon and applies no grip, contact, IK, or per-model correction layer.
 """
 
 from __future__ import annotations
@@ -22,17 +22,11 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPERIMENT = ROOT / "experiments" / "bvh-retarget"
 SOURCE = ROOT / "public" / "assets" / "vanguard" / "vanguard_rigged_animations.glb"
 TARGET = ROOT / "public" / "assets" / "crimson" / "crimson_plume_knight_rigged_pbr.glb"
-SWORD = ROOT / "public" / "assets" / "crimson" / "arborblade_sword.glb"
 MAP = EXPERIMENT / "bone-map.json"
 SKELETON = EXPERIMENT / "canonical-skeleton.json"
-CALIBRATION = ROOT / "public" / "assets" / "crimson" / "crimson_sword_calibration.json"
 DEFAULT_OUT = ROOT / "generated" / "bvh-retarget-spike"
-SAMPLES = (0, 6, 12, 18, 24)
-SCHEMA = "pose-lab-v2-org-bvh-retarget-spike-v1"
-BROWSER_TO_BLENDER = Matrix(
-    ((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1))
-)
-BLENDER_TO_BROWSER = BROWSER_TO_BLENDER.inverted()
+SAMPLES = tuple(range(0, 24, 2))
+SCHEMA = "pose-lab-v2-org-bvh-idle-transfer-v1"
 
 
 def sha256(path: Path) -> str:
@@ -169,7 +163,7 @@ def bake_proxy(
     source_map: dict[str, str | None],
     frames: tuple[int, ...],
 ) -> tuple[bpy.types.Action, dict[int, dict[str, dict[str, Matrix]]]]:
-    action = bpy.data.actions.new("CanonicalSwordAttack1")
+    action = bpy.data.actions.new("CanonicalIdle")
     proxy.animation_data_create()
     proxy.animation_data.action = action
     sampled: dict[int, dict[str, dict[str, Matrix]]] = {}
@@ -381,7 +375,7 @@ def bake_target(
     target_map: dict[str, str],
     frames: tuple[int, ...],
 ) -> bpy.types.Action:
-    action = bpy.data.actions.new("CrimsonCanonicalSwordAttack1")
+    action = bpy.data.actions.new("CrimsonCanonicalIdle")
     target.animation_data_create()
     target.animation_data.action = action
     # Crimson's GLB has no root *bone*.  Its map intentionally names the
@@ -450,25 +444,6 @@ def top_level(objects: list[bpy.types.Object]) -> list[bpy.types.Object]:
     return [obj for obj in objects if obj.parent not in owned]
 
 
-def browser_transform(transform: dict) -> Matrix:
-    location = Matrix.Translation(Vector(transform.get("position", (0, 0, 0))))
-    angles = transform.get("rotationDeg", (0, 0, 0))
-    rotation = Euler(tuple(math.radians(value) for value in angles), "XYZ").to_matrix().to_4x4()
-    scale = transform.get("scale", (1, 1, 1))
-    browser = location @ rotation @ Matrix.Diagonal((*scale, 1))
-    return BROWSER_TO_BLENDER @ browser @ BLENDER_TO_BROWSER
-
-
-def attach_sword(
-    target: bpy.types.Object, sword_objects: list[bpy.types.Object], initial: dict[str, Matrix], calibration: dict
-) -> Matrix:
-    hand = target.matrix_world @ target.pose.bones["RightHand"].matrix
-    socket = hand @ browser_transform(calibration["saberGripLocal"]) @ browser_transform(calibration["swordLocal"])
-    for obj in top_level(sword_objects):
-        obj.matrix_world = socket @ initial[obj.name]
-    return socket
-
-
 def mesh_bounds(objects: list[bpy.types.Object]) -> tuple[Vector, Vector]:
     low = Vector((math.inf, math.inf, math.inf))
     high = Vector((-math.inf, -math.inf, -math.inf))
@@ -521,31 +496,39 @@ def render(path: Path, camera: bpy.types.Object, objects: list[bpy.types.Object]
     bpy.ops.render.render(write_still=True)
 
 
-def pose_metrics(
-    target: bpy.types.Object, target_map: dict[str, str], socket: Matrix, calibration: dict
+def joint_world(target: bpy.types.Object, target_map: dict[str, str], canonical: str) -> Vector:
+    return (target.matrix_world @ target.pose.bones[target_map[canonical]].matrix).translation.copy()
+
+
+def foot_midpoint(target: bpy.types.Object, target_map: dict[str, str]) -> Vector:
+    return (joint_world(target, target_map, "foot.L") + joint_world(target, target_map, "foot.R")) * 0.5
+
+
+def idle_metrics(
+    target: bpy.types.Object,
+    target_map: dict[str, str],
+    baseline_foot_midpoint: Vector,
+    baseline_hips: Vector,
 ) -> dict:
-    joints = {}
-    for canonical in (
+    names = (
+        "hips", "chest", "head",
         "clavicle.L", "upperArm.L", "lowerArm.L", "hand.L",
         "clavicle.R", "upperArm.R", "lowerArm.R", "hand.R",
-    ):
-        matrix = target.matrix_world @ target.pose.bones[target_map[canonical]].matrix
-        joints[canonical] = [round(value, 6) for value in matrix.translation]
-    right = target.matrix_world @ target.pose.bones[target_map["hand.R"]].matrix
-    left = target.matrix_world @ target.pose.bones[target_map["hand.L"]].matrix
-    hilt = socket @ (BROWSER_TO_BLENDER @ Vector((*calibration["hiltLocalPoint"], 1))).to_3d()
-    blade_axis = (
-        socket @ (BROWSER_TO_BLENDER @ Vector((*calibration["tipLocalPoint"], 1))).to_3d()
-    ) - hilt
-    left_offset = left.translation - hilt
-    along = left_offset.dot(blade_axis.normalized())
-    radial = (left_offset - blade_axis.normalized() * along).length
+        "upperLeg.L", "lowerLeg.L", "foot.L",
+        "upperLeg.R", "lowerLeg.R", "foot.R",
+    )
+    joints = {
+        name: [round(value, 6) for value in joint_world(target, target_map, name)]
+        for name in names
+    }
+    current_foot_midpoint = foot_midpoint(target, target_map)
+    hips = joint_world(target, target_map, "hips")
     return {
         "joints": joints,
-        "rightHandToHilt": (right.translation - hilt).length,
-        "leftHandToBladeAxis": radial,
-        "leftHandAlongBladeAxis": along,
-        "weaponOwnership": "primary socket only; bilateral closure intentionally not solved",
+        "footMidpointDrift": (current_foot_midpoint - baseline_foot_midpoint).length,
+        "hipsDrift": (hips - baseline_hips).length,
+        "weaponLoaded": False,
+        "constraintLayers": [],
     }
 
 
@@ -560,7 +543,6 @@ def main() -> None:
     out.mkdir(parents=True, exist_ok=True)
     mapping = json.loads(MAP.read_text())
     skeleton = json.loads(SKELETON.read_text())
-    calibration = json.loads(CALIBRATION.read_text())
     source_map = mapping["source"]["map"]
     target_map = mapping["target"]["map"]
     bpy.context.scene.render.fps = skeleton["frameRate"]
@@ -571,7 +553,7 @@ def main() -> None:
     source_action = activate_action(source, mapping["source"]["clip"])
     proxy = create_proxy(source, skeleton, source_map)
     proxy_action, sampled = bake_proxy(source, proxy, source_map, SAMPLES)
-    bvh_path = out / "vanguard_swordattack1_org_proxy.bvh"
+    bvh_path = out / "vanguard_idle_org_proxy.bvh"
     export_proxy_bvh(proxy, bvh_path, min(SAMPLES), max(SAMPLES))
     source_proxy_world = proxy.matrix_world.copy()
 
@@ -604,43 +586,42 @@ def main() -> None:
     target_objects = import_glb(TARGET)
     target = find_armature(target_objects, "Crimson")
     target_action = bake_target(canonical, target, skeleton, target_map, SAMPLES)
-    sword_objects = import_glb(SWORD)
-    sword_initial = {obj.name: obj.matrix_world.copy() for obj in top_level(sword_objects)}
-    render_objects = target_objects + sword_objects
+    render_objects = target_objects
     camera = setup_render()
     evidence = []
+    bpy.context.scene.frame_set(SAMPLES[0])
+    bpy.context.view_layer.update()
+    baseline_foot_midpoint = foot_midpoint(target, target_map)
+    baseline_hips = joint_world(target, target_map, "hips")
     for frame in SAMPLES:
         bpy.context.scene.frame_set(frame)
-        bpy.context.view_layer.update()
-        socket = attach_sword(target, sword_objects, sword_initial, calibration)
         bpy.context.view_layer.update()
         image = out / f"locked-side-{frame:03d}.png"
         render(image, camera, render_objects, Vector((0, -1, 0.12)))
         evidence.append(
             {"frame": frame, "view": "locked-side", "image": image.name, "sha256": sha256(image),
-             "metrics": pose_metrics(target, target_map, socket, calibration)}
+             "metrics": idle_metrics(target, target_map, baseline_foot_midpoint, baseline_hips)}
         )
-    contact_frame = SAMPLES[len(SAMPLES) // 2]
+    diagnostic_frame = SAMPLES[len(SAMPLES) // 2]
     for label, direction in (
         ("front", Vector((-1, 0, 0.08))),
         ("three-quarter", Vector((-1, -1, 0.12))),
         ("rear-three-quarter", Vector((1, 1, 0.12))),
     ):
-        bpy.context.scene.frame_set(contact_frame)
+        bpy.context.scene.frame_set(diagnostic_frame)
         bpy.context.view_layer.update()
-        socket = attach_sword(target, sword_objects, sword_initial, calibration)
         image = out / f"diagnostic-{label}.png"
         render(image, camera, render_objects, direction)
         evidence.append(
-            {"frame": contact_frame, "view": label, "image": image.name, "sha256": sha256(image),
-             "metrics": pose_metrics(target, target_map, socket, calibration)}
+            {"frame": diagnostic_frame, "view": label, "image": image.name, "sha256": sha256(image),
+             "metrics": idle_metrics(target, target_map, baseline_foot_midpoint, baseline_hips)}
         )
 
-    blend_path = out / "crimson_org_bvh_retarget.blend"
+    blend_path = out / "crimson_org_bvh_idle_transfer.blend"
     bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
     manifest = {
         "schema": SCHEMA,
-        "status": "executed-diagnostic-not-accepted",
+        "status": "executed-idle-transfer-pending-visual-acceptance",
         "blender": bpy.app.version_string,
         "source": {"asset": str(SOURCE.relative_to(ROOT)), "sha256": sha256(SOURCE), "action": source_action.name},
         "target": {"asset": str(TARGET.relative_to(ROOT)), "sha256": sha256(TARGET), "action": target_action.name},
@@ -664,14 +645,19 @@ def main() -> None:
                 "small inspectable anatomical hierarchy",
                 "evaluated ORG motion separated from Rigify controls and DEF segmentation",
                 "deterministic hierarchy/channel/frame-rate/root interchange",
-                "rest-corrected body seed on Crimson",
+                "ORG-only native Idle transported to a clean canonical skeleton",
             ],
-            "stillRed": [
-                "bilateral two-hand sword closure",
-                "off-hand grip interval and prop ownership",
-                "foot contact locking",
-                "Crimson twist and armor deformation correction",
-                "screen-readable acting and final visual acceptance",
+            "acceptanceGate": [
+                "recognizable Crimson anatomy in every frame",
+                "stable feet and root through the idle loop",
+                "hands and arms arrive naturally without weapon constraints",
+                "no per-model weights or IK unless this plain transfer proves they are needed",
+            ],
+            "excluded": [
+                "weapon loading or prop ownership",
+                "grip sockets or bilateral closure",
+                "weapon metrics",
+                "IK and contact solving",
             ],
         },
         "blend": {"file": blend_path.name, "sha256": sha256(blend_path)},
