@@ -2,7 +2,7 @@ name: Vanguard Walk Render Review
 on:
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 env:
   BLENDER_VERSION: "4.4.0"
 jobs:
@@ -37,12 +37,6 @@ jobs:
           npm run build
           npm run smoke
           git diff --check
-      - name: Commit canonical Walk playback assets
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add public/assets/vanguard/fleshpunk/animations.json public/assets/vanguard/fleshpunk/walk
-          git diff --cached --quiet || { git commit -m 'Render canonical Vanguard Walk review'; git push; }
       - uses: actions/upload-artifact@v4
         with:
           name: vanguard-walk-review
