@@ -31,7 +31,18 @@ def main():
     m['status']='PASS'; m['verification']={'status':'PASS','failures':[],'checks':['alternating ankle-knee-pelvis support','both hand-to-hilt distances and depth','camera invariance','root suppression']}
     (r/'verification.json').write_text(json.dumps(m['verification'],indent=2)+'\n'); (pub/'source-metadata.json').write_text(json.dumps(m,indent=2)+'\n')
     manifest=pub.parent/'animations.json'; data=json.loads(manifest.read_text()); data['animations']=[x for x in data['animations'] if x['id']!='walk']
-    data['animations'].append({'id':'walk','label':'Walk','loop':True,'contactSheet':'walk/contact-sheet.png','sourceMetadata':'walk/source-metadata.json','groundGuideY':400,'contract':['screen-right','canonical Steel Walk','fixed camera','eight authored poses','two-handed visible sword'],
-      'frames':[{'src':f'walk/frames/walk_{i:04d}.png','durationMs':m['contract']['timingMs'][i],'sha256':sha(pub/'frames'/f'walk_{i:04d}.png')} for i in range(8)]})
+    registration={'id':'walk','label':'Walk','loop':True,'contactSheet':'walk/contact-sheet.png','sourceMetadata':'walk/source-metadata.json','groundGuideY':400,'contract':['screen-right','canonical Steel Walk','fixed camera','eight authored poses','two-handed visible sword'],
+      'frames':[{'src':f'walk/frames/walk_{i:04d}.png','durationMs':m['contract']['timingMs'][i],'sha256':sha(pub/'frames'/f'walk_{i:04d}.png')} for i in range(8)]}
+    data['animations'].append(registration)
     manifest.write_text(json.dumps(data,indent=2)+'\n'); print(json.dumps({'status':'PASS','frames':8}))
+
+    # Keep the Actions artifact narrowly scoped to the reviewable delivery packet:
+    # exactly eight transparent frames plus the evidence needed to register them.
+    packet=r/'delivery-packet'; frames=packet/'frames'; frames.mkdir(parents=True,exist_ok=True)
+    for i,pth in enumerate(walk): shutil.copy2(pth,frames/f'walk_{i:04d}.png')
+    shutil.copy2(r/'walk-contact-sheet.png',packet/'contact-sheet.png')
+    (packet/'metadata.json').write_text(json.dumps({'schema':m['schema'],'timingMs':m['contract']['timingMs'],'poseOrder':m['contract']['poseOrder'],'contract':m['contract'],'frames':m['frames']},indent=2)+'\n')
+    (packet/'provenance.json').write_text(json.dumps({'source':m['source'],'walkGlb':m['walkGlb']},indent=2)+'\n')
+    (packet/'verifier-report.json').write_text(json.dumps(m['verification'],indent=2)+'\n')
+    (packet/'pose-lab-registration.json').write_text(json.dumps(registration,indent=2)+'\n')
 if __name__=='__main__':main()

@@ -30,6 +30,14 @@ jobs:
           sudo apt-get update && sudo apt-get install -y libegl1 libgl1-mesa-dri
           python3 -c 'from PIL import Image' || python3 -m pip install --user pillow==11.3.0
           npm run export:vanguard-walk
+      - name: Upload complete canonical Walk delivery packet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanguard-walk-review
+          path: generated/vanguard/walk/delivery-packet/
+          if-no-files-found: error
+          retention-days: 30
       - name: Verify playback and approved asset invariance
         run: |
           git diff --exit-code HEAD -- public/assets/vanguard/fleshpunk/idle public/assets/vanguard/fleshpunk/swordattack1
@@ -37,11 +45,6 @@ jobs:
           npm run build
           npm run smoke
           git diff --check
-      - uses: actions/upload-artifact@v4
-        with:
-          name: vanguard-walk-review
-          path: generated/vanguard/walk/
-          if-no-files-found: error
-          retention-days: 30
       - uses: actions/upload-pages-artifact@v3
+        if: always()
         with: {path: dist}
