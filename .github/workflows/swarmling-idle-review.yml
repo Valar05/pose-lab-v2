@@ -23,6 +23,12 @@ concurrency:
   group: swarmling-idle-review
   cancel-in-progress: true
 
+env:
+  BLENDER_VERSION: "4.4.3"
+  BLENDER_ARCHIVE: "blender-4.4.3-linux-x64.tar.xz"
+  BLENDER_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.3-linux-x64.tar.xz"
+  BLENDER_CHECKSUM_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.3.sha256"
+
 jobs:
   render-publish:
     runs-on: ubuntu-latest
@@ -36,12 +42,39 @@ jobs:
         with:
           node-version: 22
 
-      - name: Restore existing Blender 4.4 cache
+      - name: Restore compatible Blender 4.4.3 cache
+        id: blender-cache
         uses: actions/cache/restore@v4
         with:
-          path: .toolcache/blender-4.4.0
-          key: blender-linux-x64-4.4.0-official-sha256-v2
-          fail-on-cache-miss: true
+          path: .toolcache/blender-4.4.3
+          key: blender-linux-x64-4.4.3-official-sha256-v1
+
+      - name: Materialize compatible Blender once
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .toolcache/blender-4.4.3
+          curl --fail --location --retry 3 \
+            "$BLENDER_URL" \
+            --output "$RUNNER_TEMP/$BLENDER_ARCHIVE"
+          curl --fail --location --retry 3 \
+            "$BLENDER_CHECKSUM_URL" \
+            --output "$RUNNER_TEMP/blender-4.4.3.sha256"
+          (
+            cd "$RUNNER_TEMP"
+            grep -E "[[:space:]]+$BLENDER_ARCHIVE$" blender-4.4.3.sha256 \
+              | sha256sum --check --strict -
+          )
+          tar --extract \
+            --file "$RUNNER_TEMP/$BLENDER_ARCHIVE" \
+            --directory .toolcache/blender-4.4.3 \
+            --strip-components 1
+
+      - name: Save compatible Blender toolchain
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .toolcache/blender-4.4.3
+          key: blender-linux-x64-4.4.3-official-sha256-v1
 
       - name: Restore Python package cache
         uses: actions/cache/restore@v4
@@ -61,7 +94,7 @@ jobs:
 
       - name: Render and verify native Swarmling Idle
         env:
-          BLENDER_BIN: .toolcache/blender-4.4.0/blender
+          BLENDER_BIN: .toolcache/blender-4.4.3/blender
           LIBGL_ALWAYS_SOFTWARE: "1"
         run: npm run export:swarmling-idle
 
