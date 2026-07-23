@@ -193,6 +193,10 @@ def bake_proxy(
             if canonical == "root":
                 desired_proxy = proxy.matrix_world.inverted() @ desired_world
                 bone.location = desired_proxy.translation - proxy_rest[canonical].translation
+            # Child basis conversion depends on the evaluated parent matrix.
+            # Without this update, the proxy bakes a malformed hierarchy and
+            # BVH merely preserves that corruption accurately.
+            bpy.context.view_layer.update()
         bpy.context.view_layer.update()
         for canonical in source_map:
             pose_bone = proxy.pose.bones[canonical]
@@ -208,6 +212,9 @@ def bake_proxy(
             basis_delta = local_rest.inverted() @ local_pose
             sampled[frame][canonical] = {
                 "world": (proxy.matrix_world @ pose_bone.matrix).copy(),
+                "expected": canonical_source_matrix(
+                    source, source_map, canonical, rest=False
+                ).copy(),
                 "delta": basis_delta.copy(),
                 "motion": (
                     basis_delta
@@ -221,6 +228,23 @@ def bake_proxy(
                 bone.keyframe_insert("location", frame=frame, group=bone.name)
             bone.keyframe_insert("rotation_quaternion", frame=frame, group=bone.name)
     return action, sampled
+
+
+def verify_source_proxy(
+    sampled: dict[int, dict[str, dict[str, Matrix]]],
+) -> dict:
+    errors = []
+    for frame, bones in sampled.items():
+        for name, record in bones.items():
+            error = matrix_error(record["world"], record["expected"])
+            errors.append({"frame": frame, "bone": name, **error})
+    return {
+        "maxPositionError": max(item["position"] for item in errors),
+        "maxRotationErrorDeg": max(item["rotationDeg"] for item in errors),
+        "samples": len(errors),
+        "worstPosition": max(errors, key=lambda item: item["position"]),
+        "worstRotation": max(errors, key=lambda item: item["rotationDeg"]),
+    }
 
 
 def export_proxy_bvh(proxy: bpy.types.Object, output: Path, frame_start: int, frame_end: int) -> None:
@@ -550,6 +574,14 @@ def main() -> None:
     source_action = activate_action(source, mapping["source"]["clip"])
     proxy = create_proxy(source, skeleton, source_map)
     proxy_action, sampled = bake_proxy(source, proxy, source_map, SAMPLES)
+    source_proxy = verify_source_proxy(sampled)
+    (out / "source-proxy.json").write_text(json.dumps(source_proxy, indent=2) + "\n")
+    if source_proxy["maxPositionError"] > 0.01 or source_proxy["maxRotationErrorDeg"] > 1.0:
+        raise RuntimeError(
+            "ORG source to canonical proxy exceeded tolerance: "
+            f"position={source_proxy['maxPositionError']:.6f}m "
+            f"rotation={source_proxy['maxRotationErrorDeg']:.6f}deg"
+        )
     bvh_path = out / "vanguard_idle_org_proxy.bvh"
     export_proxy_bvh(proxy, bvh_path, min(SAMPLES), max(SAMPLES))
     source_proxy_world = proxy.matrix_world.copy()
@@ -635,6 +667,7 @@ def main() -> None:
             "sourceLayer": "ORG only",
             "proxyAction": proxy_action.name,
         },
+        "sourceToProxy": source_proxy,
         "roundTrip": roundtrip,
         "evidence": evidence,
         "conclusions": {
