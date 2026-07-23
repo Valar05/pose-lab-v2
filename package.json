@@ -33,6 +33,7 @@
     "blender:sample-source": "node scripts/run-blender-tool.mjs tools/sample_source_clip_blender.py --",
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs",
+    "test:2d": "node tools/test_sprite_review_surface.mjs",
     "build:fist-hands": "node scripts/build-meshy-fist-authoring.mjs",
     "validate:fist-hands": "node tools/validate_meshy_fist_authoring.mjs",
     "build:davin": "node tools/build_davin_wingsworth_glb.mjs",

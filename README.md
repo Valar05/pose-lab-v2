@@ -27,6 +27,37 @@ authoring panels.
 npm run build
 ```
 
+### 2D animation review
+
+Open the direct frame player with:
+
+```text
+?view=2d
+?view=2d&animation=idle
+?view=2d&animation=swordattack1
+```
+
+The 2D view plays the approved transparent PNG frames directly from
+`public/assets/vanguard/fleshpunk/animations.json`. It does not assemble or
+decode a GIF. It supports play/pause, per-frame timing, scrubbing, frame
+stepping, onion-skin deltas, zoom, ground guide, and multiple review
+backgrounds. Space toggles playback; Left/Right step; Home/End jump to the
+first/last frame.
+
+`Onion` overlays the exact adjacent frames without moving them. `Delta` shows
+only changed pixels: gold for appearing pixels, cyan for disappearing pixels,
+and magenta for surface changes. Inspection never stabilizes, shifts, or
+otherwise edits the source frames.
+
+The initial shippable set is Fleshpunk Vanguard `Idle` and `SwordAttack1`.
+Their exact 512x512 frame bytes, timing, hashes, source metadata, and contact
+sheets live under `public/assets/vanguard/fleshpunk/`. Verify that contract
+with:
+
+```sh
+npm run test:2d
+```
+
 Tap the real sabre, then use:
 
 - `Move` to drag it in the camera plane;
@@ -140,7 +171,8 @@ npm run export:vanguard-idle
 ```
 
 The command uses Vanguard's embedded native `Idle` action, one locked
-orthographic model-right camera, and transparent RGBA output. It writes the
+orthographic model-left camera (Vanguard faces screen-right), and transparent
+RGBA output. It writes the
 numbered sequence, contact sheet, GIF, and metadata under
 `generated/vanguard/idle/`. Verification fails closed when the camera changes,
 the armature object moves, the background is not transparent, frame dimensions

@@ -1,0 +1,193 @@
+{
+  "name": "Fleshpunk Vanguard Idle \u2014 Screen Right \u2014 6 Frames",
+  "authority": {
+    "pose_camera_facing_timing": "vanguard-steel-idle-screen-right-6f-contact-sheet.png",
+    "appearance": "upload/01-562930.png",
+    "excluded": [
+      "Crimson model",
+      "attack pose sheet",
+      "bitmap mirroring",
+      "per-frame reframing",
+      "stabilization"
+    ]
+  },
+  "layout": {
+    "columns": 3,
+    "rows": 2,
+    "cell_width": 512,
+    "cell_height": 512
+  },
+  "animation": {
+    "frame_count": 6,
+    "loop_duration_ms": 1000,
+    "average_fps": 6.0,
+    "frame_durations_ms": [
+      170,
+      170,
+      160,
+      170,
+      170,
+      160
+    ],
+    "order": "row-major",
+    "gif_frame_duration_ms": 160,
+    "gif_loop_duration_ms": 960
+  },
+  "contract": {
+    "facing": "screen-right",
+    "left_leg": "forward",
+    "guard": "character-right",
+    "camera": "fixed",
+    "pose_edits": "none intended"
+  },
+  "verification": [
+    {
+      "frame": 0,
+      "source": {
+        "bbox": [
+          193,
+          35,
+          321,
+          350
+        ],
+        "ground_row": 349,
+        "opaque_pixels": 9672
+      },
+      "fleshpunk": {
+        "bbox": [
+          187,
+          35,
+          320,
+          377
+        ],
+        "ground_row": 376,
+        "opaque_pixels": 16931
+      }
+    },
+    {
+      "frame": 1,
+      "source": {
+        "bbox": [
+          194,
+          41,
+          322,
+          350
+        ],
+        "ground_row": 349,
+        "opaque_pixels": 9674
+      },
+      "fleshpunk": {
+        "bbox": [
+          186,
+          43,
+          320,
+          377
+        ],
+        "ground_row": 376,
+        "opaque_pixels": 17071
+      }
+    },
+    {
+      "frame": 2,
+      "source": {
+        "bbox": [
+          194,
+          50,
+          325,
+          350
+        ],
+        "ground_row": 349,
+        "opaque_pixels": 9635
+      },
+      "fleshpunk": {
+        "bbox": [
+          186,
+          50,
+          319,
+          377
+        ],
+        "ground_row": 376,
+        "opaque_pixels": 16997
+      }
+    },
+    {
+      "frame": 3,
+      "source": {
+        "bbox": [
+          194,
+          50,
+          326,
+          350
+        ],
+        "ground_row": 349,
+        "opaque_pixels": 9612
+      },
+      "fleshpunk": {
+        "bbox": [
+          187,
+          49,
+          322,
+          377
+        ],
+        "ground_row": 376,
+        "opaque_pixels": 16842
+      }
+    },
+    {
+      "frame": 4,
+      "source": {
+        "bbox": [
+          194,
+          45,
+          325,
+          350
+        ],
+        "ground_row": 349,
+        "opaque_pixels": 9632
+      },
+      "fleshpunk": {
+        "bbox": [
+          189,
+          44,
+          323,
+          376
+        ],
+        "ground_row": 375,
+        "opaque_pixels": 16392
+      }
+    },
+    {
+      "frame": 5,
+      "source": {
+        "bbox": [
+          194,
+          37,
+          322,
+          350
+        ],
+        "ground_row": 349,
+        "opaque_pixels": 9656
+      },
+      "fleshpunk": {
+        "bbox": [
+          189,
+          37,
+          319,
+          376
+        ],
+        "ground_row": 375,
+        "opaque_pixels": 16433
+      }
+    }
+  ],
+  "sha256": {
+    "fleshpunk-vanguard-idle-screen-right-6f-contact-sheet.png": "10fe6380317045ae71a449706196a489365f35672760325d48d2d51c6f369fa2",
+    "fleshpunk-vanguard-idle-screen-right-6f.gif": "6076222625fa468ef8b424708d38041cb40728f1969b448b7bd4370488fd8812",
+    "frames/idle_0000.png": "0683e8300ecec7d6962eb0200256541fc9dcf65b9bb2bfc9b9ccb87d52355c42",
+    "frames/idle_0001.png": "3d049396e5f770bdb52a1da5a71620f8c9402367102588a7ec3de654bbe9aadf",
+    "frames/idle_0002.png": "d2408700bd16c1af02f5fdf058b8013e644682e2f1d2a48bc992e14d2569f969",
+    "frames/idle_0003.png": "39f9b8146fb44c81aba2c5500aa89dd42cc59476b4c01fa62dca69c486be01cf",
+    "frames/idle_0004.png": "c1cdb1e411c48eaeea12849c84c15ae79b9a636e801377872fa31459c07f8788",
+    "frames/idle_0005.png": "2b411accb7414a3403fa0c3a9c8ba6d8d782a0ab7e504c49dba22e8863d5eb08"
+  }
+}
