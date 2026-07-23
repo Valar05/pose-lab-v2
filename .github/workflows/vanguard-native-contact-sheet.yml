@@ -1,0 +1,44 @@
+name: Vanguard Native Side Contact Sheet
+
+on:
+  push:
+    branches:
+      - agent/vanguard-native-contact-sheet
+    paths:
+      - tools/render_vanguard_native_contact_sheet.py
+      - tools/assemble_vanguard_native_contact_sheet.py
+      - .github/workflows/vanguard-native-contact-sheet.yml
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deterministic render tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender python3-pil
+      - name: Render native SwordAttack1 from both lateral cameras
+        run: |
+          blender --background \
+            --python tools/render_vanguard_native_contact_sheet.py \
+            -- \
+            --asset public/assets/vanguard/vanguard_rigged_animations.glb \
+            --out-dir generated/vanguard-native-contact-sheet \
+            --action SwordAttack1 \
+            --frames 0,3,6,9,12,15,18,21,24,28,33,38
+      - name: Assemble labeled contact sheets
+        run: |
+          python3 tools/assemble_vanguard_native_contact_sheet.py \
+            --root generated/vanguard-native-contact-sheet
+      - name: Upload native reference evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanguard-native-side-contact-sheet
+          path: generated/vanguard-native-contact-sheet/
+          if-no-files-found: error
+          retention-days: 14
