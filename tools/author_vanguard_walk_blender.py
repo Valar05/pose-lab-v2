@@ -47,6 +47,21 @@ def pose_snapshot(arm):
     return {b.name:(b.location.copy(),b.rotation_mode,b.rotation_quaternion.copy(),
                     b.rotation_euler.copy(),b.scale.copy()) for b in arm.pose.bones}
 
+def authored_walk_snapshot(idle, motion):
+    result={}
+    for name, base in idle.items():
+        moving=motion[name]; compact=name.lower()
+        leg=any(token in compact for token in ('thigh','shin','foot','toe'))
+        torso=compact in ('spine','root')
+        weight=.52 if leg else (.22 if torso else 0.0)
+        bloc,mode,bq,be,bs=base; mloc,_,mq,me,ms=moving
+        loc=bloc.lerp(mloc,weight); scale=bs.lerp(ms,weight)
+        quat=bq.slerp(mq,weight); euler=be.copy()
+        if mode!='QUATERNION': euler=be.copy(); euler.x+=(me.x-be.x)*weight; euler.y+=(me.y-be.y)*weight; euler.z+=(me.z-be.z)*weight
+        result[name]=(loc,mode,quat,euler,scale)
+    loc,mode,q,e,scale=result['root']; result['root']=(Vector((0,0,0)),mode,q,e,scale)
+    return result
+
 def apply_snapshot(arm, snap, frame):
     for b in arm.pose.bones:
         loc,mode,quat,euler,scale=snap[b.name]
@@ -100,12 +115,12 @@ def render_set(scene,arm,action,frames,camera,meshes,out,label,legacy):
 def main():
     a=args(); root=Path(__file__).resolve().parents[1]; asset=(root/a.asset).resolve(); out=(root/a.out_dir).resolve()
     clear_scene(); bpy.ops.import_scene.gltf(filepath=str(asset)); scene=bpy.context.scene; arm=select_armature(); arm.animation_data_create()
-    legacy=select_action('RunForwardOld'); start,end=map(float,legacy.frame_range); samples=[start+(end-start)*i/8 for i in range(8)]
+    legacy=select_action('RunForwardOld'); idle=select_action('Idle'); start,end=map(float,legacy.frame_range); samples=[start+(end-start)*i/8 for i in range(8)]
+    arm.animation_data.action=idle; scene.frame_set(int(idle.frame_range[0])); bpy.context.view_layer.update(); idle_snap=pose_snapshot(arm)
     arm.animation_data.action=legacy; snaps=[]
     for f in samples:
-        scene.frame_set(int(f),subframe=f-int(f)); bpy.context.view_layer.update(); s=pose_snapshot(arm)
-        # Explicit root-motion suppression in the authored action.
-        loc,mode,q,e,scale=s['root']; loc=Vector((0,0,0)); s['root']=(loc,mode,q,e,scale); snaps.append(s)
+        scene.frame_set(int(f),subframe=f-int(f)); bpy.context.view_layer.update()
+        snaps.append(authored_walk_snapshot(idle_snap,pose_snapshot(arm)))
     walk=bpy.data.actions.new('Walk'); arm.animation_data.action=walk
     for i,s in enumerate(snaps): apply_snapshot(arm,s,i)
     for fc in walk.fcurves:
@@ -119,7 +134,7 @@ def main():
     arm.animation_data.action=walk; export=out/'vanguard_walk.glb'
     bpy.ops.export_scene.gltf(filepath=str(export),export_format='GLB',export_animations=True,export_current_frame=False)
     metadata={"schema":"pose-lab-v2-vanguard-walk-v1","status":"rendered-pending-verification",
-      "source":{"asset":a.asset,"assetSha256":sha256(asset),"legacyComparisonAction":"RunForwardOld","legacyRole":"legacy comparison only","canonicalAction":"Walk","poseAuthority":"Steel Vanguard rig"},
+      "source":{"asset":a.asset,"assetSha256":sha256(asset),"legacyComparisonAction":"RunForwardOld","legacyRole":"legacy comparison only","canonicalAction":"Walk","poseAuthority":"Steel Vanguard rig","authoring":"damped Steel leg/spine mechanics over approved native Idle two-hand guard"},
       "contract":{"poseCount":8,"poseOrder":list(POSES),"screenFacing":"right","camera":"one invariant orthographic camera","cameraMatrixWorld":flatten_matrix(camera.matrix_world),"cameraOrthoScale":round(camera.data.ortho_scale,9),"perFrameStabilization":False,"reframing":False,"rootMotionSuppressed":True,"retargeting":False,"mirroring":False,"timingMs":list(TIMING_MS)},
       "legacyFrames":legacy_records,"frames":walk_records,"walkGlb":{"path":"vanguard_walk.glb","sha256":sha256(export)}}
     (out/'metadata.json').write_text(json.dumps(metadata,indent=2)+'\n')

@@ -16,7 +16,7 @@ def main():
     cm=m['contract']['cameraMatrixWorld']; cs=m['contract']['cameraOrthoScale']
     for f in m['frames']:
         if f['cameraMatrixWorld']!=cm or f['cameraOrthoScale']!=cs: failures.append(f"camera {f['index']}")
-        if f['weapon']['leftHandHiltDistancePx']>180 or f['weapon']['rightHandHiltDistancePx']>180 or f['weapon']['handDepthDelta']>1.5: failures.append(f"sword ownership {f['index']}")
+        if f['weapon']['leftHandHiltDistancePx']>75 or f['weapon']['rightHandHiltDistancePx']>75 or f['weapon']['handDepthDelta']>1.0: failures.append(f"sword ownership {f['index']}")
     # Alternating support mechanics: support ankle stays below its knee and near pelvis x.
     for f in m['frames']:
         s=f['supportLeg']; j=f['joints']; foot=j[s+'Foot']; knee=j[s+'Knee']; pelvis=j['pelvis']
