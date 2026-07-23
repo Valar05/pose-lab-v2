@@ -86,6 +86,31 @@ if (walk) {
   assert(walk.contract?.includes('two-handed visible sword'), 'canonical Walk must declare two-handed sword ownership');
 }
 
+const walkCandidateRoot = 'public/assets/vanguard/fleshpunk/candidates/walk/attempt-001';
+const walkCandidateManifestPath = path.join(walkCandidateRoot, 'animations.json');
+if (fs.existsSync(path.join(root, walkCandidateManifestPath))) {
+  const candidateManifest = JSON.parse(read(walkCandidateManifestPath).toString('utf8'));
+  const candidateProvenance = JSON.parse(read(path.join(walkCandidateRoot, 'provenance.json')).toString('utf8'));
+  const candidateWalk = candidateManifest.animations?.[0];
+
+  assert(candidateManifest.defaultAnimation === 'walk', 'Walk candidate preview must open on Walk');
+  assert(candidateManifest.authority?.reviewState === 'candidate', 'transferred Walk must remain a candidate until explicit approval');
+  assert(candidateWalk?.frames?.length === 8, 'transferred Walk candidate must contain exactly eight frames');
+  assert(candidateWalk?.frames?.reduce((sum, frame) => sum + frame.durationMs, 0) === 820, 'transferred Walk must preserve authored timing');
+  assert(candidateProvenance.state === 'candidate' && candidateProvenance.approval === null, 'transferred Walk must not claim approval');
+  assert(candidateProvenance.provider?.model === 'undeclared', 'unknown image model must remain undeclared');
+
+  for (const [index, frame] of candidateWalk?.frames?.entries() || []) {
+    const relativeFramePath = path.join(walkCandidateRoot, frame.src);
+    assert(fs.existsSync(path.join(root, relativeFramePath)), `transferred Walk frame ${index} is missing`);
+    if (!fs.existsSync(path.join(root, relativeFramePath))) continue;
+    const bytes = read(relativeFramePath);
+    const size = pngSize(bytes);
+    assert(size.width === 512 && size.height === 512, `transferred Walk frame ${index} must remain 512x512`);
+    assert(sha256(bytes) === frame.sha256, `transferred Walk frame ${index} changed candidate bytes`);
+  }
+}
+
 assert(html.includes("startupParams.get('view')"), 'HTML must route the requested Pose Lab view');
 assert(html.includes("'./src/sprite-viewer.js'"), 'HTML must expose the 2D review entry');
 assert(html.includes("'./src/main.js'"), 'HTML must retain the 3D editor entry');
