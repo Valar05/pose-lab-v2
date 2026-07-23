@@ -140,7 +140,7 @@ assert(!pkg.dependencies, 'repo must not require npm install dependencies for lo
 assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static and native-binary free');
 assert(pkg.scripts?.['test:2d'] === 'node tools/test_sprite_review_surface.mjs', '2D review asset verification must be explicit');
 assert(exists('.github/workflows/sprite-visual-qa.yml'), '2D review must retain browser visual QA');
-assert(spriteCapture.includes("['idle', 'swordattack1']") && spriteCapture.includes('[data-delta]') && spriteCapture.includes('page.screenshot'), '2D browser QA must capture both animations and delta mode');
+assert(spriteCapture.includes("id: 'idle'") && spriteCapture.includes("id: 'swordattack1'") && spriteCapture.includes("id: 'walk'") && spriteCapture.includes('[data-delta]') && spriteCapture.includes('page.screenshot'), '2D browser QA must capture Idle, SwordAttack1, Walk, and delta mode');
 assert(fleshpunkAnimationSet.schema === 'pose-lab-v2-2d-animation-set-v1', 'Fleshpunk 2D animation manifest schema must be stable');
 assert(fleshpunkAnimationSet.animations?.[0]?.id === 'idle' && fleshpunkAnimationSet.animations?.[0]?.frames?.length === 6, 'Fleshpunk 2D review must default to the approved six-frame Idle');
 assert(fleshpunkAnimationSet.animations?.[1]?.id === 'swordattack1' && fleshpunkAnimationSet.animations?.[1]?.frames?.length === 12, 'Fleshpunk 2D review must include the approved twelve-frame SwordAttack1');
