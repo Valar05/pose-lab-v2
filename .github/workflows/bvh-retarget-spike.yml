@@ -1,7 +1,15 @@
-name: ORG BVH Retarget Spike
+name: ORG BVH Idle Transfer
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - agent/bvh-retarget-spike
+    paths:
+      - tools/bake_bvh_retarget_spike_blender.py
+      - tools/test_bvh_retarget_contract.py
+      - experiments/bvh-retarget/**
+      - .github/workflows/bvh-retarget-spike.yml
 
 permissions:
   contents: read
@@ -51,9 +59,9 @@ jobs:
       - name: Install headless render libraries
         run: |
           sudo apt-get update
-          sudo apt-get install -y libegl1 libgl1-mesa-dri
+          sudo apt-get install -y libegl1 libgl1-mesa-dri imagemagick
 
-      - name: Bake, round-trip, retarget, and render
+      - name: Transfer ORG Idle through BVH and render Crimson
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
         run: |
@@ -61,13 +69,22 @@ jobs:
             --python-exit-code 1 \
             --python tools/bake_bvh_retarget_spike_blender.py \
             -- \
-            --out-dir generated/bvh-retarget-spike
+            --out-dir generated/bvh-idle-transfer
+
+      - name: Build idle contact sheet
+        run: |
+          montage generated/bvh-idle-transfer/locked-side-*.png \
+            -thumbnail 320x320 \
+            -tile 4x3 \
+            -geometry +8+8 \
+            -background none \
+            generated/bvh-idle-transfer/idle-contact-sheet.png
 
       - name: Upload diagnostic evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: org-bvh-retarget-spike
-          path: generated/bvh-retarget-spike/
+          name: org-bvh-idle-transfer
+          path: generated/bvh-idle-transfer/
           if-no-files-found: error
           retention-days: 30
