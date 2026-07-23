@@ -20,6 +20,10 @@ from pathlib import Path
 import bpy
 from mathutils import Matrix, Quaternion, Vector
 
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
 from render_crimson_vanguard_attack1_compare_blender import (
     AUTHORED_BONE_NAMES,
     CRIMSON_GLB,

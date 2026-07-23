@@ -37,6 +37,7 @@ assert "inferred-from-calibration-positions-not-anatomical-metadata" in probe
 assert '"crossRigPoseInputs": []' in probe
 assert "VANGUARD_GLB" not in probe
 assert "apply_crimson_candidate_pose" not in probe
+assert "sys.path.insert(0, str(TOOLS_DIR))" in probe
 assert "activate_action_containing(armature, candidate[\"id\"])" in probe
 assert "freeze_armature_pose_and_remove_new_actions" in probe
 assert "export_force_sampling=True" in probe
