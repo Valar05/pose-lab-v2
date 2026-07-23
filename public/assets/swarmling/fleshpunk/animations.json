@@ -1,0 +1,73 @@
+{
+  "schema": "pose-lab-v2-2d-animation-set-v1",
+  "character": "Fleshpunk Swarmling",
+  "defaultAnimation": "idle",
+  "frameSpace": {
+    "width": 512,
+    "height": 512,
+    "colorMode": "RGBA",
+    "background": "transparent",
+    "facing": "screen-left",
+    "camera": "fixed"
+  },
+  "authority": {
+    "poseCameraFacingTiming": "Swarmling.blend static Idle pose plus bounded authored breathing test",
+    "appearance": "current source materials; concept skin pending",
+    "excluded": [
+      "bitmap mirroring",
+      "per-frame reframing",
+      "retargeting",
+      "pose repair",
+      "invented in-betweens"
+    ]
+  },
+  "animations": [
+    {
+      "id": "idle",
+      "label": "Native Idle Test",
+      "loop": true,
+      "contactSheet": "idle/contact-sheet.png",
+      "sourceMetadata": "idle/source-metadata.json",
+      "groundGuideY": 474,
+      "contract": [
+        "screen-left",
+        "static source Idle stance with enumerated breathing motion",
+        "world_pos_x",
+        "fixed camera",
+        "six uniform samples"
+      ],
+      "frames": [
+        {
+          "src": "idle/frames/idle_0000.png",
+          "durationMs": 167,
+          "sha256": "c7907ee44daf91891e9524194f2ce851d6d38a58fba7e055c927cd4621020579"
+        },
+        {
+          "src": "idle/frames/idle_0001.png",
+          "durationMs": 167,
+          "sha256": "9c35aa5e7195ff35a2e6f6b711a290826291661198243c445a31272abedb237d"
+        },
+        {
+          "src": "idle/frames/idle_0002.png",
+          "durationMs": 167,
+          "sha256": "9c35aa5e7195ff35a2e6f6b711a290826291661198243c445a31272abedb237d"
+        },
+        {
+          "src": "idle/frames/idle_0003.png",
+          "durationMs": 167,
+          "sha256": "c8ae7b3121cbb5b5a8954a9667cf5354b179baa44c15d449315e191fda5d0f6b"
+        },
+        {
+          "src": "idle/frames/idle_0004.png",
+          "durationMs": 166,
+          "sha256": "c8ae7b3121cbb5b5a8954a9667cf5354b179baa44c15d449315e191fda5d0f6b"
+        },
+        {
+          "src": "idle/frames/idle_0005.png",
+          "durationMs": 166,
+          "sha256": "c8ae7b3121cbb5b5a8954a9667cf5354b179baa44c15d449315e191fda5d0f6b"
+        }
+      ]
+    }
+  ]
+}
