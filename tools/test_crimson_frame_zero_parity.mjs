@@ -5,12 +5,17 @@ import { ATTACK1_REVIEW_CANDIDATES, crimsonFrame04ReviewStatus } from '../src/re
 import { CRIMSON_COMBAT_READY_VANGUARD_FRAME0_3_SEQUENCE as rejectedV3 } from '../src/review-candidates/crimson-combat-ready-vanguard-frame0-3.js';
 import { CRIMSON_FRAME_ZERO_480EB888_REJECTED_SEQUENCE as rejected480 } from '../src/review-candidates/crimson-frame-zero-480eb888-rejected.js';
 import { CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE as candidateV4 } from '../src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js';
-import { assertBlenderManifestContract, assertExpectedReviewParity, parseArgs } from './github_crimson_visual_capture.mjs';
+import {
+  assertExpectedReviewParity,
+  assertRuntimeAuthoringProof,
+  assertRuntimeAuthoringReportContract,
+  parseArgs,
+} from './github_crimson_visual_capture.mjs';
 
 const candidateId = 'crimson-combat-ready-vanguard-frame0-4';
-const poseSha = 'a'.repeat(64);
+const poseSha = candidateV4.source.poseSha256;
 const candidateModuleSha = 'b'.repeat(64);
-const authoredGlbSha = 'd'.repeat(64);
+const authoredGlbSha = candidateV4.source.authoredGlbSha256;
 const appliedProof = {
   schema: 'pose-lab-v2-browser-candidate-apply-proof-v1',
   status: 'PASS',
@@ -87,71 +92,121 @@ assert.throws(
 );
 assert.equal(assertExpectedReviewParity({ dataset: {} }, {}).status, 'NOT_ENFORCED');
 
-const goodBlenderManifest = {
+const runtimeChannels = candidateV4.source.runtimeAuthoring.authoredGlb.channels
+  .map((name) => name.replace(/\.rotation$/, '.quaternion').replace(/\.translation$/, '.position'))
+  .sort();
+const goodRuntimeReport = {
+  schema: 'pose-lab-v2-crimson-runtime-frame-zero-authoring-report-v1',
   status: 'PASS',
   candidate: candidateId,
-  candidateParity: {
+  poseSha256: poseSha,
+  candidateModuleSha256: candidateModuleSha,
+  committedModuleParity: {
+    enforced: true,
     status: 'PASS',
-    exactFramePayloadMatch: true,
-    authoredGlbShaMatch: true,
-    committedStatusMatch: true,
-    committedAuthorEligibleBeforeCandidateParity: true,
-    committedPoseSha256: poseSha,
-    generatedPoseSha256: poseSha,
-    committedCandidateSha256: candidateModuleSha,
-    committedDeclaredAuthoredGlbSha256: authoredGlbSha,
-    generatedAuthoredGlbSha256: authoredGlbSha,
+    exactBytes: true,
+    committedSha256: candidateModuleSha,
+    generatedSha256: candidateModuleSha,
   },
-  authoredFrameZero: { exactAuthoredGlb: true, poseSha256: poseSha, glb: { sha256: authoredGlbSha } },
-  generatedCandidate: {
-    candidateId,
-    poseSha256: poseSha,
-    source: { exactAuthoredGlb: true, poseSha256: poseSha, authoredGlbSha256: authoredGlbSha, status: 'generated-visual-pending-candidate-parity', authorEligibleBeforeCandidateParity: true },
+  authoredGlb: {
+    path: 'generated/pose-candidates/crimson-combat-ready-vanguard-frame0-4.authored.glb',
+    sha256: authoredGlbSha,
+    byteLength: candidateV4.source.runtimeAuthoring.authoredGlb.byteLength,
+    animation: 'CrimsonRuntimeCombatReadyFrameZero',
+    channelCount: 21,
+    roundTrip: {
+      status: 'PASS',
+      animation: 'CrimsonRuntimeCombatReadyFrameZero',
+      duration: 0,
+      channelCount: 21,
+      uniqueChannelCount: 21,
+      channels: runtimeChannels,
+      reconstructedPoseSha256: poseSha,
+    },
   },
-  sourceHashes: { requestedCandidate: { sha256: candidateModuleSha } },
+  selected: structuredClone(candidateV4.source.runtimeAuthoring.gates),
+  testedAnglesDeg: [-30],
+  trials: [structuredClone(candidateV4.source.runtimeAuthoring.gates)],
 };
-assert.deepEqual(assertBlenderManifestContract(goodBlenderManifest, candidateId), { candidateId, poseSha, candidateModuleSha });
+assert.deepEqual(
+  assertRuntimeAuthoringReportContract(goodRuntimeReport, candidateId, candidateV4),
+  { candidateId, poseSha, candidateModuleSha, authoredGlbSha },
+);
 for (const [label, mutate] of [
-  ['manifest status', (value) => { value.status = 'FAIL'; }],
-  ['candidate parity status', (value) => { value.candidateParity.status = 'FAIL'; }],
-  ['exact frame payload', (value) => { value.candidateParity.exactFramePayloadMatch = false; }],
-  ['authored GLB parity', (value) => { value.candidateParity.authoredGlbShaMatch = false; }],
-  ['committed status parity', (value) => { value.candidateParity.committedStatusMatch = false; }],
-  ['committed author eligibility', (value) => { value.candidateParity.committedAuthorEligibleBeforeCandidateParity = false; }],
-  ['exact authored GLB', (value) => { value.authoredFrameZero.exactAuthoredGlb = false; }],
-  ['generated candidate id', (value) => { value.generatedCandidate.candidateId = 'wrong'; }],
-  ['invalid authored pose SHA', (value) => { value.authoredFrameZero.poseSha256 = 'pending'; }],
-  ['authored/generated pose SHA', (value) => { value.generatedCandidate.poseSha256 = 'c'.repeat(64); }],
-  ['requested candidate module SHA', (value) => { value.sourceHashes.requestedCandidate.sha256 = ''; }],
+  ['report status', (value) => { value.status = 'FAIL'; }],
+  ['committed parity enforcement', (value) => { value.committedModuleParity.enforced = false; }],
+  ['committed exact bytes', (value) => { value.committedModuleParity.exactBytes = false; }],
+  ['module SHA', (value) => { value.candidateModuleSha256 = 'pending'; }],
+  ['selected geometry', (value) => { value.selected.checks.supportPalmPin = false; }],
+  ['center view', (value) => { value.selected.silhouette.views.center.status = 'FAIL'; }],
+  ['bound angle', (value) => { value.selected.angleDeg = -28; }],
+  ['tested angle', (value) => { value.testedAnglesDeg = [-28]; }],
+  ['trial parity', (value) => { value.trials = []; }],
+  ['round-trip status', (value) => { value.authoredGlb.roundTrip.status = 'FAIL'; }],
+  ['round-trip channels', (value) => { value.authoredGlb.roundTrip.uniqueChannelCount = 20; }],
+  ['round-trip pose', (value) => { value.authoredGlb.roundTrip.reconstructedPoseSha256 = 'c'.repeat(64); }],
+  ['finite geometry', (value) => { value.selected.silhouette.views.left.bladeHeadPixels = Number.NaN; }],
 ]) {
-  const invalid = structuredClone(goodBlenderManifest);
+  const invalid = structuredClone(goodRuntimeReport);
   mutate(invalid);
-  assert.throws(() => assertBlenderManifestContract(invalid, candidateId), /Blender candidate contract failed/, label);
+  assert.throws(
+    () => assertRuntimeAuthoringReportContract(invalid, candidateId, candidateV4),
+    /Runtime authoring contract failed/,
+    label,
+  );
+}
+
+const goodRuntimeProof = {
+  schema: 'pose-lab-v2-crimson-runtime-authoring-proof-v1',
+  status: 'PASS',
+  candidateId,
+  view: 'center',
+  expected: { viewport: [986, 900], bladeWorldDirection: [0.1, 0.9, 0.3], hiltScreen: [410.92, 423.94], tipScreen: [381.99, 187.68] },
+  actual: { viewport: [986, 900], bladeWorldDirection: [0.1, 0.9, 0.3], hiltScreen: [410.93, 423.95], tipScreen: [382, 187.69] },
+  errors: { bladeAngleDeg: 0.001, hiltScreenPixels: 0.02, tipScreenPixels: 0.02 },
+  thresholds: { bladeAngleDeg: 0.05, screenPointPixels: 2, viewportPixels: 0.5 },
+  checks: { candidate: true, authoringGate: true, viewGate: true, viewport: true, bladeDirection: true, hiltScreen: true, tipScreen: true },
+};
+assert.equal(assertRuntimeAuthoringProof({ dataset: { crimsonRuntimeAuthoringProof: JSON.stringify(goodRuntimeProof) } }, 'center', candidateId).status, 'PASS');
+for (const [label, payload] of [
+  ['invalid JSON', { dataset: { crimsonRuntimeAuthoringProof: '{' } }],
+  ['stale view', { dataset: { crimsonRuntimeAuthoringProof: JSON.stringify({ ...goodRuntimeProof, view: 'left' }) } }],
+  ['wrong candidate', { dataset: { crimsonRuntimeAuthoringProof: JSON.stringify({ ...goodRuntimeProof, candidateId: 'stale' }) } }],
+  ['failed gate', { dataset: { crimsonRuntimeAuthoringProof: JSON.stringify({ ...goodRuntimeProof, status: 'FAIL', checks: { ...goodRuntimeProof.checks, viewGate: false } }) } }],
+  ['direction error', { dataset: { crimsonRuntimeAuthoringProof: JSON.stringify({ ...goodRuntimeProof, errors: { ...goodRuntimeProof.errors, bladeAngleDeg: 1 } }) } }],
+  ['endpoint error', { dataset: { crimsonRuntimeAuthoringProof: JSON.stringify({ ...goodRuntimeProof, errors: { ...goodRuntimeProof.errors, tipScreenPixels: 4 } }) } }],
+]) {
+  assert.throws(
+    () => assertRuntimeAuthoringProof(payload, 'center', candidateId),
+    /runtime-authoring browser parity failed/,
+    label,
+  );
 }
 
 assert.equal(ATTACK1_REVIEW_CANDIDATES['crimson-combat-ready-vanguard-frame0-3']?.status, 'rejected');
 const rejectedPoseSha = 'b9ec44d3d17527779334e372a79894b07cbd535c4af54927e0cc638f3b1b6c2f';
 const rejected480PoseSha = 'b5ef5555ba060546f4d6dd3921f09cf0e4251dfac8a346d4db7f4f30858bd554';
-assert.equal(crimsonFrame04ReviewStatus({ source: { exactAuthoredGlb: true, status: 'generated-visual-pending-candidate-parity', poseSha256: 'pending' } }), 'authoring-red');
-assert.equal(crimsonFrame04ReviewStatus({ source: { exactAuthoredGlb: true, status: 'wrong', poseSha256: poseSha } }), 'authoring-red');
-assert.equal(crimsonFrame04ReviewStatus({ source: { exactAuthoredGlb: true, status: 'generated-visual-pending-candidate-parity', poseSha256: rejectedPoseSha } }), 'authoring-red');
-assert.equal(crimsonFrame04ReviewStatus({ source: { exactAuthoredGlb: true, status: 'generated-visual-pending-candidate-parity', poseSha256: rejected480PoseSha, authoredGlbSha256: authoredGlbSha } }), 'authoring-red');
-assert.equal(crimsonFrame04ReviewStatus({ source: { exactAuthoredGlb: true, status: 'generated-visual-pending-candidate-parity', poseSha256: poseSha } }), 'authoring-red');
-assert.equal(crimsonFrame04ReviewStatus({ source: { exactAuthoredGlb: true, status: 'generated-visual-pending-candidate-parity', poseSha256: poseSha, authoredGlbSha256: authoredGlbSha } }), 'visual-pending');
-const hasGeneratedPose = candidateV4.source?.exactAuthoredGlb === true
-  && candidateV4.source?.status === 'generated-visual-pending-candidate-parity'
-  && /^[a-f0-9]{64}$/.test(candidateV4.source?.poseSha256 || '')
-  && /^[a-f0-9]{64}$/.test(candidateV4.source?.authoredGlbSha256 || '')
-  && candidateV4.source.poseSha256 !== rejectedPoseSha
-  && candidateV4.source.poseSha256 !== rejected480PoseSha;
-if (hasGeneratedPose) {
-  assert.equal(ATTACK1_REVIEW_CANDIDATES[candidateId]?.status, 'visual-pending');
-  assert.notDeepEqual(candidateV4.frames?.[0], rejectedV3.frames?.[0], 'valid v4 must materially differ from rejected v3 payload');
-  assert.notDeepEqual(candidateV4.frames?.[0], rejected480.frames?.[0], 'valid v4 must materially differ from canonical rejected 480 payload');
-} else {
-  assert.equal(candidateV4.source?.poseSha256, 'pending');
-  assert.equal(ATTACK1_REVIEW_CANDIDATES[candidateId]?.status, 'authoring-red');
+assert.equal(crimsonFrame04ReviewStatus(candidateV4), 'visual-pending');
+for (const [label, mutate] of [
+  ['pending pose SHA', (value) => { value.source.poseSha256 = 'pending'; }],
+  ['rejected v3 pose SHA', (value) => { value.source.poseSha256 = rejectedPoseSha; }],
+  ['rejected baseline pose SHA', (value) => { value.source.poseSha256 = rejected480PoseSha; }],
+  ['body GLB flag', (value) => { value.source.exactAuthoredBodyGlb = false; }],
+  ['runtime schema', (value) => { value.source.runtimeAuthoring.schema = 'wrong'; }],
+  ['nested GLB hash', (value) => { value.source.runtimeAuthoring.authoredGlb.sha256 = 'c'.repeat(64); }],
+  ['runtime gates', (value) => { value.source.runtimeAuthoring.gates.status = 'FAIL'; }],
+  ['right view', (value) => { value.source.runtimeAuthoring.gates.silhouette.views.right.status = 'FAIL'; }],
+  ['blade direction', (value) => { value.source.runtimeAuthoring.bladeWorldDirection = [0, 1, 0]; }],
+]) {
+  const invalid = structuredClone(candidateV4);
+  mutate(invalid);
+  assert.equal(crimsonFrame04ReviewStatus(invalid), 'authoring-red', label);
 }
+
+const hasGeneratedPose = crimsonFrame04ReviewStatus(candidateV4) === 'visual-pending';
+assert.equal(ATTACK1_REVIEW_CANDIDATES[candidateId]?.status, 'visual-pending');
+assert.notDeepEqual(candidateV4.frames?.[0], rejectedV3.frames?.[0], 'valid v4 must materially differ from rejected v3 payload');
+assert.notDeepEqual(candidateV4.frames?.[0], rejected480.frames?.[0], 'valid v4 must materially differ from canonical rejected 480 payload');
 assert.equal(ATTACK1_REVIEW_CANDIDATES[candidateId]?.exportName, 'CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE');
 
 const main = fs.readFileSync('src/main.js', 'utf8');
@@ -159,23 +214,40 @@ assert.match(main, /dataset\.reviewCandidateId = attackPoseSequence\.id \|\| REQ
 assert.match(main, /dataset\.reviewPoseSha = attackPoseSequence\.source\?\.poseSha256/);
 assert.match(main, /dataset\.reviewCandidateModuleSha = candidateModuleSha/);
 assert.match(main, /dataset\.reviewAppliedProof = JSON\.stringify\(proof\)/);
+assert.match(main, /dataset\.crimsonRuntimeAuthoringProof = JSON\.stringify\(proof\)/);
+assert.match(main, /const viewGate = runtimeAuthoring\.gates\?\.silhouette\?\.views\?\.\[reviewCameraView\]/);
 assert.match(main, /!attackPoseSequence\.source\?\.exactAuthoredGlb \|\| document\.body\.dataset\.reviewApplied === '1'/);
 assert.match(main, /if \(!attackPoseSequence\?\.source\?\.exactAuthoredGlb\) \{\s*alignSaberGripToWorldDirection[\s\S]*?seatSaberHiltTowardHand/);
 
 const workflow = fs.readFileSync('.github/workflows/crimson-pr-visual.yml', 'utf8');
-assert.match(workflow, /capture-frame-zero:\s*needs: blender-frame-zero/);
-assert.match(workflow, /actions\/download-artifact@v4/);
-assert.match(workflow, /assertBlenderManifestContract\(manifest/);
+assert.match(workflow, /runtime_frame_zero:/);
+assert.match(workflow, /capture-frame-zero:\s*needs: runtime_frame_zero/);
+assert.match(workflow, /author_crimson_frame_zero_runtime\.mjs[\s\S]*?--angle-deg -30[\s\S]*?--check/);
+assert.match(workflow, /assertRuntimeAuthoringReportContract/);
 assert.match(workflow, /--expected-candidate-id "\$EXPECTED_CANDIDATE_ID"/);
 assert.match(workflow, /--expected-pose-sha "\$EXPECTED_POSE_SHA"/);
 assert.match(workflow, /--expected-candidate-module-sha "\$EXPECTED_CANDIDATE_MODULE_SHA"/);
+assert.doesNotMatch(workflow, /--author-frame-zero/);
+assert.doesNotMatch(workflow, /assertBlenderManifestContract/);
 assert.ok(workflow.includes(candidateId));
 assert.ok(!workflow.includes('crimson-combat-ready-vanguard-frame0-3'));
 
+const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+assert.match(packageJson.scripts['test:repo-guardrails'], /test:crimson-frame-zero-runtime-authoring/);
+assert.match(packageJson.scripts['test:crimson-frame-zero-runtime-authoring'], /--angle-deg -30 --check/);
+
 console.log(JSON.stringify({
   ok: true,
-  check: 'crimson-frame-zero-rendered-candidate-parity',
+  check: 'crimson-frame-zero-runtime-authored-browser-parity',
   candidateId,
   candidateState: hasGeneratedPose ? 'visual-pending' : 'authoring-red',
-  rejects: ['manifest-contract-failure', 'candidate-id-mismatch', 'pose-sha-mismatch', 'module-sha-mismatch', 'missing-applied-proof', 'missing-requested-bone'],
+  rejects: [
+    'runtime-report-contract-failure',
+    'runtime-glb-roundtrip-failure',
+    'candidate-id-mismatch',
+    'pose-sha-mismatch',
+    'module-sha-mismatch',
+    'missing-applied-proof',
+    'runtime-view-proof-mismatch',
+  ],
 }, null, 2));

@@ -10,7 +10,7 @@
   },
   "calibrationSpecimen": {
     "candidateId": "crimson-combat-ready-vanguard-frame0-4",
-    "candidatePath": "src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js",
+    "candidatePath": "src/review-candidates/crimson-frame-zero-8e6c8e07-orientation-specimen.js",
     "candidateModuleSha256": "75cf9d9e6516fa3af5750b8c5cd1879977fe87f599dd4f7445aeb4011eec7bdc",
     "poseSha256": "4db76a74b24d56411d6429c0c5f35bbe77bedbe92bda086d65a162aaea0ab41a",
     "authoredGlbSha256": "d20a0f8f8f82b94ffbf0b96a10e4aa1326c6915f7346abc29385c89bcc8d734b",

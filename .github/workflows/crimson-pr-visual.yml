@@ -10,72 +10,62 @@ permissions:
   contents: read
 
 jobs:
-  blender-frame-zero:
+  runtime_frame_zero:
+    name: Runtime frame-zero authority
     runs-on: ubuntu-latest
+    outputs:
+      candidate_id: ${{ steps.runtime_parity.outputs.candidate_id }}
+      pose_sha: ${{ steps.runtime_parity.outputs.pose_sha }}
+      candidate_module_sha: ${{ steps.runtime_parity.outputs.candidate_module_sha }}
+      authored_glb_sha: ${{ steps.runtime_parity.outputs.authored_glb_sha }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install Blender render runtime
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y blender python3-numpy python3-pil
-      - name: Render Vanguard and Crimson frame zero in Blender
-        id: blender
-        continue-on-error: true
-        run: |
-          blender --background --python-exit-code 1 \
-            --python tools/render_crimson_vanguard_attack1_compare_blender.py -- \
-            --out-dir generated/crimson-frame-zero/${GITHUB_RUN_ID} \
-            --frames start \
-            --candidate-js src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js \
-            --candidate-id crimson-combat-ready-vanguard-frame0-4 \
-            --author-frame-zero \
-            --samples 16 \
-            --width 1600 \
-            --height 900
-      - name: Stitch frame-zero comparison
-        if: always()
-        run: |
-          python3 tools/stitch_crimson_vanguard_attack1_compare.py \
-            --manifest generated/crimson-frame-zero/${GITHUB_RUN_ID}/manifest.json
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - uses: actions/setup-node@v4
         with:
-          name: crimson-frame-zero-blender-${{ github.run_id }}
-          path: generated/crimson-frame-zero/${{ github.run_id }}
+          node-version: 22
+      - name: Re-author frame zero in the exact Three.js runtime basis
+        run: |
+          node tools/author_crimson_frame_zero_runtime.mjs \
+            --angle-deg -30 \
+            --check \
+            --report "generated/crimson-frame-zero-runtime/${GITHUB_RUN_ID}/runtime_authoring_report.json"
+      - name: Bind the runtime report to the committed candidate
+        id: runtime_parity
+        env:
+          RUNTIME_REPORT: generated/crimson-frame-zero-runtime/${{ github.run_id }}/runtime_authoring_report.json
+        run: |
+          set -eu
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import { CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE as candidate } from './src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js';
+          import { assertRuntimeAuthoringReportContract } from './tools/github_crimson_visual_capture.mjs';
+          const report = JSON.parse(fs.readFileSync(process.env.RUNTIME_REPORT, 'utf8'));
+          const bound = assertRuntimeAuthoringReportContract(
+            report,
+            'crimson-combat-ready-vanguard-frame0-4',
+            candidate,
+          );
+          fs.appendFileSync(
+            process.env.GITHUB_OUTPUT,
+            `candidate_id=${bound.candidateId}\npose_sha=${bound.poseSha}\ncandidate_module_sha=${bound.candidateModuleSha}\nauthored_glb_sha=${bound.authoredGlbSha}\n`,
+          );
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crimson-frame-zero-runtime-${{ github.run_id }}
+          path: |
+            generated/crimson-frame-zero-runtime/${{ github.run_id }}
+            generated/pose-candidates/crimson-combat-ready-vanguard-frame0-4.authored.glb
           if-no-files-found: error
-      - name: Preserve Blender rejection as a red job
-        if: steps.blender.outcome == 'failure'
-        run: exit 1
 
   capture-frame-zero:
-    needs: blender-frame-zero
+    needs: runtime_frame_zero
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Download successful Blender frame-zero evidence
-        uses: actions/download-artifact@v4
-        with:
-          name: crimson-frame-zero-blender-${{ github.run_id }}
-          path: generated/crimson-frame-zero-blender/${{ github.run_id }}
-      - name: Bind browser candidate to Blender-authored pose
-        id: blender-parity
-        env:
-          BLENDER_MANIFEST: generated/crimson-frame-zero-blender/${{ github.run_id }}/manifest.json
-        run: |
-          set -eu
-          node --input-type=module - <<'NODE'
-          import fs from 'node:fs';
-          import { assertBlenderManifestContract } from './tools/github_crimson_visual_capture.mjs';
-          const manifest = JSON.parse(fs.readFileSync(process.env.BLENDER_MANIFEST, 'utf8'));
-          const bound = assertBlenderManifestContract(manifest, 'crimson-combat-ready-vanguard-frame0-4');
-          fs.appendFileSync(
-            process.env.GITHUB_OUTPUT,
-            `candidate_id=${bound.candidateId}\npose_sha=${bound.poseSha}\ncandidate_module_sha=${bound.candidateModuleSha}\n`,
-          );
-          NODE
       - name: Install Playwright package without browser download
         run: npm install --no-save playwright
         env:
@@ -89,9 +79,9 @@ jobs:
       - name: Capture Crimson combat-ready frame zero
         env:
           PLAYWRIGHT_CHROME_CHANNEL: chrome
-          EXPECTED_CANDIDATE_ID: ${{ steps.blender-parity.outputs.candidate_id }}
-          EXPECTED_POSE_SHA: ${{ steps.blender-parity.outputs.pose_sha }}
-          EXPECTED_CANDIDATE_MODULE_SHA: ${{ steps.blender-parity.outputs.candidate_module_sha }}
+          EXPECTED_CANDIDATE_ID: ${{ needs.runtime_frame_zero.outputs.candidate_id }}
+          EXPECTED_POSE_SHA: ${{ needs.runtime_frame_zero.outputs.pose_sha }}
+          EXPECTED_CANDIDATE_MODULE_SHA: ${{ needs.runtime_frame_zero.outputs.candidate_module_sha }}
         run: |
           set -eu
           python3 -m http.server 4173 --bind 127.0.0.1 --directory dist > /tmp/crimson-v4-http.log 2>&1 &
@@ -113,7 +103,7 @@ jobs:
             return { label: `frame-zero ${primeKey}${viewSuffix}`, primeKey, time, cameraView, url: `${base}?${params}` };
           };
           const urls = frames.map(([primeKey, time]) => capture(primeKey, time));
-          for (const [primeKey, time] of [['start', 0]]) {
+          for (const [primeKey, time] of frames) {
             urls.push(capture(primeKey, time, 'left'), capture(primeKey, time, 'right'));
           }
           process.stdout.write(JSON.stringify(urls));

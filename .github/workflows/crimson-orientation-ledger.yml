@@ -12,7 +12,7 @@ on:
       - "tools/compare_crimson_orientation_ledgers.py"
       - "tools/test_crimson_orientation_ledger_comparison.py"
       - "tools/render_crimson_vanguard_attack1_compare_blender.py"
-      - "src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js"
+      - "src/review-candidates/crimson-frame-zero-8e6c8e07-orientation-specimen.js"
       - "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb"
       - "public/assets/crimson/crimson-bone-orientation-ledger.json"
       - "public/assets/crimson/crimson_manifest.json"

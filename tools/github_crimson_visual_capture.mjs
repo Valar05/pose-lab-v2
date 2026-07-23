@@ -98,6 +98,104 @@ export function assertBlenderManifestContract(manifest, expectedCandidateId) {
   return { candidateId, poseSha: authoredPoseSha, candidateModuleSha };
 }
 
+export function assertRuntimeAuthoringReportContract(report, expectedCandidateId, candidate) {
+  const candidateId = String(report?.candidate || '');
+  const poseSha = String(report?.poseSha256 || '');
+  const candidateModuleSha = String(report?.candidateModuleSha256 || '');
+  const authoredGlbSha = String(report?.authoredGlb?.sha256 || '');
+  const source = candidate?.source || {};
+  const runtimeAuthoring = source.runtimeAuthoring || {};
+  const errors = [];
+  if (report?.schema !== 'pose-lab-v2-crimson-runtime-frame-zero-authoring-report-v1') {
+    errors.push(`report schema is invalid: ${report?.schema || 'missing'}`);
+  }
+  if (report?.status !== 'PASS') errors.push(`report status expected PASS, got ${report?.status || 'missing'}`);
+  if (candidateId !== expectedCandidateId) errors.push(`report candidate expected ${expectedCandidateId}, got ${candidateId || 'missing'}`);
+  if (candidate?.id !== expectedCandidateId) errors.push(`committed candidate expected ${expectedCandidateId}, got ${candidate?.id || 'missing'}`);
+  if (!/^[a-f0-9]{64}$/.test(poseSha)) errors.push('pose SHA must be lowercase 64-character hex');
+  if (!/^[a-f0-9]{64}$/.test(candidateModuleSha)) errors.push('candidate module SHA must be lowercase 64-character hex');
+  if (!/^[a-f0-9]{64}$/.test(authoredGlbSha)) errors.push('authored GLB SHA must be lowercase 64-character hex');
+  if (report?.committedModuleParity?.enforced !== true) errors.push('committed module parity must be enforced with --check');
+  if (report?.committedModuleParity?.status !== 'PASS') errors.push('committed module parity status must be PASS');
+  if (report?.committedModuleParity?.exactBytes !== true) errors.push('committed module parity exactBytes must be true');
+  if (report?.committedModuleParity?.committedSha256 !== candidateModuleSha
+    || report?.committedModuleParity?.generatedSha256 !== candidateModuleSha) {
+    errors.push('committed and generated module SHA values must match the report module SHA');
+  }
+  if (report?.selected?.status !== 'PASS') errors.push('selected runtime geometry status must be PASS');
+  const selectedChecks = report?.selected?.checks || {};
+  for (const check of [
+    'silhouette',
+    'supportPalmPin',
+    'leftLowElbow',
+    'rightLowElbow',
+    'supportReachReserve',
+    'supportElbowBend',
+  ]) {
+    if (selectedChecks[check] !== true) errors.push(`selected runtime geometry check ${check} must be true`);
+  }
+  if (report?.selected?.angleDeg !== -30) errors.push(`selected runtime angle expected -30, got ${report?.selected?.angleDeg ?? 'missing'}`);
+  if (JSON.stringify(report?.testedAnglesDeg) !== JSON.stringify([-30])) errors.push('runtime authoring must test exactly the bound -30 degree correction');
+  if (!Array.isArray(report?.trials) || report.trials.length !== 1
+    || JSON.stringify(report.trials[0]) !== JSON.stringify(report.selected)) {
+    errors.push('runtime authoring trials must contain the exact selected trial');
+  }
+  if (report?.selected?.silhouette?.status !== 'PASS') errors.push('selected silhouette status must be PASS');
+  for (const view of ['center', 'left', 'right']) {
+    if (report?.selected?.silhouette?.views?.[view]?.status !== 'PASS') {
+      errors.push(`selected silhouette view ${view} must be PASS`);
+    }
+  }
+  const roundTrip = report?.authoredGlb?.roundTrip || {};
+  if (report?.authoredGlb?.path !== 'generated/pose-candidates/crimson-combat-ready-vanguard-frame0-4.authored.glb') errors.push('authored GLB path is invalid');
+  if (!Number.isInteger(report?.authoredGlb?.byteLength) || report.authoredGlb.byteLength <= 0) errors.push('authored GLB byteLength must be a positive integer');
+  if (report?.authoredGlb?.animation !== 'CrimsonRuntimeCombatReadyFrameZero') errors.push('authored GLB animation name is invalid');
+  if (report?.authoredGlb?.channelCount !== 21) errors.push('authored GLB must declare 21 channels');
+  if (roundTrip.status !== 'PASS') errors.push('authored GLB round-trip status must be PASS');
+  if (roundTrip.animation !== report?.authoredGlb?.animation) errors.push('authored GLB round-trip animation must match');
+  if (roundTrip.duration !== 0) errors.push('authored GLB round-trip duration must be zero');
+  if (roundTrip.channelCount !== 21 || roundTrip.uniqueChannelCount !== 21) errors.push('authored GLB round-trip must contain 21 unique channels');
+  if (!Array.isArray(roundTrip.channels) || roundTrip.channels.length !== 21
+    || new Set(roundTrip.channels).size !== 21) errors.push('authored GLB round-trip channel list must contain 21 unique names');
+  if (roundTrip.reconstructedPoseSha256 !== poseSha) errors.push('authored GLB round-trip pose SHA must match the report pose SHA');
+  const finiteMetrics = [
+    report?.selected?.blade?.residualAngleDeg,
+    report?.selected?.supportHand?.palmPinErrorWorld,
+    report?.selected?.supportHand?.reachReserveTorso,
+    report?.selected?.supportHand?.elbowAngleDeg,
+    report?.selected?.lowElbows?.leftDropTorso,
+    report?.selected?.lowElbows?.rightDropTorso,
+    ...['center', 'left', 'right'].flatMap((view) => {
+      const gate = report?.selected?.silhouette?.views?.[view] || {};
+      return [
+        gate.bladeHeadPixels,
+        gate.guardHeadPixels,
+        gate.minimumArmHeadPixels,
+        gate.minimumHandHeadPixels,
+        ...(gate.bladeScreen?.hilt || []),
+        ...(gate.bladeScreen?.tip || []),
+      ];
+    }),
+  ];
+  if (finiteMetrics.some((value) => !Number.isFinite(value))) errors.push('runtime authoring geometry metrics must all be finite');
+  if (source.exactAuthoredGlb !== true || source.exactAuthoredBodyGlb !== true) errors.push('committed candidate must declare exact authored body GLB');
+  if (source.status !== 'generated-visual-pending-candidate-parity') errors.push('committed candidate must remain visual-pending before browser review');
+  if (source.authorEligibleBeforeCandidateParity !== true) errors.push('committed candidate author eligibility must be true');
+  if (source.poseSha256 !== poseSha) errors.push('committed candidate pose SHA must match the report');
+  if (source.authoredGlbSha256 !== authoredGlbSha) errors.push('committed candidate authored GLB SHA must match the report');
+  if (runtimeAuthoring.schema !== 'pose-lab-v2-crimson-runtime-frame-zero-authoring-v1') errors.push('committed candidate runtime-authoring schema is invalid');
+  if (runtimeAuthoring.authoredGlb?.sha256 !== authoredGlbSha) errors.push('runtime-authoring GLB SHA must match the report');
+  if (runtimeAuthoring.authoredGlb?.animation !== report?.authoredGlb?.animation) errors.push('runtime-authoring animation must match the report');
+  if (runtimeAuthoring.authoredGlb?.channels?.length !== 21) errors.push('runtime-authoring metadata must contain 21 channels');
+  if (runtimeAuthoring.authoredGlb?.byteLength !== report?.authoredGlb?.byteLength) errors.push('runtime-authoring GLB byteLength must match the report');
+  if (runtimeAuthoring.gates?.status !== 'PASS') errors.push('committed runtime-authoring gates must be PASS');
+  if (JSON.stringify(runtimeAuthoring.gates) !== JSON.stringify(report?.selected)) errors.push('committed runtime-authoring gates must exactly match the report selection');
+  if (JSON.stringify(runtimeAuthoring.viewport) !== JSON.stringify([986, 900])) errors.push('committed runtime-authoring viewport must be 986x900');
+  if (JSON.stringify(runtimeAuthoring.bladeWorldDirection) !== JSON.stringify(runtimeAuthoring.gates?.blade?.actualWorldDirection)) errors.push('runtime-authoring blade direction must match its selected gate');
+  if (errors.length) throw new Error(`Runtime authoring contract failed: ${errors.join('; ')}`);
+  return { candidateId, poseSha, candidateModuleSha, authoredGlbSha };
+}
+
 function appliedProofFromDataset(dataset) {
   try { return JSON.parse(dataset?.reviewAppliedProof || ''); }
   catch { return null; }
@@ -151,6 +249,42 @@ export function assertExpectedReviewParity(debugPayload, args) {
   if (mismatches.length) {
     const error = new Error(`rendered candidate parity failed: ${mismatches.join('; ')}`);
     error.reviewParity = proof;
+    throw error;
+  }
+  return proof;
+}
+
+export function assertRuntimeAuthoringProof(debugPayload, expectedCameraView, expectedCandidateId) {
+  let proof = null;
+  try { proof = JSON.parse(debugPayload?.dataset?.crimsonRuntimeAuthoringProof || ''); }
+  catch { proof = null; }
+  const expectedView = expectedCameraView || 'center';
+  const errors = [];
+  if (!proof) errors.push('runtime-authoring proof is missing or invalid JSON');
+  else {
+    if (proof.schema !== 'pose-lab-v2-crimson-runtime-authoring-proof-v1') errors.push('runtime-authoring proof schema is invalid');
+    if (proof.status !== 'PASS') errors.push(`runtime-authoring proof expected PASS, got ${proof.status || 'missing'}`);
+    if (proof.candidateId !== expectedCandidateId) errors.push(`runtime-authoring proof candidate expected ${expectedCandidateId}, got ${proof.candidateId || 'missing'}`);
+    if (proof.view !== expectedView) errors.push(`runtime-authoring proof view expected ${expectedView}, got ${proof.view || 'missing'}`);
+    for (const name of ['candidate', 'authoringGate', 'viewGate', 'viewport', 'bladeDirection', 'hiltScreen', 'tipScreen']) {
+      if (proof.checks?.[name] !== true) errors.push(`runtime-authoring proof check ${name} must be true`);
+    }
+    const metricThresholds = [
+      ['bladeAngleDeg', 'bladeAngleDeg'],
+      ['hiltScreenPixels', 'screenPointPixels'],
+      ['tipScreenPixels', 'screenPointPixels'],
+    ];
+    for (const [metric, threshold] of metricThresholds) {
+      const value = proof.errors?.[metric];
+      const maximum = proof.thresholds?.[threshold];
+      if (!Number.isFinite(value) || !Number.isFinite(maximum) || value > maximum) {
+        errors.push(`runtime-authoring proof ${metric} must be finite and within ${threshold}`);
+      }
+    }
+  }
+  if (errors.length) {
+    const error = new Error(`runtime-authoring browser parity failed: ${errors.join('; ')}`);
+    error.runtimeAuthoringProof = proof;
     throw error;
   }
   return proof;
@@ -228,6 +362,7 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
         url: page.url(),
         error: String(error?.message || error),
         reviewParity: error?.reviewParity || null,
+        runtimeAuthoringProof: error?.runtimeAuthoringProof || null,
         debugPayload: payload,
         consoleEvents,
         pageErrors,
@@ -264,11 +399,35 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
         if (!button) throw new Error(`missing camera view button: ${cameraView}`);
         button.click();
       }, entry.cameraView);
+      try {
+        await page.waitForFunction((cameraView) => {
+          try {
+            const proof = JSON.parse(document.body?.dataset?.crimsonRuntimeAuthoringProof || '');
+            return proof.view === cameraView;
+          } catch {
+            return false;
+          }
+        }, entry.cameraView, { timeout: args.timeoutMs });
+      } catch (error) {
+        await failCapture('runtime authoring view sync', error);
+      }
     }
     await page.waitForTimeout(Math.max(0, Math.min(args.settleMs, 30000)));
+    const debugPayload = await collectDebug(page);
+    let runtimeAuthoringProof = null;
+    if (args.expectedCandidateId) {
+      try {
+        runtimeAuthoringProof = assertRuntimeAuthoringProof(
+          debugPayload,
+          entry.cameraView || 'center',
+          args.expectedCandidateId,
+        );
+      } catch (error) {
+        await failCapture('runtime authoring parity', error, debugPayload);
+      }
+    }
     const screenshotPath = path.join(captureDir, 'screenshot.png');
     const screenshotBytes = await page.screenshot({ path: screenshotPath, fullPage: false });
-    const debugPayload = await collectDebug(page);
     const manifest = {
       schema: 'command-center-visual-qa-evidence-v1',
       target: args.target,
@@ -293,6 +452,7 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
         viewport: { width: 1366, height: 900 },
       },
       browserSocketProof: socketProof(debugPayload),
+      runtimeAuthoringProof,
       reviewParity,
       bootTimings: (() => { try { return JSON.parse(debugPayload?.dataset?.bootTimings || '{}'); } catch { return {}; } })(),
       debugPayload,
@@ -301,7 +461,10 @@ async function captureOne({ page, args, entry, outDir, index, launchOptions }) {
       networkFailures,
       responseStatuses,
       visualRead: '',
-      assertions: { renderedCandidateParity: reviewParity.enforced ? reviewParity.status === 'PASS' : null },
+      assertions: {
+        renderedCandidateParity: reviewParity.enforced ? reviewParity.status === 'PASS' : null,
+        runtimeAuthoringParity: runtimeAuthoringProof ? runtimeAuthoringProof.status === 'PASS' : null,
+      },
     };
     await fs.writeFile(path.join(captureDir, 'visual_qa_manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
     await fs.writeFile(path.join(captureDir, 'console_network.json'), JSON.stringify({ consoleEvents, pageErrors, networkFailures, responseStatuses }, null, 2) + '\n');

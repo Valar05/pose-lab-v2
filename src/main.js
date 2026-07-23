@@ -442,6 +442,7 @@ const tipMatchReadout = app.querySelector('[data-tip-match-readout]');
 
 let toolMode = 'saber';
 let viewMode = 'orbit';
+let reviewCameraView = 'center';
 let dockOpen = ACTIVE_CHARACTER.key === 'crimson';
 let activePanel = ACTIVE_CHARACTER.key === 'crimson' ? 'model' : null;
 let fpvSettingsOpen = false;
@@ -1279,6 +1280,7 @@ function updateSaberAttachmentProof() {
     ? sabreRoot.localToWorld(new THREE.Vector3(...tipLocal))
     : orientationProbe(objectWorldPosition(sabreRoot), objectWorldQuaternion(sabreRoot), sabreBladeLocalAxis(), SABRE_AXIS_PROOF_LENGTH).end;
   const bladeVector = tip.clone().sub(hilt);
+  const bladeDirection = bladeVector.clone().normalize();
   const hiltScreen = worldToScreenPixels(hilt);
   const tipScreen = worldToScreenPixels(tip);
   const screenBounds = screenBoundsForWorldBox(worldBoundsForObject(sabreRoot));
@@ -1288,7 +1290,7 @@ function updateSaberAttachmentProof() {
   saberAttachmentProof.hiltToHandDistance = handPosition ? fixedNumber(hilt.distanceTo(handPosition), 5) : null;
   saberAttachmentProof.swordWorldScale = vectorToFixedArray(swordScale);
   saberAttachmentProof.bladeWorldLength = fixedNumber(bladeVector.length(), 5);
-  saberAttachmentProof.bladeWorldDirection = vectorToFixedArray(bladeVector.normalize());
+  saberAttachmentProof.bladeWorldDirection = vectorToFixedArray(bladeDirection);
   saberAttachmentProof.hiltScreen = [fixedNumber(hiltScreen.x, 1), fixedNumber(hiltScreen.y, 1)];
   saberAttachmentProof.tipScreen = [fixedNumber(tipScreen.x, 1), fixedNumber(tipScreen.y, 1)];
   saberAttachmentProof.screenLengthPx = fixedNumber(screenLengthPx, 1);
@@ -1302,6 +1304,76 @@ function updateSaberAttachmentProof() {
   document.body.dataset.saberScreenLengthPx = String(saberAttachmentProof.screenLengthPx ?? '');
   document.body.dataset.saberVisibleInViewport = String(saberAttachmentProof.visibleInViewport);
   document.body.dataset.crimsonSocketProof = JSON.stringify(saberAttachmentProof);
+
+  const runtimeAuthoring = attackPoseSequence?.source?.runtimeAuthoring;
+  if (!runtimeAuthoring) {
+    delete document.body.dataset.crimsonRuntimeAuthoringProof;
+    delete document.body.dataset.crimsonRuntimeAuthoringStatus;
+    return;
+  }
+  const viewGate = runtimeAuthoring.gates?.silhouette?.views?.[reviewCameraView];
+  const expectedBladeDirectionValues = runtimeAuthoring.gates?.blade?.actualWorldDirection
+    || runtimeAuthoring.bladeWorldDirection;
+  const expectedBladeDirection = Array.isArray(expectedBladeDirectionValues)
+    ? new THREE.Vector3(...expectedBladeDirectionValues).normalize()
+    : null;
+  const expectedHiltScreen = viewGate?.bladeScreen?.hilt;
+  const expectedTipScreen = viewGate?.bladeScreen?.tip;
+  const expectedViewport = runtimeAuthoring.viewport || [986, 900];
+  const rect = canvas.getBoundingClientRect();
+  const bladeAngleDeg = expectedBladeDirection
+    ? THREE.MathUtils.radToDeg(bladeDirection.angleTo(expectedBladeDirection))
+    : Infinity;
+  const hiltScreenError = Array.isArray(expectedHiltScreen)
+    ? hiltScreen.distanceTo(new THREE.Vector2(...expectedHiltScreen))
+    : Infinity;
+  const tipScreenError = Array.isArray(expectedTipScreen)
+    ? tipScreen.distanceTo(new THREE.Vector2(...expectedTipScreen))
+    : Infinity;
+  const thresholds = {
+    bladeAngleDeg: 0.05,
+    screenPointPixels: 2,
+    viewportPixels: 0.5,
+  };
+  const checks = {
+    candidate: (attackPoseSequence.id || REQUESTED_CANDIDATE) === REQUESTED_CANDIDATE,
+    authoringGate: runtimeAuthoring.gates?.status === 'PASS'
+      && runtimeAuthoring.gates?.silhouette?.status === 'PASS',
+    viewGate: viewGate?.status === 'PASS',
+    viewport: Array.isArray(expectedViewport)
+      && Math.abs(rect.width - expectedViewport[0]) <= thresholds.viewportPixels
+      && Math.abs(rect.height - expectedViewport[1]) <= thresholds.viewportPixels,
+    bladeDirection: bladeAngleDeg <= thresholds.bladeAngleDeg,
+    hiltScreen: hiltScreenError <= thresholds.screenPointPixels,
+    tipScreen: tipScreenError <= thresholds.screenPointPixels,
+  };
+  const proof = {
+    schema: 'pose-lab-v2-crimson-runtime-authoring-proof-v1',
+    status: Object.values(checks).every(Boolean) ? 'PASS' : 'FAIL',
+    candidateId: attackPoseSequence.id || REQUESTED_CANDIDATE,
+    view: reviewCameraView,
+    expected: {
+      viewport: expectedViewport,
+      bladeWorldDirection: expectedBladeDirectionValues || null,
+      hiltScreen: expectedHiltScreen || null,
+      tipScreen: expectedTipScreen || null,
+    },
+    actual: {
+      viewport: [fixedNumber(rect.width, 2), fixedNumber(rect.height, 2)],
+      bladeWorldDirection: vectorToFixedArray(bladeDirection),
+      hiltScreen: [fixedNumber(hiltScreen.x, 2), fixedNumber(hiltScreen.y, 2)],
+      tipScreen: [fixedNumber(tipScreen.x, 2), fixedNumber(tipScreen.y, 2)],
+    },
+    errors: {
+      bladeAngleDeg: fixedNumber(bladeAngleDeg, 6),
+      hiltScreenPixels: fixedNumber(hiltScreenError, 3),
+      tipScreenPixels: fixedNumber(tipScreenError, 3),
+    },
+    thresholds,
+    checks,
+  };
+  document.body.dataset.crimsonRuntimeAuthoringStatus = proof.status;
+  document.body.dataset.crimsonRuntimeAuthoringProof = JSON.stringify(proof);
 }
 
 function alignSaberGripToWorldDirection(values) {
@@ -3873,6 +3945,7 @@ function handleTwoFingerTouch(points) {
 }
 
 function snapCamera(view) {
+  reviewCameraView = view;
   if (viewMode !== 'orbit') setViewMode('orbit');
   const focus = sabreRoot ? objectWorldPosition(sabreRoot) : new THREE.Vector3(0, 0.95, 0);
   const distance = Math.max(2.2, camera.position.distanceTo(controls.target));

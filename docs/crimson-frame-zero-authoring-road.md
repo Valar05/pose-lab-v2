@@ -17,49 +17,37 @@ The author owns the pose. The user does not animate it for us.
 ## Operating loop
 
 1. Start from branch `agent/crimson-foot-red-gate`.
-2. Import and freeze the exact `480eb888` GLB pose as the body seed; do not reconstruct its center or legs.
-3. Reset only both shoulder/arm chains, then project explicit Crimson-local elbow and wrist targets.
-4. Render and inspect the empty-handed arm checkpoint before wrist roll or sword attachment.
-5. Orient and seat the sword on a torso-scaled forearm-to-wrist palm proxy, then pin the matching left proxy to a body-scaled point on the actual oriented hilt-to-pommel segment. Never use this rig's malformed Hand tails as palm landmarks.
-6. Push the pass. The `Crimson PR Visual Evidence` workflow authors the candidate in Blender.
-7. Retrieve the `crimson-frame-zero-blender-<run-id>` artifact and inspect every same-camera old/new pair.
-8. Commit the generated candidate only when all non-parity author gates pass and the arm silhouette is materially different.
-9. Require the browser job to render that exact candidate ID, pose SHA, authored-GLB SHA, and module SHA after Blender parity passes.
+2. Freeze the accepted center, head, legs, shoulders, right upper arm, and right forearm from the exact `3d6a57a9` browser seed.
+3. Author only `RightHand`, `LeftArm`, `LeftForeArm`, and `LeftHand` in Three.js model-local space. Rotate the blade around the exact center-camera forward axis, pin the support wrist with an explicit low elbow pole, and solve hand roll last.
+4. Gate the dominant-Head mesh against the complete blade and crossguard mesh plus both visible Hand meshes in the exact 986×900 center, left, and right review cameras.
+5. Generate a deterministic one-frame GLB containing all 20 bone rotations and the keyed Hips translation. Reload it through `GLTFLoader`; require exactly 21 unique `t=0` channels and require the reconstructed pose hash to match the candidate.
+6. Run `--check` so the generated module bytes must exactly equal the committed candidate. A geometry PASS without committed-byte parity is not review evidence.
+7. Push the pass. The `Crimson PR Visual Evidence` workflow repeats runtime authoring, GLB round-trip, committed-module parity, repository tests, and the production build.
+8. The browser must render the exact candidate ID, pose SHA, and module SHA. For each review view it must also reproduce the authored blade direction and authored hilt/tip screen points before a success screenshot may be written.
+9. Retrieve `crimson-frame-zero-browser-<run-id>` and personally inspect center, left, and right screenshots. Runtime numbers can reject a frame; they cannot visually accept one.
 10. Keep the candidate `visual-pending` until explicit human approval.
 
 ## Reproduction command
 
-GitHub Actions executes the canonical render:
+GitHub Actions executes the canonical authoring check:
 
 ```bash
-blender --background --python-exit-code 1 \
-  --python tools/render_crimson_vanguard_attack1_compare_blender.py -- \
-  --out-dir generated/crimson-frame-zero/<run-id> \
-  --frames start \
-  --candidate-js src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js \
-  --candidate-id crimson-combat-ready-vanguard-frame0-4 \
-  --author-frame-zero \
-  --samples 16 \
-  --width 1600 \
-  --height 900
-
-python3 tools/stitch_crimson_vanguard_attack1_compare.py \
-  --manifest generated/crimson-frame-zero/<run-id>/manifest.json
+node tools/author_crimson_frame_zero_runtime.mjs \
+  --angle-deg -30 \
+  --check \
+  --report generated/crimson-frame-zero-runtime/<run-id>/runtime_authoring_report.json
 ```
 
-Expected artifact contents:
+Expected runtime-authority artifact contents:
 
-- `01-start.png`: Vanguard and Crimson together.
-- `01-start-reference-close-*.png`: five same-scale Vanguard reference views.
-- `01-start-crimson-close-*.png`: five matching Crimson views.
-- `contact_sheet.png`: two-column rejected/current pairs first, then the empty-handed checkpoint, shared comparison, and reference views.
-- `manifest.json`: authored inputs, joint/foot diagnostics, hashes, and status.
-- `authored_frame_zero.glb`: the exact one-frame Blender action.
-- `empty_handed_arm_checkpoint.png`: the arm silhouette before wrist roll and sword attachment.
-- `generated_candidate.js`: the exact browser candidate generated from the Blender-authored keyframe.
-- same-camera `rejected-baseline` and `current` views: direct evidence that both wrists and elbows materially moved.
+- `runtime_authoring_report.json`: exact cameras, mesh clearances, support pin, low-elbow checks, hashes, committed-module parity, and GLB round-trip proof.
+- `crimson-combat-ready-vanguard-frame0-4.authored.glb`: the deterministic 21-channel body keyframe.
+- `01-start/screenshot.png`: exact initial center orbit.
+- `02-start/screenshot.png`: exact snapped left view.
+- `03-start/screenshot.png`: exact snapped right view.
+- each browser `visual_qa_manifest.json`: candidate/application parity plus the live runtime-authoring endpoint proof for that exact view.
 
-A handoff is invalid until the local file exists, opens successfully, and visibly contains the render.
+A handoff is invalid until all three exact browser screenshots exist, open successfully, are materially different from the rejected frame, and pass independent visual review.
 
 ## Visual gate
 
@@ -82,7 +70,9 @@ Do not casually retune these after they pass:
 - calibrated heel/toe/sole contact;
 - preserved flat boot world orientation;
 - keyed Hips translation needed for crouch depth;
-- Blender glTF export as the browser-animation authority;
+- deterministic runtime-authored GLB round-trip as the body-animation authority;
+- the committed candidate module as the separate `sabreLocal` authority;
+- the exact Three.js browser render as the sword-child basis and visual authority; Blender sword parenting is diagnostic only;
 - explicit `visual-pending` acceptance state.
 - center and lower-body local transforms captured before arm authoring.
 - the rejected `480eb888` GLB hash `4e57cc6a443b6cdd0cae1177357536234e4c4e7de98069e7027af74070bd0b56` as the no-op baseline.
@@ -93,6 +83,7 @@ Do not casually retune these after they pass:
 - dominant Hand mesh landmarks (`Hand >= 0.75`, same-side `ForeArm <= 0.05`, at least 250 vertices, mean Hand weight `>= 0.95`, wrist distance `0.20–0.50` torso-height); imported Hand tails and guessed wrist offsets are explicitly outside the grip contract.
 - a dominant-Head mesh silhouette (`Head >= 0.75`) plus freshly evaluated camera matrices for every arm, hand, blade, and crossguard clearance view; `Head.tail` is explicitly outside the visual contract.
 - measured protected-body round-trip tolerances (`0.00002` position, `0.000001` sign-invariant quaternion, `0.0000002` in-memory basis) that cover Blender/glTF numeric quantization but not authored motion.
+- exact cloud review geometry: 986×900 canvas, 36° vertical FOV, center camera `(2.8, 1.75, 4.2)` toward `(0, 0.95, 0)`, with side views snapped around the runtime sword focus.
 
 ## Verdict ledger
 
@@ -114,13 +105,13 @@ Do not casually retune these after they pass:
 | `e65f62b7` | Rejected before candidate binding | Exact accepted center/lower body; every authored mesh, grip, face, blade, support-pin, reach-reserve, and bend gate passes with numeric margin | Independent geometry audit catches the support elbow `0.099` torso-height above its wrist; the far-left grip makes the documented low-elbow triangle physically unattainable, but no gate rejects it | Shift the whole guard toward the support shoulder and require both final elbows at least `0.05` torso-height below their wrists |
 | `7e349e22` | Rejected in authoring CI | Exact accepted center/lower body; right elbow reaches `0.060` torso-height below its wrist; support reach reserve improves to `0.271`; all face, blade/head, and protected-body gates pass | The three-step wrist correction exhausts its `105` degree cap before reaching the authored threat line, so the actual handle tilts down, drives the support wrist below the feasible low-elbow circle, and leaves only `0.0031` torso-height between the gauntlets | Converge the actual blade direction, raise the whole below-face guard into a feasible elbow circle, author a fresh low support pole, and seat the support surfaces with numeric margin |
 | `3d6a57a9` | Blender gates and independent visual bind gate passed | Exact accepted center/lower body; exact authored blade direction; both elbows visibly low; support palm and separated hand surfaces own the handle; face, plume, blade, crossguard, reach, and protected-body gates all pass | The committed browser candidate is intentionally stale, so exact candidate and browser application parity have not run | Bind only the artifact's byte-identical `generated_candidate.js`, then require full Blender plus browser parity before any review handoff |
-| `8e6c8e07` | Rejected for handoff; frozen for orientation calibration | Exact Blender/browser candidate identity and application parity; stable joint positions; seated two-hand grip; protected body unchanged | Browser-center close view still shows the blade meeting the plume and grazing the visor contour | Stop pose polishing. Preserve this exact payload as a measurement specimen and recover Crimson's real per-bone orientation language with signed local-axis probes |
+| `8e6c8e07` | Rejected for handoff; frozen for orientation calibration | Exact candidate ID, pose, module, channel application, stable joint positions, and seated two-hand grip | The center runtime screenshot still has the blade touching the plume and running tangent to the visor. Blender predicted blade direction `[0.875602, -0.470323, 0.110076]`; the browser rendered `[0.50903, 0.85413, 0.10653]`, proving the parented-sword basis was not portable. The legacy green checks certified a different picture. | Preserve this payload as the orientation specimen, then move frame-zero weapon/arm authorship and all three clearance cameras into the exact Three.js runtime with live hilt/tip parity |
 
 Append a row for every pass. Never rewrite a rejection into a success because a later pass improved.
 
 ## Orientation archaeology
 
-`8e6c8e07` is not accepted pose truth. It is frozen positional evidence with a known failing view. Use it to measure Crimson's own rig; do not copy Vanguard transforms and do not apply browser/glTF candidate quaternions directly to Blender `matrix_basis`.
+`8e6c8e07` is not accepted pose truth. It is frozen positional evidence with a known failing view. Its exact module bytes live at `src/review-candidates/crimson-frame-zero-8e6c8e07-orientation-specimen.js`, separate from the advancing review candidate. Use it to measure Crimson's own rig; do not copy Vanguard transforms and do not apply browser/glTF candidate quaternions directly to Blender `matrix_basis`.
 
 The canonical probe is:
 
@@ -140,9 +131,9 @@ The probe reconstructs the frozen candidate through glTF import, freezes it, the
 - preserved rejection: the browser-center blade/plume/visor collision;
 - excluded: every Vanguard quaternion, endpoint, joint coordinate, and rest delta.
 
-The next arm solve must consume the measured ledger in this order: position target, pole guidance, measured bone basis, wrist roll, then visible-mesh weapon seating. The ledger is guidance for a new solve, not permission to relabel the calibration pose as accepted.
+A future solver that crosses the Blender/glTF boundary must consume the measured ledger in this order: position target, pole guidance, measured bone basis, wrist roll, then visible-mesh weapon seating. The runtime-native frame-zero solver instead consumes the same rig truth directly from the loaded glTF bones and never assigns glTF locals as Blender `matrix_basis`. The ledger is guidance and a drift alarm, not permission to relabel the calibration pose as accepted.
 
-The first measured conversion law is deliberately explicit:
+The measured conversion law is deliberately explicit:
 
 ```text
 glTF local = parent-relative rest × Blender matrix_basis
@@ -151,6 +142,6 @@ Blender matrix_basis = inverse(parent-relative rest) × glTF local
 
 Signed local-axis deltas survive the export with an identity axis mapping to numerical tolerance. The old failure came from treating an absolute glTF local quaternion as a Blender `matrix_basis` quaternion and thereby omitting the parent-relative rest factor. Any future solver that crosses this boundary must use the measured composition law; direct assignment is a contract violation.
 
-The measured ledger is committed at `public/assets/crimson/crimson-bone-orientation-ledger.json`. `tools/crimson_orientation_space.py` is the pure-Python conversion surface, and Crimson candidate application inside the Blender renderer now uses the measured inverse formula. The committed ledger remains bound to candidate pose SHA `4db76a74...` and its rejected-for-handoff verdict.
+The measured ledger is committed at `public/assets/crimson/crimson-bone-orientation-ledger.json`. `tools/crimson_orientation_space.py` is the pure-Python conversion surface, and Crimson candidate application inside the Blender renderer uses the measured inverse formula. The committed ledger remains bound to candidate pose SHA `4db76a74...` and its rejected-for-handoff verdict.
 
 CI re-measures the ledger and compares every stable rig field against the committed copy. Only per-run `createdAt` and probe-GLB container metadata are ignored. A changed bone basis, mesh influence, bend sign, conversion residual, candidate identity, or protected-body result leaves the orientation job red until the new rig truth is reviewed and deliberately committed.

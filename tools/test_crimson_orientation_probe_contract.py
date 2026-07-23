@@ -13,7 +13,7 @@ PROBE = ROOT / "tools" / "probe_crimson_bone_orientations_blender.py"
 VALIDATOR = ROOT / "tools" / "validate_crimson_orientation_ledger.py"
 SPACE_TEST = ROOT / "tools" / "test_crimson_orientation_space.py"
 WORKFLOW = ROOT / ".github" / "workflows" / "crimson-orientation-ledger.yml"
-CANDIDATE = ROOT / "src" / "review-candidates" / "crimson-combat-ready-vanguard-frame0-4.js"
+CANDIDATE = ROOT / "src" / "review-candidates" / "crimson-frame-zero-8e6c8e07-orientation-specimen.js"
 
 
 def load_candidate() -> dict:
@@ -60,6 +60,9 @@ assert "validate_crimson_orientation_ledger.py" in workflow
 assert "actions/upload-artifact@v4" in workflow
 assert "compare_crimson_orientation_ledgers.py" in workflow
 assert "crimson-orientation-ledger-${{ github.run_id }}" in workflow
+assert "crimson-frame-zero-8e6c8e07-orientation-specimen.js" in probe
+assert "crimson-frame-zero-8e6c8e07-orientation-specimen.js" in workflow
+assert '"src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js"' not in workflow
 
 print(json.dumps({
     "ok": True,

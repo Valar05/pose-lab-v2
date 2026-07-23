@@ -4,12 +4,29 @@ const CRIMSON_FRAME0_3_REJECTED_POSE_SHA = 'b9ec44d3d17527779334e372a79894b07cbd
 const CRIMSON_FRAME0_480EB888_REJECTED_POSE_SHA = 'b5ef5555ba060546f4d6dd3921f09cf0e4251dfac8a346d4db7f4f30858bd554';
 export function crimsonFrame04ReviewStatus(sequence) {
   const source = sequence?.source || {};
+  const runtimeAuthoring = source.runtimeAuthoring || {};
+  const runtimeGates = runtimeAuthoring.gates || {};
+  const runtimeViews = runtimeGates.silhouette?.views || {};
+  const runtimeBladeDirection = runtimeAuthoring.bladeWorldDirection;
+  const gatedBladeDirection = runtimeGates.blade?.actualWorldDirection;
   const hasAuthoredPose = source.exactAuthoredGlb === true
+    && source.exactAuthoredBodyGlb === true
     && source.status === 'generated-visual-pending-candidate-parity'
     && /^[a-f0-9]{64}$/.test(source.poseSha256 || '')
     && /^[a-f0-9]{64}$/.test(source.authoredGlbSha256 || '')
     && source.poseSha256 !== CRIMSON_FRAME0_3_REJECTED_POSE_SHA
-    && source.poseSha256 !== CRIMSON_FRAME0_480EB888_REJECTED_POSE_SHA;
+    && source.poseSha256 !== CRIMSON_FRAME0_480EB888_REJECTED_POSE_SHA
+    && runtimeAuthoring.schema === 'pose-lab-v2-crimson-runtime-frame-zero-authoring-v1'
+    && runtimeAuthoring.authoredGlb?.sha256 === source.authoredGlbSha256
+    && runtimeAuthoring.authoredGlb?.animation === 'CrimsonRuntimeCombatReadyFrameZero'
+    && runtimeAuthoring.authoredGlb?.channels?.length === 21
+    && JSON.stringify(runtimeAuthoring.viewport) === JSON.stringify([986, 900])
+    && runtimeGates.status === 'PASS'
+    && runtimeGates.silhouette?.status === 'PASS'
+    && ['center', 'left', 'right'].every((view) => runtimeViews[view]?.status === 'PASS')
+    && Array.isArray(runtimeBladeDirection)
+    && runtimeBladeDirection.length === 3
+    && JSON.stringify(runtimeBladeDirection) === JSON.stringify(gatedBladeDirection);
   return hasAuthoredPose ? 'visual-pending' : 'authoring-red';
 }
 
@@ -70,7 +87,7 @@ export const ATTACK1_REVIEW_CANDIDATES = {
     module: "./review-candidates/crimson-combat-ready-vanguard-frame0-4.js",
     exportName: "CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE",
     label: CRIMSON_FRAME0_4_STATUS === "visual-pending"
-      ? "Crimson combat-ready frame zero 4 (exact authored GLB; user gate pending)"
+      ? "Crimson combat-ready frame zero 4 (runtime-authored; visual gate pending)"
       : "Crimson combat-ready frame zero 4 (authoring red: generated pose not committed)",
     characterKey: "crimson",
     status: CRIMSON_FRAME0_4_STATUS,

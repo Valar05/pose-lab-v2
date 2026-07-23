@@ -46,7 +46,7 @@ from render_crimson_vanguard_attack1_compare_blender import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_CANDIDATE = ROOT / "src" / "review-candidates" / "crimson-combat-ready-vanguard-frame0-4.js"
+DEFAULT_CANDIDATE = ROOT / "src" / "review-candidates" / "crimson-frame-zero-8e6c8e07-orientation-specimen.js"
 DEFAULT_OUT = ROOT / "generated" / "crimson-orientation-ledger" / "latest"
 SCHEMA = "pose-lab-v2-crimson-bone-orientation-ledger-v1"
 MANIFEST_SCHEMA = "pose-lab-v2-crimson-orientation-probe-manifest-v1"
