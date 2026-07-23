@@ -24,12 +24,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  render-publish-deploy:
+  render-publish:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -102,5 +99,12 @@ jobs:
         with:
           path: dist
 
+  deploy:
+    needs: render-publish
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
