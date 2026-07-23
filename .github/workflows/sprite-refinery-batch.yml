@@ -1,6 +1,17 @@
 name: Sprite Refinery Batch
 
 on:
+  push:
+    branches:
+      - agent/sprite-refinery-mvp
+    paths:
+      - .github/workflows/sprite-refinery-batch.yml
+      - authoring/sprite-refinery/**
+      - tools/sprite_refinery_*
+      - tools/test_sprite_refinery.mjs
+      - src/sprite-viewer.js
+      - src/styles.css
+      - package.json
   workflow_dispatch:
     inputs:
       manifest:
