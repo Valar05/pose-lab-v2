@@ -11,7 +11,8 @@ import sys
 from pathlib import Path
 
 import bpy
-from mathutils import Vector
+from bpy_extras import anim_utils
+from mathutils import Matrix, Vector
 
 
 SCHEMA = "pose-lab-v2-swarmling-idle-game-export-v1"
@@ -56,15 +57,68 @@ def set_pose(scene: bpy.types.Scene, frame: float) -> None:
     bpy.context.view_layer.update()
 
 
+def skeletal_slot(action: bpy.types.Action) -> tuple[object, int]:
+    candidates: list[tuple[int, object]] = []
+    for slot in getattr(action, "slots", []):
+        channelbag = anim_utils.action_get_channelbag_for_slot(action, slot)
+        curves = list(channelbag.fcurves) if channelbag else []
+        score = sum("pose.bones[" in curve.data_path for curve in curves)
+        candidates.append((score, slot))
+    if not candidates:
+        raise RuntimeError(f"Action {action.name!r} exposes no assignable slots")
+    score, slot = max(candidates, key=lambda item: item[0])
+    if score <= 0:
+        raise RuntimeError(f"Action {action.name!r} has no skeletal action slot")
+    return slot, score
+
+
+def restore_basis(
+    armature: bpy.types.Object,
+    basis: dict[str, Matrix],
+) -> None:
+    for name, matrix in basis.items():
+        armature.pose.bones[name].matrix_basis = matrix.copy()
+
+
+def apply_test_idle(
+    armature: bpy.types.Object,
+    basis: dict[str, Matrix],
+    index: int,
+    frame_count: int,
+) -> None:
+    """Add bounded breathing to the source's static Idle pose only."""
+    restore_basis(armature, basis)
+    phase = math.tau * index / frame_count
+    breath = math.sin(phase)
+    secondary = math.sin(phase * 2.0) * 0.2
+    rotations = {
+        "Spine01": math.radians(0.45) * breath,
+        "Spine02": math.radians(0.7) * breath,
+        "Head": math.radians(-0.35) * breath + math.radians(0.08) * secondary,
+    }
+    for name, angle in rotations.items():
+        bone = armature.pose.bones.get(name)
+        if bone is not None:
+            bone.matrix_basis = bone.matrix_basis @ Matrix.Rotation(angle, 4, "X")
+    chest = armature.pose.bones.get("Spine02")
+    if chest is not None:
+        chest.scale.z *= 1.0 + 0.004 * breath
+    bpy.context.view_layer.update()
+
+
 def sampled_bounds(
     scene: bpy.types.Scene,
+    armature: bpy.types.Object,
     meshes: list[bpy.types.Object],
     frames: list[float],
+    authored_basis: dict[str, Matrix] | None,
 ) -> tuple[Vector, Vector]:
     low = Vector((math.inf, math.inf, math.inf))
     high = Vector((-math.inf, -math.inf, -math.inf))
-    for frame in frames:
+    for index, frame in enumerate(frames):
         set_pose(scene, frame)
+        if authored_basis is not None:
+            apply_test_idle(armature, authored_basis, index, len(frames))
         for mesh in meshes:
             for point in evaluated_vertices(mesh):
                 for axis in range(3):
@@ -155,21 +209,38 @@ def main() -> None:
         )
 
     armature = armatures[0]
-    armature.animation_data_create()
-    armature.animation_data.action = action
+    animation_data = armature.animation_data_create()
+    animation_data.use_nla = False
+    animation_data.action = action
+    action_slot, skeletal_curves = skeletal_slot(action)
+    animation_data.action_slot = action_slot
     action_start, action_end = (float(value) for value in action.frame_range)
-    if action_end <= action_start:
-        raise RuntimeError(f"Idle action has invalid frame range {action.frame_range[:]}")
     source_fps = float(scene.render.fps) / float(scene.render.fps_base)
-    duration_seconds = (action_end - action_start) / source_fps
-    render_frames = [
-        action_start + (action_end - action_start) * index / args.frame_count
-        for index in range(args.frame_count)
-    ]
+    authored_test_idle = action_end <= action_start
+    if authored_test_idle:
+        duration_seconds = 1.0
+        render_frames = [action_start] * args.frame_count
+        set_pose(scene, action_start)
+        authored_basis = {
+            bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
+        }
+    else:
+        duration_seconds = (action_end - action_start) / source_fps
+        render_frames = [
+            action_start + (action_end - action_start) * index / args.frame_count
+            for index in range(args.frame_count)
+        ]
+        authored_basis = None
     armature_matrix = flatten_matrix(armature.matrix_world)
     mesh_matrices = {obj.name: flatten_matrix(obj.matrix_world) for obj in meshes}
 
-    low, high = sampled_bounds(scene, meshes, render_frames)
+    low, high = sampled_bounds(
+        scene,
+        armature,
+        meshes,
+        render_frames,
+        authored_basis,
+    )
     camera = make_locked_camera(scene, low, high, args.width / args.height)
     configure_render(scene, args.width, args.height, args.frame_count / duration_seconds)
     camera_matrix = flatten_matrix(camera.matrix_world)
@@ -184,6 +255,13 @@ def main() -> None:
     records: list[dict[str, object]] = []
     for index, source_frame in enumerate(render_frames):
         set_pose(scene, source_frame)
+        if authored_basis is not None:
+            apply_test_idle(
+                armature,
+                authored_basis,
+                index,
+                len(render_frames),
+            )
         if flatten_matrix(armature.matrix_world) != armature_matrix:
             raise RuntimeError(f"Armature object transform changed at sample {index}")
         for mesh in meshes:
@@ -224,11 +302,18 @@ def main() -> None:
             "assetSha256": sha256(blend),
             "actionRequested": args.action,
             "actionResolved": action.name,
+            "actionSlot": action_slot.identifier,
+            "skeletalCurves": skeletal_curves,
             "actionFrameRange": [round(action_start, 6), round(action_end, 6)],
             "sourceFps": source_fps,
             "durationSeconds": round(duration_seconds, 8),
-            "samplePolicy": "six uniform native loop samples; terminal duplicate excluded",
-            "animationModified": False,
+            "samplePolicy": (
+                "six-phase authored breathing loop from one immutable source pose"
+                if authored_test_idle
+                else "six uniform native loop samples; terminal duplicate excluded"
+            ),
+            "nativeActionStatic": authored_test_idle,
+            "animationModified": authored_test_idle,
         },
         "output": {
             "width": args.width,
@@ -247,8 +332,21 @@ def main() -> None:
             "armatureMatrixWorld": armature_matrix,
             "meshMatricesWorld": mesh_matrices,
             "retargeting": False,
-            "poseAuthoring": False,
-            "animationModifications": [],
+            "poseAuthoring": (
+                "bounded-test-idle-from-static-source"
+                if authored_test_idle
+                else False
+            ),
+            "animationModifications": (
+                [
+                    "Spine01 local-X rotation <= 0.45 degrees",
+                    "Spine02 local-X rotation <= 0.7 degrees",
+                    "Spine02 local-Z scale <= 0.4 percent",
+                    "Head local-X rotation <= 0.43 degrees",
+                ]
+                if authored_test_idle
+                else []
+            ),
         },
         "frames": records,
         "verification": {"status": "PENDING", "failures": []},

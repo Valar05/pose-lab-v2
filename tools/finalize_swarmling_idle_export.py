@@ -50,7 +50,12 @@ def main() -> None:
 
     if metadata.get("schema") != SCHEMA:
         failures.append("wrong metadata schema")
-    if metadata.get("source", {}).get("animationModified") is not False:
+    source = metadata.get("source", {})
+    authored_test_idle = source.get("nativeActionStatic") is True
+    if authored_test_idle:
+        if source.get("animationModified") is not True:
+            failures.append("static Idle test does not declare its authored motion")
+    elif source.get("animationModified") is not False:
         failures.append("native Idle animation was modified")
     contract = metadata.get("contract", {})
     if contract.get("cameraType") != "ORTHO":
@@ -59,8 +64,13 @@ def main() -> None:
         failures.append("camera view is not world_pos_x")
     if contract.get("facing") != "screen-left":
         failures.append("Swarmling is not declared screen-left")
-    if contract.get("animationModifications") != []:
-        failures.append("animation modifications must remain empty")
+    if authored_test_idle:
+        if contract.get("poseAuthoring") != "bounded-test-idle-from-static-source":
+            failures.append("authored test Idle contract is missing")
+        if not contract.get("animationModifications"):
+            failures.append("authored test Idle modifications are not enumerated")
+    elif contract.get("animationModifications") != []:
+        failures.append("native animation modifications must remain empty")
     records = metadata.get("frames", [])
     if len(records) != 6:
         failures.append(f"expected six frames, found {len(records)}")
@@ -128,6 +138,8 @@ def main() -> None:
     frames_dir.mkdir(parents=True, exist_ok=True)
     for stale in frames_dir.glob("idle_*.png"):
         stale.unlink()
+    total_duration_ms = round(float(source["durationSeconds"]) * 1000.0)
+    base_duration_ms, duration_remainder = divmod(total_duration_ms, len(records))
     manifest_frames = []
     for index, record in enumerate(records):
         source = root / record["image"]
@@ -136,7 +148,10 @@ def main() -> None:
         manifest_frames.append(
             {
                 "src": f"idle/frames/{destination.name}",
-                "durationMs": max(1, round(float(record["frameDurationMs"]))),
+                "durationMs": max(
+                    1,
+                    base_duration_ms + (1 if index < duration_remainder else 0),
+                ),
                 "sha256": sha256(destination),
             }
         )
@@ -167,7 +182,11 @@ def main() -> None:
             "camera": "fixed",
         },
         "authority": {
-            "poseCameraFacingTiming": "Swarmling.blend native Idle action",
+            "poseCameraFacingTiming": (
+                "Swarmling.blend static Idle pose plus bounded authored breathing test"
+                if authored_test_idle
+                else "Swarmling.blend native Idle action"
+            ),
             "appearance": "current source materials; concept skin pending",
             "excluded": [
                 "bitmap mirroring",
@@ -187,7 +206,11 @@ def main() -> None:
                 "groundGuideY": min(511, ground_y),
                 "contract": [
                     "screen-left",
-                    "native Idle geometry",
+                    (
+                        "static source Idle stance with enumerated breathing motion"
+                        if authored_test_idle
+                        else "native Idle geometry"
+                    ),
                     "world_pos_x",
                     "fixed camera",
                     "six uniform samples",
