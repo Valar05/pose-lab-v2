@@ -272,7 +272,15 @@ def verify_roundtrip(
                 raise RuntimeError(f"BVH round trip lost {name}")
             imported_world = imported.matrix_world @ imported_bone.matrix
             error = matrix_error(imported_world, original_world)
-            errors.append({"frame": frame, "bone": name, **error})
+            errors.append({
+                "frame": frame,
+                "bone": name,
+                **error,
+                "expectedPosition": list(original_world.translation),
+                "actualPosition": list(imported_world.translation),
+                "expectedRotation": list(original_world.to_quaternion()),
+                "actualRotation": list(imported_world.to_quaternion()),
+            })
     return {
         "maxPositionError": max(entry["position"] for entry in errors),
         "maxRotationErrorDeg": max(entry["rotationDeg"] for entry in errors),
@@ -475,6 +483,16 @@ def main() -> None:
     proxy.hide_render = True
     canonical = import_bvh(bvh_path)
     roundtrip = verify_roundtrip(canonical, sampled, source_proxy_world)
+    (out / "roundtrip.json").write_text(
+        json.dumps(
+            {
+                "importedObjectMatrix": [list(row) for row in canonical.matrix_world],
+                "result": roundtrip,
+            },
+            indent=2,
+        )
+        + "\n"
+    )
     if roundtrip["maxPositionError"] > 0.002 or roundtrip["maxRotationErrorDeg"] > 0.25:
         raise RuntimeError(
             "BVH round trip exceeded tolerance: "
