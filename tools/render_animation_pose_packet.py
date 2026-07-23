@@ -196,6 +196,7 @@ def lock_camera(
     x = lower.x - distance if side == "left" else upper.x + distance
     camera.location = Vector((x, center.y, center.z))
     camera.rotation_euler = (center - camera.location).to_track_quat("-Z", "Y").to_euler()
+    bpy.context.view_layer.update()
 
 
 def flatten_matrix(matrix: object) -> list[float]:
