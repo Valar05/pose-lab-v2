@@ -2,6 +2,14 @@ name: Sprite Visual QA
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/sprite-visual-qa.yml
+      - package.json
+      - tools/register_vanguard_attack1_frames.py
+      - tools/test_vanguard_attack1_registration.py
+      - tools/test_sprite_review_surface.mjs
+      - public/assets/vanguard/fleshpunk/**
   push:
     branches:
       - agent/vanguard-native-contact-sheet
@@ -15,6 +23,7 @@ on:
       - src/styles.css
       - tools/capture_sprite_review.mjs
       - tools/test_sprite_review_surface.mjs
+      - tools/test_vanguard_attack1_registration.py
       - public/fixtures/vanguard-refinery/visual-qa/**
       - public/assets/vanguard/fleshpunk/**
 
@@ -38,6 +47,7 @@ jobs:
         run: google-chrome --version
       - name: Verify and build 2D review
         run: |
+          npm run test:vanguard-attack1-registration
           npm run test:2d
           npm run build
           npm run smoke

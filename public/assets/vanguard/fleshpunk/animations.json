@@ -16,8 +16,8 @@
     "excluded": [
       "Crimson model",
       "bitmap mirroring",
-      "per-frame reframing",
-      "stabilization",
+      "generator-authored per-frame reframing",
+      "pose-aware stabilization",
       "invented in-betweens"
     ]
   },
@@ -74,75 +74,131 @@
       "loop": true,
       "contactSheet": "swordattack1/contact-sheet.png",
       "sourceMetadata": "swordattack1/source-metadata.json",
-      "groundGuideY": 384,
+      "groundGuideY": 385,
       "contract": [
         "screen-right",
         "native SwordAttack1 geometry",
         "fixed camera",
-        "appearance edit only"
+        "appearance edit only",
+        "source-derived rigid Y-only canvas registration"
       ],
       "frames": [
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0000.png",
           "durationMs": 50,
-          "sha256": "0e19158efaed6ce81f72216e36928d872694bfa08eaf0bba88fed3a4735b5651"
+          "sha256": "0e19158efaed6ce81f72216e36928d872694bfa08eaf0bba88fed3a4735b5651",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0001.png",
           "durationMs": 50,
-          "sha256": "e3686a7bf0e7829ffa95acb4391af793d1f77e38c9caa7af4b04795fa58849ef"
+          "sha256": "e3686a7bf0e7829ffa95acb4391af793d1f77e38c9caa7af4b04795fa58849ef",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0002.png",
           "durationMs": 50,
-          "sha256": "5027d8758fd2f7244c4f518718e8633d9b6403de1a5675c59b4ebba6fbfa828e"
+          "sha256": "5027d8758fd2f7244c4f518718e8633d9b6403de1a5675c59b4ebba6fbfa828e",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0003.png",
           "durationMs": 50,
-          "sha256": "2d2fdef357a6e90527d455743a24604be6b3ef84fbb5d3846da52e14bb970e5d"
+          "sha256": "2d2fdef357a6e90527d455743a24604be6b3ef84fbb5d3846da52e14bb970e5d",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0004.png",
           "durationMs": 50,
-          "sha256": "f3f91cb7f2c2e6e06da49d3821d7f2c73f281fb2b22ebdeb0d38f6106f88e286"
+          "sha256": "64aa04280fa88c746c0de7c0f4a85a8243aaed73fcda58998fdccb1a4a2e882b",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0005.png",
           "durationMs": 50,
-          "sha256": "3fef1a252d1c71db3c55340ce4b2517edb1fb0d4dc047c0965a461a5e48eec78"
+          "sha256": "2ae81c167ddf031c4ca1134933f69eb066464c21e6e6c8d059f07875cf970b83",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0006.png",
           "durationMs": 50,
-          "sha256": "7226135aa9195cd98c6d5f6e908f8e71b3a2f43e98f823e7f5c7f54f3708da1d"
+          "sha256": "35514f39562151d302944a50f123eef9c8e36944dbfe50549c77c1651c932a56",
+          "pivot": {
+            "y": 400,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0007.png",
           "durationMs": 50,
-          "sha256": "168fe729a2926113fa5ca3133a79588ea4d346e4562eef221a4954124b262340"
+          "sha256": "b5ddc51d0850c00a09f37d0fbd8d7ccffafa1569e5ce8a24de825004e1dec3ae",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0008.png",
           "durationMs": 70,
-          "sha256": "b25c4a12d6def9b23165fef78b6402a0c3f8fedbe7271ef0f7754add49c05a67"
+          "sha256": "5d64e7be94df658bbddd505a8fcda3f50cdd2ec243761c9d755caad672ee010f",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0009.png",
           "durationMs": 80,
-          "sha256": "2612ad96c08ed3893ecc62a46b8994d8ab0e03395f118248fcd9b4eb22082bd9"
+          "sha256": "92ff62a6c51b6a097f6661960431cdb3417e5d1079384708066b632476f1a77e",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0010.png",
           "durationMs": 80,
-          "sha256": "23e9392f2ae96a2c3382b37b53ff88749493ff5ce1d41ac88bdd4e9dfcb6026c"
+          "sha256": "fce9d899c53d215cd6980062ff9972f62405f96195960640471dd35cc808967e",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         },
         {
           "src": "swordattack1/frames/fleshpunk-vanguard-swordattack1-screen-right_0011.png",
           "durationMs": 120,
-          "sha256": "5df2785576d97229fe8a872bc20ace00d582e16988ca4eb8abe67ee7997cc6f6"
+          "sha256": "685b15ef795b1077345a16b8ef26c31bf2bba2adc5782ea2815bdb16ffaafda3",
+          "pivot": {
+            "y": 385,
+            "kind": "native-source-envelope-bottom"
+          }
         }
-      ]
+      ],
+      "registration": {
+        "schema": "pose-lab-v2-source-envelope-registration-v1",
+        "axis": "y",
+        "referenceFrame": 0,
+        "sourceToFleshpunkOffsetPx": 47,
+        "tolerancePx": 0
+      }
     }
   ]
 }
