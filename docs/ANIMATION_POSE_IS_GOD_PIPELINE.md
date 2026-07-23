@@ -99,7 +99,7 @@ back into generation.
 - changed camera matrix or orthographic scale;
 - missing or changed frame/pass bytes;
 - missing projected joints or weapon endpoints;
-- changed grid size or frame correspondence.
+- changed grid aspect ratio or frame correspondence.
 
 It can also validate a generated sheet's exact grid dimensions:
 
