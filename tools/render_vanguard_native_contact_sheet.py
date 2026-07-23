@@ -161,17 +161,17 @@ def aim_camera(
 
 def set_workbench_style(scene: bpy.types.Scene, mesh_objects: list[bpy.types.Object]) -> None:
     scene.render.engine = "BLENDER_WORKBENCH"
-    scene.display.shading.light = "STUDIO"
-    scene.display.shading.color_type = "MATERIAL"
-    scene.display.shading.show_shadows = True
-    scene.display.shading.show_cavity = True
-    scene.display.shading.cavity_type = "WORLD"
+    scene.display.shading.light = "FLAT"
+    scene.display.shading.color_type = "OBJECT"
+    scene.display.shading.show_shadows = False
+    scene.display.shading.show_cavity = False
     scene.display.shading.background_type = "VIEWPORT"
     scene.display.shading.background_color = (0.018, 0.025, 0.032)
     scene.render.film_transparent = False
     for obj in mesh_objects:
         is_sword = "sword" in obj.name.lower()
-        color = (0.42, 0.46, 0.50, 1.0) if is_sword else (0.72, 0.82, 0.86, 1.0)
+        color = (0.92, 0.94, 0.97, 1.0) if is_sword else (0.66, 0.75, 0.82, 1.0)
+        obj.color = color
         for slot in obj.material_slots:
             if slot.material:
                 slot.material.diffuse_color = color
