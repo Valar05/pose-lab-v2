@@ -102,7 +102,7 @@
       "frame": 0,
       "sourceFrame": 1.0,
       "image": "idle_0000.png",
-      "imageSha256": "c7907ee44daf91891e9524194f2ce851d6d38a58fba7e055c927cd4621020579",
+      "imageSha256": "3a3b0fc0d4184dea28a06dca1e3b81e6bd313be26aaee748e3f1006b62a2b06c",
       "frameDurationMs": 166.666667,
       "cameraMatrixWorld": [
         -4.4e-08,
@@ -166,7 +166,7 @@
       "frame": 1,
       "sourceFrame": 1.0,
       "image": "idle_0001.png",
-      "imageSha256": "9c35aa5e7195ff35a2e6f6b711a290826291661198243c445a31272abedb237d",
+      "imageSha256": "442c2af2aaedc5ce0c7a2e81e630f3ddea6fe51aef642ccab150ac6fc8d9628a",
       "frameDurationMs": 166.666667,
       "cameraMatrixWorld": [
         -4.4e-08,
@@ -230,7 +230,7 @@
       "frame": 2,
       "sourceFrame": 1.0,
       "image": "idle_0002.png",
-      "imageSha256": "9c35aa5e7195ff35a2e6f6b711a290826291661198243c445a31272abedb237d",
+      "imageSha256": "442c2af2aaedc5ce0c7a2e81e630f3ddea6fe51aef642ccab150ac6fc8d9628a",
       "frameDurationMs": 166.666667,
       "cameraMatrixWorld": [
         -4.4e-08,
@@ -294,7 +294,7 @@
       "frame": 3,
       "sourceFrame": 1.0,
       "image": "idle_0003.png",
-      "imageSha256": "c8ae7b3121cbb5b5a8954a9667cf5354b179baa44c15d449315e191fda5d0f6b",
+      "imageSha256": "dabd29ffce3f61be72b1190fd7983e545d5b48276cfe9f7d09d9387e143ebe83",
       "frameDurationMs": 166.666667,
       "cameraMatrixWorld": [
         -4.4e-08,
@@ -358,7 +358,7 @@
       "frame": 4,
       "sourceFrame": 1.0,
       "image": "idle_0004.png",
-      "imageSha256": "c8ae7b3121cbb5b5a8954a9667cf5354b179baa44c15d449315e191fda5d0f6b",
+      "imageSha256": "e1832d884ed59ea57e2b499a1dfe10a85d1b874a0e3a7046bc047142d8b12e43",
       "frameDurationMs": 166.666667,
       "cameraMatrixWorld": [
         -4.4e-08,
@@ -422,7 +422,7 @@
       "frame": 5,
       "sourceFrame": 1.0,
       "image": "idle_0005.png",
-      "imageSha256": "c8ae7b3121cbb5b5a8954a9667cf5354b179baa44c15d449315e191fda5d0f6b",
+      "imageSha256": "456179a2e375ce893689cbb55c1ef72ca2e9076b2d225034c7e264faba875e1b",
       "frameDurationMs": 166.666667,
       "cameraMatrixWorld": [
         -4.4e-08,
