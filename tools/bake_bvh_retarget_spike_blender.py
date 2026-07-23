@@ -270,8 +270,8 @@ def verify_roundtrip(
             imported_bone = imported.pose.bones.get(name)
             if imported_bone is None:
                 raise RuntimeError(f"BVH round trip lost {name}")
-            original_proxy = source_proxy_world.inverted() @ original_world
-            error = matrix_error(imported_bone.matrix, original_proxy)
+            imported_world = imported.matrix_world @ imported_bone.matrix
+            error = matrix_error(imported_world, original_world)
             errors.append({"frame": frame, "bone": name, **error})
     return {
         "maxPositionError": max(entry["position"] for entry in errors),
