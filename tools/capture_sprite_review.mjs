@@ -8,6 +8,7 @@ function parseArgs(argv) {
   const args = {
     url: 'http://127.0.0.1:4173/',
     outDir: 'generated/sprite-review',
+    batchFixture: null,
   };
   for (let index = 2; index < argv.length; index += 1) {
     const argument = argv[index];
@@ -15,6 +16,8 @@ function parseArgs(argv) {
     else if (argument.startsWith('--url=')) args.url = argument.slice('--url='.length);
     else if (argument === '--out-dir') args.outDir = argv[++index] || args.outDir;
     else if (argument.startsWith('--out-dir=')) args.outDir = argument.slice('--out-dir='.length);
+    else if (argument === '--batch-fixture') args.batchFixture = argv[++index] || args.batchFixture;
+    else if (argument.startsWith('--batch-fixture=')) args.batchFixture = argument.slice('--batch-fixture='.length);
     else throw new Error(`unknown argument: ${argument}`);
   }
   return args;
@@ -29,7 +32,7 @@ function browserLaunchOptions() {
   return {
     ...(channel ? { channel } : {}),
     headless: true,
-    args: ['--no-sandbox', '--disable-dev-shm-usage'],
+    args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
   };
 }
 
@@ -59,6 +62,17 @@ async function inspect(page) {
   });
 }
 
+async function inspectBatch(page) {
+  return page.evaluate(() => ({
+    title: document.querySelector('[data-batch-title]')?.textContent || '',
+    batchStates: [...document.querySelectorAll('[data-batch-clips] [role="listitem"]')].map((row) => ({
+      clip: row.querySelector('h4')?.textContent || '',
+      state: row.querySelector('.sprite-state-badge')?.textContent?.toLowerCase() || '',
+      evidenceLinks: [...row.querySelectorAll('a')].map((link) => ({ label: link.textContent, href: link.href })),
+    })),
+  }));
+}
+
 const args = parseArgs(process.argv);
 const outDir = path.resolve(args.outDir);
 await fs.mkdir(outDir, { recursive: true });
@@ -81,12 +95,16 @@ try {
     const url = new URL(args.url);
     url.searchParams.set('view', '2d');
     url.searchParams.set('animation', animation);
+    if (args.batchFixture) url.searchParams.set('batch', args.batchFixture);
     await page.goto(url.href, { waitUntil: 'domcontentloaded', timeout: 120000 });
     await page.waitForFunction(() => document.body.dataset.reviewReady === '1', null, { timeout: 120000 });
     await page.waitForFunction(() => {
       const image = document.querySelector('[data-current-frame]');
       return image?.complete && image.naturalWidth === 512 && image.naturalHeight === 512;
     }, null, { timeout: 120000 });
+    if (args.batchFixture) {
+      await page.waitForFunction(() => !document.querySelector('[data-batch-panel]')?.hidden, null, { timeout: 120000 });
+    }
     if ((await page.locator('[data-play]').textContent()) === 'Pause') {
       await page.locator('[data-play]').click();
     }
@@ -130,6 +148,27 @@ try {
         inspection: deltaInspection,
       },
     });
+
+    if (args.batchFixture && !report.batchEvidence) {
+      const batchInspection = await inspectBatch(page);
+      const states = batchInspection.batchStates.map(({ state }) => state);
+      if (!states.some((state) => state === 'ready') || !states.some((state) => state === 'red')) {
+        throw new Error(`batch fixture must visibly contain READY and RED states; got ${states.join(', ')}`);
+      }
+      if (batchInspection.batchStates.some(({ evidenceLinks }) => evidenceLinks.length === 0)) {
+        throw new Error('each batch fixture clip must expose at least one evidence link');
+      }
+      const panel = page.locator('[data-batch-panel]');
+      await panel.scrollIntoViewIfNeeded();
+      const batchPath = path.join(outDir, 'batch-ready-red.png');
+      const batchBytes = await panel.screenshot({ path: batchPath });
+      report.batchEvidence = {
+        path: batchPath,
+        sha256: sha256(batchBytes),
+        fixture: args.batchFixture,
+        inspection: batchInspection,
+      };
+    }
   }
   report.pageErrors = pageErrors;
   if (pageErrors.length) throw new Error(`browser page errors: ${pageErrors.join('; ')}`);

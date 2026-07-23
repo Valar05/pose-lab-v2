@@ -1,0 +1,8 @@
+{
+  "schema": "vanguard-chatgpt-work-packet-v1",
+  "batchId": "hosted-visual-qa-fixture",
+  "clipId": "idle-native-sample",
+  "attemptId": "attempt-001",
+  "state": "ready",
+  "fixture": true
+}

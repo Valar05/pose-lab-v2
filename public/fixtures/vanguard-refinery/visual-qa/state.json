@@ -1,0 +1,21 @@
+{
+  "schema": "vanguard-sprite-refinery-state-v1",
+  "batchId": "hosted-visual-qa-fixture",
+  "updatedAt": "2026-07-23T00:00:00Z",
+  "clips": {
+    "idle-native-sample": {
+      "state": "ready",
+      "workPacket": "idle-work-packet.json",
+      "attempts": {}
+    },
+    "swordattack1-native-sample": {
+      "state": "red",
+      "attempts": {
+        "attempt-001": {
+          "state": "red",
+          "provenance": "swordattack1-rejection.json"
+        }
+      }
+    }
+  }
+}

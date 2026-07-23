@@ -36,6 +36,9 @@ const manifest = JSON.parse(read(manifestPath).toString('utf8'));
 const viewer = read('src/sprite-viewer.js').toString('utf8');
 const html = read('index.html').toString('utf8');
 const css = read('src/styles.css').toString('utf8');
+const capture = read('tools/capture_sprite_review.mjs').toString('utf8');
+const workflow = read('.github/workflows/sprite-visual-qa.yml').toString('utf8');
+const batchFixturePath = 'public/fixtures/vanguard-refinery/visual-qa/state.json';
 
 assert(manifest.schema === 'pose-lab-v2-2d-animation-set-v1', '2D manifest schema must be stable');
 assert(manifest.character === 'Fleshpunk Vanguard', '2D manifest must identify Fleshpunk Vanguard');
@@ -86,6 +89,17 @@ assert(viewer.includes("document.body.dataset.reviewReady = '1'"), '2D review mu
 assert(viewer.includes("URL_PARAMS.get('batch')") && viewer.includes('data-batch-clips'), '2D review must expose refinery batch and clip state');
 assert(viewer.includes("status.setAttribute('aria-label'") && viewer.includes("role = 'listitem'"), 'batch evidence state must be labeled for assistive technology');
 assert(viewer.includes("link.target = '_blank'") && viewer.includes('attempt.provenance'), 'batch review must link work packet and attempt evidence');
+assert(fs.existsSync(path.join(root, batchFixturePath)), 'hosted visual QA refinery batch fixture is missing');
+if (fs.existsSync(path.join(root, batchFixturePath))) {
+  const batchFixture = JSON.parse(read(batchFixturePath).toString('utf8'));
+  assert(batchFixture.schema === 'vanguard-sprite-refinery-state-v1', 'visual QA fixture must use the refinery state schema');
+  assert(Object.values(batchFixture.clips || {}).some((clip) => clip.state === 'ready'), 'visual QA fixture must include a READY clip');
+  assert(Object.values(batchFixture.clips || {}).some((clip) => clip.state === 'red'), 'visual QA fixture must include a RED clip');
+}
+assert(capture.includes("url.searchParams.set('batch'") && capture.includes('batchStates'), 'capture must explicitly load and report batch evidence');
+assert(capture.includes("state === 'ready'") && capture.includes("state === 'red'"), 'capture must assert visible READY and RED clip states');
+assert(capture.includes('evidenceLinks'), 'capture report must preserve batch evidence links');
+assert(workflow.includes('--batch-fixture') && workflow.includes(batchFixturePath.replace(/^public/, '')), 'hosted Sprite Visual QA must pass the explicit refinery fixture');
 assert(css.includes('.sprite-stage.checker') && css.includes('.sprite-frame-strip'), '2D review styles are incomplete');
 
 const swarmlingManifestPath = 'public/assets/swarmling/fleshpunk/animations.json';

@@ -15,6 +15,7 @@ on:
       - src/styles.css
       - tools/capture_sprite_review.mjs
       - tools/test_sprite_review_surface.mjs
+      - public/fixtures/vanguard-refinery/visual-qa/**
       - public/assets/vanguard/fleshpunk/**
 
 permissions:
@@ -41,7 +42,7 @@ jobs:
           npm run build
           npm run smoke
           git diff --check
-      - name: Capture Idle and SwordAttack1
+      - name: Capture Idle, SwordAttack1, and refinery READY/RED evidence
         env:
           PLAYWRIGHT_CHROME_CHANNEL: chrome
         run: |
@@ -64,7 +65,8 @@ jobs:
           '
           node tools/capture_sprite_review.mjs \
             --url http://127.0.0.1:4173/ \
-            --out-dir generated/sprite-review
+            --out-dir generated/sprite-review \
+            --batch-fixture /fixtures/vanguard-refinery/visual-qa/state.json
       - uses: actions/upload-artifact@v4
         with:
           name: sprite-visual-evidence-${{ github.run_id }}

@@ -1,0 +1,11 @@
+{
+  "schema": "vanguard-refinery-attempt-v1",
+  "batchId": "hosted-visual-qa-fixture",
+  "clipId": "swordattack1-native-sample",
+  "attemptId": "attempt-001",
+  "state": "red",
+  "fixture": true,
+  "rejection": {
+    "reason": "fixture-only visible rejection state"
+  }
+}
