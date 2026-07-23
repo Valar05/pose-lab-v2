@@ -7,8 +7,13 @@ on:
       - "tools/probe_crimson_bone_orientations_blender.py"
       - "tools/validate_crimson_orientation_ledger.py"
       - "tools/test_crimson_orientation_probe_contract.py"
+      - "tools/crimson_orientation_space.py"
+      - "tools/test_crimson_orientation_space.py"
+      - "tools/render_crimson_vanguard_attack1_compare_blender.py"
       - "src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js"
       - "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb"
+      - "public/assets/crimson/crimson-bone-orientation-ledger.json"
+      - "public/assets/crimson/crimson_manifest.json"
       - ".github/workflows/crimson-orientation-ledger.yml"
   workflow_dispatch:
 
@@ -25,7 +30,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y blender python3-numpy
       - name: Verify repository probe contract
-        run: python3 tools/test_crimson_orientation_probe_contract.py
+        run: |
+          python3 tools/test_crimson_orientation_probe_contract.py
+          python3 tools/validate_crimson_orientation_ledger.py \
+            public/assets/crimson/crimson-bone-orientation-ledger.json
+          python3 tools/test_crimson_orientation_space.py
       - name: Measure Crimson bone orientations
         run: |
           blender --background --python-exit-code 1 \

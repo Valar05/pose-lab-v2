@@ -150,3 +150,5 @@ Blender matrix_basis = inverse(parent-relative rest) × glTF local
 ```
 
 Signed local-axis deltas survive the export with an identity axis mapping to numerical tolerance. The old failure came from treating an absolute glTF local quaternion as a Blender `matrix_basis` quaternion and thereby omitting the parent-relative rest factor. Any future solver that crosses this boundary must use the measured composition law; direct assignment is a contract violation.
+
+The measured ledger is committed at `public/assets/crimson/crimson-bone-orientation-ledger.json`. `tools/crimson_orientation_space.py` is the pure-Python conversion surface, and Crimson candidate application inside the Blender renderer now uses the measured inverse formula. The committed ledger remains bound to candidate pose SHA `4db76a74...` and its rejected-for-handoff verdict.

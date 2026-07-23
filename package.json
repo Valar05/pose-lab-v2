@@ -73,11 +73,12 @@
     "test:crimson-light-attack1:quarantine": "node tools/test_crimson_light_attack_quarantine.mjs",
     "test:crimson-light-attack1:geometry": "node tools/test_crimson_light_attack_v4_geometry.mjs",
     "test:guardrails": "npm run test:repo-guardrails",
-    "test:repo-guardrails": "npm run smoke && npm run test:crimson-model-viewer-constraints && npm run test:crimson-review-surface && npm run test:crimson-review-assets && npm run test:crimson-visual-evidence-promotion && npm run test:saber-transform-interaction && npm run test:crimson-light-attack1 && npm run test:crimson-light-attack1:quarantine && npm run test:crimson-light-attack1:geometry && npm run test:crimson-manual-keyframe && npm run test:crimson-frame-zero-pose-hashes && npm run test:crimson-frame-zero-parity && npm run test:crimson-orientation-probe-contract",
+    "test:repo-guardrails": "npm run smoke && npm run test:crimson-model-viewer-constraints && npm run test:crimson-review-surface && npm run test:crimson-review-assets && npm run test:crimson-visual-evidence-promotion && npm run test:saber-transform-interaction && npm run test:crimson-light-attack1 && npm run test:crimson-light-attack1:quarantine && npm run test:crimson-light-attack1:geometry && npm run test:crimson-manual-keyframe && npm run test:crimson-frame-zero-pose-hashes && npm run test:crimson-frame-zero-parity && npm run test:crimson-orientation-probe-contract && npm run test:crimson-orientation-space",
     "test:external-integration": "npm run test:learning-packet && npm run test:cloud-worker-surface && npm run test:crimson-cloud-visual-gate",
     "test:crimson-manual-keyframe": "node tools/test_crimson_manual_keyframe_authoring.mjs",
     "test:crimson-frame-zero-parity": "node tools/test_crimson_frame_zero_parity.mjs",
     "test:crimson-frame-zero-pose-hashes": "python3 tools/test_crimson_frame_zero_pose_hashes.py",
-    "test:crimson-orientation-probe-contract": "python3 tools/test_crimson_orientation_probe_contract.py"
+    "test:crimson-orientation-probe-contract": "python3 tools/test_crimson_orientation_probe_contract.py",
+    "test:crimson-orientation-space": "python3 tools/validate_crimson_orientation_ledger.py public/assets/crimson/crimson-bone-orientation-ledger.json && python3 tools/test_crimson_orientation_space.py"
   }
 }

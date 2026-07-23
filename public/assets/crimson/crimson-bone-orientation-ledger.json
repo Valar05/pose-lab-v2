@@ -1,0 +1,4924 @@
+{
+  "schema": "pose-lab-v2-crimson-bone-orientation-ledger-v1",
+  "createdAt": "2026-07-23T00:29:44.508934+00:00",
+  "status": "PASS",
+  "classification": "calibration-measurement-not-pose-acceptance",
+  "rig": {
+    "character": "crimson",
+    "sourceGlb": "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb",
+    "sourceGlbSha256": "f5d8995cc3bd0ce4c705ed092b6333e4f63782df5b3afe7f3d414ac8973f739e"
+  },
+  "calibrationSpecimen": {
+    "candidateId": "crimson-combat-ready-vanguard-frame0-4",
+    "candidatePath": "src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js",
+    "candidateModuleSha256": "75cf9d9e6516fa3af5750b8c5cd1879977fe87f599dd4f7445aeb4011eec7bdc",
+    "poseSha256": "4db76a74b24d56411d6429c0c5f35bbe77bedbe92bda086d65a162aaea0ab41a",
+    "authoredGlbSha256": "d20a0f8f8f82b94ffbf0b96a10e4aa1326c6915f7346abc29385c89bcc8d734b",
+    "exactAuthoredGlb": true,
+    "visualVerdict": "REJECTED_FOR_HANDOFF_MEASUREMENT_WORTHY",
+    "rejectedBecause": "browser-center blade line meets the plume and grazes the visor contour"
+  },
+  "authority": {
+    "positionTruth": "frozen Crimson candidate reconstructed by glTF import",
+    "orientationTruth": "isolated signed Blender local-axis probes measured after Blender glTF export",
+    "bendGuidance": "inferred from calibration shoulder-elbow-wrist positions and labeled as inference",
+    "crossRigPoseInputs": []
+  },
+  "probe": {
+    "degrees": 5.0,
+    "axes": [
+      "X",
+      "Y",
+      "Z"
+    ],
+    "signs": [
+      "plus",
+      "minus"
+    ],
+    "sampleCount": 49,
+    "schedule": [
+      {
+        "frame": 1,
+        "key": "baseline",
+        "bone": null,
+        "axis": null,
+        "sign": 0
+      },
+      {
+        "frame": 2,
+        "key": "LeftShoulder.X.plus",
+        "bone": "LeftShoulder",
+        "axis": "X",
+        "sign": 1.0
+      },
+      {
+        "frame": 3,
+        "key": "LeftShoulder.X.minus",
+        "bone": "LeftShoulder",
+        "axis": "X",
+        "sign": -1.0
+      },
+      {
+        "frame": 4,
+        "key": "LeftShoulder.Y.plus",
+        "bone": "LeftShoulder",
+        "axis": "Y",
+        "sign": 1.0
+      },
+      {
+        "frame": 5,
+        "key": "LeftShoulder.Y.minus",
+        "bone": "LeftShoulder",
+        "axis": "Y",
+        "sign": -1.0
+      },
+      {
+        "frame": 6,
+        "key": "LeftShoulder.Z.plus",
+        "bone": "LeftShoulder",
+        "axis": "Z",
+        "sign": 1.0
+      },
+      {
+        "frame": 7,
+        "key": "LeftShoulder.Z.minus",
+        "bone": "LeftShoulder",
+        "axis": "Z",
+        "sign": -1.0
+      },
+      {
+        "frame": 8,
+        "key": "LeftArm.X.plus",
+        "bone": "LeftArm",
+        "axis": "X",
+        "sign": 1.0
+      },
+      {
+        "frame": 9,
+        "key": "LeftArm.X.minus",
+        "bone": "LeftArm",
+        "axis": "X",
+        "sign": -1.0
+      },
+      {
+        "frame": 10,
+        "key": "LeftArm.Y.plus",
+        "bone": "LeftArm",
+        "axis": "Y",
+        "sign": 1.0
+      },
+      {
+        "frame": 11,
+        "key": "LeftArm.Y.minus",
+        "bone": "LeftArm",
+        "axis": "Y",
+        "sign": -1.0
+      },
+      {
+        "frame": 12,
+        "key": "LeftArm.Z.plus",
+        "bone": "LeftArm",
+        "axis": "Z",
+        "sign": 1.0
+      },
+      {
+        "frame": 13,
+        "key": "LeftArm.Z.minus",
+        "bone": "LeftArm",
+        "axis": "Z",
+        "sign": -1.0
+      },
+      {
+        "frame": 14,
+        "key": "LeftForeArm.X.plus",
+        "bone": "LeftForeArm",
+        "axis": "X",
+        "sign": 1.0
+      },
+      {
+        "frame": 15,
+        "key": "LeftForeArm.X.minus",
+        "bone": "LeftForeArm",
+        "axis": "X",
+        "sign": -1.0
+      },
+      {
+        "frame": 16,
+        "key": "LeftForeArm.Y.plus",
+        "bone": "LeftForeArm",
+        "axis": "Y",
+        "sign": 1.0
+      },
+      {
+        "frame": 17,
+        "key": "LeftForeArm.Y.minus",
+        "bone": "LeftForeArm",
+        "axis": "Y",
+        "sign": -1.0
+      },
+      {
+        "frame": 18,
+        "key": "LeftForeArm.Z.plus",
+        "bone": "LeftForeArm",
+        "axis": "Z",
+        "sign": 1.0
+      },
+      {
+        "frame": 19,
+        "key": "LeftForeArm.Z.minus",
+        "bone": "LeftForeArm",
+        "axis": "Z",
+        "sign": -1.0
+      },
+      {
+        "frame": 20,
+        "key": "LeftHand.X.plus",
+        "bone": "LeftHand",
+        "axis": "X",
+        "sign": 1.0
+      },
+      {
+        "frame": 21,
+        "key": "LeftHand.X.minus",
+        "bone": "LeftHand",
+        "axis": "X",
+        "sign": -1.0
+      },
+      {
+        "frame": 22,
+        "key": "LeftHand.Y.plus",
+        "bone": "LeftHand",
+        "axis": "Y",
+        "sign": 1.0
+      },
+      {
+        "frame": 23,
+        "key": "LeftHand.Y.minus",
+        "bone": "LeftHand",
+        "axis": "Y",
+        "sign": -1.0
+      },
+      {
+        "frame": 24,
+        "key": "LeftHand.Z.plus",
+        "bone": "LeftHand",
+        "axis": "Z",
+        "sign": 1.0
+      },
+      {
+        "frame": 25,
+        "key": "LeftHand.Z.minus",
+        "bone": "LeftHand",
+        "axis": "Z",
+        "sign": -1.0
+      },
+      {
+        "frame": 26,
+        "key": "RightShoulder.X.plus",
+        "bone": "RightShoulder",
+        "axis": "X",
+        "sign": 1.0
+      },
+      {
+        "frame": 27,
+        "key": "RightShoulder.X.minus",
+        "bone": "RightShoulder",
+        "axis": "X",
+        "sign": -1.0
+      },
+      {
+        "frame": 28,
+        "key": "RightShoulder.Y.plus",
+        "bone": "RightShoulder",
+        "axis": "Y",
+        "sign": 1.0
+      },
+      {
+        "frame": 29,
+        "key": "RightShoulder.Y.minus",
+        "bone": "RightShoulder",
+        "axis": "Y",
+        "sign": -1.0
+      },
+      {
+        "frame": 30,
+        "key": "RightShoulder.Z.plus",
+        "bone": "RightShoulder",
+        "axis": "Z",
+        "sign": 1.0
+      },
+      {
+        "frame": 31,
+        "key": "RightShoulder.Z.minus",
+        "bone": "RightShoulder",
+        "axis": "Z",
+        "sign": -1.0
+      },
+      {
+        "frame": 32,
+        "key": "RightArm.X.plus",
+        "bone": "RightArm",
+        "axis": "X",
+        "sign": 1.0
+      },
+      {
+        "frame": 33,
+        "key": "RightArm.X.minus",
+        "bone": "RightArm",
+        "axis": "X",
+        "sign": -1.0
+      },
+      {
+        "frame": 34,
+        "key": "RightArm.Y.plus",
+        "bone": "RightArm",
+        "axis": "Y",
+        "sign": 1.0
+      },
+      {
+        "frame": 35,
+        "key": "RightArm.Y.minus",
+        "bone": "RightArm",
+        "axis": "Y",
+        "sign": -1.0
+      },
+      {
+        "frame": 36,
+        "key": "RightArm.Z.plus",
+        "bone": "RightArm",
+        "axis": "Z",
+        "sign": 1.0
+      },
+      {
+        "frame": 37,
+        "key": "RightArm.Z.minus",
+        "bone": "RightArm",
+        "axis": "Z",
+        "sign": -1.0
+      },
+      {
+        "frame": 38,
+        "key": "RightForeArm.X.plus",
+        "bone": "RightForeArm",
+        "axis": "X",
+        "sign": 1.0
+      },
+      {
+        "frame": 39,
+        "key": "RightForeArm.X.minus",
+        "bone": "RightForeArm",
+        "axis": "X",
+        "sign": -1.0
+      },
+      {
+        "frame": 40,
+        "key": "RightForeArm.Y.plus",
+        "bone": "RightForeArm",
+        "axis": "Y",
+        "sign": 1.0
+      },
+      {
+        "frame": 41,
+        "key": "RightForeArm.Y.minus",
+        "bone": "RightForeArm",
+        "axis": "Y",
+        "sign": -1.0
+      },
+      {
+        "frame": 42,
+        "key": "RightForeArm.Z.plus",
+        "bone": "RightForeArm",
+        "axis": "Z",
+        "sign": 1.0
+      },
+      {
+        "frame": 43,
+        "key": "RightForeArm.Z.minus",
+        "bone": "RightForeArm",
+        "axis": "Z",
+        "sign": -1.0
+      },
+      {
+        "frame": 44,
+        "key": "RightHand.X.plus",
+        "bone": "RightHand",
+        "axis": "X",
+        "sign": 1.0
+      },
+      {
+        "frame": 45,
+        "key": "RightHand.X.minus",
+        "bone": "RightHand",
+        "axis": "X",
+        "sign": -1.0
+      },
+      {
+        "frame": 46,
+        "key": "RightHand.Y.plus",
+        "bone": "RightHand",
+        "axis": "Y",
+        "sign": 1.0
+      },
+      {
+        "frame": 47,
+        "key": "RightHand.Y.minus",
+        "bone": "RightHand",
+        "axis": "Y",
+        "sign": -1.0
+      },
+      {
+        "frame": 48,
+        "key": "RightHand.Z.plus",
+        "bone": "RightHand",
+        "axis": "Z",
+        "sign": 1.0
+      },
+      {
+        "frame": 49,
+        "key": "RightHand.Z.minus",
+        "bone": "RightHand",
+        "axis": "Z",
+        "sign": -1.0
+      }
+    ],
+    "exportedGlb": {
+      "path": "crimson_orientation_probes.glb",
+      "sha256": "0ea77fa89eb452d2c2af50fe3c9d92fb130f07132ce48b0d1952a03be0f949d0",
+      "action": "CrimsonBoneOrientationProbeV1"
+    }
+  },
+  "protectedBody": {
+    "maximumRotationDeltaDegrees": 0.0,
+    "perBoneMaximumRotationDeltaDegrees": {
+      "Head": 0.0,
+      "Hips": 0.0,
+      "LeftFoot": 0.0,
+      "LeftLeg": 0.0,
+      "LeftUpLeg": 0.0,
+      "RightFoot": 0.0,
+      "RightLeg": 0.0,
+      "RightUpLeg": 0.0,
+      "Spine": 0.0,
+      "Spine01": 0.0,
+      "Spine02": 0.0,
+      "neck": 0.0
+    },
+    "thresholdDegrees": 0.001
+  },
+  "bones": {
+    "LeftShoulder": {
+      "rest": {
+        "parent": "Spine",
+        "children": [
+          "LeftArm"
+        ],
+        "length": 1244.24804688,
+        "rollBasis": {
+          "axis": "local +Y aim axis",
+          "zeroAuthority": "parentRelativeRest.quaternion",
+          "note": "rest roll is encoded by the full parent-relative basis; no context-free scalar roll is claimed"
+        },
+        "parentRelativeRest": {
+          "translation": [
+            3.0927012,
+            3.03015542,
+            -0.71235693
+          ],
+          "quaternion": [
+            0.54032892,
+            0.6212706,
+            -0.43166214,
+            0.36842278
+          ],
+          "matrix": [
+            [
+              -0.14461863,
+              0.9894492,
+              -0.00869863,
+              3.0927012
+            ],
+            [
+              0.35331252,
+              0.04342493,
+              -0.93449676,
+              3.03015542
+            ],
+            [
+              -0.92425948,
+              -0.13821903,
+              -0.35586482,
+              -0.71235693
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "localAimAxis": [
+          0.0,
+          1.0,
+          1e-08
+        ],
+        "localAxesInArmature": {
+          "X": [
+            -0.138689,
+            0.99033606,
+            -3e-07
+          ],
+          "Y": [
+            0.990336,
+            0.13868906,
+            1e-08
+          ],
+          "Z": [
+            5e-08,
+            -2.4e-07,
+            -1.0
+          ]
+        }
+      },
+      "calibration": {
+        "headWorld": [
+          0.0509765,
+          -0.1169508,
+          1.14540291
+        ],
+        "tailWorld": [
+          12.42496204,
+          -1.07727802,
+          0.2636064
+        ],
+        "aimWorld": [
+          0.99449509,
+          -0.07718133,
+          -0.07086983
+        ],
+        "worldQuaternion": [
+          -0.72934228,
+          -0.6679914,
+          -0.08155085,
+          0.12327569
+        ]
+      },
+      "meshInfluence": {
+        "objects": [
+          "CrimsonPlumeKnight_Mesh"
+        ],
+        "weightedVertexCount": 708,
+        "strongVertexCount": 278,
+        "dominantVertexCount": 31,
+        "weightSum": 181.00456183,
+        "weightedCentroidWorld": [
+          0.12375408,
+          -0.0921171,
+          1.15855944
+        ],
+        "boundsWorld": {
+          "min": [
+            -0.09234842,
+            -0.23636636,
+            0.9483946
+          ],
+          "max": [
+            0.22744206,
+            0.04793,
+            1.3622005
+          ]
+        }
+      },
+      "bendGuidance": null,
+      "gltfRoundTrip": {
+        "baselineExportedQuaternion": [
+          0.54032898,
+          0.62127078,
+          -0.43166193,
+          0.36842257
+        ],
+        "blenderLocalToGltfLocalAxisMatrix": [
+          [
+            1.0,
+            6.8e-07,
+            0.0
+          ],
+          [
+            -6.8e-07,
+            1.0,
+            3.4e-07
+          ],
+          [
+            0.0,
+            1.37e-06,
+            1.0
+          ]
+        ],
+        "blenderLocalToGltfLocalQuaternion": [
+          2.6e-07,
+          0.0,
+          -3.4e-07,
+          1.0
+        ],
+        "determinant": 1.0,
+        "orthogonality": {
+          "XY": 0.0,
+          "XZ": 0.0,
+          "YZ": 1.71e-06
+        },
+        "responses": {
+          "X": {
+            "plus": {
+              "exportedDeltaAxis": [
+                1.0,
+                -6.8e-07,
+                0.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -1.0,
+                3.4e-07,
+                1.37e-06
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          },
+          "Y": {
+            "plus": {
+              "exportedDeltaAxis": [
+                6.8e-07,
+                1.0,
+                1.37e-06
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                0.0,
+                -1.0,
+                6.8e-07
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "signedPairDot": -1.0
+          },
+          "Z": {
+            "plus": {
+              "exportedDeltaAxis": [
+                0.0,
+                3.4e-07,
+                1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -6.8e-07,
+                1.37e-06,
+                -1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          }
+        },
+        "baselineBlenderMatrixBasisQuaternion": [
+          -9e-08,
+          4.2e-07,
+          -6e-08,
+          1.0
+        ],
+        "baselineQuaternionAngularDifferenceDegrees": 136.763241,
+        "blenderBasisToGltf": {
+          "formula": "gltfLocal = parentRelativeRest * blenderMatrixBasis",
+          "inverseFormula": "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal",
+          "composedQuaternion": [
+            0.54032898,
+            0.6212709,
+            -0.43166187,
+            0.36842254
+          ],
+          "compositionResidualDegrees": 0.0,
+          "maximumResidualDegrees": 0.001
+        }
+      },
+      "positiveRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              0.05097648,
+              -0.1169508,
+              1.14540291
+            ],
+            "tailWorld": [
+              12.32827377,
+              -0.76047027,
+              -0.77008736
+            ],
+            "aimWorld": [
+              0.98672444,
+              -0.05171956,
+              -0.15394765
+            ],
+            "worldQuaternion": [
+              -0.72327089,
+              -0.67091274,
+              -0.05233587,
+              0.15497184
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -2e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -0.09668827,
+              0.31680775,
+              -1.03369379
+            ],
+            "aimWorldDelta": [
+              -0.00777066,
+              0.02546177,
+              -0.08307782
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00041344,
+              0.00161138,
+              -0.00528252
+            ],
+            "distance": 0.00553828
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              0.05097648,
+              -0.1169508,
+              1.14540291
+            ],
+            "tailWorld": [
+              12.42495918,
+              -1.0772773,
+              0.26360619
+            ],
+            "aimWorld": [
+              0.99449503,
+              -0.07718129,
+              -0.07086986
+            ],
+            "worldQuaternion": [
+              -0.72509092,
+              -0.6619783,
+              -0.1132867,
+              0.15229574
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -2e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -2.86e-06,
+              7.2e-07,
+              -2.1e-07
+            ],
+            "aimWorldDelta": [
+              -6e-08,
+              4e-08,
+              -3e-08
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              7.667e-05,
+              -0.00074606,
+              0.00188851
+            ],
+            "distance": 0.00203198
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              0.05097648,
+              -0.1169508,
+              1.14540291
+            ],
+            "tailWorld": [
+              12.27563953,
+              -2.10847831,
+              -0.04063904
+            ],
+            "aimWorld": [
+              0.98249424,
+              -0.16005877,
+              -0.09532201
+            ],
+            "worldQuaternion": [
+              -0.75778544,
+              -0.63554215,
+              -0.07609604,
+              0.12671559
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -2e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -0.14932251,
+              -1.03120029,
+              -0.30424544
+            ],
+            "aimWorldDelta": [
+              -0.01200086,
+              -0.08287743,
+              -0.02445218
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00124676,
+              -0.00550286,
+              -0.00172031
+            ],
+            "distance": 0.00589875
+          }
+        }
+      },
+      "negativeRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              0.05097648,
+              -0.1169508,
+              1.14540291
+            ],
+            "tailWorld": [
+              12.42747211,
+              -1.38677573,
+              1.30401087
+            ],
+            "aimWorld": [
+              0.99469703,
+              -0.10205564,
+              0.0127473
+            ],
+            "worldQuaternion": [
+              -0.7340253,
+              -0.66379839,
+              -0.11061062,
+              0.09134492
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -2e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              0.00251007,
+              -0.30949771,
+              1.04040444
+            ],
+            "aimWorldDelta": [
+              0.00020194,
+              -0.02487431,
+              0.08361714
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -6.748e-05,
+              -0.00157202,
+              0.00531304
+            ],
+            "distance": 0.00554114
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              0.05097648,
+              -0.1169508,
+              1.14540291
+            ],
+            "tailWorld": [
+              12.42495918,
+              -1.0772773,
+              0.26360619
+            ],
+            "aimWorld": [
+              0.99449503,
+              -0.07718129,
+              -0.07086986
+            ],
+            "worldQuaternion": [
+              -0.73220527,
+              -0.67273277,
+              -0.04965978,
+              0.09402101
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -2e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -2.86e-06,
+              7.2e-07,
+              -2.1e-07
+            ],
+            "aimWorldDelta": [
+              -6e-08,
+              4e-08,
+              -3e-08
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -9.365e-05,
+              0.00057921,
+              -0.00194478
+            ],
+            "distance": 0.00203136
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              0.05097648,
+              -0.1169508,
+              1.14540291
+            ],
+            "tailWorld": [
+              12.48010731,
+              -0.03876771,
+              0.57456243
+            ],
+            "aimWorld": [
+              0.9989273,
+              0.00628356,
+              -0.04587836
+            ],
+            "worldQuaternion": [
+              -0.69951069,
+              -0.6991691,
+              -0.08685047,
+              0.1196012
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -2e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              0.05514526,
+              1.03851032,
+              0.31095603
+            ],
+            "aimWorldDelta": [
+              0.0044322,
+              0.08346489,
+              0.02499148
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00174408,
+              0.00537125,
+              0.00170672
+            ],
+            "distance": 0.00589958
+          }
+        }
+      }
+    },
+    "LeftArm": {
+      "rest": {
+        "parent": "LeftShoulder",
+        "children": [
+          "LeftForeArm"
+        ],
+        "length": 2265.61499023,
+        "rollBasis": {
+          "axis": "local +Y aim axis",
+          "zeroAuthority": "parentRelativeRest.quaternion",
+          "note": "rest roll is encoded by the full parent-relative basis; no context-free scalar roll is claimed"
+        },
+        "parentRelativeRest": {
+          "translation": [
+            -1.504e-05,
+            12.442626,
+            -2.802e-05
+          ],
+          "quaternion": [
+            0.42423964,
+            0.48779231,
+            0.2301781,
+            0.72739083
+          ],
+          "matrix": [
+            [
+              0.41815338,
+              0.07902277,
+              0.90493262,
+              -1.504e-05
+            ],
+            [
+              0.74874055,
+              0.53407758,
+              -0.39261782,
+              12.442626
+            ],
+            [
+              -0.51432997,
+              0.84173417,
+              0.16415879,
+              -2.802e-05
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "localAimAxis": [
+          1e-08,
+          1.0,
+          1e-08
+        ],
+        "localAxesInArmature": {
+          "X": [
+            0.68351144,
+            0.51795465,
+            0.51432985
+          ],
+          "Y": [
+            0.51795673,
+            0.15232962,
+            -0.84173429
+          ],
+          "Z": [
+            -0.51432776,
+            0.84173554,
+            -0.16415906
+          ]
+        }
+      },
+      "calibration": {
+        "headWorld": [
+          0.17471772,
+          -0.12655444,
+          1.136585
+        ],
+        "tailWorld": [
+          -4.28461409,
+          -0.32831642,
+          -21.07544327
+        ],
+        "aimWorld": [
+          -0.19682665,
+          -0.0089054,
+          -0.98039782
+        ],
+        "worldQuaternion": [
+          -0.6839354,
+          -0.05269306,
+          0.19153334,
+          0.70197642
+        ]
+      },
+      "meshInfluence": {
+        "objects": [
+          "CrimsonPlumeKnight_Mesh"
+        ],
+        "weightedVertexCount": 479,
+        "strongVertexCount": 372,
+        "dominantVertexCount": 202,
+        "weightSum": 277.18910266,
+        "weightedCentroidWorld": [
+          0.16591424,
+          -0.11176486,
+          1.05071723
+        ],
+        "boundsWorld": {
+          "min": [
+            0.05859905,
+            -0.19300981,
+            0.87912858
+          ],
+          "max": [
+            0.22744206,
+            0.02546676,
+            1.22397542
+          ]
+        }
+      },
+      "bendGuidance": {
+        "status": "INFERRED",
+        "authority": "inferred-from-calibration-positions-not-anatomical-metadata",
+        "elbowPlaneNormalWorld": [
+          -0.61351871,
+          0.78110331,
+          0.11607078
+        ],
+        "elbowPlaneNormalInCurrentBoneLocal": [
+          -0.32057941,
+          5.37e-06,
+          0.9472217
+        ],
+        "preferredBendAxis": {
+          "axis": "Z",
+          "sign": 1,
+          "alignment": 0.94722158
+        },
+        "twistAxis": {
+          "source": "measured-local-aim-axis",
+          "axis": "Y"
+        }
+      },
+      "gltfRoundTrip": {
+        "baselineExportedQuaternion": [
+          0.55990821,
+          0.26694947,
+          0.49928993,
+          0.60493833
+        ],
+        "blenderLocalToGltfLocalAxisMatrix": [
+          [
+            1.0,
+            3.4e-07,
+            6.8e-07
+          ],
+          [
+            -1.37e-06,
+            1.0,
+            -6.8e-07
+          ],
+          [
+            -3.4e-07,
+            7.17e-06,
+            1.0
+          ]
+        ],
+        "blenderLocalToGltfLocalQuaternion": [
+          1.96e-06,
+          2.6e-07,
+          -4.3e-07,
+          1.0
+        ],
+        "determinant": 1.0,
+        "orthogonality": {
+          "XY": 1.02e-06,
+          "XZ": 3.4e-07,
+          "YZ": 6.49e-06
+        },
+        "responses": {
+          "X": {
+            "plus": {
+              "exportedDeltaAxis": [
+                1.0,
+                -1.37e-06,
+                -3.4e-07
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -1.0,
+                -2.05e-06,
+                3.42e-06
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "signedPairDot": -1.0
+          },
+          "Y": {
+            "plus": {
+              "exportedDeltaAxis": [
+                3.4e-07,
+                1.0,
+                7.17e-06
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                1.02e-06,
+                -1.0,
+                5.47e-06
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          },
+          "Z": {
+            "plus": {
+              "exportedDeltaAxis": [
+                6.8e-07,
+                -6.8e-07,
+                1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -6.8e-07,
+                -1.37e-06,
+                -1.0
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "signedPairDot": -1.0
+          }
+        },
+        "baselineBlenderMatrixBasisQuaternion": [
+          -0.03147056,
+          -0.01796771,
+          0.38380373,
+          0.92270339
+        ],
+        "baselineQuaternionAngularDifferenceDegrees": 86.66378977,
+        "blenderBasisToGltf": {
+          "formula": "gltfLocal = parentRelativeRest * blenderMatrixBasis",
+          "inverseFormula": "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal",
+          "composedQuaternion": [
+            0.55990821,
+            0.26694947,
+            0.49928987,
+            0.60493839
+          ],
+          "compositionResidualDegrees": 0.0,
+          "maximumResidualDegrees": 0.001
+        }
+      },
+      "positiveRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              0.17471771,
+              -0.12655444,
+              1.136585
+            ],
+            "tailWorld": [
+              -4.93106079,
+              1.52864194,
+              -20.87458992
+            ],
+            "aimWorld": [
+              -0.22535963,
+              0.07305731,
+              -0.97153258
+            ],
+            "worldQuaternion": [
+              -0.65266472,
+              -0.04428829,
+              0.19364959,
+              0.73114109
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -0.6464467,
+              1.85695839,
+              0.20085335
+            ],
+            "aimWorldDelta": [
+              -0.02853298,
+              0.0819627,
+              0.00886524
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00226304,
+              0.00675844,
+              0.00117099
+            ],
+            "distance": 0.00722281
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              0.17471771,
+              -0.12655444,
+              1.136585
+            ],
+            "tailWorld": [
+              -4.28462791,
+              -0.32832116,
+              -21.07544136
+            ],
+            "aimWorld": [
+              -0.19682726,
+              -0.00890561,
+              -0.9803977
+            ],
+            "worldQuaternion": [
+              -0.69163901,
+              -0.02202288,
+              0.16151845,
+              0.70360661
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -1.383e-05,
+              -4.74e-06,
+              1.91e-06
+            ],
+            "aimWorldDelta": [
+              -6.1e-07,
+              -2.1e-07,
+              1.2e-07
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00068183,
+              -0.00071412,
+              -0.00013125
+            ],
+            "distance": 0.00099604
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              0.17471771,
+              -0.12655444,
+              1.136585
+            ],
+            "tailWorld": [
+              -6.0864172,
+              -1.0008539,
+              -20.61965942
+            ],
+            "aimWorld": [
+              -0.27635497,
+              -0.03858997,
+              -0.96028054
+            ],
+            "worldQuaternion": [
+              -0.68558288,
+              -0.02281001,
+              0.22197089,
+              0.69295365
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -1.80180311,
+              -0.67253745,
+              0.45578384
+            ],
+            "aimWorldDelta": [
+              -0.07952832,
+              -0.02968457,
+              0.02011728
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00678244,
+              -0.0024741,
+              0.00079739
+            ],
+            "distance": 0.00726351
+          }
+        }
+      },
+      "negativeRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              0.17471771,
+              -0.12655444,
+              1.136585
+            ],
+            "tailWorld": [
+              -3.60423946,
+              -2.18374157,
+              -21.1072464
+            ],
+            "aimWorld": [
+              -0.16679618,
+              -0.09080043,
+              -0.98180157
+            ],
+            "worldQuaternion": [
+              -0.7139042,
+              -0.06099723,
+              0.18905279,
+              0.67147535
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              0.68037462,
+              -1.85542512,
+              -0.03180313
+            ],
+            "aimWorldDelta": [
+              0.03003047,
+              -0.08189502,
+              -0.00140375
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00239986,
+              -0.00678961,
+              -0.00055683
+            ],
+            "distance": 0.00722276
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              0.17471771,
+              -0.12655444,
+              1.136585
+            ],
+            "tailWorld": [
+              -4.28462124,
+              -0.32831892,
+              -21.07543945
+            ],
+            "aimWorld": [
+              -0.19682699,
+              -0.00890551,
+              -0.9803977
+            ],
+            "worldQuaternion": [
+              -0.67492986,
+              -0.08326258,
+              0.22118403,
+              0.69900978
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -7.15e-06,
+              -2.5e-06,
+              3.81e-06
+            ],
+            "aimWorldDelta": [
+              -3.4e-07,
+              -1.1e-07,
+              1.2e-07
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00074065,
+              0.00065086,
+              0.00014246
+            ],
+            "distance": 0.00099623
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              0.17471771,
+              -0.12655444,
+              1.136585
+            ],
+            "tailWorld": [
+              -2.44888091,
+              0.34575456,
+              -21.36217308
+            ],
+            "aimWorld": [
+              -0.11580079,
+              0.02084685,
+              -0.99305362
+            ],
+            "worldQuaternion": [
+              -0.68098599,
+              -0.08247561,
+              0.16073136,
+              0.7096628
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              1.83573318,
+              0.67407095,
+              -0.28672981
+            ],
+            "aimWorldDelta": [
+              0.08102586,
+              0.02975225,
+              -0.01265579
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00683442,
+              0.00245316,
+              -0.00016749
+            ],
+            "distance": 0.00726329
+          }
+        }
+      }
+    },
+    "LeftForeArm": {
+      "rest": {
+        "parent": "LeftArm",
+        "children": [
+          "LeftHand"
+        ],
+        "length": 2216.30249023,
+        "rollBasis": {
+          "axis": "local +Y aim axis",
+          "zeroAuthority": "parentRelativeRest.quaternion",
+          "note": "rest roll is encoded by the full parent-relative basis; no context-free scalar roll is claimed"
+        },
+        "parentRelativeRest": {
+          "translation": [
+            0.00018418,
+            22.65600395,
+            -5.698e-05
+          ],
+          "quaternion": [
+            -0.15894891,
+            -0.10057504,
+            -0.00347366,
+            0.98214453
+          ],
+          "matrix": [
+            [
+              0.97974515,
+              0.03879583,
+              -0.19645411,
+              0.00018418
+            ],
+            [
+              0.02514928,
+              0.94944656,
+              0.31292033,
+              22.65600395
+            ],
+            [
+              0.19866271,
+              -0.31152284,
+              0.92923981,
+              -5.698e-05
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "localAimAxis": [
+          1.2e-07,
+          1.0,
+          1e-08
+        ],
+        "localAxesInArmature": {
+          "X": [
+            0.5805155,
+            0.67851597,
+            0.45013088
+          ],
+          "Y": [
+            0.67851442,
+            -0.09749654,
+            -0.72808838
+          ],
+          "Z": [
+            -0.45013332,
+            0.72808695,
+            -0.51698112
+          ]
+        }
+      },
+      "calibration": {
+        "headWorld": [
+          0.13012657,
+          -0.12857209,
+          0.91446567
+        ],
+        "tailWorld": [
+          -16.72338867,
+          -13.95859814,
+          4.90052891
+        ],
+        "aimWorld": [
+          -0.76043415,
+          -0.62401366,
+          0.17985201
+        ],
+        "worldQuaternion": [
+          -0.7134546,
+          0.39502984,
+          0.55044478,
+          0.17873037
+        ]
+      },
+      "meshInfluence": {
+        "objects": [
+          "CrimsonPlumeKnight_Mesh"
+        ],
+        "weightedVertexCount": 265,
+        "strongVertexCount": 210,
+        "dominantVertexCount": 135,
+        "weightSum": 175.25979194,
+        "weightedCentroidWorld": [
+          0.04620894,
+          -0.18879659,
+          0.93145609
+        ],
+        "boundsWorld": {
+          "min": [
+            -0.10968646,
+            -0.31380007,
+            0.84901017
+          ],
+          "max": [
+            0.17081366,
+            -0.07910424,
+            0.99651891
+          ]
+        }
+      },
+      "bendGuidance": {
+        "status": "INFERRED",
+        "authority": "inferred-from-calibration-positions-not-anatomical-metadata",
+        "elbowPlaneNormalWorld": [
+          -0.61351871,
+          0.78110331,
+          0.11607078
+        ],
+        "elbowPlaneNormalInCurrentBoneLocal": [
+          -0.44441199,
+          -3.4e-06,
+          0.89582253
+        ],
+        "preferredBendAxis": {
+          "axis": "Z",
+          "sign": 1,
+          "alignment": 0.89582253
+        },
+        "twistAxis": {
+          "source": "measured-local-aim-axis",
+          "axis": "Y"
+        }
+      },
+      "gltfRoundTrip": {
+        "baselineExportedQuaternion": [
+          -0.27392232,
+          0.04690112,
+          0.65993524,
+          0.69803464
+        ],
+        "blenderLocalToGltfLocalAxisMatrix": [
+          [
+            1.0,
+            -7.7e-07,
+            6e-07
+          ],
+          [
+            3.4e-07,
+            1.0,
+            -1.02e-06
+          ],
+          [
+            3.2e-07,
+            -8.8e-07,
+            1.0
+          ]
+        ],
+        "blenderLocalToGltfLocalQuaternion": [
+          4e-08,
+          7e-08,
+          2.8e-07,
+          1.0
+        ],
+        "determinant": 1.0,
+        "orthogonality": {
+          "XY": 4.3e-07,
+          "XZ": 9.2e-07,
+          "YZ": 1.9e-06
+        },
+        "responses": {
+          "X": {
+            "plus": {
+              "exportedDeltaAxis": [
+                1.0,
+                3.4e-07,
+                3.2e-07
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -1.0,
+                6.8e-07,
+                -6.92e-06
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          },
+          "Y": {
+            "plus": {
+              "exportedDeltaAxis": [
+                -7.7e-07,
+                1.0,
+                -8.8e-07
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -1.71e-06,
+                -1.0,
+                3.4e-07
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          },
+          "Z": {
+            "plus": {
+              "exportedDeltaAxis": [
+                6e-07,
+                -1.02e-06,
+                1.0
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -4.3e-07,
+                -1.02e-06,
+                -1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          }
+        },
+        "baselineBlenderMatrixBasisQuaternion": [
+          -0.0918694,
+          0.01042103,
+          0.68558115,
+          0.72210103
+        ],
+        "baselineQuaternionAngularDifferenceDegrees": 21.68706639,
+        "blenderBasisToGltf": {
+          "formula": "gltfLocal = parentRelativeRest * blenderMatrixBasis",
+          "inverseFormula": "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal",
+          "composedQuaternion": [
+            -0.27392235,
+            0.04690111,
+            0.65993524,
+            0.69803464
+          ],
+          "compositionResidualDegrees": 0.0,
+          "maximumResidualDegrees": 0.001
+        }
+      },
+      "positiveRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              0.13012654,
+              -0.12857208,
+              0.91446567
+            ],
+            "tailWorld": [
+              -17.90366364,
+              -12.57330704,
+              4.24766636
+            ],
+            "aimWorld": [
+              -0.81368846,
+              -0.56150907,
+              0.15039472
+            ],
+            "worldQuaternion": [
+              -0.70497948,
+              0.41866389,
+              0.53268993,
+              0.20968068
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -3e-08,
+              1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -1.18027496,
+              1.3852911,
+              -0.65286255
+            ],
+            "aimWorldDelta": [
+              -0.05325431,
+              0.06250459,
+              -0.02945729
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00508042,
+              0.00687525,
+              -0.00317132
+            ],
+            "distance": 0.00911795
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              0.13012654,
+              -0.12857208,
+              0.91446567
+            ],
+            "tailWorld": [
+              -16.72338295,
+              -13.95859909,
+              4.90052843
+            ],
+            "aimWorld": [
+              -0.76043403,
+              -0.62401378,
+              0.17985202
+            ],
+            "worldQuaternion": [
+              -0.73678565,
+              0.40244991,
+              0.51880044,
+              0.16132931
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -3e-08,
+              1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              5.72e-06,
+              -9.5e-07,
+              -4.8e-07
+            ],
+            "aimWorldDelta": [
+              1.2e-07,
+              -1.2e-07,
+              1e-08
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              4.222e-05,
+              -0.00021319,
+              -0.00056177
+            ],
+            "distance": 0.00060235
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              0.13012654,
+              -0.12857208,
+              0.91446567
+            ],
+            "tailWorld": [
+              -16.81750107,
+              -13.19723701,
+              6.67529345
+            ],
+            "aimWorld": [
+              -0.76468056,
+              -0.58966094,
+              0.25992978
+            ],
+            "worldQuaternion": [
+              -0.69554454,
+              0.42577425,
+              0.55771703,
+              0.15455019
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -3e-08,
+              1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -0.0941124,
+              0.76136112,
+              1.77476454
+            ],
+            "aimWorldDelta": [
+              -0.00424641,
+              0.03435272,
+              0.08007777
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00041459,
+              0.00360528,
+              0.00834268
+            ],
+            "distance": 0.00909782
+          }
+        }
+      },
+      "negativeRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              0.13012654,
+              -0.12857208,
+              0.91446567
+            ],
+            "tailWorld": [
+              -15.4148407,
+              -15.23863602,
+              5.52305365
+            ],
+            "aimWorld": [
+              -0.70139229,
+              -0.68176937,
+              0.2079405
+            ],
+            "worldQuaternion": [
+              -0.72057164,
+              0.37064371,
+              0.56715184,
+              0.14743981
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -3e-08,
+              1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              1.30854797,
+              -1.28003788,
+              0.62252474
+            ],
+            "aimWorldDelta": [
+              0.05904186,
+              -0.05775571,
+              0.0280885
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00571767,
+              -0.00641608,
+              0.00304574
+            ],
+            "distance": 0.0091178
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              0.13012654,
+              -0.12857208,
+              0.91446567
+            ],
+            "tailWorld": [
+              -16.72338295,
+              -13.95859909,
+              4.90052795
+            ],
+            "aimWorld": [
+              -0.76043403,
+              -0.62401378,
+              0.17985199
+            ],
+            "worldQuaternion": [
+              -0.68876553,
+              0.38685766,
+              0.5810414,
+              0.19579118
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -3e-08,
+              1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              5.72e-06,
+              -9.5e-07,
+              -9.5e-07
+            ],
+            "aimWorldDelta": [
+              1.2e-07,
+              -1.2e-07,
+              -1e-08
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -8.24e-06,
+              0.00017594,
+              0.00057566
+            ],
+            "distance": 0.000602
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              0.13012654,
+              -0.12857208,
+              0.91446567
+            ],
+            "tailWorld": [
+              -16.50100517,
+              -14.61470509,
+              3.09543061
+            ],
+            "aimWorld": [
+              -0.7504003,
+              -0.65361744,
+              0.09840561
+            ],
+            "worldQuaternion": [
+              -0.73000652,
+              0.36353344,
+              0.54212481,
+              0.20257023
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -3e-08,
+              1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              0.2223835,
+              -0.65610695,
+              -1.8050983
+            ],
+            "aimWorldDelta": [
+              0.01003385,
+              -0.02960378,
+              -0.0814464
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00101812,
+              -0.00311114,
+              -0.00848919
+            ],
+            "distance": 0.00909847
+          }
+        }
+      }
+    },
+    "LeftHand": {
+      "rest": {
+        "parent": "LeftForeArm",
+        "children": [],
+        "length": 2216.30224609,
+        "rollBasis": {
+          "axis": "local +Y aim axis",
+          "zeroAuthority": "parentRelativeRest.quaternion",
+          "note": "rest roll is encoded by the full parent-relative basis; no context-free scalar roll is claimed"
+        },
+        "parentRelativeRest": {
+          "translation": [
+            -0.00017858,
+            22.16333771,
+            -2.86e-06
+          ],
+          "quaternion": [
+            0.0115269,
+            0.07766984,
+            0.10633497,
+            0.9912253
+          ],
+          "matrix": [
+            [
+              0.96532053,
+              -0.20901312,
+              0.15642796,
+              -0.00017858
+            ],
+            [
+              0.21259439,
+              0.97711992,
+              -0.00633349,
+              22.16333771
+            ],
+            [
+              -0.15152521,
+              0.03936952,
+              0.98766899,
+              -2.86e-06
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "localAimAxis": [
+          9e-08,
+          1.0,
+          0.0
+        ],
+        "localAxesInArmature": {
+          "X": [
+            0.77283853,
+            0.52393472,
+            0.35806879
+          ],
+          "Y": [
+            0.52393311,
+            -0.20842019,
+            -0.82586634
+          ],
+          "Z": [
+            -0.35807118,
+            0.82586539,
+            -0.43558186
+          ]
+        }
+      },
+      "calibration": {
+        "headWorld": [
+          -0.03841113,
+          -0.26687369,
+          0.95432854
+        ],
+        "tailWorld": [
+          -17.54124069,
+          -10.0981245,
+          10.34564018
+        ],
+        "aimWorld": [
+          -0.78973138,
+          -0.44358811,
+          0.42373794
+        ],
+        "worldQuaternion": [
+          -0.65606076,
+          0.51735204,
+          0.53979474,
+          0.10272641
+        ]
+      },
+      "meshInfluence": {
+        "objects": [
+          "CrimsonPlumeKnight_Mesh"
+        ],
+        "weightedVertexCount": 439,
+        "strongVertexCount": 416,
+        "dominantVertexCount": 364,
+        "weightSum": 391.10828484,
+        "weightedCentroidWorld": [
+          -0.1346564,
+          -0.31009051,
+          1.00242054
+        ],
+        "boundsWorld": {
+          "min": [
+            -0.21547577,
+            -0.35497168,
+            0.91967475
+          ],
+          "max": [
+            0.03367298,
+            -0.21743934,
+            1.06649661
+          ]
+        }
+      },
+      "bendGuidance": null,
+      "gltfRoundTrip": {
+        "baselineExportedQuaternion": [
+          0.02757136,
+          0.02789274,
+          0.14987613,
+          0.9879266
+        ],
+        "blenderLocalToGltfLocalAxisMatrix": [
+          [
+            1.0,
+            4e-08,
+            1.3e-07
+          ],
+          [
+            1.4e-07,
+            1.0,
+            -6.4e-07
+          ],
+          [
+            -3.7e-07,
+            -3.4e-07,
+            1.0
+          ]
+        ],
+        "blenderLocalToGltfLocalQuaternion": [
+          8e-08,
+          1.3e-07,
+          2e-08,
+          1.0
+        ],
+        "determinant": 1.0,
+        "orthogonality": {
+          "XY": 1.8e-07,
+          "XZ": 2.5e-07,
+          "YZ": 9.8e-07
+        },
+        "responses": {
+          "X": {
+            "plus": {
+              "exportedDeltaAxis": [
+                1.0,
+                1.4e-07,
+                -3.7e-07
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -1.0,
+                -9e-08,
+                -1.34e-06
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          },
+          "Y": {
+            "plus": {
+              "exportedDeltaAxis": [
+                4e-08,
+                1.0,
+                -3.4e-07
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                2.1e-07,
+                -1.0,
+                -6.9e-07
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "signedPairDot": -1.0
+          },
+          "Z": {
+            "plus": {
+              "exportedDeltaAxis": [
+                1.3e-07,
+                -6.4e-07,
+                1.0
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -2.9e-07,
+                -6.4e-07,
+                -1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          }
+        },
+        "baselineBlenderMatrixBasisQuaternion": [
+          0.00726685,
+          -0.05028828,
+          0.04532983,
+          0.99767905
+        ],
+        "baselineQuaternionAngularDifferenceDegrees": 15.19153941,
+        "blenderBasisToGltf": {
+          "formula": "gltfLocal = parentRelativeRest * blenderMatrixBasis",
+          "inverseFormula": "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal",
+          "composedQuaternion": [
+            0.0275714,
+            0.02789276,
+            0.14987615,
+            0.9879266
+          ],
+          "compositionResidualDegrees": 0.0,
+          "maximumResidualDegrees": 0.001
+        }
+      },
+      "positiveRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              -0.03841109,
+              -0.26687369,
+              0.95432854
+            ],
+            "tailWorld": [
+              -18.63744164,
+              -8.72147942,
+              9.54471207
+            ],
+            "aimWorld": [
+              -0.83919245,
+              -0.38147372,
+              0.38760003
+            ],
+            "worldQuaternion": [
+              -0.65095556,
+              0.54040515,
+              0.51671439,
+              0.1312456
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              4e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -1.09620094,
+              1.37664509,
+              -0.80092812
+            ],
+            "aimWorldDelta": [
+              -0.04946107,
+              0.06211439,
+              -0.03613791
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00509758,
+              0.00747201,
+              -0.00447029
+            ],
+            "distance": 0.01008959
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              -0.03841109,
+              -0.26687369,
+              0.95432854
+            ],
+            "tailWorld": [
+              -17.54123306,
+              -10.0981245,
+              10.34564209
+            ],
+            "aimWorld": [
+              -0.7897312,
+              -0.44358823,
+              0.42373815
+            ],
+            "worldQuaternion": [
+              -0.67898196,
+              0.52134049,
+              0.51066405,
+              0.08006199
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              4e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              7.63e-06,
+              0.0,
+              1.91e-06
+            ],
+            "aimWorldDelta": [
+              1.8e-07,
+              -1.2e-07,
+              2.1e-07
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00023349,
+              -0.00026348,
+              -0.00071144
+            ],
+            "distance": 0.00079378
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              -0.03841109,
+              -0.26687369,
+              0.95432854
+            ],
+            "tailWorld": [
+              -17.24657249,
+              -8.96368599,
+              11.88335037
+            ],
+            "aimWorld": [
+              -0.77643621,
+              -0.39240217,
+              0.49311996
+            ],
+            "worldQuaternion": [
+              -0.63286972,
+              0.54547668,
+              0.54376185,
+              0.07908309
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              4e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              0.2946682,
+              1.13443851,
+              1.53771019
+            ],
+            "aimWorldDelta": [
+              0.01329517,
+              0.05118594,
+              0.06938201
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.0017471,
+              0.00601771,
+              0.00787783
+            ],
+            "distance": 0.01006605
+          }
+        }
+      },
+      "negativeRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              -0.03841109,
+              -0.26687369,
+              0.95432854
+            ],
+            "tailWorld": [
+              -16.31181526,
+              -11.39994812,
+              11.07509613
+            ],
+            "aimWorld": [
+              -0.73425967,
+              -0.50232685,
+              0.4566513
+            ],
+            "worldQuaternion": [
+              -0.65991724,
+              0.49331412,
+              0.56184751,
+              0.07401162
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              4e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              1.22942543,
+              -1.30182362,
+              0.72945595
+            ],
+            "aimWorldDelta": [
+              0.05547172,
+              -0.05873874,
+              0.03291336
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00583005,
+              -0.00712761,
+              0.00412464
+            ],
+            "distance": 0.01008985
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              -0.03841109,
+              -0.26687369,
+              0.95432854
+            ],
+            "tailWorld": [
+              -17.54123306,
+              -10.0981245,
+              10.34564018
+            ],
+            "aimWorld": [
+              -0.7897312,
+              -0.44358823,
+              0.42373806
+            ],
+            "worldQuaternion": [
+              -0.63189083,
+              0.51237875,
+              0.56789798,
+              0.12519524
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              4e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              7.63e-06,
+              0.0,
+              0.0
+            ],
+            "aimWorldDelta": [
+              1.8e-07,
+              -1.2e-07,
+              1.2e-07
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00026983,
+              0.00020465,
+              0.00071692
+            ],
+            "distance": 0.00079289
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              -0.03841109,
+              -0.26687369,
+              0.95432854
+            ],
+            "tailWorld": [
+              -17.7026825,
+              -11.15774059,
+              8.73645782
+            ],
+            "aimWorld": [
+              -0.79701585,
+              -0.49139833,
+              0.35113138
+            ],
+            "worldQuaternion": [
+              -0.67800295,
+              0.48824272,
+              0.53480017,
+              0.12617412
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              4e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -0.1614418,
+              -1.05961609,
+              -1.60918236
+            ],
+            "aimWorldDelta": [
+              -0.00728446,
+              -0.04781023,
+              -0.07260656
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00105652,
+              -0.005642,
+              -0.00826848
+            ],
+            "distance": 0.01006559
+          }
+        }
+      }
+    },
+    "RightShoulder": {
+      "rest": {
+        "parent": "Spine",
+        "children": [
+          "RightArm"
+        ],
+        "length": 1273.24316406,
+        "rollBasis": {
+          "axis": "local +Y aim axis",
+          "zeroAuthority": "parentRelativeRest.quaternion",
+          "note": "rest roll is encoded by the full parent-relative basis; no context-free scalar roll is claimed"
+        },
+        "parentRelativeRest": {
+          "translation": [
+            -3.14175439,
+            3.06110406,
+            -0.64114243
+          ],
+          "quaternion": [
+            0.54176521,
+            -0.62001854,
+            0.42385703,
+            0.3773762
+          ],
+          "matrix": [
+            [
+              -0.12815529,
+              -0.99171567,
+              -0.00869864,
+              -3.14175439
+            ],
+            [
+              -0.35190177,
+              0.05367166,
+              -0.93449676,
+              3.06110406
+            ],
+            [
+              0.92722213,
+              -0.11669985,
+              -0.35586491,
+              -0.64114243
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "localAimAxis": [
+          -1e-08,
+          1.0,
+          -2e-08
+        ],
+        "localAxesInArmature": {
+          "X": [
+            -0.13410397,
+            -0.99096727,
+            1.8e-07
+          ],
+          "Y": [
+            -0.99096727,
+            0.13410421,
+            -2e-08
+          ],
+          "Z": [
+            4e-08,
+            -1.2e-07,
+            -1.0
+          ]
+        }
+      },
+      "calibration": {
+        "headWorld": [
+          -0.00965693,
+          -0.10410302,
+          1.15218258
+        ],
+        "tailWorld": [
+          -11.87646484,
+          4.12559509,
+          2.99695802
+        ],
+        "aimWorld": [
+          -0.9320147,
+          0.33219895,
+          0.14488798
+        ],
+        "worldQuaternion": [
+          -0.56226844,
+          0.81363797,
+          0.13324693,
+          0.06397443
+        ]
+      },
+      "meshInfluence": {
+        "objects": [
+          "CrimsonPlumeKnight_Mesh"
+        ],
+        "weightedVertexCount": 698,
+        "strongVertexCount": 279,
+        "dominantVertexCount": 32,
+        "weightSum": 173.18965629,
+        "weightedCentroidWorld": [
+          -0.07040957,
+          -0.05042433,
+          1.16470885
+        ],
+        "boundsWorld": {
+          "min": [
+            -0.18380876,
+            -0.19266418,
+            0.91065061
+          ],
+          "max": [
+            0.1791352,
+            0.04793,
+            1.34875941
+          ]
+        }
+      },
+      "bendGuidance": null,
+      "gltfRoundTrip": {
+        "baselineExportedQuaternion": [
+          0.54176551,
+          -0.62001866,
+          0.42385674,
+          0.37737599
+        ],
+        "blenderLocalToGltfLocalAxisMatrix": [
+          [
+            1.0,
+            6.8e-07,
+            -6.8e-07
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            6.8e-07,
+            1.37e-06,
+            1.0
+          ]
+        ],
+        "blenderLocalToGltfLocalQuaternion": [
+          3.4e-07,
+          -3.4e-07,
+          -1.7e-07,
+          1.0
+        ],
+        "determinant": 1.0,
+        "orthogonality": {
+          "XY": 6.8e-07,
+          "XZ": 0.0,
+          "YZ": 1.37e-06
+        },
+        "responses": {
+          "X": {
+            "plus": {
+              "exportedDeltaAxis": [
+                1.0,
+                0.0,
+                6.8e-07
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -1.0,
+                -6.8e-07,
+                0.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          },
+          "Y": {
+            "plus": {
+              "exportedDeltaAxis": [
+                6.8e-07,
+                1.0,
+                1.37e-06
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                1.37e-06,
+                -1.0,
+                6.8e-07
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          },
+          "Z": {
+            "plus": {
+              "exportedDeltaAxis": [
+                -6.8e-07,
+                0.0,
+                1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                0.0,
+                -1.02e-06,
+                -1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          }
+        },
+        "baselineBlenderMatrixBasisQuaternion": [
+          3e-08,
+          -5.1e-07,
+          -1.2e-07,
+          1.0
+        ],
+        "baselineQuaternionAngularDifferenceDegrees": 135.65748801,
+        "blenderBasisToGltf": {
+          "formula": "gltfLocal = parentRelativeRest * blenderMatrixBasis",
+          "inverseFormula": "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal",
+          "composedQuaternion": [
+            0.54176551,
+            -0.62001866,
+            0.42385674,
+            0.3773759
+          ],
+          "compositionResidualDegrees": 0.0,
+          "maximumResidualDegrees": 0.001
+        }
+      },
+      "positiveRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              -0.00965694,
+              -0.10410303,
+              1.15218258
+            ],
+            "tailWorld": [
+              -11.88206196,
+              4.42995024,
+              1.92872262
+            ],
+            "aimWorld": [
+              -0.93245435,
+              0.35610288,
+              0.06098917
+            ],
+            "worldQuaternion": [
+              -0.55894279,
+              0.81867582,
+              0.09762976,
+              0.08843933
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -0.00559711,
+              0.30435514,
+              -1.0682354
+            ],
+            "aimWorldDelta": [
+              -0.00043964,
+              0.02390394,
+              -0.08389881
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.0005933,
+              0.00142982,
+              -0.00589621
+            ],
+            "distance": 0.00609604
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              -0.00965694,
+              -0.10410303,
+              1.15218258
+            ],
+            "tailWorld": [
+              -11.87646198,
+              4.12559509,
+              2.99695802
+            ],
+            "aimWorld": [
+              -0.93201458,
+              0.33219898,
+              0.144888
+            ],
+            "worldQuaternion": [
+              -0.56754547,
+              0.81565416,
+              0.10859433,
+              0.02842314
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              2.86e-06,
+              0.0,
+              0.0
+            ],
+            "aimWorldDelta": [
+              1.2e-07,
+              3e-08,
+              1e-08
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00034491,
+              -0.00017751,
+              -0.00181222
+            ],
+            "distance": 0.00185327
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              -0.00965694,
+              -0.10410303,
+              1.15218258
+            ],
+            "tailWorld": [
+              -11.43234253,
+              5.10592175,
+              3.27174187
+            ],
+            "aimWorld": [
+              -0.89713353,
+              0.40919343,
+              0.16646941
+            ],
+            "worldQuaternion": [
+              -0.52624297,
+              0.83738935,
+              0.13591066,
+              0.05810139
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              0.44412231,
+              0.98032665,
+              0.27478385
+            ],
+            "aimWorldDelta": [
+              0.03488117,
+              0.07699448,
+              0.02158143
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00400382,
+              0.00470638,
+              0.00122905
+            ],
+            "distance": 0.00630009
+          }
+        }
+      },
+      "negativeRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              -0.00965694,
+              -0.10410303,
+              1.15218258
+            ],
+            "tailWorld": [
+              -11.78055191,
+              3.78904939,
+              4.05115366
+            ],
+            "aimWorld": [
+              -0.92448175,
+              0.30576676,
+              0.22768413
+            ],
+            "worldQuaternion": [
+              -0.56452388,
+              0.80705148,
+              0.16861054,
+              0.03938774
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              0.09591293,
+              -0.33654571,
+              1.05419564
+            ],
+            "aimWorldDelta": [
+              0.00753295,
+              -0.02643219,
+              0.08279614
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -9.808e-05,
+              -0.00162238,
+              0.00587463
+            ],
+            "distance": 0.00609533
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              -0.00965694,
+              -0.10410303,
+              1.15218258
+            ],
+            "tailWorld": [
+              -11.87646198,
+              4.12559509,
+              2.99695802
+            ],
+            "aimWorld": [
+              -0.93201458,
+              0.33219898,
+              0.144888
+            ],
+            "worldQuaternion": [
+              -0.5559212,
+              0.81007302,
+              0.15764593,
+              0.09940394
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              2.86e-06,
+              0.0,
+              0.0
+            ],
+            "aimWorldDelta": [
+              1.2e-07,
+              3e-08,
+              1e-08
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00029328,
+              2.523e-05,
+              0.00182807
+            ],
+            "distance": 0.00185162
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              -0.00965694,
+              -0.10410303,
+              1.15218258
+            ],
+            "tailWorld": [
+              -12.23026943,
+              3.1130774,
+              2.70813441
+            ],
+            "aimWorld": [
+              -0.95980251,
+              0.25267619,
+              0.12220389
+            ],
+            "worldQuaternion": [
+              -0.59722376,
+              0.78833771,
+              0.13032962,
+              0.0697257
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              -1e-08,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -0.35380459,
+              -1.01251769,
+              -0.2888236
+            ],
+            "aimWorldDelta": [
+              -0.0277878,
+              -0.07952276,
+              -0.0226841
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00356548,
+              -0.00501739,
+              -0.00134444
+            ],
+            "distance": 0.00630034
+          }
+        }
+      }
+    },
+    "RightArm": {
+      "rest": {
+        "parent": "RightShoulder",
+        "children": [
+          "RightForeArm"
+        ],
+        "length": 2177.81201172,
+        "rollBasis": {
+          "axis": "local +Y aim axis",
+          "zeroAuthority": "parentRelativeRest.quaternion",
+          "note": "rest roll is encoded by the full parent-relative basis; no context-free scalar roll is claimed"
+        },
+        "parentRelativeRest": {
+          "translation": [
+            3.056e-05,
+            12.7322998,
+            1.63e-05
+          ],
+          "quaternion": [
+            0.43458143,
+            -0.49735188,
+            -0.24245395,
+            0.71063089
+          ],
+          "matrix": [
+            [
+              0.38771459,
+              -0.08768915,
+              -0.91759908,
+              3.056e-05
+            ],
+            [
+              -0.77687007,
+              0.50471026,
+              -0.37648419,
+              12.7322998
+            ],
+            [
+              0.49613523,
+              0.85882384,
+              0.12756029,
+              1.63e-05
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "localAimAxis": [
+          -2e-08,
+          1.0,
+          -1e-08
+        ],
+        "localAxesInArmature": {
+          "X": [
+            0.71785867,
+            -0.48839408,
+            -0.49613521
+          ],
+          "Y": [
+            -0.48839173,
+            0.15458073,
+            -0.85882384
+          ],
+          "Z": [
+            0.4961372,
+            0.85882264,
+            -0.12756047
+          ]
+        }
+      },
+      "calibration": {
+        "headWorld": [
+          -0.12832388,
+          -0.06180665,
+          1.17062998
+        ],
+        "tailWorld": [
+          -3.73737764,
+          -7.10008097,
+          -19.12034607
+        ],
+        "aimWorld": [
+          -0.1657193,
+          -0.32318106,
+          -0.93171406
+        ],
+        "worldQuaternion": [
+          -0.79482281,
+          0.22119702,
+          -0.17276354,
+          0.53803468
+        ]
+      },
+      "meshInfluence": {
+        "objects": [
+          "CrimsonPlumeKnight_Mesh"
+        ],
+        "weightedVertexCount": 486,
+        "strongVertexCount": 356,
+        "dominantVertexCount": 180,
+        "weightSum": 262.58007913,
+        "weightedCentroidWorld": [
+          -0.13876243,
+          -0.06990419,
+          1.088624
+        ],
+        "boundsWorld": {
+          "min": [
+            -0.20663826,
+            -0.18411544,
+            0.92937976
+          ],
+          "max": [
+            0.03347101,
+            0.04793,
+            1.24959505
+          ]
+        }
+      },
+      "bendGuidance": {
+        "status": "INFERRED",
+        "authority": "inferred-from-calibration-positions-not-anatomical-metadata",
+        "elbowPlaneNormalWorld": [
+          -0.62886578,
+          -0.69312912,
+          0.35227796
+        ],
+        "elbowPlaneNormalInCurrentBoneLocal": [
+          -0.14431296,
+          -9.3e-07,
+          -0.98953217
+        ],
+        "preferredBendAxis": {
+          "axis": "Z",
+          "sign": -1,
+          "alignment": 0.98953205
+        },
+        "twistAxis": {
+          "source": "measured-local-aim-axis",
+          "axis": "Y"
+        }
+      },
+      "gltfRoundTrip": {
+        "baselineExportedQuaternion": [
+          0.4217124,
+          -0.22056726,
+          -0.60506982,
+          0.63827837
+        ],
+        "blenderLocalToGltfLocalAxisMatrix": [
+          [
+            1.0,
+            2.56e-06,
+            -1.71e-06
+          ],
+          [
+            -6.8e-07,
+            1.0,
+            -3.4e-07
+          ],
+          [
+            1.37e-06,
+            2.56e-06,
+            1.0
+          ]
+        ],
+        "blenderLocalToGltfLocalQuaternion": [
+          7.3e-07,
+          -7.7e-07,
+          -8.1e-07,
+          1.0
+        ],
+        "determinant": 1.0,
+        "orthogonality": {
+          "XY": 1.88e-06,
+          "XZ": 3.4e-07,
+          "YZ": 2.22e-06
+        },
+        "responses": {
+          "X": {
+            "plus": {
+              "exportedDeltaAxis": [
+                1.0,
+                -6.8e-07,
+                1.37e-06
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -1.0,
+                0.0,
+                -2.9e-06
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "signedPairDot": -1.0
+          },
+          "Y": {
+            "plus": {
+              "exportedDeltaAxis": [
+                2.56e-06,
+                1.0,
+                2.56e-06
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                1.02e-06,
+                -1.0,
+                1.7e-07
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          },
+          "Z": {
+            "plus": {
+              "exportedDeltaAxis": [
+                -1.71e-06,
+                -3.4e-07,
+                1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                0.0,
+                -6.8e-07,
+                -1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          }
+        },
+        "baselineBlenderMatrixBasisQuaternion": [
+          -0.22515717,
+          6.5e-07,
+          -0.38911322,
+          0.89324981
+        ],
+        "baselineQuaternionAngularDifferenceDegrees": 89.42744824,
+        "blenderBasisToGltf": {
+          "formula": "gltfLocal = parentRelativeRest * blenderMatrixBasis",
+          "inverseFormula": "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal",
+          "composedQuaternion": [
+            0.42171249,
+            -0.22056736,
+            -0.60506988,
+            0.63827831
+          ],
+          "compositionResidualDegrees": 0.0,
+          "maximumResidualDegrees": 0.001
+        }
+      },
+      "positiveRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              -0.12832388,
+              -0.06180666,
+              1.17062998
+            ],
+            "tailWorld": [
+              -2.75057769,
+              -5.59496021,
+              -19.72899055
+            ],
+            "aimWorld": [
+              -0.12040778,
+              -0.25406951,
+              -0.95966178
+            ],
+            "worldQuaternion": [
+              -0.77059752,
+              0.21345069,
+              -0.18224752,
+              0.57219243
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              0.0,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              0.98679996,
+              1.50512075,
+              -0.60864449
+            ],
+            "aimWorldDelta": [
+              0.04531152,
+              0.06911156,
+              -0.02794772
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.0036848,
+              0.00566807,
+              -0.00157154
+            ],
+            "distance": 0.00694078
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              -0.12832388,
+              -0.06180666,
+              1.17062998
+            ],
+            "tailWorld": [
+              -3.73737812,
+              -7.10007572,
+              -19.12034416
+            ],
+            "aimWorld": [
+              -0.16571936,
+              -0.32318088,
+              -0.93171418
+            ],
+            "worldQuaternion": [
+              -0.78653038,
+              0.24445532,
+              -0.20726873,
+              0.52787429
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              0.0,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -4.8e-07,
+              5.25e-06,
+              1.91e-06
+            ],
+            "aimWorldDelta": [
+              -6e-08,
+              1.8e-07,
+              -1.2e-07
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00086078,
+              3.269e-05,
+              -0.00016391
+            ],
+            "distance": 0.00087686
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              -0.12832388,
+              -0.06180666,
+              1.17062998
+            ],
+            "tailWorld": [
+              -5.32268476,
+              -6.05302334,
+              -19.11262131
+            ],
+            "aimWorld": [
+              -0.23851286,
+              -0.27510262,
+              -0.93135929
+            ],
+            "worldQuaternion": [
+              -0.78441787,
+              0.25565615,
+              -0.14913036,
+              0.54505843
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              0.0,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -1.58530712,
+              1.04705763,
+              0.00772476
+            ],
+            "aimWorldDelta": [
+              -0.07279356,
+              0.04807845,
+              0.00035477
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00565138,
+              0.00397338,
+              0.00054753
+            ],
+            "distance": 0.00693006
+          }
+        }
+      },
+      "negativeRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              -0.12832388,
+              -0.06180666,
+              1.17062998
+            ],
+            "tailWorld": [
+              -4.6967063,
+              -8.55163574,
+              -18.35727119
+            ],
+            "aimWorld": [
+              -0.20976943,
+              -0.38983309,
+              -0.89667553
+            ],
+            "worldQuaternion": [
+              -0.81753516,
+              0.22852229,
+              -0.16295068,
+              0.50285298
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              0.0,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -0.95932865,
+              -1.45155478,
+              0.76307487
+            ],
+            "aimWorldDelta": [
+              -0.04405013,
+              -0.06665203,
+              0.03503853
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00361542,
+              -0.00551952,
+              0.00215387
+            ],
+            "distance": 0.00694087
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              -0.12832388,
+              -0.06180666,
+              1.17062998
+            ],
+            "tailWorld": [
+              -3.73737597,
+              -7.10008144,
+              -19.12034416
+            ],
+            "aimWorld": [
+              -0.16571923,
+              -0.32318109,
+              -0.93171406
+            ],
+            "worldQuaternion": [
+              -0.80160218,
+              0.19751774,
+              -0.13792941,
+              0.54717112
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              0.0,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              1.67e-06,
+              -4.8e-07,
+              1.91e-06
+            ],
+            "aimWorldDelta": [
+              7e-08,
+              -3e-08,
+              0.0
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00085032,
+              -0.0001049,
+              0.00018752
+            ],
+            "distance": 0.00087705
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              -0.12832388,
+              -0.06180666,
+              1.17062998
+            ],
+            "tailWorld": [
+              -2.1246016,
+              -8.09357834,
+              -18.97364426
+            ],
+            "aimWorld": [
+              -0.0916644,
+              -0.36880013,
+              -0.92497784
+            ],
+            "worldQuaternion": [
+              -0.80371481,
+              0.18631683,
+              -0.19606778,
+              0.5299868
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              0.0,
+              -1e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              1.61277604,
+              -0.99349737,
+              0.14670181
+            ],
+            "aimWorldDelta": [
+              0.0740549,
+              -0.04561907,
+              0.00673622
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00579193,
+              -0.00380488,
+              1.633e-05
+            ],
+            "distance": 0.00692993
+          }
+        }
+      }
+    },
+    "RightForeArm": {
+      "rest": {
+        "parent": "RightArm",
+        "children": [
+          "RightHand"
+        ],
+        "length": 2265.52270508,
+        "rollBasis": {
+          "axis": "local +Y aim axis",
+          "zeroAuthority": "parentRelativeRest.quaternion",
+          "note": "rest roll is encoded by the full parent-relative basis; no context-free scalar roll is claimed"
+        },
+        "parentRelativeRest": {
+          "translation": [
+            -7.2e-07,
+            21.77832794,
+            -3.231e-05
+          ],
+          "quaternion": [
+            -0.17405319,
+            0.13016284,
+            0.02915174,
+            0.97566044
+          ],
+          "matrix": [
+            [
+              0.96441555,
+              -0.10219488,
+              0.24384156,
+              -7.2e-07
+            ],
+            [
+              0.0115739,
+              0.9377113,
+              0.34722251,
+              21.77832794
+            ],
+            [
+              -0.2641373,
+              -0.33204466,
+              0.90552622,
+              -3.231e-05
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "localAimAxis": [
+          -3e-08,
+          1.0,
+          4e-08
+        ],
+        "localAxesInArmature": {
+          "X": [
+            0.55561316,
+            -0.69607282,
+            -0.45472696
+          ],
+          "Y": [
+            -0.69607168,
+            -0.09030394,
+            -0.71227068
+          ],
+          "Z": [
+            0.45472839,
+            0.7122696,
+            -0.5346908
+          ]
+        }
+      },
+      "calibration": {
+        "headWorld": [
+          -0.16441488,
+          -0.13219026,
+          0.9677183
+        ],
+        "tailWorld": [
+          17.434618,
+          -12.38620567,
+          8.27330112
+        ],
+        "aimWorld": [
+          0.77682066,
+          -0.54089177,
+          0.32246816
+        ],
+        "worldQuaternion": [
+          -0.76720077,
+          -0.4760164,
+          -0.42643777,
+          0.05442812
+        ]
+      },
+      "meshInfluence": {
+        "objects": [
+          "CrimsonPlumeKnight_Mesh"
+        ],
+        "weightedVertexCount": 274,
+        "strongVertexCount": 215,
+        "dominantVertexCount": 135,
+        "weightSum": 177.07877144,
+        "weightedCentroidWorld": [
+          -0.07785351,
+          -0.18443531,
+          0.99608737
+        ],
+        "boundsWorld": {
+          "min": [
+            -0.18973529,
+            -0.31466076,
+            0.90924197
+          ],
+          "max": [
+            0.04386162,
+            -0.0732006,
+            1.07431257
+          ]
+        }
+      },
+      "bendGuidance": {
+        "status": "INFERRED",
+        "authority": "inferred-from-calibration-positions-not-anatomical-metadata",
+        "elbowPlaneNormalWorld": [
+          -0.62886578,
+          -0.69312912,
+          0.35227796
+        ],
+        "elbowPlaneNormalInCurrentBoneLocal": [
+          -0.34048423,
+          -9.89e-06,
+          -0.94025028
+        ],
+        "preferredBendAxis": {
+          "axis": "Z",
+          "sign": -1,
+          "alignment": 0.94025028
+        },
+        "twistAxis": {
+          "source": "measured-local-aim-axis",
+          "axis": "Y"
+        }
+      },
+      "gltfRoundTrip": {
+        "baselineExportedQuaternion": [
+          -0.19295473,
+          -0.06175459,
+          -0.76808625,
+          0.60745245
+        ],
+        "blenderLocalToGltfLocalAxisMatrix": [
+          [
+            1.0,
+            -5.1e-07,
+            -5.1e-07
+          ],
+          [
+            6.8e-07,
+            1.0,
+            3.4e-07
+          ],
+          [
+            -2.52e-06,
+            -3.01e-06,
+            1.0
+          ]
+        ],
+        "blenderLocalToGltfLocalQuaternion": [
+          -8.4e-07,
+          5e-07,
+          3e-07,
+          1.0
+        ],
+        "determinant": 1.0,
+        "orthogonality": {
+          "XY": 1.7e-07,
+          "XZ": 3.03e-06,
+          "YZ": 2.67e-06
+        },
+        "responses": {
+          "X": {
+            "plus": {
+              "exportedDeltaAxis": [
+                1.0,
+                6.8e-07,
+                -2.52e-06
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -1.0,
+                6.8e-07,
+                -8.05e-06
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          },
+          "Y": {
+            "plus": {
+              "exportedDeltaAxis": [
+                -5.1e-07,
+                1.0,
+                -3.01e-06
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                3.4e-07,
+                -1.0,
+                -6.26e-06
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "signedPairDot": -1.0
+          },
+          "Z": {
+            "plus": {
+              "exportedDeltaAxis": [
+                -5.1e-07,
+                3.4e-07,
+                1.0
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -1.7e-07,
+                -3.4e-07,
+                -1.0
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "signedPairDot": -1.0
+          }
+        },
+        "baselineBlenderMatrixBasisQuaternion": [
+          0.01564675,
+          -6.41e-06,
+          -0.80296379,
+          0.59582239
+        ],
+        "baselineQuaternionAngularDifferenceDegrees": 25.33426275,
+        "blenderBasisToGltf": {
+          "formula": "gltfLocal = parentRelativeRest * blenderMatrixBasis",
+          "inverseFormula": "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal",
+          "composedQuaternion": [
+            -0.19295472,
+            -0.06175459,
+            -0.76808625,
+            0.60745239
+          ],
+          "compositionResidualDegrees": 0.0,
+          "maximumResidualDegrees": 0.001
+        }
+      },
+      "positiveRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              -0.16441485,
+              -0.13219026,
+              0.9677183
+            ],
+            "tailWorld": [
+              18.55731964,
+              -11.37304878,
+              7.00079823
+            ],
+            "aimWorld": [
+              0.82637674,
+              -0.49617109,
+              0.26629996
+            ],
+            "worldQuaternion": [
+              -0.76409644,
+              -0.49416432,
+              -0.40526834,
+              0.08784121
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              3e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              1.12270164,
+              1.01315689,
+              -1.2725029
+            ],
+            "aimWorldDelta": [
+              0.04955608,
+              0.04472068,
+              -0.0561682
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00457919,
+              0.00506204,
+              -0.00609082
+            ],
+            "distance": 0.0091483
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              -0.16441485,
+              -0.13219026,
+              0.9677183
+            ],
+            "tailWorld": [
+              17.43462181,
+              -12.38620567,
+              8.27330112
+            ],
+            "aimWorld": [
+              0.77682072,
+              -0.54089165,
+              0.3224681
+            ],
+            "worldQuaternion": [
+              -0.74786943,
+              -0.47318929,
+              -0.45949671,
+              0.0751399
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              3e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              3.81e-06,
+              0.0,
+              0.0
+            ],
+            "aimWorldDelta": [
+              6e-08,
+              1.2e-07,
+              -6e-08
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00010362,
+              0.00048353,
+              0.00056154
+            ],
+            "distance": 0.00074824
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              -0.16441485,
+              -0.13219026,
+              0.9677183
+            ],
+            "tailWorld": [
+              17.00607681,
+              -13.69011211,
+              6.8511982
+            ],
+            "aimWorld": [
+              0.75790489,
+              -0.59844613,
+              0.2596966
+            ],
+            "worldQuaternion": [
+              -0.78723395,
+              -0.44209859,
+              -0.42365777,
+              0.07297729
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              3e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -0.42854118,
+              -1.30390644,
+              -1.42210293
+            ],
+            "aimWorldDelta": [
+              -0.01891577,
+              -0.05755436,
+              -0.06277156
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00195995,
+              -0.0060278,
+              -0.00655431
+            ],
+            "distance": 0.00911782
+          }
+        }
+      },
+      "negativeRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              -0.16441485,
+              -0.13219026,
+              0.9677183
+            ],
+            "tailWorld": [
+              16.17797852,
+              -13.30609989,
+              9.49020195
+            ],
+            "aimWorld": [
+              0.72135258,
+              -0.58149582,
+              0.37618208
+            ],
+            "worldQuaternion": [
+              -0.76884449,
+              -0.45696244,
+              -0.44679546,
+              0.02091153
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              3e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -1.25663948,
+              -0.91989422,
+              1.21690083
+            ],
+            "aimWorldDelta": [
+              -0.05546808,
+              -0.04060405,
+              0.05371392
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00523639,
+              -0.00466368,
+              0.00587457
+            ],
+            "distance": 0.0091477
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              -0.16441485,
+              -0.13219026,
+              0.9677183
+            ],
+            "tailWorld": [
+              17.43462563,
+              -12.38620567,
+              8.27330589
+            ],
+            "aimWorld": [
+              0.77682078,
+              -0.54089159,
+              0.32246825
+            ],
+            "worldQuaternion": [
+              -0.78507143,
+              -0.47793761,
+              -0.3925671,
+              0.03361277
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              3e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              7.63e-06,
+              0.0,
+              4.77e-06
+            ],
+            "aimWorldDelta": [
+              1.2e-07,
+              1.8e-07,
+              9e-08
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00014327,
+              -0.0005168,
+              -0.00052184
+            ],
+            "distance": 0.00074828
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              -0.16441485,
+              -0.13219026,
+              0.9677183
+            ],
+            "tailWorld": [
+              17.72922516,
+              -10.98903656,
+              9.63980484
+            ],
+            "aimWorld": [
+              0.78982449,
+              -0.47922069,
+              0.38278553
+            ],
+            "worldQuaternion": [
+              -0.74570692,
+              -0.50902814,
+              -0.42840603,
+              0.03577541
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              3e-08,
+              0.0,
+              0.0
+            ],
+            "tailWorldDelta": [
+              0.29460716,
+              1.39716911,
+              1.36650372
+            ],
+            "aimWorldDelta": [
+              0.01300383,
+              0.06167108,
+              0.06031737
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00134162,
+              0.00645679,
+              0.00629586
+            ],
+            "distance": 0.00911745
+          }
+        }
+      }
+    },
+    "RightHand": {
+      "rest": {
+        "parent": "RightForeArm",
+        "children": [],
+        "length": 2265.5222168,
+        "rollBasis": {
+          "axis": "local +Y aim axis",
+          "zeroAuthority": "parentRelativeRest.quaternion",
+          "note": "rest roll is encoded by the full parent-relative basis; no context-free scalar roll is claimed"
+        },
+        "parentRelativeRest": {
+          "translation": [
+            -0.00011539,
+            22.65527153,
+            -0.00019169
+          ],
+          "quaternion": [
+            0.03728219,
+            -0.10079541,
+            -0.11785791,
+            0.987198
+          ],
+          "matrix": [
+            [
+              0.95189953,
+              0.22518244,
+              -0.20779808,
+              -0.00011539
+            ],
+            [
+              -0.24021389,
+              0.96943915,
+              -0.04985073,
+              22.65527153
+            ],
+            [
+              0.190222,
+              0.09736891,
+              0.97690076,
+              -0.00019169
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "localAimAxis": [
+          -1e-08,
+          1.0,
+          -3e-08
+        ],
+        "localAxesInArmature": {
+          "X": [
+            0.78259343,
+            -0.5054099,
+            -0.36346713
+          ],
+          "Y": [
+            -0.50540835,
+            -0.1749346,
+            -0.8449617
+          ],
+          "Z": [
+            0.36346877,
+            0.84496093,
+            -0.39234117
+          ]
+        }
+      },
+      "calibration": {
+        "headWorld": [
+          0.01157458,
+          -0.25473258,
+          1.04077458
+        ],
+        "tailWorld": [
+          -13.62853527,
+          -18.12240219,
+          -1.77907097
+        ],
+        "aimWorld": [
+          -0.60207433,
+          -0.78867877,
+          -0.12446795
+        ],
+        "worldQuaternion": [
+          -0.93930131,
+          0.32381091,
+          -0.10978397,
+          0.02840905
+        ]
+      },
+      "meshInfluence": {
+        "objects": [
+          "CrimsonPlumeKnight_Mesh"
+        ],
+        "weightedVertexCount": 436,
+        "strongVertexCount": 418,
+        "dominantVertexCount": 365,
+        "weightSum": 394.06597751,
+        "weightedCentroidWorld": [
+          -0.05177558,
+          -0.34978423,
+          1.02138174
+        ],
+        "boundsWorld": {
+          "min": [
+            -0.10536025,
+            -0.42956924,
+            0.96892273
+          ],
+          "max": [
+            0.04386162,
+            -0.2061214,
+            1.07903802
+          ]
+        }
+      },
+      "bendGuidance": null,
+      "gltfRoundTrip": {
+        "baselineExportedQuaternion": [
+          -0.21967332,
+          -0.28517956,
+          0.70169008,
+          0.61485553
+        ],
+        "blenderLocalToGltfLocalAxisMatrix": [
+          [
+            1.0,
+            1.02e-06,
+            6.8e-07
+          ],
+          [
+            -3.4e-07,
+            1.0,
+            1.71e-06
+          ],
+          [
+            4.53e-06,
+            1.2e-06,
+            1.0
+          ]
+        ],
+        "blenderLocalToGltfLocalQuaternion": [
+          -1.3e-07,
+          -9.6e-07,
+          -3.4e-07,
+          1.0
+        ],
+        "determinant": 1.0,
+        "orthogonality": {
+          "XY": 6.8e-07,
+          "XZ": 5.21e-06,
+          "YZ": 2.9e-06
+        },
+        "responses": {
+          "X": {
+            "plus": {
+              "exportedDeltaAxis": [
+                1.0,
+                -3.4e-07,
+                4.53e-06
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                -1.0,
+                -6.8e-07,
+                5.1e-07
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "signedPairDot": -1.0
+          },
+          "Y": {
+            "plus": {
+              "exportedDeltaAxis": [
+                1.02e-06,
+                1.0,
+                1.2e-06
+              ],
+              "exportedDeltaDegrees": 4.99981331
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                3.4e-07,
+                -1.0,
+                -9e-08
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          },
+          "Z": {
+            "plus": {
+              "exportedDeltaAxis": [
+                6.8e-07,
+                1.71e-06,
+                1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "minus": {
+              "exportedDeltaAxis": [
+                3.4e-07,
+                3.4e-07,
+                -1.0
+              ],
+              "exportedDeltaDegrees": 4.99996997
+            },
+            "signedPairDot": -1.0
+          }
+        },
+        "baselineBlenderMatrixBasisQuaternion": [
+          -0.13544638,
+          -0.21928373,
+          0.79794681,
+          0.54483926
+        ],
+        "baselineQuaternionAngularDifferenceDegrees": 18.35570309,
+        "blenderBasisToGltf": {
+          "formula": "gltfLocal = parentRelativeRest * blenderMatrixBasis",
+          "inverseFormula": "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal",
+          "composedQuaternion": [
+            -0.21967329,
+            -0.28517953,
+            0.70169008,
+            0.61485553
+          ],
+          "compositionResidualDegrees": 0.0,
+          "maximumResidualDegrees": 0.001
+        }
+      },
+      "positiveRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              0.0115746,
+              -0.25473255,
+              1.04077458
+            ],
+            "tailWorld": [
+              -13.13308048,
+              -18.08942223,
+              -3.69208908
+            ],
+            "aimWorld": [
+              -0.58020473,
+              -0.78722274,
+              -0.20890847
+            ],
+            "worldQuaternion": [
+              -0.93716818,
+              0.31871414,
+              -0.12380388,
+              0.06935373
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              2e-08,
+              3e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              0.49545479,
+              0.03297997,
+              -1.91301811
+            ],
+            "aimWorldDelta": [
+              0.0218696,
+              0.00145602,
+              -0.08444052
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00286583,
+              0.00060034,
+              -0.00972569
+            ],
+            "distance": 0.01015689
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              0.0115746,
+              -0.25473255,
+              1.04077458
+            ],
+            "tailWorld": [
+              -13.62853241,
+              -18.12240219,
+              -1.7790674
+            ],
+            "aimWorld": [
+              -0.60207421,
+              -0.78867882,
+              -0.1244678
+            ],
+            "worldQuaternion": [
+              -0.93361861,
+              0.32474187,
+              -0.1506512,
+              0.01425753
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              2e-08,
+              3e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              2.86e-06,
+              0.0,
+              3.58e-06
+            ],
+            "aimWorldDelta": [
+              1.2e-07,
+              -6e-08,
+              1.5e-07
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00027305,
+              -0.00031108,
+              0.00064993
+            ],
+            "distance": 0.00077054
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              0.0115746,
+              -0.25473255,
+              1.04077458
+            ],
+            "tailWorld": [
+              -15.08948803,
+              -16.84096718,
+              -2.13923788
+            ],
+            "aimWorld": [
+              -0.66656077,
+              -0.73211622,
+              -0.14036572
+            ],
+            "worldQuaternion": [
+              -0.92428285,
+              0.36447445,
+              -0.10844031,
+              0.03317066
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              2e-08,
+              3e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -1.46095276,
+              1.28143501,
+              -0.36016691
+            ],
+            "aimWorldDelta": [
+              -0.06448644,
+              0.05656254,
+              -0.01589777
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00784165,
+              0.00616288,
+              -0.00192046
+            ],
+            "distance": 0.01015681
+          }
+        }
+      },
+      "negativeRotationResponse": {
+        "X": {
+          "landmark": {
+            "headWorld": [
+              0.0115746,
+              -0.25473255,
+              1.04077458
+            ],
+            "tailWorld": [
+              -14.02018547,
+              -18.01940727,
+              0.15540801
+            ],
+            "aimWorld": [
+              -0.6193617,
+              -0.78413248,
+              -0.03908007
+            ],
+            "worldQuaternion": [
+              0.93964648,
+              -0.32829145,
+              0.09555506,
+              0.01258975
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              2e-08,
+              3e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              -0.3916502,
+              0.10299492,
+              1.934479
+            ],
+            "aimWorldDelta": [
+              -0.01728737,
+              0.00454628,
+              0.08538788
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00234391,
+              9.826e-05,
+              0.00988305
+            ],
+            "distance": 0.01015767
+          }
+        },
+        "Y": {
+          "landmark": {
+            "headWorld": [
+              0.0115746,
+              -0.25473255,
+              1.04077458
+            ],
+            "tailWorld": [
+              -13.62852955,
+              -18.1224041,
+              -1.7790674
+            ],
+            "aimWorld": [
+              -0.60207415,
+              -0.78867894,
+              -0.12446781
+            ],
+            "worldQuaternion": [
+              -0.943196,
+              0.32226348,
+              -0.06870773,
+              0.04250638
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              2e-08,
+              3e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              5.72e-06,
+              -1.91e-06,
+              3.58e-06
+            ],
+            "aimWorldDelta": [
+              1.8e-07,
+              -1.8e-07,
+              1.3e-07
+            ],
+            "worldRotationDeltaDegrees": 4.99981331
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              -0.00031997,
+              0.00034076,
+              -0.00061154
+            ],
+            "distance": 0.00076973
+          }
+        },
+        "Z": {
+          "landmark": {
+            "headWorld": [
+              0.0115746,
+              -0.25473255,
+              1.04077458
+            ],
+            "tailWorld": [
+              -12.06376648,
+              -19.26786041,
+              -1.3974371
+            ],
+            "aimWorld": [
+              -0.53300542,
+              -0.83923924,
+              -0.10762264
+            ],
+            "worldQuaternion": [
+              -0.95253181,
+              0.28253096,
+              -0.11091867,
+              0.02359324
+            ]
+          },
+          "landmarkDelta": {
+            "headWorldDelta": [
+              2e-08,
+              3e-08,
+              0.0
+            ],
+            "tailWorldDelta": [
+              1.56476879,
+              -1.14545822,
+              0.38163388
+            ],
+            "aimWorldDelta": [
+              0.06906891,
+              -0.05056047,
+              0.01684531
+            ],
+            "worldRotationDeltaDegrees": 4.99996997
+          },
+          "meshInfluenceDelta": {
+            "weightedCentroidWorldDelta": [
+              0.00833805,
+              -0.005436,
+              0.00202179
+            ],
+            "distance": 0.01015681
+          }
+        }
+      }
+    }
+  },
+  "weaponAttachment": {
+    "attachmentBone": "RightHand",
+    "authority": "committed browser-local candidate transform; character GLB contains no sword",
+    "sabreLocal": {
+      "position": [
+        0.46006966,
+        2.84260845,
+        -14.83034801
+      ],
+      "quaternion": [
+        0.68301272,
+        0.18301271,
+        -0.18301271,
+        0.68301266
+      ],
+      "scale": [
+        136.4,
+        136.4,
+        136.4
+      ]
+    },
+    "solveOrder": [
+      "position-target",
+      "pole-guidance",
+      "measured-bone-basis",
+      "wrist-roll",
+      "visible-mesh-seat"
+    ]
+  },
+  "failures": []
+}

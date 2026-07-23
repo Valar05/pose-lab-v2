@@ -669,6 +669,34 @@ def apply_bone_quaternion(armature: bpy.types.Object, bone_name: str, quat_xyzw:
     return True
 
 
+def apply_crimson_gltf_local_quaternion(
+    armature: bpy.types.Object,
+    bone_name: str,
+    quat_xyzw: list[float],
+) -> bool:
+    """Convert measured glTF-local orientation into Blender matrix_basis space."""
+    bone = armature.pose.bones.get(bone_name)
+    if not bone:
+        return False
+    data_bone = bone.bone
+    rest_matrix = (
+        data_bone.parent.matrix_local.inverted() @ data_bone.matrix_local
+        if data_bone.parent
+        else data_bone.matrix_local.copy()
+    )
+    rest_quaternion = rest_matrix.to_quaternion().normalized()
+    gltf_quaternion = Quaternion((
+        float(quat_xyzw[3]),
+        float(quat_xyzw[0]),
+        float(quat_xyzw[1]),
+        float(quat_xyzw[2]),
+    )).normalized()
+    basis_quaternion = (rest_quaternion.inverted() @ gltf_quaternion).normalized()
+    bone.rotation_mode = "QUATERNION"
+    bone.rotation_quaternion = basis_quaternion
+    return True
+
+
 def apply_crimson_candidate_pose(armature: bpy.types.Object, candidate: dict, label: str) -> None:
     frame = next((entry for entry in candidate.get("frames", []) if entry.get("label") == label), None)
     if not frame:
@@ -681,7 +709,7 @@ def apply_crimson_candidate_pose(armature: bpy.types.Object, candidate: dict, la
             continue
         bone.location = tuple(float(value) for value in position)
     for bone_name, quat in (frame.get("bones") or {}).items():
-        if not apply_bone_quaternion(armature, bone_name, quat):
+        if not apply_crimson_gltf_local_quaternion(armature, bone_name, quat):
             missing.append(bone_name)
     if missing:
         raise RuntimeError(f"Crimson Blender armature missing candidate bones: {missing[:8]}")

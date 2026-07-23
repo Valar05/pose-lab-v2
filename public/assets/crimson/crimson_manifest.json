@@ -43,6 +43,15 @@
     "rightForeArm": true,
     "rightArm": true
   },
+  "orientationLedger": {
+    "path": "public/assets/crimson/crimson-bone-orientation-ledger.json",
+    "schema": "pose-lab-v2-crimson-bone-orientation-ledger-v1",
+    "calibrationCandidateId": "crimson-combat-ready-vanguard-frame0-4",
+    "calibrationPoseSha256": "4db76a74b24d56411d6429c0c5f35bbe77bedbe92bda086d65a162aaea0ab41a",
+    "visualVerdict": "REJECTED_FOR_HANDOFF_MEASUREMENT_WORTHY",
+    "conversionLaw": "gltfLocal = parentRelativeRest * blenderMatrixBasis",
+    "inverseConversionLaw": "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal"
+  },
   "animations": [
     {
       "name": "CrimsonPlumeKnight|walking|baselayer",

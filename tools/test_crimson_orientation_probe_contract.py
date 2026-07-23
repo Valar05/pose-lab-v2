@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PROBE = ROOT / "tools" / "probe_crimson_bone_orientations_blender.py"
 VALIDATOR = ROOT / "tools" / "validate_crimson_orientation_ledger.py"
+SPACE_TEST = ROOT / "tools" / "test_crimson_orientation_space.py"
 WORKFLOW = ROOT / ".github" / "workflows" / "crimson-orientation-ledger.yml"
 CANDIDATE = ROOT / "src" / "review-candidates" / "crimson-combat-ready-vanguard-frame0-4.js"
 
@@ -24,6 +25,7 @@ def load_candidate() -> dict:
 
 probe = PROBE.read_text(encoding="utf-8")
 validator = VALIDATOR.read_text(encoding="utf-8")
+space_test = SPACE_TEST.read_text(encoding="utf-8")
 workflow = WORKFLOW.read_text(encoding="utf-8")
 candidate = load_candidate()
 
@@ -52,6 +54,7 @@ assert "bone.roll" not in probe
 assert '"zeroAuthority": "parentRelativeRest.quaternion"' in probe
 assert "EXPECTED_BONES" in validator
 assert "visualVerdict" in validator
+assert "directAssignmentErrorRangeDegrees" in space_test
 assert "probe_crimson_bone_orientations_blender.py" in workflow
 assert "validate_crimson_orientation_ledger.py" in workflow
 assert "actions/upload-artifact@v4" in workflow
