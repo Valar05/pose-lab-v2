@@ -45,6 +45,8 @@ jobs:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
       - name: Verify system Chrome
         run: google-chrome --version
+      - name: Install registration test dependency
+        run: python3 -m pip install --disable-pip-version-check pillow==11.3.0
       - name: Verify and build 2D review
         run: |
           npm run test:vanguard-attack1-registration
