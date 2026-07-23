@@ -1,0 +1,43 @@
+name: Crimson Bone Orientation Ledger
+
+on:
+  push:
+    branches: [agent/crimson-foot-red-gate]
+    paths:
+      - "tools/probe_crimson_bone_orientations_blender.py"
+      - "tools/validate_crimson_orientation_ledger.py"
+      - "tools/test_crimson_orientation_probe_contract.py"
+      - "src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js"
+      - "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb"
+      - ".github/workflows/crimson-orientation-ledger.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Blender probe runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender python3-numpy
+      - name: Verify repository probe contract
+        run: python3 tools/test_crimson_orientation_probe_contract.py
+      - name: Measure Crimson bone orientations
+        run: |
+          blender --background --python-exit-code 1 \
+            --python tools/probe_crimson_bone_orientations_blender.py -- \
+            --out-dir generated/crimson-orientation-ledger/${GITHUB_RUN_ID}
+      - name: Validate measured ledger
+        run: |
+          python3 tools/validate_crimson_orientation_ledger.py \
+            generated/crimson-orientation-ledger/${GITHUB_RUN_ID}/crimson-bone-orientation-ledger.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crimson-orientation-ledger-${{ github.run_id }}
+          path: generated/crimson-orientation-ledger/${{ github.run_id }}
+          if-no-files-found: error

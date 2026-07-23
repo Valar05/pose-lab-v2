@@ -114,5 +114,30 @@ Do not casually retune these after they pass:
 | `e65f62b7` | Rejected before candidate binding | Exact accepted center/lower body; every authored mesh, grip, face, blade, support-pin, reach-reserve, and bend gate passes with numeric margin | Independent geometry audit catches the support elbow `0.099` torso-height above its wrist; the far-left grip makes the documented low-elbow triangle physically unattainable, but no gate rejects it | Shift the whole guard toward the support shoulder and require both final elbows at least `0.05` torso-height below their wrists |
 | `7e349e22` | Rejected in authoring CI | Exact accepted center/lower body; right elbow reaches `0.060` torso-height below its wrist; support reach reserve improves to `0.271`; all face, blade/head, and protected-body gates pass | The three-step wrist correction exhausts its `105` degree cap before reaching the authored threat line, so the actual handle tilts down, drives the support wrist below the feasible low-elbow circle, and leaves only `0.0031` torso-height between the gauntlets | Converge the actual blade direction, raise the whole below-face guard into a feasible elbow circle, author a fresh low support pole, and seat the support surfaces with numeric margin |
 | `3d6a57a9` | Blender gates and independent visual bind gate passed | Exact accepted center/lower body; exact authored blade direction; both elbows visibly low; support palm and separated hand surfaces own the handle; face, plume, blade, crossguard, reach, and protected-body gates all pass | The committed browser candidate is intentionally stale, so exact candidate and browser application parity have not run | Bind only the artifact's byte-identical `generated_candidate.js`, then require full Blender plus browser parity before any review handoff |
+| `8e6c8e07` | Rejected for handoff; frozen for orientation calibration | Exact Blender/browser candidate identity and application parity; stable joint positions; seated two-hand grip; protected body unchanged | Browser-center close view still shows the blade meeting the plume and grazing the visor contour | Stop pose polishing. Preserve this exact payload as a measurement specimen and recover Crimson's real per-bone orientation language with signed local-axis probes |
 
 Append a row for every pass. Never rewrite a rejection into a success because a later pass improved.
+
+## Orientation archaeology
+
+`8e6c8e07` is not accepted pose truth. It is frozen positional evidence with a known failing view. Use it to measure Crimson's own rig; do not copy Vanguard transforms and do not apply browser/glTF candidate quaternions directly to Blender `matrix_basis`.
+
+The canonical probe is:
+
+```bash
+blender --background --python-exit-code 1 \
+  --python tools/probe_crimson_bone_orientations_blender.py -- \
+  --out-dir generated/crimson-orientation-ledger/latest
+
+python3 tools/validate_crimson_orientation_ledger.py \
+  generated/crimson-orientation-ledger/latest/crimson-bone-orientation-ledger.json
+```
+
+The probe reconstructs the frozen candidate through glTF import, freezes it, then applies `+5°` and `-5°` local X/Y/Z probes to each shoulder, upper arm, forearm, and hand. One multi-frame Blender export records the actual glTF response. The ledger keeps these authorities separate:
+
+- measured: parent-relative rest basis, local aim axis, signed Blender-local to glTF-local axis mapping, positive rotation response, and skinned mesh influence;
+- inferred: preferred elbow plane and bend-axis guidance from the calibration shoulder/elbow/wrist positions;
+- preserved rejection: the browser-center blade/plume/visor collision;
+- excluded: every Vanguard quaternion, endpoint, joint coordinate, and rest delta.
+
+The next arm solve must consume the measured ledger in this order: position target, pole guidance, measured bone basis, wrist roll, then visible-mesh weapon seating. The ledger is guidance for a new solve, not permission to relabel the calibration pose as accepted.
