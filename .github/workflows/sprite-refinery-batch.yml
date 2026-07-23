@@ -30,7 +30,7 @@ on:
       publish:
         description: Publish ready clips into canonical Pose Lab assets
         required: true
-        default: false
+        default: 'false'
         type: choice
         options:
           - 'false'
@@ -145,7 +145,7 @@ jobs:
 
   collector:
     needs: [planner, clip-worker]
-    if: always() && needs.planner.result == 'success'
+    if: ${{ always() && needs.planner.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -216,7 +216,7 @@ jobs:
 
   deploy-review:
     needs: collector
-    if: always() && needs.collector.result == 'success'
+    if: ${{ always() && needs.collector.result == 'success' }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages
