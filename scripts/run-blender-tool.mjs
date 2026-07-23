@@ -15,12 +15,21 @@ if (separator !== '--') {
 }
 
 const absoluteTool = path.resolve(root, toolPath);
+const configuredBlender = process.env.BLENDER_BIN?.trim();
+const command = configuredBlender || 'proot-distro';
+const commandArgs = configuredBlender
+  ? ['--background', '--python-exit-code', '1', '--python', absoluteTool, '--', ...toolArgs]
+  : ['login', 'debian', '--', 'blender', '--background', '--python-exit-code', '1', '--python', absoluteTool, '--', ...toolArgs];
 const result = spawnSync(
-  'proot-distro',
-  ['login', 'debian', '--', 'blender', '--background', '--python-exit-code', '1', '--python', absoluteTool, '--', ...toolArgs],
+  command,
+  commandArgs,
   { cwd: root, stdio: 'inherit' }
 );
 
+if (result.error) {
+  console.error(`unable to start Blender tool: ${result.error.message}`);
+  process.exit(1);
+}
 if (result.signal) {
   console.error(`blender tool terminated by signal ${result.signal}`);
   process.exit(1);

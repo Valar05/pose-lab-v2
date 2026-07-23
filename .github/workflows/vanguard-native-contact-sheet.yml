@@ -1,0 +1,109 @@
+name: Vanguard Native Pose Packet
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/vanguard-native-contact-sheet
+    paths:
+      - tools/render_animation_pose_packet.py
+      - tools/assemble_animation_pose_packet.py
+      - tools/verify_animation_pose_packet.py
+      - docs/ANIMATION_POSE_IS_GOD_PIPELINE.md
+      - .github/workflows/vanguard-native-contact-sheet.yml
+
+permissions:
+  contents: read
+
+env:
+  BLENDER_VERSION: "4.4.0"
+  BLENDER_ARCHIVE: "blender-4.4.0-linux-x64.tar.xz"
+  BLENDER_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0-linux-x64.tar.xz"
+  BLENDER_CHECKSUM_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0.sha256"
+
+jobs:
+  pose-packet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore persistent Blender toolchain
+        id: blender-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+
+      - name: Materialize Blender once
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .toolcache/blender-4.4.0
+          curl --fail --location --retry 3 \
+            "$BLENDER_URL" \
+            --output "$RUNNER_TEMP/$BLENDER_ARCHIVE"
+          curl --fail --location --retry 3 \
+            "$BLENDER_CHECKSUM_URL" \
+            --output "$RUNNER_TEMP/blender-4.4.0.sha256"
+          (
+            cd "$RUNNER_TEMP"
+            grep -E "[[:space:]]+$BLENDER_ARCHIVE$" blender-4.4.0.sha256 \
+              | sha256sum --check --strict -
+          )
+          tar --extract \
+            --file "$RUNNER_TEMP/$BLENDER_ARCHIVE" \
+            --directory .toolcache/blender-4.4.0 \
+            --strip-components 1
+
+      - name: Save persistent Blender toolchain
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+
+      - name: Restore Python package cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pose-packet-pip-pillow-11.3.0
+
+      - name: Install lightweight render dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1-mesa-dri
+          python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
+
+      - name: Render native SwordAttack1 pose packet
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          .toolcache/blender-4.4.0/blender --background \
+            --python-exit-code 1 \
+            --python tools/render_animation_pose_packet.py \
+            -- \
+            --asset public/assets/vanguard/vanguard_rigged_animations.glb \
+            --out-dir generated/vanguard-swordattack1-pose-packet \
+            --action SwordAttack1 \
+            --frames 0,3,6,9,12,15,18,21,24,28,33,38 \
+            --source-fps 60 \
+            --camera-side right
+
+      - name: Assemble exact-grid references
+        run: |
+          python3 tools/assemble_animation_pose_packet.py \
+            --root generated/vanguard-swordattack1-pose-packet
+
+      - name: Verify native geometry contract
+        run: |
+          python3 tools/verify_animation_pose_packet.py \
+            --root generated/vanguard-swordattack1-pose-packet \
+            --report generated/vanguard-swordattack1-pose-packet/verification.json
+
+      - name: Upload source-only pose packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanguard-swordattack1-pose-packet
+          path: generated/vanguard-swordattack1-pose-packet/
+          if-no-files-found: error
+          retention-days: 30

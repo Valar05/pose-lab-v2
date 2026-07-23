@@ -12,6 +12,8 @@ function assert(condition, message) {
 }
 
 const main = read('src/main.js');
+const spriteViewer = read('src/sprite-viewer.js');
+const spriteCapture = read('tools/capture_sprite_review.mjs');
 const readyPose = read('src/ready-pose.js');
 const fistReadyPose = read('src/fist-ready-pose.js');
 const poseStatusSource = read('src/pose-status.js');
@@ -38,6 +40,7 @@ const visualDoctrine = read('docs/VISUAL_VERIFICATION_DOCTRINE.md');
 const pkg = JSON.parse(read('package.json'));
 const vanguardManifest = JSON.parse(read('public/assets/vanguard/vanguard_manifest.json'));
 const vanguardRootMotion = JSON.parse(read('public/assets/vanguard/vanguard_root_motion.json'));
+const fleshpunkAnimationSet = JSON.parse(read('public/assets/vanguard/fleshpunk/animations.json'));
 const crimsonManifest = JSON.parse(read('public/assets/crimson/crimson_manifest.json'));
 const crimsonSwordCalibration = JSON.parse(read('public/assets/crimson/crimson_sword_calibration.json'));
 const crimsonModelViewerConstraints = JSON.parse(read('public/assets/crimson/crimson_model_viewer_constraints.json'));
@@ -124,9 +127,10 @@ for (const texture of [
 ]) {
   assert(exists(`public/assets/meshy/character_sheet_pbr/${texture}`), `missing salvaged Meshy Character Sheet PBR texture: ${texture}`);
 }
-assert(html.includes("import(`./src/main.js${startupSuffix}`)"), 'HTML must load the minimal app entry with the page cacheBust');
+assert(html.includes("startupParams.get('view')") && html.includes("'./src/sprite-viewer.js'") && html.includes("'./src/main.js'"), 'HTML must route between the 2D review and 3D editor entries');
+assert(html.includes('import(`${startupEntry}${startupSuffix}`)'), 'HTML must cache-bust the selected app entry');
 assert(html.includes("stylesheet.href = `./src/styles.css${startupSuffix}`"), 'HTML must load CSS with the page cacheBust');
-assert(html.includes('loading Davin Wingsworth and real sabre'), 'HTML shell must not be blank before JS boots');
+assert(html.includes('loading Pose Lab V2'), 'HTML shell must not be blank before JS boots');
 assert(!html.includes('src="/src/main.js"'), 'GitHub Pages build must not use a root-relative module path');
 assert(html.includes("new URLSearchParams(window.location.search)") && html.includes("startupParams.get('cacheBust')"), 'HTML boot must propagate cacheBust into subresources');
 assert(html.includes('"three": "./vendor/three/build/three.module.js"'), 'HTML must use same-origin vendored Three dependency');
@@ -134,6 +138,13 @@ assert(html.includes('"three/examples/jsm/": "./vendor/three/examples/jsm/"'), '
 assert(!html.includes('cdn.jsdelivr.net'), 'runtime must not depend on a CDN before the app can render');
 assert(!pkg.dependencies, 'repo must not require npm install dependencies for local build');
 assert(pkg.scripts?.build === 'node scripts/build.mjs', 'build must be static and native-binary free');
+assert(pkg.scripts?.['test:2d'] === 'node tools/test_sprite_review_surface.mjs', '2D review asset verification must be explicit');
+assert(exists('.github/workflows/sprite-visual-qa.yml'), '2D review must retain browser visual QA');
+assert(spriteCapture.includes("['idle', 'swordattack1']") && spriteCapture.includes('[data-delta]') && spriteCapture.includes('page.screenshot'), '2D browser QA must capture both animations and delta mode');
+assert(fleshpunkAnimationSet.schema === 'pose-lab-v2-2d-animation-set-v1', 'Fleshpunk 2D animation manifest schema must be stable');
+assert(fleshpunkAnimationSet.animations?.[0]?.id === 'idle' && fleshpunkAnimationSet.animations?.[0]?.frames?.length === 6, 'Fleshpunk 2D review must default to the approved six-frame Idle');
+assert(fleshpunkAnimationSet.animations?.[1]?.id === 'swordattack1' && fleshpunkAnimationSet.animations?.[1]?.frames?.length === 12, 'Fleshpunk 2D review must include the approved twelve-frame SwordAttack1');
+assert(spriteViewer.includes('.durationMs / playbackSpeed') && spriteViewer.includes("stack.classList.toggle('show-onion'") && spriteViewer.includes('buildDeltaImage'), '2D review must play direct PNG frames with timing, onion-skin, and pixel-delta inspection');
 assert(pkg.scripts?.['build:davin'] === 'node tools/build_davin_wingsworth_glb.mjs', 'Davin merged GLB build must be reproducible');
 assert(pkg.scripts?.['inspect:vanguard'] === 'node scripts/run-blender-tool.mjs tools/import_vanguard/inspect_vanguard_blend.py --', 'Vanguard blend inspection must be reproducible');
 assert(pkg.scripts?.['root-motion:vanguard'] === 'node scripts/run-blender-tool.mjs tools/import_vanguard/export_vanguard_root_motion.py --', 'Vanguard root motion extraction must be reproducible');

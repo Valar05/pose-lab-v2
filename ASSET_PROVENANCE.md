@@ -1,5 +1,26 @@
 # Asset Provenance
 
+## Swarmling
+
+- Authoring source: `authoring/swarmling/Swarmling.blend`
+- Authoring manifest: `authoring/swarmling/manifest.json`
+- Source SHA-256: `1ec19b77e6bf4e0cf1fbb85c5a875d76afce68145e8494af548a046b2770b0ca`
+- Source Blender version: 4.04
+- Embedded action names observed before native inspection: `Idle`, `Attack`
+- Tank Kata source inventory:
+  - `assets/generated/meshy/swarmling/Meshy_AI_Swarmling_0723173944_texture.glb`
+  - `assets/generated/meshy/swarmling/Meshy_AI_Swarmling_biped.zip`
+  - `assets/generated/meshy/swarmling/manifest.json`
+- Role: first Fleshpunk beat-em-up enemy and control specimen for ordinary
+  approach, interruption, stagger, and death behavior before Slasherrats teach
+  the game's continuous U-turn movement grammar.
+- Animation rule: native source animation owns pose, limb ownership, timing,
+  and camera-relative choreography. Appearance work may improve costume,
+  materials, colors, and surface treatment without changing animation geometry.
+- Current status: the `.blend` source is preserved in Pose Lab V2. Native
+  Blender inventory, runtime GLB export, locked gameplay-camera renders, and
+  concept-art anchoring remain required before visual acceptance.
+
 
 
 ## Crimson Plume Knight / Arborblade

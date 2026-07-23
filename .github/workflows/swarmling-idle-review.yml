@@ -1,0 +1,167 @@
+name: Swarmling Idle Review
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/vanguard-native-contact-sheet
+    paths:
+      - .github/workflows/swarmling-idle-review.yml
+      - authoring/swarmling/Swarmling.blend
+      - scripts/export-swarmling-idle.mjs
+      - scripts/run-blender-tool.mjs
+      - tools/export_swarmling_idle_game_blender.py
+      - tools/finalize_swarmling_idle_export.py
+      - tools/import_swarmling/inspect_swarmling_blend.py
+      - tools/render_swarmling_action_audit_blender.py
+      - package.json
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: swarmling-idle-review
+  cancel-in-progress: true
+
+env:
+  BLENDER_VERSION: "4.4.3"
+  BLENDER_ARCHIVE: "blender-4.4.3-linux-x64.tar.xz"
+  BLENDER_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.3-linux-x64.tar.xz"
+  BLENDER_CHECKSUM_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.3.sha256"
+
+jobs:
+  render-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Restore compatible Blender 4.4.3 cache
+        id: blender-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.3
+          key: blender-linux-x64-4.4.3-official-sha256-v1
+
+      - name: Materialize compatible Blender once
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .toolcache/blender-4.4.3
+          curl --fail --location --retry 3 \
+            "$BLENDER_URL" \
+            --output "$RUNNER_TEMP/$BLENDER_ARCHIVE"
+          curl --fail --location --retry 3 \
+            "$BLENDER_CHECKSUM_URL" \
+            --output "$RUNNER_TEMP/blender-4.4.3.sha256"
+          (
+            cd "$RUNNER_TEMP"
+            grep -E "[[:space:]]+$BLENDER_ARCHIVE$" blender-4.4.3.sha256 \
+              | sha256sum --check --strict -
+          )
+          tar --extract \
+            --file "$RUNNER_TEMP/$BLENDER_ARCHIVE" \
+            --directory .toolcache/blender-4.4.3 \
+            --strip-components 1
+
+      - name: Save compatible Blender toolchain
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .toolcache/blender-4.4.3
+          key: blender-linux-x64-4.4.3-official-sha256-v1
+
+      - name: Restore Python package cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/pip
+          key: pose-packet-pip-pillow-11.3.0
+
+      - name: Reuse cached Pillow dependency
+        run: |
+          python3 -c "from PIL import Image; print(Image.__version__)" \
+            || python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
+
+      - name: Provide headless render runtime libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1-mesa-dri
+
+      - name: Inventory native Swarmling actions
+        env:
+          BLENDER_BIN: .toolcache/blender-4.4.3/blender
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          npm run inspect:swarmling
+          python3 -m json.tool generated/swarmling/source-inventory.json
+
+      - name: Render fixed-camera native action audit
+        env:
+          BLENDER_BIN: .toolcache/blender-4.4.3/blender
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: npm run audit:swarmling-actions
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: swarmling-native-action-audit
+          path: generated/swarmling/action-audit/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Render and verify native Swarmling Idle
+        env:
+          BLENDER_BIN: .toolcache/blender-4.4.3/blender
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          npm run export:swarmling-idle
+
+      - name: Verify review assets
+        run: |
+          test -f generated/swarmling/idle/idle_0000.png
+          test -f generated/swarmling/idle/contact-sheet.png
+          test -f generated/swarmling/idle/idle.gif
+          test -f public/assets/swarmling/fleshpunk/animations.json
+          npm run test:2d
+          npm run build
+          npm run smoke
+          git diff --check
+
+      - name: Commit rendered review evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/swarmling/fleshpunk
+          if git diff --cached --quiet; then
+            echo "Rendered review evidence already current."
+          else
+            git commit -m "Render native Swarmling idle review"
+            git push
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: swarmling-idle-game-export
+          path: generated/swarmling/idle/
+          if-no-files-found: error
+          retention-days: 30
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: render-publish
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

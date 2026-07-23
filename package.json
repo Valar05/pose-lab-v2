@@ -33,6 +33,9 @@
     "blender:sample-source": "node scripts/run-blender-tool.mjs tools/sample_source_clip_blender.py --",
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs",
+    "test:2d": "node tools/test_sprite_review_surface.mjs",
+    "refinery:vanguard": "python3 tools/vanguard_sprite_refinery.py",
+    "test:vanguard-refinery": "python3 tools/test_vanguard_sprite_refinery.py",
     "build:fist-hands": "node scripts/build-meshy-fist-authoring.mjs",
     "validate:fist-hands": "node tools/validate_meshy_fist_authoring.mjs",
     "build:davin": "node tools/build_davin_wingsworth_glb.mjs",
@@ -68,6 +71,12 @@
     "test:crimson-review-assets": "node tools/test_crimson_review_assets.mjs",
     "review:crimson-attack1:cloud": "node tools/run_crimson_attack1_cloud_review.mjs",
     "review:crimson-attack1:blender-compare": "node scripts/render-crimson-vanguard-attack1-compare.mjs",
-    "review:crimson-shared-rest:blender-compare": "node scripts/render-crimson-vanguard-shared-rest-compare.mjs"
+    "review:crimson-shared-rest:blender-compare": "node scripts/render-crimson-vanguard-shared-rest-compare.mjs",
+    "export:vanguard-idle": "node scripts/export-vanguard-idle.mjs",
+    "test:vanguard-idle-export": "python3 tools/test_vanguard_idle_export.py",
+    "inspect:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/inspect_swarmling_blend.py --",
+    "build:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/export_swarmling_glb.py --",
+    "export:swarmling-idle": "node scripts/export-swarmling-idle.mjs",
+    "audit:swarmling-actions": "node scripts/run-blender-tool.mjs tools/render_swarmling_action_audit_blender.py -- --blend authoring/swarmling/Swarmling.blend --out-dir generated/swarmling/action-audit"
   }
 }
