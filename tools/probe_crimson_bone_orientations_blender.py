@@ -70,6 +70,7 @@ MAPPING_ORTHOGONAL_MAX_DOT = 0.02
 MAPPING_DETERMINANT_MIN = 0.98
 MAPPING_DETERMINANT_MAX = 1.02
 NON_TARGET_EXPORT_DELTA_MAX_DEGREES = 0.001
+REST_BASIS_COMPOSITION_MAX_RESIDUAL_DEGREES = 0.001
 REST_AIM_AXIS_MIN_DOT_Y = 0.999
 MESH_INFLUENCE_MIN_WEIGHT = 0.01
 MESH_INFLUENCE_STRONG_WEIGHT = 0.25
@@ -311,6 +312,7 @@ def bend_contract(armature: bpy.types.Object, bone_name: str) -> dict | None:
         return {"status": "DEGENERATE", "authority": "inferred-from-calibration-positions"}
     normal.normalize()
     local_normal = bone_world_matrix(armature, bone_name).to_3x3().inverted() @ normal
+    local_normal.normalize()
     components = {axis: float(local_normal[index]) for index, axis in enumerate(("X", "Y", "Z"))}
     chosen = max(components, key=lambda axis: abs(components[axis]))
     sign = 1 if components[chosen] >= 0 else -1
@@ -545,8 +547,25 @@ def main() -> None:
         failures.extend(mapping_failures)
         blender_baseline = baseline_basis[bone_name].to_quaternion().normalized()
         gltf_baseline = xyzw_quaternion(mapping["baselineExportedQuaternion"])
+        rest_basis = xyzw_quaternion(rest["parentRelativeRest"]["quaternion"])
+        composed_gltf = (rest_basis @ blender_baseline).normalized()
+        composition_residual = rotation_delta_degrees(composed_gltf, gltf_baseline)
         mapping["baselineBlenderMatrixBasisQuaternion"] = quaternion_payload(blender_baseline)
         mapping["baselineQuaternionAngularDifferenceDegrees"] = round(rotation_delta_degrees(blender_baseline, gltf_baseline), 8)
+        mapping["blenderBasisToGltf"] = {
+            "formula": "gltfLocal = parentRelativeRest * blenderMatrixBasis",
+            "inverseFormula": "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal",
+            "composedQuaternion": quaternion_payload(composed_gltf),
+            "compositionResidualDegrees": round(composition_residual, 8),
+            "maximumResidualDegrees": REST_BASIS_COMPOSITION_MAX_RESIDUAL_DEGREES,
+        }
+        if composition_residual > REST_BASIS_COMPOSITION_MAX_RESIDUAL_DEGREES:
+            failures.append({
+                "code": "REST_BASIS_GLTF_COMPOSITION_MISMATCH",
+                "bone": bone_name,
+                "actualResidualDegrees": round(composition_residual, 8),
+                "maximumResidualDegrees": REST_BASIS_COMPOSITION_MAX_RESIDUAL_DEGREES,
+            })
         bone_ledgers[bone_name] = {
             "rest": rest,
             "calibration": baseline_landmarks[bone_name],

@@ -141,3 +141,12 @@ The probe reconstructs the frozen candidate through glTF import, freezes it, the
 - excluded: every Vanguard quaternion, endpoint, joint coordinate, and rest delta.
 
 The next arm solve must consume the measured ledger in this order: position target, pole guidance, measured bone basis, wrist roll, then visible-mesh weapon seating. The ledger is guidance for a new solve, not permission to relabel the calibration pose as accepted.
+
+The first measured conversion law is deliberately explicit:
+
+```text
+glTF local = parent-relative rest × Blender matrix_basis
+Blender matrix_basis = inverse(parent-relative rest) × glTF local
+```
+
+Signed local-axis deltas survive the export with an identity axis mapping to numerical tolerance. The old failure came from treating an absolute glTF local quaternion as a Blender `matrix_basis` quaternion and thereby omitting the parent-relative rest factor. Any future solver that crosses this boundary must use the measured composition law; direct assignment is a contract violation.

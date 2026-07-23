@@ -61,6 +61,10 @@ def validate(ledger: dict) -> dict:
         for index, row in enumerate(matrix):
             vector(row, 3, f"{bone_name}.mapping.row{index}")
         assert 0.98 <= mapping.get("determinant", 0) <= 1.02
+        composition = mapping.get("blenderBasisToGltf") or {}
+        assert composition.get("formula") == "gltfLocal = parentRelativeRest * blenderMatrixBasis"
+        assert composition.get("inverseFormula") == "blenderMatrixBasis = inverse(parentRelativeRest) * gltfLocal"
+        assert composition.get("compositionResidualDegrees", 1) <= composition.get("maximumResidualDegrees", 0)
         assert set(mapping.get("responses") or {}) == EXPECTED_AXES
         for axis_name, pair in mapping["responses"].items():
             assert pair.get("signedPairDot", 1) <= -0.995, (bone_name, axis_name, pair)
@@ -76,6 +80,7 @@ def validate(ledger: dict) -> dict:
             bend = bone.get("bendGuidance") or {}
             assert bend.get("status") == "INFERRED"
             assert bend.get("preferredBendAxis", {}).get("axis") in EXPECTED_AXES
+            assert 0 <= bend.get("preferredBendAxis", {}).get("alignment", -1) <= 1
     weapon = ledger.get("weaponAttachment") or {}
     assert weapon.get("attachmentBone") == "RightHand"
     assert weapon.get("solveOrder") == [
