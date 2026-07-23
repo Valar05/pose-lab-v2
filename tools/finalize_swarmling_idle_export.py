@@ -199,7 +199,11 @@ def main() -> None:
         "animations": [
             {
                 "id": "idle",
-                "label": "Native Idle Test",
+                "label": (
+                    "Authored Idle Test"
+                    if authored_test_idle
+                    else "Native Idle Test"
+                ),
                 "loop": True,
                 "contactSheet": "idle/contact-sheet.png",
                 "sourceMetadata": "idle/source-metadata.json",

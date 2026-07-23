@@ -24,7 +24,7 @@
   "animations": [
     {
       "id": "idle",
-      "label": "Native Idle Test",
+      "label": "Authored Idle Test",
       "loop": true,
       "contactSheet": "idle/contact-sheet.png",
       "sourceMetadata": "idle/source-metadata.json",
