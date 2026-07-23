@@ -130,6 +130,24 @@ The imported character routes are for direct manual posing and contact
 sheet/source-art preparation. They do not use Meshy Ready, Attack1, fist hands,
 or the real sabre placement lane unless the Meshy model is explicitly selected.
 
+### Vanguard idle game export
+
+The canonical imported Vanguard GLB can be exported as one deterministic,
+game-ready idle slice:
+
+```sh
+npm run export:vanguard-idle
+```
+
+The command uses Vanguard's embedded native `Idle` action, one locked
+orthographic model-right camera, and transparent RGBA output. It writes the
+numbered sequence, contact sheet, GIF, and metadata under
+`generated/vanguard/idle/`. Verification fails closed when the camera changes,
+the background is not transparent, frame dimensions differ, or the projected
+two-foot anchor moves more than two pixels. Set `BLENDER_BIN` to an existing
+Blender executable; without it, the repo-owned runner continues to use the
+existing Debian `proot-distro` Blender installation.
+
 
 ## Crimson Plume Knight / Arborblade
 

@@ -68,6 +68,8 @@
     "test:crimson-review-assets": "node tools/test_crimson_review_assets.mjs",
     "review:crimson-attack1:cloud": "node tools/run_crimson_attack1_cloud_review.mjs",
     "review:crimson-attack1:blender-compare": "node scripts/render-crimson-vanguard-attack1-compare.mjs",
-    "review:crimson-shared-rest:blender-compare": "node scripts/render-crimson-vanguard-shared-rest-compare.mjs"
+    "review:crimson-shared-rest:blender-compare": "node scripts/render-crimson-vanguard-shared-rest-compare.mjs",
+    "export:vanguard-idle": "node scripts/export-vanguard-idle.mjs",
+    "test:vanguard-idle-export": "python3 tools/test_vanguard_idle_export.py"
   }
 }

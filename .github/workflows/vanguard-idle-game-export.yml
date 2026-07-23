@@ -1,0 +1,69 @@
+name: Vanguard Idle Game Export
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/vanguard-native-contact-sheet
+    paths:
+      - .github/workflows/vanguard-idle-game-export.yml
+      - package.json
+      - scripts/export-vanguard-idle.mjs
+      - scripts/run-blender-tool.mjs
+      - tools/export_vanguard_idle_game_blender.py
+      - tools/finalize_vanguard_idle_export.py
+      - tools/test_vanguard_idle_export.py
+      - public/assets/vanguard/vanguard_rigged_animations.glb
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore existing Blender 4.4 cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+          fail-on-cache-miss: true
+
+      - name: Restore Python package cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/pip
+          key: pose-packet-pip-pillow-11.3.0
+
+      - name: Reuse cached Pillow dependency
+        run: |
+          python3 -c "from PIL import Image; print(Image.__version__)" \
+            || python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
+
+      - name: Test fail-closed export verification
+        run: npm run test:vanguard-idle-export
+
+      - name: Export native Vanguard idle
+        env:
+          BLENDER_BIN: .toolcache/blender-4.4.0/blender
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: npm run export:vanguard-idle
+
+      - name: Verify deliverables
+        run: |
+          test -f generated/vanguard/idle/idle_0000.png
+          test -f generated/vanguard/idle/contact_sheet.png
+          test -f generated/vanguard/idle/idle.gif
+          test -f generated/vanguard/idle/metadata.json
+          git diff --check
+
+      - name: Upload game-ready idle export
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanguard-idle-game-export
+          path: generated/vanguard/idle/
+          if-no-files-found: error
+          retention-days: 30
