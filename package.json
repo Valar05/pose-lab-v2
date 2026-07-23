@@ -31,6 +31,8 @@
     "animation:compare": "python3 tools/compare_animation_artifacts.py",
     "blender:render-truth": "node scripts/run-blender-tool.mjs tools/blender_render_pose_truth.py --",
     "blender:sample-source": "node scripts/run-blender-tool.mjs tools/sample_source_clip_blender.py --",
+    "experiment:bvh-retarget": "node scripts/run-blender-tool.mjs tools/bake_bvh_retarget_spike_blender.py --",
+    "test:bvh-retarget-contract": "python3 tools/test_bvh_retarget_contract.py",
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs",
     "test:2d": "node tools/test_sprite_review_surface.mjs",
