@@ -1,0 +1,83 @@
+{
+  "schema": "pose-lab-v2-bvh-bone-map-v1",
+  "source": {
+    "asset": "public/assets/vanguard/vanguard_rigged_animations.glb",
+    "clip": "SwordAttack1",
+    "rigKind": "Rigify export with control, mechanism, deform, IK, FK, hose, weapon, and prop nodes",
+    "map": {
+      "root": "root",
+      "hips": "ORG-hips",
+      "spineLower": "ORG-spine",
+      "spineMid": null,
+      "chest": "ORG-chest",
+      "neck": "ORG-neck",
+      "head": "ORG-head",
+      "clavicle.L": "ORG-shoulder.L",
+      "upperArm.L": "ORG-upper_arm.L",
+      "lowerArm.L": "ORG-forearm.L",
+      "hand.L": "ORG-hand.L",
+      "clavicle.R": "ORG-shoulder.R",
+      "upperArm.R": "ORG-upper_arm.R",
+      "lowerArm.R": "ORG-forearm.R",
+      "hand.R": "ORG-hand.R",
+      "upperLeg.L": "ORG-thigh.L",
+      "lowerLeg.L": "ORG-shin.L",
+      "foot.L": "ORG-foot.L",
+      "upperLeg.R": "ORG-thigh.R",
+      "lowerLeg.R": "ORG-shin.R",
+      "foot.R": "ORG-foot.R"
+    },
+    "samplingPolicy": {
+      "evaluatedPose": true,
+      "copyLocalRotations": false,
+      "method": "Build a clean proxy armature from evaluated ORG-bone world-space joint positions and orientations, then bake the proxy before BVH export.",
+      "spineMid": "Interpolate between ORG-spine and ORG-chest on the proxy; never invent a second source control bone.",
+      "twist": "Recover net limb twist from ORG-hand/ORG-foot orientation. Do not export DEF segments or Rigify hose/twist helpers.",
+      "deformValidation": "After retargeting, DEF bones and rendered mesh pixels are validation evidence only. They are not interchange inputs."
+    }
+  },
+  "target": {
+    "asset": "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb",
+    "rigKind": "Simple 24-joint skinned hierarchy",
+    "armatureScale": 0.01,
+    "map": {
+      "root": "CrimsonPlumeKnight_Armature",
+      "hips": "Hips",
+      "spineLower": "Spine02",
+      "spineMid": "Spine01",
+      "chest": "Spine",
+      "neck": "neck",
+      "head": "Head",
+      "clavicle.L": "LeftShoulder",
+      "upperArm.L": "LeftArm",
+      "lowerArm.L": "LeftForeArm",
+      "hand.L": "LeftHand",
+      "clavicle.R": "RightShoulder",
+      "upperArm.R": "RightArm",
+      "lowerArm.R": "RightForeArm",
+      "hand.R": "RightHand",
+      "upperLeg.L": "LeftUpLeg",
+      "lowerLeg.L": "LeftLeg",
+      "foot.L": "LeftFoot",
+      "upperLeg.R": "RightUpLeg",
+      "lowerLeg.R": "RightLeg",
+      "foot.R": "RightFoot"
+    },
+    "applicationPolicy": {
+      "copyBvhEulerChannelsDirectly": false,
+      "method": "Apply canonical world-space pose deltas relative to a normalized rest pose, convert each delta through the target parent/rest basis, then bake target local rotations.",
+      "translation": "Root only unless an explicit per-joint translation exception is documented.",
+      "scale": "Normalize source and target height before applying root translation."
+    }
+  },
+  "attachmentsOutsideBvh": {
+    "weapon": {
+      "sourceHilt": "Weapon.R",
+      "sourceTip": "Long_Sword",
+      "targetPrimaryGrip": "RightHand -> SaberGrip -> arborblade_sword.glb",
+      "targetOffHand": "A separate left-hand grip/contact constraint over named frame intervals"
+    },
+    "contacts": "Sidecar JSON keyed by frame/phase; BVH has no contact channel.",
+    "reviewCamera": "Existing fixed beat-em-up camera remains downstream evidence, never a retarget transform."
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "pose-lab-v2-canonical-bvh-skeleton-v1",
+  "purpose": "A deliberately small BVH interchange skeleton for evaluated humanoid motion.",
+  "units": "meters",
+  "upAxis": "+Y",
+  "forwardAxis": "+Z",
+  "facing": "screen-right is canonical actor -X after review-camera placement",
+  "frameRate": 60,
+  "rootMotion": {
+    "joint": "root",
+    "translationChannels": true,
+    "rotationChannels": true,
+    "policy": "Preserve during interchange; suppress only in a named game-export pass."
+  },
+  "rotationChannels": ["Zrotation", "Xrotation", "Yrotation"],
+  "joints": [
+    {"name": "root", "parent": null},
+    {"name": "hips", "parent": "root"},
+    {"name": "spineLower", "parent": "hips"},
+    {"name": "spineMid", "parent": "spineLower"},
+    {"name": "chest", "parent": "spineMid"},
+    {"name": "neck", "parent": "chest"},
+    {"name": "head", "parent": "neck"},
+    {"name": "clavicle.L", "parent": "chest"},
+    {"name": "upperArm.L", "parent": "clavicle.L"},
+    {"name": "lowerArm.L", "parent": "upperArm.L"},
+    {"name": "hand.L", "parent": "lowerArm.L"},
+    {"name": "clavicle.R", "parent": "chest"},
+    {"name": "upperArm.R", "parent": "clavicle.R"},
+    {"name": "lowerArm.R", "parent": "upperArm.R"},
+    {"name": "hand.R", "parent": "lowerArm.R"},
+    {"name": "upperLeg.L", "parent": "hips"},
+    {"name": "lowerLeg.L", "parent": "upperLeg.L"},
+    {"name": "foot.L", "parent": "lowerLeg.L"},
+    {"name": "upperLeg.R", "parent": "hips"},
+    {"name": "lowerLeg.R", "parent": "upperLeg.R"},
+    {"name": "foot.R", "parent": "lowerLeg.R"}
+  ],
+  "excludedByDesign": [
+    "fingers",
+    "toe end sites",
+    "twist and hose bones",
+    "IK and FK controls",
+    "mechanism bones",
+    "weapon and prop sockets",
+    "armor secondary motion"
+  ]
+}

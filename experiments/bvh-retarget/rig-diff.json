@@ -1,0 +1,2295 @@
+{
+  "schema": "pose-lab-v2-bvh-rig-diff-v1",
+  "sourceAsset": "public/assets/vanguard/vanguard_rigged_animations.glb",
+  "targetAsset": "public/assets/crimson/crimson_plume_knight_rigged_pbr.glb",
+  "source": {
+    "nodeCount": 440,
+    "skinJointCount": 437,
+    "rootNodes": [
+      {
+        "name": "rig",
+        "translation": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    ],
+    "animations": [
+      "0T-Pose",
+      "ClubIdle",
+      "Idle",
+      "Jump",
+      "JumpCrouch",
+      "JumpForward",
+      "Land",
+      "LedgeClimb",
+      "LedgeGrab",
+      "LedgeGrabHang",
+      "Midair",
+      "MidairSwordAttack1",
+      "MidairSwordAttack2",
+      "RunForwardOld",
+      "SpinAttack",
+      "SwordAttack1",
+      "SwordAttack2",
+      "SwordAttack3",
+      "SwordAttack4",
+      "SwordAttack5"
+    ],
+    "selectedClip": "SwordAttack1",
+    "selectedClipFound": true,
+    "selectedClipChannelCount": 1311,
+    "selectedClipTrackedNodeCount": 437,
+    "selectedClipTrackPaths": {
+      "BackSheath": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-chest": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_index.01.L.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_index.01.L.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_index.01.R.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_index.01.R.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_index.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_index.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_index.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_index.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_middle.01.L.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_middle.01.L.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_middle.01.R.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_middle.01.R.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_middle.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_middle.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_middle.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_middle.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_pinky.01.L.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_pinky.01.L.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_pinky.01.R.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_pinky.01.R.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_pinky.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_pinky.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_pinky.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_pinky.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_ring.01.L.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_ring.01.L.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_ring.01.R.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_ring.01.R.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_ring.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_ring.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_ring.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-f_ring.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-foot.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-foot.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-forearm.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-forearm.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-forearm.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-forearm.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-hand.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-hand.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-head": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-hips": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-neck": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-palm.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-palm.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-palm.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-palm.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-palm.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-palm.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-palm.04.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-palm.04.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-shin.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-shin.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-shin.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-shin.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-shoulder.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-shoulder.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-spine": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thigh.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thigh.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thigh.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thigh.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thumb.01.L.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thumb.01.L.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thumb.01.R.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thumb.01.R.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thumb.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thumb.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thumb.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-thumb.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-toe.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-toe.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-upper_arm.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-upper_arm.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-upper_arm.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "DEF-upper_arm.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "HipSheath": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-chest.flex": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-chest.flex_s": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-chest.reverse": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-elbow_hose_p.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-elbow_hose_p.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-elbow_target.ik_parent.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-elbow_target.ik_parent.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_index.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_index.01.L.tip": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_index.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_index.01.R.tip": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_index.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_index.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_index.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_index.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_middle.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_middle.01.L.tip": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_middle.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_middle.01.R.tip": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_middle.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_middle.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_middle.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_middle.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_pinky.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_pinky.01.L.tip": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_pinky.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_pinky.01.R.tip": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_pinky.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_pinky.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_pinky.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_pinky.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_ring.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_ring.01.L.tip": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_ring.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_ring.01.R.tip": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_ring.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_ring.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_ring.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-f_ring.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.L.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.L.rocker.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.L.rocker.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.L.roll.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.L.roll.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.R.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.R.rocker.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.R.rocker.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.R.roll.01": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-foot.R.roll.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm.junc.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm.junc.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm.nostr.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm.nostr.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm.stretch.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm.stretch.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm_antistr.fk.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm_antistr.fk.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm_hose_end_p.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm_hose_end_p.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm_hose_p.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm_hose_p.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm_smth.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-forearm_smth.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hand.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hand.L.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hand.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hand.R.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-head": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-head.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-head.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-head.socket1": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-head.socket2": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips.flex": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips.flex_s": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips.reverse": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_fk_ns_ch": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_fk_ns_ch.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_fk_ns_intr": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_fk_ns_intr.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_ik_ns_ch": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_ik_ns_ch.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_ik_ns_intr": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_ik_ns_intr.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_rh_ns_ch": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_rh_ns_ch.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_rh_ns_intr": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-hips_rh_ns_intr.001": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-knee_hose_p.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-knee_hose_p.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-knee_target.ik_parent.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-knee_target.ik_parent.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-neck": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-neck.02": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-neck.child": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-neck.follow": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-par_spine": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin.junc.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin.junc.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin.nostr.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin.nostr.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin.stretch.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin.stretch.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin_antistr.fk.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin_antistr.fk.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin_hose_end_p.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin_hose_end_p.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin_hose_p.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin_hose_p.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin_smth.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shin_smth.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_fk_ns_ch.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_fk_ns_ch.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_fk_ns_intr.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_fk_ns_intr.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_ik_ns_ch.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_ik_ns_ch.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_ik_ns_intr.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_ik_ns_intr.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_rh_ns_ch.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_rh_ns_ch.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_rh_ns_intr.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-shoulder_rh_ns_intr.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-spine.flex": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-spine.flex_s": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-spine.reverse": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-sub_chest": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-sub_hips": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-sub_spine": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh.fk.L.socket1": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh.fk.L.socket2": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh.fk.R.socket1": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh.fk.R.socket2": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh.nostr.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh.nostr.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh.stretch.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh.stretch.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh_antistr.fk.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh_antistr.fk.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh_hose_end_p.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh_hose_end_p.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh_hose_p.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh_hose_p.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh_smth.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thigh_smth.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thumb.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thumb.01.L.tip": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thumb.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thumb.01.R.tip": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thumb.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thumb.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thumb.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-thumb.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-toe.L.parent": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-toe.L.socket1": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-toe.L.socket2": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-toe.R.parent": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-toe.R.socket1": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-toe.R.socket2": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm.fk.L.socket1": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm.fk.L.socket2": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm.fk.R.socket1": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm.fk.R.socket2": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm.nostr.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm.nostr.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm.stretch.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm.stretch.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm_antistr.fk.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm_antistr.fk.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm_hose_end_p.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm_hose_end_p.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm_hose_p.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm_hose_p.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm_smth.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "MCH-upper_arm_smth.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-chest": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_index.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_index.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_index.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_index.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_index.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_index.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_middle.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_middle.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_middle.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_middle.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_middle.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_middle.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_pinky.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_pinky.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_pinky.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_pinky.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_pinky.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_pinky.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_ring.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_ring.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_ring.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_ring.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_ring.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-f_ring.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-foot.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-foot.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-forearm.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-forearm.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-hand.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-hand.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-head": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-heel.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-heel.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-heel.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-heel.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-hips": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-neck": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-palm.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-palm.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-palm.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-palm.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-palm.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-palm.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-palm.04.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-palm.04.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-shin.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-shin.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-shoulder.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-shoulder.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-spine": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-thigh.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-thigh.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-thumb.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-thumb.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-thumb.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-thumb.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-thumb.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-thumb.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-toe.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-toe.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-upper_arm.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "ORG-upper_arm.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "Pauldron.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "Pauldron.helper.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "VIS-foot.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "VIS-foot.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "VIS-hand.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "VIS-hand.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "VIS-thigh_pole.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "VIS-thigh_pole.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "VIS-upper_arm_pole.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "VIS-upper_arm_pole.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "Weapon.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "Weapon.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "chest": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "elbow_hose.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "elbow_hose.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "elbow_target.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "elbow_target.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_index.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_index.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_index.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_index.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_index.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_index.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_index.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_index.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_middle.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_middle.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_middle.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_middle.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_middle.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_middle.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_middle.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_middle.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_pinky.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_pinky.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_pinky.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_pinky.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_pinky.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_pinky.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_pinky.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_pinky.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_ring.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_ring.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_ring.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_ring.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_ring.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_ring.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_ring.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "f_ring.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "foot.fk.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "foot.fk.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "foot.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "foot.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "foot_roll.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "foot_roll.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "forearm.fk.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "forearm.fk.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "forearm_hose.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "forearm_hose.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "forearm_hose_end.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "forearm_hose_end.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "hand.fk.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "hand.fk.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "hand.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "hand.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "head": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "hips": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "knee_hose.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "knee_hose.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "knee_target.ik.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "knee_target.ik.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "neck": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "palm.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "palm.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "root": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "shin.fk.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "shin.fk.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "shin_hose.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "shin_hose.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "shin_hose_end.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "shin_hose_end.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "shoulder.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "shoulder.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "spine": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thigh.fk.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thigh.fk.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thigh_hose.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thigh_hose.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thigh_hose_end.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thigh_hose_end.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thumb.01.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thumb.01.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thumb.02.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thumb.02.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thumb.03.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thumb.03.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thumb.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "thumb.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "toe.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "toe.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "torso": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "upper_arm.fk.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "upper_arm.fk.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "upper_arm_hose.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "upper_arm_hose.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "upper_arm_hose_end.L": [
+        "rotation",
+        "scale",
+        "translation"
+      ],
+      "upper_arm_hose_end.R": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    }
+  },
+  "target": {
+    "nodeCount": 26,
+    "skinJointCount": 24,
+    "rootNodes": [
+      {
+        "name": "CrimsonPlumeKnight_Armature",
+        "translation": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "scale": [
+          0.009999999776482582,
+          0.009999999776482582,
+          0.009999999776482582
+        ]
+      }
+    ],
+    "animations": [
+      "CrimsonPlumeKnight|walking|baselayer",
+      "CrimsonPlumeKnight|running|baselayer"
+    ],
+    "selectedClip": null,
+    "selectedClipFound": null,
+    "selectedClipChannelCount": 0,
+    "selectedClipTrackedNodeCount": 0,
+    "selectedClipTrackPaths": {}
+  },
+  "canonicalJointCount": 21,
+  "mapping": {
+    "missingSourceNodes": {},
+    "missingTargetNodes": {},
+    "complete": true,
+    "intentionalSourceGaps": {
+      "spineMid": null
+    }
+  },
+  "diagnosis": [
+    "Vanguard SwordAttack1 animates the complete exported Rigify graph, not a game-sized deform skeleton.",
+    "Crimson exposes a small direct hierarchy and cannot consume Vanguard control/mechanism channels by name or local basis.",
+    "The rigs use different rest orientations, hierarchy density, twist distribution, root conventions, and apparent units.",
+    "A canonical proxy sampled from evaluated ORG bones is required before BVH export; direct Vanguard-to-BVH export preserves the wrong complexity.",
+    "DEF segments are downstream deformation evidence, not interchange joints.",
+    "BVH can carry canonical joint motion but cannot carry weapon closure, contacts, constraints, or armor correction."
+  ],
+  "status": "ready-for-blender-proxy-bake"
+}
