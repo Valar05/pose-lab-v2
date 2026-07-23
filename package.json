@@ -71,6 +71,8 @@
     "review:crimson-attack1:blender-compare": "node scripts/render-crimson-vanguard-attack1-compare.mjs",
     "review:crimson-shared-rest:blender-compare": "node scripts/render-crimson-vanguard-shared-rest-compare.mjs",
     "export:vanguard-idle": "node scripts/export-vanguard-idle.mjs",
-    "test:vanguard-idle-export": "python3 tools/test_vanguard_idle_export.py"
+    "test:vanguard-idle-export": "python3 tools/test_vanguard_idle_export.py",
+    "inspect:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/inspect_swarmling_blend.py --",
+    "build:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/export_swarmling_glb.py --"
   }
 }
