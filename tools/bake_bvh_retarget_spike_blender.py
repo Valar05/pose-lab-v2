@@ -282,6 +282,12 @@ def trajectory_errors(
     imported: bpy.types.Object,
     sampled: dict[int, dict[str, dict[str, Matrix]]],
 ) -> list[dict]:
+    skeleton = json.loads(SKELETON.read_text())
+    primary_child = {}
+    for entry in skeleton["joints"]:
+        parent = entry["parent"]
+        if parent and parent not in primary_child:
+            primary_child[parent] = entry["name"]
     errors = []
     for frame, bones in sampled.items():
         # Blender's BVH importer places the first motion row at frame 1 even
@@ -294,12 +300,22 @@ def trajectory_errors(
                 raise RuntimeError(f"BVH round trip lost {name}")
             actual_world = imported.matrix_world @ imported_bone.matrix
             expected_world = original["world"]
-            dot = max(-1.0, min(1.0, direction(actual_world).dot(direction(expected_world))))
+            child_name = primary_child.get(name)
+            direction_error = 0.0
+            if child_name:
+                actual_child = (
+                    imported.matrix_world @ imported.pose.bones[child_name].matrix
+                ).translation
+                expected_child = bones[child_name]["world"].translation
+                actual_segment = (actual_child - actual_world.translation).normalized()
+                expected_segment = (expected_child - expected_world.translation).normalized()
+                dot = max(-1.0, min(1.0, actual_segment.dot(expected_segment)))
+                direction_error = math.degrees(math.acos(dot))
             errors.append({
                 "frame": frame,
                 "bone": name,
                 "position": (actual_world.translation - expected_world.translation).length,
-                "directionErrorDeg": math.degrees(math.acos(dot)),
+                "directionErrorDeg": direction_error,
                 "expectedPosition": list(expected_world.translation),
                 "actualPosition": list(actual_world.translation),
             })
@@ -379,6 +395,11 @@ def bake_target(
         for entry in skeleton["joints"]
         if entry["name"] != "root"
     }
+    primary_child = {}
+    for entry in skeleton["joints"]:
+        parent = entry["parent"]
+        if parent and parent not in primary_child:
+            primary_child[parent] = entry["name"]
     canonical_rest = {name: canonical.data.bones[name].matrix_local.copy() for name in order}
     target_rest = {name: target.data.bones[target_map[name]].matrix_local.copy() for name in order}
     target_local = {name: rest_local(target, target_map[name]) for name in order}
@@ -388,7 +409,16 @@ def bake_target(
         desired: dict[str, Matrix] = {}
         for name in order:
             source_pose = canonical.matrix_world @ canonical.pose.bones[name].matrix
-            source_direction_world = direction(source_pose)
+            child_name = primary_child.get(name)
+            if child_name:
+                source_child = (
+                    canonical.matrix_world @ canonical.pose.bones[child_name].matrix
+                ).translation
+                source_direction_world = (
+                    source_child - source_pose.translation
+                ).normalized()
+            else:
+                source_direction_world = direction(source_pose)
             source_direction_target = (
                 target.matrix_world.inverted().to_3x3() @ source_direction_world
             ).normalized()
