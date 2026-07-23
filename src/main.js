@@ -21,6 +21,7 @@ const ASSETS = {
   ares: './assets/ares/ares_rigged_diffuse.glb',
   securityTitan: './assets/ares/security_titan_rigged_diffuse.glb',
   vanguard: './assets/vanguard/vanguard_rigged_animations.glb',
+  vanguardFleshpunkAnimations: './assets/vanguard/fleshpunk/animations.json',
 };
 const MIXAMO_BONE_MAP = Object.freeze({
   Hips: 'mixamorig:Hips',
@@ -143,6 +144,7 @@ const CHARACTER_ASSETS = Object.freeze({
     supportsFistHands: false,
     supportsAnimationClips: true,
     defaultClip: 'Idle',
+    spriteAnimationManifest: ASSETS.vanguardFleshpunkAnimations,
   },
 });
 const CHARACTER_KEY_ALIASES = Object.freeze({
@@ -270,6 +272,12 @@ app.innerHTML = `
     </div>
     <div class="viewport">
       <canvas aria-label="${ACTIVE_CHARACTER.label} pose viewport"></canvas>
+      <div class="two-d-sprite-stage" data-two-d-sprite-stage hidden aria-label="Fleshpunk Vanguard sprite animation preview">
+        <div class="two-d-sprite-frame">
+          <img data-two-d-sprite alt="" />
+          <div class="two-d-ground-line" aria-hidden="true"></div>
+        </div>
+      </div>
       <div class="primary-rail" aria-label="Primary review controls">
         <button type="button" data-cycle-character>Model: ${ACTIVE_CHARACTER.label}</button>
         <button type="button" data-cycle-tool>Tool: Saber</button>
@@ -292,6 +300,24 @@ app.innerHTML = `
         </div>
         <input type="range" min="0" max="1.25" step="0.041667" value="0" data-attack-scrub aria-label="Attack time scrubber" />
         <div class="attack-primes" data-attack-primes aria-label="Attack prime keys"></div>
+      </div>
+      <div class="two-d-preview" data-two-d-preview hidden aria-label="Fixed-camera 2D animation preview controls">
+        <div class="two-d-preview-heading">
+          <strong>2D Preview</strong>
+          <output data-two-d-clip-name aria-live="polite">No clip</output>
+          <output data-two-d-frame-readout aria-live="polite">Frame 0 / 0</output>
+        </div>
+        <div class="two-d-preview-actions">
+          <button type="button" data-two-d-previous-frame aria-label="Previous sampled frame">◀ Frame</button>
+          <button type="button" data-two-d-play-pause aria-label="Pause 2D animation preview">Pause</button>
+          <button type="button" data-two-d-next-frame aria-label="Next sampled frame">Frame ▶</button>
+          <button type="button" data-two-d-speed aria-label="Change 2D preview playback speed">Speed: 1×</button>
+          <button type="button" data-two-d-cycle-clip aria-label="Select next animation clip">Clip</button>
+        </div>
+        <label class="two-d-preview-scrub">
+          <span>Sampled frame</span>
+          <input type="range" min="0" max="0" step="1" value="0" data-two-d-scrub aria-label="Sampled animation frame" />
+        </label>
       </div>
       <div class="tip-match-overlay" data-tip-match-overlay hidden aria-label="Tip match review overlay">
         <span class="tip-dot tip-dot-target" data-tip-target></span>
@@ -435,6 +461,17 @@ const tipTargetDot = app.querySelector('[data-tip-target]');
 const tipActualDot = app.querySelector('[data-tip-actual]');
 const tipHiltDot = app.querySelector('[data-tip-hilt]');
 const tipMatchReadout = app.querySelector('[data-tip-match-readout]');
+const twoDPreviewPanel = app.querySelector('[data-two-d-preview]');
+const twoDClipName = app.querySelector('[data-two-d-clip-name]');
+const twoDFrameReadout = app.querySelector('[data-two-d-frame-readout]');
+const twoDPreviousFrameButton = app.querySelector('[data-two-d-previous-frame]');
+const twoDPlayPauseButton = app.querySelector('[data-two-d-play-pause]');
+const twoDNextFrameButton = app.querySelector('[data-two-d-next-frame]');
+const twoDSpeedButton = app.querySelector('[data-two-d-speed]');
+const twoDCycleClipButton = app.querySelector('[data-two-d-cycle-clip]');
+const twoDScrubInput = app.querySelector('[data-two-d-scrub]');
+const twoDSpriteStage = app.querySelector('[data-two-d-sprite-stage]');
+const twoDSpriteImage = app.querySelector('[data-two-d-sprite]');
 
 let toolMode = 'saber';
 let viewMode = 'orbit';
@@ -557,6 +594,8 @@ const orbitCameraState = {
   minDistance: 1.5,
   maxDistance: 8,
 };
+const TWO_D_PREVIEW_SPEED_OPTIONS = Object.freeze([0.25, 0.5, 1]);
+const TWO_D_PREVIEW_DEFAULT_SPEED = 1;
 const firstPersonCameraConfig = {
   cameraMode: 'head-forward',
   anchor: 'Head',
@@ -780,6 +819,12 @@ let activeImportedAnimationClip = null;
 let importedRootMotionBone = null;
 let importedRootMotionRestPosition = null;
 const importedAnimationClock = new THREE.Clock();
+let twoDSpriteManifest = null;
+let activeTwoDAnimation = null;
+let twoDPreviewSpeed = TWO_D_PREVIEW_DEFAULT_SPEED;
+let twoDPreviewPlaying = true;
+let twoDPreviewFrame = 0;
+let twoDPreviewDeadline = null;
 let manualAttackDraft = null;
 let manualAttackSelectedKey = 'start';
 let manualAttackDirty = false;
@@ -1550,7 +1595,10 @@ function updatePoseHandles() {
   if (!poseHandles.size) return;
   for (const [name, handle] of poseHandles) {
     const bone = poseBones.get(name);
-    handle.visible = toolMode === 'pose' && (!isSequenceReviewState() || DEBUG_BONES) && (viewMode !== 'firstPerson' || fpvPoseHandleVisible(name));
+    handle.visible = viewMode !== 'twoD'
+      && toolMode === 'pose'
+      && (!isSequenceReviewState() || DEBUG_BONES)
+      && (viewMode !== 'firstPerson' || fpvPoseHandleVisible(name));
     if (!bone) continue;
     const head = objectWorldPosition(bone);
     const tail = poseBoneTailPosition(bone, head);
@@ -2280,9 +2328,10 @@ function initialPoseStateFromUrl() {
 }
 
 function initialViewModeFromUrl() {
-  return URL_PARAMS.get('view') === 'fpv' || URL_PARAMS.get('view') === 'firstPerson'
-    ? 'firstPerson'
-    : 'orbit';
+  const requested = String(URL_PARAMS.get('view') || '').toLowerCase();
+  if (requested === 'fpv' || requested === 'firstperson') return 'firstPerson';
+  if (requested === '2d' || requested === 'sprite' || requested === 'side') return 'twoD';
+  return 'orbit';
 }
 
 async function loadGltf(url, { announce = true, label = null } = {}) {
@@ -2397,7 +2446,12 @@ function playImportedAnimation(name = null) {
   importedAnimationAction.reset();
   importedAnimationAction.play();
   activeImportedAnimationClip = clip;
-  importedAnimationClock.start();
+  if (viewMode === 'twoD') {
+    importedAnimationAction.paused = true;
+  } else {
+    importedAnimationAction.paused = false;
+    importedAnimationClock.start();
+  }
   statusEl.textContent = `${ACTIVE_CHARACTER.label}: playing ${clip.name}`;
   renderControls();
   updateReadout();
@@ -2425,6 +2479,184 @@ function cycleImportedAnimation() {
   const currentIndex = importedAnimationClips.findIndex((clip) => clip === activeImportedAnimationClip);
   const next = importedAnimationClips[(Math.max(0, currentIndex) + 1) % importedAnimationClips.length];
   playImportedAnimation(next.name);
+}
+
+async function loadTwoDSpriteManifest() {
+  const manifestUrl = ACTIVE_CHARACTER.spriteAnimationManifest;
+  if (!manifestUrl) return null;
+  const cacheBust = URL_PARAMS.get('cacheBust');
+  const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
+  const response = await fetch(`${manifestUrl}${suffix}`);
+  if (!response.ok) throw new Error(`failed 2D sprite manifest: ${response.status} ${response.statusText}`);
+  const manifest = await response.json();
+  if (manifest.schema !== 'pose-lab-v2-sprite-animation-set-v1') {
+    throw new Error(`unsupported 2D sprite manifest schema: ${manifest.schema}`);
+  }
+  if (!Array.isArray(manifest.animations) || !manifest.animations.length) {
+    throw new Error('2D sprite manifest has no animations');
+  }
+  for (const animation of manifest.animations) {
+    if (!Array.isArray(animation.frames) || !animation.frames.length) {
+      throw new Error(`2D sprite animation ${animation.id || animation.clip || 'unknown'} has no frames`);
+    }
+  }
+  const frameSources = manifest.animations.flatMap((animation) => (
+    animation.frames.map((frame) => frame.src)
+  ));
+  await Promise.all(frameSources.map((src) => new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = resolve;
+    image.onerror = () => reject(new Error(`failed 2D sprite frame: ${src}`));
+    image.src = twoDSpriteAssetUrl(src);
+  })));
+  document.body.dataset.twoDSpriteFramesReady = String(frameSources.length);
+  return manifest;
+}
+
+function twoDAnimations() {
+  return twoDSpriteManifest?.animations || [];
+}
+
+function twoDAnimationByName(name) {
+  const lower = String(name || '').toLowerCase();
+  return twoDAnimations().find((animation) => (
+    String(animation.id || '').toLowerCase() === lower
+    || String(animation.clip || '').toLowerCase() === lower
+    || String(animation.label || '').toLowerCase() === lower
+  )) || null;
+}
+
+function selectTwoDAnimation(name = null) {
+  const animation = twoDAnimationByName(name)
+    || twoDAnimationByName(ACTIVE_CHARACTER.defaultClip)
+    || twoDAnimations()[0]
+    || null;
+  if (!animation) return false;
+  activeTwoDAnimation = animation;
+  twoDPreviewPlaying = true;
+  resetTwoDPreviewTimeline(0);
+  applyTwoDPreviewFrame(0);
+  return true;
+}
+
+function cycleTwoDAnimation() {
+  const animations = twoDAnimations();
+  if (!animations.length) return;
+  const currentIndex = animations.indexOf(activeTwoDAnimation);
+  const next = animations[(Math.max(0, currentIndex) + 1) % animations.length];
+  selectTwoDAnimation(next.id || next.clip);
+}
+
+function cycleAnimationForView() {
+  if (viewMode === 'twoD') cycleTwoDAnimation();
+  else cycleImportedAnimation();
+}
+
+function twoDPreviewFrameCount() {
+  return activeTwoDAnimation?.frames?.length || 0;
+}
+
+function twoDPreviewFrameTime(frame = twoDPreviewFrame) {
+  const frames = activeTwoDAnimation?.frames || [];
+  return frames.slice(0, Math.max(0, frame)).reduce(
+    (total, entry) => total + Number(entry.durationMs || 0),
+    0,
+  ) / 1000;
+}
+
+function twoDPreviewFrameDuration(frame = twoDPreviewFrame) {
+  const duration = Number(activeTwoDAnimation?.frames?.[frame]?.durationMs || 0);
+  return Math.max(1, duration);
+}
+
+function twoDSpriteAssetUrl(src) {
+  const manifestUrl = new URL(ACTIVE_CHARACTER.spriteAnimationManifest, window.location.href);
+  return new URL(src, manifestUrl).href;
+}
+
+function twoDSpriteUrl(frame) {
+  return twoDSpriteAssetUrl(frame.src);
+}
+
+function resetTwoDPreviewTimeline(frame = twoDPreviewFrame) {
+  const frameCount = twoDPreviewFrameCount();
+  twoDPreviewFrame = frameCount ? ((Math.round(frame) % frameCount) + frameCount) % frameCount : 0;
+  twoDPreviewDeadline = performance.now() + (twoDPreviewFrameDuration() / twoDPreviewSpeed);
+}
+
+function applyTwoDPreviewFrame(frame) {
+  const frameCount = twoDPreviewFrameCount();
+  if (!twoDSpriteImage || !frameCount) return false;
+  twoDPreviewFrame = ((Math.round(frame) % frameCount) + frameCount) % frameCount;
+  const frameRecord = activeTwoDAnimation.frames[twoDPreviewFrame];
+  const src = twoDSpriteUrl(frameRecord);
+  if (twoDSpriteImage.src !== src) twoDSpriteImage.src = src;
+  twoDSpriteImage.alt = `${twoDSpriteManifest.character}, ${activeTwoDAnimation.label}, frame ${twoDPreviewFrame + 1} of ${frameCount}`;
+  document.body.dataset.twoDPreviewFrame = String(twoDPreviewFrame);
+  document.body.dataset.twoDPreviewTime = twoDPreviewFrameTime(twoDPreviewFrame).toFixed(6);
+  document.body.dataset.twoDPreviewFrameDurationMs = String(twoDPreviewFrameDuration());
+  updateTwoDPreviewControls();
+  return true;
+}
+
+function setTwoDPreviewFrame(frame, { pause = true } = {}) {
+  if (pause) twoDPreviewPlaying = false;
+  resetTwoDPreviewTimeline(frame);
+  applyTwoDPreviewFrame(twoDPreviewFrame);
+}
+
+function updateTwoDPreviewPlayback(now = performance.now()) {
+  if (viewMode !== 'twoD' || !twoDPreviewPlaying) return;
+  const frameCount = twoDPreviewFrameCount();
+  if (!frameCount) return;
+  if (twoDPreviewDeadline === null) resetTwoDPreviewTimeline(twoDPreviewFrame);
+  let nextFrame = twoDPreviewFrame;
+  let deadline = twoDPreviewDeadline;
+  while (now >= deadline) {
+    nextFrame = (nextFrame + 1) % frameCount;
+    deadline += twoDPreviewFrameDuration(nextFrame) / twoDPreviewSpeed;
+  }
+  twoDPreviewDeadline = deadline;
+  if (nextFrame !== twoDPreviewFrame) applyTwoDPreviewFrame(nextFrame);
+}
+
+function toggleTwoDPreviewPlayback() {
+  twoDPreviewPlaying = !twoDPreviewPlaying;
+  resetTwoDPreviewTimeline(twoDPreviewFrame);
+  applyTwoDPreviewFrame(twoDPreviewFrame);
+}
+
+function cycleTwoDPreviewSpeed() {
+  const currentIndex = TWO_D_PREVIEW_SPEED_OPTIONS.indexOf(twoDPreviewSpeed);
+  twoDPreviewSpeed = TWO_D_PREVIEW_SPEED_OPTIONS[(Math.max(0, currentIndex) + 1) % TWO_D_PREVIEW_SPEED_OPTIONS.length];
+  resetTwoDPreviewTimeline(twoDPreviewFrame);
+  applyTwoDPreviewFrame(twoDPreviewFrame);
+}
+
+function stepTwoDPreview(direction) {
+  setTwoDPreviewFrame(twoDPreviewFrame + direction);
+}
+
+function updateTwoDPreviewControls() {
+  if (!twoDPreviewPanel) return;
+  const active = viewMode === 'twoD' && Boolean(activeTwoDAnimation);
+  twoDPreviewPanel.hidden = !active;
+  if (twoDSpriteStage) twoDSpriteStage.hidden = !active;
+  if (!active) return;
+  const frameCount = twoDPreviewFrameCount();
+  const frameTime = twoDPreviewFrameTime();
+  twoDClipName.value = activeTwoDAnimation.label;
+  twoDFrameReadout.value = `Frame ${twoDPreviewFrame + 1} / ${frameCount} · ${frameTime.toFixed(3)}s · ${twoDPreviewFrameDuration()}ms`;
+  twoDPlayPauseButton.textContent = twoDPreviewPlaying ? 'Pause' : 'Play';
+  twoDPlayPauseButton.setAttribute('aria-label', `${twoDPreviewPlaying ? 'Pause' : 'Play'} 2D animation preview`);
+  twoDSpeedButton.textContent = `Speed: ${twoDPreviewSpeed}×`;
+  twoDCycleClipButton.textContent = `Clip: ${activeTwoDAnimation.label}`;
+  twoDScrubInput.max = String(Math.max(0, frameCount - 1));
+  twoDScrubInput.value = String(twoDPreviewFrame);
+  document.body.dataset.twoDPreview = '1';
+  document.body.dataset.twoDPreviewClip = activeTwoDAnimation.clip;
+  document.body.dataset.twoDPreviewSpeed = String(twoDPreviewSpeed);
+  document.body.dataset.twoDPreviewPlaying = String(twoDPreviewPlaying);
 }
 
 function setMode(next) {
@@ -2627,10 +2859,17 @@ function renderControls() {
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
   cyclePoseStateButton.textContent = `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
   if (cycleAnimationButton) {
-    cycleAnimationButton.hidden = !importedAnimationClips.length;
-    cycleAnimationButton.textContent = `Anim: ${activeImportedAnimationClip?.name || 'None'}`;
+    cycleAnimationButton.hidden = viewMode === 'twoD'
+      ? !twoDAnimations().length
+      : !importedAnimationClips.length;
+    cycleAnimationButton.textContent = `Anim: ${
+      viewMode === 'twoD'
+        ? activeTwoDAnimation?.label || 'None'
+        : activeImportedAnimationClip?.name || 'None'
+    }`;
   }
-  cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
+  cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : viewMode === 'twoD' ? '2D' : 'Orbit'}`;
+  updateTwoDPreviewControls();
   updateAttackReviewControls();
   if (poseState === 'attack1' && manualAttackDraft) {
     statusEl.textContent = `Attack1 manual: ${manualAttackSelectedKey}${manualAttackDirty ? ' unsaved' : ''}`;
@@ -2656,6 +2895,8 @@ function renderControls() {
 function applyOrbitCamera() {
   viewMode = 'orbit';
   document.body.classList.remove('is-fpv');
+  document.body.classList.remove('is-2d');
+  floor.visible = true;
   updateFpvBodyMasks();
   controls.enabled = true;
   camera.fov = orbitCameraState.fov;
@@ -2667,6 +2908,29 @@ function applyOrbitCamera() {
   controls.target.copy(orbitCameraState.target);
   camera.updateProjectionMatrix();
   controls.update();
+}
+
+function applyTwoDView() {
+  viewMode = 'twoD';
+  document.body.classList.remove('is-fpv');
+  document.body.classList.add('is-2d');
+  setFpvSettingsOpen(false);
+  controls.enabled = false;
+  floor.visible = false;
+  selected = false;
+  selectedPoseBone = null;
+  setDockOpen(false);
+  importedAnimationClock.stop();
+  if (importedAnimationAction) importedAnimationAction.paused = true;
+  if (!activeTwoDAnimation) selectTwoDAnimation(REQUESTED_IMPORTED_CLIP || activeImportedAnimationClip?.name);
+  else {
+    resetTwoDPreviewTimeline(twoDPreviewFrame);
+    applyTwoDPreviewFrame(twoDPreviewFrame);
+  }
+  document.body.dataset.twoDAssetMode = 'rgba-png-sequence';
+  document.body.dataset.twoDCameraSide = twoDSpriteManifest?.sourceAuthority?.camera || '';
+  document.body.dataset.twoDFacing = 'screen-right';
+  updateFpvBodyMasks();
 }
 
 function updateFirstPersonCamera() {
@@ -2710,18 +2974,39 @@ function setViewMode(next) {
   if (next === 'firstPerson') {
     viewMode = 'firstPerson';
     controls.enabled = false;
+    floor.visible = true;
+    document.body.classList.remove('is-2d');
     document.body.classList.add('is-fpv');
     ensureFpvBodyMasks();
     updateFpvBodyMasks();
     setDockOpen(false);
+    if (importedAnimationAction) {
+      importedAnimationAction.paused = false;
+      importedAnimationClock.start();
+    }
     updateFirstPersonCamera();
     statusEl.textContent = 'camera: FPV head-forward';
+  } else if (next === 'twoD' || next === '2d') {
+    applyTwoDView();
+    statusEl.textContent = '2D: Fleshpunk RGBA frame sequence';
   } else {
+    if (importedAnimationAction) {
+      importedAnimationAction.paused = false;
+      importedAnimationClock.start();
+    }
     applyOrbitCamera();
     statusEl.textContent = 'camera: orbit';
   }
   renderControls();
   updateReadout();
+}
+
+function cycleViewMode() {
+  const order = twoDAnimations().length
+    ? ['orbit', 'twoD', 'firstPerson']
+    : ['orbit', 'firstPerson'];
+  const current = order.includes(viewMode) ? viewMode : 'orbit';
+  setViewMode(order[(order.indexOf(current) + 1) % order.length]);
 }
 
 function leaveSaberEdit(message = 'camera: sabre deselected') {
@@ -2794,6 +3079,23 @@ function exportTransform() {
     } : null,
     saberGrip: saberGripLocal,
     sabreLocal,
+    view: {
+      mode: viewMode,
+      twoD: viewMode === 'twoD' ? {
+        source: ACTIVE_CHARACTER.spriteAnimationManifest,
+        assetMode: 'rgba-png-sequence',
+        camera: twoDSpriteManifest?.sourceAuthority?.camera || null,
+        facing: 'screen-right',
+        clip: activeTwoDAnimation?.clip || null,
+        playback: activeTwoDAnimation?.gamePlayback || null,
+        speed: twoDPreviewSpeed,
+        frame: twoDPreviewFrame,
+        frameCount: twoDPreviewFrameCount(),
+        time: fixedNumber(twoDPreviewFrameTime(), 6),
+        frameDurationMs: twoDPreviewFrameDuration(),
+        playing: twoDPreviewPlaying,
+      } : null,
+    },
     pose: {
       state: poseState,
       readyPreset: readyPosePreset?.label || null,
@@ -3221,6 +3523,7 @@ function consumePoseEmptyDoubleTap(point) {
 }
 
 function handleTouchStart(event) {
+  if (viewMode === 'twoD') return false;
   if (!sabreRoot && toolMode !== 'pose') return false;
   const points = touchPoints(event);
   if (points.length >= 2 && toolMode === 'pose' && selectedPoseBone) {
@@ -3497,6 +3800,7 @@ function runTouchProbe() {
 }
 
 function startGesture(event) {
+  if (viewMode === 'twoD') return false;
   if (!sabreRoot && toolMode !== 'pose') return false;
   if (event.pointerType === 'touch' && suppressTouchPointerEvents) {
     stopEvent(event);
@@ -3671,8 +3975,12 @@ function snapCamera(view) {
 async function boot() {
   markBootTiming('bootStart');
   const requestedPoseState = initialPoseStateFromUrl();
+  const requestedViewMode = initialViewModeFromUrl();
   setBootPhase(`loading ${ACTIVE_CHARACTER.label}`);
   const characterPromise = loadGltf(ACTIVE_CHARACTER.asset, { announce: false });
+  const twoDSpriteManifestPromise = ACTIVE_CHARACTER.spriteAnimationManifest
+    ? loadTwoDSpriteManifest()
+    : Promise.resolve(null);
   const sabrePromise = ACTIVE_CHARACTER.supportsSaber
     ? loadGlb(activeSaberAsset(), { announce: false })
     : Promise.resolve(null);
@@ -3686,7 +3994,11 @@ async function boot() {
     ? loadGlb(ASSETS.fistHands, { announce: false })
     : Promise.resolve(null);
 
-  const characterGltf = await characterPromise;
+  const [characterGltf, spriteManifest] = await Promise.all([
+    characterPromise,
+    twoDSpriteManifestPromise,
+  ]);
+  twoDSpriteManifest = spriteManifest;
   markBootTiming('characterLoaded');
   const meshy = characterGltf.scene;
   setBootPhase(`showing ${ACTIVE_CHARACTER.label}`);
@@ -3698,7 +4010,7 @@ async function boot() {
   setMode('move');
   if (ACTIVE_CHARACTER.key === 'crimson') setDockOpen(true, 'model');
   setPoseState('rest');
-  setViewMode(initialViewModeFromUrl());
+  setViewMode(requestedViewMode);
   markBootReady();
   if (!ACTIVE_CHARACTER.supportsSaber) setToolMode('pose');
   statusEl.textContent = ACTIVE_CHARACTER.supportsSaber
@@ -3767,7 +4079,7 @@ viewModeButtons.forEach((button) => {
   button.addEventListener('click', () => setViewMode(button.dataset.viewMode || 'orbit'));
 });
 
-cycleViewModeButton.addEventListener('click', () => setViewMode(viewMode === 'orbit' ? 'firstPerson' : 'orbit'));
+cycleViewModeButton.addEventListener('click', cycleViewMode);
 
 fpvSettingsToggle.addEventListener('click', () => setFpvSettingsOpen(!fpvSettingsOpen));
 
@@ -3812,7 +4124,13 @@ cyclePoseStateButton.addEventListener('click', () => {
   const next = order[(order.indexOf(current) + 1) % order.length];
   setPoseState(next);
 });
-cycleAnimationButton?.addEventListener('click', cycleImportedAnimation);
+cycleAnimationButton?.addEventListener('click', cycleAnimationForView);
+twoDPreviousFrameButton?.addEventListener('click', () => stepTwoDPreview(-1));
+twoDPlayPauseButton?.addEventListener('click', toggleTwoDPreviewPlayback);
+twoDNextFrameButton?.addEventListener('click', () => stepTwoDPreview(1));
+twoDSpeedButton?.addEventListener('click', cycleTwoDPreviewSpeed);
+twoDCycleClipButton?.addEventListener('click', cycleTwoDAnimation);
+twoDScrubInput?.addEventListener('input', () => setTwoDPreviewFrame(Number(twoDScrubInput.value)));
 
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => setMode(button.dataset.mode || 'move'));
@@ -3872,7 +4190,9 @@ canvas.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive:
 function animate() {
   resize();
   const importedAnimationDelta = importedAnimationClock.getDelta();
-  if (importedAnimationMixer && importedAnimationDelta > 0) {
+  if (viewMode === 'twoD') {
+    updateTwoDPreviewPlayback();
+  } else if (importedAnimationMixer && importedAnimationDelta > 0) {
     importedAnimationMixer.update(importedAnimationDelta);
     suppressImportedRootMotion();
   }

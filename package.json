@@ -70,6 +70,7 @@
     "review:crimson-attack1:blender-compare": "node scripts/render-crimson-vanguard-attack1-compare.mjs",
     "review:crimson-shared-rest:blender-compare": "node scripts/render-crimson-vanguard-shared-rest-compare.mjs",
     "export:vanguard-idle": "node scripts/export-vanguard-idle.mjs",
-    "test:vanguard-idle-export": "python3 tools/test_vanguard_idle_export.py"
+    "test:vanguard-idle-export": "python3 tools/test_vanguard_idle_export.py",
+    "test:vanguard-2d-preview": "node tools/test_vanguard_2d_preview.mjs"
   }
 }

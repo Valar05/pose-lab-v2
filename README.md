@@ -139,9 +139,10 @@ game-ready idle slice:
 npm run export:vanguard-idle
 ```
 
-The command uses Vanguard's embedded native `Idle` action, one locked
-orthographic model-right camera, and transparent RGBA output. It writes the
-numbered sequence, contact sheet, GIF, and metadata under
+The command uses Vanguard's embedded native `Idle` action, six uniform loop
+samples, one locked orthographic model-left camera that presents Vanguard
+screen-right, and transparent RGBA output. It writes the numbered sequence,
+3×2 contact sheet, 6 fps GIF, and metadata under
 `generated/vanguard/idle/`. Verification fails closed when the camera changes,
 the armature object moves, the background is not transparent, frame dimensions
 differ, either canonical IK foot control moves more than two pixels, or the
@@ -150,6 +151,29 @@ Vanguard's native `Idle` without muting root curves, rewriting bones, or moving
 the armature. Foot and ground-contact data are measurements only. Set
 `BLENDER_BIN` to an existing Blender executable; without it, the repo-owned
 runner continues to use the existing Debian `proot-distro` Blender installation.
+
+### 2D game-asset preview
+
+Approved Fleshpunk Vanguard sprite sequences can be inspected without rendering
+a GIF:
+
+```text
+?model=vanguard&view=2d&clip=Idle
+?model=vanguard&view=2d&clip=SwordAttack1
+```
+
+`View: 2D` plays the promoted transparent PNG frames directly from
+`public/assets/vanguard/fleshpunk/animations.json`. It does not use a GIF,
+re-render the GLB, interpolate new frames, mirror the art, stabilize the
+character, or reframe cells. The manifest preserves the approved model-left /
+screen-right camera contract and the authored per-frame timing for the
+six-frame `Idle` and twelve-frame `SwordAttack1`.
+
+The preview controls provide play/pause, quarter/half/full speed, previous/next
+frame, integer-frame scrubbing, and clip selection. The 2D surface hides the 3D
+canvas, pose handles, and authoring gestures. The embedded GLB remains the pose
+source used to create new animation geometry; the promoted RGBA PNG sequences
+are the shippable game assets and the 2D review surface.
 
 
 ## Crimson Plume Knight / Arborblade

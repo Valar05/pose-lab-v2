@@ -1,0 +1,58 @@
+{
+  "schema": "pose-lab-v2-sprite-animation-set-v1",
+  "character": "Fleshpunk Vanguard",
+  "status": "human-approved-game-asset",
+  "sourceAuthority": {
+    "poseCameraFacingTiming": "Vanguard native embedded animation",
+    "appearance": "Fleshpunk Vanguard concept art",
+    "model": "public/assets/vanguard/vanguard_rigged_animations.glb",
+    "camera": "fixed model-left, presenting screen-right",
+    "mirrored": false,
+    "perFrameReframing": false,
+    "stabilization": false
+  },
+  "frame": {
+    "width": 512,
+    "height": 512,
+    "format": "RGBA PNG",
+    "originPx": [256, 376]
+  },
+  "animations": [
+    {
+      "id": "idle",
+      "clip": "Idle",
+      "label": "Idle",
+      "gamePlayback": "loop",
+      "previewLoop": true,
+      "frames": [
+        {"src": "idle/idle_0000.png", "durationMs": 170, "sha256": "0683e8300ecec7d6962eb0200256541fc9dcf65b9bb2bfc9b9ccb87d52355c42"},
+        {"src": "idle/idle_0001.png", "durationMs": 170, "sha256": "3d049396e5f770bdb52a1da5a71620f8c9402367102588a7ec3de654bbe9aadf"},
+        {"src": "idle/idle_0002.png", "durationMs": 160, "sha256": "d2408700bd16c1af02f5fdf058b8013e644682e2f1d2a48bc992e14d2569f969"},
+        {"src": "idle/idle_0003.png", "durationMs": 170, "sha256": "39f9b8146fb44c81aba2c5500aa89dd42cc59476b4c01fa62dca69c486be01cf"},
+        {"src": "idle/idle_0004.png", "durationMs": 170, "sha256": "c1cdb1e411c48eaeea12849c84c15ae79b9a636e801377872fa31459c07f8788"},
+        {"src": "idle/idle_0005.png", "durationMs": 160, "sha256": "2b411accb7414a3403fa0c3a9c8ba6d8d782a0ab7e504c49dba22e8863d5eb08"}
+      ]
+    },
+    {
+      "id": "swordattack1",
+      "clip": "SwordAttack1",
+      "label": "Sword Attack 1",
+      "gamePlayback": "once",
+      "previewLoop": true,
+      "frames": [
+        {"src": "swordattack1/swordattack1_0000.png", "durationMs": 50, "sha256": "0e19158efaed6ce81f72216e36928d872694bfa08eaf0bba88fed3a4735b5651"},
+        {"src": "swordattack1/swordattack1_0001.png", "durationMs": 50, "sha256": "e3686a7bf0e7829ffa95acb4391af793d1f77e38c9caa7af4b04795fa58849ef"},
+        {"src": "swordattack1/swordattack1_0002.png", "durationMs": 50, "sha256": "5027d8758fd2f7244c4f518718e8633d9b6403de1a5675c59b4ebba6fbfa828e"},
+        {"src": "swordattack1/swordattack1_0003.png", "durationMs": 50, "sha256": "2d2fdef357a6e90527d455743a24604be6b3ef84fbb5d3846da52e14bb970e5d"},
+        {"src": "swordattack1/swordattack1_0004.png", "durationMs": 50, "sha256": "f3f91cb7f2c2e6e06da49d3821d7f2c73f281fb2b22ebdeb0d38f6106f88e286"},
+        {"src": "swordattack1/swordattack1_0005.png", "durationMs": 50, "sha256": "3fef1a252d1c71db3c55340ce4b2517edb1fb0d4dc047c0965a461a5e48eec78"},
+        {"src": "swordattack1/swordattack1_0006.png", "durationMs": 50, "sha256": "7226135aa9195cd98c6d5f6e908f8e71b3a2f43e98f823e7f5c7f54f3708da1d"},
+        {"src": "swordattack1/swordattack1_0007.png", "durationMs": 50, "sha256": "168fe729a2926113fa5ca3133a79588ea4d346e4562eef221a4954124b262340"},
+        {"src": "swordattack1/swordattack1_0008.png", "durationMs": 70, "sha256": "b25c4a12d6def9b23165fef78b6402a0c3f8fedbe7271ef0f7754add49c05a67"},
+        {"src": "swordattack1/swordattack1_0009.png", "durationMs": 80, "sha256": "2612ad96c08ed3893ecc62a46b8994d8ab0e03395f118248fcd9b4eb22082bd9"},
+        {"src": "swordattack1/swordattack1_0010.png", "durationMs": 80, "sha256": "23e9392f2ae96a2c3382b37b53ff88749493ff5ce1d41ac88bdd4e9dfcb6026c"},
+        {"src": "swordattack1/swordattack1_0011.png", "durationMs": 120, "sha256": "5df2785576d97229fe8a872bc20ace00d582e16988ca4eb8abe67ee7997cc6f6"}
+      ]
+    }
+  ]
+}
