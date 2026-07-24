@@ -26,6 +26,11 @@ jobs:
           key: blender-linux-x64-4.4.0-official-sha256-v2
           fail-on-cache-miss: true
 
+      - name: Prepare headless render runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1-mesa-dri
+
       - name: Author one final-rig key and render exact export
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
