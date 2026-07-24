@@ -588,10 +588,36 @@ def bake_target(
         ).normalized()
 
     diagnostics = {
-        "method": "rest-synchronized projected landmarks plus analytic two-bone IK",
+        "method": (
+            "rest-synchronized projected landmarks, planted-foot pelvis inverse "
+            "projection, and analytic two-bone IK"
+        ),
         "restAlignmentQuaternion": list(rest_alignment),
         "bodyScale": body_scale,
         "frames": [],
+    }
+
+    # Idle source evidence has fixed ground contacts.  Project those known-good
+    # frame-zero ORG foot landmarks once; target proportions must solve into
+    # them rather than converting leg-angle disagreement into skating.
+    bpy.context.scene.frame_set(frames[0] + 1)
+    bpy.context.view_layer.update()
+    source_contact_points = {
+        name: (
+            canonical.matrix_world @ canonical.pose.bones[name].matrix
+        ).translation.copy()
+        for name in order
+    }
+    locked_foot_targets = {
+        side: projected_delta(f"foot.{side}", source_contact_points)
+        for side in ("L", "R")
+    }
+    locked_foot_rotations = {
+        side: (
+            canonical.matrix_world.to_quaternion()
+            @ canonical.pose.bones[f"foot.{side}"].matrix.to_quaternion()
+        ).normalized()
+        for side in ("L", "R")
     }
 
     for frame in frames:
@@ -614,10 +640,39 @@ def bake_target(
         # remains suppressed, but source hip bob survives in target scale.
         hips_world = projected_delta("hips", source_pose_points)
         hips = target.pose.bones[target_map["hips"]]
-        hips.location += target.matrix_world.inverted().to_3x3() @ (
+        hips_matrix = hips.matrix.copy()
+        hips_matrix.translation += target.matrix_world.inverted().to_3x3() @ (
             hips_world - joint_world(target, target_map, "hips")
         )
+        hips.matrix = hips_matrix
         bpy.context.view_layer.update()
+
+        # Inverse-project the pelvis until both planted contacts are reachable
+        # at Crimson lengths.  This uses the already-proven target foot data as
+        # the boundary condition instead of measuring drift after the damage.
+        pelvis_correction = Vector((0, 0, 0))
+        for _ in range(8):
+            corrections = []
+            for side, upper in (("L", "upperLeg.L"), ("R", "upperLeg.R")):
+                root = joint_world(target, target_map, upper)
+                goal = locked_foot_targets[side]
+                upper_length, lower_length = limb_lengths[f"leg.{side}"]
+                max_reach = upper_length + lower_length - 1e-5
+                offset = goal - root
+                if offset.length > max_reach:
+                    corrections.append(
+                        offset.normalized() * (offset.length - max_reach)
+                    )
+            if not corrections:
+                break
+            correction = sum(corrections, Vector((0, 0, 0))) / len(corrections)
+            pelvis_correction += correction
+            hips_matrix = hips.matrix.copy()
+            hips_matrix.translation += (
+                target.matrix_world.inverted().to_3x3() @ correction
+            )
+            hips.matrix = hips_matrix
+            bpy.context.view_layer.update()
 
         # Solve the central chain first, then clavicles.  These roots define the
         # actual shoulder and hip anchors used by the limb inverse solve.
@@ -641,9 +696,22 @@ def bake_target(
         frame_diagnostics = {"frame": frame, "limbs": {}}
         for label, upper, lower, end in limb_specs:
             root = joint_world(target, target_map, upper)
-            requested_end = projected_delta(end, source_pose_points)
-            projected_mid = projected_delta(lower, source_pose_points)
             upper_length, lower_length = limb_lengths[label]
+            if label.startswith("leg."):
+                side = label[-1]
+                requested_end = locked_foot_targets[side]
+                projected_mid = projected_delta(lower, source_pose_points)
+            else:
+                # Project evaluated arm directions, then rebuild the target at
+                # Crimson lengths.  Hands remain weapon-free in this pass.
+                upper_direction = corrected_source_direction(
+                    upper, source_pose_points
+                )
+                lower_direction = corrected_source_direction(
+                    lower, source_pose_points
+                )
+                projected_mid = root + upper_direction * upper_length
+                requested_end = projected_mid + lower_direction * lower_length
             middle, solved_end = solve_two_bone(
                 root,
                 requested_end,
@@ -683,18 +751,29 @@ def bake_target(
                 "poleTarget": list(projected_mid),
                 "lengths": [upper_length, lower_length],
             }
+        frame_diagnostics["pelvisContactCorrection"] = list(pelvis_correction)
 
-        # Leaves keep target-rest roll plus the source's rest-relative twist.
+        # Conjugate leaf motion through the synchronized rest frame.  Applying
+        # source-rest^-1 * source-pose directly in Crimson's basis twists feet,
+        # hands, and the plume because that delta is expressed on another rig.
         for name in ("head", "hand.L", "hand.R", "foot.L", "foot.R"):
-            source_pose_rotation = (
-                canonical.matrix_world.to_quaternion()
-                @ canonical.pose.bones[name].matrix.to_quaternion()
+            if name.startswith("foot."):
+                source_pose_rotation = locked_foot_rotations[name[-1]]
+            else:
+                source_pose_rotation = (
+                    canonical.matrix_world.to_quaternion()
+                    @ canonical.pose.bones[name].matrix.to_quaternion()
+                ).normalized()
+            source_world_motion = (
+                source_pose_rotation @ source_rest_rotations[name].inverted()
             ).normalized()
-            source_delta = (
-                source_rest_rotations[name].inverted() @ source_pose_rotation
+            mapped_world_motion = (
+                rest_alignment
+                @ source_world_motion
+                @ rest_alignment.inverted()
             ).normalized()
             desired_world_rotation = (
-                target_rest_rotations[name] @ source_delta
+                mapped_world_motion @ target_rest_rotations[name]
             ).normalized()
             bone = target.pose.bones[target_map[name]]
             head = joint_world(target, target_map, name)
