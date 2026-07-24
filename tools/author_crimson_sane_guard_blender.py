@@ -368,7 +368,17 @@ def author_guard(
         name: (rest_points[next_name] - rest_points[name]).normalized()
         for name, next_name in child.items()
     }
-    right, up, forward = body_basis(rest_points)
+    anatomical_right, _anatomical_up, anatomical_forward = body_basis(
+        rest_points
+    )
+    up = Vector((0, 0, 1))
+    right = (
+        anatomical_right - up * anatomical_right.dot(up)
+    ).normalized()
+    forward = (
+        anatomical_forward - up * anatomical_forward.dot(up)
+    ).normalized()
+    right = up.cross(forward).normalized()
     screen_right = Vector((1, 0, 0))
     screen_right = (
         screen_right - up * screen_right.dot(up)
@@ -409,9 +419,7 @@ def author_guard(
     rest_blade_world = (
         (rest_hand_world @ hand_to_sword).to_3x3() @ blade_local
     ).normalized()
-    desired_blade = (
-        up * 0.88 + screen_left * 0.45 + forward * 0.12
-    ).normalized()
+    desired_blade = (up * 0.88 + screen_left * 0.48).normalized()
     desired_hand_rotation = (
         rest_blade_world.rotation_difference(desired_blade)
         @ rest_hand_world.to_quaternion()
@@ -435,7 +443,17 @@ def author_guard(
         - forward * whole_height * 0.065
         + screen_left * whole_height * 0.025
     )
-    base_hips = rest_points["hips"] - up * whole_height * 0.055
+    rest_foot_midpoint = (
+        rest_points["foot.L"] + rest_points["foot.R"]
+    ) * 0.5
+    target_foot_midpoint = (left_foot + right_foot) * 0.5
+    stance_shift = target_foot_midpoint - rest_foot_midpoint
+    stance_shift -= up * stance_shift.dot(up)
+    base_hips = (
+        rest_points["hips"]
+        + stance_shift
+        - up * whole_height * 0.035
+    )
 
     action = bpy.data.actions.new(ACTION_NAME)
     target.animation_data_create()
@@ -466,11 +484,11 @@ def author_guard(
 
         # Compact upright trunk with a tiny breath, not a transferred sway.
         trunk_directions = {
-            "hips": (up + forward * 0.035).normalized(),
-            "spineLower": (up + forward * (0.055 + phase * 0.008)).normalized(),
-            "spineMid": (up + forward * (0.075 + phase * 0.010)).normalized(),
-            "chest": (up + forward * (0.045 + phase * 0.008)).normalized(),
-            "neck": (up - forward * 0.025).normalized(),
+            "hips": (up + forward * 0.015).normalized(),
+            "spineLower": (up + forward * (0.020 + phase * 0.006)).normalized(),
+            "spineMid": (up + forward * (0.030 + phase * 0.008)).normalized(),
+            "chest": (up + forward * (0.015 + phase * 0.006)).normalized(),
+            "neck": up,
         }
         for name in ("hips", "spineLower", "spineMid", "chest", "neck"):
             set_bone_direction_world(
