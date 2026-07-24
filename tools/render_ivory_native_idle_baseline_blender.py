@@ -164,7 +164,7 @@ def make_camera(
     data.ortho_scale = max(
         visible_height * 1.18,
         (visible_width / max(aspect, 1e-6)) * 1.18,
-        0.1,
+        0.0001,
     )
     return camera
 
@@ -179,7 +179,7 @@ def configure_render(scene: bpy.types.Scene, width: int, height: int) -> None:
     scene.render.image_settings.color_depth = "8"
     scene.render.film_transparent = True
     scene.display.shading.light = "STUDIO"
-    scene.display.shading.color_type = "MATERIAL"
+    scene.display.shading.color_type = "OBJECT"
     scene.display.shading.show_shadows = False
     scene.display.shading.show_cavity = True
     scene.display.shading.cavity_type = "WORLD"
@@ -229,6 +229,8 @@ def main() -> None:
     for obj in source_objects:
         obj.hide_render = True
         obj.hide_set(True)
+    for mesh in meshes:
+        mesh.color = (0.72, 0.68, 0.60, 1.0)
     configure_render(scene, args.width, args.height)
     lower, upper = evaluated_world_bounds(meshes)
 
