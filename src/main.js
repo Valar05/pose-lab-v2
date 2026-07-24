@@ -14,6 +14,7 @@ const ASSETS = {
   arborbladeSource: './assets/crimson/arborblade_sword.glb',
   crimsonReview: './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb',
   crimsonBvhIdle: './assets/crimson/experiments/crimson_org_bvh_idle_transfer.glb',
+  crimsonSaneGuard: './assets/crimson/experiments/crimson_sane_guard_idle.glb',
   arborbladeReview: './assets/crimson/arborblade_sword_review.glb',
   crimson: CRIMSON_ASSET_QUALITY === 'source' ? './assets/crimson/crimson_plume_knight_rigged_pbr.glb' : './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb',
   arborblade: CRIMSON_ASSET_QUALITY === 'source' ? './assets/crimson/arborblade_sword.glb' : './assets/crimson/arborblade_sword_review.glb',
@@ -92,6 +93,24 @@ const CHARACTER_ASSETS = Object.freeze({
     supportsAnimationClips: true,
     autoPlayAnimation: true,
     defaultClip: 'CrimsonCanonicalIdle',
+  },
+  'crimson-sane': {
+    key: 'crimson-sane',
+    label: 'Crimson · Direct Guard Idle',
+    asset: ASSETS.crimsonSaneGuard,
+    saberAsset: ASSETS.arborblade,
+    saberName: 'real-arborblade-sword',
+    saberGripLocal: CRIMSON_SABER_GRIP_LOCAL,
+    swordLocal: CRIMSON_SWORD_LOCAL,
+    source: 'Directly authored on Crimson; no BVH or source-motion import',
+    role: 'Quarantined direct-authored guarded idle with planted feet and rigid two-hand Arborblade targets.',
+    boneMap: {},
+    supportsSaber: true,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+    supportsAnimationClips: true,
+    autoPlayAnimation: true,
+    defaultClip: 'CrimsonSaneGuardIdle',
   },
   crimson: {
     key: 'crimson',
@@ -172,6 +191,8 @@ const CHARACTER_KEY_ALIASES = Object.freeze({
   'crimson-bvh': 'crimson-bvh',
   'org-bvh-idle': 'crimson-bvh',
   'vanguard-crimson-idle': 'crimson-bvh',
+  'crimson-sane': 'crimson-sane',
+  'crimson-guard': 'crimson-sane',
   'crimson-knight': 'crimson',
   'crimson-plume': 'crimson',
   arborblade: 'crimson',
@@ -842,11 +863,11 @@ function activeSwordLocal() {
 }
 
 function activeSaberTipLocalPoint() {
-  return ACTIVE_CHARACTER.key === 'crimson' ? [0, 0, 0.618789] : null;
+  return ACTIVE_CHARACTER.key.startsWith('crimson') ? [0, 0, 0.618789] : null;
 }
 
 function activeSaberHiltLocalPoint() {
-  return ACTIVE_CHARACTER.key === 'crimson' ? [0, 0, 0] : null;
+  return ACTIVE_CHARACTER.key.startsWith('crimson') ? [0, 0, 0] : null;
 }
 
 function activeSaberAsset() {
