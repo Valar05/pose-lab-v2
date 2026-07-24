@@ -21,6 +21,7 @@ const ASSETS = {
   ares: './assets/ares/ares_rigged_diffuse.glb',
   securityTitan: './assets/ares/security_titan_rigged_diffuse.glb',
   vanguard: './assets/vanguard/vanguard_rigged_animations.glb',
+  vanguardIdleStance: './assets/vanguard/vanguard_idle_stance.glb',
 };
 const MIXAMO_BONE_MAP = Object.freeze({
   Hips: 'mixamorig:Hips',
@@ -144,6 +145,20 @@ const CHARACTER_ASSETS = Object.freeze({
     supportsAnimationClips: true,
     defaultClip: 'Idle',
   },
+  'vanguard-idle-stance': {
+    key: 'vanguard-idle-stance',
+    label: 'Vanguard Idle Stance',
+    asset: ASSETS.vanguardIdleStance,
+    source: 'Vanguard final rig; native Idle frame 0 frozen as one direct-rig key',
+    role: 'quarantined one-frame Vanguard guarded idle with embedded Long_Sword',
+    boneMap: VANGUARD_BONE_MAP,
+    supportsSaber: false,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+    supportsAnimationClips: true,
+    autoPlayAnimation: true,
+    defaultClip: 'VanguardIdleStance',
+  },
 });
 const CHARACTER_KEY_ALIASES = Object.freeze({
   default: 'davin',
@@ -168,6 +183,8 @@ const CHARACTER_KEY_ALIASES = Object.freeze({
   vanguard: 'vanguard',
   Vanguard: 'vanguard',
   guard: 'vanguard',
+  'vanguard-idle-stance': 'vanguard-idle-stance',
+  'vanguard-stance': 'vanguard-idle-stance',
 });
 const CHARACTER_KEYS = Object.freeze(Object.keys(CHARACTER_ASSETS));
 const MESHY_PBR_TEXTURES = {
@@ -180,6 +197,7 @@ const REQUESTED_CHARACTER_KEY = CHARACTER_KEY_ALIASES[URL_PARAMS.get('model')]
   || CHARACTER_KEY_ALIASES[URL_PARAMS.get('character')]
   || 'davin';
 const ACTIVE_CHARACTER = CHARACTER_ASSETS[REQUESTED_CHARACTER_KEY] || CHARACTER_ASSETS.meshy;
+const IS_VANGUARD_IDLE_STANCE_REVIEW = ACTIVE_CHARACTER.key === 'vanguard-idle-stance';
 
 function modelButtonHtml(key) {
   const character = CHARACTER_ASSETS[key];
@@ -212,6 +230,7 @@ const POSE_STATE_LABELS = {
   lowBackKick: 'LowBackKick',
   idle: 'Idle',
   custom: 'Custom',
+  imported: 'Imported',
 };
 const REQUESTED_POSE = URL_PARAMS.get('pose');
 const REQUESTED_SHARED_REST = ACTIVE_CHARACTER.key === 'crimson'
@@ -650,7 +669,12 @@ function updateReviewReady() {
   if (document.body.dataset.reviewReady === '1' || document.body.dataset.bootFailed === '1') return;
   const saberOk = !ACTIVE_CHARACTER.supportsSaber || (saberAttachmentProof.status === 'attached' && saberAttachmentProof.visibleInViewport === true);
   const candidateOk = !REQUESTED_CANDIDATE || Boolean(attackPoseSequence);
-  const poseOk = !REQUESTED_ATTACK_QUARANTINED || poseState === 'attack1';
+  const importedStanceOk = !IS_VANGUARD_IDLE_STANCE_REVIEW
+    || (
+      activeImportedAnimationClip?.name === 'VanguardIdleStance'
+      && document.body.dataset.fallbackRestActive === '0'
+    );
+  const poseOk = (!REQUESTED_ATTACK_QUARANTINED || poseState === 'attack1') && importedStanceOk;
   if (firstFrameRendered && document.body.dataset.bootReady === '1' && saberOk && candidateOk && poseOk) {
     markBootTiming('reviewReady');
     document.body.dataset.reviewReady = '1';
@@ -964,7 +988,7 @@ function applyVanguardBodyPalette(mesh) {
 }
 
 function applyVanguardMaterialRecovery(object) {
-  if (ACTIVE_CHARACTER.key !== 'vanguard') return;
+  if (ACTIVE_CHARACTER.key !== 'vanguard' && !IS_VANGUARD_IDLE_STANCE_REVIEW) return;
   object.traverse((node) => {
     if (!node.isMesh) return;
     if (node.name === 'Body' || node.material?.name === 'VanguardBody') {
@@ -2396,8 +2420,20 @@ function playImportedAnimation(name = null) {
   importedAnimationAction = importedAnimationMixer.clipAction(clip);
   importedAnimationAction.reset();
   importedAnimationAction.play();
+  importedAnimationMixer.setTime(0);
+  importedAnimationMixer.update(0);
   activeImportedAnimationClip = clip;
   importedAnimationClock.start();
+  document.body.dataset.requestedModel = REQUESTED_CHARACTER_KEY;
+  document.body.dataset.activeModel = ACTIVE_CHARACTER.key;
+  document.body.dataset.requestedClip = name || ACTIVE_CHARACTER.defaultClip || '';
+  document.body.dataset.activeClip = clip.name;
+  document.body.dataset.playbackActive = '1';
+  document.body.dataset.fallbackRestActive = '0';
+  if (IS_VANGUARD_IDLE_STANCE_REVIEW) {
+    poseState = 'imported';
+    document.body.dataset.reviewPoseState = 'imported';
+  }
   statusEl.textContent = `${ACTIVE_CHARACTER.label}: playing ${clip.name}`;
   renderControls();
   updateReadout();
@@ -2407,10 +2443,18 @@ function playImportedAnimation(name = null) {
 function setupImportedAnimations(gltf) {
   importedAnimationClips = ACTIVE_CHARACTER.supportsAnimationClips ? [...(gltf.animations || [])] : [];
   if (!importedAnimationClips.length) return;
-  importedRootMotionBone = ACTIVE_CHARACTER.key === 'vanguard' ? meshyRoot.getObjectByName('root') : null;
+  importedRootMotionBone = (ACTIVE_CHARACTER.key === 'vanguard' || IS_VANGUARD_IDLE_STANCE_REVIEW)
+    ? meshyRoot.getObjectByName('root')
+    : null;
   importedRootMotionRestPosition = importedRootMotionBone ? importedRootMotionBone.position.clone() : null;
   importedAnimationMixer = new THREE.AnimationMixer(meshyRoot);
-  if (REQUESTED_IMPORTED_CLIP || ACTIVE_CHARACTER.autoPlayAnimation) playImportedAnimation(REQUESTED_IMPORTED_CLIP);
+  if (REQUESTED_IMPORTED_CLIP || ACTIVE_CHARACTER.autoPlayAnimation) {
+    const played = playImportedAnimation(REQUESTED_IMPORTED_CLIP);
+    if (IS_VANGUARD_IDLE_STANCE_REVIEW && !played) {
+      document.body.dataset.fallbackRestActive = '1';
+      throw new Error('VanguardIdleStance clip is missing; rest fallback is forbidden');
+    }
+  }
 }
 
 
@@ -2625,7 +2669,10 @@ function renderControls() {
   }
   cycleToolButton.hidden = !ACTIVE_CHARACTER.supportsSaber;
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
-  cyclePoseStateButton.textContent = `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
+  cyclePoseStateButton.textContent = IS_VANGUARD_IDLE_STANCE_REVIEW
+    ? `Pose: ${activeImportedAnimationClip?.name || 'Missing'}`
+    : `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
+  cyclePoseStateButton.disabled = IS_VANGUARD_IDLE_STANCE_REVIEW;
   if (cycleAnimationButton) {
     cycleAnimationButton.hidden = !importedAnimationClips.length;
     cycleAnimationButton.textContent = `Anim: ${activeImportedAnimationClip?.name || 'None'}`;
@@ -3697,7 +3744,11 @@ async function boot() {
   setupImportedAnimations(characterGltf);
   setMode('move');
   if (ACTIVE_CHARACTER.key === 'crimson') setDockOpen(true, 'model');
-  setPoseState('rest');
+  if (IS_VANGUARD_IDLE_STANCE_REVIEW) {
+    poseState = 'imported';
+  } else {
+    setPoseState('rest');
+  }
   setViewMode(initialViewModeFromUrl());
   markBootReady();
   if (!ACTIVE_CHARACTER.supportsSaber) setToolMode('pose');
@@ -3724,7 +3775,11 @@ async function boot() {
         markBootTiming('saberAttached');
       }
       if (fistHands) attachFistHandsToMeshy(fistHands);
-      setPoseState(requestedPoseState);
+      if (IS_VANGUARD_IDLE_STANCE_REVIEW) {
+        poseState = 'imported';
+      } else {
+        setPoseState(requestedPoseState);
+      }
       updateReviewReady();
       if (useManualAttackAuthoring() && poseState === 'attack1') {
         statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
@@ -3735,7 +3790,9 @@ async function boot() {
       } else if (REQUESTED_ATTACK_QUARANTINED) {
         statusEl.textContent = 'Attack1 quarantined: no accepted Attack1 bake is shipped; showing Ready fallback';
       } else {
-        statusEl.textContent = poseState === 'rest'
+        statusEl.textContent = IS_VANGUARD_IDLE_STANCE_REVIEW
+          ? `${ACTIVE_CHARACTER.label}: ${activeImportedAnimationClip?.name || 'missing clip'} active`
+          : poseState === 'rest'
           ? ACTIVE_CHARACTER.supportsSaber ? 'ready: tap the real sabre, then drag' : `${ACTIVE_CHARACTER.label}: pose handles ready`
           : `${POSE_STATE_LABELS[poseState] || 'Pose'} ready`;
       }
