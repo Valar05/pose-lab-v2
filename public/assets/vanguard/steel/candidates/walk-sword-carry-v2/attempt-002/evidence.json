@@ -1,0 +1,30 @@
+{
+  "schema": "pose-lab-v2-sword-carry-evidence-v1",
+  "status": "quarantined",
+  "timingMs": [
+    110,
+    90,
+    100,
+    110,
+    110,
+    90,
+    100,
+    110
+  ],
+  "motionSummary": {
+    "hiltRangeXpx": 12.9424,
+    "hiltRangeYpx": 0.8526,
+    "tipRangeXpx": 11.8,
+    "tipRangeYpx": 10.9551,
+    "bladeAngleRangeDeg": 5.9902
+  },
+  "exportSha256": "b7331b169ba538374bcdf9b729eea2b66839780ca5fb6081edeeac132f9ec65b",
+  "contactSheetSha256": "9368c00e895f51e0bfdf8f723bc50bb898a5ab7c6129abda456b4f50728aa983",
+  "orthogonalSheetSha256": "201a5052682909d03ebfb6587c9737062b53941c3ba3a2ffdf6bd8146b77e801",
+  "weapon": {
+    "mode": "embedded",
+    "mesh": "Long_Sword",
+    "driverBone": "Weapon.R"
+  },
+  "humanVerdict": null
+}
