@@ -1,0 +1,74 @@
+{
+  "schema": "pose-lab-v2-review-bundle-v1",
+  "status": "quarantined",
+  "source": {
+    "revision": "b2c5bde5d91325726af34e5daea17b96d78b46f3",
+    "character": "Steel Vanguard",
+    "action": "WalkSwordCarryV2 candidate 003"
+  },
+  "authoring": {
+    "lane": "direct-final-rig",
+    "finalRig": true,
+    "renderer": "Blender 4.4.0 to 512x512 RGBA PNG",
+    "exportSha256": "3356a14c48cee4114db767f5ba460c6c2a0383c016434e352029ed8cb7f09928",
+    "evidence": {
+      "lockedContactSheet": "https://raw.githubusercontent.com/Valar05/pose-lab-v2/b2c5bde5d91325726af34e5daea17b96d78b46f3/public/assets/vanguard/steel/candidates/walk-sword-carry-v2/attempt-003/contact-sheet.png",
+      "orthogonalView": "https://raw.githubusercontent.com/Valar05/pose-lab-v2/b2c5bde5d91325726af34e5daea17b96d78b46f3/public/assets/vanguard/steel/candidates/walk-sword-carry-v2/attempt-003/orthogonal-contact-sheet.png"
+    },
+    "weapon": {
+      "mode": "embedded",
+      "hierarchy": [
+        "rig",
+        "ORG-hand.R",
+        "Weapon.R",
+        "Long_Sword"
+      ],
+      "calibrationSha256": "5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94"
+    }
+  },
+  "runtime": {
+    "url": "https://valar05.github.io/pose-lab-v2/?view=2d&manifest=https%3A%2F%2Fraw.githubusercontent.com%2FValar05%2Fpose-lab-v2%2Fb2c5bde5d91325726af34e5daea17b96d78b46f3%2Fpublic%2Fassets%2Fvanguard%2Fsteel%2Fcandidates%2Fwalk-sword-carry-v2%2Fattempt-003%2Fanimations.json&animation=walkswordcarryv2",
+    "requestedModel": "Steel Vanguard · Walk Sword Carry V2 candidate 003",
+    "activeModel": "Steel Vanguard · Walk Sword Carry V2 candidate 003",
+    "requestedClip": "walkswordcarryv2",
+    "activeClip": "walkswordcarryv2",
+    "playbackActive": true,
+    "fallbackRestActive": false,
+    "hostedCharacterSha256": "3356a14c48cee4114db767f5ba460c6c2a0383c016434e352029ed8cb7f09928",
+    "resources": [
+      {
+        "role": "page",
+        "url": "https://valar05.github.io/pose-lab-v2/",
+        "status": 200
+      },
+      {
+        "role": "module",
+        "url": "https://valar05.github.io/pose-lab-v2/src/sprite-viewer.js",
+        "status": 200
+      },
+      {
+        "role": "character",
+        "url": "https://raw.githubusercontent.com/Valar05/pose-lab-v2/b2c5bde5d91325726af34e5daea17b96d78b46f3/public/assets/vanguard/steel/candidates/walk-sword-carry-v2/attempt-003/animations.json",
+        "status": 200
+      }
+    ],
+    "weapon": {
+      "mode": "embedded",
+      "hierarchy": [
+        "rig",
+        "ORG-hand.R",
+        "Weapon.R",
+        "Long_Sword"
+      ],
+      "calibrationSha256": "5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94"
+    },
+    "visual": {
+      "status": "browser-captured",
+      "evidence": "Cloud browser loaded the immutable review URL, selected walkswordcarryv2, exposed Pause animation and Loop On, and advanced the rendered frame source from 0006 to 0003 over 420 ms."
+    }
+  },
+  "human": {
+    "verdict": "pending",
+    "evidence": null
+  }
+}
