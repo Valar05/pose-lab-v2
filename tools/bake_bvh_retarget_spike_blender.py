@@ -693,6 +693,23 @@ def main() -> None:
 
     blend_path = out / "crimson_org_bvh_idle_transfer.blend"
     bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
+
+    # Emit the exact baked target as a browser-loadable review asset. The GLB
+    # is diagnostic evidence for Pose Lab; it does not promote or alter motion.
+    glb_path = out / "crimson_org_bvh_idle_transfer.glb"
+    bpy.ops.object.select_all(action="DESELECT")
+    for obj in target_objects:
+        obj.hide_viewport = False
+        obj.hide_render = False
+        obj.select_set(True)
+    bpy.context.view_layer.objects.active = target
+    bpy.ops.export_scene.gltf(
+        filepath=str(glb_path),
+        export_format="GLB",
+        use_selection=True,
+        export_animations=True,
+        export_yup=True,
+    )
     manifest = {
         "schema": SCHEMA,
         "status": "executed-idle-transfer-pending-visual-acceptance",
@@ -737,6 +754,11 @@ def main() -> None:
             ],
         },
         "blend": {"file": blend_path.name, "sha256": sha256(blend_path)},
+        "reviewGlb": {
+            "file": glb_path.name,
+            "sha256": sha256(glb_path),
+            "purpose": "hosted Pose Lab experimental review; exact baked target motion",
+        },
     }
     manifest_path = out / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
