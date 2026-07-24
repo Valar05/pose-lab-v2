@@ -16,39 +16,21 @@ env:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           ref: agent/vanguard-idle-stance-one-frame
           fetch-depth: 0
 
-      - name: Restore verified Blender 4.4
-        uses: actions/cache/restore@v4
+      - name: Download the exact inspected candidate
+        uses: actions/download-artifact@v4
         with:
-          path: .toolcache/blender-4.4.0
-          key: blender-linux-x64-4.4.0-official-sha256-v2
-          fail-on-cache-miss: true
-
-      - name: Prepare headless render runtime
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libegl1 libgl1-mesa-dri
-
-      - name: Reproduce inspected candidate
-        env:
-          LIBGL_ALWAYS_SOFTWARE: "1"
-        run: |
-          .toolcache/blender-4.4.0/blender --background \
-            --python-exit-code 1 \
-            --python tools/author_vanguard_idle_stance_blender.py \
-            -- \
-            --asset public/assets/vanguard/vanguard_rigged_animations.glb \
-            --out-dir generated/vanguard/idle-stance-one-frame \
-            --source-action Idle \
-            --source-frame 0 \
-            --width 768 \
-            --height 768
+          name: vanguard-idle-stance-one-frame
+          path: generated/vanguard/idle-stance-one-frame
+          repository: Valar05/pose-lab-v2
+          run-id: 30064400582
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Refuse byte drift
         run: |
