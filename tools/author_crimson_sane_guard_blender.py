@@ -419,7 +419,7 @@ def author_guard(
     rest_blade_world = (
         (rest_hand_world @ hand_to_sword).to_3x3() @ blade_local
     ).normalized()
-    desired_blade = (up * 0.88 + screen_left * 0.48).normalized()
+    desired_blade = (up * 0.92 + screen_left * 0.39).normalized()
     desired_hand_rotation = (
         rest_blade_world.rotation_difference(desired_blade)
         @ rest_hand_world.to_quaternion()
@@ -549,9 +549,9 @@ def author_guard(
         chest = joint_world(target, target_map, "chest")
         desired_hilt = (
             chest
-            + screen_right * whole_height * 0.105
-            + forward * whole_height * 0.035
-            + up * (whole_height * 0.015 + breath)
+            + screen_right * whole_height * 0.135
+            - forward * whole_height * 0.080
+            + up * (-whole_height * 0.045 + breath)
         )
         right_hand_target = desired_hilt - hand_to_hilt_offset
         right_root = joint_world(target, target_map, "upperArm.R")
