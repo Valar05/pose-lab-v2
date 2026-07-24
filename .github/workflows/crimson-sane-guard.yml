@@ -1,0 +1,91 @@
+name: Crimson Sane Guard
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/crimson-sane-guard
+    paths:
+      - tools/author_crimson_sane_guard_blender.py
+      - .github/workflows/crimson-sane-guard.yml
+
+env:
+  BLENDER_VERSION: "4.4.0"
+  BLENDER_ARCHIVE: "blender-4.4.0-linux-x64.tar.xz"
+  BLENDER_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0-linux-x64.tar.xz"
+  BLENDER_CHECKSUM_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0.sha256"
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore persistent Blender
+        id: blender-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+
+      - name: Materialize verified Blender
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .toolcache/blender-4.4.0
+          curl --fail --location --retry 3 "$BLENDER_URL" --output "$RUNNER_TEMP/$BLENDER_ARCHIVE"
+          curl --fail --location --retry 3 "$BLENDER_CHECKSUM_URL" --output "$RUNNER_TEMP/blender-4.4.0.sha256"
+          (
+            cd "$RUNNER_TEMP"
+            grep -E "[[:space:]]+$BLENDER_ARCHIVE$" blender-4.4.0.sha256 | sha256sum --check --strict -
+          )
+          tar --extract --file "$RUNNER_TEMP/$BLENDER_ARCHIVE" --directory .toolcache/blender-4.4.0 --strip-components 1
+
+      - name: Save persistent Blender
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+
+      - name: Install headless render libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1-mesa-dri imagemagick
+
+      - name: Author and render direct Crimson guard
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          .toolcache/blender-4.4.0/blender --background \
+            --python-exit-code 1 \
+            --python tools/author_crimson_sane_guard_blender.py \
+            -- \
+            --out-dir generated/crimson-sane-guard
+
+      - name: Build contact sheet
+        run: |
+          montage generated/crimson-sane-guard/guard-side-*.png \
+            -thumbnail 320x320 \
+            -tile 4x3 \
+            -geometry +8+8 \
+            -background none \
+            generated/crimson-sane-guard/guard-contact-sheet.png
+          montage \
+            generated/crimson-sane-guard/guard-front.png \
+            generated/crimson-sane-guard/guard-three-quarter.png \
+            generated/crimson-sane-guard/guard-rear-three-quarter.png \
+            -thumbnail 420x420 \
+            -tile 3x1 \
+            -geometry +8+8 \
+            -background none \
+            generated/crimson-sane-guard/guard-orthogonal-sheet.png
+
+      - name: Upload quarantined candidate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crimson-sane-guard
+          path: generated/crimson-sane-guard/
+          if-no-files-found: error
+          retention-days: 30
