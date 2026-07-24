@@ -121,11 +121,15 @@ def transforms_match(left, right, epsilon: float = 1e-8) -> bool:
         return True
     left_loc, left_mode, left_quat, left_euler, left_scale = left
     right_loc, right_mode, right_quat, right_euler, right_scale = right
+    quaternion_delta = min(
+        max(abs(left_quat[index] - right_quat[index]) for index in range(4)),
+        max(abs(left_quat[index] + right_quat[index]) for index in range(4)),
+    )
     return (
         left_mode == right_mode
         and (left_loc - right_loc).length <= epsilon
-        and abs(left_quat.dot(right_quat)) >= 1.0 - epsilon
-        and (left_euler - right_euler).length <= epsilon
+        and quaternion_delta <= epsilon
+        and max(abs(left_euler[index] - right_euler[index]) for index in range(3)) <= epsilon
         and (left_scale - right_scale).length <= epsilon
     )
 
