@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Transfer Vanguard's native Idle through an ORG-only BVH proxy onto Crimson.
 
-This experiment isolates ordinary anatomical animation transfer. It loads no
-weapon and applies no grip, contact, IK, or per-model correction layer.
+BVH is only the transport boundary.  The target pass synchronizes the two rest
+bases, projects evaluated ORG landmarks into Crimson world space, and solves
+Crimson's two-bone limbs from those targets while preserving Crimson lengths.
+It loads no weapon and applies no grip correction.
 """
 
 from __future__ import annotations
@@ -378,101 +380,332 @@ def rest_local(armature: bpy.types.Object, bone_name: str) -> Matrix:
     return bone.parent.matrix_local.inverted() @ bone.matrix_local if bone.parent else bone.matrix_local.copy()
 
 
+def rest_joint_world(
+    armature: bpy.types.Object, bone_map: dict[str, str], canonical: str
+) -> Vector:
+    return (
+        armature.matrix_world @ armature.data.bones[bone_map[canonical]].matrix_local
+    ).translation.copy()
+
+
+def rest_rotation_world(
+    armature: bpy.types.Object, bone_map: dict[str, str], canonical: str
+) -> Quaternion:
+    return (
+        armature.matrix_world.to_quaternion()
+        @ armature.data.bones[bone_map[canonical]].matrix_local.to_quaternion()
+    ).normalized()
+
+
+def body_basis(points: dict[str, Vector]) -> Matrix:
+    """Build an orthonormal anatomical frame from hips, chest, and shoulders."""
+    up = (points["chest"] - points["hips"]).normalized()
+    right = (points["clavicle.R"] - points["clavicle.L"])
+    right = (right - up * right.dot(up)).normalized()
+    forward = right.cross(up).normalized()
+    right = up.cross(forward).normalized()
+    # Matrix expects rows; transpose so the anatomical axes are columns.
+    return Matrix((right, up, forward)).transposed()
+
+
+def clamp_target(root: Vector, target: Vector, minimum: float, maximum: float) -> Vector:
+    offset = target - root
+    distance = offset.length
+    if distance < 1e-8:
+        return root + Vector((0, maximum, 0))
+    return root + offset.normalized() * min(max(distance, minimum), maximum)
+
+
+def solve_two_bone(
+    root: Vector,
+    target: Vector,
+    pole_hint: Vector,
+    upper_length: float,
+    lower_length: float,
+) -> tuple[Vector, Vector]:
+    """Return the middle joint and a reach-clamped end target."""
+    epsilon = max(1e-5, (upper_length + lower_length) * 1e-5)
+    solved_target = clamp_target(
+        root,
+        target,
+        abs(upper_length - lower_length) + epsilon,
+        upper_length + lower_length - epsilon,
+    )
+    axis = solved_target - root
+    distance = axis.length
+    direction = axis.normalized()
+    along = (
+        upper_length * upper_length
+        - lower_length * lower_length
+        + distance * distance
+    ) / (2.0 * distance)
+    height = math.sqrt(max(0.0, upper_length * upper_length - along * along))
+
+    pole = pole_hint - root
+    pole_off_axis = pole - direction * pole.dot(direction)
+    if pole_off_axis.length < epsilon:
+        fallback = Vector((0, 0, 1))
+        if abs(fallback.dot(direction)) > 0.95:
+            fallback = Vector((1, 0, 0))
+        pole_off_axis = fallback - direction * fallback.dot(direction)
+    bend = pole_off_axis.normalized()
+    return root + direction * along + bend * height, solved_target
+
+
+def set_bone_direction_world(
+    target: bpy.types.Object,
+    target_map: dict[str, str],
+    canonical: str,
+    head_world: Vector,
+    desired_direction: Vector,
+    target_rest_direction: Vector,
+    target_rest_rotation: Quaternion,
+) -> None:
+    """Point one target bone while preserving its target-rest roll."""
+    if desired_direction.length < 1e-8:
+        raise RuntimeError(f"zero desired direction for {canonical}")
+    world_rotation = (
+        target_rest_direction.rotation_difference(desired_direction.normalized())
+        @ target_rest_rotation
+    ).normalized()
+    armature_head = target.matrix_world.inverted() @ head_world
+    armature_rotation = (
+        target.matrix_world.to_quaternion().inverted() @ world_rotation
+    ).normalized()
+    bone = target.pose.bones[target_map[canonical]]
+    bone.matrix = Matrix.LocRotScale(
+        armature_head, armature_rotation, Vector((1, 1, 1))
+    )
+    bpy.context.view_layer.update()
+
+
 def bake_target(
     canonical: bpy.types.Object,
     target: bpy.types.Object,
     skeleton: dict,
     target_map: dict[str, str],
     frames: tuple[int, ...],
-) -> bpy.types.Action:
+) -> tuple[bpy.types.Action, dict]:
     action = bpy.data.actions.new("CrimsonCanonicalIdle")
     target.animation_data_create()
     target.animation_data.action = action
 
-    # Transfer anatomical swing from rest segment -> posed segment. This avoids
-    # assuming matching bone rolls or copying model-specific quaternion bases.
     order = [entry["name"] for entry in skeleton["joints"] if entry["name"] != "root"]
-    parent_by_name = {
-        entry["name"]: None if entry["parent"] == "root" else entry["parent"]
-        for entry in skeleton["joints"]
-        if entry["name"] != "root"
-    }
     primary_child: dict[str, str] = {}
     for entry in skeleton["joints"]:
         parent = entry["parent"]
         if parent and parent != "root" and parent not in primary_child:
             primary_child[parent] = entry["name"]
 
-    canonical_rest_world = {
-        name: (canonical.matrix_world @ canonical.data.bones[name].matrix_local).copy()
+    source_rest_points = {
+        name: (
+            canonical.matrix_world @ canonical.data.bones[name].matrix_local
+        ).translation.copy()
         for name in order
     }
-    target_rest = {
-        name: target.data.bones[target_map[name]].matrix_local.copy()
+    target_rest_points = {
+        name: rest_joint_world(target, target_map, name)
         for name in order
     }
-    target_rest_world = {
-        name: (target.matrix_world @ target_rest[name]).copy()
+    source_rest_rotations = {
+        name: (
+            canonical.matrix_world.to_quaternion()
+            @ canonical.data.bones[name].matrix_local.to_quaternion()
+        ).normalized()
         for name in order
     }
-    target_local = {name: rest_local(target, target_map[name]) for name in order}
-    target_world_rotation_inverse = target.matrix_world.to_quaternion().inverted()
+    target_rest_rotations = {
+        name: rest_rotation_world(target, target_map, name) for name in order
+    }
+    source_basis = body_basis(source_rest_points)
+    target_basis = body_basis(target_rest_points)
+    rest_alignment = (
+        target_basis.to_quaternion() @ source_basis.to_quaternion().inverted()
+    ).normalized()
+    source_height = (
+        source_rest_points["head"] - source_rest_points["hips"]
+    ).length
+    target_height = (
+        target_rest_points["head"] - target_rest_points["hips"]
+    ).length
+    body_scale = target_height / source_height
+
+    target_rest_directions = {
+        name: (
+            target_rest_points[child] - target_rest_points[name]
+        ).normalized()
+        for name, child in primary_child.items()
+    }
+    source_rest_directions = {
+        name: (
+            source_rest_points[child] - source_rest_points[name]
+        ).normalized()
+        for name, child in primary_child.items()
+    }
+    rest_direction_corrections = {
+        name: target_rest_directions[name].rotation_difference(
+            rest_alignment @ source_rest_directions[name]
+        )
+        for name in primary_child
+    }
+    # rotation_difference above maps target -> aligned-source.  Invert it so
+    # aligned source-rest maps exactly onto Crimson rest.
+    rest_direction_corrections = {
+        name: correction.inverted().normalized()
+        for name, correction in rest_direction_corrections.items()
+    }
+
+    limb_specs = (
+        ("arm.L", "upperArm.L", "lowerArm.L", "hand.L"),
+        ("arm.R", "upperArm.R", "lowerArm.R", "hand.R"),
+        ("leg.L", "upperLeg.L", "lowerLeg.L", "foot.L"),
+        ("leg.R", "upperLeg.R", "lowerLeg.R", "foot.R"),
+    )
+    limb_lengths = {}
+    for label, upper, lower, end in limb_specs:
+        limb_lengths[label] = (
+            (target_rest_points[lower] - target_rest_points[upper]).length,
+            (target_rest_points[end] - target_rest_points[lower]).length,
+        )
+
+    def projected_delta(name: str, source_pose_points: dict[str, Vector]) -> Vector:
+        return (
+            target_rest_points[name]
+            + rest_alignment
+            @ (source_pose_points[name] - source_rest_points[name])
+            * body_scale
+        )
+
+    def corrected_source_direction(
+        name: str, source_pose_points: dict[str, Vector]
+    ) -> Vector:
+        child = primary_child[name]
+        posed = (
+            source_pose_points[child] - source_pose_points[name]
+        ).normalized()
+        return (
+            rest_direction_corrections[name] @ (rest_alignment @ posed)
+        ).normalized()
+
+    diagnostics = {
+        "method": "rest-synchronized projected landmarks plus analytic two-bone IK",
+        "restAlignmentQuaternion": list(rest_alignment),
+        "bodyScale": body_scale,
+        "frames": [],
+    }
 
     for frame in frames:
         bpy.context.scene.frame_set(frame + 1)
         bpy.context.view_layer.update()
-        desired: dict[str, Matrix] = {}
+        source_pose_points = {
+            name: (
+                canonical.matrix_world @ canonical.pose.bones[name].matrix
+            ).translation.copy()
+            for name in order
+        }
 
-        for name in order:
-            child = primary_child.get(name)
-            if child:
-                source_rest_direction = (
-                    canonical_rest_world[child].translation
-                    - canonical_rest_world[name].translation
-                ).normalized()
-                source_pose = canonical.matrix_world @ canonical.pose.bones[name].matrix
-                source_child_pose = (
-                    canonical.matrix_world @ canonical.pose.bones[child].matrix
-                )
-                source_pose_direction = (
-                    source_child_pose.translation - source_pose.translation
-                ).normalized()
-                swing = source_rest_direction.rotation_difference(source_pose_direction)
+        # Begin from the immutable Crimson rest pose every frame.  No previous
+        # solved frame is allowed to become the next frame's accidental basis.
+        for pose_bone in target.pose.bones:
+            pose_bone.matrix_basis = Matrix.Identity(4)
+        bpy.context.view_layer.update()
 
-                target_rest_direction = (
-                    target_rest_world[child].translation
-                    - target_rest_world[name].translation
-                ).normalized()
-                desired_direction = (swing @ target_rest_direction).normalized()
-                desired_world_rotation = (
-                    target_rest_direction.rotation_difference(desired_direction)
-                    @ target_rest_world[name].to_quaternion()
-                )
-            else:
-                # Leaves have no outgoing anatomical segment. Preserve their
-                # rest-conjugated orientation after the chain has been solved.
-                source_pose = canonical.matrix_world @ canonical.pose.bones[name].matrix
-                motion_in_rest_frame = (
-                    canonical_rest_world[name].to_quaternion().inverted()
-                    @ source_pose.to_quaternion()
-                )
-                desired_world_rotation = (
-                    target_rest_world[name].to_quaternion() @ motion_in_rest_frame
-                )
+        # Hips translation is the only projected body translation.  Root motion
+        # remains suppressed, but source hip bob survives in target scale.
+        hips_world = projected_delta("hips", source_pose_points)
+        hips = target.pose.bones[target_map["hips"]]
+        hips.location += target.matrix_world.inverted().to_3x3() @ (
+            hips_world - joint_world(target, target_map, "hips")
+        )
+        bpy.context.view_layer.update()
 
-            desired_target_rotation = (
-                target_world_rotation_inverse @ desired_world_rotation
+        # Solve the central chain first, then clavicles.  These roots define the
+        # actual shoulder and hip anchors used by the limb inverse solve.
+        for name in (
+            "hips", "spineLower", "spineMid", "chest",
+            "neck", "clavicle.L", "clavicle.R",
+        ):
+            if name not in primary_child:
+                continue
+            head = joint_world(target, target_map, name)
+            set_bone_direction_world(
+                target,
+                target_map,
+                name,
+                head,
+                corrected_source_direction(name, source_pose_points),
+                target_rest_directions[name],
+                target_rest_rotations[name],
             )
-            parent = parent_by_name[name]
-            if parent:
-                head = desired[parent] @ target_local[name].translation
-            else:
-                head = target_rest[name].translation.copy()
 
-            desired[name] = Matrix.LocRotScale(
-                head, desired_target_rotation, Vector((1, 1, 1))
+        frame_diagnostics = {"frame": frame, "limbs": {}}
+        for label, upper, lower, end in limb_specs:
+            root = joint_world(target, target_map, upper)
+            requested_end = projected_delta(end, source_pose_points)
+            projected_mid = projected_delta(lower, source_pose_points)
+            upper_length, lower_length = limb_lengths[label]
+            middle, solved_end = solve_two_bone(
+                root,
+                requested_end,
+                projected_mid,
+                upper_length,
+                lower_length,
             )
-            target.pose.bones[target_map[name]].matrix = desired[name]
+            set_bone_direction_world(
+                target,
+                target_map,
+                upper,
+                root,
+                middle - root,
+                target_rest_directions[upper],
+                target_rest_rotations[upper],
+            )
+            # Re-read the child head after the parent solve.  This is the
+            # inverse reconstruction step; Crimson's evaluated hierarchy owns
+            # the root, while the known-good projected endpoint owns the aim.
+            evaluated_middle = joint_world(target, target_map, lower)
+            set_bone_direction_world(
+                target,
+                target_map,
+                lower,
+                evaluated_middle,
+                solved_end - evaluated_middle,
+                target_rest_directions[lower],
+                target_rest_rotations[lower],
+            )
+            actual_end = joint_world(target, target_map, end)
+            frame_diagnostics["limbs"][label] = {
+                "requestedTarget": list(requested_end),
+                "solvedTarget": list(solved_end),
+                "actualEnd": list(actual_end),
+                "targetClamp": (requested_end - solved_end).length,
+                "endpointError": (actual_end - solved_end).length,
+                "poleTarget": list(projected_mid),
+                "lengths": [upper_length, lower_length],
+            }
+
+        # Leaves keep target-rest roll plus the source's rest-relative twist.
+        for name in ("head", "hand.L", "hand.R", "foot.L", "foot.R"):
+            source_pose_rotation = (
+                canonical.matrix_world.to_quaternion()
+                @ canonical.pose.bones[name].matrix.to_quaternion()
+            ).normalized()
+            source_delta = (
+                source_rest_rotations[name].inverted() @ source_pose_rotation
+            ).normalized()
+            desired_world_rotation = (
+                target_rest_rotations[name] @ source_delta
+            ).normalized()
+            bone = target.pose.bones[target_map[name]]
+            head = joint_world(target, target_map, name)
+            armature_head = target.matrix_world.inverted() @ head
+            armature_rotation = (
+                target.matrix_world.to_quaternion().inverted()
+                @ desired_world_rotation
+            ).normalized()
+            bone.matrix = Matrix.LocRotScale(
+                armature_head, armature_rotation, Vector((1, 1, 1))
+            )
             bpy.context.view_layer.update()
 
         for name in order:
@@ -481,7 +714,21 @@ def bake_target(
             bone.keyframe_insert("location", frame=frame, group=bone.name)
             bone.keyframe_insert("rotation_quaternion", frame=frame, group=bone.name)
             bone.keyframe_insert("scale", frame=frame, group=bone.name)
-    return action
+        diagnostics["frames"].append(frame_diagnostics)
+
+    endpoint_errors = [
+        limb["endpointError"]
+        for frame in diagnostics["frames"]
+        for limb in frame["limbs"].values()
+    ]
+    target_clamps = [
+        limb["targetClamp"]
+        for frame in diagnostics["frames"]
+        for limb in frame["limbs"].values()
+    ]
+    diagnostics["maxEndpointError"] = max(endpoint_errors)
+    diagnostics["maxTargetClamp"] = max(target_clamps)
+    return action, diagnostics
 
 def top_level(objects: list[bpy.types.Object]) -> list[bpy.types.Object]:
     owned = set(objects)
@@ -579,6 +826,11 @@ def idle_metrics(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT))
+    parser.add_argument(
+        "--skip-renders",
+        action="store_true",
+        help="Run numeric solve/export without initializing a headless render context.",
+    )
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     args = parser.parse_args(argv)
     out = Path(args.out_dir)
@@ -611,25 +863,26 @@ def main() -> None:
 
     # Render the native source clip as an independent visual authority. The
     # target cannot be judged from target pixels alone.
-    source_camera = setup_render()
     source_evidence = []
-    for frame in SAMPLES:
-        bpy.context.scene.frame_set(frame)
+    if not args.skip_renders:
+        source_camera = setup_render()
+        for frame in SAMPLES:
+            bpy.context.scene.frame_set(frame)
+            bpy.context.view_layer.update()
+            image = out / f"source-side-{frame:03d}.png"
+            render(image, source_camera, source_objects, Vector((0, -1, 0.12)))
+            source_evidence.append(
+                {"frame": frame, "view": "locked-side", "image": image.name, "sha256": sha256(image)}
+            )
+        source_diagnostic_frame = SAMPLES[len(SAMPLES) // 2]
+        bpy.context.scene.frame_set(source_diagnostic_frame)
         bpy.context.view_layer.update()
-        image = out / f"source-side-{frame:03d}.png"
-        render(image, source_camera, source_objects, Vector((0, -1, 0.12)))
+        source_diagnostic = out / "source-diagnostic-three-quarter.png"
+        render(source_diagnostic, source_camera, source_objects, Vector((-1, -1, 0.12)))
         source_evidence.append(
-            {"frame": frame, "view": "locked-side", "image": image.name, "sha256": sha256(image)}
+            {"frame": source_diagnostic_frame, "view": "three-quarter",
+             "image": source_diagnostic.name, "sha256": sha256(source_diagnostic)}
         )
-    source_diagnostic_frame = SAMPLES[len(SAMPLES) // 2]
-    bpy.context.scene.frame_set(source_diagnostic_frame)
-    bpy.context.view_layer.update()
-    source_diagnostic = out / "source-diagnostic-three-quarter.png"
-    render(source_diagnostic, source_camera, source_objects, Vector((-1, -1, 0.12)))
-    source_evidence.append(
-        {"frame": source_diagnostic_frame, "view": "three-quarter",
-         "image": source_diagnostic.name, "sha256": sha256(source_diagnostic)}
-    )
 
     source.hide_render = True
     for obj in source_objects:
@@ -659,37 +912,56 @@ def main() -> None:
 
     target_objects = import_glb(TARGET)
     target = find_armature(target_objects, "Crimson")
-    target_action = bake_target(canonical, target, skeleton, target_map, SAMPLES)
+    target_action, target_solve = bake_target(
+        canonical, target, skeleton, target_map, SAMPLES
+    )
+    (out / "target-solve.json").write_text(
+        json.dumps(target_solve, indent=2) + "\n"
+    )
+    if target_solve["maxEndpointError"] > 0.02:
+        raise RuntimeError(
+            "Crimson inverse solve exceeded endpoint tolerance: "
+            f"{target_solve['maxEndpointError']:.6f}m"
+        )
     render_objects = target_objects
-    camera = setup_render()
     evidence = []
     bpy.context.scene.frame_set(SAMPLES[0])
     bpy.context.view_layer.update()
     baseline_foot_midpoint = foot_midpoint(target, target_map)
     baseline_hips = joint_world(target, target_map, "hips")
-    for frame in SAMPLES:
-        bpy.context.scene.frame_set(frame)
-        bpy.context.view_layer.update()
-        image = out / f"locked-side-{frame:03d}.png"
-        render(image, camera, render_objects, Vector((0, -1, 0.12)))
-        evidence.append(
-            {"frame": frame, "view": "locked-side", "image": image.name, "sha256": sha256(image),
-             "metrics": idle_metrics(target, target_map, baseline_foot_midpoint, baseline_hips)}
-        )
-    diagnostic_frame = SAMPLES[len(SAMPLES) // 2]
-    for label, direction in (
-        ("front", Vector((-1, 0, 0.08))),
-        ("three-quarter", Vector((-1, -1, 0.12))),
-        ("rear-three-quarter", Vector((1, 1, 0.12))),
-    ):
-        bpy.context.scene.frame_set(diagnostic_frame)
-        bpy.context.view_layer.update()
-        image = out / f"diagnostic-{label}.png"
-        render(image, camera, render_objects, direction)
-        evidence.append(
-            {"frame": diagnostic_frame, "view": label, "image": image.name, "sha256": sha256(image),
-             "metrics": idle_metrics(target, target_map, baseline_foot_midpoint, baseline_hips)}
-        )
+    if not args.skip_renders:
+        camera = setup_render()
+        for frame in SAMPLES:
+            bpy.context.scene.frame_set(frame)
+            bpy.context.view_layer.update()
+            image = out / f"locked-side-{frame:03d}.png"
+            render(image, camera, render_objects, Vector((0, -1, 0.12)))
+            evidence.append(
+                {"frame": frame, "view": "locked-side", "image": image.name, "sha256": sha256(image),
+                 "metrics": idle_metrics(target, target_map, baseline_foot_midpoint, baseline_hips)}
+            )
+        diagnostic_frame = SAMPLES[len(SAMPLES) // 2]
+        for label, direction in (
+            ("front", Vector((-1, 0, 0.08))),
+            ("three-quarter", Vector((-1, -1, 0.12))),
+            ("rear-three-quarter", Vector((1, 1, 0.12))),
+        ):
+            bpy.context.scene.frame_set(diagnostic_frame)
+            bpy.context.view_layer.update()
+            image = out / f"diagnostic-{label}.png"
+            render(image, camera, render_objects, direction)
+            evidence.append(
+                {"frame": diagnostic_frame, "view": label, "image": image.name, "sha256": sha256(image),
+                 "metrics": idle_metrics(target, target_map, baseline_foot_midpoint, baseline_hips)}
+            )
+    else:
+        for frame in SAMPLES:
+            bpy.context.scene.frame_set(frame)
+            bpy.context.view_layer.update()
+            evidence.append(
+                {"frame": frame, "view": "numeric-only",
+                 "metrics": idle_metrics(target, target_map, baseline_foot_midpoint, baseline_hips)}
+            )
 
     blend_path = out / "crimson_org_bvh_idle_transfer.blend"
     bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
@@ -726,44 +998,3 @@ def main() -> None:
             "rootConvention": skeleton["rootMotion"],
             "rotationChannels": skeleton["rotationChannels"],
             "axisSelection": axis_selection,
-            "sourceLayer": "ORG only",
-            "proxyAction": proxy_action.name,
-        },
-        "sourceToProxy": source_proxy,
-        "roundTrip": roundtrip,
-        "sourceEvidence": source_evidence,
-        "evidence": evidence,
-        "conclusions": {
-            "bvhSolved": [
-                "small inspectable anatomical hierarchy",
-                "evaluated ORG motion separated from Rigify controls and DEF segmentation",
-                "deterministic hierarchy/channel/frame-rate/root interchange",
-                "ORG-only native Idle transported to a clean canonical skeleton",
-            ],
-            "acceptanceGate": [
-                "recognizable Crimson anatomy in every frame",
-                "stable feet and root through the idle loop",
-                "hands and arms arrive naturally without weapon constraints",
-                "no per-model weights or IK unless this plain transfer proves they are needed",
-            ],
-            "excluded": [
-                "weapon loading or prop ownership",
-                "grip sockets or bilateral closure",
-                "weapon metrics",
-                "IK and contact solving",
-            ],
-        },
-        "blend": {"file": blend_path.name, "sha256": sha256(blend_path)},
-        "reviewGlb": {
-            "file": glb_path.name,
-            "sha256": sha256(glb_path),
-            "purpose": "hosted Pose Lab experimental review; exact baked target motion",
-        },
-    }
-    manifest_path = out / "manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
-    print(json.dumps({"ok": True, "out": str(out), "manifest": str(manifest_path), "roundTrip": roundtrip}, indent=2))
-
-
-if __name__ == "__main__":
-    main()
