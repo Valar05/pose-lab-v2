@@ -13,6 +13,7 @@ const ASSETS = {
   crimsonSource: './assets/crimson/crimson_plume_knight_rigged_pbr.glb',
   arborbladeSource: './assets/crimson/arborblade_sword.glb',
   crimsonReview: './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb',
+  crimsonBvhIdle: './assets/crimson/experiments/crimson_org_bvh_idle_transfer.glb',
   arborbladeReview: './assets/crimson/arborblade_sword_review.glb',
   crimson: CRIMSON_ASSET_QUALITY === 'source' ? './assets/crimson/crimson_plume_knight_rigged_pbr.glb' : './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb',
   arborblade: CRIMSON_ASSET_QUALITY === 'source' ? './assets/crimson/arborblade_sword.glb' : './assets/crimson/arborblade_sword_review.glb',
@@ -77,6 +78,20 @@ const CHARACTER_ASSETS = Object.freeze({
     supportsSaber: false,
     supportsBakedPoseStates: false,
     supportsFistHands: false,
+  },
+  'crimson-bvh': {
+    key: 'crimson-bvh',
+    label: 'Vanguard → Crimson · ORG BVH Idle (experimental)',
+    asset: ASSETS.crimsonBvhIdle,
+    source: 'GitHub Actions run 30056653609 from a07dc8e anatomical-segment transfer; review GLB sha256 ecec8e92e1e7dbf8907cbaf6b23d34411dc790121415a8dfe24637aa4f744a2d',
+    role: 'Experimental ORG-only BVH Idle transfer. Foot midpoint drift: 4.37 cm. Contact stabilization has not been applied.',
+    boneMap: {},
+    supportsSaber: false,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+    supportsAnimationClips: true,
+    autoPlayAnimation: true,
+    defaultClip: 'CrimsonCanonicalIdle',
   },
   crimson: {
     key: 'crimson',
@@ -154,6 +169,9 @@ const CHARACTER_KEY_ALIASES = Object.freeze({
   'kestrel-man': 'davin',
   hawk: 'davin',
   crimson: 'crimson',
+  'crimson-bvh': 'crimson-bvh',
+  'org-bvh-idle': 'crimson-bvh',
+  'vanguard-crimson-idle': 'crimson-bvh',
   'crimson-knight': 'crimson',
   'crimson-plume': 'crimson',
   arborblade: 'crimson',
@@ -180,6 +198,7 @@ const REQUESTED_CHARACTER_KEY = CHARACTER_KEY_ALIASES[URL_PARAMS.get('model')]
   || CHARACTER_KEY_ALIASES[URL_PARAMS.get('character')]
   || 'davin';
 const ACTIVE_CHARACTER = CHARACTER_ASSETS[REQUESTED_CHARACTER_KEY] || CHARACTER_ASSETS.meshy;
+const IS_CRIMSON_BVH_REVIEW = ACTIVE_CHARACTER.key === 'crimson-bvh';
 
 function modelButtonHtml(key) {
   const character = CHARACTER_ASSETS[key];
@@ -3726,7 +3745,9 @@ async function boot() {
       if (fistHands) attachFistHandsToMeshy(fistHands);
       setPoseState(requestedPoseState);
       updateReviewReady();
-      if (useManualAttackAuthoring() && poseState === 'attack1') {
+      if (IS_CRIMSON_BVH_REVIEW) {
+        statusEl.textContent = 'Experimental ORG BVH Idle · foot midpoint drift 4.37 cm · contact stabilization not applied';
+      } else if (useManualAttackAuthoring() && poseState === 'attack1') {
         statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
       } else if (attackPoseSequence && REQUESTED_CANDIDATE && isSequenceReviewState()) {
         statusEl.textContent = `${REQUESTED_ATTACK_LABEL} candidate preview: ${REQUESTED_CANDIDATE}; ${attackPoseFixedTime === null ? 'playing' : `${attackPoseCurrentTime.toFixed(3)}s`}`;
