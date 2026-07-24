@@ -31,31 +31,31 @@ SCHEMA = "pose-lab-v2-crimson-idle-one-frame-v1"
 VARIANTS = (
     {
         "name": "square-low",
-        "hilt": (0.02, 0.23, 0.56),
-        "right_elbow": (0.18, 0.12, 0.61),
-        "left_elbow": (-0.17, 0.16, 0.64),
-        "blade": (-0.34, 0.03, 0.94),
+        "hilt": (0.04, 0.15, -0.18),
+        "right_elbow": (0.11, 0.08, -0.14),
+        "left_elbow": (-0.10, 0.11, -0.12),
+        "blade": (0.02, -0.42, 0.91),
     },
     {
         "name": "loaded-low",
-        "hilt": (0.05, 0.28, 0.54),
-        "right_elbow": (0.20, 0.10, 0.60),
-        "left_elbow": (-0.16, 0.20, 0.62),
-        "blade": (-0.42, 0.05, 0.90),
+        "hilt": (0.06, 0.18, -0.14),
+        "right_elbow": (0.13, 0.09, -0.13),
+        "left_elbow": (-0.11, 0.13, -0.10),
+        "blade": (0.02, -0.48, 0.88),
     },
     {
         "name": "center-guard",
-        "hilt": (0.01, 0.26, 0.61),
-        "right_elbow": (0.19, 0.11, 0.64),
-        "left_elbow": (-0.18, 0.18, 0.67),
-        "blade": (-0.38, 0.04, 0.92),
+        "hilt": (0.02, 0.16, -0.08),
+        "right_elbow": (0.11, 0.08, -0.10),
+        "left_elbow": (-0.10, 0.12, -0.07),
+        "blade": (0.01, -0.40, 0.92),
     },
     {
         "name": "compact-high",
-        "hilt": (0.00, 0.24, 0.66),
-        "right_elbow": (0.17, 0.10, 0.67),
-        "left_elbow": (-0.16, 0.17, 0.70),
-        "blade": (-0.31, 0.03, 0.95),
+        "hilt": (0.00, 0.18, 0.00),
+        "right_elbow": (0.10, 0.09, -0.06),
+        "left_elbow": (-0.09, 0.13, -0.03),
+        "blade": (0.01, -0.34, 0.95),
     },
 )
 
@@ -260,11 +260,7 @@ def author_variant(
         forward,
         up,
         height,
-        (
-            variant["right_elbow"][0],
-            variant["right_elbow"][1],
-            variant["right_elbow"][2] - 0.72,
-        ),
+        variant["right_elbow"],
     )
     left_elbow = world_point(
         bone_head_world(armature, "LeftArm"),
@@ -272,11 +268,7 @@ def author_variant(
         forward,
         up,
         height,
-        (
-            variant["left_elbow"][0],
-            variant["left_elbow"][1],
-            variant["left_elbow"][2] - 0.72,
-        ),
+        variant["left_elbow"],
     )
     blade = (
         right * variant["blade"][0]
@@ -327,21 +319,6 @@ def place_embedded_sword(
     for obj in sword_objects:
         if obj.parent is None:
             obj.matrix_world = matrix
-    bpy.context.view_layer.update()
-
-
-def parent_sword_to_hand(
-    sword_objects: list[bpy.types.Object],
-    armature: bpy.types.Object,
-) -> None:
-    for obj in sword_objects:
-        if obj.parent is not None:
-            continue
-        world = obj.matrix_world.copy()
-        obj.parent = armature
-        obj.parent_type = "BONE"
-        obj.parent_bone = "RightHand"
-        obj.matrix_world = world
     bpy.context.view_layer.update()
 
 
@@ -528,10 +505,10 @@ def main() -> None:
         report = author_variant(armature, variant)
         blade = Vector(report["bladeDirection"])
         wrist = bone_head_world(armature, "RightHand")
-        # Blender imports the normalized Arborblade geometry in source
-        # centimeters. Convert that mesh basis to the armature's meter-scale
-        # world before applying the desired character-relative length.
-        place_embedded_sword(sword_objects, wrist, blade, report["height"] * 0.0072)
+        # Blender's imported Arborblade basis is larger than its normalized
+        # browser bounds. The direct world factor below is visually calibrated
+        # against Crimson's actual final-rig height.
+        place_embedded_sword(sword_objects, wrist, blade, report["height"] * 0.04)
         right = Vector(report["basis"]["right"])
         forward = Vector(report["basis"]["forward"])
         side = out / f"variant-{index}-{variant['name']}-side.png"
@@ -552,9 +529,8 @@ def main() -> None:
         sword_objects,
         selected_wrist,
         selected_blade,
-        selected_report["height"] * 0.0072,
+        selected_report["height"] * 0.04,
     )
-    parent_sword_to_hand(sword_objects, armature)
     action = key_once(armature)
     candidate = out / "crimson_idle_stance.glb"
     export_candidate(
@@ -588,10 +564,10 @@ def main() -> None:
                 "asset": str(SWORD.relative_to(ROOT)),
                 "assetSha256": sha256(SWORD),
                 "hierarchy": [
-                    "CrimsonPlumeKnight_Armature",
-                    "RightHand",
+                    "CrimsonIdleStanceScene",
                     "ArborbladeSword",
                 ],
+                "hiltAlignedTo": "RightHand",
                 "externalAttachment": False,
             },
         },
