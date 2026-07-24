@@ -579,6 +579,28 @@ def main() -> None:
     export_proxy_bvh(proxy, bvh_path, min(SAMPLES), max(SAMPLES))
     source_proxy_world = proxy.matrix_world.copy()
 
+    # Render the native source clip as an independent visual authority. The
+    # target cannot be judged from target pixels alone.
+    source_camera = setup_render()
+    source_evidence = []
+    for frame in SAMPLES:
+        bpy.context.scene.frame_set(frame)
+        bpy.context.view_layer.update()
+        image = out / f"source-side-{frame:03d}.png"
+        render(image, source_camera, source_objects, Vector((0, -1, 0.12)))
+        source_evidence.append(
+            {"frame": frame, "view": "locked-side", "image": image.name, "sha256": sha256(image)}
+        )
+    source_diagnostic_frame = SAMPLES[len(SAMPLES) // 2]
+    bpy.context.scene.frame_set(source_diagnostic_frame)
+    bpy.context.view_layer.update()
+    source_diagnostic = out / "source-diagnostic-three-quarter.png"
+    render(source_diagnostic, source_camera, source_objects, Vector((-1, -1, 0.12)))
+    source_evidence.append(
+        {"frame": source_diagnostic_frame, "view": "three-quarter",
+         "image": source_diagnostic.name, "sha256": sha256(source_diagnostic)}
+    )
+
     source.hide_render = True
     for obj in source_objects:
         obj.hide_viewport = True
@@ -662,6 +684,7 @@ def main() -> None:
         },
         "sourceToProxy": source_proxy,
         "roundTrip": roundtrip,
+        "sourceEvidence": source_evidence,
         "evidence": evidence,
         "conclusions": {
             "bvhSolved": [
