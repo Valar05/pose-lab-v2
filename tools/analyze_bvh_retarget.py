@@ -91,6 +91,13 @@ def inspect(document: dict, clip_name: str | None) -> dict:
         "selectedClipTrackPaths": {
             name: sorted(paths) for name, paths in sorted(channel_paths.items())
         },
+        "parentByName": {
+            node.get("name", f"node-{index}"): (
+                nodes[parents[index]].get("name", f"node-{parents[index]}")
+                if index in parents else None
+            )
+            for index, node in enumerate(nodes)
+        },
         "_names": names,
     }
 
