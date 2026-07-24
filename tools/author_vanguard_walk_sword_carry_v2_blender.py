@@ -87,6 +87,8 @@ def carry_snapshot(walk_v1, idle, lagged_motion):
 
 
 def transforms_match(left, right, epsilon: float = 1e-8) -> bool:
+    if left is right:
+        return True
     left_loc, left_mode, left_quat, left_euler, left_scale = left
     right_loc, right_mode, right_quat, right_euler, right_scale = right
     return (
