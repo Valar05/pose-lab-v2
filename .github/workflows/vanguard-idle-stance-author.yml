@@ -1,0 +1,64 @@
+name: Vanguard Idle Stance Author
+
+on:
+  push:
+    branches:
+      - agent/vanguard-idle-stance-one-frame
+    paths:
+      - .github/workflows/vanguard-idle-stance-author.yml
+      - tools/author_vanguard_idle_stance_blender.py
+
+permissions:
+  contents: read
+
+jobs:
+  author:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified Blender 4.4
+        id: blender-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+          fail-on-cache-miss: true
+
+      - name: Author one final-rig key and render exact export
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          .toolcache/blender-4.4.0/blender --background \
+            --python-exit-code 1 \
+            --python tools/author_vanguard_idle_stance_blender.py \
+            -- \
+            --asset public/assets/vanguard/vanguard_rigged_animations.glb \
+            --out-dir generated/vanguard/idle-stance-one-frame \
+            --source-action Idle \
+            --source-frame 0 \
+            --width 768 \
+            --height 768
+
+      - name: Fail closed on contract drift
+        run: |
+          jq -e '.status == "quarantined"' generated/vanguard/idle-stance-one-frame/metadata.json
+          jq -e '.source.animationModified == false' generated/vanguard/idle-stance-one-frame/metadata.json
+          jq -e '.source.retargeting == false and .source.solver == false' generated/vanguard/idle-stance-one-frame/metadata.json
+          jq -e '.authoring.lane == "direct-final-rig"' generated/vanguard/idle-stance-one-frame/metadata.json
+          jq -e '.authoring.authoredKeyframesPerTransformChannel == 1' generated/vanguard/idle-stance-one-frame/metadata.json
+          jq -e '.authoring.weapon.mode == "embedded" and .authoring.weapon.externalAttachment == false' generated/vanguard/idle-stance-one-frame/metadata.json
+          jq -e '.reimportVerification.action == "VanguardIdleStance"' generated/vanguard/idle-stance-one-frame/metadata.json
+          test -s generated/vanguard/idle-stance-one-frame/vanguard-idle-stance.glb
+          test -s generated/vanguard/idle-stance-one-frame/locked-side.png
+          test -s generated/vanguard/idle-stance-one-frame/orthogonal-front.png
+          git diff --check
+
+      - name: Upload quarantined exact candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanguard-idle-stance-one-frame
+          path: generated/vanguard/idle-stance-one-frame/
+          if-no-files-found: error
+          retention-days: 30
