@@ -318,3 +318,14 @@ def main() -> None:
                 "lower": [round(float(value), 8) for value in lower],
                 "upper": [round(float(value), 8) for value in upper],
             },
+        },
+        "targetPoseMatrixBasisByFrame": poses,
+    }
+    (out_dir / "inventory.json").write_text(
+        json.dumps(inventory, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+if __name__ == "__main__":
+    main()
