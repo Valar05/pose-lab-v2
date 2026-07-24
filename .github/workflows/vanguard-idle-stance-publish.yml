@@ -42,11 +42,16 @@ jobs:
       - name: Publish quarantined bytes on review branch
         run: |
           mkdir -p public/assets/vanguard
+          mkdir -p assets/vanguard
           cp generated/vanguard/idle-stance-one-frame/vanguard-idle-stance.glb \
             public/assets/vanguard/vanguard_idle_stance.glb
+          cp generated/vanguard/idle-stance-one-frame/vanguard-idle-stance.glb \
+            assets/vanguard/vanguard_idle_stance.glb
           git config user.name "pose-lab-v2-actions"
           git config user.email "actions@users.noreply.github.com"
-          git add public/assets/vanguard/vanguard_idle_stance.glb
+          git add \
+            public/assets/vanguard/vanguard_idle_stance.glb \
+            assets/vanguard/vanguard_idle_stance.glb
           git commit -m "Publish quarantined Vanguard idle stance [skip ci]"
           git push origin HEAD:agent/vanguard-idle-stance-one-frame
           printf '%s\n' "$(git rev-parse HEAD)" > generated/vanguard/idle-stance-one-frame/publish-commit.txt
