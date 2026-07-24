@@ -1,0 +1,110 @@
+name: Crimson Idle One Frame
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/crimson-idle-one-frame
+    paths:
+      - tools/author_crimson_idle_frame_blender.py
+      - .github/workflows/crimson-idle-one-frame.yml
+
+permissions:
+  contents: read
+
+env:
+  BLENDER_VERSION: "4.4.0"
+  BLENDER_ARCHIVE: "blender-4.4.0-linux-x64.tar.xz"
+  BLENDER_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0-linux-x64.tar.xz"
+  BLENDER_CHECKSUM_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0.sha256"
+
+jobs:
+  author:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified Blender 4.4
+        id: blender-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+
+      - name: Materialize verified Blender
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .toolcache/blender-4.4.0
+          curl --fail --location --retry 3 "$BLENDER_URL" --output "$RUNNER_TEMP/$BLENDER_ARCHIVE"
+          curl --fail --location --retry 3 "$BLENDER_CHECKSUM_URL" --output "$RUNNER_TEMP/blender-4.4.0.sha256"
+          (
+            cd "$RUNNER_TEMP"
+            grep -E "[[:space:]]+$BLENDER_ARCHIVE$" blender-4.4.0.sha256 | sha256sum --check --strict -
+          )
+          tar --extract --file "$RUNNER_TEMP/$BLENDER_ARCHIVE" \
+            --directory .toolcache/blender-4.4.0 \
+            --strip-components 1
+
+      - name: Save verified Blender
+        if: steps.blender-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+
+      - name: Prepare headless render runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1-mesa-dri imagemagick
+
+      - name: Author one direct Crimson frame
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          .toolcache/blender-4.4.0/blender --background \
+            --python-exit-code 1 \
+            --python tools/author_crimson_idle_frame_blender.py \
+            -- \
+            --out-dir generated/crimson/idle-one-frame \
+            --selected 2 \
+            --width 768 \
+            --height 768
+
+      - name: Assemble pose comparison
+        run: |
+          montage generated/crimson/idle-one-frame/variant-*-side.png \
+            -thumbnail 384x384 \
+            -tile 4x1 \
+            -geometry +8+8 \
+            -background none \
+            generated/crimson/idle-one-frame/variant-side-sheet.png
+          montage generated/crimson/idle-one-frame/variant-*-front.png \
+            -thumbnail 384x384 \
+            -tile 4x1 \
+            -geometry +8+8 \
+            -background none \
+            generated/crimson/idle-one-frame/variant-front-sheet.png
+
+      - name: Fail closed on one-frame contract
+        run: |
+          jq -e '.status == "quarantined"' generated/crimson/idle-one-frame/manifest.json
+          jq -e '.source.sourceAnimation == null' generated/crimson/idle-one-frame/manifest.json
+          jq -e '.source.retargeting == false and .source.solver == false' generated/crimson/idle-one-frame/manifest.json
+          jq -e '.authoring.lane == "direct-final-rig" and .authoring.finalRig == true' generated/crimson/idle-one-frame/manifest.json
+          jq -e '.authoring.frameCount == 1' generated/crimson/idle-one-frame/manifest.json
+          jq -e '.authoring.weapon.mode == "embedded" and .authoring.weapon.externalAttachment == false' generated/crimson/idle-one-frame/manifest.json
+          jq -e '.reimportVerification.action == "CrimsonIdleStance"' generated/crimson/idle-one-frame/manifest.json
+          jq -e '.reimportVerification.embeddedSword == true' generated/crimson/idle-one-frame/manifest.json
+          test -s generated/crimson/idle-one-frame/crimson_idle_stance.glb
+          test -s generated/crimson/idle-one-frame/selected-locked-side.png
+          test -s generated/crimson/idle-one-frame/selected-orthogonal-front.png
+          git diff --check
+
+      - name: Upload quarantined candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: crimson-idle-one-frame
+          path: generated/crimson/idle-one-frame/
+          if-no-files-found: error
+          retention-days: 30
