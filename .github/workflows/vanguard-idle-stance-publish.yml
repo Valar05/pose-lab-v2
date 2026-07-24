@@ -1,0 +1,78 @@
+name: Vanguard Idle Stance Publish
+
+on:
+  push:
+    branches:
+      - agent/vanguard-idle-stance-one-frame
+    paths:
+      - .github/workflows/vanguard-idle-stance-publish.yml
+
+permissions:
+  contents: write
+
+env:
+  EXPECTED_CANDIDATE_SHA256: a89886cc4c59a600c4e98cda7d0fc7e21503d63616dd9d118c0a0118eb0195d1
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/vanguard-idle-stance-one-frame
+          fetch-depth: 0
+
+      - name: Restore verified Blender 4.4
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+          fail-on-cache-miss: true
+
+      - name: Prepare headless render runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1-mesa-dri
+
+      - name: Reproduce inspected candidate
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          .toolcache/blender-4.4.0/blender --background \
+            --python-exit-code 1 \
+            --python tools/author_vanguard_idle_stance_blender.py \
+            -- \
+            --asset public/assets/vanguard/vanguard_rigged_animations.glb \
+            --out-dir generated/vanguard/idle-stance-one-frame \
+            --source-action Idle \
+            --source-frame 0 \
+            --width 768 \
+            --height 768
+
+      - name: Refuse byte drift
+        run: |
+          printf '%s  %s\n' \
+            "$EXPECTED_CANDIDATE_SHA256" \
+            generated/vanguard/idle-stance-one-frame/vanguard-idle-stance.glb \
+            | sha256sum --check --strict -
+
+      - name: Publish quarantined bytes on review branch
+        run: |
+          mkdir -p public/assets/vanguard
+          cp generated/vanguard/idle-stance-one-frame/vanguard-idle-stance.glb \
+            public/assets/vanguard/vanguard_idle_stance.glb
+          git config user.name "pose-lab-v2-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/assets/vanguard/vanguard_idle_stance.glb
+          git commit -m "Publish quarantined Vanguard idle stance [skip ci]"
+          git push origin HEAD:agent/vanguard-idle-stance-one-frame
+          printf '%s\n' "$(git rev-parse HEAD)" > generated/vanguard/idle-stance-one-frame/publish-commit.txt
+
+      - name: Upload published evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanguard-idle-stance-published
+          path: generated/vanguard/idle-stance-one-frame/
+          if-no-files-found: error
+          retention-days: 30
