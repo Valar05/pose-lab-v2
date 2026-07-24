@@ -612,14 +612,6 @@ def bake_target(
         side: projected_delta(f"foot.{side}", source_contact_points)
         for side in ("L", "R")
     }
-    locked_foot_rotations = {
-        side: (
-            canonical.matrix_world.to_quaternion()
-            @ canonical.pose.bones[f"foot.{side}"].matrix.to_quaternion()
-        ).normalized()
-        for side in ("L", "R")
-    }
-
     for frame in frames:
         bpy.context.scene.frame_set(frame + 1)
         bpy.context.view_layer.update()
@@ -758,23 +750,26 @@ def bake_target(
         # hands, and the plume because that delta is expressed on another rig.
         for name in ("head", "hand.L", "hand.R", "foot.L", "foot.R"):
             if name.startswith("foot."):
-                source_pose_rotation = locked_foot_rotations[name[-1]]
+                # ORG-foot carries Rigify roll/rocker semantics that Crimson's
+                # single boot bone does not share.  Contact position is source
+                # authority; Crimson rest rotation is boot/sole authority.
+                desired_world_rotation = target_rest_rotations[name]
             else:
                 source_pose_rotation = (
                     canonical.matrix_world.to_quaternion()
                     @ canonical.pose.bones[name].matrix.to_quaternion()
                 ).normalized()
-            source_world_motion = (
-                source_pose_rotation @ source_rest_rotations[name].inverted()
-            ).normalized()
-            mapped_world_motion = (
-                rest_alignment
-                @ source_world_motion
-                @ rest_alignment.inverted()
-            ).normalized()
-            desired_world_rotation = (
-                mapped_world_motion @ target_rest_rotations[name]
-            ).normalized()
+                source_world_motion = (
+                    source_pose_rotation @ source_rest_rotations[name].inverted()
+                ).normalized()
+                mapped_world_motion = (
+                    rest_alignment
+                    @ source_world_motion
+                    @ rest_alignment.inverted()
+                ).normalized()
+                desired_world_rotation = (
+                    mapped_world_motion @ target_rest_rotations[name]
+                ).normalized()
             bone = target.pose.bones[target_map[name]]
             head = joint_world(target, target_map, name)
             armature_head = target.matrix_world.inverted() @ head
