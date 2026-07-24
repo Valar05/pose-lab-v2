@@ -2,6 +2,15 @@ name: Ivory Native Idle Baseline
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - agent/ivory-idle-vanguard-transfer
+    paths:
+      - .github/workflows/ivory-native-idle-baseline.yml
+      - authoring/ivory-knight/ivory_knight_mixamo.fbx
+      - authoring/ivory-knight/great_sword_idle.fbx
+      - tools/render_ivory_native_idle_baseline_blender.py
+      - tools/stitch_ivory_native_idle_baseline.py
 
 permissions:
   contents: read
