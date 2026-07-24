@@ -4,17 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import json
+import math
 from pathlib import Path
 
 from PIL import Image, ImageDraw
-
-
-VIEWS = (
-    ("Ivory +X", "ivory_native_idle_frame0_pos_x.png"),
-    ("Ivory -X", "ivory_native_idle_frame0_neg_x.png"),
-    ("Ivory +Y", "ivory_native_idle_frame0_pos_y.png"),
-    ("Ivory -Y", "ivory_native_idle_frame0_neg_y.png"),
-)
 
 
 def main() -> None:
@@ -25,9 +19,11 @@ def main() -> None:
 
     root = Path(args.root)
     vanguard_path = Path(args.vanguard)
+    inventory = json.loads((root / "inventory.json").read_text(encoding="utf-8"))
     cells: list[tuple[str, Image.Image]] = []
-    for label, filename in VIEWS:
-        cells.append((label, Image.open(root / filename).convert("RGBA")))
+    for record in inventory["render"]["renders"]:
+        label = f'Ivory F{record["frame"]:g} {record["view"]}'
+        cells.append((label, Image.open(root / record["file"]).convert("RGBA")))
     cells.append(
         ("Accepted Vanguard Idle F0", Image.open(vanguard_path).convert("RGBA"))
     )
@@ -35,15 +31,17 @@ def main() -> None:
     cell_width = max(image.width for _, image in cells)
     cell_height = max(image.height for _, image in cells)
     label_height = 34
+    columns = 3
+    rows = math.ceil(len(cells) / columns)
     sheet = Image.new(
         "RGBA",
-        (cell_width * 3, (cell_height + label_height) * 2),
+        (cell_width * columns, (cell_height + label_height) * rows),
         (29, 32, 38, 255),
     )
     draw = ImageDraw.Draw(sheet)
     for index, (label, image) in enumerate(cells):
-        column = index % 3
-        row = index // 3
+        column = index % columns
+        row = index // columns
         x = column * cell_width
         y = row * (cell_height + label_height)
         checker = Image.new("RGBA", (cell_width, cell_height), (72, 76, 84, 255))
