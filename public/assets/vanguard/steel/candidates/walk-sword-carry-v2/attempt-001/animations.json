@@ -1,0 +1,79 @@
+{
+  "schema": "pose-lab-v2-2d-animation-set-v1",
+  "character": "Steel Vanguard \u00b7 Walk Sword Carry V2 candidate 001",
+  "defaultAnimation": "walkswordcarryv2",
+  "frameSpace": {
+    "width": 512,
+    "height": 512,
+    "colorMode": "RGBA",
+    "background": "transparent",
+    "facing": "screen-right",
+    "camera": "fixed"
+  },
+  "authority": {
+    "locomotion": "Approved Steel Walk v1",
+    "actingPass": "WalkSwordCarryV2 candidate 001",
+    "reviewState": "candidate",
+    "humanVerdict": null
+  },
+  "animations": [
+    {
+      "id": "walkswordcarryv2",
+      "label": "Walk Sword Carry V2 \u00b7 Candidate 001",
+      "loop": true,
+      "contactSheet": "contact-sheet.png",
+      "sourceMetadata": "source-metadata.json",
+      "groundGuideY": 400,
+      "contract": [
+        "screen-right",
+        "approved Walk v1 locomotion",
+        "fixed camera",
+        "eight authored poses",
+        "single embedded sword",
+        "candidate only"
+      ],
+      "frames": [
+        {
+          "src": "frames/walkswordcarryv2_0000.png",
+          "durationMs": 110,
+          "sha256": "7709d9fcbc27e41d5f56c5858c36e8c9d07ed2eaf9357b76def95a5ac785e320"
+        },
+        {
+          "src": "frames/walkswordcarryv2_0001.png",
+          "durationMs": 90,
+          "sha256": "c8a57cf12fb3423c3dbc0510a46f2d871217decb9e6e21c22d9ff9a71f001d00"
+        },
+        {
+          "src": "frames/walkswordcarryv2_0002.png",
+          "durationMs": 100,
+          "sha256": "11071983565f9edad95347512ba289b4786c81bef0295c614fdee466d08827cb"
+        },
+        {
+          "src": "frames/walkswordcarryv2_0003.png",
+          "durationMs": 110,
+          "sha256": "f18252df2a3a4a277293759d5d15c00a39931b7e8590a8f9bb9a3a3937dd0823"
+        },
+        {
+          "src": "frames/walkswordcarryv2_0004.png",
+          "durationMs": 110,
+          "sha256": "a39960144ea0bf21e95288c98e1b7f107363f4d7ebee7da239f1b9f50d992a30"
+        },
+        {
+          "src": "frames/walkswordcarryv2_0005.png",
+          "durationMs": 90,
+          "sha256": "245d74a3e54cc452b7c573fe660a169aed90b131ae0442bbec56a8220e60246c"
+        },
+        {
+          "src": "frames/walkswordcarryv2_0006.png",
+          "durationMs": 100,
+          "sha256": "fa610df68a5818fd643741b325763b26a3179efac36ff223932c5ad812d97ea0"
+        },
+        {
+          "src": "frames/walkswordcarryv2_0007.png",
+          "durationMs": 110,
+          "sha256": "1893df7c2443caaba34ce5a7f0abee4e1f2608b9f81fb937faeb333da20dd0cb"
+        }
+      ]
+    }
+  ]
+}
