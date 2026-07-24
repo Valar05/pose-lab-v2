@@ -84,12 +84,18 @@ jobs:
         run: |
           git fetch origin agent/bvh-retarget-spike
           git checkout -B agent/bvh-retarget-spike origin/agent/bvh-retarget-spike
-          mkdir -p public/assets/crimson/experiments
+          mkdir -p \
+            public/assets/crimson/experiments \
+            assets/crimson/experiments
           cp generated/bvh-idle-transfer/crimson_org_bvh_idle_transfer.glb \
             public/assets/crimson/experiments/crimson_org_bvh_idle_transfer.glb
+          cp generated/bvh-idle-transfer/crimson_org_bvh_idle_transfer.glb \
+            assets/crimson/experiments/crimson_org_bvh_idle_transfer.glb
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/assets/crimson/experiments/crimson_org_bvh_idle_transfer.glb
+          git add \
+            public/assets/crimson/experiments/crimson_org_bvh_idle_transfer.glb \
+            assets/crimson/experiments/crimson_org_bvh_idle_transfer.glb
           if ! git diff --cached --quiet; then
             git commit -m "Publish ORG BVH idle review asset"
             git push origin agent/bvh-retarget-spike
