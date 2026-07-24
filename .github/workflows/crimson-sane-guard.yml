@@ -9,6 +9,9 @@ on:
       - tools/author_crimson_sane_guard_blender.py
       - .github/workflows/crimson-sane-guard.yml
 
+permissions:
+  contents: write
+
 env:
   BLENDER_VERSION: "4.4.0"
   BLENDER_ARCHIVE: "blender-4.4.0-linux-x64.tar.xz"
@@ -80,6 +83,31 @@ jobs:
             -geometry +8+8 \
             -background none \
             generated/crimson-sane-guard/guard-orthogonal-sheet.png
+
+      - name: Publish branch-pinned review assets
+        run: |
+          git fetch origin agent/crimson-sane-guard
+          git checkout -B agent/crimson-sane-guard origin/agent/crimson-sane-guard
+          mkdir -p \
+            public/assets/crimson/experiments \
+            assets/crimson/experiments \
+            assets/crimson
+          cp generated/crimson-sane-guard/crimson_sane_guard_idle.glb \
+            public/assets/crimson/experiments/crimson_sane_guard_idle.glb
+          cp generated/crimson-sane-guard/crimson_sane_guard_idle.glb \
+            assets/crimson/experiments/crimson_sane_guard_idle.glb
+          cp public/assets/crimson/arborblade_sword_review.glb \
+            assets/crimson/arborblade_sword_review.glb
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            public/assets/crimson/experiments/crimson_sane_guard_idle.glb \
+            assets/crimson/experiments/crimson_sane_guard_idle.glb \
+            assets/crimson/arborblade_sword_review.glb
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish direct Crimson guard review asset [skip ci]"
+            git push origin agent/crimson-sane-guard
+          fi
 
       - name: Upload quarantined candidate
         if: always()
