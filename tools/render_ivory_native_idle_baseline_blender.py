@@ -18,12 +18,11 @@ import bpy
 from mathutils import Vector
 
 
-VIEW_DIRECTIONS = {
+SIDE_VIEW_DIRECTIONS = {
     "pos_x": Vector((1.0, 0.0, 0.0)),
     "neg_x": Vector((-1.0, 0.0, 0.0)),
-    "pos_y": Vector((0.0, 1.0, 0.0)),
-    "neg_y": Vector((0.0, -1.0, 0.0)),
 }
+SAMPLE_FACTORS = (0.0, 0.25, 0.5, 0.75, 1.0)
 
 
 def cli_args() -> argparse.Namespace:
@@ -139,6 +138,23 @@ def evaluated_world_bounds(
     return lower, upper
 
 
+def evaluated_world_bounds_over_frames(
+    scene: bpy.types.Scene,
+    objects: list[bpy.types.Object],
+    frames: list[float],
+) -> tuple[Vector, Vector]:
+    lower = Vector((math.inf, math.inf, math.inf))
+    upper = Vector((-math.inf, -math.inf, -math.inf))
+    for frame in frames:
+        scene.frame_set(int(frame), subframe=frame - int(frame))
+        bpy.context.view_layer.update()
+        frame_lower, frame_upper = evaluated_world_bounds(objects)
+        for axis in range(3):
+            lower[axis] = min(lower[axis], frame_lower[axis])
+            upper[axis] = max(upper[axis], frame_upper[axis])
+    return lower, upper
+
+
 def make_camera(
     name: str,
     view_direction: Vector,
@@ -221,10 +237,14 @@ def main() -> None:
 
     target_armature.animation_data_create()
     target_armature.animation_data.action = action
-    frame = float(action.frame_range[0])
+    action_start, action_end = (float(value) for value in action.frame_range)
+    frames = sorted(
+        {
+            round(action_start + (action_end - action_start) * factor, 4)
+            for factor in SAMPLE_FACTORS
+        }
+    )
     scene = bpy.context.scene
-    scene.frame_set(int(frame), subframe=frame - int(frame))
-    bpy.context.view_layer.update()
 
     for obj in source_objects:
         obj.hide_render = True
@@ -232,10 +252,10 @@ def main() -> None:
     for mesh in meshes:
         mesh.color = (0.72, 0.68, 0.60, 1.0)
     configure_render(scene, args.width, args.height)
-    lower, upper = evaluated_world_bounds(meshes)
+    lower, upper = evaluated_world_bounds_over_frames(scene, meshes, frames)
 
-    rendered: dict[str, str] = {}
-    for name, direction in VIEW_DIRECTIONS.items():
+    cameras: dict[str, bpy.types.Object] = {}
+    for name, direction in SIDE_VIEW_DIRECTIONS.items():
         camera = make_camera(
             f"IvoryBaseline_{name}",
             direction,
@@ -243,17 +263,33 @@ def main() -> None:
             upper,
             args.width / args.height,
         )
-        scene.camera = camera
-        output = out_dir / f"ivory_native_idle_frame0_{name}.png"
-        scene.render.filepath = str(output)
-        bpy.ops.render.render(write_still=True)
-        rendered[name] = output.name
+        cameras[name] = camera
+
+    rendered: list[dict[str, object]] = []
+    poses: dict[str, dict[str, list[float]]] = {}
+    for frame in frames:
+        scene.frame_set(int(frame), subframe=frame - int(frame))
+        bpy.context.view_layer.update()
+        poses[str(frame)] = {
+            bone.name: matrix_values(bone.matrix_basis)
+            for bone in target_armature.pose.bones
+        }
+        frame_label = f"{frame:07.3f}".replace(".", "_")
+        for name, camera in cameras.items():
+            scene.camera = camera
+            output = out_dir / f"ivory_native_idle_{frame_label}_{name}.png"
+            scene.render.filepath = str(output)
+            bpy.ops.render.render(write_still=True)
+            rendered.append(
+                {
+                    "frame": frame,
+                    "view": name,
+                    "file": output.name,
+                }
+            )
+    for camera in cameras.values():
         bpy.data.objects.remove(camera, do_unlink=True)
 
-    pose = {
-        bone.name: matrix_values(bone.matrix_basis)
-        for bone in target_armature.pose.bones
-    }
     inventory = {
         "schema": "pose-lab-v2-ivory-native-idle-baseline-v1",
         "status": "diagnostic-only",
@@ -270,26 +306,15 @@ def main() -> None:
             "boneCount": len(source_bones),
             "action": action.name,
             "frameRange": [float(value) for value in action.frame_range],
-            "sampledFrame": frame,
+            "sampledFrames": frames,
             "fcurveCount": len(action.fcurves),
             "missingTargetBones": missing_target_bones,
         },
         "render": {
             "width": args.width,
             "height": args.height,
-            "views": rendered,
+            "renders": rendered,
             "bounds": {
                 "lower": [round(float(value), 8) for value in lower],
                 "upper": [round(float(value), 8) for value in upper],
             },
-        },
-        "targetPoseMatrixBasis": pose,
-    }
-    (out_dir / "inventory.json").write_text(
-        json.dumps(inventory, indent=2) + "\n",
-        encoding="utf-8",
-    )
-
-
-if __name__ == "__main__":
-    main()
