@@ -1,0 +1,80 @@
+name: Vanguard Idle Stance Samples
+
+on:
+  push:
+    branches:
+      - agent/vanguard-idle-stance-one-frame
+    paths:
+      - .github/workflows/vanguard-idle-stance-samples.yml
+      - tools/export_vanguard_idle_game_blender.py
+      - tools/finalize_vanguard_idle_export.py
+      - tools/render_animation_pose_packet.py
+      - public/assets/vanguard/vanguard_rigged_animations.glb
+      - public/assets/vanguard/vanguard_manifest.json
+
+permissions:
+  contents: read
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore cached Blender 4.4
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+          fail-on-cache-miss: true
+
+      - name: Restore Python package cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/pip
+          key: pose-packet-pip-pillow-11.3.0
+
+      - name: Prepare headless render runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1-mesa-dri
+          python3 -c "from PIL import Image; print(Image.__version__)" \
+            || python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
+
+      - name: Render twelve native Idle samples
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          .toolcache/blender-4.4.0/blender --background \
+            --python-exit-code 1 \
+            --python tools/export_vanguard_idle_game_blender.py \
+            -- \
+            --asset public/assets/vanguard/vanguard_rigged_animations.glb \
+            --out-dir generated/vanguard/idle-stance-samples \
+            --action Idle \
+            --frame-count 12 \
+            --output-fps 12 \
+            --source-fps 60 \
+            --camera-side left \
+            --width 512 \
+            --height 512 \
+            --foot-anchor-tolerance-px 2
+          python3 tools/finalize_vanguard_idle_export.py \
+            --root generated/vanguard/idle-stance-samples
+
+      - name: Verify sample evidence
+        run: |
+          test -f generated/vanguard/idle-stance-samples/idle_0000.png
+          test -f generated/vanguard/idle-stance-samples/idle_0011.png
+          test -f generated/vanguard/idle-stance-samples/contact_sheet.png
+          test -f generated/vanguard/idle-stance-samples/metadata.json
+          git diff --check
+
+      - name: Upload quarantined samples
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanguard-idle-stance-samples
+          path: generated/vanguard/idle-stance-samples/
+          if-no-files-found: error
+          retention-days: 30
