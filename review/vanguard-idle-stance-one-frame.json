@@ -1,0 +1,74 @@
+{
+  "schema": "pose-lab-v2-review-bundle-v1",
+  "status": "quarantined",
+  "source": {
+    "revision": "ce85db9df87e08251c21bcf51483acd94d875843",
+    "character": "Vanguard",
+    "action": "VanguardIdleStance"
+  },
+  "authoring": {
+    "lane": "direct-final-rig",
+    "finalRig": true,
+    "renderer": "Blender 4.4",
+    "exportSha256": "a89886cc4c59a600c4e98cda7d0fc7e21503d63616dd9d118c0a0118eb0195d1",
+    "evidence": {
+      "lockedContactSheet": "GitHub Actions run 30064400582 artifact vanguard-idle-stance-one-frame/locked-side.png",
+      "orthogonalView": "GitHub Actions run 30064400582 artifact vanguard-idle-stance-one-frame/orthogonal-front.png"
+    },
+    "weapon": {
+      "mode": "embedded",
+      "hierarchy": [
+        "rig",
+        "Long_Sword"
+      ],
+      "calibrationSha256": null
+    }
+  },
+  "runtime": {
+    "url": "https://raw.githack.com/Valar05/pose-lab-v2/ce85db9df87e08251c21bcf51483acd94d875843/index.html?model=vanguard-idle-stance&clip=VanguardIdleStance&view=orbit&cacheBust=ce85db9d",
+    "requestedModel": "vanguard-idle-stance",
+    "activeModel": "vanguard-idle-stance",
+    "requestedClip": "VanguardIdleStance",
+    "activeClip": "VanguardIdleStance",
+    "playbackActive": true,
+    "fallbackRestActive": false,
+    "hostedCharacterSha256": "a89886cc4c59a600c4e98cda7d0fc7e21503d63616dd9d118c0a0118eb0195d1",
+    "resources": [
+      {
+        "role": "page",
+        "url": "https://raw.githack.com/Valar05/pose-lab-v2/ce85db9df87e08251c21bcf51483acd94d875843/index.html?model=vanguard-idle-stance&clip=VanguardIdleStance&view=orbit&cacheBust=ce85db9d",
+        "status": 200
+      },
+      {
+        "role": "module",
+        "url": "https://raw.githack.com/Valar05/pose-lab-v2/ce85db9df87e08251c21bcf51483acd94d875843/src/main.js",
+        "status": 200
+      },
+      {
+        "role": "character",
+        "url": "https://raw.githack.com/Valar05/pose-lab-v2/ce85db9df87e08251c21bcf51483acd94d875843/assets/vanguard/vanguard_idle_stance.glb",
+        "status": 200
+      }
+    ],
+    "weapon": {
+      "mode": "embedded",
+      "hierarchy": [
+        "rig",
+        "Long_Sword"
+      ],
+      "calibrationSha256": null
+    },
+    "visual": {
+      "status": "user-pending",
+      "evidence": null
+    },
+    "verification": {
+      "stateBasis": "fail-closed dedicated model route plus exact GLB re-import; cloud browser could not create a WebGL context",
+      "cloudBrowser": "startup failed before runtime state observation: Error creating WebGL context"
+    }
+  },
+  "human": {
+    "verdict": "pending",
+    "evidence": null
+  }
+}
