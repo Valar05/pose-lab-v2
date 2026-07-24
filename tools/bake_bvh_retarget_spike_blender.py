@@ -389,17 +389,20 @@ def bake_target(
     target.animation_data_create()
     target.animation_data.action = action
 
-    # Conjugate motion through each rig's complete rest frame:
-    # motion = sourceRest^-1 * sourcePose
-    # targetPose = targetRest * motion
-    # This preserves the semantic motion when source and target rest axes/rolls
-    # differ, while target heads continue to follow target bone lengths.
+    # Transfer anatomical swing from rest segment -> posed segment. This avoids
+    # assuming matching bone rolls or copying model-specific quaternion bases.
     order = [entry["name"] for entry in skeleton["joints"] if entry["name"] != "root"]
     parent_by_name = {
         entry["name"]: None if entry["parent"] == "root" else entry["parent"]
         for entry in skeleton["joints"]
         if entry["name"] != "root"
     }
+    primary_child: dict[str, str] = {}
+    for entry in skeleton["joints"]:
+        parent = entry["parent"]
+        if parent and parent != "root" and parent not in primary_child:
+            primary_child[parent] = entry["name"]
+
     canonical_rest_world = {
         name: (canonical.matrix_world @ canonical.data.bones[name].matrix_local).copy()
         for name in order
@@ -421,18 +424,45 @@ def bake_target(
         desired: dict[str, Matrix] = {}
 
         for name in order:
-            source_pose_world = canonical.matrix_world @ canonical.pose.bones[name].matrix
-            motion_in_rest_frame = (
-                canonical_rest_world[name].to_quaternion().inverted()
-                @ source_pose_world.to_quaternion()
-            )
-            desired_world_rotation = (
-                target_rest_world[name].to_quaternion() @ motion_in_rest_frame
-            )
+            child = primary_child.get(name)
+            if child:
+                source_rest_direction = (
+                    canonical_rest_world[child].translation
+                    - canonical_rest_world[name].translation
+                ).normalized()
+                source_pose = canonical.matrix_world @ canonical.pose.bones[name].matrix
+                source_child_pose = (
+                    canonical.matrix_world @ canonical.pose.bones[child].matrix
+                )
+                source_pose_direction = (
+                    source_child_pose.translation - source_pose.translation
+                ).normalized()
+                swing = source_rest_direction.rotation_difference(source_pose_direction)
+
+                target_rest_direction = (
+                    target_rest_world[child].translation
+                    - target_rest_world[name].translation
+                ).normalized()
+                desired_direction = (swing @ target_rest_direction).normalized()
+                desired_world_rotation = (
+                    target_rest_direction.rotation_difference(desired_direction)
+                    @ target_rest_world[name].to_quaternion()
+                )
+            else:
+                # Leaves have no outgoing anatomical segment. Preserve their
+                # rest-conjugated orientation after the chain has been solved.
+                source_pose = canonical.matrix_world @ canonical.pose.bones[name].matrix
+                motion_in_rest_frame = (
+                    canonical_rest_world[name].to_quaternion().inverted()
+                    @ source_pose.to_quaternion()
+                )
+                desired_world_rotation = (
+                    target_rest_world[name].to_quaternion() @ motion_in_rest_frame
+                )
+
             desired_target_rotation = (
                 target_world_rotation_inverse @ desired_world_rotation
             )
-
             parent = parent_by_name[name]
             if parent:
                 head = desired[parent] @ target_local[name].translation
