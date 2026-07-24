@@ -1,0 +1,1465 @@
+{
+  "schema": "pose-lab-v2-vanguard-walk-sword-carry-v2",
+  "status": "rendered-pending-visual-review",
+  "source": {
+    "asset": "public/assets/vanguard/vanguard_rigged_animations.glb",
+    "assetSha256": "70609931d8bcb5803728e8d7a27f0157984954c02a407b0904da42885fd485ab",
+    "lowerBodyAuthority": "Steel Vanguard Walk v1 construction at PR #8 head 90ca534c46a47c660e7bf5ef7bd2efcf35dbeb9e",
+    "action": "WalkSwordCarryV2",
+    "authoringLane": "direct-final-rig",
+    "motionPrinciple": "restrained guarded carry with one-pose inertial lag"
+  },
+  "contract": {
+    "poseCount": 8,
+    "poseOrder": [
+      "left-contact",
+      "left-compression",
+      "passing-left-support",
+      "right-reach",
+      "right-contact",
+      "right-compression",
+      "passing-right-support",
+      "left-reach"
+    ],
+    "screenFacing": "right",
+    "timingMs": [
+      110,
+      90,
+      100,
+      110,
+      110,
+      90,
+      100,
+      110
+    ],
+    "rootMotionSuppressed": true,
+    "retargeting": false,
+    "mirroring": false,
+    "perFrameStabilization": false,
+    "reframing": false,
+    "weapon": {
+      "mode": "embedded",
+      "mesh": "Long_Sword",
+      "driverBone": "Weapon.R"
+    },
+    "upperWeight": 0.24,
+    "upperPhaseLagPoses": 1
+  },
+  "sideCamera": {
+    "matrixWorld": [
+      7.5e-08,
+      7.5e-08,
+      -1.0,
+      -14.512425423,
+      -1.0,
+      0.0,
+      -7.5e-08,
+      0.0,
+      0.0,
+      1.0,
+      7.5e-08,
+      0.760227919,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "orthoScale": 4.08372879
+  },
+  "orthogonalCamera": {
+    "matrixWorld": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -4.4e-08,
+      -1.0,
+      -14.561367035,
+      0.0,
+      1.0,
+      -4.4e-08,
+      0.760227919,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "orthoScale": 4.08372879
+  },
+  "motionSummary": {
+    "hiltRangeXpx": 6.421,
+    "hiltRangeYpx": 2.5598,
+    "tipRangeXpx": 8.0663,
+    "tipRangeYpx": 4.0527,
+    "bladeAngleRangeDeg": 3.1817
+  },
+  "frames": [
+    {
+      "index": 0,
+      "pose": "left-contact",
+      "supportLeg": "left",
+      "durationMs": 110,
+      "image": "walkswordcarryv2_0000.png",
+      "sha256": "7709d9fcbc27e41d5f56c5858c36e8c9d07ed2eaf9357b76def95a5ac785e320",
+      "joints": {
+        "leftFoot": {
+          "x": 269.611,
+          "y": 336.4986,
+          "depth": 14.72475
+        },
+        "leftKnee": {
+          "x": 245.341,
+          "y": 270.7546,
+          "depth": 14.66231
+        },
+        "rightFoot": {
+          "x": 228.3656,
+          "y": 336.4986,
+          "depth": 14.300101
+        },
+        "rightKnee": {
+          "x": 265.3768,
+          "y": 270.3132,
+          "depth": 14.381299
+        },
+        "pelvis": {
+          "x": 263.6549,
+          "y": 226.3123,
+          "depth": 14.512425
+        },
+        "head": {
+          "x": 277.7511,
+          "y": 173.4769,
+          "depth": 14.52343
+        },
+        "leftHand": {
+          "x": 306.9061,
+          "y": 192.4411,
+          "depth": 14.283677
+        },
+        "rightHand": {
+          "x": 275.913,
+          "y": 184.1588,
+          "depth": 14.112345
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 283.1863,
+          "y": 217.4289,
+          "depth": 14.00754642
+        },
+        "tip": {
+          "x": 282.4933,
+          "y": 473.7026,
+          "depth": 14.50684738
+        },
+        "leftHandHiltDistancePx": 34.4531,
+        "rightHandHiltDistancePx": 34.0558,
+        "handDepthDelta": 0.171332,
+        "bladeAngleDeg": 90.1549
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.512425423,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        0.0,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 1,
+      "pose": "left-compression",
+      "supportLeg": "left",
+      "durationMs": 90,
+      "image": "walkswordcarryv2_0001.png",
+      "sha256": "c8a57cf12fb3423c3dbc0510a46f2d871217decb9e6e21c22d9ff9a71f001d00",
+      "joints": {
+        "leftFoot": {
+          "x": 269.611,
+          "y": 336.4986,
+          "depth": 14.72475
+        },
+        "leftKnee": {
+          "x": 257.5618,
+          "y": 278.5126,
+          "depth": 14.655677
+        },
+        "rightFoot": {
+          "x": 228.3656,
+          "y": 336.4986,
+          "depth": 14.300101
+        },
+        "rightKnee": {
+          "x": 263.7279,
+          "y": 276.3499,
+          "depth": 14.397568
+        },
+        "pelvis": {
+          "x": 263.6549,
+          "y": 226.3123,
+          "depth": 14.512425
+        },
+        "head": {
+          "x": 277.7511,
+          "y": 173.4769,
+          "depth": 14.52343
+        },
+        "leftHand": {
+          "x": 304.4435,
+          "y": 188.512,
+          "depth": 14.26158
+        },
+        "rightHand": {
+          "x": 272.846,
+          "y": 183.0929,
+          "depth": 14.108335
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 281.8028,
+          "y": 217.4826,
+          "depth": 14.0106554
+        },
+        "tip": {
+          "x": 281.3785,
+          "y": 472.885,
+          "depth": 14.52707958
+        },
+        "leftHandHiltDistancePx": 36.7682,
+        "rightHandHiltDistancePx": 35.537,
+        "handDepthDelta": 0.153245,
+        "bladeAngleDeg": 90.0952
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.512425423,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        0.0,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 2,
+      "pose": "passing-left-support",
+      "supportLeg": "left",
+      "durationMs": 100,
+      "image": "walkswordcarryv2_0002.png",
+      "sha256": "11071983565f9edad95347512ba289b4786c81bef0295c614fdee466d08827cb",
+      "joints": {
+        "leftFoot": {
+          "x": 269.611,
+          "y": 336.4986,
+          "depth": 14.72475
+        },
+        "leftKnee": {
+          "x": 278.7184,
+          "y": 278.6181,
+          "depth": 14.644181
+        },
+        "rightFoot": {
+          "x": 228.3656,
+          "y": 336.4986,
+          "depth": 14.300101
+        },
+        "rightKnee": {
+          "x": 258.601,
+          "y": 280.1796,
+          "depth": 14.416492
+        },
+        "pelvis": {
+          "x": 263.6549,
+          "y": 226.3123,
+          "depth": 14.512425
+        },
+        "head": {
+          "x": 277.7511,
+          "y": 173.4769,
+          "depth": 14.52343
+        },
+        "leftHand": {
+          "x": 307.4507,
+          "y": 194.3144,
+          "depth": 14.277117
+        },
+        "rightHand": {
+          "x": 272.8174,
+          "y": 184.7879,
+          "depth": 14.106287
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 281.0853,
+          "y": 217.4073,
+          "depth": 14.00166416
+        },
+        "tip": {
+          "x": 283.327,
+          "y": 472.629,
+          "depth": 14.52501774
+        },
+        "leftHandHiltDistancePx": 35.0488,
+        "rightHandHiltDistancePx": 33.6509,
+        "handDepthDelta": 0.17083,
+        "bladeAngleDeg": 89.4968
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.512425423,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        0.0,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 3,
+      "pose": "right-reach",
+      "supportLeg": "left",
+      "durationMs": 110,
+      "image": "walkswordcarryv2_0003.png",
+      "sha256": "f18252df2a3a4a277293759d5d15c00a39931b7e8590a8f9bb9a3a3937dd0823",
+      "joints": {
+        "leftFoot": {
+          "x": 269.611,
+          "y": 336.4986,
+          "depth": 14.72475
+        },
+        "leftKnee": {
+          "x": 281.7997,
+          "y": 273.3575,
+          "depth": 14.605368
+        },
+        "rightFoot": {
+          "x": 228.3656,
+          "y": 336.4986,
+          "depth": 14.300101
+        },
+        "rightKnee": {
+          "x": 242.1494,
+          "y": 276.0406,
+          "depth": 14.441329
+        },
+        "pelvis": {
+          "x": 263.6549,
+          "y": 226.3123,
+          "depth": 14.512425
+        },
+        "head": {
+          "x": 277.7511,
+          "y": 173.4769,
+          "depth": 14.52343
+        },
+        "leftHand": {
+          "x": 310.4243,
+          "y": 199.2293,
+          "depth": 14.301336
+        },
+        "rightHand": {
+          "x": 275.3037,
+          "y": 185.1465,
+          "depth": 14.107449
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 283.2877,
+          "y": 216.8607,
+          "depth": 13.99725914
+        },
+        "tip": {
+          "x": 281.0252,
+          "y": 474.2964,
+          "depth": 14.49567986
+        },
+        "leftHandHiltDistancePx": 32.3614,
+        "rightHandHiltDistancePx": 32.7037,
+        "handDepthDelta": 0.193887,
+        "bladeAngleDeg": 90.5035
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.512425423,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        0.0,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 4,
+      "pose": "right-contact",
+      "supportLeg": "right",
+      "durationMs": 110,
+      "image": "walkswordcarryv2_0004.png",
+      "sha256": "a39960144ea0bf21e95288c98e1b7f107363f4d7ebee7da239f1b9f50d992a30",
+      "joints": {
+        "leftFoot": {
+          "x": 269.611,
+          "y": 336.4986,
+          "depth": 14.72475
+        },
+        "leftKnee": {
+          "x": 275.6801,
+          "y": 273.6042,
+          "depth": 14.599337
+        },
+        "rightFoot": {
+          "x": 228.3656,
+          "y": 336.4986,
+          "depth": 14.300101
+        },
+        "rightKnee": {
+          "x": 239.4948,
+          "y": 273.0159,
+          "depth": 14.441877
+        },
+        "pelvis": {
+          "x": 263.6549,
+          "y": 226.3123,
+          "depth": 14.512425
+        },
+        "head": {
+          "x": 277.7511,
+          "y": 173.4769,
+          "depth": 14.52343
+        },
+        "leftHand": {
+          "x": 312.6353,
+          "y": 200.5457,
+          "depth": 14.327504
+        },
+        "rightHand": {
+          "x": 278.9717,
+          "y": 183.8099,
+          "depth": 14.104761
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 285.6049,
+          "y": 215.9349,
+          "depth": 13.99168301
+        },
+        "tip": {
+          "x": 278.3597,
+          "y": 475.8346,
+          "depth": 14.47275066
+        },
+        "leftHandHiltDistancePx": 31.1042,
+        "rightHandHiltDistancePx": 32.8027,
+        "handDepthDelta": 0.222743,
+        "bladeAngleDeg": 91.5968
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.512425423,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        0.0,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 5,
+      "pose": "right-compression",
+      "supportLeg": "right",
+      "durationMs": 90,
+      "image": "walkswordcarryv2_0005.png",
+      "sha256": "245d74a3e54cc452b7c573fe660a169aed90b131ae0442bbec56a8220e60246c",
+      "joints": {
+        "leftFoot": {
+          "x": 269.611,
+          "y": 336.4986,
+          "depth": 14.72475
+        },
+        "leftKnee": {
+          "x": 271.8983,
+          "y": 279.4661,
+          "depth": 14.595117
+        },
+        "rightFoot": {
+          "x": 228.3656,
+          "y": 336.4986,
+          "depth": 14.300101
+        },
+        "rightKnee": {
+          "x": 251.4581,
+          "y": 279.628,
+          "depth": 14.388358
+        },
+        "pelvis": {
+          "x": 263.6549,
+          "y": 226.3123,
+          "depth": 14.512425
+        },
+        "head": {
+          "x": 277.7511,
+          "y": 173.4769,
+          "depth": 14.52343
+        },
+        "leftHand": {
+          "x": 313.8802,
+          "y": 201.2885,
+          "depth": 14.348499
+        },
+        "rightHand": {
+          "x": 281.9335,
+          "y": 182.8495,
+          "depth": 14.106676
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 287.5063,
+          "y": 214.9228,
+          "depth": 13.98709202
+        },
+        "tip": {
+          "x": 275.2607,
+          "y": 476.6817,
+          "depth": 14.46562767
+        },
+        "leftHandHiltDistancePx": 29.6897,
+        "rightHandHiltDistancePx": 32.5538,
+        "handDepthDelta": 0.241823,
+        "bladeAngleDeg": 92.6785
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.512425423,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        0.0,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 6,
+      "pose": "passing-right-support",
+      "supportLeg": "right",
+      "durationMs": 100,
+      "image": "walkswordcarryv2_0006.png",
+      "sha256": "fa610df68a5818fd643741b325763b26a3179efac36ff223932c5ad812d97ea0",
+      "joints": {
+        "leftFoot": {
+          "x": 269.611,
+          "y": 336.4986,
+          "depth": 14.72475
+        },
+        "leftKnee": {
+          "x": 262.602,
+          "y": 281.5266,
+          "depth": 14.614274
+        },
+        "rightFoot": {
+          "x": 228.3656,
+          "y": 336.4986,
+          "depth": 14.300101
+        },
+        "rightKnee": {
+          "x": 267.0312,
+          "y": 278.1723,
+          "depth": 14.351712
+        },
+        "pelvis": {
+          "x": 263.6549,
+          "y": 226.3123,
+          "depth": 14.512425
+        },
+        "head": {
+          "x": 277.7511,
+          "y": 173.4769,
+          "depth": 14.52343
+        },
+        "leftHand": {
+          "x": 312.1461,
+          "y": 200.4579,
+          "depth": 14.330283
+        },
+        "rightHand": {
+          "x": 281.0672,
+          "y": 185.1198,
+          "depth": 14.112374
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 286.5505,
+          "y": 215.6785,
+          "depth": 13.99464035
+        },
+        "tip": {
+          "x": 277.3838,
+          "y": 476.0664,
+          "depth": 14.47420406
+        },
+        "leftHandHiltDistancePx": 29.7792,
+        "rightHandHiltDistancePx": 31.0468,
+        "handDepthDelta": 0.217909,
+        "bladeAngleDeg": 92.0162
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.512425423,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        0.0,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 7,
+      "pose": "left-reach",
+      "supportLeg": "right",
+      "durationMs": 110,
+      "image": "walkswordcarryv2_0007.png",
+      "sha256": "1893df7c2443caaba34ce5a7f0abee4e1f2608b9f81fb937faeb333da20dd0cb",
+      "joints": {
+        "leftFoot": {
+          "x": 269.611,
+          "y": 336.4986,
+          "depth": 14.72475
+        },
+        "leftKnee": {
+          "x": 249.0803,
+          "y": 275.237,
+          "depth": 14.650681
+        },
+        "rightFoot": {
+          "x": 228.3656,
+          "y": 336.4986,
+          "depth": 14.300101
+        },
+        "rightKnee": {
+          "x": 269.578,
+          "y": 271.6407,
+          "depth": 14.359835
+        },
+        "pelvis": {
+          "x": 263.6549,
+          "y": 226.3123,
+          "depth": 14.512425
+        },
+        "head": {
+          "x": 277.7511,
+          "y": 173.4769,
+          "depth": 14.52343
+        },
+        "leftHand": {
+          "x": 309.9339,
+          "y": 198.2504,
+          "depth": 14.30406
+        },
+        "rightHand": {
+          "x": 278.8558,
+          "y": 186.7502,
+          "depth": 14.109996
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 284.9505,
+          "y": 216.637,
+          "depth": 14.00160885
+        },
+        "tip": {
+          "x": 279.996,
+          "y": 474.9921,
+          "depth": 14.48783302
+        },
+        "leftHandHiltDistancePx": 31.02,
+        "rightHandHiltDistancePx": 30.5019,
+        "handDepthDelta": 0.194064,
+        "bladeAngleDeg": 91.0986
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.512425423,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        0.0,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    }
+  ],
+  "orthogonalFrames": [
+    {
+      "index": 0,
+      "pose": "left-contact",
+      "supportLeg": "left",
+      "durationMs": 110,
+      "image": "walkswordcarryv2-front_0000.png",
+      "sha256": "0e5031600a417eb5db33e0366f0c2617c5d1a7aa7be48c835a914de27179ff89",
+      "joints": {
+        "leftFoot": {
+          "x": 282.6202,
+          "y": 336.4988,
+          "depth": 14.452806
+        },
+        "leftKnee": {
+          "x": 274.7918,
+          "y": 270.7548,
+          "depth": 14.646385
+        },
+        "rightFoot": {
+          "x": 229.3798,
+          "y": 336.4988,
+          "depth": 14.781781
+        },
+        "rightKnee": {
+          "x": 239.56,
+          "y": 270.3134,
+          "depth": 14.486578
+        },
+        "pelvis": {
+          "x": 256.0,
+          "y": 226.3125,
+          "depth": 14.500313
+        },
+        "head": {
+          "x": 257.3797,
+          "y": 173.4771,
+          "depth": 14.387881
+        },
+        "leftHand": {
+          "x": 227.3205,
+          "y": 192.4413,
+          "depth": 14.155339
+        },
+        "rightHand": {
+          "x": 205.8397,
+          "y": 184.159,
+          "depth": 14.402541
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 192.7005,
+          "y": 217.4291,
+          "depth": 14.34452915
+        },
+        "tip": {
+          "x": 255.3006,
+          "y": 473.7024,
+          "depth": 14.35005665
+        },
+        "leftHandHiltDistancePx": 42.6958,
+        "rightHandHiltDistancePx": 35.7706,
+        "handDepthDelta": 0.247202,
+        "bladeAngleDeg": 76.2731
+      },
+      "cameraMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -4.4e-08,
+        -1.0,
+        -14.561367035,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 1,
+      "pose": "left-compression",
+      "supportLeg": "left",
+      "durationMs": 90,
+      "image": "walkswordcarryv2-front_0001.png",
+      "sha256": "30be49eefa935b8e0c101bc27c4de425378f86f95ae6c75cfbdf53d47a463d59",
+      "joints": {
+        "leftFoot": {
+          "x": 282.6202,
+          "y": 336.4988,
+          "depth": 14.452806
+        },
+        "leftKnee": {
+          "x": 273.9603,
+          "y": 278.5128,
+          "depth": 14.548911
+        },
+        "rightFoot": {
+          "x": 229.3798,
+          "y": 336.4988,
+          "depth": 14.781781
+        },
+        "rightKnee": {
+          "x": 241.5997,
+          "y": 276.3501,
+          "depth": 14.49973
+        },
+        "pelvis": {
+          "x": 256.0,
+          "y": 226.3125,
+          "depth": 14.500313
+        },
+        "head": {
+          "x": 257.3797,
+          "y": 173.4771,
+          "depth": 14.387881
+        },
+        "leftHand": {
+          "x": 224.55,
+          "y": 188.5122,
+          "depth": 14.174981
+        },
+        "rightHand": {
+          "x": 205.337,
+          "y": 183.0931,
+          "depth": 14.427004
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 193.0903,
+          "y": 217.4828,
+          "depth": 14.35556412
+        },
+        "tip": {
+          "x": 257.8373,
+          "y": 472.8848,
+          "depth": 14.35894871
+        },
+        "leftHandHiltDistancePx": 42.7669,
+        "rightHandHiltDistancePx": 36.5052,
+        "handDepthDelta": 0.252023,
+        "bladeAngleDeg": 75.7746
+      },
+      "cameraMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -4.4e-08,
+        -1.0,
+        -14.561367035,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 2,
+      "pose": "passing-left-support",
+      "supportLeg": "left",
+      "durationMs": 100,
+      "image": "walkswordcarryv2-front_0002.png",
+      "sha256": "95fd52e5b1dabdd1443dff4b64caead373f51f002ac053163f5d4d0f6b6bbcd2",
+      "joints": {
+        "leftFoot": {
+          "x": 282.6202,
+          "y": 336.4988,
+          "depth": 14.452806
+        },
+        "leftKnee": {
+          "x": 272.5189,
+          "y": 278.6183,
+          "depth": 14.380165
+        },
+        "rightFoot": {
+          "x": 229.3798,
+          "y": 336.4988,
+          "depth": 14.781781
+        },
+        "rightKnee": {
+          "x": 243.9723,
+          "y": 280.1798,
+          "depth": 14.540623
+        },
+        "pelvis": {
+          "x": 256.0,
+          "y": 226.3125,
+          "depth": 14.500313
+        },
+        "head": {
+          "x": 257.3797,
+          "y": 173.4771,
+          "depth": 14.387881
+        },
+        "leftHand": {
+          "x": 226.4981,
+          "y": 194.3146,
+          "depth": 14.150995
+        },
+        "rightHand": {
+          "x": 205.0801,
+          "y": 184.7881,
+          "depth": 14.427233
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 191.963,
+          "y": 217.4075,
+          "depth": 14.36128616
+        },
+        "tip": {
+          "x": 257.5788,
+          "y": 472.6288,
+          "depth": 14.34340763
+        },
+        "leftHandHiltDistancePx": 41.5446,
+        "rightHandHiltDistancePx": 35.158,
+        "handDepthDelta": 0.276238,
+        "bladeAngleDeg": 75.5819
+      },
+      "cameraMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -4.4e-08,
+        -1.0,
+        -14.561367035,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 3,
+      "pose": "right-reach",
+      "supportLeg": "left",
+      "durationMs": 110,
+      "image": "walkswordcarryv2-front_0003.png",
+      "sha256": "e89af879d68a0cff75eb52df65bfe5fd6842cb1a5fb0fdb3cdbc2af2c1e44729",
+      "joints": {
+        "leftFoot": {
+          "x": 282.6202,
+          "y": 336.4988,
+          "depth": 14.452806
+        },
+        "leftKnee": {
+          "x": 267.6527,
+          "y": 273.3577,
+          "depth": 14.355589
+        },
+        "rightFoot": {
+          "x": 229.3798,
+          "y": 336.4988,
+          "depth": 14.781781
+        },
+        "rightKnee": {
+          "x": 247.0862,
+          "y": 276.0408,
+          "depth": 14.671842
+        },
+        "pelvis": {
+          "x": 256.0,
+          "y": 226.3125,
+          "depth": 14.500313
+        },
+        "head": {
+          "x": 257.3797,
+          "y": 173.4771,
+          "depth": 14.387881
+        },
+        "leftHand": {
+          "x": 229.5346,
+          "y": 199.2295,
+          "depth": 14.127278
+        },
+        "rightHand": {
+          "x": 205.2257,
+          "y": 185.1467,
+          "depth": 14.407401
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 191.4107,
+          "y": 216.8609,
+          "depth": 14.34372044
+        },
+        "tip": {
+          "x": 253.9006,
+          "y": 474.2961,
+          "depth": 14.36176682
+        },
+        "leftHandHiltDistancePx": 42.0035,
+        "rightHandHiltDistancePx": 34.5926,
+        "handDepthDelta": 0.280123,
+        "bladeAngleDeg": 76.3559
+      },
+      "cameraMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -4.4e-08,
+        -1.0,
+        -14.561367035,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 4,
+      "pose": "right-contact",
+      "supportLeg": "right",
+      "durationMs": 110,
+      "image": "walkswordcarryv2-front_0004.png",
+      "sha256": "23508dc18fa19ca375efc22c47e35459189e080052a8ed69fa421dc2adf92c74",
+      "joints": {
+        "leftFoot": {
+          "x": 282.6202,
+          "y": 336.4988,
+          "depth": 14.452806
+        },
+        "leftKnee": {
+          "x": 266.8965,
+          "y": 273.6044,
+          "depth": 14.404399
+        },
+        "rightFoot": {
+          "x": 229.3798,
+          "y": 336.4988,
+          "depth": 14.781781
+        },
+        "rightKnee": {
+          "x": 247.155,
+          "y": 273.0161,
+          "depth": 14.693014
+        },
+        "pelvis": {
+          "x": 256.0,
+          "y": 226.3125,
+          "depth": 14.500313
+        },
+        "head": {
+          "x": 257.3797,
+          "y": 173.4771,
+          "depth": 14.387881
+        },
+        "leftHand": {
+          "x": 232.8154,
+          "y": 200.5459,
+          "depth": 14.109643
+        },
+        "rightHand": {
+          "x": 204.8889,
+          "y": 183.8101,
+          "depth": 14.378145
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 190.7116,
+          "y": 215.9351,
+          "depth": 14.32523823
+        },
+        "tip": {
+          "x": 251.0258,
+          "y": 475.8344,
+          "depth": 14.38302708
+        },
+        "leftHandHiltDistancePx": 44.8281,
+        "rightHandHiltDistancePx": 35.1143,
+        "handDepthDelta": 0.268502,
+        "bladeAngleDeg": 76.9348
+      },
+      "cameraMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -4.4e-08,
+        -1.0,
+        -14.561367035,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 5,
+      "pose": "right-compression",
+      "supportLeg": "right",
+      "durationMs": 90,
+      "image": "walkswordcarryv2-front_0005.png",
+      "sha256": "027432a6a3e372897cf4b3755ad4ba5f4430f5281d9ef9e3f069b6d8bbd2b3b6",
+      "joints": {
+        "leftFoot": {
+          "x": 282.6202,
+          "y": 336.4988,
+          "depth": 14.452806
+        },
+        "leftKnee": {
+          "x": 266.3674,
+          "y": 279.4664,
+          "depth": 14.434563
+        },
+        "rightFoot": {
+          "x": 229.3798,
+          "y": 336.4988,
+          "depth": 14.781781
+        },
+        "rightKnee": {
+          "x": 240.4449,
+          "y": 279.6282,
+          "depth": 14.597594
+        },
+        "pelvis": {
+          "x": 256.0,
+          "y": 226.3125,
+          "depth": 14.500313
+        },
+        "head": {
+          "x": 257.3797,
+          "y": 173.4771,
+          "depth": 14.387881
+        },
+        "leftHand": {
+          "x": 235.4476,
+          "y": 201.2887,
+          "depth": 14.099713
+        },
+        "rightHand": {
+          "x": 205.129,
+          "y": 182.8497,
+          "depth": 14.354522
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 190.136,
+          "y": 214.923,
+          "depth": 14.3100729
+        },
+        "tip": {
+          "x": 250.1327,
+          "y": 476.6815,
+          "depth": 14.40774441
+        },
+        "leftHandHiltDistancePx": 47.3184,
+        "rightHandHiltDistancePx": 35.4046,
+        "handDepthDelta": 0.254809,
+        "bladeAngleDeg": 77.0904
+      },
+      "cameraMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -4.4e-08,
+        -1.0,
+        -14.561367035,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 6,
+      "pose": "passing-right-support",
+      "supportLeg": "right",
+      "durationMs": 100,
+      "image": "walkswordcarryv2-front_0006.png",
+      "sha256": "d057fd4dd1f432d877282bacc7552ad95f5db392df8a77fb7f7f83dea2f98921",
+      "joints": {
+        "leftFoot": {
+          "x": 282.6202,
+          "y": 336.4988,
+          "depth": 14.452806
+        },
+        "leftKnee": {
+          "x": 268.7693,
+          "y": 281.5268,
+          "depth": 14.50871
+        },
+        "rightFoot": {
+          "x": 229.3798,
+          "y": 336.4988,
+          "depth": 14.781781
+        },
+        "rightKnee": {
+          "x": 235.8505,
+          "y": 278.1725,
+          "depth": 14.473382
+        },
+        "pelvis": {
+          "x": 256.0,
+          "y": 226.3125,
+          "depth": 14.500313
+        },
+        "head": {
+          "x": 257.3797,
+          "y": 173.4771,
+          "depth": 14.387881
+        },
+        "leftHand": {
+          "x": 233.1638,
+          "y": 200.4581,
+          "depth": 14.113544
+        },
+        "rightHand": {
+          "x": 205.8434,
+          "y": 185.1201,
+          "depth": 14.361431
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 191.0824,
+          "y": 215.6787,
+          "depth": 14.31769657
+        },
+        "tip": {
+          "x": 251.208,
+          "y": 476.0662,
+          "depth": 14.39081001
+        },
+        "leftHandHiltDistancePx": 44.7494,
+        "rightHandHiltDistancePx": 33.9369,
+        "handDepthDelta": 0.247887,
+        "bladeAngleDeg": 76.9978
+      },
+      "cameraMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -4.4e-08,
+        -1.0,
+        -14.561367035,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    },
+    {
+      "index": 7,
+      "pose": "left-reach",
+      "supportLeg": "right",
+      "durationMs": 110,
+      "image": "walkswordcarryv2-front_0007.png",
+      "sha256": "a4c3f01bcff2fe211771b7b9ca52d0c11f89b4860b1a80c2854fc0df0109783e",
+      "joints": {
+        "leftFoot": {
+          "x": 282.6202,
+          "y": 336.4988,
+          "depth": 14.452806
+        },
+        "leftKnee": {
+          "x": 273.334,
+          "y": 275.2372,
+          "depth": 14.61656
+        },
+        "rightFoot": {
+          "x": 229.3798,
+          "y": 336.4988,
+          "depth": 14.781781
+        },
+        "rightKnee": {
+          "x": 236.8689,
+          "y": 271.6409,
+          "depth": 14.45307
+        },
+        "pelvis": {
+          "x": 256.0,
+          "y": 226.3125,
+          "depth": 14.500313
+        },
+        "head": {
+          "x": 257.3797,
+          "y": 173.4771,
+          "depth": 14.387881
+        },
+        "leftHand": {
+          "x": 229.8761,
+          "y": 198.2506,
+          "depth": 14.131189
+        },
+        "rightHand": {
+          "x": 205.5452,
+          "y": 186.7504,
+          "depth": 14.379069
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 191.9561,
+          "y": 216.6372,
+          "depth": 14.33045769
+        },
+        "tip": {
+          "x": 252.9167,
+          "y": 474.9919,
+          "depth": 14.36997509
+        },
+        "leftHandHiltDistancePx": 42.1425,
+        "rightHandHiltDistancePx": 32.8312,
+        "handDepthDelta": 0.24788,
+        "bladeAngleDeg": 76.7235
+      },
+      "cameraMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -4.4e-08,
+        -1.0,
+        -14.561367035,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.760227919,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.08372879
+    }
+  ],
+  "export": {
+    "path": "vanguard_walk_sword_carry_v2.glb",
+    "sha256": "3fe905eef5d63267d44599fa5508b07f8db2e6c1a252e1f39ed60eea9881ece6"
+  }
+}
