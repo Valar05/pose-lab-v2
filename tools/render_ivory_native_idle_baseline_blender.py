@@ -229,7 +229,6 @@ def main() -> None:
     for obj in source_objects:
         obj.hide_render = True
         obj.hide_set(True)
-    target_armature.hide_render = True
     configure_render(scene, args.width, args.height)
     lower, upper = evaluated_world_bounds(meshes)
 
