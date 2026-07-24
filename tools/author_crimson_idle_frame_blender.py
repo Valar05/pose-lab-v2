@@ -528,7 +528,10 @@ def main() -> None:
         report = author_variant(armature, variant)
         blade = Vector(report["bladeDirection"])
         wrist = bone_head_world(armature, "RightHand")
-        place_embedded_sword(sword_objects, wrist, blade, report["height"] * 0.72)
+        # Blender imports the normalized Arborblade geometry in source
+        # centimeters. Convert that mesh basis to the armature's meter-scale
+        # world before applying the desired character-relative length.
+        place_embedded_sword(sword_objects, wrist, blade, report["height"] * 0.0072)
         right = Vector(report["basis"]["right"])
         forward = Vector(report["basis"]["forward"])
         side = out / f"variant-{index}-{variant['name']}-side.png"
@@ -549,7 +552,7 @@ def main() -> None:
         sword_objects,
         selected_wrist,
         selected_blade,
-        selected_report["height"] * 0.72,
+        selected_report["height"] * 0.0072,
     )
     parent_sword_to_hand(sword_objects, armature)
     action = key_once(armature)
