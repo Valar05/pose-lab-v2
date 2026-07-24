@@ -1,0 +1,59 @@
+name: Ivory Native Idle Baseline
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify exact diagnostic inputs
+        run: |
+          test "$(sha256sum authoring/ivory-knight/ivory_knight_mixamo.fbx | awk '{print $1}')" = da08570a0c69d4e88598ff3278677dc5de05a688a5cbc3a0f93d1594f4d43fa3
+          test "$(sha256sum authoring/ivory-knight/great_sword_idle.fbx | awk '{print $1}')" = f40c61f279e45cfd7307cbd6272837eeb266e931bb83c2001957c5e4eb584d53
+
+      - name: Restore trusted Blender cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .toolcache/blender-4.4.0
+          key: blender-linux-x64-4.4.0-official-sha256-v2
+          fail-on-cache-miss: true
+
+      - name: Install lightweight render dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1-mesa-dri
+          python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
+
+      - name: Render untouched native frame-zero pose
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          .toolcache/blender-4.4.0/blender --background \
+            --python-exit-code 1 \
+            --python tools/render_ivory_native_idle_baseline_blender.py \
+            -- \
+            --target authoring/ivory-knight/ivory_knight_mixamo.fbx \
+            --motion authoring/ivory-knight/great_sword_idle.fbx \
+            --out-dir generated/ivory-knight/native-idle-baseline
+
+      - name: Assemble comparison sheet
+        run: |
+          python3 tools/stitch_ivory_native_idle_baseline.py \
+            --root generated/ivory-knight/native-idle-baseline \
+            --vanguard public/assets/vanguard/fleshpunk/idle/frames/idle_0000.png
+          python3 -m json.tool generated/ivory-knight/native-idle-baseline/inventory.json
+          git diff --check
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ivory-native-idle-baseline-${{ github.run_id }}
+          path: generated/ivory-knight/native-idle-baseline/
+          if-no-files-found: error
+          retention-days: 30
