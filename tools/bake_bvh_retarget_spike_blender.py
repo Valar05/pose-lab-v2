@@ -998,3 +998,45 @@ def main() -> None:
             "rootConvention": skeleton["rootMotion"],
             "rotationChannels": skeleton["rotationChannels"],
             "axisSelection": axis_selection,
+            "sourceLayer": "ORG only",
+            "proxyAction": proxy_action.name,
+        },
+        "sourceToProxy": source_proxy,
+        "roundTrip": roundtrip,
+        "targetSolve": target_solve,
+        "sourceEvidence": source_evidence,
+        "evidence": evidence,
+        "conclusions": {
+            "bvhSolved": [
+                "small inspectable anatomical hierarchy",
+                "evaluated ORG motion separated from Rigify controls and DEF segmentation",
+                "deterministic hierarchy/channel/frame-rate/root interchange",
+                "ORG-only native Idle transported to a clean canonical skeleton",
+            ],
+            "acceptanceGate": [
+                "recognizable Crimson anatomy in every frame",
+                "stable feet and root through the idle loop",
+                "hands and arms arrive naturally without weapon constraints",
+                "projected endpoints reconstruct under preserved Crimson limb lengths",
+            ],
+            "excluded": [
+                "weapon loading or prop ownership",
+                "grip sockets or bilateral closure",
+                "weapon metrics",
+                "armor-specific correction",
+            ],
+        },
+        "blend": {"file": blend_path.name, "sha256": sha256(blend_path)},
+        "reviewGlb": {
+            "file": glb_path.name,
+            "sha256": sha256(glb_path),
+            "purpose": "hosted Pose Lab experimental review; exact baked target motion",
+        },
+    }
+    manifest_path = out / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+    print(json.dumps({"ok": True, "out": str(out), "manifest": str(manifest_path), "roundTrip": roundtrip}, indent=2))
+
+
+if __name__ == "__main__":
+    main()
