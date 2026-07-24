@@ -29,4 +29,15 @@ assert report["status"] == "ready-for-blender-proxy-bake"
 assert len(skeleton["joints"]) == 21
 assert skeleton["excludedByDesign"]
 
+mapped_target_nodes = [
+    "Hips", "Spine", "Spine01", "Spine02", "neck", "Head",
+    "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand",
+    "RightShoulder", "RightArm", "RightForeArm", "RightHand",
+    "LeftUpLeg", "LeftLeg", "LeftFoot",
+    "RightUpLeg", "RightLeg", "RightFoot",
+]
+print(json.dumps({
+    name: report["target"]["parentByName"].get(name)
+    for name in mapped_target_nodes
+}, indent=2))
 print("BVH retarget contract: PASS")
