@@ -389,23 +389,31 @@ def bake_target(
     target.animation_data_create()
     target.animation_data.action = action
 
-    # Retarget local rest-relative motion, not world orientations. Blender may
-    # reconstruct different bone rolls when importing BVH; the local delta is
-    # the invariant carried by the animation channels.
+    # Conjugate motion through each rig's complete rest frame:
+    # motion = sourceRest^-1 * sourcePose
+    # targetPose = targetRest * motion
+    # This preserves the semantic motion when source and target rest axes/rolls
+    # differ, while target heads continue to follow target bone lengths.
     order = [entry["name"] for entry in skeleton["joints"] if entry["name"] != "root"]
     parent_by_name = {
         entry["name"]: None if entry["parent"] == "root" else entry["parent"]
         for entry in skeleton["joints"]
         if entry["name"] != "root"
     }
-    canonical_rest_local = {
-        name: rest_local(canonical, name)
+    canonical_rest_world = {
+        name: (canonical.matrix_world @ canonical.data.bones[name].matrix_local).copy()
         for name in order
     }
-    target_rest_local = {
-        name: rest_local(target, target_map[name])
+    target_rest = {
+        name: target.data.bones[target_map[name]].matrix_local.copy()
         for name in order
     }
+    target_rest_world = {
+        name: (target.matrix_world @ target_rest[name]).copy()
+        for name in order
+    }
+    target_local = {name: rest_local(target, target_map[name]) for name in order}
+    target_world_rotation_inverse = target.matrix_world.to_quaternion().inverted()
 
     for frame in frames:
         bpy.context.scene.frame_set(frame + 1)
@@ -413,32 +421,27 @@ def bake_target(
         desired: dict[str, Matrix] = {}
 
         for name in order:
-            canonical_bone = canonical.pose.bones[name]
-            if canonical_bone.parent:
-                canonical_pose_local = (
-                    canonical_bone.parent.matrix.inverted() @ canonical_bone.matrix
-                )
-            else:
-                canonical_pose_local = canonical_bone.matrix.copy()
-            motion_local = (
-                canonical_rest_local[name].inverted() @ canonical_pose_local
-            ).to_quaternion()
-            desired_local_rotation = (
-                target_rest_local[name].to_quaternion() @ motion_local
+            source_pose_world = canonical.matrix_world @ canonical.pose.bones[name].matrix
+            motion_in_rest_frame = (
+                canonical_rest_world[name].to_quaternion().inverted()
+                @ source_pose_world.to_quaternion()
+            )
+            desired_world_rotation = (
+                target_rest_world[name].to_quaternion() @ motion_in_rest_frame
+            )
+            desired_target_rotation = (
+                target_world_rotation_inverse @ desired_world_rotation
             )
 
             parent = parent_by_name[name]
             if parent:
-                parent_matrix = desired[parent]
-                head = parent_matrix @ target_rest_local[name].translation
-                rotation = parent_matrix.to_quaternion() @ desired_local_rotation
+                head = desired[parent] @ target_local[name].translation
             else:
-                # Crimson has no root pose bone; keep the hips at target rest
-                # while applying only the imported hips' rest-relative rotation.
-                head = target_rest_local[name].translation.copy()
-                rotation = desired_local_rotation
+                head = target_rest[name].translation.copy()
 
-            desired[name] = Matrix.LocRotScale(head, rotation, Vector((1, 1, 1)))
+            desired[name] = Matrix.LocRotScale(
+                head, desired_target_rotation, Vector((1, 1, 1))
+            )
             target.pose.bones[target_map[name]].matrix = desired[name]
             bpy.context.view_layer.update()
 
