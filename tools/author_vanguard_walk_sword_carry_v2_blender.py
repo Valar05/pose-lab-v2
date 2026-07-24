@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -44,8 +44,16 @@ from render_animation_pose_packet import (  # noqa: E402
     sha256,
 )
 
-UPPER_WEIGHT = 0.40
-UPPER_PHASE_LAG = 1
+CARRY_OFFSETS = (
+    (-0.045, 0.025, -2.0),
+    (-0.020, 0.000, -1.0),
+    (0.015, -0.030, 0.0),
+    (0.055, -0.045, 2.0),
+    (0.085, -0.020, 3.0),
+    (0.055, 0.020, 2.0),
+    (0.005, 0.050, 0.0),
+    (-0.040, 0.040, -1.0),
+)
 
 
 def cli_args() -> argparse.Namespace:
@@ -64,26 +72,48 @@ def is_carry_bone(name: str) -> bool:
     )
 
 
-def blend_transform(base, motion, weight: float):
-    base_loc, mode, base_quat, base_euler, base_scale = base
-    motion_loc, _, motion_quat, motion_euler, motion_scale = motion
-    location = base_loc.lerp(motion_loc, weight)
-    scale = base_scale.lerp(motion_scale, weight)
-    quaternion = base_quat.slerp(motion_quat, weight)
-    euler = base_euler.copy()
-    if mode != "QUATERNION":
-        euler.x += (motion_euler.x - base_euler.x) * weight
-        euler.y += (motion_euler.y - base_euler.y) * weight
-        euler.z += (motion_euler.z - base_euler.z) * weight
-    return location, mode, quaternion, euler, scale
+def set_snapshot(armature, snapshot) -> None:
+    for bone in armature.pose.bones:
+        location, mode, quaternion, euler, scale = snapshot[bone.name]
+        bone.location = location
+        bone.rotation_mode = mode
+        if mode == "QUATERNION":
+            bone.rotation_quaternion = quaternion
+        else:
+            bone.rotation_euler = euler
+        bone.scale = scale
 
 
-def carry_snapshot(walk_v1, idle, lagged_motion):
-    result = dict(walk_v1)
-    for name in result:
-        if is_carry_bone(name):
-            result[name] = blend_transform(idle[name], lagged_motion[name], UPPER_WEIGHT)
-    return result
+def bone_depth(bone) -> int:
+    depth = 0
+    parent = bone.parent
+    while parent is not None:
+        depth += 1
+        parent = parent.parent
+    return depth
+
+
+def rigid_carry_snapshot(scene, armature, walk_v1, index: int):
+    set_snapshot(armature, walk_v1)
+    bpy.context.view_layer.update()
+    targets = [bone for bone in armature.pose.bones if is_carry_bone(bone.name)]
+    weapon = armature.pose.bones.get("Weapon.R")
+    if weapon is None:
+        raise RuntimeError("Steel rig missing embedded sword driver Weapon.R")
+    original = {bone.name: bone.matrix.copy() for bone in targets}
+    pivot = weapon.matrix.translation.copy()
+    lateral, vertical, angle_deg = CARRY_OFFSETS[index]
+    transform = (
+        Matrix.Translation(Vector((0.0, lateral, vertical)))
+        @ Matrix.Translation(pivot)
+        @ Matrix.Rotation(math.radians(angle_deg), 4, "X")
+        @ Matrix.Translation(-pivot)
+    )
+    desired = {name: transform @ matrix for name, matrix in original.items()}
+    for bone in sorted(targets, key=bone_depth):
+        bone.matrix = desired[bone.name]
+        bpy.context.view_layer.update()
+    return pose_snapshot(armature)
 
 
 def transforms_match(left, right, epsilon: float = 1e-8) -> bool:
@@ -153,7 +183,7 @@ def assert_guarded_arc(records, summary) -> None:
         raise RuntimeError(f"Sword carry reads as wag/attack: {summary}")
     for frame in records:
         weapon = frame["weapon"]
-        if weapon["leftHandHiltDistancePx"] > 75 or weapon["rightHandHiltDistancePx"] > 75:
+        if weapon["leftHandHiltDistancePx"] > 15 or weapon["rightHandHiltDistancePx"] > 40:
             raise RuntimeError(f"Grip detached at frame {frame['index']}: {weapon}")
         if weapon["handDepthDelta"] > 1.0:
             raise RuntimeError(f"Grip depth split at frame {frame['index']}: {weapon}")
@@ -192,11 +222,7 @@ def main() -> None:
         for motion in motion_snapshots
     ]
     candidate_snaps = [
-        carry_snapshot(
-            walk_v1_snaps[index],
-            idle_snapshot,
-            motion_snapshots[(index - UPPER_PHASE_LAG) % 8],
-        )
+        rigid_carry_snapshot(scene, armature, walk_v1_snaps[index], index)
         for index in range(8)
     ]
     assert_locomotion_identity(walk_v1_snaps, candidate_snaps)
@@ -257,7 +283,7 @@ def main() -> None:
             "lowerBodyAuthority": "Steel Vanguard Walk v1 construction at PR #8 head 90ca534c46a47c660e7bf5ef7bd2efcf35dbeb9e",
             "action": "WalkSwordCarryV2",
             "authoringLane": "direct-final-rig",
-            "motionPrinciple": "restrained guarded carry with one-pose inertial lag",
+            "motionPrinciple": "authored rigid two-hand guarded arc with inertial blade recovery",
         },
         "contract": {
             "poseCount": 8,
@@ -274,8 +300,10 @@ def main() -> None:
                 "mesh": weapon_meshes[0],
                 "driverBone": "Weapon.R",
             },
-            "upperWeight": UPPER_WEIGHT,
-            "upperPhaseLagPoses": UPPER_PHASE_LAG,
+            "carryOffsetsArmatureSpace": [
+                {"lateral": lateral, "vertical": vertical, "angleDeg": angle}
+                for lateral, vertical, angle in CARRY_OFFSETS
+            ],
         },
         "sideCamera": {
             "matrixWorld": flatten_matrix(side_camera.matrix_world),
