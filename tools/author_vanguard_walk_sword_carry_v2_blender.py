@@ -44,7 +44,7 @@ from render_animation_pose_packet import (  # noqa: E402
     sha256,
 )
 
-UPPER_WEIGHT = 0.24
+UPPER_WEIGHT = 0.40
 UPPER_PHASE_LAG = 1
 
 

@@ -16,7 +16,7 @@ env:
   BLENDER_ARCHIVE: "blender-4.4.0-linux-x64.tar.xz"
   BLENDER_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0-linux-x64.tar.xz"
   BLENDER_CHECKSUM_URL: "https://download.blender.org/release/Blender4.4/blender-4.4.0.sha256"
-  CANDIDATE_PATH: public/assets/vanguard/steel/candidates/walk-sword-carry-v2/attempt-001
+  CANDIDATE_PATH: public/assets/vanguard/steel/candidates/walk-sword-carry-v2/attempt-002
 
 jobs:
   author-review-candidate:
@@ -97,7 +97,7 @@ jobs:
       - name: Upload quarantined evidence
         uses: actions/upload-artifact@v4
         with:
-          name: vanguard-walk-sword-carry-v2-attempt-001
+          name: vanguard-walk-sword-carry-v2-attempt-002
           path: |
             generated/vanguard/walk-sword-carry-v2/
             ${{ env.CANDIDATE_PATH }}/
@@ -108,5 +108,5 @@ jobs:
           git config user.name "pose-lab-actions"
           git config user.email "actions@users.noreply.github.com"
           git add "$CANDIDATE_PATH"
-          git commit -m "Add quarantined Vanguard sword carry v2 candidate"
+          git commit -m "Add quarantined Vanguard sword carry v2 candidate 002"
           git push origin HEAD

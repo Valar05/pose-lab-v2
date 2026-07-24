@@ -85,7 +85,7 @@ def main() -> None:
     ]
     manifest = {
         "schema": "pose-lab-v2-2d-animation-set-v1",
-        "character": "Steel Vanguard · Walk Sword Carry V2 candidate 001",
+        "character": "Steel Vanguard · Walk Sword Carry V2 candidate 002",
         "defaultAnimation": "walkswordcarryv2",
         "frameSpace": {
             "width": 512,
@@ -97,14 +97,14 @@ def main() -> None:
         },
         "authority": {
             "locomotion": "Approved Steel Walk v1",
-            "actingPass": "WalkSwordCarryV2 candidate 001",
+            "actingPass": "WalkSwordCarryV2 candidate 002",
             "reviewState": "candidate",
             "humanVerdict": None,
         },
         "animations": [
             {
                 "id": "walkswordcarryv2",
-                "label": "Walk Sword Carry V2 · Candidate 001",
+                "label": "Walk Sword Carry V2 · Candidate 002",
                 "loop": True,
                 "contactSheet": "contact-sheet.png",
                 "sourceMetadata": "source-metadata.json",
