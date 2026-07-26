@@ -265,14 +265,30 @@ def assign_palette_materials(
         slots[family] = len(obj.data.materials)
         obj.data.materials.append(palette_material(obj, family))
     counts: dict[str, int] = {}
+    family_priority = {
+        "eye": 6,
+        "plume": 5,
+        "cloth": 4,
+        "underarmor": 3,
+        "plate_shadow": 2,
+        "plate_ivory": 1,
+        "steel": 0,
+    }
     for polygon in obj.data.polygons:
-        center = sum(
-            (obj.data.vertices[index].co for index in polygon.vertices),
-            Vector(),
-        ) / max(len(polygon.vertices), 1)
-        family = "steel" if is_weapon(obj) else legacy_family(
-            center, lower, upper
-        )
+        if is_weapon(obj):
+            family = "steel"
+        else:
+            vertex_families = [
+                legacy_family(obj.data.vertices[index].co, lower, upper)
+                for index in polygon.vertices
+            ]
+            family = max(
+                set(vertex_families),
+                key=lambda candidate: (
+                    vertex_families.count(candidate),
+                    family_priority[candidate],
+                ),
+            )
         polygon.material_index = slots[family]
         counts[family] = counts.get(family, 0) + 1
     return counts
@@ -330,6 +346,19 @@ def bake_vertex_colors(meshes: list[bpy.types.Object]) -> dict[str, object]:
     if missing:
         raise RuntimeError(
             f"Legacy Vanguard color bake failed closed; missing families {missing}"
+        )
+    body_polygon_families = {
+        family
+        for obj, records in assignments.items()
+        if not any(token in obj.lower() for token in ("sword", "blade"))
+        for family, count in records["polygons"].items()
+        if count > 0
+    }
+    missing_polygons = sorted(required - body_polygon_families)
+    if missing_polygons:
+        raise RuntimeError(
+            "Legacy Vanguard material bake failed closed; body faces did not "
+            f"retain families {missing_polygons}"
         )
     return {
         "attribute": COLOR_ATTRIBUTE,
