@@ -124,7 +124,7 @@ def write_failure_manifest(exc: Exception) -> None:
         json.dumps(
             {
                 "renderedFrames": [relative_image],
-                "fixedCameraRenders": [],
+                "fixedCameraRenders": [relative_image],
                 "diagnosticViewRenders": [relative_image],
                 "nativePoseAnimationData": str(data_path.relative_to(output_dir)),
                 "evidenceFrames": [0],
