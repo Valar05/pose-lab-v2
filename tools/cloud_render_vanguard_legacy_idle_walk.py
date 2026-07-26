@@ -6,8 +6,10 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 import struct
 import sys
+import zlib
 from pathlib import Path
 
 import bpy
@@ -71,6 +73,72 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def write_debug_png(path: Path) -> None:
+    width = height = 8
+    scanline = b"\x00" + b"\xff\x00\xff\xff" * width
+    payload = scanline * height
+
+    def chunk(kind: bytes, data: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(data))
+            + kind
+            + data
+            + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF)
+        )
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0))
+        + chunk(b"IDAT", zlib.compress(payload))
+        + chunk(b"IEND", b"")
+    )
+
+
+def write_failure_manifest(exc: Exception) -> None:
+    _asset, output_dir, _settings, script_manifest_path = renderer_args()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    message = f"{type(exc).__name__}-{exc}"
+    slug = re.sub(r"[^A-Za-z0-9_.-]+", "-", message).strip("-")[:160]
+    debug_dir = output_dir / "debug"
+    image_path = debug_dir / f"ERROR-{slug}.png"
+    data_path = debug_dir / f"ERROR-{slug}.json"
+    write_debug_png(image_path)
+    data_path.write_text(
+        json.dumps(
+            {
+                "schema": "pose-lab-v2-cloud-render-failure-v1",
+                "status": "failed",
+                "errorType": type(exc).__name__,
+                "message": str(exc)[:1000],
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    relative_image = str(image_path.relative_to(output_dir))
+    script_manifest_path.write_text(
+        json.dumps(
+            {
+                "renderedFrames": [relative_image],
+                "fixedCameraRenders": [relative_image],
+                "diagnosticViewRenders": [relative_image],
+                "nativePoseAnimationData": str(data_path.relative_to(output_dir)),
+                "evidenceFrames": [0],
+                "gifFrames": [0],
+                "gifTimingMs": [1000],
+                "renderProfile": RENDER_PROFILE,
+                "grayOnWhiteAllowed": False,
+                "failureDiagnostic": True,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
 
 def hex_rgba(value: str) -> tuple[float, float, float, float]:
@@ -732,4 +800,16 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as error:
+        write_failure_manifest(error)
+        print(
+            json.dumps(
+                {
+                    "status": "FAIL",
+                    "errorType": type(error).__name__,
+                    "message": str(error)[:1000],
+                }
+            )
+        )
