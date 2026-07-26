@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import struct
 import sys
 from pathlib import Path
 
@@ -473,17 +474,72 @@ def render_pose(
         raise RuntimeError(f"Blender did not write {path}")
 
 
-def export_candidate(path: Path) -> None:
-    bpy.ops.export_scene.gltf(
-        filepath=str(path),
-        export_format="GLB",
-        export_animations=True,
-        export_current_frame=False,
-        export_materials="EXPORT",
-        export_attributes=True,
-    )
+def glb_animation_names(path: Path) -> list[str]:
+    with path.open("rb") as handle:
+        header = handle.read(12)
+        if len(header) != 12:
+            raise RuntimeError(f"{path.name} has a truncated GLB header")
+        magic, version, _length = struct.unpack("<4sII", header)
+        if magic != b"glTF" or version != 2:
+            raise RuntimeError(f"{path.name} is not a GLB v2 file")
+        chunk_header = handle.read(8)
+        if len(chunk_header) != 8:
+            raise RuntimeError(f"{path.name} has no JSON chunk")
+        chunk_length, chunk_type = struct.unpack("<II", chunk_header)
+        if chunk_type != 0x4E4F534A:
+            raise RuntimeError(f"{path.name} does not begin with a JSON chunk")
+        document = json.loads(
+            handle.read(chunk_length).decode("utf-8").rstrip("\x00 ")
+        )
+    return [
+        str(animation.get("name", ""))
+        for animation in document.get("animations", [])
+    ]
+
+
+def export_candidate(path: Path) -> dict[str, object]:
+    supported = {
+        prop.identifier for prop in bpy.ops.export_scene.gltf.get_rna_type().properties
+    }
+    options: dict[str, object] = {
+        "filepath": str(path),
+        "export_format": "GLB",
+        "export_animations": True,
+        "export_current_frame": False,
+        "export_materials": "EXPORT",
+        "export_attributes": True,
+    }
+    optional = {
+        "export_animation_mode": "ACTIONS",
+        "export_all_armature_actions": True,
+        "export_nla_strips": True,
+        "export_anim_single_armature": True,
+    }
+    for key, value in optional.items():
+        if key in supported:
+            options[key] = value
+    bpy.ops.export_scene.gltf(**options)
     if not path.is_file():
         raise RuntimeError(f"Blender did not export candidate {path}")
+    animation_names = glb_animation_names(path)
+    required = {"Idle", "WalkSwordCarryV2"}
+    present = {
+        name if name in required else name.split(".", 1)[0]
+        for name in animation_names
+        if name in required or name.split(".", 1)[0] in required
+    }
+    missing = sorted(required - present)
+    if missing:
+        raise RuntimeError(
+            "Exported Vanguard candidate lost required legacy actions "
+            f"{missing}; present animations are {animation_names}"
+        )
+    return {
+        "animationNames": animation_names,
+        "exportOptions": {
+            key: value for key, value in options.items() if key != "filepath"
+        },
+    }
 
 
 def main() -> None:
@@ -566,9 +622,10 @@ def main() -> None:
     front_matrix = matrix_rows(camera.matrix_world)
 
     candidate_path = output_dir / "vanguard_legacy_fleshpunk_v1.glb"
+    candidate_export = None
     if export_glb:
         armature.animation_data.action = action
-        export_candidate(candidate_path)
+        candidate_export = export_candidate(candidate_path)
 
     native = {
         "schema": "pose-lab-v2-vanguard-legacy-color-evidence-v1",
@@ -630,6 +687,7 @@ def main() -> None:
                 "path": candidate_path.name,
                 "sha256": sha256(candidate_path),
                 "status": "quarantined",
+                **candidate_export,
             }
             if export_glb
             else None
