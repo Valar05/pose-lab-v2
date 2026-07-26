@@ -15,6 +15,12 @@ from mathutils import Vector
 
 RENDER_PROFILE = "vanguard-legacy-fleshpunk-v1"
 COLOR_ATTRIBUTE = "VanguardLegacyColor"
+SOURCE_GLB_SHA256 = (
+    "5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94"
+)
+COLORED_GLB_SHA256 = (
+    "83621917b56f90daa268682503c33eae72769434ce16915f25a2ddcbdd5aa046"
+)
 CLIPS = {
     "idle": {
         "action": "Idle",
@@ -483,9 +489,16 @@ def export_candidate(path: Path) -> None:
 def main() -> None:
     asset, output_dir, settings_path, script_manifest_path = renderer_args()
     settings = json.loads(settings_path.read_text(encoding="utf-8"))
-    clip = str(settings.get("clip", "idle")).lower()
-    if clip not in CLIPS:
-        raise RuntimeError(f"clip must be one of {sorted(CLIPS)}, received {clip!r}")
+    asset_sha256 = sha256(asset)
+    if asset_sha256 == SOURCE_GLB_SHA256:
+        clip = "idle"
+    elif asset_sha256 == COLORED_GLB_SHA256:
+        clip = "walk"
+    else:
+        raise RuntimeError(
+            "Legacy Vanguard recipe accepts only the pinned golden source or "
+            f"its pinned colored candidate, received {asset_sha256}"
+        )
     width = int(settings.get("width", 512))
     height = int(settings.get("height", 512))
     # Idle is the single appearance-bake lane. The dispatcher intentionally
@@ -567,7 +580,7 @@ def main() -> None:
                 "walk-sword-carry-v2/attempt-003/"
                 "vanguard_walk_sword_carry_v2.glb"
             ),
-            "assetSha256": sha256(asset),
+            "assetSha256": asset_sha256,
             "action": action.name,
             "actionFrameRange": [
                 round(float(action.frame_range[0]), 6),
@@ -634,6 +647,10 @@ def main() -> None:
         ],
         "nativePoseAnimationData": str(native_path.relative_to(output_dir)),
         "frameDurationsMs": CLIPS[clip]["timing_ms"],
+        "authoredKeys": list(range(len(frames))) if clip == "walk" else [],
+        "evidenceFrames": list(range(len(frames))),
+        "gifFrames": list(range(len(frames))),
+        "gifTimingMs": CLIPS[clip]["timing_ms"],
         "renderProfile": RENDER_PROFILE,
         "grayOnWhiteAllowed": False,
     }
@@ -650,7 +667,7 @@ def main() -> None:
                 "frames": len(rendered),
                 "renderProfile": RENDER_PROFILE,
                 "candidateExported": export_glb,
-                "assetSha256": sha256(asset),
+                "assetSha256": asset_sha256,
             }
         )
     )
