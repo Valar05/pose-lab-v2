@@ -365,7 +365,10 @@ def use_exported_vertex_colors(
     if len(body_distinct) < 4 or body_chromatic == 0:
         raise RuntimeError(
             "Exported Vanguard candidate failed closed: vertex colors are "
-            "missing, flattened, or achromatic"
+            "missing, flattened, or achromatic; "
+            f"bodyDistinct={len(body_distinct)} "
+            f"bodyChromaticSamples={body_chromatic} "
+            f"layers={assignments}"
         )
     return {
         "attribute": COLOR_ATTRIBUTE,
