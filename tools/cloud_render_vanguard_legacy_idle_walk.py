@@ -124,7 +124,7 @@ def write_failure_manifest(exc: Exception) -> None:
         json.dumps(
             {
                 "renderedFrames": [relative_image],
-                "fixedCameraRenders": [relative_image],
+                "fixedCameraRenders": [],
                 "diagnosticViewRenders": [relative_image],
                 "nativePoseAnimationData": str(data_path.relative_to(output_dir)),
                 "evidenceFrames": [0],
@@ -342,18 +342,38 @@ def bake_vertex_colors(meshes: list[bpy.types.Object]) -> dict[str, object]:
 def use_exported_skin(
     meshes: list[bpy.types.Object],
 ) -> dict[str, object]:
+    def imported_material_color(
+        material: bpy.types.Material,
+    ) -> tuple[float, float, float]:
+        if material.use_nodes and material.node_tree:
+            principled = material.node_tree.nodes.get("Principled BSDF")
+            if principled is not None:
+                base_color = principled.inputs.get("Base Color")
+                if base_color is not None:
+                    return tuple(
+                        float(channel)
+                        for channel in base_color.default_value[:3]
+                    )
+        return tuple(float(channel) for channel in material.diffuse_color[:3])
+
     assignments: dict[str, dict[str, object]] = {}
     body_distinct: set[tuple[float, float, float]] = set()
     body_chromatic = 0
     for obj in meshes:
         material_colors = []
-        for material in obj.data.materials:
+        used_material_indices = {
+            polygon.material_index for polygon in obj.data.polygons
+        }
+        for material_index in sorted(used_material_indices):
+            material = obj.data.materials[material_index]
             if material is None:
                 continue
+            imported_color = imported_material_color(material)
             color = tuple(
                 round(float(channel), 4)
-                for channel in material.diffuse_color[:3]
+                for channel in imported_color
             )
+            material.diffuse_color = (*imported_color, 1.0)
             material_colors.append(color)
         material_distinct = set(material_colors)
         material_chromatic = sum(
