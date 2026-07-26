@@ -239,6 +239,66 @@ def bake_vertex_colors(meshes: list[bpy.types.Object]) -> dict[str, object]:
         "attribute": COLOR_ATTRIBUTE,
         "palette": PALETTE,
         "assignments": assignments,
+        "source": "baked_in_this_job",
+    }
+
+
+def use_exported_vertex_colors(
+    meshes: list[bpy.types.Object],
+) -> dict[str, object]:
+    assignments: dict[str, dict[str, object]] = {}
+    body_distinct: set[tuple[float, float, float]] = set()
+    body_chromatic = 0
+    for obj in meshes:
+        layer = obj.data.color_attributes.get(COLOR_ATTRIBUTE)
+        if layer is None:
+            layer = obj.data.color_attributes.active_color
+        if layer is None and obj.data.color_attributes:
+            layer = obj.data.color_attributes[0]
+        if layer is None:
+            raise RuntimeError(
+                f"{obj.name} lost its exported vertex-color attribute"
+            )
+        obj.data.color_attributes.active_color = layer
+        obj.data.color_attributes.active = layer
+        ensure_vertex_material(
+            obj,
+            layer.name,
+            metallic=0.72 if is_weapon(obj) else 0.22,
+            roughness=0.30 if is_weapon(obj) else 0.62,
+        )
+        colors = [
+            tuple(round(float(channel), 4) for channel in datum.color[:3])
+            for datum in layer.data
+        ]
+        distinct = set(colors)
+        chromatic = sum(
+            1 for color in colors if max(color) - min(color) >= 0.08
+        )
+        if not is_weapon(obj):
+            body_distinct.update(distinct)
+            body_chromatic += chromatic
+        assignments[obj.name] = {
+            "attribute": layer.name,
+            "domain": layer.domain,
+            "dataType": layer.data_type,
+            "sampleCount": len(colors),
+            "distinctColorCount": len(distinct),
+            "chromaticSampleCount": chromatic,
+        }
+
+    if len(body_distinct) < 4 or body_chromatic == 0:
+        raise RuntimeError(
+            "Exported Vanguard candidate failed closed: vertex colors are "
+            "missing, flattened, or achromatic"
+        )
+    return {
+        "attribute": COLOR_ATTRIBUTE,
+        "palette": PALETTE,
+        "assignments": assignments,
+        "source": "verified_from_exported_candidate",
+        "bodyDistinctColorCount": len(body_distinct),
+        "bodyChromaticSampleCount": body_chromatic,
     }
 
 
@@ -461,7 +521,11 @@ def main() -> None:
     armature.animation_data.action = action
     require_in_place(action, armature)
     frames = action_frames(action, clip)
-    color_record = bake_vertex_colors(meshes)
+    color_record = (
+        bake_vertex_colors(meshes)
+        if clip == "idle"
+        else use_exported_vertex_colors(meshes)
+    )
     configure_render(scene, width, height)
 
     lower, upper = sampled_bounds(scene, armature, meshes, frames)
