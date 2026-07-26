@@ -52,6 +52,28 @@ Use only when motion transfer is explicitly the task.
 
 Do not switch lanes without recording the change.
 
+## Color review contract
+
+A character animation review must preserve authored color or apply a declared,
+character-specific fallback palette. Gray-on-white geometry is diagnostic only
+and is not eligible for a contact sheet, player, or human-review handoff.
+
+- Prefer authored vertex colors and authored materials when they are present and
+  visibly distinguish the character's major surfaces.
+- If the asset is achromatic or its authored colors cannot survive the review
+  renderer, apply a named fallback profile recorded in the manifest.
+- Vanguard fallback evidence uses the versioned
+  `vanguard-color-review-v1` palette: oxblood armor, midnight cloth, brown
+  leather, warm skin, near-black hair, bone accents, and gunmetal steel.
+- Render character evidence on a dark neutral stage. White-background output is
+  permitted only for an explicitly requested silhouette or alpha diagnostic,
+  never as the primary review surface.
+- Record the palette family, material assignment, background, and render profile
+  in native evidence. Fail closed when the character remains achromatic.
+
+Color policy does not alter the GLB or create a candidate version during a
+render-only job. It changes only disposable worker state and recorded evidence.
+
 ## Weapon contract
 
 Choose one:
