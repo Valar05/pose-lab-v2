@@ -291,6 +291,7 @@ def assign_palette_materials(
             )
         polygon.material_index = slots[family]
         counts[family] = counts.get(family, 0) + 1
+    obj.data.update()
     return counts
 
 
@@ -619,7 +620,7 @@ def render_pose(
         raise RuntimeError(f"Blender did not write {path}")
 
 
-def glb_animation_names(path: Path) -> list[str]:
+def glb_document(path: Path) -> dict[str, object]:
     with path.open("rb") as handle:
         header = handle.read(12)
         if len(header) != 12:
@@ -633,9 +634,12 @@ def glb_animation_names(path: Path) -> list[str]:
         chunk_length, chunk_type = struct.unpack("<II", chunk_header)
         if chunk_type != 0x4E4F534A:
             raise RuntimeError(f"{path.name} does not begin with a JSON chunk")
-        document = json.loads(
+        return json.loads(
             handle.read(chunk_length).decode("utf-8").rstrip("\x00 ")
         )
+
+
+def glb_animation_names(document: dict[str, object]) -> list[str]:
     return [
         str(animation.get("name", ""))
         for animation in document.get("animations", [])
@@ -669,7 +673,8 @@ def export_candidate(path: Path) -> dict[str, object]:
     bpy.ops.export_scene.gltf(**options)
     if not path.is_file():
         raise RuntimeError(f"Blender did not export candidate {path}")
-    animation_names = glb_animation_names(path)
+    document = glb_document(path)
+    animation_names = glb_animation_names(document)
     required = {"Idle", "WalkSwordCarryV2"}
     present = {
         name if name in required else name.split(".", 1)[0]
@@ -682,8 +687,43 @@ def export_candidate(path: Path) -> dict[str, object]:
             "Exported Vanguard candidate lost required legacy actions "
             f"{missing}; present animations are {animation_names}"
         )
+    materials = list(document.get("materials", []))
+    used_material_indices = {
+        int(primitive["material"])
+        for mesh in document.get("meshes", [])
+        for primitive in mesh.get("primitives", [])
+        if "material" in primitive
+    }
+    body_material_indices = {
+        index
+        for index in used_material_indices
+        if index < len(materials)
+        and "steel" not in str(materials[index].get("name", "")).lower()
+    }
+    body_colors = {
+        tuple(
+            round(float(channel), 5)
+            for channel in materials[index]
+            .get("pbrMetallicRoughness", {})
+            .get("baseColorFactor", [1.0, 1.0, 1.0, 1.0])[:3]
+        )
+        for index in body_material_indices
+    }
+    chromatic_body_colors = {
+        color for color in body_colors if max(color) - min(color) >= 0.08
+    }
+    if len(body_material_indices) < 4 or not chromatic_body_colors:
+        raise RuntimeError(
+            "Exported GLB failed its own legacy skin gate; "
+            f"usedBodyMaterials={len(body_material_indices)} "
+            f"distinctBodyColors={len(body_colors)} "
+            f"chromaticBodyColors={len(chromatic_body_colors)}"
+        )
     return {
         "animationNames": animation_names,
+        "usedBodyMaterialCount": len(body_material_indices),
+        "distinctBodyColorCount": len(body_colors),
+        "chromaticBodyColorCount": len(chromatic_body_colors),
         "exportOptions": {
             key: value for key, value in options.items() if key != "filepath"
         },
