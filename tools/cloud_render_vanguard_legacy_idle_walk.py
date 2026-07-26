@@ -124,7 +124,7 @@ def write_failure_manifest(exc: Exception) -> None:
         json.dumps(
             {
                 "renderedFrames": [relative_image],
-                "fixedCameraRenders": [relative_image],
+                "fixedCameraRenders": [],
                 "diagnosticViewRenders": [relative_image],
                 "nativePoseAnimationData": str(data_path.relative_to(output_dir)),
                 "evidenceFrames": [0],
@@ -398,6 +398,7 @@ def use_exported_skin(
     body_chromatic = 0
     for obj in meshes:
         material_colors = []
+        material_families = []
         used_material_indices = {
             polygon.material_index for polygon in obj.data.polygons
         }
@@ -405,13 +406,26 @@ def use_exported_skin(
             material = obj.data.materials[material_index]
             if material is None:
                 continue
-            imported_color = imported_material_color(material)
+            family = next(
+                (
+                    candidate
+                    for candidate in PALETTE
+                    if candidate in material.name.lower()
+                ),
+                None,
+            )
+            imported_color = (
+                hex_rgba(PALETTE[family])[:3]
+                if family is not None
+                else imported_material_color(material)
+            )
             color = tuple(
                 round(float(channel), 4)
                 for channel in imported_color
             )
             material.diffuse_color = (*imported_color, 1.0)
             material_colors.append(color)
+            material_families.append(family)
         material_distinct = set(material_colors)
         material_chromatic = sum(
             1
@@ -435,6 +449,7 @@ def use_exported_skin(
             "materialCount": len(material_colors),
             "distinctMaterialColorCount": len(material_distinct),
             "chromaticMaterialCount": material_chromatic,
+            "materialFamilies": material_families,
         }
 
     if len(body_distinct) < 4 or body_chromatic == 0:
