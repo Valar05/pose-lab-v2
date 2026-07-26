@@ -428,7 +428,11 @@ def main() -> None:
         raise RuntimeError(f"clip must be one of {sorted(CLIPS)}, received {clip!r}")
     width = int(settings.get("width", 512))
     height = int(settings.get("height", 512))
-    export_glb = bool(settings.get("exportCandidate", False))
+    # Idle is the single appearance-bake lane. The dispatcher intentionally
+    # sanitizes unknown settings, so candidate export cannot depend on an
+    # optional request flag. Walk consumes this immutable candidate and remains
+    # render-only.
+    export_glb = clip == "idle"
     if width != 512 or height != 512:
         raise RuntimeError(
             f"Legacy Pose Lab frame space is locked to 512x512, got {width}x{height}"
