@@ -234,24 +234,48 @@ def legacy_family(
     return "plate_ivory"
 
 
-def ensure_vertex_material(
-    obj: bpy.types.Object, attribute_name: str, metallic: float, roughness: float
-) -> None:
-    material = bpy.data.materials.new(f"{obj.name}_{RENDER_PROFILE}")
+def palette_material(
+    obj: bpy.types.Object, family: str
+) -> bpy.types.Material:
+    material = bpy.data.materials.new(
+        f"{obj.name}_{family}_{RENDER_PROFILE}"
+    )
     material.use_nodes = True
+    color = hex_rgba(PALETTE[family])
+    material.diffuse_color = color
+    metallic = 0.72 if family == "steel" else 0.22
+    roughness = 0.30 if family == "steel" else 0.62
     material.metallic = metallic
     material.roughness = roughness
-    nodes = material.node_tree.nodes
-    links = material.node_tree.links
-    principled = nodes.get("Principled BSDF")
-    vertex = nodes.new("ShaderNodeVertexColor")
-    vertex.layer_name = attribute_name
+    principled = material.node_tree.nodes.get("Principled BSDF")
     if principled:
-        links.new(vertex.outputs["Color"], principled.inputs["Base Color"])
+        principled.inputs["Base Color"].default_value = color
         principled.inputs["Metallic"].default_value = metallic
         principled.inputs["Roughness"].default_value = roughness
+    return material
+
+
+def assign_palette_materials(
+    obj: bpy.types.Object, lower: Vector, upper: Vector
+) -> dict[str, int]:
     obj.data.materials.clear()
-    obj.data.materials.append(material)
+    families = ["steel"] if is_weapon(obj) else list(PALETTE)
+    slots = {}
+    for family in families:
+        slots[family] = len(obj.data.materials)
+        obj.data.materials.append(palette_material(obj, family))
+    counts: dict[str, int] = {}
+    for polygon in obj.data.polygons:
+        center = sum(
+            (obj.data.vertices[index].co for index in polygon.vertices),
+            Vector(),
+        ) / max(len(polygon.vertices), 1)
+        family = "steel" if is_weapon(obj) else legacy_family(
+            center, lower, upper
+        )
+        polygon.material_index = slots[family]
+        counts[family] = counts.get(family, 0) + 1
+    return counts
 
 
 def bake_vertex_colors(meshes: list[bpy.types.Object]) -> dict[str, object]:
@@ -289,20 +313,17 @@ def bake_vertex_colors(meshes: list[bpy.types.Object]) -> dict[str, object]:
             family_counts[family] = family_counts.get(family, 0) + 1
         obj.data.color_attributes.active_color = layer
         obj.data.color_attributes.active = layer
-        ensure_vertex_material(
-            obj,
-            COLOR_ATTRIBUTE,
-            metallic=0.72 if is_weapon(obj) else 0.22,
-            roughness=0.30 if is_weapon(obj) else 0.62,
-        )
-        assignments[obj.name] = family_counts
+        assignments[obj.name] = {
+            "vertices": family_counts,
+            "polygons": assign_palette_materials(obj, lower, upper),
+        }
 
     required = {"plate_ivory", "underarmor", "plume"}
     body_families = {
         family
-        for obj, counts in assignments.items()
+        for obj, records in assignments.items()
         if not any(token in obj.lower() for token in ("sword", "blade"))
-        for family, count in counts.items()
+        for family, count in records["vertices"].items()
         if count > 0
     }
     missing = sorted(required - body_families)
@@ -318,53 +339,50 @@ def bake_vertex_colors(meshes: list[bpy.types.Object]) -> dict[str, object]:
     }
 
 
-def use_exported_vertex_colors(
+def use_exported_skin(
     meshes: list[bpy.types.Object],
 ) -> dict[str, object]:
     assignments: dict[str, dict[str, object]] = {}
     body_distinct: set[tuple[float, float, float]] = set()
     body_chromatic = 0
     for obj in meshes:
+        material_colors = []
+        for material in obj.data.materials:
+            if material is None:
+                continue
+            color = tuple(
+                round(float(channel), 4)
+                for channel in material.diffuse_color[:3]
+            )
+            material_colors.append(color)
+        material_distinct = set(material_colors)
+        material_chromatic = sum(
+            1
+            for color in material_colors
+            if max(color) - min(color) >= 0.08
+        )
+        if not is_weapon(obj):
+            body_distinct.update(material_distinct)
+            body_chromatic += material_chromatic
+
         layer = obj.data.color_attributes.get(COLOR_ATTRIBUTE)
         if layer is None:
             layer = obj.data.color_attributes.active_color
         if layer is None and obj.data.color_attributes:
             layer = obj.data.color_attributes[0]
-        if layer is None:
-            raise RuntimeError(
-                f"{obj.name} lost its exported vertex-color attribute"
-            )
-        obj.data.color_attributes.active_color = layer
-        obj.data.color_attributes.active = layer
-        ensure_vertex_material(
-            obj,
-            layer.name,
-            metallic=0.72 if is_weapon(obj) else 0.22,
-            roughness=0.30 if is_weapon(obj) else 0.62,
-        )
-        colors = [
-            tuple(round(float(channel), 4) for channel in datum.color[:3])
-            for datum in layer.data
-        ]
-        distinct = set(colors)
-        chromatic = sum(
-            1 for color in colors if max(color) - min(color) >= 0.08
-        )
-        if not is_weapon(obj):
-            body_distinct.update(distinct)
-            body_chromatic += chromatic
+        if layer is not None:
+            obj.data.color_attributes.active_color = layer
+            obj.data.color_attributes.active = layer
         assignments[obj.name] = {
-            "attribute": layer.name,
-            "domain": layer.domain,
-            "dataType": layer.data_type,
-            "sampleCount": len(colors),
-            "distinctColorCount": len(distinct),
-            "chromaticSampleCount": chromatic,
+            "vertexAttribute": layer.name if layer else None,
+            "materialCount": len(material_colors),
+            "distinctMaterialColorCount": len(material_distinct),
+            "chromaticMaterialCount": material_chromatic,
         }
 
     if len(body_distinct) < 4 or body_chromatic == 0:
         raise RuntimeError(
-            "Exported Vanguard candidate failed closed: vertex colors are "
+            "Exported Vanguard candidate failed closed: skin colors are "
             "missing, flattened, or achromatic; "
             f"bodyDistinct={len(body_distinct)} "
             f"bodyChromaticSamples={body_chromatic} "
@@ -374,7 +392,7 @@ def use_exported_vertex_colors(
         "attribute": COLOR_ATTRIBUTE,
         "palette": PALETTE,
         "assignments": assignments,
-        "source": "verified_from_exported_candidate",
+        "source": "verified_from_exported_candidate_materials",
         "bodyDistinctColorCount": len(body_distinct),
         "bodyChromaticSampleCount": body_chromatic,
     }
@@ -526,7 +544,7 @@ def configure_render(
     scene.render.image_settings.color_depth = "8"
     scene.render.film_transparent = True
     scene.display.shading.light = "STUDIO"
-    scene.display.shading.color_type = "VERTEX"
+    scene.display.shading.color_type = "MATERIAL"
     scene.display.shading.show_shadows = False
     scene.display.shading.show_cavity = True
     scene.display.shading.cavity_type = "WORLD"
@@ -667,7 +685,7 @@ def main() -> None:
     color_record = (
         bake_vertex_colors(meshes)
         if clip == "idle"
-        else use_exported_vertex_colors(meshes)
+        else use_exported_skin(meshes)
     )
     configure_render(scene, width, height)
 
