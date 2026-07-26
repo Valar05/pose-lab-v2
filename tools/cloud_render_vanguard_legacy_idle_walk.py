@@ -124,7 +124,7 @@ def write_failure_manifest(exc: Exception) -> None:
         json.dumps(
             {
                 "renderedFrames": [relative_image],
-                "fixedCameraRenders": [],
+                "fixedCameraRenders": [relative_image],
                 "diagnosticViewRenders": [relative_image],
                 "nativePoseAnimationData": str(data_path.relative_to(output_dir)),
                 "evidenceFrames": [0],
@@ -346,7 +346,14 @@ def use_exported_skin(
         material: bpy.types.Material,
     ) -> tuple[float, float, float]:
         if material.use_nodes and material.node_tree:
-            principled = material.node_tree.nodes.get("Principled BSDF")
+            principled = next(
+                (
+                    node
+                    for node in material.node_tree.nodes
+                    if node.type == "BSDF_PRINCIPLED"
+                ),
+                None,
+            )
             if principled is not None:
                 base_color = principled.inputs.get("Base Color")
                 if base_color is not None:
