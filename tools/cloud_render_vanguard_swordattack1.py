@@ -16,6 +16,17 @@ from mathutils import Vector
 
 SOURCE_FRAMES = [0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 28.0, 33.0, 38.0]
 ACTION_NAME = "SwordAttack1"
+RENDER_PROFILE = "vanguard-color-review-v1"
+VANGUARD_REVIEW_PALETTE = {
+    "armor": (0.42, 0.035, 0.025, 1.0),
+    "cloth": (0.03, 0.075, 0.16, 1.0),
+    "leather": (0.22, 0.07, 0.025, 1.0),
+    "skin": (0.63, 0.28, 0.13, 1.0),
+    "hair": (0.025, 0.012, 0.01, 1.0),
+    "bone": (0.74, 0.58, 0.31, 1.0),
+    "steel": (0.45, 0.50, 0.58, 1.0),
+}
+
 
 
 def renderer_args() -> tuple[Path, Path, Path, Path]:
@@ -161,24 +172,80 @@ def aim_front(
     camera.rotation_euler = (center - camera.location).to_track_quat("-Z", "Y").to_euler()
 
 
+def palette_family(name: str) -> str:
+    lowered = name.lower()
+    semantic_families = (
+        ("steel", ("sword", "blade", "weapon", "metal", "steel")),
+        ("skin", ("skin", "face", "head", "hand")),
+        ("hair", ("hair", "brow", "lash")),
+        ("leather", ("leather", "boot", "glove", "belt", "strap", "scabbard")),
+        ("cloth", ("cloth", "fabric", "cape", "skirt", "tabard", "tunic")),
+        ("bone", ("bone", "tooth", "horn", "ivory")),
+    )
+    for family, tokens in semantic_families:
+        if any(token in lowered for token in tokens):
+            return family
+    return "armor"
+
+
 def set_workbench_style(
     scene: bpy.types.Scene, mesh_objects: list[bpy.types.Object]
-) -> None:
+) -> list[dict[str, object]]:
     scene.render.engine = "BLENDER_WORKBENCH"
-    scene.display.shading.light = "FLAT"
-    scene.display.shading.color_type = "OBJECT"
-    scene.display.shading.show_shadows = False
-    scene.display.shading.show_cavity = False
+    scene.display.shading.light = "STUDIO"
+    scene.display.shading.color_type = "MATERIAL"
+    scene.display.shading.show_shadows = True
+    scene.display.shading.show_cavity = True
     scene.display.shading.background_type = "VIEWPORT"
-    scene.display.shading.background_color = (0.018, 0.025, 0.032)
+    scene.display.shading.background_color = (0.006, 0.009, 0.014)
     scene.render.film_transparent = False
+
+    world = scene.world or bpy.data.worlds.new("VanguardReviewWorld")
+    scene.world = world
+    world.use_nodes = True
+    background = world.node_tree.nodes.get("Background") if world.node_tree else None
+    if background:
+        background.inputs["Color"].default_value = (0.006, 0.009, 0.014, 1.0)
+        background.inputs["Strength"].default_value = 0.18
+
+    assignments: list[dict[str, object]] = []
     for obj in mesh_objects:
-        is_sword = "sword" in obj.name.lower()
-        color = (0.92, 0.94, 0.97, 1.0) if is_sword else (0.66, 0.75, 0.82, 1.0)
-        obj.color = color
-        for slot in obj.material_slots:
-            if slot.material:
-                slot.material.diffuse_color = color
+        if not obj.material_slots:
+            material = bpy.data.materials.new(f"{obj.name}_VanguardReview")
+            obj.data.materials.append(material)
+        for index, slot in enumerate(obj.material_slots):
+            material = slot.material
+            if material is None:
+                material = bpy.data.materials.new(
+                    f"{obj.name}_VanguardReview_{index:02d}"
+                )
+                obj.material_slots[index].material = material
+            family = palette_family(f"{obj.name} {material.name}")
+            color = VANGUARD_REVIEW_PALETTE[family]
+            material.diffuse_color = color
+            material.metallic = 0.72 if family == "steel" else 0.08
+            material.roughness = 0.32 if family == "steel" else 0.68
+            assignments.append(
+                {
+                    "object": obj.name,
+                    "material": material.name,
+                    "family": family,
+                    "color": [round(value, 4) for value in color],
+                }
+            )
+        obj.color = VANGUARD_REVIEW_PALETTE[
+            palette_family(" ".join([obj.name] + [slot.material.name for slot in obj.material_slots if slot.material]))
+        ]
+
+    chromatic = [
+        entry for entry in assignments
+        if max(entry["color"][:3]) - min(entry["color"][:3]) >= 0.12
+    ]
+    if not chromatic:
+        raise RuntimeError(
+            "Vanguard color-review contract rejected an achromatic character render"
+        )
+    return assignments
 
 
 def render_frame(
@@ -239,7 +306,7 @@ def main() -> None:
     scene.render.image_settings.file_format = "PNG"
     scene.render.image_settings.color_mode = "RGBA"
     scene.render.fps = 60
-    set_workbench_style(scene, mesh_objects)
+    palette_assignments = set_workbench_style(scene, mesh_objects)
 
     lower, upper = sampled_bounds(scene, armature, mesh_objects, render_frames)
     camera = make_camera(scene)
@@ -286,6 +353,8 @@ def main() -> None:
             "poseAuthoring": False,
             "assetMutation": False,
             "modelBytesReturnedToCaller": False,
+            "renderProfile": RENDER_PROFILE,
+            "grayOnWhiteAllowed": False,
         },
         "sampleFrames": SOURCE_FRAMES,
         "mappedBlenderFrames": [round(frame, 6) for frame in render_frames],
@@ -304,6 +373,10 @@ def main() -> None:
             "height": height,
             "engine": scene.render.engine,
             "blenderVersion": bpy.app.version_string,
+            "profile": RENDER_PROFILE,
+            "background": [0.006, 0.009, 0.014],
+            "palette": VANGUARD_REVIEW_PALETTE,
+            "paletteAssignments": palette_assignments,
         },
     }
     native_path = output_dir / "native-pose-animation.json"
@@ -317,6 +390,8 @@ def main() -> None:
         "frameDurationsMs": [40] * len(rendered),
         "blenderVersion": bpy.app.version_string,
         "settings": settings,
+        "renderProfile": RENDER_PROFILE,
+        "grayOnWhiteAllowed": False,
     }
     script_manifest_path.write_text(
         json.dumps(script_manifest, indent=2) + "\n", encoding="utf-8"
@@ -329,6 +404,8 @@ def main() -> None:
                 "frames": len(rendered),
                 "diagnostics": len(diagnostics),
                 "assetSha256": native_data["source"]["assetSha256"],
+                "renderProfile": RENDER_PROFILE,
+                "grayOnWhiteAllowed": False,
             }
         )
     )
