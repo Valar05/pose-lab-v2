@@ -585,6 +585,9 @@ def export_candidate(path: Path) -> dict[str, object]:
         "export_all_armature_actions": True,
         "export_nla_strips": True,
         "export_anim_single_armature": True,
+        "export_vertex_color": "ACTIVE",
+        "export_all_vertex_colors": True,
+        "export_active_vertex_color_when_no_material": True,
     }
     for key, value in optional.items():
         if key in supported:
