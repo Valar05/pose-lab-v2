@@ -22,7 +22,7 @@ SOURCE_GLB_SHA256 = (
     "5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94"
 )
 COLORED_GLB_SHA256 = (
-    "ae8e1b0052a5a192935773ea290d985a24e4bb0d37c34a57eca2f9506ff0181f"
+    "ef3d6911781b39c93b838acbe5f16e04e51699e48c7a8e43f6d0c95fbd17ad36"
 )
 CLIPS = {
     "idle": {
@@ -124,7 +124,7 @@ def write_failure_manifest(exc: Exception) -> None:
         json.dumps(
             {
                 "renderedFrames": [relative_image],
-                "fixedCameraRenders": [relative_image],
+                "fixedCameraRenders": [],
                 "diagnosticViewRenders": [relative_image],
                 "nativePoseAnimationData": str(data_path.relative_to(output_dir)),
                 "evidenceFrames": [0],
