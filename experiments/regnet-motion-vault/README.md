@@ -55,6 +55,7 @@ python3 tools/regnet_motion_vault.py /path/to/regnet_biped.zip \
   --out experiments/regnet-motion-vault/vault.json \
   --samples 8 \
   --probe-samples 48 \
+  --shard-size 7 \
   --drive-file-id 1G6PsdVS24Zw8kqiWZgzRlM22hE_UhkFd \
   --drive-md5 1569b7cce0ffdd7d547c4eb6b1aa7384 \
   --source-uri gdrive://1G6PsdVS24Zw8kqiWZgzRlM22hE_UhkFd
@@ -63,8 +64,9 @@ python3 tools/regnet_motion_vault.py /path/to/regnet_biped.zip \
 The index evaluates GLTF animation channels directly. It retains endpoints,
 motion-energy extrema, and farthest distinct poses. It stores normalized joint
 positions and anatomical bone directions, not rendered frames or duplicated mesh
-bytes. A denser disposable working index may use more retained samples without
-changing the locked source.
+bytes. The checked-in index is sharded by seven clips so workers can resume and
+load bounded motion families. A denser disposable working index may use more
+retained samples without changing the locked source.
 
 ## Direct Regnet with a capture
 
