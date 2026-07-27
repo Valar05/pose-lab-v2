@@ -1,0 +1,85 @@
+{
+  "schema": "pose-lab-v2-regnet-capture-source-lock-v1",
+  "status": "quarantined-source-and-direction-packet-verified",
+  "workingAction": "RegnetSquatCapture001",
+  "source": {
+    "uploadedName": "602881.mp4",
+    "libraryFileId": "libfile_279aa4a215f48191aafda2a511bd918e",
+    "sha256": "03b8a9ce13da609b7410a950b910064c2bcf0e24a0d3adfd38bcd7b081a0bf09",
+    "sizeBytes": 4880350,
+    "durationSeconds": 1.874878,
+    "video": {
+      "codec": "hevc",
+      "width": 1920,
+      "height": 1080,
+      "fps": 24
+    },
+    "actionBoundary": {
+      "startFrame": 0,
+      "endFrame": 44,
+      "startTimeSeconds": 0.0,
+      "endTimeSeconds": 1.833333,
+      "loop": false
+    },
+    "camera": "stationary portrait capture; full body and both feet visible",
+    "weapon": "none"
+  },
+  "landmarks": {
+    "path": "landmarks.json",
+    "sha256": "40ca83185079c225d9bbe913953c73cc231422fdf367e4637f4a130463b8d7cd",
+    "provider": "@mediapipe/pose",
+    "providerVersion": "0.5.1675469404",
+    "modelComplexity": 2,
+    "decodedFrames": 45,
+    "detectedFrames": 45
+  },
+  "directionPacket": {
+    "path": "capture-packet.json",
+    "sha256": "e867718b105795231107d7b7d98e79845b07878a2c3da317acf2bf4c72fbe19c",
+    "selectedFrames": [0, 12, 22, 28, 31, 39, 42, 44],
+    "protectedCompressionFrames": [22, 28, 31],
+    "leftFootContact": [0, 44],
+    "rightFootContact": [0, 44]
+  },
+  "regnet": {
+    "driveArchiveId": "1G6PsdVS24Zw8kqiWZgzRlM22hE_UhkFd",
+    "archiveSha256": "4f4d7a973203e5f57493b7c6b7c41e5076bbe67f9164249cf107daa35b15c964",
+    "baseEntry": "Meshy_AI_The_Iron_Nomad_biped/Meshy_AI_The_Iron_Nomad_biped_Character_output.glb",
+    "baseSha256": "ec5e086b751acdfbed9c98b83ac01cc5bfee444e73b359ce91356969e0902b95",
+    "nativePriorEntry": "Meshy_AI_The_Iron_Nomad_biped/Meshy_AI_The_Iron_Nomad_biped_Animation_Sprint_and_Sudden_Stop_withSkin.glb",
+    "nativePriorSha256": "cd94cff1a5c04e49e34cc914052ad2c5ca7533a4f9fcd4e01a3822f6c478020f",
+    "diagnosticDerivative": {
+      "path": "diagnostic-regnet-sprint-stop.glb",
+      "sha256": "c10707777c404e9dda6af4d9cd450b321d12688402ac6894d54859cd30a06b35",
+      "sizeBytes": 682056,
+      "tool": "gltf-transform 4.4.2",
+      "operations": ["dedup", "textureResize png 128x128"],
+      "geometrySimplified": false,
+      "animationResampled": false,
+      "structuralMatch": {
+        "nodes": 26,
+        "skinJoints": 24,
+        "meshes": 1,
+        "primitives": 1,
+        "animationChannels": 72,
+        "animationSamplers": 72,
+        "animationKeyframes": 2904
+      },
+      "validator": {
+        "errors": 0,
+        "warnings": 1
+      }
+    },
+    "candidate001Renderer": {
+      "path": "render-candidate-001.py",
+      "sha256": "ae64b5aec3a7fbf37aaba249074fc9f1ff48a7ef0d10e83907cdd7c75fd4bcea",
+      "hostContract": "input.glb output_dir settings.json script-output-manifest.json"
+    }
+  },
+  "acceptance": {
+    "authoringRender": "pending",
+    "orthogonalView": "pending",
+    "hostedPoseLab": "pending",
+    "humanVerdict": "pending"
+  }
+}

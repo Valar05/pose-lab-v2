@@ -1,0 +1,115 @@
+{
+  "schema": "pose-lab-v2-regnet-motion-vault-v1",
+  "status": "indexed-not-human-accepted",
+  "tool": {
+    "name": "regnet_motion_vault.py",
+    "version": "1.0.0"
+  },
+  "createdAt": "2026-07-27T07:51:28.906507+00:00",
+  "source": {
+    "uri": "gdrive://1G6PsdVS24Zw8kqiWZgzRlM22hE_UhkFd",
+    "name": "regnet_biped.zip",
+    "sha256": "4f4d7a973203e5f57493b7c6b7c41e5076bbe67f9164249cf107daa35b15c964",
+    "byteCount": 181652767,
+    "driveFileId": "1G6PsdVS24Zw8kqiWZgzRlM22hE_UhkFd",
+    "driveMd5": "1569b7cce0ffdd7d547c4eb6b1aa7384"
+  },
+  "contract": {
+    "jointNames": [
+      "Hips",
+      "Spine02",
+      "Spine01",
+      "Spine",
+      "neck",
+      "Head",
+      "LeftShoulder",
+      "LeftArm",
+      "LeftForeArm",
+      "LeftHand",
+      "RightShoulder",
+      "RightArm",
+      "RightForeArm",
+      "RightHand",
+      "LeftUpLeg",
+      "LeftLeg",
+      "LeftFoot",
+      "LeftToeBase",
+      "RightUpLeg",
+      "RightLeg",
+      "RightFoot",
+      "RightToeBase"
+    ],
+    "boneDirections": [
+      "Hips>Spine02",
+      "Spine02>Spine01",
+      "Spine01>Spine",
+      "Spine>neck",
+      "neck>Head",
+      "Spine>LeftShoulder",
+      "LeftShoulder>LeftArm",
+      "LeftArm>LeftForeArm",
+      "LeftForeArm>LeftHand",
+      "Spine>RightShoulder",
+      "RightShoulder>RightArm",
+      "RightArm>RightForeArm",
+      "RightForeArm>RightHand",
+      "Hips>LeftUpLeg",
+      "LeftUpLeg>LeftLeg",
+      "LeftLeg>LeftFoot",
+      "LeftFoot>LeftToeBase",
+      "Hips>RightUpLeg",
+      "RightUpLeg>RightLeg",
+      "RightLeg>RightFoot",
+      "RightFoot>RightToeBase"
+    ],
+    "sampleCountPerClip": 8,
+    "probeCountPerClip": 48,
+    "retentionPolicy": "endpoints + energy extrema + farthest-pose sampling",
+    "skeletonCount": 1,
+    "skeletonSha256": "a8bbb6d345fda6b63d2f3be03c81f741e62be70f24268b680aac61afa3be4fb3"
+  },
+  "clips": [],
+  "rejected": [],
+  "clipCount": 21,
+  "shards": [
+    {
+      "path": "vault-shards/clips-001.json",
+      "sha256": "337fddd21ee33d08a2c7aa2911b3a2664f25167cfdd331ef0c58a0d7264f45fe",
+      "clipIds": [
+        "backleft-run",
+        "backright-run",
+        "boxing-guard-prep-straight-punch",
+        "cautious-crouch-walk-right-inplace",
+        "jump-run",
+        "punch-combo-2",
+        "punch-combo"
+      ]
+    },
+    {
+      "path": "vault-shards/clips-002.json",
+      "sha256": "c475d3b8d09ef6d9b716101c48c96e9002fe59696b90a70f49c434110a1eacc7",
+      "clipIds": [
+        "push-and-walk-forward",
+        "runfast",
+        "run-and-jump",
+        "run-and-leap",
+        "run-and-shoot",
+        "running",
+        "sprint-and-sudden-stop"
+      ]
+    },
+    {
+      "path": "vault-shards/clips-003.json",
+      "sha256": "359b9154cc64d14ac59b52b62ffdb46f0b53f63d4be0f6a8990159ad4201a716",
+      "clipIds": [
+        "stage-walk",
+        "unarmed-vault",
+        "unsteady-walk",
+        "walk-backward-with-gun-1",
+        "walk-left-with-gun-inplace",
+        "walking",
+        "meshy-ai-the-iron-nomad-biped-character-output"
+      ]
+    }
+  ]
+}

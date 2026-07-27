@@ -1,0 +1,3460 @@
+{
+  "schema": "pose-lab-v2-regnet-capture-direction-v1",
+  "status": "proposed-not-authored-not-accepted",
+  "createdAt": "2026-07-27T08:58:10.295502+00:00",
+  "source": {
+    "landmarks": "experiments/regnet-captures/602881/landmarks.json",
+    "landmarksSha256": "40ca83185079c225d9bbe913953c73cc231422fdf367e4637f4a130463b8d7cd",
+    "video": "library://libfile_279aa4a215f48191aafda2a511bd918e",
+    "videoSha256": "03b8a9ce13da609b7410a950b910064c2bcf0e24a0d3adfd38bcd7b081a0bf09",
+    "videoProbe": {
+      "streams": [
+        {
+          "index": 0,
+          "codec_type": "video",
+          "codec_name": "hevc",
+          "width": 1920,
+          "height": 1080,
+          "r_frame_rate": "24/1"
+        },
+        {
+          "index": 1,
+          "codec_type": "audio",
+          "codec_name": "aac",
+          "sample_rate": "48000",
+          "channels": 2
+        }
+      ],
+      "format": {
+        "duration": "1.874878",
+        "size": "4880350",
+        "bit_rate": "20824181"
+      }
+    },
+    "libraryFileId": "libfile_279aa4a215f48191aafda2a511bd918e",
+    "uploadedName": "602881.mp4",
+    "durationSeconds": 1.874878
+  },
+  "vault": {
+    "path": "experiments/regnet-motion-vault/vault.json",
+    "sha256": "9e8228cfbe149372c4b8ec33fc7bfa4e683571da48635b3fa83825b3342460db",
+    "sourceArchiveSha256": "4f4d7a973203e5f57493b7c6b7c41e5076bbe67f9164249cf107daa35b15c964",
+    "skeletonSha256": "a8bbb6d345fda6b63d2f3be03c81f741e62be70f24268b680aac61afa3be4fb3"
+  },
+  "selection": {
+    "policy": "endpoints + protected compression plateau/peak + energy extrema + confidence-weighted farthest-pose sampling",
+    "requestedKeys": 8,
+    "selectedKeys": 8,
+    "duplicateThreshold": 0.035,
+    "semanticExtrema": {
+      "status": "available",
+      "metric": "smoothed pelvis image-y relative to mean ankle image-y",
+      "coordinateSpace": "normalized-image-y-down",
+      "nearPeakTolerance": 0.08,
+      "range": 0.111796,
+      "peakFrame": 28,
+      "peakTimeSeconds": 1.166667,
+      "plateauStartFrame": 22,
+      "plateauStartTimeSeconds": 0.916667,
+      "plateauEndFrame": 31,
+      "plateauEndTimeSeconds": 1.291667
+    },
+    "rejected": []
+  },
+  "locks": {
+    "camera": "source capture camera",
+    "screenDirection": "preserve source",
+    "rootMotion": "preserve in authoring; suppress only in named game export",
+    "weapon": "none",
+    "timing": "source timestamps"
+  },
+  "contactHypotheses": [
+    {
+      "joint": "LeftFoot",
+      "startFrame": 0,
+      "endFrame": 44,
+      "startTimeSeconds": 0,
+      "endTimeSeconds": 1.833333,
+      "evidenceSpace": "normalized-image",
+      "speedThreshold": 0.2,
+      "speedThresholdUnits": "normalized-image-units-per-second",
+      "status": "proposed-requires-human-review"
+    },
+    {
+      "joint": "RightFoot",
+      "startFrame": 0,
+      "endFrame": 44,
+      "startTimeSeconds": 0,
+      "endTimeSeconds": 1.833333,
+      "evidenceSpace": "normalized-image",
+      "speedThreshold": 0.2,
+      "speedThresholdUnits": "normalized-image-units-per-second",
+      "status": "proposed-requires-human-review"
+    }
+  ],
+  "keyframes": [
+    {
+      "id": "k000",
+      "sourceFrame": 0,
+      "timeSeconds": 0,
+      "energy": 0,
+      "confidenceFloor": 0.781164,
+      "semanticRoles": [],
+      "descriptor": {
+        "positions": {
+          "Hips": [
+            0,
+            0,
+            0
+          ],
+          "Spine02": [
+            0.018981,
+            0.210033,
+            -0.017675
+          ],
+          "Spine01": [
+            0.037963,
+            0.420066,
+            -0.03535
+          ],
+          "Spine": [
+            0.055588,
+            0.615096,
+            -0.051763
+          ],
+          "neck": [
+            0.067791,
+            0.750117,
+            -0.063125
+          ],
+          "Head": [
+            0.029956,
+            0.89891,
+            -0.437108
+          ],
+          "LeftShoulder": [
+            0.144529,
+            0.732805,
+            -0.073665
+          ],
+          "LeftArm": [
+            0.287044,
+            0.700654,
+            -0.093239
+          ],
+          "LeftForeArm": [
+            0.41395,
+            0.444793,
+            -0.067246
+          ],
+          "LeftHand": [
+            0.43847,
+            0.161603,
+            -0.026778
+          ],
+          "RightShoulder": [
+            -0.008948,
+            0.767429,
+            -0.052585
+          ],
+          "RightArm": [
+            -0.151463,
+            0.799581,
+            -0.033011
+          ],
+          "RightForeArm": [
+            -0.253596,
+            0.377699,
+            -0.097579
+          ],
+          "RightHand": [
+            -0.437625,
+            0.120394,
+            -0.183269
+          ],
+          "LeftUpLeg": [
+            0.14292,
+            -0.019261,
+            0.049286
+          ],
+          "LeftLeg": [
+            0.169785,
+            -0.629908,
+            0.020742
+          ],
+          "LeftFoot": [
+            0.237337,
+            -1.124573,
+            0.263188
+          ],
+          "LeftToeBase": [
+            0.274157,
+            -1.241876,
+            0.244721
+          ],
+          "RightUpLeg": [
+            -0.14292,
+            0.019261,
+            -0.049286
+          ],
+          "RightLeg": [
+            -0.198914,
+            -0.473945,
+            -0.057873
+          ],
+          "RightFoot": [
+            -0.326091,
+            -1.013251,
+            0.235671
+          ],
+          "RightToeBase": [
+            -0.33842,
+            -1.136881,
+            0.138531
+          ]
+        },
+        "directions": {
+          "Hips>Spine02": [
+            0.089692,
+            0.992462,
+            -0.083519
+          ],
+          "Spine02>Spine01": [
+            0.089692,
+            0.992462,
+            -0.083519
+          ],
+          "Spine01>Spine": [
+            0.089692,
+            0.992462,
+            -0.083519
+          ],
+          "Spine>neck": [
+            0.089692,
+            0.992462,
+            -0.083519
+          ],
+          "neck>Head": [
+            -0.093586,
+            0.368053,
+            -0.925083
+          ],
+          "Spine>LeftShoulder": [
+            0.596321,
+            0.7892,
+            -0.146849
+          ],
+          "LeftShoulder>LeftArm": [
+            0.966845,
+            -0.21812,
+            -0.132794
+          ],
+          "LeftArm>LeftForeArm": [
+            0.442515,
+            -0.892169,
+            0.090637
+          ],
+          "LeftForeArm>LeftHand": [
+            0.085401,
+            -0.986327,
+            0.140945
+          ],
+          "Spine>RightShoulder": [
+            -0.390085,
+            0.920766,
+            -0.004972
+          ],
+          "RightShoulder>RightArm": [
+            -0.966845,
+            0.21812,
+            0.132794
+          ],
+          "RightArm>RightForeArm": [
+            -0.232733,
+            -0.961347,
+            -0.147131
+          ],
+          "RightForeArm>RightHand": [
+            -0.561503,
+            -0.785083,
+            -0.261456
+          ],
+          "Hips>LeftUpLeg": [
+            0.937786,
+            -0.12638,
+            0.323395
+          ],
+          "LeftUpLeg>LeftLeg": [
+            0.043904,
+            -0.997946,
+            -0.046648
+          ],
+          "LeftLeg>LeftFoot": [
+            0.121714,
+            -0.891271,
+            0.436832
+          ],
+          "LeftFoot>LeftToeBase": [
+            0.296161,
+            -0.943517,
+            -0.148544
+          ],
+          "Hips>RightUpLeg": [
+            -0.937786,
+            0.12638,
+            -0.323395
+          ],
+          "RightUpLeg>RightLeg": [
+            -0.11279,
+            -0.993468,
+            -0.017298
+          ],
+          "RightLeg>RightFoot": [
+            -0.202818,
+            -0.860066,
+            0.468135
+          ],
+          "RightFoot>RightToeBase": [
+            -0.07817,
+            -0.783906,
+            -0.615939
+          ]
+        },
+        "confidence": {
+          "Hips": 0.999937,
+          "Spine02": 0.999894,
+          "Spine01": 0.999894,
+          "Spine": 0.999894,
+          "neck": 0.999894,
+          "Head": 0.999834,
+          "LeftShoulder": 0.999894,
+          "LeftArm": 0.999984,
+          "LeftForeArm": 0.950227,
+          "LeftHand": 0.976356,
+          "RightShoulder": 0.999894,
+          "RightArm": 0.999894,
+          "RightForeArm": 0.850717,
+          "RightHand": 0.901401,
+          "LeftUpLeg": 0.999963,
+          "LeftLeg": 0.781164,
+          "LeftFoot": 0.789883,
+          "LeftToeBase": 0.787114,
+          "RightUpLeg": 0.999937,
+          "RightLeg": 0.852935,
+          "RightFoot": 0.822902,
+          "RightToeBase": 0.790369
+        },
+        "screenPositions": {
+          "Hips": [
+            0.572883,
+            0.45653,
+            -0.000347
+          ],
+          "Spine02": [
+            0.580421,
+            0.396248,
+            -0.005621
+          ],
+          "Spine01": [
+            0.587958,
+            0.335967,
+            -0.010895
+          ],
+          "Spine": [
+            0.594957,
+            0.279991,
+            -0.015792
+          ],
+          "neck": [
+            0.599803,
+            0.241238,
+            -0.019182
+          ],
+          "Head": [
+            0.602782,
+            0.167161,
+            -0.262934
+          ],
+          "LeftShoulder": [
+            0.641722,
+            0.241685,
+            -0.020436
+          ],
+          "LeftArm": [
+            0.71957,
+            0.242515,
+            -0.022763
+          ],
+          "LeftForeArm": [
+            0.773491,
+            0.332439,
+            0.030142
+          ],
+          "LeftHand": [
+            0.79946,
+            0.401537,
+            -0.063949
+          ],
+          "RightShoulder": [
+            0.557885,
+            0.240791,
+            -0.017929
+          ],
+          "RightArm": [
+            0.480036,
+            0.239961,
+            -0.015601
+          ],
+          "RightForeArm": [
+            0.425533,
+            0.338592,
+            -0.037159
+          ],
+          "RightHand": [
+            0.353508,
+            0.415404,
+            -0.164262
+          ],
+          "LeftUpLeg": [
+            0.641968,
+            0.460261,
+            0.011954
+          ],
+          "LeftLeg": [
+            0.671154,
+            0.604757,
+            0.062888
+          ],
+          "LeftFoot": [
+            0.690163,
+            0.728,
+            0.225896
+          ],
+          "LeftToeBase": [
+            0.725477,
+            0.785784,
+            0.087484
+          ],
+          "RightUpLeg": [
+            0.503798,
+            0.452799,
+            -0.012648
+          ],
+          "RightLeg": [
+            0.454327,
+            0.595028,
+            -0.050735
+          ],
+          "RightFoot": [
+            0.435625,
+            0.719048,
+            0.162236
+          ],
+          "RightToeBase": [
+            0.425144,
+            0.777892,
+            0.059175
+          ]
+        }
+      },
+      "nearestRegnetPoses": [
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 2.066667,
+          "distance": 0.443968,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "stage-walk",
+          "clipTitle": "Stage Walk",
+          "timeSeconds": 0,
+          "distance": 0.453526,
+          "tags": [
+            "locomotion"
+          ]
+        },
+        {
+          "clipId": "stage-walk",
+          "clipTitle": "Stage Walk",
+          "timeSeconds": 3.278723,
+          "distance": 0.469276,
+          "tags": [
+            "locomotion"
+          ]
+        },
+        {
+          "clipId": "push-and-walk-forward",
+          "clipTitle": "Push and Walk Forward",
+          "timeSeconds": 0,
+          "distance": 0.474317,
+          "tags": [
+            "locomotion",
+            "interaction"
+          ]
+        },
+        {
+          "clipId": "stage-walk",
+          "clipTitle": "Stage Walk",
+          "timeSeconds": 2.138298,
+          "distance": 0.47556,
+          "tags": [
+            "locomotion"
+          ]
+        }
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "k001",
+      "sourceFrame": 12,
+      "timeSeconds": 0.5,
+      "energy": 0.092178,
+      "confidenceFloor": 0.784645,
+      "semanticRoles": [],
+      "descriptor": {
+        "positions": {
+          "Hips": [
+            0,
+            0,
+            0
+          ],
+          "Spine02": [
+            0.02864,
+            0.152292,
+            -0.1068
+          ],
+          "Spine01": [
+            0.05728,
+            0.304583,
+            -0.213601
+          ],
+          "Spine": [
+            0.083875,
+            0.445997,
+            -0.312773
+          ],
+          "neck": [
+            0.102287,
+            0.543899,
+            -0.38143
+          ],
+          "Head": [
+            0.038957,
+            0.604416,
+            -0.795716
+          ],
+          "LeftShoulder": [
+            0.187548,
+            0.523037,
+            -0.39189
+          ],
+          "LeftArm": [
+            0.345891,
+            0.484294,
+            -0.411314
+          ],
+          "LeftForeArm": [
+            0.527106,
+            0.194332,
+            -0.558903
+          ],
+          "LeftHand": [
+            0.408977,
+            0.345124,
+            -0.738372
+          ],
+          "RightShoulder": [
+            0.017025,
+            0.564761,
+            -0.370971
+          ],
+          "RightArm": [
+            -0.141318,
+            0.603504,
+            -0.351547
+          ],
+          "RightForeArm": [
+            -0.320174,
+            0.229206,
+            -0.536104
+          ],
+          "RightHand": [
+            -0.268925,
+            0.362447,
+            -0.776219
+          ],
+          "LeftUpLeg": [
+            0.160132,
+            -0.012082,
+            0.076331
+          ],
+          "LeftLeg": [
+            0.339689,
+            -0.465309,
+            -0.208674
+          ],
+          "LeftFoot": [
+            0.34905,
+            -0.976879,
+            0.062158
+          ],
+          "LeftToeBase": [
+            0.352268,
+            -1.092033,
+            0.056406
+          ],
+          "RightUpLeg": [
+            -0.160132,
+            0.012082,
+            -0.076331
+          ],
+          "RightLeg": [
+            -0.256796,
+            -0.317068,
+            -0.322157
+          ],
+          "RightFoot": [
+            -0.266217,
+            -0.887918,
+            0.064986
+          ],
+          "RightToeBase": [
+            -0.246725,
+            -1.016593,
+            -0.049302
+          ]
+        },
+        "directions": {
+          "Hips>Spine02": [
+            0.152179,
+            0.8092,
+            -0.567483
+          ],
+          "Spine02>Spine01": [
+            0.152179,
+            0.8092,
+            -0.567483
+          ],
+          "Spine01>Spine": [
+            0.152179,
+            0.8092,
+            -0.567483
+          ],
+          "Spine>neck": [
+            0.152179,
+            0.8092,
+            -0.567483
+          ],
+          "neck>Head": [
+            -0.149559,
+            0.142915,
+            -0.97837
+          ],
+          "Spine>LeftShoulder": [
+            0.684452,
+            0.508621,
+            -0.522331
+          ],
+          "LeftShoulder>LeftArm": [
+            0.964523,
+            -0.235998,
+            -0.118321
+          ],
+          "LeftArm>LeftForeArm": [
+            0.486583,
+            -0.778582,
+            -0.396293
+          ],
+          "LeftForeArm>LeftHand": [
+            -0.450028,
+            0.574466,
+            -0.683714
+          ],
+          "Spine>RightShoulder": [
+            -0.451105,
+            0.801419,
+            -0.392723
+          ],
+          "RightShoulder>RightArm": [
+            -0.964523,
+            0.235998,
+            0.118321
+          ],
+          "RightArm>RightForeArm": [
+            -0.393924,
+            -0.824377,
+            -0.40648
+          ],
+          "RightForeArm>RightHand": [
+            0.183458,
+            0.476973,
+            -0.859558
+          ],
+          "Hips>LeftUpLeg": [
+            0.900605,
+            -0.067951,
+            0.429295
+          ],
+          "LeftUpLeg>LeftLeg": [
+            0.317971,
+            -0.802601,
+            -0.504704
+          ],
+          "LeftLeg>LeftFoot": [
+            0.01617,
+            -0.883671,
+            0.467829
+          ],
+          "LeftFoot>LeftToeBase": [
+            0.027897,
+            -0.998366,
+            -0.049872
+          ],
+          "Hips>RightUpLeg": [
+            -0.900605,
+            0.067951,
+            -0.429295
+          ],
+          "RightUpLeg>RightLeg": [
+            -0.229042,
+            -0.779911,
+            -0.582477
+          ],
+          "RightLeg>RightFoot": [
+            -0.013657,
+            -0.827546,
+            0.561232
+          ],
+          "RightFoot>RightToeBase": [
+            0.112535,
+            -0.742918,
+            -0.659856
+          ]
+        },
+        "confidence": {
+          "Hips": 0.999798,
+          "Spine02": 0.999798,
+          "Spine01": 0.999798,
+          "Spine": 0.999798,
+          "neck": 0.999864,
+          "Head": 0.999747,
+          "LeftShoulder": 0.999864,
+          "LeftArm": 0.999977,
+          "LeftForeArm": 0.908208,
+          "LeftHand": 0.951396,
+          "RightShoulder": 0.999864,
+          "RightArm": 0.999864,
+          "RightForeArm": 0.784645,
+          "RightHand": 0.882666,
+          "LeftUpLeg": 0.999848,
+          "LeftLeg": 0.802135,
+          "LeftFoot": 0.887251,
+          "LeftToeBase": 0.887092,
+          "RightUpLeg": 0.999798,
+          "RightLeg": 0.902708,
+          "RightFoot": 0.903642,
+          "RightToeBase": 0.873243
+        },
+        "screenPositions": {
+          "Hips": [
+            0.541209,
+            0.497498,
+            -0.000209
+          ],
+          "Spine02": [
+            0.549922,
+            0.455059,
+            -0.087415
+          ],
+          "Spine01": [
+            0.558634,
+            0.41262,
+            -0.174621
+          ],
+          "Spine": [
+            0.566724,
+            0.373213,
+            -0.255597
+          ],
+          "neck": [
+            0.572325,
+            0.345931,
+            -0.311658
+          ],
+          "Head": [
+            0.575518,
+            0.309227,
+            -0.544465
+          ],
+          "LeftShoulder": [
+            0.614228,
+            0.348571,
+            -0.320244
+          ],
+          "LeftArm": [
+            0.692049,
+            0.353474,
+            -0.33619
+          ],
+          "LeftForeArm": [
+            0.804998,
+            0.458775,
+            -0.550287
+          ],
+          "LeftHand": [
+            0.746012,
+            0.38759,
+            -0.815071
+          ],
+          "RightShoulder": [
+            0.530421,
+            0.343291,
+            -0.303072
+          ],
+          "RightArm": [
+            0.452601,
+            0.338387,
+            -0.287127
+          ],
+          "RightForeArm": [
+            0.335956,
+            0.454748,
+            -0.518877
+          ],
+          "RightHand": [
+            0.412927,
+            0.389442,
+            -0.825546
+          ],
+          "LeftUpLeg": [
+            0.616524,
+            0.500726,
+            0.021328
+          ],
+          "LeftLeg": [
+            0.709091,
+            0.602033,
+            -0.20351
+          ],
+          "LeftFoot": [
+            0.688461,
+            0.727468,
+            -0.064953
+          ],
+          "LeftToeBase": [
+            0.723978,
+            0.786543,
+            -0.178908
+          ],
+          "RightUpLeg": [
+            0.465895,
+            0.49427,
+            -0.021745
+          ],
+          "RightLeg": [
+            0.402268,
+            0.598044,
+            -0.298043
+          ],
+          "RightFoot": [
+            0.426905,
+            0.717949,
+            -0.079597
+          ],
+          "RightToeBase": [
+            0.423261,
+            0.779401,
+            -0.167411
+          ]
+        }
+      },
+      "nearestRegnetPoses": [
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 2.066667,
+          "distance": 0.748203,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.26383,
+          "distance": 0.772057,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.483688,
+          "distance": 0.778192,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "walking",
+          "clipTitle": "Walking",
+          "timeSeconds": 0.363121,
+          "distance": 0.781076,
+          "tags": [
+            "locomotion"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.747518,
+          "distance": 0.796159,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        }
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "k002",
+      "sourceFrame": 22,
+      "timeSeconds": 0.916667,
+      "energy": 0.040724,
+      "confidenceFloor": 0.525712,
+      "semanticRoles": [
+        "compression-plateau-entry"
+      ],
+      "descriptor": {
+        "positions": {
+          "Hips": [
+            0,
+            0,
+            0
+          ],
+          "Spine02": [
+            0.020375,
+            0.085929,
+            -0.139172
+          ],
+          "Spine01": [
+            0.04075,
+            0.171859,
+            -0.278343
+          ],
+          "Spine": [
+            0.05967,
+            0.251651,
+            -0.407574
+          ],
+          "neck": [
+            0.072768,
+            0.306891,
+            -0.497041
+          ],
+          "Head": [
+            0.040796,
+            0.276905,
+            -0.960031
+          ],
+          "LeftShoulder": [
+            0.169749,
+            0.29389,
+            -0.508753
+          ],
+          "LeftArm": [
+            0.349856,
+            0.269746,
+            -0.530502
+          ],
+          "LeftForeArm": [
+            0.527258,
+            -0.057138,
+            -0.652827
+          ],
+          "LeftHand": [
+            0.394645,
+            0.175858,
+            -0.801583
+          ],
+          "RightShoulder": [
+            -0.024213,
+            0.319892,
+            -0.48533
+          ],
+          "RightArm": [
+            -0.20432,
+            0.344036,
+            -0.46358
+          ],
+          "RightForeArm": [
+            -0.397332,
+            -0.035027,
+            -0.617041
+          ],
+          "RightHand": [
+            -0.249941,
+            0.223418,
+            -0.842706
+          ],
+          "LeftUpLeg": [
+            0.180936,
+            -0.00737,
+            0.076935
+          ],
+          "LeftLeg": [
+            0.587903,
+            -0.244722,
+            -0.26419
+          ],
+          "LeftFoot": [
+            0.395569,
+            -0.7418,
+            0.030257
+          ],
+          "LeftToeBase": [
+            0.388593,
+            -0.906961,
+            0.05236
+          ],
+          "RightUpLeg": [
+            -0.180936,
+            0.00737,
+            -0.076935
+          ],
+          "RightLeg": [
+            -0.519345,
+            0.01808,
+            -0.345647
+          ],
+          "RightFoot": [
+            -0.339294,
+            -0.638606,
+            0.034298
+          ],
+          "RightToeBase": [
+            -0.349672,
+            -0.815653,
+            -0.074173
+          ]
+        },
+        "directions": {
+          "Hips>Spine02": [
+            0.123615,
+            0.521333,
+            -0.844352
+          ],
+          "Spine02>Spine01": [
+            0.123615,
+            0.521333,
+            -0.844352
+          ],
+          "Spine01>Spine": [
+            0.123615,
+            0.521333,
+            -0.844352
+          ],
+          "Spine>neck": [
+            0.123615,
+            0.521333,
+            -0.844352
+          ],
+          "neck>Head": [
+            -0.068749,
+            -0.064478,
+            -0.995548
+          ],
+          "Spine>LeftShoulder": [
+            0.708512,
+            0.271872,
+            -0.651227
+          ],
+          "LeftShoulder>LeftArm": [
+            0.98411,
+            -0.131923,
+            -0.118841
+          ],
+          "LeftArm>LeftForeArm": [
+            0.453111,
+            -0.83491,
+            -0.312435
+          ],
+          "LeftForeArm>LeftHand": [
+            -0.432534,
+            0.759941,
+            -0.485185
+          ],
+          "Spine>RightShoulder": [
+            -0.629804,
+            0.512365,
+            -0.583806
+          ],
+          "RightShoulder>RightArm": [
+            -0.98411,
+            0.131923,
+            0.118841
+          ],
+          "RightArm>RightForeArm": [
+            -0.426822,
+            -0.838248,
+            -0.339358
+          ],
+          "RightForeArm>RightHand": [
+            0.394706,
+            0.692103,
+            -0.604319
+          ],
+          "Hips>LeftUpLeg": [
+            0.919617,
+            -0.03746,
+            0.391025
+          ],
+          "LeftUpLeg>LeftLeg": [
+            0.699669,
+            -0.408061,
+            -0.586472
+          ],
+          "LeftLeg>LeftFoot": [
+            -0.315863,
+            -0.816334,
+            0.483559
+          ],
+          "LeftFoot>LeftToeBase": [
+            -0.041823,
+            -0.990297,
+            0.132526
+          ],
+          "Hips>RightUpLeg": [
+            -0.919617,
+            0.03746,
+            -0.391025
+          ],
+          "RightUpLeg>RightLeg": [
+            -0.782898,
+            0.024776,
+            -0.621656
+          ],
+          "RightLeg>RightFoot": [
+            0.230909,
+            -0.842173,
+            0.487264
+          ],
+          "RightFoot>RightToeBase": [
+            -0.049922,
+            -0.851628,
+            -0.521764
+          ]
+        },
+        "confidence": {
+          "Hips": 0.999413,
+          "Spine02": 0.999413,
+          "Spine01": 0.999413,
+          "Spine": 0.999413,
+          "neck": 0.999944,
+          "Head": 0.999898,
+          "LeftShoulder": 0.999944,
+          "LeftArm": 0.999989,
+          "LeftForeArm": 0.943895,
+          "LeftHand": 0.976936,
+          "RightShoulder": 0.999944,
+          "RightArm": 0.999944,
+          "RightForeArm": 0.894534,
+          "RightHand": 0.958337,
+          "LeftUpLeg": 0.999413,
+          "LeftLeg": 0.525712,
+          "LeftFoot": 0.707841,
+          "LeftToeBase": 0.796789,
+          "RightUpLeg": 0.999419,
+          "RightLeg": 0.758938,
+          "RightFoot": 0.840214,
+          "RightToeBase": 0.791083
+        },
+        "screenPositions": {
+          "Hips": [
+            0.546576,
+            0.575161,
+            -0.000164
+          ],
+          "Spine02": [
+            0.549749,
+            0.553992,
+            -0.096291
+          ],
+          "Spine01": [
+            0.552923,
+            0.532824,
+            -0.192417
+          ],
+          "Spine": [
+            0.555869,
+            0.513168,
+            -0.281678
+          ],
+          "neck": [
+            0.557909,
+            0.499559,
+            -0.343473
+          ],
+          "Head": [
+            0.572955,
+            0.496894,
+            -0.587235
+          ],
+          "LeftShoulder": [
+            0.6023,
+            0.502015,
+            -0.347847
+          ],
+          "LeftArm": [
+            0.68474,
+            0.506576,
+            -0.355968
+          ],
+          "LeftForeArm": [
+            0.789101,
+            0.62379,
+            -0.519226
+          ],
+          "LeftHand": [
+            0.71541,
+            0.548417,
+            -0.752754
+          ],
+          "RightShoulder": [
+            0.513519,
+            0.497104,
+            -0.3391
+          ],
+          "RightArm": [
+            0.431079,
+            0.492543,
+            -0.330978
+          ],
+          "RightForeArm": [
+            0.325846,
+            0.601976,
+            -0.491491
+          ],
+          "RightHand": [
+            0.432989,
+            0.53075,
+            -0.699763
+          ],
+          "LeftUpLeg": [
+            0.616094,
+            0.579815,
+            0.008451
+          ],
+          "LeftLeg": [
+            0.76929,
+            0.629704,
+            -0.253764
+          ],
+          "LeftFoot": [
+            0.685625,
+            0.732516,
+            -0.09826
+          ],
+          "LeftToeBase": [
+            0.721877,
+            0.787703,
+            -0.1613
+          ],
+          "RightUpLeg": [
+            0.477058,
+            0.570506,
+            -0.008779
+          ],
+          "RightLeg": [
+            0.337181,
+            0.603251,
+            -0.291593
+          ],
+          "RightFoot": [
+            0.41883,
+            0.721609,
+            -0.111058
+          ],
+          "RightToeBase": [
+            0.406648,
+            0.776804,
+            -0.174399
+          ]
+        }
+      },
+      "nearestRegnetPoses": [
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 2.066667,
+          "distance": 0.863424,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.26383,
+          "distance": 0.870955,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.483688,
+          "distance": 0.872012,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "run-and-jump",
+          "clipTitle": "Run and Jump",
+          "timeSeconds": 1.510638,
+          "distance": 0.898217,
+          "tags": [
+            "locomotion",
+            "airborne"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.747518,
+          "distance": 0.907093,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        }
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "k003",
+      "sourceFrame": 28,
+      "timeSeconds": 1.166667,
+      "energy": 0.020824,
+      "confidenceFloor": 0.59838,
+      "semanticRoles": [
+        "compression-peak"
+      ],
+      "descriptor": {
+        "positions": {
+          "Hips": [
+            0,
+            0,
+            0
+          ],
+          "Spine02": [
+            0.0157,
+            0.083758,
+            -0.138312
+          ],
+          "Spine01": [
+            0.031399,
+            0.167516,
+            -0.276624
+          ],
+          "Spine": [
+            0.045977,
+            0.245291,
+            -0.405056
+          ],
+          "neck": [
+            0.05607,
+            0.299135,
+            -0.493971
+          ],
+          "Head": [
+            0.010505,
+            0.216749,
+            -0.976171
+          ],
+          "LeftShoulder": [
+            0.152493,
+            0.284,
+            -0.505953
+          ],
+          "LeftArm": [
+            0.331565,
+            0.255891,
+            -0.528205
+          ],
+          "LeftForeArm": [
+            0.491782,
+            -0.084741,
+            -0.653803
+          ],
+          "LeftHand": [
+            0.364895,
+            0.144861,
+            -0.813116
+          ],
+          "RightShoulder": [
+            -0.040353,
+            0.314271,
+            -0.481989
+          ],
+          "RightArm": [
+            -0.219425,
+            0.342379,
+            -0.459737
+          ],
+          "RightForeArm": [
+            -0.411661,
+            -0.063207,
+            -0.615896
+          ],
+          "RightHand": [
+            -0.254137,
+            0.176026,
+            -0.855709
+          ],
+          "LeftUpLeg": [
+            0.180646,
+            -0.009781,
+            0.072445
+          ],
+          "LeftLeg": [
+            0.582514,
+            -0.261725,
+            -0.242644
+          ],
+          "LeftFoot": [
+            0.367797,
+            -0.776575,
+            0.04455
+          ],
+          "LeftToeBase": [
+            0.353349,
+            -0.947485,
+            0.068828
+          ],
+          "RightUpLeg": [
+            -0.180646,
+            0.009781,
+            -0.072445
+          ],
+          "RightLeg": [
+            -0.546077,
+            -0.003528,
+            -0.316681
+          ],
+          "RightFoot": [
+            -0.372192,
+            -0.641506,
+            0.071619
+          ],
+          "RightToeBase": [
+            -0.381445,
+            -0.810242,
+            -0.026645
+          ]
+        },
+        "directions": {
+          "Hips>Spine02": [
+            0.096639,
+            0.515572,
+            -0.851379
+          ],
+          "Spine02>Spine01": [
+            0.096639,
+            0.515572,
+            -0.851379
+          ],
+          "Spine01>Spine": [
+            0.096639,
+            0.515572,
+            -0.851379
+          ],
+          "Spine>neck": [
+            0.096639,
+            0.515572,
+            -0.851379
+          ],
+          "neck>Head": [
+            -0.092742,
+            -0.16769,
+            -0.981468
+          ],
+          "Spine>LeftShoulder": [
+            0.701976,
+            0.255106,
+            -0.664944
+          ],
+          "LeftShoulder>LeftArm": [
+            0.980543,
+            -0.153914,
+            -0.121845
+          ],
+          "LeftArm>LeftForeArm": [
+            0.403742,
+            -0.858382,
+            -0.316502
+          ],
+          "LeftForeArm>LeftHand": [
+            -0.413424,
+            0.748091,
+            -0.519077
+          ],
+          "Spine>RightShoulder": [
+            -0.641162,
+            0.5123,
+            -0.571367
+          ],
+          "RightShoulder>RightArm": [
+            -0.980543,
+            0.153914,
+            0.121845
+          ],
+          "RightArm>RightForeArm": [
+            -0.404515,
+            -0.853458,
+            -0.328598
+          ],
+          "RightForeArm>RightHand": [
+            0.421671,
+            0.640391,
+            -0.641945
+          ],
+          "Hips>LeftUpLeg": [
+            0.926976,
+            -0.050191,
+            0.371747
+          ],
+          "LeftUpLeg>LeftLeg": [
+            0.705733,
+            -0.442447,
+            -0.553336
+          ],
+          "LeftLeg>LeftFoot": [
+            -0.342223,
+            -0.820585,
+            0.457738
+          ],
+          "LeftFoot>LeftToeBase": [
+            -0.083407,
+            -0.986611,
+            0.140152
+          ],
+          "Hips>RightUpLeg": [
+            -0.926976,
+            0.050191,
+            -0.371747
+          ],
+          "RightUpLeg>RightLeg": [
+            -0.831022,
+            -0.030266,
+            -0.555416
+          ],
+          "RightLeg>RightFoot": [
+            0.226758,
+            -0.831967,
+            0.506371
+          ],
+          "RightFoot>RightToeBase": [
+            -0.047333,
+            -0.863179,
+            -0.502674
+          ]
+        },
+        "confidence": {
+          "Hips": 0.999519,
+          "Spine02": 0.999519,
+          "Spine01": 0.999519,
+          "Spine": 0.999519,
+          "neck": 0.999968,
+          "Head": 0.999944,
+          "LeftShoulder": 0.999968,
+          "LeftArm": 0.999993,
+          "LeftForeArm": 0.963568,
+          "LeftHand": 0.986323,
+          "RightShoulder": 0.999968,
+          "RightArm": 0.999968,
+          "RightForeArm": 0.934206,
+          "RightHand": 0.97763,
+          "LeftUpLeg": 0.999519,
+          "LeftLeg": 0.59838,
+          "LeftFoot": 0.747232,
+          "LeftToeBase": 0.829997,
+          "RightUpLeg": 0.999522,
+          "RightLeg": 0.808816,
+          "RightFoot": 0.872899,
+          "RightToeBase": 0.832211
+        },
+        "screenPositions": {
+          "Hips": [
+            0.555187,
+            0.575838,
+            -0.000154
+          ],
+          "Spine02": [
+            0.557265,
+            0.556444,
+            -0.092007
+          ],
+          "Spine01": [
+            0.559342,
+            0.53705,
+            -0.183859
+          ],
+          "Spine": [
+            0.561272,
+            0.519042,
+            -0.269151
+          ],
+          "neck": [
+            0.562607,
+            0.506575,
+            -0.328199
+          ],
+          "Head": [
+            0.578813,
+            0.509887,
+            -0.583343
+          ],
+          "LeftShoulder": [
+            0.606031,
+            0.508243,
+            -0.331096
+          ],
+          "LeftArm": [
+            0.686676,
+            0.51134,
+            -0.336477
+          ],
+          "LeftForeArm": [
+            0.77233,
+            0.628384,
+            -0.502484
+          ],
+          "LeftHand": [
+            0.712499,
+            0.559909,
+            -0.745961
+          ],
+          "RightShoulder": [
+            0.519183,
+            0.504906,
+            -0.325301
+          ],
+          "RightArm": [
+            0.438539,
+            0.501809,
+            -0.31992
+          ],
+          "RightForeArm": [
+            0.337765,
+            0.608765,
+            -0.478386
+          ],
+          "RightHand": [
+            0.444904,
+            0.545207,
+            -0.693525
+          ],
+          "LeftUpLeg": [
+            0.62297,
+            0.579521,
+            0.007359
+          ],
+          "LeftLeg": [
+            0.777849,
+            0.636361,
+            -0.224664
+          ],
+          "LeftFoot": [
+            0.683993,
+            0.7332,
+            -0.080277
+          ],
+          "LeftToeBase": [
+            0.673351,
+            0.798485,
+            -0.140535
+          ],
+          "RightUpLeg": [
+            0.487404,
+            0.572155,
+            -0.007668
+          ],
+          "RightLeg": [
+            0.342804,
+            0.60707,
+            -0.260479
+          ],
+          "RightFoot": [
+            0.41893,
+            0.721861,
+            -0.080844
+          ],
+          "RightToeBase": [
+            0.409187,
+            0.775986,
+            -0.135706
+          ]
+        }
+      },
+      "nearestRegnetPoses": [
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 2.066667,
+          "distance": 0.870208,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.26383,
+          "distance": 0.878951,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.483688,
+          "distance": 0.885802,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "run-and-jump",
+          "clipTitle": "Run and Jump",
+          "timeSeconds": 1.510638,
+          "distance": 0.910682,
+          "tags": [
+            "locomotion",
+            "airborne"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.747518,
+          "distance": 0.918022,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        }
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "k004",
+      "sourceFrame": 31,
+      "timeSeconds": 1.291667,
+      "energy": 0.031324,
+      "confidenceFloor": 0.639039,
+      "semanticRoles": [
+        "compression-plateau-exit"
+      ],
+      "descriptor": {
+        "positions": {
+          "Hips": [
+            0,
+            0,
+            0
+          ],
+          "Spine02": [
+            0.014604,
+            0.091303,
+            -0.137057
+          ],
+          "Spine01": [
+            0.029208,
+            0.182605,
+            -0.274115
+          ],
+          "Spine": [
+            0.042769,
+            0.267386,
+            -0.401382
+          ],
+          "neck": [
+            0.052157,
+            0.326081,
+            -0.48949
+          ],
+          "Head": [
+            0.027945,
+            0.287482,
+            -0.957378
+          ],
+          "LeftShoulder": [
+            0.147754,
+            0.314829,
+            -0.502245
+          ],
+          "LeftArm": [
+            0.325291,
+            0.293932,
+            -0.525932
+          ],
+          "LeftForeArm": [
+            0.52189,
+            -0.016356,
+            -0.639772
+          ],
+          "LeftHand": [
+            0.3793,
+            0.235468,
+            -0.755489
+          ],
+          "RightShoulder": [
+            -0.04344,
+            0.337333,
+            -0.476736
+          ],
+          "RightArm": [
+            -0.220976,
+            0.35823,
+            -0.453049
+          ],
+          "RightForeArm": [
+            -0.38114,
+            -0.023893,
+            -0.602954
+          ],
+          "RightHand": [
+            -0.240526,
+            0.259903,
+            -0.80478
+          ],
+          "LeftUpLeg": [
+            0.177543,
+            -0.007657,
+            0.069582
+          ],
+          "LeftLeg": [
+            0.553715,
+            -0.230197,
+            -0.275065
+          ],
+          "LeftFoot": [
+            0.400332,
+            -0.778047,
+            -0.00199
+          ],
+          "LeftToeBase": [
+            0.391536,
+            -0.973073,
+            0.018581
+          ],
+          "RightUpLeg": [
+            -0.177543,
+            0.007657,
+            -0.069582
+          ],
+          "RightLeg": [
+            -0.526026,
+            0.028325,
+            -0.342951
+          ],
+          "RightFoot": [
+            -0.373292,
+            -0.6535,
+            0.012968
+          ],
+          "RightToeBase": [
+            -0.382441,
+            -0.858088,
+            -0.090066
+          ]
+        },
+        "directions": {
+          "Hips>Spine02": [
+            0.088332,
+            0.552243,
+            -0.82899
+          ],
+          "Spine02>Spine01": [
+            0.088332,
+            0.552243,
+            -0.82899
+          ],
+          "Spine01>Spine": [
+            0.088332,
+            0.552243,
+            -0.82899
+          ],
+          "Spine>neck": [
+            0.088332,
+            0.552243,
+            -0.82899
+          ],
+          "neck>Head": [
+            -0.051504,
+            -0.082108,
+            -0.995292
+          ],
+          "Spine>LeftShoulder": [
+            0.685636,
+            0.309837,
+            -0.658714
+          ],
+          "LeftShoulder>LeftArm": [
+            0.984539,
+            -0.115883,
+            -0.131357
+          ],
+          "LeftArm>LeftForeArm": [
+            0.511225,
+            -0.806858,
+            -0.296023
+          ],
+          "LeftForeArm>LeftHand": [
+            -0.457504,
+            0.807985,
+            -0.371282
+          ],
+          "Spine>RightShoulder": [
+            -0.642513,
+            0.521313,
+            -0.561613
+          ],
+          "RightShoulder>RightArm": [
+            -0.984539,
+            0.115883,
+            0.131357
+          ],
+          "RightArm>RightForeArm": [
+            -0.3635,
+            -0.867248,
+            -0.340219
+          ],
+          "RightForeArm>RightHand": [
+            0.374412,
+            0.755657,
+            -0.537399
+          ],
+          "Hips>LeftUpLeg": [
+            0.930301,
+            -0.040121,
+            0.364596
+          ],
+          "LeftUpLeg>LeftLeg": [
+            0.675831,
+            -0.399816,
+            -0.619193
+          ],
+          "LeftLeg>LeftFoot": [
+            -0.243056,
+            -0.868143,
+            0.432725
+          ],
+          "LeftFoot>LeftToeBase": [
+            -0.04481,
+            -0.993484,
+            0.104789
+          ],
+          "Hips>RightUpLeg": [
+            -0.930301,
+            0.040121,
+            -0.364596
+          ],
+          "RightUpLeg>RightLeg": [
+            -0.785944,
+            0.046614,
+            -0.616538
+          ],
+          "RightLeg>RightFoot": [
+            0.194776,
+            -0.869509,
+            0.45389
+          ],
+          "RightFoot>RightToeBase": [
+            -0.039909,
+            -0.89242,
+            -0.449437
+          ]
+        },
+        "confidence": {
+          "Hips": 0.999527,
+          "Spine02": 0.999527,
+          "Spine01": 0.999527,
+          "Spine": 0.999527,
+          "neck": 0.999974,
+          "Head": 0.999959,
+          "LeftShoulder": 0.999974,
+          "LeftArm": 0.999995,
+          "LeftForeArm": 0.971556,
+          "LeftHand": 0.989624,
+          "RightShoulder": 0.999974,
+          "RightArm": 0.999974,
+          "RightForeArm": 0.946213,
+          "RightHand": 0.983496,
+          "LeftUpLeg": 0.999548,
+          "LeftLeg": 0.639039,
+          "LeftFoot": 0.775924,
+          "LeftToeBase": 0.849252,
+          "RightUpLeg": 0.999527,
+          "RightLeg": 0.829676,
+          "RightFoot": 0.888518,
+          "RightToeBase": 0.850988
+        },
+        "screenPositions": {
+          "Hips": [
+            0.555571,
+            0.571474,
+            -0.000152
+          ],
+          "Spine02": [
+            0.557594,
+            0.549909,
+            -0.091503
+          ],
+          "Spine01": [
+            0.559617,
+            0.528344,
+            -0.182855
+          ],
+          "Spine": [
+            0.561496,
+            0.50832,
+            -0.267681
+          ],
+          "neck": [
+            0.562797,
+            0.494457,
+            -0.326407
+          ],
+          "Head": [
+            0.578745,
+            0.4889,
+            -0.55366
+          ],
+          "LeftShoulder": [
+            0.606208,
+            0.495709,
+            -0.329861
+          ],
+          "LeftArm": [
+            0.686828,
+            0.498034,
+            -0.336274
+          ],
+          "LeftForeArm": [
+            0.787822,
+            0.610228,
+            -0.476246
+          ],
+          "LeftHand": [
+            0.711342,
+            0.536225,
+            -0.668883
+          ],
+          "RightShoulder": [
+            0.519386,
+            0.493205,
+            -0.322954
+          ],
+          "RightArm": [
+            0.438766,
+            0.49088,
+            -0.31654
+          ],
+          "RightForeArm": [
+            0.343213,
+            0.600568,
+            -0.459774
+          ],
+          "RightHand": [
+            0.445768,
+            0.52434,
+            -0.63111
+          ],
+          "LeftUpLeg": [
+            0.623754,
+            0.574435,
+            0.006644
+          ],
+          "LeftLeg": [
+            0.768921,
+            0.62332,
+            -0.241738
+          ],
+          "LeftFoot": [
+            0.686075,
+            0.731479,
+            -0.119162
+          ],
+          "LeftToeBase": [
+            0.716554,
+            0.787454,
+            -0.177378
+          ],
+          "RightUpLeg": [
+            0.487388,
+            0.568512,
+            -0.006947
+          ],
+          "RightLeg": [
+            0.345875,
+            0.598481,
+            -0.276134
+          ],
+          "RightFoot": [
+            0.419331,
+            0.722419,
+            -0.122655
+          ],
+          "RightToeBase": [
+            0.406859,
+            0.776075,
+            -0.178349
+          ]
+        }
+      },
+      "nearestRegnetPoses": [
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 2.066667,
+          "distance": 0.857322,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.26383,
+          "distance": 0.862009,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.483688,
+          "distance": 0.866373,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.747518,
+          "distance": 0.899159,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "walking",
+          "clipTitle": "Walking",
+          "timeSeconds": 0.363121,
+          "distance": 0.91518,
+          "tags": [
+            "locomotion"
+          ]
+        }
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "k005",
+      "sourceFrame": 39,
+      "timeSeconds": 1.625,
+      "energy": 0.130772,
+      "confidenceFloor": 0.716345,
+      "semanticRoles": [],
+      "descriptor": {
+        "positions": {
+          "Hips": [
+            0,
+            0,
+            0
+          ],
+          "Spine02": [
+            0.009964,
+            0.173207,
+            -0.079214
+          ],
+          "Spine01": [
+            0.019929,
+            0.346414,
+            -0.158428
+          ],
+          "Spine": [
+            0.029182,
+            0.507248,
+            -0.231983
+          ],
+          "neck": [
+            0.035587,
+            0.618596,
+            -0.282907
+          ],
+          "Head": [
+            0.014198,
+            0.675547,
+            -0.73718
+          ],
+          "LeftShoulder": [
+            0.130382,
+            0.604091,
+            -0.293835
+          ],
+          "LeftArm": [
+            0.30643,
+            0.577155,
+            -0.31413
+          ],
+          "LeftForeArm": [
+            0.502202,
+            0.271206,
+            -0.400111
+          ],
+          "LeftHand": [
+            0.47725,
+            0.248495,
+            -0.561903
+          ],
+          "RightShoulder": [
+            -0.059207,
+            0.6331,
+            -0.271979
+          ],
+          "RightArm": [
+            -0.235255,
+            0.660037,
+            -0.251683
+          ],
+          "RightForeArm": [
+            -0.394602,
+            0.225281,
+            -0.3631
+          ],
+          "RightHand": [
+            -0.403084,
+            0.236703,
+            -0.653486
+          ],
+          "LeftUpLeg": [
+            0.177047,
+            -0.012794,
+            0.06711
+          ],
+          "LeftLeg": [
+            0.379863,
+            -0.560414,
+            -0.206071
+          ],
+          "LeftFoot": [
+            0.314375,
+            -1.053798,
+            0.146705
+          ],
+          "LeftToeBase": [
+            0.325294,
+            -1.203421,
+            0.12996
+          ],
+          "RightUpLeg": [
+            -0.177047,
+            0.012794,
+            -0.06711
+          ],
+          "RightLeg": [
+            -0.348849,
+            -0.383426,
+            -0.300148
+          ],
+          "RightFoot": [
+            -0.356887,
+            -0.934951,
+            0.119062
+          ],
+          "RightToeBase": [
+            -0.38174,
+            -1.081988,
+            0.000469
+          ]
+        },
+        "directions": {
+          "Hips>Spine02": [
+            0.052246,
+            0.908166,
+            -0.415338
+          ],
+          "Spine02>Spine01": [
+            0.052246,
+            0.908166,
+            -0.415338
+          ],
+          "Spine01>Spine": [
+            0.052246,
+            0.908166,
+            -0.415338
+          ],
+          "Spine>neck": [
+            0.052246,
+            0.908166,
+            -0.415338
+          ],
+          "neck>Head": [
+            -0.046668,
+            0.124259,
+            -0.991152
+          ],
+          "Spine>LeftShoulder": [
+            0.660924,
+            0.632465,
+            -0.40394
+          ],
+          "LeftShoulder>LeftArm": [
+            0.98214,
+            -0.150275,
+            -0.113223
+          ],
+          "LeftArm>LeftForeArm": [
+            0.52449,
+            -0.819664,
+            -0.230351
+          ],
+          "LeftForeArm>LeftHand": [
+            -0.150971,
+            -0.137416,
+            -0.978941
+          ],
+          "Spine>RightShoulder": [
+            -0.556238,
+            0.791991,
+            -0.251692
+          ],
+          "RightShoulder>RightArm": [
+            -0.98214,
+            0.150275,
+            0.113223
+          ],
+          "RightArm>RightForeArm": [
+            -0.334584,
+            -0.912866,
+            -0.233943
+          ],
+          "RightForeArm>RightHand": [
+            -0.029174,
+            0.039288,
+            -0.998802
+          ],
+          "Hips>LeftUpLeg": [
+            0.93295,
+            -0.06742,
+            0.353636
+          ],
+          "LeftUpLeg>LeftLeg": [
+            0.314585,
+            -0.849406,
+            -0.423728
+          ],
+          "LeftLeg>LeftFoot": [
+            -0.107348,
+            -0.808752,
+            0.57827
+          ],
+          "LeftFoot>LeftToeBase": [
+            0.072336,
+            -0.991193,
+            -0.110927
+          ],
+          "Hips>RightUpLeg": [
+            -0.93295,
+            0.06742,
+            -0.353636
+          ],
+          "RightUpLeg>RightLeg": [
+            -0.350097,
+            -0.807414,
+            -0.474884
+          ],
+          "RightLeg>RightFoot": [
+            -0.011601,
+            -0.796073,
+            0.605089
+          ],
+          "RightFoot>RightToeBase": [
+            -0.130445,
+            -0.771722,
+            -0.622438
+          ]
+        },
+        "confidence": {
+          "Hips": 0.999511,
+          "Spine02": 0.999511,
+          "Spine01": 0.999511,
+          "Spine": 0.999511,
+          "neck": 0.999977,
+          "Head": 0.999971,
+          "LeftShoulder": 0.999977,
+          "LeftArm": 0.999995,
+          "LeftForeArm": 0.977457,
+          "LeftHand": 0.993026,
+          "RightShoulder": 0.999977,
+          "RightArm": 0.999977,
+          "RightForeArm": 0.942734,
+          "RightHand": 0.991461,
+          "LeftUpLeg": 0.99959,
+          "LeftLeg": 0.716345,
+          "LeftFoot": 0.80881,
+          "LeftToeBase": 0.863969,
+          "RightUpLeg": 0.999511,
+          "RightLeg": 0.861445,
+          "RightFoot": 0.902411,
+          "RightToeBase": 0.863995
+        },
+        "screenPositions": {
+          "Hips": [
+            0.562925,
+            0.495765,
+            -0.000185
+          ],
+          "Spine02": [
+            0.564433,
+            0.451369,
+            -0.055892
+          ],
+          "Spine01": [
+            0.56594,
+            0.406973,
+            -0.111599
+          ],
+          "Spine": [
+            0.56734,
+            0.365748,
+            -0.163326
+          ],
+          "neck": [
+            0.568309,
+            0.337207,
+            -0.199137
+          ],
+          "Head": [
+            0.58081,
+            0.288771,
+            -0.495061
+          ],
+          "LeftShoulder": [
+            0.611845,
+            0.336567,
+            -0.202547
+          ],
+          "LeftArm": [
+            0.692698,
+            0.335378,
+            -0.208879
+          ],
+          "LeftForeArm": [
+            0.785474,
+            0.435367,
+            -0.335576
+          ],
+          "LeftHand": [
+            0.796202,
+            0.427882,
+            -0.633914
+          ],
+          "RightShoulder": [
+            0.524773,
+            0.337847,
+            -0.195728
+          ],
+          "RightArm": [
+            0.44392,
+            0.339036,
+            -0.189395
+          ],
+          "RightForeArm": [
+            0.349527,
+            0.449167,
+            -0.329651
+          ],
+          "RightHand": [
+            0.3753,
+            0.439309,
+            -0.667453
+          ],
+          "LeftUpLeg": [
+            0.64012,
+            0.496557,
+            0.011622
+          ],
+          "LeftLeg": [
+            0.736554,
+            0.613203,
+            -0.208691
+          ],
+          "LeftFoot": [
+            0.685013,
+            0.729082,
+            0.024004
+          ],
+          "LeftToeBase": [
+            0.734751,
+            0.785322,
+            -0.095369
+          ],
+          "RightUpLeg": [
+            0.48573,
+            0.494973,
+            -0.011993
+          ],
+          "RightLeg": [
+            0.392775,
+            0.602539,
+            -0.304998
+          ],
+          "RightFoot": [
+            0.421489,
+            0.719537,
+            -0.025849
+          ],
+          "RightToeBase": [
+            0.416192,
+            0.77837,
+            -0.124059
+          ]
+        }
+      },
+      "nearestRegnetPoses": [
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 2.066667,
+          "distance": 0.632969,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.26383,
+          "distance": 0.68216,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "walking",
+          "clipTitle": "Walking",
+          "timeSeconds": 0.363121,
+          "distance": 0.689599,
+          "tags": [
+            "locomotion"
+          ]
+        },
+        {
+          "clipId": "unsteady-walk",
+          "clipTitle": "Unsteady Walk",
+          "timeSeconds": 2.361702,
+          "distance": 0.709312,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "stage-walk",
+          "clipTitle": "Stage Walk",
+          "timeSeconds": 0,
+          "distance": 0.710688,
+          "tags": [
+            "locomotion"
+          ]
+        }
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "k006",
+      "sourceFrame": 42,
+      "timeSeconds": 1.75,
+      "energy": 0.104564,
+      "confidenceFloor": 0.774578,
+      "semanticRoles": [],
+      "descriptor": {
+        "positions": {
+          "Hips": [
+            0,
+            0,
+            0
+          ],
+          "Spine02": [
+            0.008602,
+            0.208862,
+            -0.029587
+          ],
+          "Spine01": [
+            0.017203,
+            0.417725,
+            -0.059173
+          ],
+          "Spine": [
+            0.02519,
+            0.611668,
+            -0.086646
+          ],
+          "neck": [
+            0.03072,
+            0.745937,
+            -0.105666
+          ],
+          "Head": [
+            0.013086,
+            0.853941,
+            -0.520205
+          ],
+          "LeftShoulder": [
+            0.118979,
+            0.731906,
+            -0.119342
+          ],
+          "LeftArm": [
+            0.282889,
+            0.705847,
+            -0.144741
+          ],
+          "LeftForeArm": [
+            0.469136,
+            0.46441,
+            -0.1682
+          ],
+          "LeftHand": [
+            0.463878,
+            0.240967,
+            -0.223779
+          ],
+          "RightShoulder": [
+            -0.057539,
+            0.759968,
+            -0.09199
+          ],
+          "RightArm": [
+            -0.221449,
+            0.786027,
+            -0.066592
+          ],
+          "RightForeArm": [
+            -0.372638,
+            0.367775,
+            -0.174683
+          ],
+          "RightHand": [
+            -0.416324,
+            0.244406,
+            -0.391172
+          ],
+          "LeftUpLeg": [
+            0.161837,
+            -0.016413,
+            0.046416
+          ],
+          "LeftLeg": [
+            0.2858,
+            -0.61855,
+            -0.054723
+          ],
+          "LeftFoot": [
+            0.287439,
+            -1.101029,
+            0.223456
+          ],
+          "LeftToeBase": [
+            0.289486,
+            -1.230461,
+            0.204817
+          ],
+          "RightUpLeg": [
+            -0.161837,
+            0.016413,
+            -0.046416
+          ],
+          "RightLeg": [
+            -0.309961,
+            -0.423139,
+            -0.212272
+          ],
+          "RightFoot": [
+            -0.361724,
+            -0.966634,
+            0.118282
+          ],
+          "RightToeBase": [
+            -0.39382,
+            -1.104307,
+            0.017931
+          ]
+        },
+        "directions": {
+          "Hips>Spine02": [
+            0.040742,
+            0.989293,
+            -0.140139
+          ],
+          "Spine02>Spine01": [
+            0.040742,
+            0.989293,
+            -0.140139
+          ],
+          "Spine01>Spine": [
+            0.040742,
+            0.989293,
+            -0.140139
+          ],
+          "Spine>neck": [
+            0.040742,
+            0.989293,
+            -0.140139
+          ],
+          "neck>Head": [
+            -0.041129,
+            0.251911,
+            -0.966876
+          ],
+          "Spine>LeftShoulder": [
+            0.601379,
+            0.770968,
+            -0.209648
+          ],
+          "LeftShoulder>LeftArm": [
+            0.976232,
+            -0.155202,
+            -0.15127
+          ],
+          "LeftArm>LeftForeArm": [
+            0.608995,
+            -0.789457,
+            -0.076707
+          ],
+          "LeftForeArm>LeftHand": [
+            -0.022828,
+            -0.970176,
+            -0.241323
+          ],
+          "Spine>RightShoulder": [
+            -0.486934,
+            0.872872,
+            -0.031453
+          ],
+          "RightShoulder>RightArm": [
+            -0.976232,
+            0.155202,
+            0.15127
+          ],
+          "RightArm>RightForeArm": [
+            -0.330334,
+            -0.91384,
+            -0.236168
+          ],
+          "RightForeArm>RightHand": [
+            -0.172688,
+            -0.487674,
+            -0.855776
+          ],
+          "Hips>LeftUpLeg": [
+            0.956711,
+            -0.097024,
+            0.274392
+          ],
+          "LeftUpLeg>LeftLeg": [
+            0.198968,
+            -0.966467,
+            -0.162335
+          ],
+          "LeftLeg>LeftFoot": [
+            0.002943,
+            -0.866317,
+            0.499486
+          ],
+          "LeftFoot>LeftToeBase": [
+            0.015654,
+            -0.989669,
+            -0.142516
+          ],
+          "Hips>RightUpLeg": [
+            -0.956711,
+            0.097024,
+            -0.274392
+          ],
+          "RightUpLeg>RightLeg": [
+            -0.300697,
+            -0.892311,
+            -0.336694
+          ],
+          "RightLeg>RightFoot": [
+            -0.081105,
+            -0.851572,
+            0.517927
+          ],
+          "RightFoot>RightToeBase": [
+            -0.18514,
+            -0.794134,
+            -0.578856
+          ]
+        },
+        "confidence": {
+          "Hips": 0.999599,
+          "Spine02": 0.999599,
+          "Spine01": 0.999599,
+          "Spine": 0.999599,
+          "neck": 0.999928,
+          "Head": 0.999922,
+          "LeftShoulder": 0.999928,
+          "LeftArm": 0.999992,
+          "LeftForeArm": 0.970252,
+          "LeftHand": 0.989686,
+          "RightShoulder": 0.999928,
+          "RightArm": 0.999928,
+          "RightForeArm": 0.917748,
+          "RightHand": 0.980789,
+          "LeftUpLeg": 0.999676,
+          "LeftLeg": 0.774578,
+          "LeftFoot": 0.850139,
+          "LeftToeBase": 0.885399,
+          "RightUpLeg": 0.999599,
+          "RightLeg": 0.889164,
+          "RightFoot": 0.916353,
+          "RightToeBase": 0.878608
+        },
+        "screenPositions": {
+          "Hips": [
+            0.571816,
+            0.476467,
+            -0.000238
+          ],
+          "Spine02": [
+            0.573741,
+            0.419629,
+            -0.016862
+          ],
+          "Spine01": [
+            0.575667,
+            0.36279,
+            -0.033487
+          ],
+          "Spine": [
+            0.577455,
+            0.310011,
+            -0.048924
+          ],
+          "neck": [
+            0.578692,
+            0.273471,
+            -0.059611
+          ],
+          "Head": [
+            0.587054,
+            0.212357,
+            -0.358285
+          ],
+          "LeftShoulder": [
+            0.622385,
+            0.272109,
+            -0.064988
+          ],
+          "LeftArm": [
+            0.703529,
+            0.269578,
+            -0.074973
+          ],
+          "LeftForeArm": [
+            0.783941,
+            0.354761,
+            -0.117461
+          ],
+          "LeftHand": [
+            0.797665,
+            0.407014,
+            -0.341895
+          ],
+          "RightShoulder": [
+            0.534999,
+            0.274834,
+            -0.054234
+          ],
+          "RightArm": [
+            0.453855,
+            0.277365,
+            -0.044249
+          ],
+          "RightForeArm": [
+            0.382583,
+            0.364783,
+            -0.163603
+          ],
+          "RightHand": [
+            0.36475,
+            0.406778,
+            -0.471181
+          ],
+          "LeftUpLeg": [
+            0.649556,
+            0.479299,
+            0.002425
+          ],
+          "LeftLeg": [
+            0.723222,
+            0.610352,
+            -0.018454
+          ],
+          "LeftFoot": [
+            0.684366,
+            0.727813,
+            0.205766
+          ],
+          "LeftToeBase": [
+            0.737316,
+            0.783948,
+            0.060848
+          ],
+          "RightUpLeg": [
+            0.494076,
+            0.473636,
+            -0.0029
+          ],
+          "RightLeg": [
+            0.414268,
+            0.600862,
+            -0.26722
+          ],
+          "RightFoot": [
+            0.424125,
+            0.718533,
+            -0.002128
+          ],
+          "RightToeBase": [
+            0.410567,
+            0.777387,
+            -0.108905
+          ]
+        }
+      },
+      "nearestRegnetPoses": [
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 2.066667,
+          "distance": 0.500472,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "walking",
+          "clipTitle": "Walking",
+          "timeSeconds": 0.363121,
+          "distance": 0.541287,
+          "tags": [
+            "locomotion"
+          ]
+        },
+        {
+          "clipId": "stage-walk",
+          "clipTitle": "Stage Walk",
+          "timeSeconds": 0,
+          "distance": 0.543787,
+          "tags": [
+            "locomotion"
+          ]
+        },
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 0.26383,
+          "distance": 0.547335,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "push-and-walk-forward",
+          "clipTitle": "Push and Walk Forward",
+          "timeSeconds": 0,
+          "distance": 0.556149,
+          "tags": [
+            "locomotion",
+            "interaction"
+          ]
+        }
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "k007",
+      "sourceFrame": 44,
+      "timeSeconds": 1.833333,
+      "energy": 0.073263,
+      "confidenceFloor": 0.806611,
+      "semanticRoles": [],
+      "descriptor": {
+        "positions": {
+          "Hips": [
+            0,
+            0,
+            0
+          ],
+          "Spine02": [
+            0.011882,
+            0.210193,
+            -0.028215
+          ],
+          "Spine01": [
+            0.023765,
+            0.420386,
+            -0.05643
+          ],
+          "Spine": [
+            0.034798,
+            0.615565,
+            -0.08263
+          ],
+          "neck": [
+            0.042437,
+            0.750689,
+            -0.100768
+          ],
+          "Head": [
+            0.018037,
+            0.872082,
+            -0.489028
+          ],
+          "LeftShoulder": [
+            0.123947,
+            0.734053,
+            -0.110371
+          ],
+          "LeftArm": [
+            0.275324,
+            0.703157,
+            -0.128204
+          ],
+          "LeftForeArm": [
+            0.438283,
+            0.444474,
+            -0.124591
+          ],
+          "LeftHand": [
+            0.448018,
+            0.142634,
+            -0.115666
+          ],
+          "RightShoulder": [
+            -0.039074,
+            0.767325,
+            -0.091165
+          ],
+          "RightArm": [
+            -0.190451,
+            0.79822,
+            -0.073332
+          ],
+          "RightForeArm": [
+            -0.290418,
+            0.398696,
+            -0.166116
+          ],
+          "RightHand": [
+            -0.387753,
+            0.15337,
+            -0.292928
+          ],
+          "LeftUpLeg": [
+            0.150721,
+            -0.013189,
+            0.048933
+          ],
+          "LeftLeg": [
+            0.232246,
+            -0.603572,
+            -0.00124
+          ],
+          "LeftFoot": [
+            0.254747,
+            -1.086374,
+            0.254129
+          ],
+          "LeftToeBase": [
+            0.296798,
+            -1.193506,
+            0.233209
+          ],
+          "RightUpLeg": [
+            -0.150721,
+            0.013189,
+            -0.048933
+          ],
+          "RightLeg": [
+            -0.250418,
+            -0.452442,
+            -0.12186
+          ],
+          "RightFoot": [
+            -0.332169,
+            -0.991095,
+            0.166373
+          ],
+          "RightToeBase": [
+            -0.364232,
+            -1.103034,
+            0.055422
+          ]
+        },
+        "directions": {
+          "Hips>Spine02": [
+            0.05594,
+            0.989559,
+            -0.132832
+          ],
+          "Spine02>Spine01": [
+            0.05594,
+            0.989559,
+            -0.132832
+          ],
+          "Spine01>Spine": [
+            0.05594,
+            0.989559,
+            -0.132832
+          ],
+          "Spine>neck": [
+            0.05594,
+            0.989559,
+            -0.132832
+          ],
+          "neck>Head": [
+            -0.059872,
+            0.297877,
+            -0.952725
+          ],
+          "Spine>LeftShoulder": [
+            0.590969,
+            0.785455,
+            -0.183893
+          ],
+          "LeftShoulder>LeftArm": [
+            0.973339,
+            -0.198654,
+            -0.114666
+          ],
+          "LeftArm>LeftForeArm": [
+            0.532973,
+            -0.84605,
+            0.011816
+          ],
+          "LeftForeArm>LeftHand": [
+            0.032222,
+            -0.999044,
+            0.02954
+          ],
+          "Spine>RightShoulder": [
+            -0.437112,
+            0.897988,
+            -0.050507
+          ],
+          "RightShoulder>RightArm": [
+            -0.973339,
+            0.198654,
+            0.114666
+          ],
+          "RightArm>RightForeArm": [
+            -0.236798,
+            -0.946373,
+            -0.219782
+          ],
+          "RightForeArm>RightHand": [
+            -0.332411,
+            -0.837821,
+            -0.433081
+          ],
+          "Hips>LeftUpLeg": [
+            0.947851,
+            -0.082943,
+            0.307731
+          ],
+          "LeftUpLeg>LeftLeg": [
+            0.136309,
+            -0.987108,
+            -0.083888
+          ],
+          "LeftLeg>LeftFoot": [
+            0.041161,
+            -0.883215,
+            0.467159
+          ],
+          "LeftFoot>LeftToeBase": [
+            0.359492,
+            -0.91585,
+            -0.17884
+          ],
+          "Hips>RightUpLeg": [
+            -0.947851,
+            0.082943,
+            -0.307731
+          ],
+          "RightUpLeg>RightLeg": [
+            -0.206953,
+            -0.966568,
+            -0.151383
+          ],
+          "RightLeg>RightFoot": [
+            -0.132633,
+            -0.873916,
+            0.467632
+          ],
+          "RightFoot>RightToeBase": [
+            -0.199356,
+            -0.695978,
+            -0.689835
+          ]
+        },
+        "confidence": {
+          "Hips": 0.999664,
+          "Spine02": 0.999664,
+          "Spine01": 0.999664,
+          "Spine": 0.999664,
+          "neck": 0.999916,
+          "Head": 0.999906,
+          "LeftShoulder": 0.999916,
+          "LeftArm": 0.99999,
+          "LeftForeArm": 0.969917,
+          "LeftHand": 0.9888,
+          "RightShoulder": 0.999916,
+          "RightArm": 0.999916,
+          "RightForeArm": 0.912407,
+          "RightHand": 0.972962,
+          "LeftUpLeg": 0.999732,
+          "LeftLeg": 0.806611,
+          "LeftFoot": 0.873067,
+          "LeftToeBase": 0.899425,
+          "RightUpLeg": 0.999664,
+          "RightLeg": 0.903741,
+          "RightFoot": 0.926057,
+          "RightToeBase": 0.892043
+        },
+        "screenPositions": {
+          "Hips": [
+            0.569943,
+            0.466693,
+            -0.000314
+          ],
+          "Spine02": [
+            0.574251,
+            0.405576,
+            -0.020506
+          ],
+          "Spine01": [
+            0.578558,
+            0.344459,
+            -0.040698
+          ],
+          "Spine": [
+            0.582558,
+            0.287707,
+            -0.059448
+          ],
+          "neck": [
+            0.585327,
+            0.248418,
+            -0.072428
+          ],
+          "Head": [
+            0.591509,
+            0.183276,
+            -0.336536
+          ],
+          "LeftShoulder": [
+            0.629084,
+            0.247804,
+            -0.070705
+          ],
+          "LeftArm": [
+            0.710347,
+            0.246664,
+            -0.067506
+          ],
+          "LeftForeArm": [
+            0.784002,
+            0.338578,
+            -0.050021
+          ],
+          "LeftHand": [
+            0.804311,
+            0.413912,
+            -0.185426
+          ],
+          "RightShoulder": [
+            0.54157,
+            0.249031,
+            -0.074152
+          ],
+          "RightArm": [
+            0.460306,
+            0.250171,
+            -0.077351
+          ],
+          "RightForeArm": [
+            0.398321,
+            0.342079,
+            -0.148229
+          ],
+          "RightHand": [
+            0.365766,
+            0.412945,
+            -0.333444
+          ],
+          "LeftUpLeg": [
+            0.646242,
+            0.468779,
+            0.012589
+          ],
+          "LeftLeg": [
+            0.694941,
+            0.603922,
+            0.052436
+          ],
+          "LeftFoot": [
+            0.67872,
+            0.727283,
+            0.240394
+          ],
+          "LeftToeBase": [
+            0.736504,
+            0.782,
+            0.094219
+          ],
+          "RightUpLeg": [
+            0.493645,
+            0.464608,
+            -0.013217
+          ],
+          "RightLeg": [
+            0.431092,
+            0.597645,
+            -0.146122
+          ],
+          "RightFoot": [
+            0.426901,
+            0.717101,
+            0.060479
+          ],
+          "RightToeBase": [
+            0.407188,
+            0.777111,
+            -0.059238
+          ]
+        }
+      },
+      "nearestRegnetPoses": [
+        {
+          "clipId": "sprint-and-sudden-stop",
+          "clipTitle": "Sprint and Sudden Stop",
+          "timeSeconds": 2.066667,
+          "distance": 0.470202,
+          "tags": [
+            "locomotion",
+            "unstable"
+          ]
+        },
+        {
+          "clipId": "stage-walk",
+          "clipTitle": "Stage Walk",
+          "timeSeconds": 0,
+          "distance": 0.49838,
+          "tags": [
+            "locomotion"
+          ]
+        },
+        {
+          "clipId": "push-and-walk-forward",
+          "clipTitle": "Push and Walk Forward",
+          "timeSeconds": 0,
+          "distance": 0.513109,
+          "tags": [
+            "locomotion",
+            "interaction"
+          ]
+        },
+        {
+          "clipId": "walking",
+          "clipTitle": "Walking",
+          "timeSeconds": 0.363121,
+          "distance": 0.513725,
+          "tags": [
+            "locomotion"
+          ]
+        },
+        {
+          "clipId": "push-and-walk-forward",
+          "clipTitle": "Push and Walk Forward",
+          "timeSeconds": 8.033334,
+          "distance": 0.515185,
+          "tags": [
+            "locomotion",
+            "interaction"
+          ]
+        }
+      ],
+      "status": "proposed"
+    }
+  ],
+  "solverContract": {
+    "order": [
+      "normalize Regnet and capture rest bases",
+      "solve hips and torso body basis",
+      "lock reviewed foot and hand contacts",
+      "solve target-length limbs with capture-derived pole planes",
+      "apply target-specific hand, foot, head, and armor correction",
+      "bake only reviewed sparse keys",
+      "interpolate after key-pose visual acceptance"
+    ],
+    "forbidden": [
+      "copy source local rotations onto Regnet",
+      "treat two-dimensional landmark depth as authoritative",
+      "promote nearest mocap retrieval as authored animation",
+      "emit every captured frame as a pose key",
+      "claim acceptance from distance metrics"
+    ]
+  },
+  "acceptance": {
+    "authoringRender": "pending",
+    "orthogonalView": "pending",
+    "hostedPoseLab": "pending",
+    "humanVerdict": "pending"
+  }
+}

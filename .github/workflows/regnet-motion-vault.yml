@@ -1,0 +1,32 @@
+name: Regnet Motion Vault Contract
+
+on:
+  pull_request:
+    paths:
+      - tools/regnet_*
+      - experiments/regnet-motion-vault/**
+      - .github/workflows/regnet-motion-vault.yml
+      - package.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile tools
+        run: |
+          python3 -m py_compile \
+            tools/regnet_motion_vault.py \
+            tools/regnet_capture_packet.py \
+            tools/bake_regnet_capture_blender.py \
+            tools/test_regnet_motion_vault.py \
+            tools/test_regnet_capture_packet.py
+      - name: Verify locked vault
+        run: python3 tools/test_regnet_motion_vault.py
+      - name: Verify sparse capture packet
+        run: python3 tools/test_regnet_capture_packet.py

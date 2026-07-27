@@ -79,6 +79,11 @@
     "inspect:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/inspect_swarmling_blend.py --",
     "build:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/export_swarmling_glb.py --",
     "export:swarmling-idle": "node scripts/export-swarmling-idle.mjs",
-    "audit:swarmling-actions": "node scripts/run-blender-tool.mjs tools/render_swarmling_action_audit_blender.py -- --blend authoring/swarmling/Swarmling.blend --out-dir generated/swarmling/action-audit"
+    "audit:swarmling-actions": "node scripts/run-blender-tool.mjs tools/render_swarmling_action_audit_blender.py -- --blend authoring/swarmling/Swarmling.blend --out-dir generated/swarmling/action-audit",
+    "regnet:vault": "python3 tools/regnet_motion_vault.py",
+    "regnet:capture": "python3 tools/regnet_capture_packet.py",
+    "regnet:capture:bake": "node scripts/run-blender-tool.mjs tools/bake_regnet_capture_blender.py --",
+    "test:regnet-vault": "python3 tools/test_regnet_motion_vault.py",
+    "test:regnet-capture": "python3 tools/test_regnet_capture_packet.py"
   }
 }

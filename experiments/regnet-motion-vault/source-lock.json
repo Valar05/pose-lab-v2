@@ -1,0 +1,44 @@
+{
+  "schema": "pose-lab-v2-regnet-source-lock-v1",
+  "character": "Regnet",
+  "sourceLabel": "Meshy AI The Iron Nomad",
+  "status": "source-locked",
+  "parentDriveFolder": {
+    "id": "1qWAgid1NHBGox29Yqb7pgPZqSnDXfJMD",
+    "name": "Fleshpunk — Great War"
+  },
+  "files": [
+    {
+      "role": "rig-and-motion-vault",
+      "driveFileId": "1G6PsdVS24Zw8kqiWZgzRlM22hE_UhkFd",
+      "name": "Meshy_AI_The_Iron_Nomad_biped (1).zip",
+      "mimeType": "application/x-zip-compressed",
+      "byteCount": 181652767,
+      "md5": "1569b7cce0ffdd7d547c4eb6b1aa7384",
+      "sha256": "4f4d7a973203e5f57493b7c6b7c41e5076bbe67f9164249cf107daa35b15c964",
+      "contents": {
+        "glbCount": 21,
+        "namedMotionCount": 20,
+        "baseCharacterCount": 1,
+        "commonSkinJointCount": 24,
+        "commonSkeletonSha256": "a8bbb6d345fda6b63d2f3be03c81f741e62be70f24268b680aac61afa3be4fb3"
+      },
+      "policy": "Preserve archive bytes. Do not commit 21 with-skin mesh duplicates. Index motion from the archive and publish only explicitly selected derived runtime assets."
+    },
+    {
+      "role": "static-textured-source",
+      "driveFileId": "1Q0G5CkIuIztx1Hvgp4Ndlfxre57MrjI8",
+      "name": "Meshy_AI_The_Iron_Nomad_0727071051_texture_obj.zip",
+      "mimeType": "application/x-zip-compressed",
+      "byteCount": 8548942,
+      "md5": "5fa3cb1ac45dfc942be7c0e49cb334ac",
+      "sha256": "43ada5f4211649c854cbafe04af15cce46f0467798b00abf2e0df922113f93c6",
+      "contents": {
+        "objCount": 1,
+        "mtlCount": 1,
+        "texturePngCount": 1
+      },
+      "policy": "Preserve as appearance and mesh provenance. It is not a motion authority."
+    }
+  ]
+}
