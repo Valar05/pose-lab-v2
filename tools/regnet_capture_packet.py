@@ -103,7 +103,19 @@ def normalized(frame: dict) -> dict:
         name: round(float(landmarks[name].get("confidence", 1.0)), 6)
         for name in JOINTS
     }
-    return {"positions": positions, "directions": directions, "confidence": confidence}
+    result = {"positions": positions, "directions": directions, "confidence": confidence}
+    image_landmarks = frame.get("imageLandmarks")
+    if image_landmarks:
+        missing_image = sorted(set(JOINTS) - set(image_landmarks))
+        if missing_image:
+            raise ValueError(
+                f"frame {frame.get('frame')}: image landmarks missing joints {missing_image}"
+            )
+        result["screenPositions"] = {
+            name: [round(axis, 6) for axis in point(image_landmarks[name])]
+            for name in JOINTS
+        }
+    return result
 
 
 def descriptor_distance(a: dict, b: dict, confidence: dict | None = None) -> float:
@@ -145,11 +157,70 @@ def local_maxima(values: list[float]) -> list[int]:
     ]
 
 
-def select_keys(frames: list[dict], count: int, duplicate_threshold: float) -> tuple[list[int], list[dict]]:
+def compression_semantics(frames: list[dict]) -> tuple[dict[int, list[str]], dict]:
+    if not all(frame.get("screenPositions") for frame in frames):
+        return {}, {
+            "status": "unavailable",
+            "reason": "provider supplied no normalized-image landmarks",
+        }
+    scores = []
+    for frame in frames:
+        screen = frame["screenPositions"]
+        support_y = (screen["LeftFoot"][1] + screen["RightFoot"][1]) * 0.5
+        scores.append(screen["Hips"][1] - support_y)
+    smoothed = [
+        sum(scores[max(0, index - 1):min(len(scores), index + 2)])
+        / len(scores[max(0, index - 1):min(len(scores), index + 2)])
+        for index in range(len(scores))
+    ]
+    low, high = min(smoothed), max(smoothed)
+    span = high - low
+    if span < 1e-5:
+        return {}, {
+            "status": "flat",
+            "metric": "pelvis image-y relative to mean ankle image-y",
+            "range": round(span, 6),
+        }
+    peak = max(range(len(frames)), key=lambda index: smoothed[index])
+    threshold = high - span * 0.08
+    start = peak
+    end = peak
+    while start > 0 and smoothed[start - 1] >= threshold:
+        start -= 1
+    while end + 1 < len(frames) and smoothed[end + 1] >= threshold:
+        end += 1
+    protected: dict[int, list[str]] = {peak: ["compression-peak"]}
+    if start < peak:
+        protected.setdefault(start, []).append("compression-plateau-entry")
+    if end > peak:
+        protected.setdefault(end, []).append("compression-plateau-exit")
+    return protected, {
+        "status": "available",
+        "metric": "smoothed pelvis image-y relative to mean ankle image-y",
+        "coordinateSpace": "normalized-image-y-down",
+        "nearPeakTolerance": 0.08,
+        "range": round(span, 6),
+        "peakFrame": frames[peak]["frame"],
+        "peakTimeSeconds": frames[peak]["timeSeconds"],
+        "plateauStartFrame": frames[start]["frame"],
+        "plateauStartTimeSeconds": frames[start]["timeSeconds"],
+        "plateauEndFrame": frames[end]["frame"],
+        "plateauEndTimeSeconds": frames[end]["timeSeconds"],
+    }
+
+
+def select_keys(
+    frames: list[dict],
+    count: int,
+    duplicate_threshold: float,
+) -> tuple[list[int], list[dict], dict[int, list[str]], dict]:
     if count >= len(frames):
-        return list(range(len(frames))), []
+        protected, semantics = compression_semantics(frames)
+        return list(range(len(frames))), [], protected, semantics
     energy = [frame["energy"] for frame in frames]
-    selected = {0, len(frames) - 1}
+    semantic_keys, semantics = compression_semantics(frames)
+    protected = {0, len(frames) - 1, *semantic_keys}
+    selected = set(protected)
     for index in sorted(local_maxima(energy), key=lambda item: energy[item], reverse=True):
         if len(selected) >= count:
             break
@@ -173,7 +244,7 @@ def select_keys(frames: list[dict], count: int, duplicate_threshold: float) -> t
             (descriptor_distance(frames[index], frames[other], frames[index]["confidence"]) for other in kept),
             default=math.inf,
         )
-        if index not in {0, len(frames) - 1} and nearest < duplicate_threshold:
+        if index not in protected and nearest < duplicate_threshold:
             rejected.append({
                 "frame": frames[index]["frame"],
                 "timeSeconds": frames[index]["timeSeconds"],
@@ -182,7 +253,7 @@ def select_keys(frames: list[dict], count: int, duplicate_threshold: float) -> t
             })
         else:
             kept.append(index)
-    return kept, rejected
+    return kept, rejected, semantic_keys, semantics
 
 
 def match_vault(frame: dict, vault: dict, limit: int) -> list[dict]:
@@ -200,15 +271,33 @@ def match_vault(frame: dict, vault: dict, limit: int) -> list[dict]:
     return matches[:limit]
 
 
-def contact_hypotheses(frames: list[dict], threshold: float = 0.025) -> list[dict]:
+def contact_hypotheses(frames: list[dict]) -> list[dict]:
     hypotheses = []
+    screen_space = all(frame.get("screenPositions") for frame in frames)
+    position_key = "screenPositions" if screen_space else "positions"
+    threshold = 0.20 if screen_space else 0.025
+    threshold_units = "normalized-image-units-per-second" if screen_space else "hip-relative-units-per-frame"
     for side in ("Left", "Right"):
         name = f"{side}Foot"
         active = None
         for index, frame in enumerate(frames):
-            speed = 0.0 if index == 0 else length(sub(
-                tuple(frame["positions"][name]), tuple(frames[index - 1]["positions"][name])
-            ))
+            if index == 0:
+                speed = 0.0
+            elif screen_space:
+                current = frame[position_key][name]
+                previous = frames[index - 1][position_key][name]
+                speed = math.hypot(
+                    current[0] - previous[0],
+                    current[1] - previous[1],
+                )
+            else:
+                speed = length(sub(
+                    tuple(frame[position_key][name]),
+                    tuple(frames[index - 1][position_key][name]),
+                ))
+            if screen_space and index > 0:
+                elapsed = frame["timeSeconds"] - frames[index - 1]["timeSeconds"]
+                speed /= max(elapsed, 1e-6)
             planted = speed <= threshold and frame["confidence"].get(name, 0.0) >= 0.5
             if planted and active is None:
                 active = index
@@ -221,6 +310,9 @@ def contact_hypotheses(frames: list[dict], threshold: float = 0.025) -> list[dic
                         "endFrame": frames[end]["frame"],
                         "startTimeSeconds": frames[active]["timeSeconds"],
                         "endTimeSeconds": frames[end]["timeSeconds"],
+                        "evidenceSpace": "normalized-image" if screen_space else "hip-relative-world",
+                        "speedThreshold": threshold,
+                        "speedThresholdUnits": threshold_units,
                         "status": "proposed-requires-human-review",
                     })
                 active = None
@@ -267,31 +359,38 @@ def extract_mediapipe(args: argparse.Namespace) -> None:
         if not result.pose_world_landmarks:
             frame_index += 1
             continue
-        raw = result.pose_world_landmarks.landmark
+        def mapped_points(raw: list, invert_y: bool) -> dict:
+            def get(which) -> dict:
+                item = raw[which.value]
+                return {
+                    "x": item.x,
+                    "y": -item.y if invert_y else item.y,
+                    "z": item.z,
+                    "confidence": min(item.visibility, item.presence),
+                }
 
-        def get(which) -> dict:
-            item = raw[which.value]
-            return {
-                "x": item.x, "y": -item.y, "z": item.z,
-                "confidence": min(item.visibility, item.presence),
-            }
+            points = {name: get(which) for name, which in direct.items()}
+            left_hip, right_hip = get(landmark.LEFT_HIP), get(landmark.RIGHT_HIP)
+            left_shoulder = get(landmark.LEFT_SHOULDER)
+            right_shoulder = get(landmark.RIGHT_SHOULDER)
+            hips = midpoint(left_hip, right_hip)
+            shoulders = midpoint(left_shoulder, right_shoulder)
+            points["LeftShoulder"] = between(shoulders, left_shoulder, 0.35)
+            points["RightShoulder"] = between(shoulders, right_shoulder, 0.35)
+            points["Hips"] = hips
+            points["Spine02"] = between(hips, shoulders, 0.28)
+            points["Spine01"] = between(hips, shoulders, 0.56)
+            points["Spine"] = between(hips, shoulders, 0.82)
+            points["neck"] = shoulders
+            return points
 
-        points = {name: get(which) for name, which in direct.items()}
-        left_hip, right_hip = get(landmark.LEFT_HIP), get(landmark.RIGHT_HIP)
-        left_shoulder, right_shoulder = get(landmark.LEFT_SHOULDER), get(landmark.RIGHT_SHOULDER)
-        hips = midpoint(left_hip, right_hip)
-        shoulders = midpoint(left_shoulder, right_shoulder)
-        points["LeftShoulder"] = between(shoulders, left_shoulder, 0.35)
-        points["RightShoulder"] = between(shoulders, right_shoulder, 0.35)
-        points["Hips"] = hips
-        points["Spine02"] = between(hips, shoulders, 0.28)
-        points["Spine01"] = between(hips, shoulders, 0.56)
-        points["Spine"] = between(hips, shoulders, 0.82)
-        points["neck"] = shoulders
+        points = mapped_points(result.pose_world_landmarks.landmark, invert_y=True)
+        image_points = mapped_points(result.pose_landmarks.landmark, invert_y=False)
         frames.append({
             "frame": frame_index,
             "timeSeconds": round(frame_index / fps, 6),
             "landmarks": points,
+            "imageLandmarks": image_points,
         })
         frame_index += 1
     output = {
@@ -337,7 +436,9 @@ def build_packet(args: argparse.Namespace) -> None:
         previous = record
     if len(frames) < 2:
         raise SystemExit("capture requires at least two landmark frames")
-    selected, rejected = select_keys(frames, args.keys, args.duplicate_threshold)
+    selected, rejected, semantic_keys, semantics = select_keys(
+        frames, args.keys, args.duplicate_threshold
+    )
     keyframes = []
     for order, index in enumerate(selected):
         frame = frames[index]
@@ -347,10 +448,16 @@ def build_packet(args: argparse.Namespace) -> None:
             "timeSeconds": frame["timeSeconds"],
             "energy": frame["energy"],
             "confidenceFloor": round(min(frame["confidence"].values()), 6),
+            "semanticRoles": semantic_keys.get(index, []),
             "descriptor": {
                 "positions": frame["positions"],
                 "directions": frame["directions"],
                 "confidence": frame["confidence"],
+                **(
+                    {"screenPositions": frame["screenPositions"]}
+                    if frame.get("screenPositions")
+                    else {}
+                ),
             },
             "nearestRegnetPoses": match_vault(frame, vault, args.matches),
             "status": "proposed",
@@ -373,10 +480,14 @@ def build_packet(args: argparse.Namespace) -> None:
             "skeletonSha256": vault["contract"]["skeletonSha256"],
         },
         "selection": {
-            "policy": "endpoints + energy extrema + confidence-weighted farthest-pose sampling",
+            "policy": (
+                "endpoints + protected compression plateau/peak + energy extrema "
+                "+ confidence-weighted farthest-pose sampling"
+            ),
             "requestedKeys": args.keys,
             "selectedKeys": len(keyframes),
             "duplicateThreshold": args.duplicate_threshold,
+            "semanticExtrema": semantics,
             "rejected": rejected,
         },
         "locks": {
