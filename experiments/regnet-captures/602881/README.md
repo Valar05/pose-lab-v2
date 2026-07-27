@@ -30,7 +30,7 @@ Both feet are now proposed as planted for frames 0 through 44.
 - `capture-packet.json`: eight sparse keys, retrieval candidates, contacts,
   timing, and acceptance boundary.
 - `diagnostic-regnet-sprint-stop.glb`: exact 24-joint geometry, skin, and
-  72-channel native prior with only the review texture reduced to 128×128 WebP.
+  72-channel native prior with only the review PNG texture reduced to 128×128.
 - `render-candidate-001.py`: hash-locked Blender job with the exact direction
   packet embedded for authenticated repository rendering.
 
