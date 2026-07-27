@@ -47,7 +47,33 @@
     "baseEntry": "Meshy_AI_The_Iron_Nomad_biped/Meshy_AI_The_Iron_Nomad_biped_Character_output.glb",
     "baseSha256": "ec5e086b751acdfbed9c98b83ac01cc5bfee444e73b359ce91356969e0902b95",
     "nativePriorEntry": "Meshy_AI_The_Iron_Nomad_biped/Meshy_AI_The_Iron_Nomad_biped_Animation_Sprint_and_Sudden_Stop_withSkin.glb",
-    "nativePriorSha256": "cd94cff1a5c04e49e34cc914052ad2c5ca7533a4f9fcd4e01a3822f6c478020f"
+    "nativePriorSha256": "cd94cff1a5c04e49e34cc914052ad2c5ca7533a4f9fcd4e01a3822f6c478020f",
+    "diagnosticDerivative": {
+      "path": "diagnostic-regnet-sprint-stop.glb",
+      "sha256": "f5f0043159d0bc21c66c75bfcd7129c25595432858f8ccf378e69146313c84c0",
+      "sizeBytes": 648804,
+      "tool": "gltf-transform 4.4.2",
+      "operations": ["dedup", "textureCompress webp 128x128"],
+      "geometrySimplified": false,
+      "animationResampled": false,
+      "structuralMatch": {
+        "nodes": 26,
+        "skinJoints": 24,
+        "meshes": 1,
+        "primitives": 1,
+        "animationChannels": 72,
+        "animationSamplers": 72,
+        "animationKeyframes": 2904
+      },
+      "validator": {
+        "errors": 0,
+        "warnings": 1
+      }
+    },
+    "candidate001Renderer": {
+      "path": "render-candidate-001.py",
+      "sha256": "166326effc0897d5eb1edb45d65c3448f70f3b5cca91a8162109f060423edaac"
+    }
   },
   "acceptance": {
     "authoringRender": "pending",
