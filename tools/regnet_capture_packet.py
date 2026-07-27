@@ -311,6 +311,14 @@ def build_packet(args: argparse.Namespace) -> None:
     video = Path(args.video).resolve() if args.video else None
     source = json.loads(landmark_path.read_text())
     vault = json.loads(vault_path.read_text())
+    if vault.get("shards"):
+        clips = []
+        for shard in vault["shards"]:
+            path = vault_path.parent / shard["path"]
+            if sha256(path) != shard["sha256"]:
+                raise SystemExit(f"vault shard hash mismatch: {path}")
+            clips.extend(json.loads(path.read_text())["clips"])
+        vault["clips"] = clips
     if source.get("schema") != LANDMARK_SCHEMA:
         raise SystemExit(f"landmarks must use {LANDMARK_SCHEMA}")
     if vault.get("schema") != "pose-lab-v2-regnet-motion-vault-v1":
