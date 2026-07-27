@@ -16,6 +16,11 @@ TOOL = ROOT / "tools/regnet_capture_packet.py"
 
 def main() -> None:
     vault = json.loads(VAULT.read_text())
+    if vault.get("shards"):
+        clips = []
+        for shard in vault["shards"]:
+            clips.extend(json.loads((VAULT.parent / shard["path"]).read_text())["clips"])
+        vault["clips"] = clips
     clip = next(item for item in vault["clips"] if item["title"] == "Punch Combo")
     samples = clip["samples"]
     frames = []
