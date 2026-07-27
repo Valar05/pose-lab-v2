@@ -31,14 +31,20 @@ The archives remain source authority in Drive.
 - `tools/regnet_capture_packet.py`
   - optionally extracts MediaPipe world landmarks;
   - accepts provider-neutral landmark JSON;
-  - selects sparse keys;
+  - retains normalized-image landmarks for contact and compression evidence;
+  - protects compression plateau entry, peak, and exit as sparse semantic keys;
   - rejects near duplicates;
   - retrieves closest native Regnet poses;
-  - proposes foot-contact intervals.
+  - proposes foot-contact intervals from stationary-camera image motion rather
+    than hip-relative world coordinates.
 - `tools/bake_regnet_capture_blender.py`
   - imports Regnet's final rig;
   - initializes each key from the closest native Regnet pose;
   - blends capture direction with the native prior;
+  - maps stationary-camera pelvis-to-ankle compression onto target pelvis
+    height when support contacts exist;
+  - drives only anatomical bone chains, never a pelvis/spine bone toward
+    multiple branch children;
   - applies target-length foot-contact solves;
   - bakes sparse keys;
   - writes fixed and orthogonal evidence, BLEND, GLB, and a quarantined manifest.
@@ -51,25 +57,41 @@ The archives remain source authority in Drive.
 - Sparse capture/retrieval contract test passes.
 - Python compilation passes.
 
+## Real capture 602881
+
+- Library source: `libfile_279aa4a215f48191aafda2a511bd918e`
+- Video SHA-256:
+  `03b8a9ce13da609b7410a950b910064c2bcf0e24a0d3adfd38bcd7b081a0bf09`
+- Working action: `RegnetSquatCapture001`
+- Boundary: frames `0..44` at 24 fps; weaponless; non-looping.
+- Heavy MediaPipe model tracked 45/45 decoded frames.
+- The first generic packet was rejected before Blender: it skipped the bottom
+  hold and fragmented two visibly planted feet into five false intervals.
+- The repaired packet protects frames 22, 28, and 31 for the compression
+  plateau and proposes both foot contacts from frame 0 through 44.
+- Exact capture evidence lives in
+  `experiments/regnet-captures/602881/`.
+
 ## Not yet claimed
 
-- No human performance capture has been supplied in this lane.
-- No Regnet candidate has been baked from a real capture.
 - No Blender render has been visually accepted.
 - No hosted Pose Lab route exists for a capture-directed clip.
 - Human verdict is pending.
 
 ## Next exact move
 
-1. Record or attach one short, locked-camera performance.
-2. Name the action boundary and whether it loops.
-3. Extract landmarks without saving anonymous image frames.
-4. Build the direction packet and review its sparse contact sheet/timestamps.
-5. Bake candidate 001 on Regnet's final rig.
-6. Inspect fixed-camera and orthogonal renders.
-7. Publish the exact GLB to an immutable Pose Lab route.
-8. Create `pose-lab-v2-review-bundle-v1`.
-9. Ask Drew for the visible verdict.
+1. Materialize the locked biped ZIP from Drive ID
+   `1G6PsdVS24Zw8kqiWZgzRlM22hE_UhkFd`.
+2. Verify SHA-256
+   `4f4d7a973203e5f57493b7c6b7c41e5076bbe67f9164249cf107daa35b15c964`.
+3. Run `tools/bake_regnet_capture_blender.py` with the base character GLB,
+   locked ZIP, and
+   `experiments/regnet-captures/602881/capture-packet.json`.
+4. Inspect every fixed-camera key plus an orthogonal compression key.
+5. Reject locally if pelvis depth, knees, foot locks, balance, or arm guard fail.
+6. Publish only the exact surviving GLB to an immutable Pose Lab route.
+7. Create `pose-lab-v2-review-bundle-v1`.
+8. Ask Drew for the visible verdict.
 
 If candidate 001 looks bad, preserve it under `rejected/` with the failing key,
 authority, observed defect, and required repair. Do not increase smoothing,
