@@ -404,6 +404,28 @@ def build(args: argparse.Namespace) -> None:
         "rejected": [],
     }
     output.parent.mkdir(parents=True, exist_ok=True)
+    if args.shard_size:
+        shard_dir = output.parent / f"{output.stem}-shards"
+        shard_dir.mkdir(parents=True, exist_ok=True)
+        shards = []
+        for start in range(0, len(clips), args.shard_size):
+            shard_clips = clips[start : start + args.shard_size]
+            shard_path = shard_dir / f"clips-{start // args.shard_size + 1:03d}.json"
+            shard = {
+                "schema": "pose-lab-v2-regnet-motion-vault-shard-v1",
+                "sourceArchiveSha256": result["source"]["sha256"],
+                "skeletonSha256": result["contract"]["skeletonSha256"],
+                "clips": shard_clips,
+            }
+            shard_path.write_text(json.dumps(shard, indent=2) + "\n")
+            shards.append({
+                "path": str(shard_path.relative_to(output.parent)),
+                "sha256": sha256_file(shard_path),
+                "clipIds": [clip["id"] for clip in shard_clips],
+            })
+        result["clipCount"] = len(clips)
+        result["shards"] = shards
+        result["clips"] = []
     output.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps({
         "output": str(output),
@@ -422,11 +444,14 @@ def main() -> None:
     parser.add_argument("--drive-file-id")
     parser.add_argument("--drive-md5")
     parser.add_argument("--source-uri")
+    parser.add_argument("--shard-size", type=int, default=0)
     args = parser.parse_args()
     if args.samples < 4 or args.samples > 120:
         parser.error("--samples must be between 4 and 120")
     if args.probe_samples < args.samples or args.probe_samples > 240:
         parser.error("--probe-samples must be between --samples and 240")
+    if args.shard_size < 0 or args.shard_size > 100:
+        parser.error("--shard-size must be between 0 and 100")
     build(args)
 
 
