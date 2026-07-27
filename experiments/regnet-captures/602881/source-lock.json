@@ -72,7 +72,8 @@
     },
     "candidate001Renderer": {
       "path": "render-candidate-001.py",
-      "sha256": "166326effc0897d5eb1edb45d65c3448f70f3b5cca91a8162109f060423edaac"
+      "sha256": "8ba0fd2a5be1770b53c68049803faa585e19265eaec110c0e1a3a169229635b0",
+      "hostContract": "input.glb output_dir settings.json script-output-manifest.json"
     }
   },
   "acceptance": {
