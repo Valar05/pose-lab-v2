@@ -27,7 +27,13 @@ def main() -> None:
         default=str(Path(__file__).resolve().parents[1] / "experiments/regnet-motion-vault/vault.json"),
     )
     args = parser.parse_args()
-    vault = json.loads(Path(args.vault).read_text())
+    vault_path = Path(args.vault)
+    vault = json.loads(vault_path.read_text())
+    if vault.get("shards"):
+        clips = []
+        for shard in vault["shards"]:
+            clips.extend(json.loads((vault_path.parent / shard["path"]).read_text())["clips"])
+        vault["clips"] = clips
     assert vault["schema"] == "pose-lab-v2-regnet-motion-vault-v1"
     assert vault["status"] == "indexed-not-human-accepted"
     assert vault["source"]["sha256"] == EXPECTED_ARCHIVE_SHA256
