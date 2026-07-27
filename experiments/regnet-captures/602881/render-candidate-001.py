@@ -8,7 +8,9 @@ import gzip
 import hashlib
 import json
 import math
+import re
 import sys
+import traceback
 from pathlib import Path
 
 import bpy
@@ -80,6 +82,27 @@ def locate_glb() -> Path:
     if sha256(source) != EXPECTED_INPUT_SHA256:
         raise RuntimeError("host-supplied Regnet GLB hash mismatch")
     return source
+
+
+def render_arguments() -> tuple[Path, Path, Path, Path]:
+    args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
+    if len(args) < 4:
+        raise RuntimeError(
+            "Expected arguments: input.glb output_dir settings.json "
+            "script-output-manifest.json"
+        )
+    source = Path(args[0]).resolve()
+    output_dir = Path(args[1]).resolve()
+    settings_path = Path(args[2]).resolve()
+    manifest_path = Path(args[3]).resolve()
+    if not source.is_file() or source.suffix.lower() != ".glb":
+        raise FileNotFoundError(f"Host-supplied Regnet GLB not found: {source}")
+    if source.read_bytes()[:4] != b"glTF":
+        raise RuntimeError("host-supplied input is not a binary glTF")
+    if sha256(source) != EXPECTED_INPUT_SHA256:
+        raise RuntimeError("host-supplied Regnet GLB hash mismatch")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return source, output_dir, settings_path, manifest_path
 
 
 def clear_scene() -> None:
@@ -310,13 +333,11 @@ def render_evidence(
 
 
 def main() -> None:
-    target_path = locate_glb()
+    target_path, out, _settings_path, script_manifest_path = render_arguments()
     packet_bytes = gzip.decompress(base64.b64decode(PACKET_GZIP_BASE64))
     if sha256_bytes(packet_bytes) != EXPECTED_PACKET_SHA256:
         raise RuntimeError("embedded capture packet hash mismatch")
     packet = json.loads(packet_bytes)
-    out = Path.cwd() / "regnet-squat-candidate-001"
-    out.mkdir(parents=True, exist_ok=True)
     if packet.get("schema") != "pose-lab-v2-regnet-capture-direction-v1":
         raise RuntimeError("not a Regnet capture direction packet")
     if {item["clipTitle"] for key in packet["keyframes"] for item in key["nearestRegnetPoses"][:1]} != {
@@ -489,8 +510,75 @@ def main() -> None:
     }
     manifest_path = out / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+    rendered_frames = [item["path"] for item in evidence]
+    fixed_camera = [
+        item["path"] for item in evidence if item["view"] == "locked"
+    ]
+    diagnostic_views = [
+        item["path"] for item in evidence if item["view"] == "orthogonal"
+    ]
+    script_manifest_path.write_text(
+        json.dumps(
+            {
+                "renderedFrames": rendered_frames,
+                "fixedCameraRenders": fixed_camera,
+                "diagnosticViewRenders": diagnostic_views,
+                "nativePoseAnimationData": manifest_path.name,
+                "threeDArtifacts": [glb.name],
+                "modifiedBlend": blend.name,
+                "animatedGlb": glb.name,
+                "evidenceFrames": [
+                    item["bakedFrame"] for item in frame_map
+                ],
+            },
+            indent=2,
+        ),
+        "utf-8",
+    )
     print(json.dumps({"ok": True, "manifest": str(manifest_path), "glb": str(glb)}, indent=2))
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        try:
+            _, output_dir, _, script_manifest_path = render_arguments()
+            error_path = output_dir / "renderer-error.json"
+            error_path.write_text(
+                json.dumps(
+                    {
+                        "schema": "pose-lab-v2-regnet-render-error-v1",
+                        "exceptionType": type(exc).__name__,
+                        "message": str(exc),
+                        "traceback": traceback.format_exc(),
+                    },
+                    indent=2,
+                ),
+                "utf-8",
+            )
+            slug = re.sub(
+                r"[^A-Za-z0-9_.-]+",
+                "-",
+                f"{type(exc).__name__}-{exc}",
+            ).strip("-")[:150]
+            diagnostic_name = f"ERROR-{slug or 'unknown'}.txt"
+            diagnostic_path = output_dir / diagnostic_name
+            diagnostic_path.write_text(str(exc), "utf-8")
+            script_manifest_path.write_text(
+                json.dumps(
+                    {
+                        "renderedFrames": [],
+                        "fixedCameraRenders": [],
+                        "diagnosticViewRenders": [],
+                        "nativePoseAnimationData": error_path.name,
+                        "threeDArtifacts": [],
+                        "evidenceFrames": [],
+                    },
+                    indent=2,
+                ),
+                "utf-8",
+            )
+            print(f"SCRIPT_ERROR {type(exc).__name__}: {exc}")
+        finally:
+            raise
