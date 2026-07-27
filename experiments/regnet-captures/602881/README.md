@@ -29,9 +29,20 @@ Both feet are now proposed as planted for frames 0 through 44.
 - `landmarks.json`: all 45 provider landmarks, without decoded image frames.
 - `capture-packet.json`: eight sparse keys, retrieval candidates, contacts,
   timing, and acceptance boundary.
+- `diagnostic-regnet-sprint-stop.glb`: exact 24-joint geometry, skin, and
+  72-channel native prior with only the review texture reduced to 128×128 WebP.
+- `render-candidate-001.py`: hash-locked Blender job with the exact direction
+  packet embedded for authenticated repository rendering.
 
 The 45 decoded JPEGs and contact-sheet experiments were scratch evidence. They
 are deliberately not committed.
+
+The diagnostic GLB is not a replacement source asset. It exists because the
+direct Work Mode host-file upload rejected locally generated file paths and the
+configured one-shot worker is non-routable. Its structure matches the
+authoritative GLB: 26 named nodes, 24 skin joints, one unchanged 10,256-vertex
+mesh, and one 72-channel/2,904-keyframe animation. Geometry was not simplified
+and animation was not resampled.
 
 ## Next exact command
 
