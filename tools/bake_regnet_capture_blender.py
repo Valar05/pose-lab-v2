@@ -25,13 +25,13 @@ JOINTS = (
 BONES = (
     ("Hips", "Spine02"), ("Spine02", "Spine01"), ("Spine01", "Spine"),
     ("Spine", "neck"), ("neck", "Head"),
-    ("Spine", "LeftShoulder"), ("LeftShoulder", "LeftArm"),
+    ("LeftShoulder", "LeftArm"),
     ("LeftArm", "LeftForeArm"), ("LeftForeArm", "LeftHand"),
-    ("Spine", "RightShoulder"), ("RightShoulder", "RightArm"),
+    ("RightShoulder", "RightArm"),
     ("RightArm", "RightForeArm"), ("RightForeArm", "RightHand"),
-    ("Hips", "LeftUpLeg"), ("LeftUpLeg", "LeftLeg"),
+    ("LeftUpLeg", "LeftLeg"),
     ("LeftLeg", "LeftFoot"),
-    ("Hips", "RightUpLeg"), ("RightUpLeg", "RightLeg"),
+    ("RightUpLeg", "RightLeg"),
     ("RightLeg", "RightFoot"),
 )
 SCHEMA = "pose-lab-v2-regnet-capture-bake-v1"
@@ -143,6 +143,26 @@ def set_direction(rig: bpy.types.Object, bone_name: str, desired: Vector) -> Non
         head, rotation, Vector((1, 1, 1))
     )
     bpy.context.view_layer.update()
+
+
+def set_world_head_z(rig: bpy.types.Object, bone_name: str, world_z: float) -> None:
+    bone = rig.pose.bones[bone_name]
+    world = rig.matrix_world @ bone.matrix
+    world.translation.z = world_z
+    bone.matrix = rig.matrix_world.inverted() @ world
+    bpy.context.view_layer.update()
+
+
+def compression_ratio(key: dict, baseline: dict) -> float:
+    if not key["descriptor"].get("screenPositions"):
+        return 1.0
+
+    def pelvis_to_support(item: dict) -> float:
+        screen = item["descriptor"]["screenPositions"]
+        support_y = (screen["LeftFoot"][1] + screen["RightFoot"][1]) * 0.5
+        return max(1e-6, support_y - screen["Hips"][1])
+
+    return max(0.35, min(1.15, pelvis_to_support(key) / pelvis_to_support(baseline)))
 
 
 def solve_two_bone(root: Vector, target: Vector, pole: Vector, upper: float, lower: float) -> tuple[Vector, Vector]:
@@ -292,6 +312,9 @@ def main() -> None:
     scene.render.fps = args.fps
     anchors: dict[str, Vector] = {}
     frame_map = []
+    baseline_key = packet["keyframes"][0]
+    baseline_hip_z = None
+    support_z = None
 
     with tempfile.TemporaryDirectory() as temp, zipfile.ZipFile(archive_path) as archive:
         sources: dict[str, tuple[bpy.types.Object, bpy.types.Action]] = {}
@@ -316,6 +339,23 @@ def main() -> None:
             bpy.context.view_layer.update()
             copy_native_pose(source, target)
 
+            contacts = key_contacts(packet, key["sourceFrame"])
+            for joint in contacts:
+                anchors.setdefault(joint, world_head(target, joint))
+            support_names = [
+                name for name in ("LeftFoot", "RightFoot")
+                if name in anchors
+            ]
+            ratio = compression_ratio(key, baseline_key)
+            if support_names:
+                if baseline_hip_z is None:
+                    baseline_hip_z = world_head(target, "Hips").z
+                    support_z = sum(anchors[name].z for name in support_names) / len(support_names)
+                desired_hip_z = support_z + (baseline_hip_z - support_z) * ratio
+                set_world_head_z(target, "Hips", desired_hip_z)
+            else:
+                desired_hip_z = world_head(target, "Hips").z
+
             target_points = {name: world_head(target, name) for name in JOINTS}
             target_basis = basis(target_points)
             confidence = key["descriptor"]["confidence"]
@@ -330,8 +370,7 @@ def main() -> None:
                 if blended.length > 1e-8:
                     set_direction(target, start, blended)
 
-            for joint in key_contacts(packet, key["sourceFrame"]):
-                anchors.setdefault(joint, world_head(target, joint))
+            for joint in contacts:
                 if joint == "LeftFoot":
                     apply_contact_lock(target, "LeftUpLeg", "LeftLeg", joint, anchors[joint])
                 elif joint == "RightFoot":
@@ -357,7 +396,10 @@ def main() -> None:
                 "timeSeconds": key["timeSeconds"],
                 "bakedFrame": baked_frame,
                 "nativePrior": match,
-                "contacts": key_contacts(packet, key["sourceFrame"]),
+                "semanticRoles": key.get("semanticRoles", []),
+                "contacts": contacts,
+                "compressionRatio": round(ratio, 6),
+                "hipsWorldZ": round(desired_hip_z, 6),
             })
 
     scene.frame_start = frame_map[0]["bakedFrame"]
@@ -398,6 +440,10 @@ def main() -> None:
             "lane": "native-pose-prior-plus-capture-directed-final-rig",
             "strength": args.strength,
             "fps": args.fps,
+            "pelvisDepthPolicy": (
+                "when stationary-camera screen landmarks and support contacts exist, "
+                "map pelvis-to-ankle image ratio onto final-rig pelvis height"
+            ),
             "keys": frame_map,
             "contactAnchors": {name: list(value) for name, value in anchors.items()},
             "interpolation": "LINEAR pending sparse-key visual acceptance",
