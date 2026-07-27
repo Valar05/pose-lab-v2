@@ -93,10 +93,14 @@ python3 tools/regnet_capture_packet.py build \
   --weapon none
 ```
 
-Selection preserves the endpoints, motion-energy extrema, and the most distinct
-remaining poses. Near duplicates are recorded as rejected evidence. Each selected
-key carries its closest poses from Regnet's own motion library, but those matches
-are suggestions rather than animation keys.
+Selection preserves endpoints, normalized-image compression plateau entry/peak/
+exit when available, motion-energy extrema, and the most distinct remaining
+poses. Near duplicates are recorded as rejected evidence, except protected
+semantic boundaries that preserve a real hold. Foot contacts come from
+stationary-camera ankle motion in image space; hip-relative world landmarks
+cannot distinguish a planted squat from moving feet. Each selected key carries
+its closest poses from Regnet's own motion library, but those matches are
+suggestions rather than animation keys.
 
 ## Required downstream authoring
 
@@ -126,10 +130,11 @@ blender --background --python tools/bake_regnet_capture_blender.py -- \
 ```
 
 The Blender pass initializes every capture key from the closest pose on Regnet's
-own identical skeleton, blends capture directions into that sane native prior,
-locks proposed foot contacts with target-length two-bone solves, bakes only the
-sparse keys, and emits fixed-camera plus orthogonal evidence. The output remains
-quarantined.
+own identical skeleton, maps fixed-camera pelvis compression onto target pelvis
+height when support contacts exist, blends capture directions into that sane
+native prior, drives only anatomical bone chains, locks proposed foot contacts
+with target-length two-bone solves, bakes only the sparse keys, and emits
+fixed-camera plus orthogonal evidence. The output remains quarantined.
 
 ## Waste policy
 
