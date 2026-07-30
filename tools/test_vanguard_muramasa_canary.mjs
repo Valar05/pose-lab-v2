@@ -26,6 +26,8 @@ const capture = fs.readFileSync(at('tools', 'capture_sprite_review.mjs'), 'utf8'
 const refine = fs.readFileSync(at('tools', 'refine_vanguard_muramasa_canary.py'), 'utf8');
 const attempt1Cloud = json(...base, 'evidence', 'cloud-review', 'muramasa-canary-001-attempt-001', 'report.json');
 const attempt1CloudImage = bytes(...base, 'evidence', 'cloud-review', 'muramasa-canary-001-attempt-001', 'synchronized-pose-lab-comparison.png');
+const attempt2Cloud = json(...base, 'evidence', 'cloud-review', 'muramasa-canary-001-attempt-002', 'report.json');
+const attempt2CloudImage = bytes(...base, 'evidence', 'cloud-review', 'muramasa-canary-001-attempt-002', 'synchronized-pose-lab-comparison.png');
 
 assert(JSON.stringify(config.initialCorrectiveAttachments) === JSON.stringify(initial), 'initial three-attachment lock changed');
 assert(JSON.stringify(parts.correctiveAttachments.map(({ id }) => id)) === JSON.stringify(current), 'current vocabulary must contain exactly three initial plus one synchronized-evidence correction');
@@ -38,6 +40,8 @@ assert(rearForearm.id === 'rear_forearm_foreshortened' && rearForearm.attempts.l
 assert(rearForearm.gateEvidence.runId === '30581078830' && rearForearm.gateEvidence.cloudCaptureSha256 === '462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48', 'fourth attachment must cite the synchronized cloud comparison');
 assert(parts.correctiveAttachments.every((item) => item.attempts.at(-1).reuseDisposition.includes('retain-in-vanguard-vocabulary')), 'every current correction must carry a later-reuse disposition');
 assert(parts.correctiveAttachments.every((item) => item.attempts.at(-1).performanceChanged === false), 'attachment iteration must not alter approved performance');
+assert(parts.correctiveAttachments.every((item) => item.attempts.at(-1).state === 'synchronized-pose-lab-red'), 'attempt 2 must close as synchronized RED for all four recorded attachments');
+assert(parts.additionPolicy.latestSynchronizedComparison.runId === '30582812601' && parts.additionPolicy.latestSynchronizedComparison.attachmentAdded === false, 'attempt 2 must record the cloud failure without authorizing a fifth attachment');
 
 assert(manifest.reviewState.startsWith('RED'), 'canary must remain visibly quarantined');
 assert(manifest.attemptId === 'muramasa-canary-001-attempt-002', 'manifest must expose attempt 2');
@@ -67,6 +71,14 @@ assert(attempt1Cloud.captures[0].clean.sha256 === '462130acac6d229e6f73661a3cddd
 assert(attempt1Cloud.captures[0].clean.inspection.synchronizedComparison === true, 'attempt-1 cloud comparison must remain synchronized');
 assert(size(attempt1CloudImage).width === 1366 && size(attempt1CloudImage).height === 900, 'cloud comparison must retain the captured review viewport');
 assert(hash(attempt1CloudImage) === '462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48', 'attempt-1 cloud image bytes changed');
+assert(attempt2Cloud.captures[0].clean.sha256 === '2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49', 'attempt-2 cloud report hash changed');
+assert(attempt2Cloud.captures[0].clean.inspection.synchronizedComparison === true && attempt2Cloud.captures[0].clean.inspection.candidateSourceFrame === '42', 'attempt-2 cloud comparison must remain synchronized on source frame 42');
+assert(size(attempt2CloudImage).width === 1366 && size(attempt2CloudImage).height === 900, 'attempt-2 cloud comparison must retain the captured viewport');
+assert(hash(attempt2CloudImage) === '2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49', 'attempt-2 cloud image bytes changed');
+assert(validation.technicalState === 'synchronized-visual-gate-red' && validation.latestSynchronizedComparison.attachmentAdded === false, 'validation must fail closed without a fifth attachment');
+assert(provenance.homeCenterAttempt2.artifact.sha256 === 'dc71881702d153f40bce8da31a98936c8217075fd71194af986f8fe286408e6e' && provenance.homeCenterAttempt2.artifact.readbackVerified === true, 'attempt-2 blend must be byte-verified in Home Center');
+assert(provenance.homeCenterAttempt2.workspace.workspaceId === 'bws_64d66aedecf413cbf3393bf9a7a503' && provenance.homeCenterAttempt2.workspace.revisionId === 'brv_f2e3a8f680ca316ac749c13fbfac88', 'attempt-2 Home Center workspace identity changed');
+assert(provenance.homeCenterAttempt2.workspace.inspectionReadback.correctiveAttachmentObjectCount === 4 && provenance.homeCenterAttempt2.workspace.inspectionReadback.reviewedTimelineFrameRange[1] === 254, 'live Home Center inspection must read four corrections and the complete reviewed timeline');
 assert(refine.includes('image_angle(left_wrist, right_wrist)') && refine.includes('performance_changed') && refine.includes('rear_forearm_foreshortened'), 'attempt-2 Blender correction must use reviewed wrists, forbid performance change, and add only the rear forearm');
 
 assert(viewer.includes("document.body.dataset.synchronizedComparison"), 'viewer must expose synchronized-comparison readiness');

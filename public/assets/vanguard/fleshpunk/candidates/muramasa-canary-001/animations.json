@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-2d-animation-set-v1",
   "character": "Fleshpunk Vanguard",
   "defaultAnimation": "oberhau-hardest-key-canary-001",
-  "reviewState": "RED — attempt 2 synchronized review required; Drew acceptance pending",
+  "reviewState": "RED — attempt 2 synchronized failure; no fifth attachment authorized",
   "frameSpace": {
     "width": 512,
     "height": 512,
@@ -45,7 +45,8 @@
         "approved performance is immutable",
         "3 anticipated corrective attachments plus 1 synchronized-evidence correction",
         "rear_forearm_foreshortened justified by cloud run 30581078830",
-        "no further correction without a new synchronized visible failure"
+        "attempt 2 cloud comparison remains RED across facing, foreshortening, grip, contact, overlap, and silhouette",
+        "no fifth attachment: current failures must first be repaired through the existing four-part vocabulary and transform adjudication"
       ],
       "evidence": [
         {
@@ -83,6 +84,10 @@
         {
           "label": "Attempt 1 synchronized RED",
           "src": "evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png"
+        },
+        {
+          "label": "Attempt 2 synchronized RED",
+          "src": "evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png"
         }
       ]
     }

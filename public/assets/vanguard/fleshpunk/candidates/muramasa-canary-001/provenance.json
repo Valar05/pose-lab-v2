@@ -1,7 +1,7 @@
 {
   "schema": "vanguard-muramasa-canary-provenance-v1",
   "attemptId": "muramasa-canary-001-attempt-002",
-  "status": "quarantined-red-attempt-002-awaiting-second-synchronized-pose-lab-review",
+  "status": "quarantined-synchronized-red-attempt-002",
   "humanAccepted": false,
   "assetClasses": {
     "hardest-key-candidate.png": "Blender-rendered diagnostic candidate from canonical idle pixels",
@@ -24,13 +24,14 @@
   ],
   "additionPolicy": "Further corrections require a synchronized Pose Lab facing, foreshortening, grip, contact, overlap, or silhouette failure. Approved performance may not be altered to meet an attachment quota.",
   "localVisualDiagnostic": {
-    "classification": "diagnostic-only; not the synchronized or human acceptance lane",
+    "classification": "diagnostic-only; superseded by synchronized cloud attempt 2",
     "observed": [
-      "attempt-2 rear elbow-to-wrist surface now reaches the overhead hand cluster",
-      "attempt-1 duplicate broad grip and blade fragment is removed",
-      "full character still requires synchronized Pose Lab review and remains RED"
+      "facing/grip: candidate sword vector opposes the approved synchronized witness and requires authority/transform adjudication before artwork changes",
+      "overlap/silhouette: torso, pelvis, and raised-arm chain remain visibly fragmented",
+      "contact/foreshortening: raised forearm-to-grip and rear boot-to-shin interfaces remain detached or untruthful",
+      "silhouette: the candidate does not reproduce the approved key screen-space mass or continuous lunge silhouette"
     ],
-    "action": "publish attempt 2 for synchronized Pose Lab comparison; add no fifth attachment before that evidence"
+    "action": "add no fifth attachment; adjudicate weapon-facing transform and revise the four existing attachment interfaces without changing source frame, timestamps, root, wrists, feet, or support state"
   },
   "homeCenter": {
     "registryVersion": "2026-07-30.github-artifact-delivery-v1",
@@ -88,6 +89,23 @@
         "rear boot-to-leg contact remained detached"
       ],
       "humanAccepted": false
+    },
+    {
+      "attemptId": "muramasa-canary-001-attempt-002",
+      "runId": "30582812601",
+      "capturedAt": "2026-07-30T21:18:11.104Z",
+      "imageSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+      "candidateSourceFrame": 42,
+      "witnessSourceFrame": 42,
+      "state": "RED",
+      "failures": [
+        "facing/grip: candidate sword vector opposes the approved synchronized witness and requires authority/transform adjudication before artwork changes",
+        "overlap/silhouette: torso, pelvis, and raised-arm chain remain visibly fragmented",
+        "contact/foreshortening: raised forearm-to-grip and rear boot-to-shin interfaces remain detached or untruthful",
+        "silhouette: the candidate does not reproduce the approved key screen-space mass or continuous lunge silhouette"
+      ],
+      "attachmentAdded": false,
+      "humanAccepted": false
     }
   ],
   "attempt2": {
@@ -112,7 +130,79 @@
       ],
       "candidateSha256": "50e5aa74d2f33243b94855cb92da2326723832336d9fb6aa9e2dd63bfc6c76e6"
     },
-    "state": "local-diagnostic-ready-for-second-synchronized-cloud-comparison",
-    "humanAccepted": false
+    "state": "synchronized-cloud-red",
+    "humanAccepted": false,
+    "cloudComparison": {
+      "runId": "30582812601",
+      "capturedAt": "2026-07-30T21:18:11.104Z",
+      "imageSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+      "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png",
+      "failureClasses": [
+        "facing",
+        "foreshortening",
+        "grip",
+        "contact",
+        "overlap",
+        "silhouette"
+      ],
+      "attachmentAdded": false
+    },
+    "nextAction": "No fifth attachment. Repair/adjudicate weapon-facing mapping and revise existing torso, grip, forearm, and boot interfaces without changing approved performance.",
+    "homeCenter": {
+      "artifact": {
+        "artifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
+        "durableRef": "home-center://artifacts/vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
+        "byteLength": 95140148,
+        "sha256": "dc71881702d153f40bce8da31a98936c8217075fd71194af986f8fe286408e6e",
+        "readbackVerified": true,
+        "requestId": "vanguard-muramasa-attempt-002-blend-resumable-20260730-v1"
+      },
+      "workspace": {
+        "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
+        "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88",
+        "operationId": "bop_1429fb07a66f198a902cb517d9320f",
+        "containerRevision": "home-center-blender-00009-glr",
+        "blenderVersion": "4.5.12 LTS",
+        "sceneBlendSha256": "60425782f516a63ee7e6d3f0a7b831025f46b64553bed99d65ca9b6b8c79d346",
+        "inspectionSha256": "501cd87b741579557a700e3e2c207d08ed65a0d5ef2e72e07cb369d2d12c3816",
+        "inspectionReadback": {
+          "correctiveAttachmentObjectCount": 4,
+          "reviewedTimelineFrameRange": [
+            1,
+            254
+          ],
+          "currentRevisionMatched": true,
+          "humanAcceptance": "unreviewed"
+        }
+      }
+    }
+  },
+  "homeCenterAttempt2": {
+    "artifact": {
+      "artifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
+      "durableRef": "home-center://artifacts/vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
+      "byteLength": 95140148,
+      "sha256": "dc71881702d153f40bce8da31a98936c8217075fd71194af986f8fe286408e6e",
+      "readbackVerified": true,
+      "requestId": "vanguard-muramasa-attempt-002-blend-resumable-20260730-v1"
+    },
+    "workspace": {
+      "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
+      "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88",
+      "operationId": "bop_1429fb07a66f198a902cb517d9320f",
+      "containerRevision": "home-center-blender-00009-glr",
+      "blenderVersion": "4.5.12 LTS",
+      "sceneBlendSha256": "60425782f516a63ee7e6d3f0a7b831025f46b64553bed99d65ca9b6b8c79d346",
+      "inspectionSha256": "501cd87b741579557a700e3e2c207d08ed65a0d5ef2e72e07cb369d2d12c3816",
+      "inspectionReadback": {
+        "correctiveAttachmentObjectCount": 4,
+        "reviewedTimelineFrameRange": [
+          1,
+          254
+        ],
+        "currentRevisionMatched": true,
+        "humanAcceptance": "unreviewed"
+      }
+    }
   }
 }
