@@ -90,7 +90,7 @@ jobs:
             --animations oberhau-hardest-key-canary-001 \
             --skip-delta
       - name: Persist synchronized canary evidence
-        if: github.event_name == "workflow_dispatch"
+        if: github.event_name == 'workflow_dispatch'
         run: |
           evidence_dir="public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review"
           mkdir -p "$evidence_dir"
