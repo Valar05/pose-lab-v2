@@ -127,7 +127,11 @@ try {
     if ((await page.locator('[data-play]').textContent()) === 'Pause') {
       await page.locator('[data-play]').click();
     }
-    await page.locator('[data-scrubber]').fill(animation === 'idle' ? '2' : '6');
+    const scrubber = page.locator('[data-scrubber]');
+    const scrubberMax = Number.parseInt(await scrubber.getAttribute('max') || '0', 10);
+    const preferredFrame = animation === 'idle' ? 2 : 6;
+    const targetFrame = Math.min(preferredFrame, scrubberMax);
+    await scrubber.fill(String(targetFrame));
     await page.waitForTimeout(120);
 
     const cleanPath = path.join(outDir, `${animation}-clean.png`);

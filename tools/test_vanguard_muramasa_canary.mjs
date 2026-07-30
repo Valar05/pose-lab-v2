@@ -61,6 +61,7 @@ assert(css.includes('.sprite-comparison-grid.has-comparison'), 'viewer must lay 
 assert(css.includes('@media (max-width: 700px)'), 'comparison must have a bounded mobile layout');
 assert(capture.includes('comparison source frames are not synchronized'), 'cloud capture must fail closed on a desynchronized comparison');
 assert(capture.includes("args.manifest"), 'cloud capture must support the canary manifest');
+assert(capture.includes('Math.min(preferredFrame, scrubberMax)'), 'cloud capture must clamp one-frame manifests to the scrubber range');
 
 console.log(JSON.stringify({
   ok: true,
