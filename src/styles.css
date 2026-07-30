@@ -146,6 +146,41 @@ body,
   background: #00a85a;
 }
 
+.sprite-comparison-grid {
+  display: grid;
+  min-width: 0;
+  align-items: start;
+  justify-items: center;
+}
+
+.sprite-comparison-grid.has-comparison {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  padding: 14px;
+}
+
+.sprite-review-panel {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  justify-items: center;
+}
+
+.sprite-review-panel figcaption {
+  max-width: 100%;
+  padding: 7px 10px;
+  color: #f4e3b0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.sprite-comparison-panel[hidden] {
+  display: none;
+}
+
 .sprite-stack {
   position: relative;
   flex: 0 0 auto;
@@ -217,6 +252,21 @@ body,
 
 .sprite-ground-guide.visible {
   display: block;
+}
+
+.sprite-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sprite-evidence a {
+  padding: 7px 9px;
+  border: 1px solid rgba(216, 236, 255, 0.28);
+  border-radius: 5px;
+  background: #11171b;
+  font-size: 12px;
+  text-decoration: none;
 }
 
 .sprite-console {
@@ -425,6 +475,19 @@ body,
 
   .sprite-stage {
     min-height: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .sprite-comparison-grid.has-comparison {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    width: 100%;
+    padding-inline: 8px;
+  }
+
+  .sprite-review-panel {
+    max-width: 100%;
   }
 }
 

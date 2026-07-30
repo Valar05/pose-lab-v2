@@ -9,6 +9,9 @@ function parseArgs(argv) {
     url: 'http://127.0.0.1:4173/',
     outDir: 'generated/sprite-review',
     batchFixture: null,
+    manifest: null,
+    animations: ['idle', 'swordattack1'],
+    skipDelta: false,
   };
   for (let index = 2; index < argv.length; index += 1) {
     const argument = argv[index];
@@ -18,6 +21,11 @@ function parseArgs(argv) {
     else if (argument.startsWith('--out-dir=')) args.outDir = argument.slice('--out-dir='.length);
     else if (argument === '--batch-fixture') args.batchFixture = argv[++index] || args.batchFixture;
     else if (argument.startsWith('--batch-fixture=')) args.batchFixture = argument.slice('--batch-fixture='.length);
+    else if (argument === '--manifest') args.manifest = argv[++index] || null;
+    else if (argument.startsWith('--manifest=')) args.manifest = argument.slice('--manifest='.length);
+    else if (argument === '--animations') args.animations = (argv[++index] || '').split(',').filter(Boolean);
+    else if (argument.startsWith('--animations=')) args.animations = argument.slice('--animations='.length).split(',').filter(Boolean);
+    else if (argument === '--skip-delta') args.skipDelta = true;
     else throw new Error(`unknown argument: ${argument}`);
   }
   return args;
@@ -40,6 +48,7 @@ async function inspect(page) {
   return page.evaluate(() => {
     const current = document.querySelector('[data-current-frame]');
     const delta = document.querySelector('[data-delta-frame]');
+    const comparison = document.querySelector('[data-comparison-frame]');
     const activeFrame = document.querySelector('[data-frame-index].active');
     return {
       title: document.title,
@@ -58,6 +67,15 @@ async function inspect(page) {
       frameCount: document.querySelectorAll('[data-frame-index]').length,
       activeFrameIndex: activeFrame?.getAttribute('data-frame-index') || null,
       readout: document.querySelector('[data-frame-readout]')?.textContent || '',
+      synchronizedComparison: document.body.dataset.synchronizedComparison === '1',
+      comparison: comparison ? {
+        src: comparison.getAttribute('src'),
+        naturalWidth: comparison.naturalWidth,
+        naturalHeight: comparison.naturalHeight,
+        alt: comparison.getAttribute('alt'),
+        sourceFrame: comparison.dataset.sourceFrame || '',
+      } : null,
+      candidateSourceFrame: current?.dataset.sourceFrame || '',
     };
   });
 }
@@ -91,10 +109,11 @@ try {
   const pageErrors = [];
   page.on('pageerror', (error) => pageErrors.push(String(error.message || error)));
 
-  for (const animation of ['idle', 'swordattack1']) {
+  for (const animation of args.animations) {
     const url = new URL(args.url);
     url.searchParams.set('view', '2d');
     url.searchParams.set('animation', animation);
+    if (args.manifest) url.searchParams.set('manifest', args.manifest);
     if (args.batchFixture) url.searchParams.set('batch', args.batchFixture);
     await page.goto(url.href, { waitUntil: 'domcontentloaded', timeout: 120000 });
     await page.waitForFunction(() => document.body.dataset.reviewReady === '1', null, { timeout: 120000 });
@@ -108,46 +127,52 @@ try {
     if ((await page.locator('[data-play]').textContent()) === 'Pause') {
       await page.locator('[data-play]').click();
     }
-    await page.locator('[data-scrubber]').fill(animation === 'idle' ? '2' : '6');
+    const scrubber = page.locator('[data-scrubber]');
+    const scrubberMax = Number.parseInt(await scrubber.getAttribute('max') || '0', 10);
+    const preferredFrame = animation === 'idle' ? 2 : 6;
+    const targetFrame = Math.min(preferredFrame, scrubberMax);
+    await scrubber.fill(String(targetFrame));
     await page.waitForTimeout(120);
 
     const cleanPath = path.join(outDir, `${animation}-clean.png`);
     const cleanBytes = await page.screenshot({ path: cleanPath, fullPage: false });
     const cleanInspection = await inspect(page);
 
-    await page.locator('[data-delta]').click();
-    await page.waitForFunction(() => {
-      const canvas = document.querySelector('[data-delta-frame]');
-      return canvas && getComputedStyle(canvas).display !== 'none';
-    });
-    await page.waitForTimeout(120);
-    const deltaPath = path.join(outDir, `${animation}-delta.png`);
-    const deltaBytes = await page.screenshot({ path: deltaPath, fullPage: false });
-    const deltaInspection = await inspect(page);
-
-    if (cleanInspection.frameCount !== (animation === 'idle' ? 6 : 12)) {
-      throw new Error(`${animation} rendered ${cleanInspection.frameCount} frame controls`);
+    if (cleanInspection.frameCount < 1) {
+      throw new Error(`${animation} rendered no frame controls`);
     }
+    if (animation === 'idle' && cleanInspection.frameCount !== 6) throw new Error('idle frame count changed');
+    if (animation === 'swordattack1' && cleanInspection.frameCount !== 12) throw new Error('swordattack1 frame count changed');
     if (cleanInspection.currentFrame?.naturalWidth !== 512 || cleanInspection.currentFrame?.naturalHeight !== 512) {
       throw new Error(`${animation} current frame is not 512x512`);
     }
-    if (!deltaInspection.deltaCanvas?.visible) {
-      throw new Error(`${animation} delta canvas did not become visible`);
+    if (cleanInspection.synchronizedComparison) {
+      if (cleanInspection.comparison?.naturalWidth !== 512 || cleanInspection.comparison?.naturalHeight !== 512) {
+        throw new Error(`${animation} synchronized witness is not 512x512`);
+      }
+      if (cleanInspection.candidateSourceFrame !== cleanInspection.comparison.sourceFrame) {
+        throw new Error(`${animation} comparison source frames are not synchronized`);
+      }
     }
 
-    report.captures.push({
+    const capture = {
       animation,
-      clean: {
-        path: cleanPath,
-        sha256: sha256(cleanBytes),
-        inspection: cleanInspection,
-      },
-      delta: {
-        path: deltaPath,
-        sha256: sha256(deltaBytes),
-        inspection: deltaInspection,
-      },
-    });
+      clean: { path: cleanPath, sha256: sha256(cleanBytes), inspection: cleanInspection },
+    };
+    if (!args.skipDelta) {
+      await page.locator('[data-delta]').click();
+      await page.waitForFunction(() => {
+        const canvas = document.querySelector('[data-delta-frame]');
+        return canvas && getComputedStyle(canvas).display !== 'none';
+      });
+      await page.waitForTimeout(120);
+      const deltaPath = path.join(outDir, `${animation}-delta.png`);
+      const deltaBytes = await page.screenshot({ path: deltaPath, fullPage: false });
+      const deltaInspection = await inspect(page);
+      if (!deltaInspection.deltaCanvas?.visible) throw new Error(`${animation} delta canvas did not become visible`);
+      capture.delta = { path: deltaPath, sha256: sha256(deltaBytes), inspection: deltaInspection };
+    }
+    report.captures.push(capture);
 
     if (args.batchFixture && !report.batchEvidence) {
       const batchInspection = await inspectBatch(page);

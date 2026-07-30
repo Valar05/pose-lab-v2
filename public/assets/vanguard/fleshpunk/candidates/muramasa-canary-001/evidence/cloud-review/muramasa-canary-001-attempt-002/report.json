@@ -1,0 +1,50 @@
+{
+  "schema": "pose-lab-v2-sprite-browser-evidence-v1",
+  "capturedAt": "2026-07-30T21:18:11.104Z",
+  "browser": "chrome",
+  "viewport": {
+    "width": 1366,
+    "height": 900
+  },
+  "captures": [
+    {
+      "animation": "oberhau-hardest-key-canary-001",
+      "clean": {
+        "path": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/sprite-review/muramasa-canary-001/oberhau-hardest-key-canary-001-clean.png",
+        "sha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+        "inspection": {
+          "title": "Fleshpunk Vanguard · 2D Review",
+          "dataset": {
+            "synchronizedComparison": "1",
+            "reviewReady": "1",
+            "reviewMode": "2d"
+          },
+          "currentFrame": {
+            "src": "http://127.0.0.1:4173/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/frames/hardest-key-candidate.png",
+            "naturalWidth": 512,
+            "naturalHeight": 512,
+            "alt": "Fleshpunk Vanguard, Oberhau hardest key · canary 001 · attempt 2, frame 1 of 1"
+          },
+          "deltaCanvas": {
+            "width": 512,
+            "height": 512,
+            "visible": false
+          },
+          "frameCount": 1,
+          "activeFrameIndex": "0",
+          "readout": "Frame 1/1 · 1000 ms · source 42 @ 0.766116 s",
+          "synchronizedComparison": true,
+          "comparison": {
+            "src": "http://127.0.0.1:4173/assets/vanguard/fleshpunk/candidates/false-edge-oberhau-001/frames/false-edge-oberhau_0006.png",
+            "naturalWidth": 512,
+            "naturalHeight": 512,
+            "alt": "Approved motion witness · key 7, synchronized source frame 42",
+            "sourceFrame": "42"
+          },
+          "candidateSourceFrame": "42"
+        }
+      }
+    }
+  ],
+  "pageErrors": []
+}

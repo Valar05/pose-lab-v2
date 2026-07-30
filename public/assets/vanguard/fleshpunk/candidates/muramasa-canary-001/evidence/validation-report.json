@@ -1,0 +1,99 @@
+{
+  "schema": "vanguard-muramasa-canary-validation-v1",
+  "technicalState": "synchronized-visual-gate-red",
+  "evidenceHashesVerified": true,
+  "completeReviewedFramesImported": true,
+  "completeLandmarkVocabularyImported": true,
+  "animatedBodyFeetAndHandControls": 61,
+  "nonAnimatedLandmarksRetainedInReviewedTrackText": 72,
+  "eventLock": "locked",
+  "sourceResampled": false,
+  "perFrameRecentering": false,
+  "perFrameScaleNormalization": false,
+  "mirrored": false,
+  "correctiveAttachmentCount": 4,
+  "correctiveAttachments": [
+    "breastplate_turn_3q",
+    "overhead_two_hand_grip",
+    "rear_boot_foreshortened",
+    "rear_forearm_foreshortened"
+  ],
+  "attachmentExpansionGate": {
+    "allowedReasons": [
+      "facing",
+      "foreshortening",
+      "grip",
+      "contact",
+      "overlap",
+      "silhouette"
+    ],
+    "requiredEvidence": "synchronized Pose Lab comparison",
+    "performanceMayChangeToMeetQuota": false
+  },
+  "humanAccepted": false,
+  "visualVerdict": "Attempt 2 synchronized RED: weapon-facing mismatch, fragmented torso/pelvis/raised-arm overlap, detached grip and boot interfaces, and incorrect continuous silhouette. No fifth attachment authorized because no additional missing surface is isolated.",
+  "persistentSource": {
+    "renderScaffoldingRemoved": {
+      "objects": 114,
+      "meshes": 111
+    },
+    "texturesPacked": true
+  },
+  "latestSynchronizedComparison": {
+    "runId": "30582812601",
+    "capturedAt": "2026-07-30T21:18:11.104Z",
+    "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png",
+    "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+    "sourceFrame": 42,
+    "sourceTimestampSeconds": 0.7661160104986877,
+    "synchronized": true,
+    "candidateSourceFrameMatchedWitness": true,
+    "state": "RED",
+    "failureClasses": [
+      "facing",
+      "foreshortening",
+      "grip",
+      "contact",
+      "overlap",
+      "silhouette"
+    ],
+    "visibleFailures": [
+      "facing/grip: candidate sword vector opposes the approved synchronized witness and requires authority/transform adjudication before artwork changes",
+      "overlap/silhouette: torso, pelvis, and raised-arm chain remain visibly fragmented",
+      "contact/foreshortening: raised forearm-to-grip and rear boot-to-shin interfaces remain detached or untruthful",
+      "silhouette: the candidate does not reproduce the approved key screen-space mass or continuous lunge silhouette"
+    ],
+    "humanAccepted": false,
+    "attachmentAdded": false
+  },
+  "approvedPerformanceChanged": false,
+  "homeCenterPersistence": {
+    "artifact": {
+      "artifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
+      "durableRef": "home-center://artifacts/vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
+      "byteLength": 95140148,
+      "sha256": "dc71881702d153f40bce8da31a98936c8217075fd71194af986f8fe286408e6e",
+      "readbackVerified": true,
+      "requestId": "vanguard-muramasa-attempt-002-blend-resumable-20260730-v1"
+    },
+    "workspace": {
+      "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
+      "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88",
+      "operationId": "bop_1429fb07a66f198a902cb517d9320f",
+      "containerRevision": "home-center-blender-00009-glr",
+      "blenderVersion": "4.5.12 LTS",
+      "sceneBlendSha256": "60425782f516a63ee7e6d3f0a7b831025f46b64553bed99d65ca9b6b8c79d346",
+      "inspectionSha256": "501cd87b741579557a700e3e2c207d08ed65a0d5ef2e72e07cb369d2d12c3816",
+      "inspectionReadback": {
+        "correctiveAttachmentObjectCount": 4,
+        "reviewedTimelineFrameRange": [
+          1,
+          254
+        ],
+        "currentRevisionMatched": true,
+        "humanAcceptance": "unreviewed"
+      }
+    },
+    "planeTopologyNote": "The four corrective and seven canonical sprite planes intentionally have open boundaries; machineValid=false is diagnostic for planar 2.5D artwork and is not visual acceptance."
+  }
+}

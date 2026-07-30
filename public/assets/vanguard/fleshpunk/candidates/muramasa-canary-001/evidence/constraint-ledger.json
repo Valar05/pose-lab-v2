@@ -1,0 +1,7 @@
+{
+  "schema":"vanguard-muramasa-canary-constraint-ledger-v1","status":"binding","humanAcceptanceOwner":"Drew Clarke",
+  "required":["reviewed MMPose evidence drives Blender controls","Blender alone authors and renders","complete reviewed track is retained without resampling","detector confidence origin left/right identity and unknowns are preserved","source-to-output transform is explicit and global","root travel is not removed","sword has one driver chain","one hardest key only","exactly three starting corrective attachments","later attachments require synchronized visual failure evidence"],
+  "forbidden":["Spriter","Spine","Live2D","paid generation","old Vanguard GLB target","new full 3D woman","whole-frame generation","independent redraws","invented motion","guessed joints","generated in-betweens","event smoothing","per-frame recentering","per-frame scale normalization","bitmap mirroring","VFX","atlas packing","engine integration","receipts as human review","all eight finished keys","accepted or game-ready claim"],
+  "failClosedVisualGates":["character height","torso-to-leg ratio","limb thickness","head size","screen-space mass","armor construction coverage silhouette and material family","helmet face hair and plume identity","sword dimensions grip spacing and active-edge read","palette","camera facing crop registration and scale","pose chronology","support-foot state","two-hand grip","intersections","fragment attachment","occlusion order","rigid armor bending","missing source-to-control mapping"],
+  "acceptanceState":"pending-drew-review"
+}

@@ -1,0 +1,456 @@
+{
+  "schema": "vanguard-2p5d-part-library-v1",
+  "status": "canary",
+  "appearanceAuthority": {
+    "primary": "public/assets/vanguard/fleshpunk/idle/frames/idle_0000.png",
+    "compatibleExtended": {
+      "driveId": "1P-iajzKegi3doNtFcYHFPLt4JSbig5hW",
+      "sha256": "746de1ed471eaaa96704d77837da73c9fb381fbd09878f80a2f6c97a080509d9"
+    },
+    "idleWinsConflicts": true
+  },
+  "baseParts": [
+    {
+      "id": "helmet_head_plume",
+      "perspectiveClass": "screen-right profile",
+      "deformation": "plume-only-bounded",
+      "zOrder": 70
+    },
+    {
+      "id": "skirt_pelvis",
+      "perspectiveClass": "screen-right profile",
+      "deformation": "cloth-edge-only-bounded",
+      "zOrder": 30
+    },
+    {
+      "id": "front_leg",
+      "perspectiveClass": "screen-right near leg",
+      "deformation": "none-rigid-armor",
+      "zOrder": 40
+    },
+    {
+      "id": "rear_leg",
+      "perspectiveClass": "screen-right far leg",
+      "deformation": "none-rigid-armor",
+      "zOrder": 20
+    },
+    {
+      "id": "canonical_sword",
+      "perspectiveClass": "profile blade",
+      "deformation": "none-rigid",
+      "zOrder": 80
+    }
+  ],
+  "correctiveAttachments": [
+    {
+      "id": "breastplate_turn_3q",
+      "status": "anticipated-canary",
+      "sourceBasis": [
+        "idle_0000 breastplate pixels",
+        "source frame 42 shoulder and hip controls"
+      ],
+      "perspectiveClass": "screen-right three-quarter turn",
+      "allowedTransforms": [
+        "translation",
+        "rotation <= 18deg",
+        "horizontal scale 0.82..1.0"
+      ],
+      "compatibleNeighbors": [
+        "helmet_head_plume",
+        "skirt_pelvis",
+        "overhead_two_hand_grip"
+      ],
+      "occlusionOrder": [
+        "skirt_pelvis",
+        "breastplate_turn_3q",
+        "overhead_two_hand_grip"
+      ],
+      "attempts": [
+        {
+          "attemptId": "muramasa-canary-001-attempt-001",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "synchronized-pose-lab-red",
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false,
+          "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-001-blend-v3",
+          "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
+          "revisionId": "brv_7aba587fe2e489fac60c6b77139463",
+          "synchronizedComparison": {
+            "runId": "30581078830",
+            "capturedAt": "2026-07-30T20:53:24.125Z",
+            "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png",
+            "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": true,
+            "candidateSourceFrameMatchedWitness": true,
+            "humanAccepted": false,
+            "failureClasses": [
+              "overlap",
+              "silhouette"
+            ]
+          }
+        },
+        {
+          "attemptId": "muramasa-canary-001-attempt-002",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "synchronized-pose-lab-red",
+          "change": "reuse unchanged; the synchronized failure belongs to the arm chain, not a new torso surface",
+          "performanceChanged": false,
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false,
+          "synchronizedComparison": {
+            "runId": "30582812601",
+            "capturedAt": "2026-07-30T21:18:11.104Z",
+            "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png",
+            "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": true,
+            "candidateSourceFrameMatchedWitness": true,
+            "state": "RED",
+            "failureClasses": [
+              "overlap",
+              "silhouette"
+            ],
+            "visibleFailures": [
+              "facing/grip: candidate sword vector opposes the approved synchronized witness and requires authority/transform adjudication before artwork changes",
+              "overlap/silhouette: torso, pelvis, and raised-arm chain remain visibly fragmented",
+              "contact/foreshortening: raised forearm-to-grip and rear boot-to-shin interfaces remain detached or untruthful",
+              "silhouette: the candidate does not reproduce the approved key screen-space mass or continuous lunge silhouette"
+            ],
+            "humanAccepted": false
+          },
+          "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
+          "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
+          "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88"
+        }
+      ],
+      "reuseIntent": "later overhead or recovery poses with the same torso turn"
+    },
+    {
+      "id": "overhead_two_hand_grip",
+      "status": "anticipated-canary",
+      "sourceBasis": [
+        "idle_0000 gauntlet and hand pixels",
+        "reviewed MMPose hand landmarks",
+        "weapon companion frame 42"
+      ],
+      "perspectiveClass": "overhead false-edge two-hand grip",
+      "allowedTransforms": [
+        "translation",
+        "rotation",
+        "uniform scale 0.9..1.05"
+      ],
+      "compatibleNeighbors": [
+        "breastplate_turn_3q",
+        "canonical_sword"
+      ],
+      "occlusionOrder": [
+        "breastplate_turn_3q",
+        "overhead_two_hand_grip",
+        "canonical_sword"
+      ],
+      "attempts": [
+        {
+          "attemptId": "muramasa-canary-001-attempt-001",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "synchronized-pose-lab-red",
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false,
+          "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-001-blend-v3",
+          "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
+          "revisionId": "brv_7aba587fe2e489fac60c6b77139463",
+          "synchronizedComparison": {
+            "runId": "30581078830",
+            "capturedAt": "2026-07-30T20:53:24.125Z",
+            "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png",
+            "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": true,
+            "candidateSourceFrameMatchedWitness": true,
+            "humanAccepted": false,
+            "failureClasses": [
+              "foreshortening",
+              "grip",
+              "contact",
+              "overlap",
+              "silhouette"
+            ]
+          }
+        },
+        {
+          "attemptId": "muramasa-canary-001-attempt-002",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "synchronized-pose-lab-red",
+          "change": "tighten the source mask and orient by the reviewed wrist-to-wrist axis; do not move either wrist",
+          "performanceChanged": false,
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false,
+          "synchronizedComparison": {
+            "runId": "30582812601",
+            "capturedAt": "2026-07-30T21:18:11.104Z",
+            "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png",
+            "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": true,
+            "candidateSourceFrameMatchedWitness": true,
+            "state": "RED",
+            "failureClasses": [
+              "facing",
+              "grip",
+              "contact",
+              "overlap",
+              "silhouette"
+            ],
+            "visibleFailures": [
+              "facing/grip: candidate sword vector opposes the approved synchronized witness and requires authority/transform adjudication before artwork changes",
+              "overlap/silhouette: torso, pelvis, and raised-arm chain remain visibly fragmented",
+              "contact/foreshortening: raised forearm-to-grip and rear boot-to-shin interfaces remain detached or untruthful",
+              "silhouette: the candidate does not reproduce the approved key screen-space mass or continuous lunge silhouette"
+            ],
+            "humanAccepted": false
+          },
+          "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
+          "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
+          "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88"
+        }
+      ],
+      "reuseIntent": "later oberhau turnover and high endpoint keys"
+    },
+    {
+      "id": "rear_boot_foreshortened",
+      "status": "anticipated-canary",
+      "sourceBasis": [
+        "idle_0000 rear boot pixels",
+        "source frame 42 rear ankle heel and toe controls"
+      ],
+      "perspectiveClass": "far rear boot under lunge foreshortening",
+      "allowedTransforms": [
+        "translation",
+        "rotation",
+        "horizontal scale 0.72..1.0"
+      ],
+      "compatibleNeighbors": [
+        "rear_leg",
+        "skirt_pelvis"
+      ],
+      "occlusionOrder": [
+        "rear_boot_foreshortened",
+        "rear_leg",
+        "skirt_pelvis"
+      ],
+      "attempts": [
+        {
+          "attemptId": "muramasa-canary-001-attempt-001",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "synchronized-pose-lab-red",
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false,
+          "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-001-blend-v3",
+          "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
+          "revisionId": "brv_7aba587fe2e489fac60c6b77139463",
+          "synchronizedComparison": {
+            "runId": "30581078830",
+            "capturedAt": "2026-07-30T20:53:24.125Z",
+            "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png",
+            "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": true,
+            "candidateSourceFrameMatchedWitness": true,
+            "humanAccepted": false,
+            "failureClasses": [
+              "contact",
+              "overlap",
+              "silhouette"
+            ]
+          }
+        },
+        {
+          "attemptId": "muramasa-canary-001-attempt-002",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "synchronized-pose-lab-red",
+          "change": "reuse unchanged; record the detached leg interface for later revision without adding another boot",
+          "performanceChanged": false,
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false,
+          "synchronizedComparison": {
+            "runId": "30582812601",
+            "capturedAt": "2026-07-30T21:18:11.104Z",
+            "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png",
+            "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": true,
+            "candidateSourceFrameMatchedWitness": true,
+            "state": "RED",
+            "failureClasses": [
+              "contact",
+              "overlap",
+              "silhouette"
+            ],
+            "visibleFailures": [
+              "facing/grip: candidate sword vector opposes the approved synchronized witness and requires authority/transform adjudication before artwork changes",
+              "overlap/silhouette: torso, pelvis, and raised-arm chain remain visibly fragmented",
+              "contact/foreshortening: raised forearm-to-grip and rear boot-to-shin interfaces remain detached or untruthful",
+              "silhouette: the candidate does not reproduce the approved key screen-space mass or continuous lunge silhouette"
+            ],
+            "humanAccepted": false
+          },
+          "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
+          "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
+          "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88"
+        }
+      ],
+      "reuseIntent": "later wide-stance keys with the same far-foot view"
+    },
+    {
+      "id": "rear_forearm_foreshortened",
+      "status": "evidence-justified-canary",
+      "sourceBasis": [
+        "idle_0000 rear forearm and gauntlet pixels",
+        "reviewed MMPose left elbow and left wrist at source frame 42",
+        "synchronized Pose Lab cloud comparison run 30581078830"
+      ],
+      "perspectiveClass": "rear forearm rising into overhead two-hand grip",
+      "allowedTransforms": [
+        "translation",
+        "rotation",
+        "uniform scale 0.9..1.18"
+      ],
+      "compatibleNeighbors": [
+        "breastplate_turn_3q",
+        "overhead_two_hand_grip",
+        "canonical_sword"
+      ],
+      "occlusionOrder": [
+        "breastplate_turn_3q",
+        "rear_forearm_foreshortened",
+        "overhead_two_hand_grip",
+        "canonical_sword"
+      ],
+      "gateEvidence": {
+        "runId": "30581078830",
+        "capturedAt": "2026-07-30T20:53:24.125Z",
+        "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png",
+        "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+        "sourceFrame": 42,
+        "sourceTimestampSeconds": 0.7661160104986877,
+        "synchronized": true,
+        "candidateSourceFrameMatchedWitness": true,
+        "humanAccepted": false,
+        "failureClasses": [
+          "foreshortening",
+          "grip",
+          "contact",
+          "overlap",
+          "silhouette"
+        ]
+      },
+      "attempts": [
+        {
+          "attemptId": "muramasa-canary-001-attempt-002",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "synchronized-pose-lab-red",
+          "change": "add the missing rear elbow-to-wrist surface while preserving reviewed control endpoints",
+          "performanceChanged": false,
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-overhead-grip-keys",
+          "humanAccepted": false,
+          "synchronizedComparison": {
+            "runId": "30582812601",
+            "capturedAt": "2026-07-30T21:18:11.104Z",
+            "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png",
+            "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": true,
+            "candidateSourceFrameMatchedWitness": true,
+            "state": "RED",
+            "failureClasses": [
+              "foreshortening",
+              "grip",
+              "contact",
+              "overlap",
+              "silhouette"
+            ],
+            "visibleFailures": [
+              "facing/grip: candidate sword vector opposes the approved synchronized witness and requires authority/transform adjudication before artwork changes",
+              "overlap/silhouette: torso, pelvis, and raised-arm chain remain visibly fragmented",
+              "contact/foreshortening: raised forearm-to-grip and rear boot-to-shin interfaces remain detached or untruthful",
+              "silhouette: the candidate does not reproduce the approved key screen-space mass or continuous lunge silhouette"
+            ],
+            "humanAccepted": false
+          },
+          "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
+          "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
+          "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88"
+        }
+      ],
+      "reuseIntent": "later high guards and overhead turnover keys exposing the same far forearm view"
+    }
+  ],
+  "additionPolicy": {
+    "initialCorrectiveAttachmentCount": 3,
+    "furtherAttachmentRequiresSynchronizedPoseLabFailure": true,
+    "allowedFailureClasses": [
+      "facing",
+      "foreshortening",
+      "grip",
+      "contact",
+      "overlap",
+      "silhouette"
+    ],
+    "performanceMayChangeToMeetQuota": false,
+    "everyAdditionMustRecordAttemptAndReuse": true,
+    "currentCorrectiveAttachmentCount": 4,
+    "synchronizedExpansionEvidence": {
+      "runId": "30581078830",
+      "capturedAt": "2026-07-30T20:53:24.125Z",
+      "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png",
+      "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+      "sourceFrame": 42,
+      "sourceTimestampSeconds": 0.7661160104986877,
+      "synchronized": true,
+      "candidateSourceFrameMatchedWitness": true,
+      "humanAccepted": false
+    },
+    "latestSynchronizedComparison": {
+      "runId": "30582812601",
+      "capturedAt": "2026-07-30T21:18:11.104Z",
+      "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png",
+      "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+      "sourceFrame": 42,
+      "sourceTimestampSeconds": 0.7661160104986877,
+      "synchronized": true,
+      "candidateSourceFrameMatchedWitness": true,
+      "state": "RED",
+      "failureClasses": [
+        "facing",
+        "foreshortening",
+        "grip",
+        "contact",
+        "overlap",
+        "silhouette"
+      ],
+      "visibleFailures": [
+        "facing/grip: candidate sword vector opposes the approved synchronized witness and requires authority/transform adjudication before artwork changes",
+        "overlap/silhouette: torso, pelvis, and raised-arm chain remain visibly fragmented",
+        "contact/foreshortening: raised forearm-to-grip and rear boot-to-shin interfaces remain detached or untruthful",
+        "silhouette: the candidate does not reproduce the approved key screen-space mass or continuous lunge silhouette"
+      ],
+      "humanAccepted": false,
+      "attachmentAdded": false,
+      "decision": "No fifth attachment: first repair/adjudicate the weapon-facing transform and revise the four existing attachment interfaces; no additional missing surface is isolated yet."
+    }
+  }
+}

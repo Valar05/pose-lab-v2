@@ -19,12 +19,23 @@ app.innerHTML = `
 
     <main class="sprite-workspace">
       <section class="sprite-stage checker" data-stage aria-label="Animation stage">
-        <div class="sprite-stack" data-sprite-stack>
-          <img class="sprite-frame sprite-onion sprite-onion-previous" data-previous-frame alt="" aria-hidden="true" />
-          <img class="sprite-frame sprite-current" data-current-frame alt="" />
-          <canvas class="sprite-frame sprite-delta" width="512" height="512" data-delta-frame aria-hidden="true"></canvas>
-          <img class="sprite-frame sprite-onion sprite-onion-next" data-next-frame alt="" aria-hidden="true" />
-          <span class="sprite-ground-guide" data-ground-guide aria-hidden="true"></span>
+        <div class="sprite-comparison-grid" data-comparison-grid>
+          <figure class="sprite-review-panel">
+            <figcaption data-primary-label>Animation candidate</figcaption>
+            <div class="sprite-stack" data-sprite-stack>
+              <img class="sprite-frame sprite-onion sprite-onion-previous" data-previous-frame alt="" aria-hidden="true" />
+              <img class="sprite-frame sprite-current" data-current-frame alt="" />
+              <canvas class="sprite-frame sprite-delta" width="512" height="512" data-delta-frame aria-hidden="true"></canvas>
+              <img class="sprite-frame sprite-onion sprite-onion-next" data-next-frame alt="" aria-hidden="true" />
+              <span class="sprite-ground-guide" data-ground-guide aria-hidden="true"></span>
+            </div>
+          </figure>
+          <figure class="sprite-review-panel sprite-comparison-panel" data-comparison-panel hidden>
+            <figcaption data-comparison-label>Approved motion witness</figcaption>
+            <div class="sprite-stack sprite-comparison-stack" data-comparison-stack>
+              <img class="sprite-frame sprite-current" data-comparison-frame alt="" />
+            </div>
+          </figure>
         </div>
       </section>
 
@@ -81,6 +92,7 @@ app.innerHTML = `
         </fieldset>
 
         <div class="sprite-contract" data-contract aria-label="Animation contract"></div>
+        <nav class="sprite-evidence" data-evidence aria-label="Review evidence"></nav>
         <section class="sprite-batch-panel" data-batch-panel hidden aria-labelledby="sprite-batch-title">
           <div class="sprite-console-heading">
             <div><p class="sprite-eyebrow">Refinery batch</p><h3 id="sprite-batch-title" data-batch-title>Batch evidence</h3></div>
@@ -96,7 +108,13 @@ app.innerHTML = `
 `;
 
 const stage = app.querySelector('[data-stage]');
+const comparisonGrid = app.querySelector('[data-comparison-grid]');
 const stack = app.querySelector('[data-sprite-stack]');
+const comparisonStack = app.querySelector('[data-comparison-stack]');
+const comparisonPanel = app.querySelector('[data-comparison-panel]');
+const comparisonImage = app.querySelector('[data-comparison-frame]');
+const primaryLabel = app.querySelector('[data-primary-label]');
+const comparisonLabel = app.querySelector('[data-comparison-label]');
 const currentImage = app.querySelector('[data-current-frame]');
 const previousImage = app.querySelector('[data-previous-frame]');
 const nextImage = app.querySelector('[data-next-frame]');
@@ -121,6 +139,7 @@ const zoomInput = app.querySelector('[data-zoom]');
 const zoomOutput = app.querySelector('[data-zoom-output]');
 const frameStrip = app.querySelector('[data-frame-strip]');
 const contract = app.querySelector('[data-contract]');
+const evidence = app.querySelector('[data-evidence]');
 const batchPanel = app.querySelector('[data-batch-panel]');
 const batchTitle = app.querySelector('[data-batch-title]');
 const batchClips = app.querySelector('[data-batch-clips]');
@@ -154,6 +173,12 @@ function assetUrl(path) {
 function frameAt(index) {
   const count = animation.frames.length;
   return animation.frames[(index + count) % count];
+}
+
+function comparisonFrameAt(index) {
+  const frames = animation.comparison?.frames || [];
+  if (frames.length === 0) return null;
+  return frames[(index + frames.length) % frames.length];
 }
 
 function animationDurationMs() {
@@ -287,11 +312,25 @@ function renderFrame({ speak = false } = {}) {
 
   currentImage.src = assetUrl(frame.src);
   currentImage.alt = `${manifest.character}, ${animation.label}, frame ${frameNumber} of ${frameCount}`;
+  currentImage.dataset.sourceFrame = Number.isInteger(frame.sourceFrame) ? String(frame.sourceFrame) : '';
+  const comparisonFrame = comparisonFrameAt(currentFrameIndex);
+  if (comparisonFrame) {
+    comparisonImage.src = assetUrl(comparisonFrame.src);
+    comparisonImage.alt = `${animation.comparison.label}, synchronized source frame ${comparisonFrame.sourceFrame ?? frame.sourceFrame ?? frameNumber}`;
+    comparisonImage.dataset.sourceFrame = String(comparisonFrame.sourceFrame ?? frame.sourceFrame ?? '');
+  } else {
+    comparisonImage.removeAttribute('src');
+    comparisonImage.alt = '';
+    comparisonImage.dataset.sourceFrame = '';
+  }
   previousImage.src = assetUrl(previous.src);
   nextImage.src = assetUrl(next.src);
   if (deltaEnabled) renderDelta().catch(() => {});
   scrubber.value = String(currentFrameIndex);
-  frameReadout.textContent = `Frame ${frameNumber}/${frameCount} · ${frame.durationMs} ms`;
+  const sourceReadout = Number.isInteger(frame.sourceFrame)
+    ? ` · source ${frame.sourceFrame}${Number.isFinite(frame.sourceTimestampSeconds) ? ` @ ${frame.sourceTimestampSeconds.toFixed(6)} s` : ''}`
+    : '';
+  frameReadout.textContent = `Frame ${frameNumber}/${frameCount} · ${frame.durationMs} ms${sourceReadout}`;
 
   [...frameStrip.querySelectorAll('[data-frame-index]')].forEach((button) => {
     const active = Number(button.dataset.frameIndex) === currentFrameIndex;
@@ -408,17 +447,24 @@ function setZoom(value) {
   const zoom = Math.max(25, Math.min(200, Math.round(Number(value) / 5) * 5));
   zoomInput.value = String(zoom);
   zoomOutput.textContent = `${zoom}%`;
-  stack.style.width = `${manifest.frameSpace.width * (zoom / 100)}px`;
+  const renderedWidth = `${manifest.frameSpace.width * (zoom / 100)}px`;
+  stack.style.width = renderedWidth;
+  comparisonStack.style.width = renderedWidth;
 }
 
 function fitStage() {
   const padding = 28;
-  const availableWidth = Math.max(128, stage.clientWidth - padding);
-  const availableHeight = Math.max(128, stage.clientHeight - padding);
+  const hasComparison = !comparisonPanel.hidden;
+  const stacked = hasComparison && window.matchMedia('(max-width: 700px)').matches;
+  const columns = hasComparison && !stacked ? 2 : 1;
+  const rows = hasComparison && stacked ? 2 : 1;
+  const gap = hasComparison ? 28 : 0;
+  const availableWidth = Math.max(128, stage.clientWidth - padding - (columns - 1) * gap);
+  const availableHeight = Math.max(128, stage.clientHeight - padding - (rows - 1) * 34);
   const fit = Math.min(
     100,
-    (availableWidth / manifest.frameSpace.width) * 100,
-    (availableHeight / manifest.frameSpace.height) * 100,
+    (availableWidth / (manifest.frameSpace.width * columns)) * 100,
+    (availableHeight / (manifest.frameSpace.height * rows)) * 100,
   );
   setZoom(Math.max(25, Math.floor(fit / 5) * 5));
 }
@@ -432,6 +478,12 @@ function setAnimation(id, { speak = false } = {}) {
   currentFrameIndex = 0;
   loopEnabled = animation.loop !== false;
   animationTitle.textContent = animation.label;
+  const synchronizedComparison = animation.comparison?.synchronized === true;
+  comparisonPanel.hidden = !synchronizedComparison;
+  comparisonGrid.classList.toggle('has-comparison', synchronizedComparison);
+  primaryLabel.textContent = animation.primaryLabel || `${animation.label} candidate`;
+  comparisonLabel.textContent = synchronizedComparison ? animation.comparison.label : '';
+  document.body.dataset.synchronizedComparison = synchronizedComparison ? '1' : '0';
   scrubber.max = String(animation.frames.length - 1);
   contactSheetLink.href = assetUrl(animation.contactSheet);
   contract.replaceChildren(...animation.contract.map((item) => {
@@ -439,6 +491,15 @@ function setAnimation(id, { speak = false } = {}) {
     badge.textContent = item;
     return badge;
   }));
+  evidence.replaceChildren(...(animation.evidence || []).map((item) => {
+    const link = document.createElement('a');
+    link.href = assetUrl(item.src);
+    link.target = '_blank';
+    link.rel = 'noreferrer';
+    link.textContent = item.label;
+    return link;
+  }));
+  evidence.hidden = evidence.childElementCount === 0;
   groundGuide.style.top = `${(animation.groundGuideY / manifest.frameSpace.height) * 100}%`;
   setPressed(loopButton, loopEnabled, 'Loop: On', 'Loop: Off');
   buildFrameStrip();
@@ -485,7 +546,10 @@ async function boot() {
     buildAnimationPicker();
     const requestedId = URL_PARAMS.get('animation') || manifest.defaultAnimation;
     animation = manifest.animations.find((entry) => entry.id === requestedId) || manifest.animations[0];
-    await Promise.all(animation.frames.map((frame) => preloadFrame(frame.src)));
+    await Promise.all([
+      ...animation.frames.map((frame) => preloadFrame(frame.src)),
+      ...(animation.comparison?.frames || []).map((frame) => preloadFrame(frame.src)),
+    ]);
     setAnimation(animation.id);
     await loadBatchEvidence();
     document.title = `${manifest.character} · 2D Review`;

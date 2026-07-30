@@ -9,6 +9,9 @@ on:
       - tools/register_vanguard_attack1_frames.py
       - tools/test_vanguard_attack1_registration.py
       - tools/test_sprite_review_surface.mjs
+      - tools/test_vanguard_muramasa_canary.mjs
+      - src/sprite-viewer.js
+      - src/styles.css
       - public/assets/vanguard/fleshpunk/**
   push:
     branches:
@@ -28,7 +31,7 @@ on:
       - public/assets/vanguard/fleshpunk/**
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   capture:
@@ -51,6 +54,7 @@ jobs:
         run: |
           npm run test:vanguard-attack1-registration
           npm run test:2d
+          npm run test:vanguard-muramasa-canary
           npm run build
           npm run smoke
           git diff --check
@@ -79,7 +83,33 @@ jobs:
             --url http://127.0.0.1:4173/ \
             --out-dir generated/sprite-review \
             --batch-fixture /fixtures/vanguard-refinery/visual-qa/state.json
+          node tools/capture_sprite_review.mjs \
+            --url http://127.0.0.1:4173/ \
+            --out-dir generated/sprite-review/muramasa-canary-001 \
+            --manifest /assets/vanguard/fleshpunk/candidates/muramasa-canary-001/animations.json \
+            --animations oberhau-hardest-key-canary-001 \
+            --skip-delta
+      - name: Persist synchronized canary evidence
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          attempt_id="$(jq -r .attemptId public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/animations.json)"
+          test -n "$attempt_id"
+          test "$attempt_id" != "null"
+          evidence_dir="public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/$attempt_id"
+          mkdir -p "$evidence_dir"
+          cp generated/sprite-review/muramasa-canary-001/oberhau-hardest-key-canary-001-clean.png "$evidence_dir/synchronized-pose-lab-comparison.png"
+          cp generated/sprite-review/muramasa-canary-001/report.json "$evidence_dir/report.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$evidence_dir"
+          if git diff --cached --quiet; then
+            echo "Synchronized canary evidence already current."
+          else
+            git commit -m "Record synchronized Vanguard canary evidence"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: sprite-visual-evidence-${{ github.run_id }}
           path: generated/sprite-review/
