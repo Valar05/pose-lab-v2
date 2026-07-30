@@ -92,7 +92,10 @@ jobs:
       - name: Persist synchronized canary evidence
         if: github.event_name == 'workflow_dispatch'
         run: |
-          evidence_dir="public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review"
+          attempt_id="$(jq -r .attemptId public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/animations.json)"
+          test -n "$attempt_id"
+          test "$attempt_id" != "null"
+          evidence_dir="public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/$attempt_id"
           mkdir -p "$evidence_dir"
           cp generated/sprite-review/muramasa-canary-001/oberhau-hardest-key-canary-001-clean.png "$evidence_dir/synchronized-pose-lab-comparison.png"
           cp generated/sprite-review/muramasa-canary-001/report.json "$evidence_dir/report.json"

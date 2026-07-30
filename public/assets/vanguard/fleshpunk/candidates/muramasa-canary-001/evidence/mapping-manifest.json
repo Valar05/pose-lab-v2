@@ -211,8 +211,22 @@
   },
   "attachments": [
     "breastplate_turn_3q",
+    "overhead_two_hand_grip",
     "rear_boot_foreshortened",
-    "overhead_two_hand_grip"
+    "rear_forearm_foreshortened"
   ],
-  "humanAccepted": false
+  "humanAccepted": false,
+  "attemptId": "muramasa-canary-001-attempt-002",
+  "synchronizedExpansionEvidence": {
+    "runId": "30581078830",
+    "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+    "failureClasses": [
+      "foreshortening",
+      "grip",
+      "contact",
+      "overlap",
+      "silhouette"
+    ],
+    "performanceChanged": false
+  }
 }

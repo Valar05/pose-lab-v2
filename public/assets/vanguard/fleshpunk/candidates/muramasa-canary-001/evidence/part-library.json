@@ -70,12 +70,37 @@
           "attemptId": "muramasa-canary-001-attempt-001",
           "sourceFrame": 42,
           "sourceTimestampSeconds": 0.7661160104986877,
-          "state": "rendered-pending-synchronized-pose-lab-comparison",
+          "state": "synchronized-pose-lab-red",
           "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
           "humanAccepted": false,
           "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-001-blend-v3",
           "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
-          "revisionId": "brv_7aba587fe2e489fac60c6b77139463"
+          "revisionId": "brv_7aba587fe2e489fac60c6b77139463",
+          "synchronizedComparison": {
+            "runId": "30581078830",
+            "capturedAt": "2026-07-30T20:53:24.125Z",
+            "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png",
+            "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": true,
+            "candidateSourceFrameMatchedWitness": true,
+            "humanAccepted": false,
+            "failureClasses": [
+              "overlap",
+              "silhouette"
+            ]
+          }
+        },
+        {
+          "attemptId": "muramasa-canary-001-attempt-002",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "refined-from-synchronized-failure-pending-second-comparison",
+          "change": "reuse unchanged; the synchronized failure belongs to the arm chain, not a new torso surface",
+          "performanceChanged": false,
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false
         }
       ],
       "reuseIntent": "later overhead or recovery poses with the same torso turn"
@@ -108,12 +133,40 @@
           "attemptId": "muramasa-canary-001-attempt-001",
           "sourceFrame": 42,
           "sourceTimestampSeconds": 0.7661160104986877,
-          "state": "rendered-pending-synchronized-pose-lab-comparison",
+          "state": "synchronized-pose-lab-red",
           "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
           "humanAccepted": false,
           "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-001-blend-v3",
           "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
-          "revisionId": "brv_7aba587fe2e489fac60c6b77139463"
+          "revisionId": "brv_7aba587fe2e489fac60c6b77139463",
+          "synchronizedComparison": {
+            "runId": "30581078830",
+            "capturedAt": "2026-07-30T20:53:24.125Z",
+            "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png",
+            "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": true,
+            "candidateSourceFrameMatchedWitness": true,
+            "humanAccepted": false,
+            "failureClasses": [
+              "foreshortening",
+              "grip",
+              "contact",
+              "overlap",
+              "silhouette"
+            ]
+          }
+        },
+        {
+          "attemptId": "muramasa-canary-001-attempt-002",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "refined-from-synchronized-failure-pending-second-comparison",
+          "change": "tighten the source mask and orient by the reviewed wrist-to-wrist axis; do not move either wrist",
+          "performanceChanged": false,
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false
         }
       ],
       "reuseIntent": "later oberhau turnover and high endpoint keys"
@@ -145,15 +198,98 @@
           "attemptId": "muramasa-canary-001-attempt-001",
           "sourceFrame": 42,
           "sourceTimestampSeconds": 0.7661160104986877,
-          "state": "rendered-pending-synchronized-pose-lab-comparison",
+          "state": "synchronized-pose-lab-red",
           "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
           "humanAccepted": false,
           "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-001-blend-v3",
           "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
-          "revisionId": "brv_7aba587fe2e489fac60c6b77139463"
+          "revisionId": "brv_7aba587fe2e489fac60c6b77139463",
+          "synchronizedComparison": {
+            "runId": "30581078830",
+            "capturedAt": "2026-07-30T20:53:24.125Z",
+            "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png",
+            "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": true,
+            "candidateSourceFrameMatchedWitness": true,
+            "humanAccepted": false,
+            "failureClasses": [
+              "contact",
+              "overlap",
+              "silhouette"
+            ]
+          }
+        },
+        {
+          "attemptId": "muramasa-canary-001-attempt-002",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "refined-from-synchronized-failure-pending-second-comparison",
+          "change": "reuse unchanged; record the detached leg interface for later revision without adding another boot",
+          "performanceChanged": false,
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false
         }
       ],
       "reuseIntent": "later wide-stance keys with the same far-foot view"
+    },
+    {
+      "id": "rear_forearm_foreshortened",
+      "status": "evidence-justified-canary",
+      "sourceBasis": [
+        "idle_0000 rear forearm and gauntlet pixels",
+        "reviewed MMPose left elbow and left wrist at source frame 42",
+        "synchronized Pose Lab cloud comparison run 30581078830"
+      ],
+      "perspectiveClass": "rear forearm rising into overhead two-hand grip",
+      "allowedTransforms": [
+        "translation",
+        "rotation",
+        "uniform scale 0.9..1.18"
+      ],
+      "compatibleNeighbors": [
+        "breastplate_turn_3q",
+        "overhead_two_hand_grip",
+        "canonical_sword"
+      ],
+      "occlusionOrder": [
+        "breastplate_turn_3q",
+        "rear_forearm_foreshortened",
+        "overhead_two_hand_grip",
+        "canonical_sword"
+      ],
+      "gateEvidence": {
+        "runId": "30581078830",
+        "capturedAt": "2026-07-30T20:53:24.125Z",
+        "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png",
+        "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+        "sourceFrame": 42,
+        "sourceTimestampSeconds": 0.7661160104986877,
+        "synchronized": true,
+        "candidateSourceFrameMatchedWitness": true,
+        "humanAccepted": false,
+        "failureClasses": [
+          "foreshortening",
+          "grip",
+          "contact",
+          "overlap",
+          "silhouette"
+        ]
+      },
+      "attempts": [
+        {
+          "attemptId": "muramasa-canary-001-attempt-002",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "evidence-justified-pending-second-synchronized-comparison",
+          "change": "add the missing rear elbow-to-wrist surface while preserving reviewed control endpoints",
+          "performanceChanged": false,
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-overhead-grip-keys",
+          "humanAccepted": false
+        }
+      ],
+      "reuseIntent": "later high guards and overhead turnover keys exposing the same far forearm view"
     }
   ],
   "additionPolicy": {
@@ -168,6 +304,18 @@
       "silhouette"
     ],
     "performanceMayChangeToMeetQuota": false,
-    "everyAdditionMustRecordAttemptAndReuse": true
+    "everyAdditionMustRecordAttemptAndReuse": true,
+    "currentCorrectiveAttachmentCount": 4,
+    "synchronizedExpansionEvidence": {
+      "runId": "30581078830",
+      "capturedAt": "2026-07-30T20:53:24.125Z",
+      "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png",
+      "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+      "sourceFrame": 42,
+      "sourceTimestampSeconds": 0.7661160104986877,
+      "synchronized": true,
+      "candidateSourceFrameMatchedWitness": true,
+      "humanAccepted": false
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "schema": "vanguard-muramasa-canary-validation-v1",
-  "technicalState": "rendered-awaiting-synchronized-visual-gate",
+  "technicalState": "rendered-awaiting-second-synchronized-visual-gate",
   "evidenceHashesVerified": true,
   "completeReviewedFramesImported": true,
   "completeLandmarkVocabularyImported": true,
@@ -11,11 +11,12 @@
   "perFrameRecentering": false,
   "perFrameScaleNormalization": false,
   "mirrored": false,
-  "correctiveAttachmentCount": 3,
+  "correctiveAttachmentCount": 4,
   "correctiveAttachments": [
     "breastplate_turn_3q",
+    "overhead_two_hand_grip",
     "rear_boot_foreshortened",
-    "overhead_two_hand_grip"
+    "rear_forearm_foreshortened"
   ],
   "attachmentExpansionGate": {
     "allowedReasons": [
@@ -30,7 +31,7 @@
     "performanceMayChangeToMeetQuota": false
   },
   "humanAccepted": false,
-  "visualVerdict": "pending synchronized Pose Lab comparison and Drew review",
+  "visualVerdict": "attempt 1 synchronized red; attempt 2 pending synchronized Pose Lab comparison and Drew review",
   "persistentSource": {
     "renderScaffoldingRemoved": {
       "objects": 114,

@@ -1,7 +1,7 @@
 {
   "schema": "vanguard-muramasa-canary-provenance-v1",
-  "attemptId": "muramasa-canary-001-attempt-001",
-  "status": "quarantined-red-awaiting-synchronized-pose-lab-review",
+  "attemptId": "muramasa-canary-001-attempt-002",
+  "status": "quarantined-red-attempt-002-awaiting-second-synchronized-pose-lab-review",
   "humanAccepted": false,
   "assetClasses": {
     "hardest-key-candidate.png": "Blender-rendered diagnostic candidate from canonical idle pixels",
@@ -14,21 +14,23 @@
   "reviewedTrackSetSha256": "4cc1d24044e20df3d59a03fa457c35380b3ad20d7478968cd77cba53b7355b18",
   "reviewedSubjectSha256": "b6e1829160104ebd56986cccd6491b0adf0567b099ee446d73c0389b17f41178",
   "eventMapSha256": "0ad4574f5372ad4b821867ce9f2b186f362d5cc8e0ec09a857fbe6b7b2bd9405",
-  "candidateSha256": "0f4dc6e61579beb6ad5b438708fa7f09fe1149cf01d29bf72bb4dc31b42f2de0",
+  "candidateSha256": "50e5aa74d2f33243b94855cb92da2326723832336d9fb6aa9e2dd63bfc6c76e6",
   "approvedWitnessFrameSha256": "bda6d2c33f0e8e4ac642c2bfd09c6d1d46c6be30e4b1e919bc27e225ae80911c",
   "correctiveAttachments": [
     "breastplate_turn_3q",
     "overhead_two_hand_grip",
-    "rear_boot_foreshortened"
+    "rear_boot_foreshortened",
+    "rear_forearm_foreshortened"
   ],
   "additionPolicy": "Further corrections require a synchronized Pose Lab facing, foreshortening, grip, contact, overlap, or silhouette failure. Approved performance may not be altered to meet an attachment quota.",
   "localVisualDiagnostic": {
     "classification": "diagnostic-only; not the synchronized or human acceptance lane",
     "observed": [
-      "fragmented armor and limb interfaces",
-      "paper-doll silhouette discontinuity"
+      "attempt-2 rear elbow-to-wrist surface now reaches the overhead hand cluster",
+      "attempt-1 duplicate broad grip and blade fragment is removed",
+      "full character still requires synchronized Pose Lab review and remains RED"
     ],
-    "action": "publish attempt unchanged for synchronized Pose Lab comparison; add no attachment"
+    "action": "publish attempt 2 for synchronized Pose Lab comparison; add no fifth attachment before that evidence"
   },
   "homeCenter": {
     "registryVersion": "2026-07-30.github-artifact-delivery-v1",
@@ -69,5 +71,48 @@
       "state": "completed",
       "disposition": "current persistent source"
     }
-  ]
+  ],
+  "synchronizedComparisons": [
+    {
+      "attemptId": "muramasa-canary-001-attempt-001",
+      "runId": "30581078830",
+      "capturedAt": "2026-07-30T20:53:24.125Z",
+      "imageSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
+      "candidateSourceFrame": 42,
+      "witnessSourceFrame": 42,
+      "state": "RED",
+      "failures": [
+        "grip/contact: both hands collapsed into the torso and guard cluster",
+        "foreshortening/overlap: rear elbow-to-wrist surface was absent",
+        "silhouette: shoulder-to-hilt arc broke into disconnected fragments",
+        "rear boot-to-leg contact remained detached"
+      ],
+      "humanAccepted": false
+    }
+  ],
+  "attempt2": {
+    "baseWorkspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
+    "baseRevisionId": "brv_7aba587fe2e489fac60c6b77139463",
+    "sourceExportOperationId": "bop_455e4a241a330382d8f5d8e9bfe1cb",
+    "sourceExportBlendSha256": "ef9912a150c10fbae57f7e95d7b9ca8bc38ccda2c9d91df738e0e6169610027a",
+    "localEditableBlendSha256": "dc71881702d153f40bce8da31a98936c8217075fd71194af986f8fe286408e6e",
+    "addedAttachment": "rear_forearm_foreshortened",
+    "reusedAttachments": [
+      "breastplate_turn_3q",
+      "overhead_two_hand_grip",
+      "rear_boot_foreshortened"
+    ],
+    "performanceChanged": false,
+    "render": {
+      "engine": "BLENDER_EEVEE_NEXT",
+      "samples": 1,
+      "resolution": [
+        512,
+        512
+      ],
+      "candidateSha256": "50e5aa74d2f33243b94855cb92da2326723832336d9fb6aa9e2dd63bfc6c76e6"
+    },
+    "state": "local-diagnostic-ready-for-second-synchronized-cloud-comparison",
+    "humanAccepted": false
+  }
 }

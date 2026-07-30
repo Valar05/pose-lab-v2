@@ -12,8 +12,11 @@
       ],
       "customProperties": [
         "attachment_status",
+        "attempt_id",
         "canonical_source",
         "corrective_attachment_id",
+        "hc_id",
+        "human_accepted",
         "source_bounds_top_left_pixels"
       ]
     },
@@ -26,10 +29,13 @@
       ],
       "customProperties": [
         "attachment_status",
+        "attempt_id",
         "canonical_source",
         "corrective_attachment_id",
-        "secondary_hand_constraint",
-        "source_bounds_top_left_pixels"
+        "human_accepted",
+        "performance_changed",
+        "source_bounds_top_left_pixels",
+        "source_frame"
       ]
     },
     {
@@ -41,9 +47,31 @@
       ],
       "customProperties": [
         "attachment_status",
+        "attempt_id",
         "canonical_source",
         "corrective_attachment_id",
+        "hc_id",
+        "human_accepted",
         "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "ATTACH_RearForearmForeshortened",
+      "type": "MESH",
+      "parent": null,
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_status",
+        "attempt_id",
+        "canonical_source",
+        "cloud_capture_sha256",
+        "corrective_attachment_id",
+        "human_accepted",
+        "performance_changed",
+        "source_bounds_top_left_pixels",
+        "source_frame"
       ]
     },
     {
@@ -53,7 +81,9 @@
       "collections": [
         "Scene Collection"
       ],
-      "customProperties": []
+      "customProperties": [
+        "hc_id"
+      ]
     },
     {
       "name": "CTRL_HiltSecondarySocket",
@@ -62,7 +92,9 @@
       "collections": [
         "Controls_ReviewedTrack"
       ],
-      "customProperties": []
+      "customProperties": [
+        "hc_id"
+      ]
     },
     {
       "name": "CTRL_RootWitness",
@@ -72,6 +104,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "per_frame_recentering",
         "source_role"
       ]
@@ -83,7 +116,9 @@
       "collections": [
         "Controls_ReviewedTrack"
       ],
-      "customProperties": []
+      "customProperties": [
+        "hc_id"
+      ]
     },
     {
       "name": "CTRL_SwordSecondaryHand",
@@ -94,7 +129,8 @@
       ],
       "customProperties": [
         "double_solve_forbidden",
-        "evidence_target"
+        "evidence_target",
+        "hc_id"
       ]
     },
     {
@@ -105,6 +141,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -119,6 +156,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -133,6 +171,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -147,6 +186,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -161,6 +201,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -175,6 +216,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -189,6 +231,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -203,6 +246,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -217,6 +261,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -231,6 +276,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -245,6 +291,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -259,6 +306,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -273,6 +321,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -287,6 +336,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -301,6 +351,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -315,6 +366,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -329,6 +381,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -343,6 +396,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -357,6 +411,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -371,6 +426,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -385,6 +441,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -399,6 +456,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -413,6 +471,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -427,6 +486,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -441,6 +501,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -455,6 +516,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -469,6 +531,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -483,6 +546,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -497,6 +561,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -511,6 +576,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -525,6 +591,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -539,6 +606,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -553,6 +621,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -567,6 +636,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -581,6 +651,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -595,6 +666,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -609,6 +681,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -623,6 +696,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -637,6 +711,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -651,6 +726,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -665,6 +741,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -679,6 +756,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -693,6 +771,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -707,6 +786,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -721,6 +801,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -735,6 +816,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -749,6 +831,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -763,6 +846,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -777,6 +861,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -791,6 +876,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -805,6 +891,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -819,6 +906,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -833,6 +921,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -847,6 +936,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -861,6 +951,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -875,6 +966,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -889,6 +981,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -903,6 +996,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -917,6 +1011,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -931,6 +1026,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -945,6 +1041,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -959,6 +1056,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -973,6 +1071,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -987,6 +1086,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1001,6 +1101,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1015,6 +1116,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1029,6 +1131,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1043,6 +1146,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1057,6 +1161,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1071,6 +1176,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1085,6 +1191,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1099,6 +1206,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1113,6 +1221,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1127,6 +1236,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1141,6 +1251,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1155,6 +1266,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1169,6 +1281,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1183,6 +1296,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1197,6 +1311,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1211,6 +1326,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1225,6 +1341,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1239,6 +1356,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1253,6 +1371,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1267,6 +1386,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1281,6 +1401,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1295,6 +1416,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1309,6 +1431,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1323,6 +1446,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1337,6 +1461,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1351,6 +1476,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1365,6 +1491,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1379,6 +1506,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1393,6 +1521,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1407,6 +1536,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1421,6 +1551,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1435,6 +1566,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1449,6 +1581,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1463,6 +1596,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1477,6 +1611,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1491,6 +1626,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1505,6 +1641,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1519,6 +1656,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1533,6 +1671,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1547,6 +1686,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1561,6 +1701,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1575,6 +1716,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1589,6 +1731,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1603,6 +1746,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1617,6 +1761,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1631,6 +1776,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1645,6 +1791,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1659,6 +1806,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1673,6 +1821,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1687,6 +1836,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1701,6 +1851,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1715,6 +1866,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1729,6 +1881,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1743,6 +1896,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1757,6 +1911,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1771,6 +1926,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1785,6 +1941,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1799,6 +1956,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1813,6 +1971,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1827,6 +1986,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1841,6 +2001,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1855,6 +2016,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1869,6 +2031,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1883,6 +2046,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1897,6 +2061,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1911,6 +2076,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1925,6 +2091,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1939,6 +2106,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1953,6 +2121,7 @@
         "Controls_ReviewedTrack"
       ],
       "customProperties": [
+        "hc_id",
         "landmark_id",
         "reviewed_track_text_block",
         "source_sample_count",
@@ -1970,6 +2139,7 @@
         "active_edge",
         "canonical_source",
         "driver_chain",
+        "hc_id",
         "source_bounds_top_left_pixels"
       ]
     },
@@ -1982,6 +2152,7 @@
       ],
       "customProperties": [
         "canonical_source",
+        "hc_id",
         "source_bounds_top_left_pixels"
       ]
     },
@@ -1994,6 +2165,7 @@
       ],
       "customProperties": [
         "canonical_source",
+        "hc_id",
         "source_bounds_top_left_pixels"
       ]
     },
@@ -2006,6 +2178,7 @@
       ],
       "customProperties": [
         "canonical_source",
+        "hc_id",
         "source_bounds_top_left_pixels"
       ]
     },
@@ -2018,6 +2191,7 @@
       ],
       "customProperties": [
         "canonical_source",
+        "hc_id",
         "source_bounds_top_left_pixels"
       ]
     },
@@ -2030,6 +2204,7 @@
       ],
       "customProperties": [
         "canonical_source",
+        "hc_id",
         "source_bounds_top_left_pixels"
       ]
     },
@@ -2042,6 +2217,7 @@
       ],
       "customProperties": [
         "canonical_source",
+        "hc_id",
         "source_bounds_top_left_pixels"
       ]
     },
@@ -2056,6 +2232,7 @@
         "animated_landmark_count",
         "event_lock_status",
         "full_3d_character",
+        "hc_id",
         "imported_frame_count",
         "imported_landmark_count",
         "representation",
@@ -2069,7 +2246,9 @@
       "collections": [
         "Scene_Root"
       ],
-      "customProperties": []
+      "customProperties": [
+        "hc_id"
+      ]
     }
   ],
   "collections": [
@@ -2135,12 +2314,14 @@
   },
   "correctiveAttachments": [
     "breastplate_turn_3q",
+    "overhead_two_hand_grip",
     "rear_boot_foreshortened",
-    "overhead_two_hand_grip"
+    "rear_forearm_foreshortened"
   ],
   "postRenderScaffoldingRemoved": {
     "objects": 114,
     "meshes": 111
   },
-  "humanAccepted": false
+  "humanAccepted": false,
+  "attemptId": "muramasa-canary-001-attempt-002"
 }

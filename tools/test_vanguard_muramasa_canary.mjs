@@ -11,7 +11,8 @@ const hash = (buffer) => crypto.createHash('sha256').update(buffer).digest('hex'
 const size = (buffer) => ({ width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) });
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
-const locked = ['breastplate_turn_3q', 'overhead_two_hand_grip', 'rear_boot_foreshortened'];
+const initial = ['breastplate_turn_3q', 'overhead_two_hand_grip', 'rear_boot_foreshortened'];
+const current = [...initial, 'rear_forearm_foreshortened'];
 const base = ['public', 'assets', 'vanguard', 'fleshpunk', 'candidates', 'muramasa-canary-001'];
 const manifest = json(...base, 'animations.json');
 const provenance = json(...base, 'provenance.json');
@@ -22,16 +23,24 @@ const validation = json(...base, 'evidence', 'validation-report.json');
 const viewer = fs.readFileSync(at('src', 'sprite-viewer.js'), 'utf8');
 const css = fs.readFileSync(at('src', 'styles.css'), 'utf8');
 const capture = fs.readFileSync(at('tools', 'capture_sprite_review.mjs'), 'utf8');
+const refine = fs.readFileSync(at('tools', 'refine_vanguard_muramasa_canary.py'), 'utf8');
+const attempt1Cloud = json(...base, 'evidence', 'cloud-review', 'muramasa-canary-001-attempt-001', 'report.json');
+const attempt1CloudImage = bytes(...base, 'evidence', 'cloud-review', 'muramasa-canary-001-attempt-001', 'synchronized-pose-lab-comparison.png');
 
-assert(JSON.stringify(config.initialCorrectiveAttachments) === JSON.stringify(locked), 'initial corrective attachment lock changed');
-assert(JSON.stringify(parts.correctiveAttachments.map(({ id }) => id)) === JSON.stringify(locked), 'part library expanded before a synchronized failure');
-assert(parts.additionPolicy.initialCorrectiveAttachmentCount === 3, 'initial attachment count must remain three');
+assert(JSON.stringify(config.initialCorrectiveAttachments) === JSON.stringify(initial), 'initial three-attachment lock changed');
+assert(JSON.stringify(parts.correctiveAttachments.map(({ id }) => id)) === JSON.stringify(current), 'current vocabulary must contain exactly three initial plus one synchronized-evidence correction');
+assert(parts.additionPolicy.initialCorrectiveAttachmentCount === 3 && parts.additionPolicy.currentCorrectiveAttachmentCount === 4, 'attempt 2 must retain the initial count and record exactly one expansion');
 assert(parts.additionPolicy.furtherAttachmentRequiresSynchronizedPoseLabFailure === true, 'expansion must require synchronized Pose Lab evidence');
 assert(parts.additionPolicy.performanceMayChangeToMeetQuota === false, 'approved performance may not change to meet a quota');
-assert(parts.correctiveAttachments.every((item) => item.attempts.length === 1 && item.attempts[0].attemptId === 'muramasa-canary-001-attempt-001'), 'every initial correction must record attempt 001 exactly once');
-assert(parts.correctiveAttachments.every((item) => item.attempts[0].reuseDisposition.includes('retain-in-vanguard-vocabulary')), 'every correction must carry a later-reuse disposition');
+assert(parts.correctiveAttachments.slice(0, 3).every((item) => item.attempts.length === 2 && item.attempts[0].state === 'synchronized-pose-lab-red'), 'the initial three must record the synchronized-red attempt and attempt-2 reuse');
+const rearForearm = parts.correctiveAttachments[3];
+assert(rearForearm.id === 'rear_forearm_foreshortened' && rearForearm.attempts.length === 1, 'only the evidence-justified rear forearm may be added in attempt 2');
+assert(rearForearm.gateEvidence.runId === '30581078830' && rearForearm.gateEvidence.cloudCaptureSha256 === '462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48', 'fourth attachment must cite the synchronized cloud comparison');
+assert(parts.correctiveAttachments.every((item) => item.attempts.at(-1).reuseDisposition.includes('retain-in-vanguard-vocabulary')), 'every current correction must carry a later-reuse disposition');
+assert(parts.correctiveAttachments.every((item) => item.attempts.at(-1).performanceChanged === false), 'attachment iteration must not alter approved performance');
 
 assert(manifest.reviewState.startsWith('RED'), 'canary must remain visibly quarantined');
+assert(manifest.attemptId === 'muramasa-canary-001-attempt-002', 'manifest must expose attempt 2');
 assert(manifest.animations.length === 1, 'bounded canary must expose exactly one hardest key');
 const animation = manifest.animations[0];
 assert(animation.frames.length === 1 && animation.frames[0].sourceFrame === 42, 'canary must remain on approved source frame 42');
@@ -47,12 +56,18 @@ for (const frame of [animation.frames[0], animation.comparison.frames[0]]) {
   assert(hash(file) === frame.sha256, `${frame.src} hash changed`);
 }
 assert(provenance.humanAccepted === false && validation.humanAccepted === false, 'machine output may not claim human acceptance');
-assert(validation.correctiveAttachmentCount === 3, 'Blender result must contain exactly three corrective attachments');
+assert(validation.correctiveAttachmentCount === 4, 'attempt-2 Blender result must contain exactly four corrective attachments');
 assert(mapping.timeline.sourceFrameCount === 254 && mapping.timeline.resampled === false, 'complete unresampled reviewed timeline must enter Blender');
-assert(mapping.attachments.length === 3, 'mapping manifest must not contain a fourth correction');
+assert(JSON.stringify(mapping.attachments) === JSON.stringify(current), 'mapping manifest must contain the three initial plus the evidence-justified rear forearm');
 assert(mapping.coordinateTransform.outputPixels.perFrameRecentering === false, 'per-frame recentering is forbidden');
 assert(mapping.coordinateTransform.outputPixels.perFrameScaleNormalization === false, 'per-frame scale normalization is forbidden');
 assert(mapping.coordinateTransform.outputPixels.mirrored === false, 'mirroring is forbidden');
+assert(mapping.synchronizedExpansionEvidence?.runId === '30581078830' && mapping.synchronizedExpansionEvidence?.performanceChanged === false, 'mapping must preserve the synchronized expansion evidence and unchanged performance');
+assert(attempt1Cloud.captures[0].clean.sha256 === '462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48', 'attempt-1 cloud report hash changed');
+assert(attempt1Cloud.captures[0].clean.inspection.synchronizedComparison === true, 'attempt-1 cloud comparison must remain synchronized');
+assert(size(attempt1CloudImage).width === 1366 && size(attempt1CloudImage).height === 900, 'cloud comparison must retain the captured review viewport');
+assert(hash(attempt1CloudImage) === '462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48', 'attempt-1 cloud image bytes changed');
+assert(refine.includes('image_angle(left_wrist, right_wrist)') && refine.includes('performance_changed') && refine.includes('rear_forearm_foreshortened'), 'attempt-2 Blender correction must use reviewed wrists, forbid performance change, and add only the rear forearm');
 
 assert(viewer.includes("document.body.dataset.synchronizedComparison"), 'viewer must expose synchronized-comparison readiness');
 assert(viewer.includes('comparisonImage.dataset.sourceFrame'), 'viewer must expose witness source frame');
@@ -67,7 +82,7 @@ console.log(JSON.stringify({
   ok: true,
   sourceFrame: animation.frames[0].sourceFrame,
   sourceTimestampSeconds: animation.frames[0].sourceTimestampSeconds,
-  correctiveAttachments: locked,
+  correctiveAttachments: current,
   humanAccepted: false,
   state: manifest.reviewState,
 }, null, 2));
