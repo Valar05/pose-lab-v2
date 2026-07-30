@@ -1,0 +1,88 @@
+{
+  "schema": "pose-lab-v2-2d-animation-set-v1",
+  "status": "quarantined",
+  "character": "Fleshpunk Vanguard",
+  "defaultAnimation": "falseedgeoberhau",
+  "frameSpace": {
+    "width": 512,
+    "height": 512,
+    "colorMode": "RGBA",
+    "background": "transparent",
+    "facing": "screen-right",
+    "camera": "fixed"
+  },
+  "authority": {
+    "poseCameraFacingTiming": "Recovered hand-focused false-edge oberhau candidate",
+    "appearance": "Fleshpunk Vanguard",
+    "excluded": [
+      "canonical Idle changes",
+      "canonical Walk changes",
+      "SwordAttack1 changes",
+      "bitmap mirroring",
+      "generator-authored reframing after GIF approval",
+      "invented in-betweens after GIF approval"
+    ]
+  },
+  "animations": [
+    {
+      "id": "falseedgeoberhau",
+      "label": "False-edge Oberhau · Candidate 001",
+      "status": "quarantined",
+      "loop": true,
+      "contactSheet": "contact-sheet.png",
+      "sourceMetadata": "source-metadata.json",
+      "sourceGif": "Vanguard_False_Edge_Oberhau_Complete_8_Pose.gif",
+      "groundGuideY": 416,
+      "contract": [
+        "screen-right",
+        "fixed side-orthographic camera",
+        "embedded sword",
+        "eight distinct poses",
+        "source GIF bytes preserved",
+        "quarantined hosted review"
+      ],
+      "frames": [
+        {
+          "src": "frames/falseedgeoberhau_0000.png",
+          "durationMs": 140,
+          "sha256": "93387a0fef27c1bcc1caa806a3f734056bce7527bd01367cbadc89ea7c76c9a7"
+        },
+        {
+          "src": "frames/falseedgeoberhau_0001.png",
+          "durationMs": 140,
+          "sha256": "82714328cf9b998789a80b1974ead0dd951774b127e9e0c6c0453ebab50f02cc"
+        },
+        {
+          "src": "frames/falseedgeoberhau_0002.png",
+          "durationMs": 120,
+          "sha256": "2ae1a67f3dfa0ea0abfd44ff7af9499d16dc524fb9ec1df1da8569f55facf7b3"
+        },
+        {
+          "src": "frames/falseedgeoberhau_0003.png",
+          "durationMs": 120,
+          "sha256": "2c8bcfd3c7ea166dbf36aa7bdb81515152c346561d4350a5b997375fd063f74f"
+        },
+        {
+          "src": "frames/falseedgeoberhau_0004.png",
+          "durationMs": 120,
+          "sha256": "98d97ff8531ac9f41ccbd06b1498f43644ceeab8cc72b89f91c3f0a8f6ddce74"
+        },
+        {
+          "src": "frames/falseedgeoberhau_0005.png",
+          "durationMs": 120,
+          "sha256": "b2b425e3e27f7002b7eca600dcc3b74c8c4198f8119c03fe0102024250c559b2"
+        },
+        {
+          "src": "frames/falseedgeoberhau_0006.png",
+          "durationMs": 140,
+          "sha256": "7b5bfb89bd60f1a3986e722f6157203e9e54981608afb9eb04c56aad6d9b949a"
+        },
+        {
+          "src": "frames/falseedgeoberhau_0007.png",
+          "durationMs": 260,
+          "sha256": "6b4ee7cf40418a3c0687e02ef680ddd5dcb84d18de32c3883f0aba2da39bc165"
+        }
+      ]
+    }
+  ]
+}
