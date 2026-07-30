@@ -31,7 +31,7 @@ on:
       - public/assets/vanguard/fleshpunk/**
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   capture:
@@ -89,7 +89,24 @@ jobs:
             --manifest /assets/vanguard/fleshpunk/candidates/muramasa-canary-001/animations.json \
             --animations oberhau-hardest-key-canary-001 \
             --skip-delta
+      - name: Persist synchronized canary evidence
+        if: github.event_name == "workflow_dispatch"
+        run: |
+          evidence_dir="public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review"
+          mkdir -p "$evidence_dir"
+          cp generated/sprite-review/muramasa-canary-001/oberhau-hardest-key-canary-001-clean.png "$evidence_dir/synchronized-pose-lab-comparison.png"
+          cp generated/sprite-review/muramasa-canary-001/report.json "$evidence_dir/report.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$evidence_dir"
+          if git diff --cached --quiet; then
+            echo "Synchronized canary evidence already current."
+          else
+            git commit -m "Record synchronized Vanguard canary evidence"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: sprite-visual-evidence-${{ github.run_id }}
           path: generated/sprite-review/

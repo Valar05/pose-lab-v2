@@ -103,6 +103,8 @@ assert(capture.includes("url.searchParams.set('batch'") && capture.includes('bat
 assert(capture.includes("state === 'ready'") && capture.includes("state === 'red'"), 'capture must assert visible READY and RED clip states');
 assert(capture.includes('evidenceLinks'), 'capture report must preserve batch evidence links');
 assert(workflow.includes('--batch-fixture') && workflow.includes(batchFixturePath.replace(/^public/, '')), 'hosted Sprite Visual QA must pass the explicit refinery fixture');
+assert(workflow.includes('Persist synchronized canary evidence') && workflow.includes('evidence/cloud-review'), 'manual cloud review must persist synchronized canary evidence');
+assert(workflow.includes('continue-on-error: true'), 'Actions artifact quota must not erase durable synchronized evidence');
 assert(css.includes('.sprite-stage.checker') && css.includes('.sprite-frame-strip'), '2D review styles are incomplete');
 
 const swarmlingManifestPath = 'public/assets/swarmling/fleshpunk/animations.json';
