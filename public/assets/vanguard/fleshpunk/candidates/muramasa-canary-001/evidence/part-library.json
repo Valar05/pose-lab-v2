@@ -1,0 +1,173 @@
+{
+  "schema": "vanguard-2p5d-part-library-v1",
+  "status": "canary",
+  "appearanceAuthority": {
+    "primary": "public/assets/vanguard/fleshpunk/idle/frames/idle_0000.png",
+    "compatibleExtended": {
+      "driveId": "1P-iajzKegi3doNtFcYHFPLt4JSbig5hW",
+      "sha256": "746de1ed471eaaa96704d77837da73c9fb381fbd09878f80a2f6c97a080509d9"
+    },
+    "idleWinsConflicts": true
+  },
+  "baseParts": [
+    {
+      "id": "helmet_head_plume",
+      "perspectiveClass": "screen-right profile",
+      "deformation": "plume-only-bounded",
+      "zOrder": 70
+    },
+    {
+      "id": "skirt_pelvis",
+      "perspectiveClass": "screen-right profile",
+      "deformation": "cloth-edge-only-bounded",
+      "zOrder": 30
+    },
+    {
+      "id": "front_leg",
+      "perspectiveClass": "screen-right near leg",
+      "deformation": "none-rigid-armor",
+      "zOrder": 40
+    },
+    {
+      "id": "rear_leg",
+      "perspectiveClass": "screen-right far leg",
+      "deformation": "none-rigid-armor",
+      "zOrder": 20
+    },
+    {
+      "id": "canonical_sword",
+      "perspectiveClass": "profile blade",
+      "deformation": "none-rigid",
+      "zOrder": 80
+    }
+  ],
+  "correctiveAttachments": [
+    {
+      "id": "breastplate_turn_3q",
+      "status": "anticipated-canary",
+      "sourceBasis": [
+        "idle_0000 breastplate pixels",
+        "source frame 42 shoulder and hip controls"
+      ],
+      "perspectiveClass": "screen-right three-quarter turn",
+      "allowedTransforms": [
+        "translation",
+        "rotation <= 18deg",
+        "horizontal scale 0.82..1.0"
+      ],
+      "compatibleNeighbors": [
+        "helmet_head_plume",
+        "skirt_pelvis",
+        "overhead_two_hand_grip"
+      ],
+      "occlusionOrder": [
+        "skirt_pelvis",
+        "breastplate_turn_3q",
+        "overhead_two_hand_grip"
+      ],
+      "attempts": [
+        {
+          "attemptId": "muramasa-canary-001-attempt-001",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "rendered-pending-synchronized-pose-lab-comparison",
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false,
+          "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-001-blend-v3",
+          "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
+          "revisionId": "brv_7aba587fe2e489fac60c6b77139463"
+        }
+      ],
+      "reuseIntent": "later overhead or recovery poses with the same torso turn"
+    },
+    {
+      "id": "overhead_two_hand_grip",
+      "status": "anticipated-canary",
+      "sourceBasis": [
+        "idle_0000 gauntlet and hand pixels",
+        "reviewed MMPose hand landmarks",
+        "weapon companion frame 42"
+      ],
+      "perspectiveClass": "overhead false-edge two-hand grip",
+      "allowedTransforms": [
+        "translation",
+        "rotation",
+        "uniform scale 0.9..1.05"
+      ],
+      "compatibleNeighbors": [
+        "breastplate_turn_3q",
+        "canonical_sword"
+      ],
+      "occlusionOrder": [
+        "breastplate_turn_3q",
+        "overhead_two_hand_grip",
+        "canonical_sword"
+      ],
+      "attempts": [
+        {
+          "attemptId": "muramasa-canary-001-attempt-001",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "rendered-pending-synchronized-pose-lab-comparison",
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false,
+          "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-001-blend-v3",
+          "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
+          "revisionId": "brv_7aba587fe2e489fac60c6b77139463"
+        }
+      ],
+      "reuseIntent": "later oberhau turnover and high endpoint keys"
+    },
+    {
+      "id": "rear_boot_foreshortened",
+      "status": "anticipated-canary",
+      "sourceBasis": [
+        "idle_0000 rear boot pixels",
+        "source frame 42 rear ankle heel and toe controls"
+      ],
+      "perspectiveClass": "far rear boot under lunge foreshortening",
+      "allowedTransforms": [
+        "translation",
+        "rotation",
+        "horizontal scale 0.72..1.0"
+      ],
+      "compatibleNeighbors": [
+        "rear_leg",
+        "skirt_pelvis"
+      ],
+      "occlusionOrder": [
+        "rear_boot_foreshortened",
+        "rear_leg",
+        "skirt_pelvis"
+      ],
+      "attempts": [
+        {
+          "attemptId": "muramasa-canary-001-attempt-001",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "rendered-pending-synchronized-pose-lab-comparison",
+          "reuseDisposition": "retain-in-vanguard-vocabulary-and-test-on-later-approved-keys",
+          "humanAccepted": false,
+          "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-001-blend-v3",
+          "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
+          "revisionId": "brv_7aba587fe2e489fac60c6b77139463"
+        }
+      ],
+      "reuseIntent": "later wide-stance keys with the same far-foot view"
+    }
+  ],
+  "additionPolicy": {
+    "initialCorrectiveAttachmentCount": 3,
+    "furtherAttachmentRequiresSynchronizedPoseLabFailure": true,
+    "allowedFailureClasses": [
+      "facing",
+      "foreshortening",
+      "grip",
+      "contact",
+      "overlap",
+      "silhouette"
+    ],
+    "performanceMayChangeToMeetQuota": false,
+    "everyAdditionMustRecordAttemptAndReuse": true
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "vanguard-muramasa-canary-provenance-v1",
+  "attemptId": "muramasa-canary-001-attempt-001",
+  "status": "quarantined-red-awaiting-synchronized-pose-lab-review",
+  "humanAccepted": false,
+  "assetClasses": {
+    "hardest-key-candidate.png": "Blender-rendered diagnostic candidate from canonical idle pixels",
+    "approved-motion-witness-key-07": "existing approved motion authority, referenced in place, not duplicated",
+    "evidence": "locally rendered or machine-readable diagnostic artifacts"
+  },
+  "blenderVersion": "4.3.2",
+  "groundedMotionExecutionId": "f7f20dd5-b909-4dc1-8081-e93276015d31",
+  "sourceSha256": "35df8d71b98a259d0906379e950d93de72964ef8846c8f55238c57ce33dbf333",
+  "reviewedTrackSetSha256": "4cc1d24044e20df3d59a03fa457c35380b3ad20d7478968cd77cba53b7355b18",
+  "reviewedSubjectSha256": "b6e1829160104ebd56986cccd6491b0adf0567b099ee446d73c0389b17f41178",
+  "eventMapSha256": "0ad4574f5372ad4b821867ce9f2b186f362d5cc8e0ec09a857fbe6b7b2bd9405",
+  "candidateSha256": "0f4dc6e61579beb6ad5b438708fa7f09fe1149cf01d29bf72bb4dc31b42f2de0",
+  "approvedWitnessFrameSha256": "bda6d2c33f0e8e4ac642c2bfd09c6d1d46c6be30e4b1e919bc27e225ae80911c",
+  "correctiveAttachments": [
+    "breastplate_turn_3q",
+    "overhead_two_hand_grip",
+    "rear_boot_foreshortened"
+  ],
+  "additionPolicy": "Further corrections require a synchronized Pose Lab facing, foreshortening, grip, contact, overlap, or silhouette failure. Approved performance may not be altered to meet an attachment quota.",
+  "localVisualDiagnostic": {
+    "classification": "diagnostic-only; not the synchronized or human acceptance lane",
+    "observed": [
+      "fragmented armor and limb interfaces",
+      "paper-doll silhouette discontinuity"
+    ],
+    "action": "publish attempt unchanged for synchronized Pose Lab comparison; add no attachment"
+  },
+  "homeCenter": {
+    "registryVersion": "2026-07-30.github-artifact-delivery-v1",
+    "serviceRevision": "homecentermcp-00187-pip",
+    "containerRevision": "home-center-blender-00009-glr",
+    "blenderVersion": "4.5.12",
+    "artifactId": "vanguard-muramasa-2p5d-canary-001-blend-v3",
+    "artifactSha256": "facaf52e0626fbc1543835f88fa7d860287372e3af710a91586e5969ab99d0e8",
+    "artifactByteLength": 95020332,
+    "durableRef": "home-center://artifacts/vanguard-muramasa-2p5d-canary-001-blend-v3",
+    "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
+    "revisionId": "brv_7aba587fe2e489fac60c6b77139463",
+    "createOperationId": "bop_211392955c57807a208f2859e20eaa",
+    "exportOperationId": "bop_bcbd53dbafd97fdb28bee2c9b67b15",
+    "exportedBlendSha256": "801b739ab422232a9a5ca51eb1299194e1de81756330bd96f991729ed02e5703",
+    "exportedGlbSha256": "938c93f353f326f23a74c5baaebcc23f3c2aa79618e0d4a99e21e15de0c0ae3c",
+    "humanAcceptance": "unreviewed"
+  },
+  "persistenceRepairLedger": [
+    {
+      "attempt": 1,
+      "workspaceId": "bws_051ee21548f2bb17e380315f2d1b6c",
+      "state": "failed",
+      "reason": "Firestore revision document 3568183 bytes exceeded 1048576-byte limit",
+      "disposition": "immutable input retained; removed redundant post-render mesh scaffolding only"
+    },
+    {
+      "attempt": 2,
+      "workspaceId": "bws_9f88a97f56d3ac88afd1489f2c4dda",
+      "state": "failed",
+      "reason": "Firestore revision document 1190204 bytes exceeded 1048576-byte limit",
+      "disposition": "immutable input retained; animated only required body feet and hand controls; all 133 streams remained embedded"
+    },
+    {
+      "attempt": 3,
+      "workspaceId": "bws_d10e085ad058da4d76cc5ce13878d1",
+      "revisionId": "brv_7aba587fe2e489fac60c6b77139463",
+      "state": "completed",
+      "disposition": "current persistent source"
+    }
+  ]
+}

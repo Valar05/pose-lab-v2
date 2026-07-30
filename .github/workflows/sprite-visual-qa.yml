@@ -9,6 +9,9 @@ on:
       - tools/register_vanguard_attack1_frames.py
       - tools/test_vanguard_attack1_registration.py
       - tools/test_sprite_review_surface.mjs
+      - tools/test_vanguard_muramasa_canary.mjs
+      - src/sprite-viewer.js
+      - src/styles.css
       - public/assets/vanguard/fleshpunk/**
   push:
     branches:
@@ -51,6 +54,7 @@ jobs:
         run: |
           npm run test:vanguard-attack1-registration
           npm run test:2d
+          npm run test:vanguard-muramasa-canary
           npm run build
           npm run smoke
           git diff --check
@@ -79,6 +83,12 @@ jobs:
             --url http://127.0.0.1:4173/ \
             --out-dir generated/sprite-review \
             --batch-fixture /fixtures/vanguard-refinery/visual-qa/state.json
+          node tools/capture_sprite_review.mjs \
+            --url http://127.0.0.1:4173/ \
+            --out-dir generated/sprite-review/muramasa-canary-001 \
+            --manifest /assets/vanguard/fleshpunk/candidates/muramasa-canary-001/animations.json \
+            --animations oberhau-hardest-key-canary-001 \
+            --skip-delta
       - uses: actions/upload-artifact@v4
         with:
           name: sprite-visual-evidence-${{ github.run_id }}

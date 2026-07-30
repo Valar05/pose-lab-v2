@@ -79,6 +79,7 @@
     "inspect:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/inspect_swarmling_blend.py --",
     "build:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/export_swarmling_glb.py --",
     "export:swarmling-idle": "node scripts/export-swarmling-idle.mjs",
-    "audit:swarmling-actions": "node scripts/run-blender-tool.mjs tools/render_swarmling_action_audit_blender.py -- --blend authoring/swarmling/Swarmling.blend --out-dir generated/swarmling/action-audit"
+    "audit:swarmling-actions": "node scripts/run-blender-tool.mjs tools/render_swarmling_action_audit_blender.py -- --blend authoring/swarmling/Swarmling.blend --out-dir generated/swarmling/action-audit",
+    "test:vanguard-muramasa-canary": "node tools/test_vanguard_muramasa_canary.mjs"
   }
 }
