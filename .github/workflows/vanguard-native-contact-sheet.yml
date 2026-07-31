@@ -161,12 +161,12 @@ jobs:
                   for name in ("beauty-grid.png", "silhouette-grid.png", "limb-id-grid.png", "depth-grid.png", "geometry-grid.png"):
                       archive.write(root / name, name)
               else:
-                  for name in ("beauty-grid.png", "limb-id-grid.png"):
+                  for name in ("beauty-grid.png",):
                       with Image.open(root / name) as image:
                           preview = image.convert("RGB")
-                          preview.thumbnail((1470, 1560), Image.Resampling.LANCZOS)
+                          preview.thumbnail((735, 780), Image.Resampling.LANCZOS)
                           encoded = io.BytesIO()
-                          preview.save(encoded, "JPEG", quality=88, optimize=True)
+                          preview.save(encoded, "JPEG", quality=72, optimize=True)
                           archive.writestr(name.replace(".png", "-preview.jpg"), encoded.getvalue())
           encoded = base64.b64encode(payload.getvalue()).decode("ascii")
           print(f"POSE_PACKET_LOG_BUNDLE_BEGIN {os.environ['OUTPUT_SLUG']} {frame_count} {len(payload.getvalue())}")
