@@ -137,7 +137,46 @@ jobs:
             --root "generated/vanguard-$OUTPUT_SLUG-pose-packet" \
             --report "generated/vanguard-$OUTPUT_SLUG-pose-packet/verification.json"
 
+      - name: Emit compact source packet in job log
+        env:
+          OUTPUT_SLUG: ${{ inputs.output_slug || 'swordattack1' }}
+        run: |
+          python3 - <<'PY'
+          import base64
+          import io
+          import json
+          import os
+          import zipfile
+          from pathlib import Path
+          from PIL import Image
+
+          root = Path(f"generated/vanguard-{os.environ['OUTPUT_SLUG']}-pose-packet")
+          manifest = json.loads((root / "manifest.json").read_text())
+          frame_count = len(manifest["frames"])
+          payload = io.BytesIO()
+          with zipfile.ZipFile(payload, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+              for name in ("manifest.json", "appearance-only-generation-contract.json", "verification.json"):
+                  archive.write(root / name, name)
+              if frame_count <= 12:
+                  for name in ("beauty-grid.png", "silhouette-grid.png", "limb-id-grid.png", "depth-grid.png", "geometry-grid.png"):
+                      archive.write(root / name, name)
+              else:
+                  for name in ("beauty-grid.png", "limb-id-grid.png"):
+                      with Image.open(root / name) as image:
+                          preview = image.convert("RGB")
+                          preview.thumbnail((1470, 1560), Image.Resampling.LANCZOS)
+                          encoded = io.BytesIO()
+                          preview.save(encoded, "JPEG", quality=88, optimize=True)
+                          archive.writestr(name.replace(".png", "-preview.jpg"), encoded.getvalue())
+          encoded = base64.b64encode(payload.getvalue()).decode("ascii")
+          print(f"POSE_PACKET_LOG_BUNDLE_BEGIN {os.environ['OUTPUT_SLUG']} {frame_count} {len(payload.getvalue())}")
+          for offset in range(0, len(encoded), 76):
+              print(encoded[offset:offset + 76])
+          print("POSE_PACKET_LOG_BUNDLE_END")
+          PY
+
       - name: Upload source-only pose packet
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: vanguard-${{ inputs.output_slug || 'swordattack1' }}-pose-packet
