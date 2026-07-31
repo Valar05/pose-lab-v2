@@ -1,6 +1,6 @@
 {
   "schema": "vanguard-muramasa-canary-validation-v1",
-  "technicalState": "rendered-awaiting-normal-size-synchronized-visual-gate",
+  "technicalState": "synchronized-visual-gate-ready-for-drew-review",
   "evidenceHashesVerified": true,
   "completeReviewedFramesImported": true,
   "completeLandmarkVocabularyImported": true,
@@ -31,7 +31,7 @@
     "performanceMayChangeToMeetQuota": false
   },
   "humanAccepted": false,
-  "visualVerdict": "attempt 3 pending normal-size synchronized Pose Lab comparison; not ready for Drew until silhouette matches",
+  "visualVerdict": "Attempt 3 synchronized normal-size silhouette visibly matches the approved frame-42 overhead lunge; ready for Drew review, not human accepted.",
   "persistentSource": {
     "renderScaffoldingRemoved": {
       "objects": 114,
@@ -40,52 +40,60 @@
     "texturesPacked": true
   },
   "latestSynchronizedComparison": {
-    "runId": "30582812601",
-    "capturedAt": "2026-07-30T21:18:11.104Z",
-    "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png",
-    "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+    "runId": "30598092347",
+    "capturedAt": "2026-07-31T02:06:51Z",
+    "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-003/synchronized-pose-lab-comparison.png",
+    "cloudCaptureSha256": "c4f6cbba7ee9f80a6474f837d0b1efefe001d33aae5c339a3a12a147fa8a0c65",
     "sourceFrame": 42,
     "sourceTimestampSeconds": 0.7661160104986877,
     "synchronized": true,
     "candidateSourceFrameMatchedWitness": true,
-    "state": "RED",
-    "failureClasses": [
-      "facing",
-      "foreshortening",
-      "grip",
-      "contact",
-      "overlap",
-      "silhouette"
+    "viewport": [
+      1366,
+      900
     ],
-    "visibleFailures": [
-      "facing/grip: candidate sword vector opposes the approved synchronized witness and requires authority/transform adjudication before artwork changes",
-      "overlap/silhouette: torso, pelvis, and raised-arm chain remain visibly fragmented",
-      "contact/foreshortening: raised forearm-to-grip and rear boot-to-shin interfaces remain detached or untruthful",
-      "silhouette: the candidate does not reproduce the approved key screen-space mass or continuous lunge silhouette"
+    "state": "READY_FOR_DREW_REVIEW",
+    "normalSizeSilhouetteMatched": true,
+    "visibleRead": [
+      "facing: candidate and witness sword vectors both project up-left from the synchronized hilt",
+      "overlap/silhouette: torso, breastplate, both raised arms, forearms, and grip read as one continuous overhead chain",
+      "grip/contact: the hilt remains between the two reviewed wrist sockets with both gauntlets visibly contacting the grip",
+      "contact/overlap: the rear boot overlaps the rear shin at the locked ankle instead of floating",
+      "silhouette: both normal-size panels read as the same frame-42 overhead lunge and split support stance while canonical Vanguard appearance remains authoritative"
     ],
-    "humanAccepted": false,
-    "attachmentAdded": false
+    "attachmentAdded": false,
+    "performanceChanged": false,
+    "humanAccepted": false
   },
   "approvedPerformanceChanged": false,
   "homeCenterPersistence": {
+    "state": "completed-ready-for-drew-review-not-accepted",
     "artifact": {
-      "artifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
-      "durableRef": "home-center://artifacts/vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
-      "byteLength": 95140148,
-      "sha256": "dc71881702d153f40bce8da31a98936c8217075fd71194af986f8fe286408e6e",
+      "artifactId": "vanguard-muramasa-2p5d-canary-attempt-003-blend-v1",
+      "durableRef": "home-center://artifacts/vanguard-muramasa-2p5d-canary-attempt-003-blend-v1",
+      "byteLength": 95857424,
+      "sha256": "9e0b75596922520eb74a59b21c2135f2d723af07fbf4e95e09c6d19e5fa025ef",
       "readbackVerified": true,
-      "requestId": "vanguard-muramasa-attempt-002-blend-resumable-20260730-v1"
+      "verifiedChunkCount": 6,
+      "requestId": "vanguard-muramasa-attempt-003-blend-resumable-20260730-v2"
     },
     "workspace": {
-      "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
-      "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88",
-      "operationId": "bop_1429fb07a66f198a902cb517d9320f",
+      "workspaceId": "bws_2c698c9c972667285bd9baf7875736",
+      "revisionId": "brv_acad8f6976c4a31d34452b306494eb",
+      "createOperationId": "bop_f0f9cd51a2997bdb9c9bcd6f990c0f",
+      "exportOperationId": "bop_45356b2ed87ec159bfdbfb7c7990be",
       "containerRevision": "home-center-blender-00009-glr",
       "blenderVersion": "4.5.12 LTS",
-      "sceneBlendSha256": "60425782f516a63ee7e6d3f0a7b831025f46b64553bed99d65ca9b6b8c79d346",
-      "inspectionSha256": "501cd87b741579557a700e3e2c207d08ed65a0d5ef2e72e07cb369d2d12c3816",
+      "sceneBlendSha256": "8ec99d141a4e2445767bebf92c71f9fbc196ac51baa79ac5284635d1adf78969",
+      "inspectionSha256": "08bb78a3d6e539da3763a0fcbdb0128f8a166671040a1d5ca181a8e0e83b665b",
+      "validationSha256": "77b3bd6aef15cb77176cc004875aaa9a68d45663564c6368d6e7d9b5e8b2efae",
+      "exportedBlendSha256": "35ff458d9db232f9d36b0219a6d3af3e6bb72ccddad34d9664af40e336ec58fd",
+      "exportedGlbSha256": "4fb47c23438e50902871420d1ae05651c18d582ac613ae3c02d0bf729a79c2b3",
       "inspectionReadback": {
-        "correctiveAttachmentObjectCount": 4,
+        "correctiveAttachmentRootCount": 4,
+        "correctiveAttachmentComponentCount": 7,
+        "canonicalSwordPresent": true,
+        "gameCameraPresent": true,
         "reviewedTimelineFrameRange": [
           1,
           254
@@ -94,7 +102,7 @@
         "humanAcceptance": "unreviewed"
       }
     },
-    "planeTopologyNote": "The four corrective and seven canonical sprite planes intentionally have open boundaries; machineValid=false is diagnostic for planar 2.5D artwork and is not visual acceptance."
+    "humanAccepted": false
   },
   "attemptId": "muramasa-canary-001-attempt-003",
   "frozenPerformance": {
@@ -106,5 +114,6 @@
     "supportState": true
   },
   "attachmentAdded": false,
-  "normalSizeSynchronizedGate": "pending"
+  "normalSizeSynchronizedGate": "visibly-matched",
+  "planeTopologyNote": "Open boundaries are expected for layered 2.5D sprite planes; Home Center machineValid=false is diagnostic topology output, not visual acceptance."
 }

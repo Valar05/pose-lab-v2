@@ -16,3 +16,5 @@ Attempt 2 persistent source: Home Center artifact `vanguard-muramasa-2p5d-canary
 - Corrects only the frame-42 manual sword-tip vector and internal canonical component masks/transforms.
 - Freezes frame 42, timing, wrists, root, feet, and support state.
 - Local Blender output is diagnostic only; synchronized normal-size Pose Lab cloud pixels must match before Drew review.
+- Cloud normal-size gate: run `30598092347`, screenshot `c4f6cbba7ee9f80a6474f837d0b1efefe001d33aae5c339a3a12a147fa8a0c65`, ready for Drew review but not accepted.
+- Persistent attempt-3 source: verified artifact `vanguard-muramasa-2p5d-canary-attempt-003-blend-v1` (`9e0b75596922520eb74a59b21c2135f2d723af07fbf4e95e09c6d19e5fa025ef`), Home Center workspace `bws_2c698c9c972667285bd9baf7875736`, immutable revision `brv_acad8f6976c4a31d34452b306494eb`; live inspection read back four attachment roots, seven internal components, canonical sword, locked camera, and the 1–254 evidence timeline.

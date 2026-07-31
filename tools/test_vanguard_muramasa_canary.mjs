@@ -68,6 +68,10 @@ for (const frame of [animation.frames[0], animation.comparison.frames[0]]) {
 assert(provenance.humanAccepted === false && validation.humanAccepted === false, 'machine output may not claim human acceptance');
 assert(provenance.attempt3.attachmentAdded === false && provenance.attempt3.performanceChanged === false, 'attempt-3 provenance must record no fifth attachment and no performance change');
 assert(provenance.attempt3.candidateSha256 === animation.frames[0].sha256, 'attempt-3 provenance must identify exact candidate bytes');
+assert(provenance.attempt3.localEditableBlendSha256 === '9e0b75596922520eb74a59b21c2135f2d723af07fbf4e95e09c6d19e5fa025ef', 'attempt-3 editable blend hash changed');
+assert(provenance.attempt3.homeCenter.workspace.workspaceId === 'bws_2c698c9c972667285bd9baf7875736' && provenance.attempt3.homeCenter.workspace.revisionId === 'brv_acad8f6976c4a31d34452b306494eb', 'attempt-3 Home Center revision identity changed');
+assert(provenance.attempt3.homeCenter.workspace.inspectionReadback.correctiveAttachmentRootCount === 4 && provenance.attempt3.homeCenter.workspace.inspectionReadback.reviewedTimelineFrameRange.join('-') === '1-254', 'attempt-3 Home Center readback must prove four roots and the full reviewed timeline');
+assert(provenance.attempt3.homeCenter.humanAccepted === false, 'Home Center persistence may not claim Drew acceptance');
 assert(validation.correctiveAttachmentCount === 4 && validation.attachmentAdded === false, 'attempt-3 Blender result must contain exactly four corrective attachments');
 assert(validation.approvedPerformanceChanged === false, 'validation must preserve approved performance');
 assert(validation.frozenPerformance.sourceFrame === 42 && validation.frozenPerformance.wrists && validation.frozenPerformance.root && validation.frozenPerformance.feet && validation.frozenPerformance.supportState, 'validation must lock frame, wrists, root, feet, and support state');
@@ -95,6 +99,10 @@ if (fs.existsSync(attempt3Dir)) {
   assert(report.captures[0].clean.sha256 === hash(image), 'attempt-3 cloud report/image mismatch');
   assert(report.captures[0].clean.inspection.synchronizedComparison === true && report.captures[0].clean.inspection.candidateSourceFrame === '42', 'attempt-3 cloud comparison must remain synchronized on frame 42');
   assert(size(image).width === 1366 && size(image).height === 900, 'attempt-3 cloud comparison must retain the normal review viewport');
+  assert(hash(image) === 'c4f6cbba7ee9f80a6474f837d0b1efefe001d33aae5c339a3a12a147fa8a0c65', 'attempt-3 synchronized pixels changed');
+  assert(validation.technicalState === 'synchronized-visual-gate-ready-for-drew-review' && validation.normalSizeSynchronizedGate === 'visibly-matched', 'attempt-3 cloud pixels must close the pre-Drew normal-size silhouette gate');
+  assert(provenance.attempt3.cloudComparison.runId === '30598092347' && provenance.attempt3.cloudComparison.normalSizeSilhouetteMatched === true, 'attempt-3 provenance must cite the inspected cloud run');
+  assert(parts.correctiveAttachments.every((item) => item.attempts.at(-1).state === 'synchronized-pose-lab-ready-for-drew-review'), 'all four reused attachments must record the attempt-3 synchronized verdict');
 } else {
   assert(validation.normalSizeSynchronizedGate === 'pending', 'cloud evidence absence must fail closed as pending');
 }

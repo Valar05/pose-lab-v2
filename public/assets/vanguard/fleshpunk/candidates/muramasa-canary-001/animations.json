@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-2d-animation-set-v1",
   "character": "Fleshpunk Vanguard",
   "defaultAnimation": "oberhau-hardest-key-canary-001",
-  "reviewState": "QUARANTINED \u2014 attempt 3 awaiting synchronized normal-size silhouette gate",
+  "reviewState": "READY FOR DREW REVIEW \u2014 attempt 3 synchronized normal-size silhouette match; NOT ACCEPTED",
   "frameSpace": {
     "width": 512,
     "height": 512,
@@ -45,7 +45,7 @@
         "approved timing wrists root feet and support state are immutable",
         "exactly 4 corrective attachment roots; no fifth attachment",
         "production-v21 sword vector corrected from synchronized evidence",
-        "attempt 3 must visibly match the witness at normal size before Drew review"
+        "attempt 3 normal-size synchronized silhouette matched on cloud run 30598092347; Drew acceptance still pending"
       ],
       "evidence": [
         {
@@ -87,6 +87,10 @@
         {
           "label": "Attempt 2 synchronized RED",
           "src": "evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png"
+        },
+        {
+          "label": "Attempt 3 synchronized READY FOR DREW REVIEW",
+          "src": "evidence/cloud-review/muramasa-canary-001-attempt-003/synchronized-pose-lab-comparison.png"
         }
       ]
     }

@@ -40,6 +40,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--part-library", required=True)
     parser.add_argument("--weapon-track", required=True)
     parser.add_argument("--published-root", required=True)
+    parser.add_argument("--cloud-evidence-dir")
     parser.add_argument("--out-dir", required=True)
     parser.add_argument("--blend-name", default="Vanguard_Muramasa_Style_2p5D_Puppet_Canary_002.blend")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -128,6 +129,39 @@ def main() -> None:
     embedded_weapon_track = text_json("Vanguard_WeaponCompanionTrack.json")
     weapon_track = load_json(args.weapon_track)
     part_library = load_json(args.part_library)
+    cloud_gate = None
+    if args.cloud_evidence_dir:
+        cloud_dir = Path(args.cloud_evidence_dir).resolve()
+        report_path = cloud_dir / "report.json"
+        comparison_path = cloud_dir / "synchronized-pose-lab-comparison.png"
+        if not report_path.is_file() or not comparison_path.is_file():
+            raise RuntimeError("cloud evidence directory is incomplete")
+        report = load_json(report_path)
+        captures = report.get("captures", [])
+        if len(captures) != 1:
+            raise RuntimeError("expected exactly one synchronized cloud capture")
+        inspection = captures[0].get("clean", {}).get("inspection", {})
+        comparison = inspection.get("comparison", {})
+        if (
+            digest(comparison_path) != "c4f6cbba7ee9f80a6474f837d0b1efefe001d33aae5c339a3a12a147fa8a0c65"
+            or inspection.get("synchronizedComparison") is not True
+            or inspection.get("candidateSourceFrame") != "42"
+            or comparison.get("sourceFrame") != "42"
+            or inspection.get("currentFrame", {}).get("naturalWidth") != 512
+            or inspection.get("currentFrame", {}).get("naturalHeight") != 512
+        ):
+            raise RuntimeError("cloud evidence does not prove the locked synchronized frame-42 comparison")
+        cloud_gate = {
+            "runId": "30598092347",
+            "reportSha256": digest(report_path),
+            "cloudCaptureSha256": digest(comparison_path),
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877,
+            "synchronized": True,
+            "normalSizeSilhouetteMatched": True,
+            "state": "READY_FOR_DREW_REVIEW",
+            "humanAccepted": False,
+        }
     if tuple(item["id"] for item in part_library["correctiveAttachments"]) != ATTACHMENTS:
         raise RuntimeError("repair must retain the same four attachment roots from production v21")
     if part_library["correctiveAttachments"][-1]["gateEvidence"]["cloudCaptureSha256"] != "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48":
@@ -290,7 +324,8 @@ def main() -> None:
         raise RuntimeError(f"unexpected attempt-3 attachments: {actual_corrective}")
     corrective = list(ATTACHMENTS)
     scene["corrective_attachments"] = json.dumps(corrective)
-    scene["status"] = "quarantined-awaiting-normal-size-synchronized-gate-attempt-003"
+    scene["status"] = "ready-for-drew-review-not-accepted" if cloud_gate else "quarantined-awaiting-normal-size-synchronized-gate-attempt-003"
+    scene["synchronized_cloud_gate"] = json.dumps(cloud_gate) if cloud_gate else "pending"
     scene["human_accepted"] = False
     scene["approved_performance_changed"] = False
     replace_text("Vanguard_PartLibrary.json", part_library)
@@ -308,7 +343,12 @@ def main() -> None:
     bpy.context.view_layer.update()
     scene.frame_set(frame_index + 1)
     candidate_path = published / "frames" / "hardest-key-candidate.png"
-    render(candidate_path, camera, 512, 512, True)
+    if cloud_gate:
+        reviewed_candidate_sha = "1b5d34fb6f356b4e14d4e71533aa00bbfd32497bb6e7fe5fd36655d020592834"
+        if not candidate_path.is_file() or digest(candidate_path) != reviewed_candidate_sha:
+            raise RuntimeError("cloud finalization requires the exact candidate bytes reviewed in run 30598092347")
+    else:
+        render(candidate_path, camera, 512, 512, True)
 
     mapping_path = published / "evidence" / "mapping-manifest.json"
     mapping = load_json(mapping_path)
@@ -332,10 +372,12 @@ def main() -> None:
 
     validation_path = published / "evidence" / "validation-report.json"
     validation = load_json(validation_path)
-    validation["technicalState"] = "rendered-awaiting-normal-size-synchronized-visual-gate"
+    validation["technicalState"] = "synchronized-visual-gate-ready-for-drew-review" if cloud_gate else "rendered-awaiting-normal-size-synchronized-visual-gate"
     validation["correctiveAttachmentCount"] = len(corrective)
     validation["correctiveAttachments"] = corrective
-    validation["visualVerdict"] = "attempt 3 pending normal-size synchronized Pose Lab comparison; not ready for Drew until silhouette matches"
+    validation["visualVerdict"] = ("attempt 3 synchronized normal-size silhouette matches the frame-42 witness; ready for Drew review, not accepted" if cloud_gate else "attempt 3 pending normal-size synchronized Pose Lab comparison; not ready for Drew until silhouette matches")
+    if cloud_gate:
+        validation["cloudComparison"] = cloud_gate
     validation["humanAccepted"] = False
     validation_path.write_text(json.dumps(validation, indent=2) + "\n", encoding="utf-8")
 
@@ -350,13 +392,29 @@ def main() -> None:
         if source_path.resolve() != target.resolve():
             target.write_bytes(source_path.read_bytes())
 
+    # Preserve the finalized evidence ledgers inside the immutable editable source.
+    for path, text_name in (
+        (published / "evidence" / "canary-config.json", "Vanguard_CanaryConfig.json"),
+        (published / "evidence" / "constraint-ledger.json", "Vanguard_ConstraintLedger.json"),
+        (published / "evidence" / "part-library.json", "Vanguard_PartLibrary.json"),
+        (published / "evidence" / "mapping-manifest.json", "Vanguard_MappingManifest.json"),
+        (published / "evidence" / "scene-inspection-manifest.json", "Vanguard_SceneInspection.json"),
+        (published / "evidence" / "validation-report.json", "Vanguard_ValidationReport.json"),
+        (published / "provenance.json", "Vanguard_Provenance.json"),
+    ):
+        if path.is_file():
+            replace_text(text_name, load_json(path))
+    if cloud_gate:
+        replace_text("Vanguard_SynchronizedCloudGate.json", cloud_gate)
+
     bpy.ops.file.pack_all()
     blend_path = out_dir / args.blend_name
     bpy.ops.wm.save_as_mainfile(filepath=str(blend_path), check_existing=False)
     result = {
         "schema": "vanguard-muramasa-canary-result-v1",
         "attemptId": "muramasa-canary-001-attempt-003",
-        "status": "ready-for-normal-size-synchronized-comparison",
+        "status": "ready-for-drew-review-not-accepted" if cloud_gate else "ready-for-normal-size-synchronized-comparison",
+        "cloudGate": cloud_gate,
         "blend": blend_path.name,
         "blendSha256": digest(blend_path),
         "candidateSha256": digest(candidate_path),
