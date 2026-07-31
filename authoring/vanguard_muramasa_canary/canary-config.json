@@ -150,5 +150,30 @@
     "rear_forearm_foreshortened"
   ],
   "currentCorrectiveAttachmentCount": 4,
-  "noFifthAttachmentDecision": "Attempt 2 proves visible failures, but not a new missing surface. Repair/adjudicate weapon-facing mapping and revise existing attachment interfaces before expanding vocabulary."
+  "noFifthAttachmentDecision": "Attempt 2 proves visible failures, but not a new missing surface. Repair/adjudicate weapon-facing mapping and revise existing attachment interfaces before expanding vocabulary.",
+  "currentAttempt": {
+    "attemptId": "muramasa-canary-001-attempt-003",
+    "productionBaseVersion": 21,
+    "sourceFrame": 42,
+    "sourceTimestampSeconds": 0.7661160104986877,
+    "correctiveAttachmentCount": 4,
+    "attachmentAdded": false,
+    "performanceChanged": false,
+    "synchronizedNormalSizeState": "pending"
+  },
+  "frame42SwordCorrection": {
+    "priorTip": [
+      522.0,
+      384.0
+    ],
+    "correctedTip": [
+      191.492,
+      384.0
+    ],
+    "rootPreserved": [
+      356.746,
+      435.2475
+    ],
+    "basisCloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49"
+  }
 }

@@ -1,7 +1,7 @@
 {
   "schema": "vanguard-muramasa-canary-provenance-v1",
-  "attemptId": "muramasa-canary-001-attempt-002",
-  "status": "quarantined-synchronized-red-attempt-002",
+  "attemptId": "muramasa-canary-001-attempt-003",
+  "status": "quarantined-awaiting-synchronized-normal-size-gate",
   "humanAccepted": false,
   "assetClasses": {
     "hardest-key-candidate.png": "Blender-rendered diagnostic candidate from canonical idle pixels",
@@ -14,7 +14,7 @@
   "reviewedTrackSetSha256": "4cc1d24044e20df3d59a03fa457c35380b3ad20d7478968cd77cba53b7355b18",
   "reviewedSubjectSha256": "b6e1829160104ebd56986cccd6491b0adf0567b099ee446d73c0389b17f41178",
   "eventMapSha256": "0ad4574f5372ad4b821867ce9f2b186f362d5cc8e0ec09a857fbe6b7b2bd9405",
-  "candidateSha256": "50e5aa74d2f33243b94855cb92da2326723832336d9fb6aa9e2dd63bfc6c76e6",
+  "candidateSha256": "1b5d34fb6f356b4e14d4e71533aa00bbfd32497bb6e7fe5fd36655d020592834",
   "approvedWitnessFrameSha256": "bda6d2c33f0e8e4ac642c2bfd09c6d1d46c6be30e4b1e919bc27e225ae80911c",
   "correctiveAttachments": [
     "breastplate_turn_3q",
@@ -204,5 +204,59 @@
         "humanAcceptance": "unreviewed"
       }
     }
+  },
+  "attempt3": {
+    "productionBaseVersion": 21,
+    "baseBlendSha256": "dc71881702d153f40bce8da31a98936c8217075fd71194af986f8fe286408e6e",
+    "localEditableBlendSha256": "31d4aa263dcdc56316e3088c2cc74c38acdabfd7f77de2103a8e0d8bc3829e7c",
+    "candidateSha256": "1b5d34fb6f356b4e14d4e71533aa00bbfd32497bb6e7fe5fd36655d020592834",
+    "normalSizeDiagnosticSha256": "7d27c5940a6faf39c05c6b67c416923217f70dac0f6402b85681df3fa97728f1",
+    "correctiveAttachments": [
+      "breastplate_turn_3q",
+      "overhead_two_hand_grip",
+      "rear_boot_foreshortened",
+      "rear_forearm_foreshortened"
+    ],
+    "attachmentAdded": false,
+    "performanceChanged": false,
+    "frozen": {
+      "sourceFrame": 42,
+      "sourceTimestampSeconds": 0.7661160104986877,
+      "wrists": true,
+      "root": true,
+      "feet": true,
+      "supportState": true
+    },
+    "weaponCorrection": {
+      "priorTip": [
+        522.0,
+        384.0
+      ],
+      "correctedTip": [
+        191.492,
+        384.0
+      ],
+      "rootPreserved": [
+        356.746,
+        435.2475
+      ],
+      "basisCloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49"
+    },
+    "localVisualDiagnostic": {
+      "classification": "agent-eyes-only-cleared-for-cloud-synchronized-gate",
+      "observed": [
+        "sword vector points up-left like the witness",
+        "torso breastplate upper arms forearms and grip form one readable raised chain",
+        "hilt remains between the reviewed wrists",
+        "rear boot overlaps the rear shin at the locked ankle"
+      ]
+    },
+    "cloudComparison": {
+      "state": "pending"
+    },
+    "homeCenter": {
+      "state": "pending-new-immutable-revision"
+    },
+    "humanAccepted": false
   }
 }

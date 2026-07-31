@@ -5,7 +5,7 @@
   "objects": [
     {
       "name": "ATTACH_BreastplateTurn3Q",
-      "type": "MESH",
+      "type": "EMPTY",
       "parent": null,
       "collections": [
         "Attachments_Corrective"
@@ -13,16 +13,58 @@
       "customProperties": [
         "attachment_status",
         "attempt_id",
-        "canonical_source",
         "corrective_attachment_id",
-        "hc_id",
         "human_accepted",
+        "performance_changed",
+        "source_frame"
+      ]
+    },
+    {
+      "name": "ATTACH_BreastplateTurn3Q__FarUpperArm",
+      "type": "MESH",
+      "parent": "ATTACH_BreastplateTurn3Q",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
+      ]
+    },
+    {
+      "name": "ATTACH_BreastplateTurn3Q__NearUpperArm",
+      "type": "MESH",
+      "parent": "ATTACH_BreastplateTurn3Q",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
+      ]
+    },
+    {
+      "name": "ATTACH_BreastplateTurn3Q__Torso",
+      "type": "MESH",
+      "parent": "ATTACH_BreastplateTurn3Q",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
         "source_bounds_top_left_pixels"
       ]
     },
     {
       "name": "ATTACH_OverheadTwoHandGrip",
-      "type": "MESH",
+      "type": "EMPTY",
       "parent": null,
       "collections": [
         "Attachments_Corrective"
@@ -30,17 +72,46 @@
       "customProperties": [
         "attachment_status",
         "attempt_id",
-        "canonical_source",
         "corrective_attachment_id",
         "human_accepted",
         "performance_changed",
-        "source_bounds_top_left_pixels",
         "source_frame"
       ]
     },
     {
-      "name": "ATTACH_RearBootForeshortened",
+      "name": "ATTACH_OverheadTwoHandGrip__HandsAndHilt",
       "type": "MESH",
+      "parent": "ATTACH_OverheadTwoHandGrip",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "secondary_hand_constraint",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
+      ]
+    },
+    {
+      "name": "ATTACH_OverheadTwoHandGrip__PrimaryForearm",
+      "type": "MESH",
+      "parent": "ATTACH_OverheadTwoHandGrip",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
+      ]
+    },
+    {
+      "name": "ATTACH_RearBootForeshortened",
+      "type": "EMPTY",
       "parent": null,
       "collections": [
         "Attachments_Corrective"
@@ -48,16 +119,30 @@
       "customProperties": [
         "attachment_status",
         "attempt_id",
-        "canonical_source",
         "corrective_attachment_id",
-        "hc_id",
         "human_accepted",
+        "performance_changed",
+        "source_frame"
+      ]
+    },
+    {
+      "name": "ATTACH_RearBootForeshortened__BootAndShinSeat",
+      "type": "MESH",
+      "parent": "ATTACH_RearBootForeshortened",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "locked_ankle_output",
+        "locked_toe_output",
         "source_bounds_top_left_pixels"
       ]
     },
     {
       "name": "ATTACH_RearForearmForeshortened",
-      "type": "MESH",
+      "type": "EMPTY",
       "parent": null,
       "collections": [
         "Attachments_Corrective"
@@ -65,13 +150,26 @@
       "customProperties": [
         "attachment_status",
         "attempt_id",
-        "canonical_source",
         "cloud_capture_sha256",
         "corrective_attachment_id",
         "human_accepted",
         "performance_changed",
-        "source_bounds_top_left_pixels",
         "source_frame"
+      ]
+    },
+    {
+      "name": "ATTACH_RearForearmForeshortened__ElbowToWrist",
+      "type": "MESH",
+      "parent": "ATTACH_RearForearmForeshortened",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
       ]
     },
     {
@@ -2138,9 +2236,13 @@
       "customProperties": [
         "active_edge",
         "canonical_source",
+        "corrected_tip_source_pixels",
         "driver_chain",
-        "hc_id",
-        "source_bounds_top_left_pixels"
+        "prior_tip_source_pixels",
+        "production_v21_vector_corrected",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
       ]
     },
     {
@@ -2171,14 +2273,38 @@
     },
     {
       "name": "PART_HeadHelmetPlume",
-      "type": "MESH",
+      "type": "EMPTY",
       "parent": null,
       "collections": [
         "Puppet_Canonical"
       ],
       "customProperties": [
+        "canonical_base_recut"
+      ]
+    },
+    {
+      "name": "PART_HeadHelmetPlume__HelmetFace",
+      "type": "MESH",
+      "parent": "PART_HeadHelmetPlume",
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "canonical_component_of",
         "canonical_source",
-        "hc_id",
+        "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "PART_HeadHelmetPlume__PlumeHair",
+      "type": "MESH",
+      "parent": "PART_HeadHelmetPlume",
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "canonical_component_of",
+        "canonical_source",
         "source_bounds_top_left_pixels"
       ]
     },
@@ -2323,5 +2449,5 @@
     "meshes": 111
   },
   "humanAccepted": false,
-  "attemptId": "muramasa-canary-001-attempt-002"
+  "attemptId": "muramasa-canary-001-attempt-003"
 }

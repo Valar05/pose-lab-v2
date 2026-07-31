@@ -216,7 +216,7 @@
     "rear_forearm_foreshortened"
   ],
   "humanAccepted": false,
-  "attemptId": "muramasa-canary-001-attempt-002",
+  "attemptId": "muramasa-canary-001-attempt-003",
   "synchronizedExpansionEvidence": {
     "runId": "30581078830",
     "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
@@ -266,5 +266,38 @@
       1,
       254
     ]
+  },
+  "weaponCorrection": {
+    "sourceFrame": 42,
+    "priorTip": [
+      522.0,
+      384.0
+    ],
+    "correctedTip": [
+      191.492,
+      384.0
+    ],
+    "rootPreserved": [
+      356.746,
+      435.2475
+    ],
+    "primaryHandPreserved": [
+      367.7515,
+      432.5795
+    ],
+    "secondaryHandPreserved": [
+      345.7405,
+      437.9155
+    ],
+    "basisCloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49"
+  },
+  "frozenPerformance": {
+    "sourceFrame": 42,
+    "sourceTimestampSeconds": 0.7661160104986877,
+    "wrists": true,
+    "root": true,
+    "feet": true,
+    "supportState": true,
+    "performanceChanged": false
   }
 }

@@ -126,9 +126,34 @@
           "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
           "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
           "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88"
+        },
+        {
+          "attemptId": "muramasa-canary-001-attempt-003",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "awaiting-synchronized-pose-lab-normal-size-gate",
+          "change": "rebuild as one compound attachment root with torso plus far/near upper-arm shells; recut crossed-arm contamination",
+          "internalComponents": [
+            "torso",
+            "far_upper_arm",
+            "near_upper_arm"
+          ],
+          "performanceChanged": false,
+          "reuseDisposition": "later overhead or recovery poses with the same torso turn",
+          "humanAccepted": false,
+          "basis": {
+            "productionVersion": 21,
+            "runId": "30582812601",
+            "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49"
+          }
         }
       ],
-      "reuseIntent": "later overhead or recovery poses with the same torso turn"
+      "reuseIntent": "later overhead or recovery poses with the same torso turn",
+      "internalComponents": [
+        "torso",
+        "far_upper_arm",
+        "near_upper_arm"
+      ]
     },
     {
       "id": "overhead_two_hand_grip",
@@ -220,9 +245,32 @@
           "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
           "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
           "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88"
+        },
+        {
+          "attemptId": "muramasa-canary-001-attempt-003",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "awaiting-synchronized-pose-lab-normal-size-gate",
+          "change": "rebuild as one compound attachment root with primary forearm plus hands-and-hilt cluster; keep both reviewed wrists fixed",
+          "internalComponents": [
+            "primary_forearm",
+            "hands_and_hilt"
+          ],
+          "performanceChanged": false,
+          "reuseDisposition": "later oberhau turnover and high endpoint keys",
+          "humanAccepted": false,
+          "basis": {
+            "productionVersion": 21,
+            "runId": "30582812601",
+            "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49"
+          }
         }
       ],
-      "reuseIntent": "later oberhau turnover and high endpoint keys"
+      "reuseIntent": "later oberhau turnover and high endpoint keys",
+      "internalComponents": [
+        "primary_forearm",
+        "hands_and_hilt"
+      ]
     },
     {
       "id": "rear_boot_foreshortened",
@@ -309,9 +357,30 @@
           "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
           "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
           "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88"
+        },
+        {
+          "attemptId": "muramasa-canary-001-attempt-003",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "awaiting-synchronized-pose-lab-normal-size-gate",
+          "change": "reverse the canonical foot axis and extend the existing crop upward so the boot seats into the shin at the locked ankle/toe controls",
+          "internalComponents": [
+            "boot_and_shin_seat"
+          ],
+          "performanceChanged": false,
+          "reuseDisposition": "later wide-stance keys with the same far-foot view",
+          "humanAccepted": false,
+          "basis": {
+            "productionVersion": 21,
+            "runId": "30582812601",
+            "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49"
+          }
         }
       ],
-      "reuseIntent": "later wide-stance keys with the same far-foot view"
+      "reuseIntent": "later wide-stance keys with the same far-foot view",
+      "internalComponents": [
+        "boot_and_shin_seat"
+      ]
     },
     {
       "id": "rear_forearm_foreshortened",
@@ -394,9 +463,30 @@
           "homeCenterArtifactId": "vanguard-muramasa-2p5d-canary-attempt-002-blend-v1",
           "workspaceId": "bws_64d66aedecf413cbf3393bf9a7a503",
           "revisionId": "brv_f2e3a8f680ca316ac749c13fbfac88"
+        },
+        {
+          "attemptId": "muramasa-canary-001-attempt-003",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877,
+          "state": "awaiting-synchronized-pose-lab-normal-size-gate",
+          "change": "reuse the evidence-authorized slot as one elbow-to-wrist component mapped to the reviewed endpoints",
+          "internalComponents": [
+            "elbow_to_wrist"
+          ],
+          "performanceChanged": false,
+          "reuseDisposition": "later high guards and overhead turnover keys exposing the same far forearm view",
+          "humanAccepted": false,
+          "basis": {
+            "productionVersion": 21,
+            "runId": "30582812601",
+            "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49"
+          }
         }
       ],
-      "reuseIntent": "later high guards and overhead turnover keys exposing the same far forearm view"
+      "reuseIntent": "later high guards and overhead turnover keys exposing the same far forearm view",
+      "internalComponents": [
+        "elbow_to_wrist"
+      ]
     }
   ],
   "additionPolicy": {
@@ -451,6 +541,14 @@
       "humanAccepted": false,
       "attachmentAdded": false,
       "decision": "No fifth attachment: first repair/adjudicate the weapon-facing transform and revise the four existing attachment interfaces; no additional missing surface is isolated yet."
+    },
+    "currentAttempt": {
+      "attemptId": "muramasa-canary-001-attempt-003",
+      "state": "awaiting-synchronized-pose-lab-normal-size-gate",
+      "attachmentAdded": false,
+      "correctiveAttachmentCount": 4,
+      "performanceChanged": false,
+      "requiredVisiblePredicate": "normal-size silhouette matches approved frame-42 witness with correct sword vector, continuous torso/arm/grip chain, and seated rear boot"
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "schema": "vanguard-muramasa-canary-validation-v1",
-  "technicalState": "synchronized-visual-gate-red",
+  "technicalState": "rendered-awaiting-normal-size-synchronized-visual-gate",
   "evidenceHashesVerified": true,
   "completeReviewedFramesImported": true,
   "completeLandmarkVocabularyImported": true,
@@ -31,7 +31,7 @@
     "performanceMayChangeToMeetQuota": false
   },
   "humanAccepted": false,
-  "visualVerdict": "Attempt 2 synchronized RED: weapon-facing mismatch, fragmented torso/pelvis/raised-arm overlap, detached grip and boot interfaces, and incorrect continuous silhouette. No fifth attachment authorized because no additional missing surface is isolated.",
+  "visualVerdict": "attempt 3 pending normal-size synchronized Pose Lab comparison; not ready for Drew until silhouette matches",
   "persistentSource": {
     "renderScaffoldingRemoved": {
       "objects": 114,
@@ -95,5 +95,16 @@
       }
     },
     "planeTopologyNote": "The four corrective and seven canonical sprite planes intentionally have open boundaries; machineValid=false is diagnostic for planar 2.5D artwork and is not visual acceptance."
-  }
+  },
+  "attemptId": "muramasa-canary-001-attempt-003",
+  "frozenPerformance": {
+    "sourceFrame": 42,
+    "sourceTimestampSeconds": 0.7661160104986877,
+    "wrists": true,
+    "root": true,
+    "feet": true,
+    "supportState": true
+  },
+  "attachmentAdded": false,
+  "normalSizeSynchronizedGate": "pending"
 }

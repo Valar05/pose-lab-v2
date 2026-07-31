@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-2d-animation-set-v1",
   "character": "Fleshpunk Vanguard",
   "defaultAnimation": "oberhau-hardest-key-canary-001",
-  "reviewState": "RED — attempt 2 synchronized failure; no fifth attachment authorized",
+  "reviewState": "QUARANTINED \u2014 attempt 3 awaiting synchronized normal-size silhouette gate",
   "frameSpace": {
     "width": 512,
     "height": 512,
@@ -12,23 +12,23 @@
   "animations": [
     {
       "id": "oberhau-hardest-key-canary-001",
-      "label": "Oberhau hardest key · canary 001 · attempt 2",
+      "label": "Oberhau hardest key \u00b7 canary 001 \u00b7 attempt 3",
       "loop": false,
       "groundGuideY": 376,
       "contactSheet": "evidence/source-aligned-adapter-diagnostic.png",
-      "primaryLabel": "Blender candidate · NOT ACCEPTED",
+      "primaryLabel": "Blender candidate \u00b7 NOT ACCEPTED",
       "frames": [
         {
           "src": "frames/hardest-key-candidate.png",
           "durationMs": 1000,
-          "sha256": "50e5aa74d2f33243b94855cb92da2326723832336d9fb6aa9e2dd63bfc6c76e6",
+          "sha256": "1b5d34fb6f356b4e14d4e71533aa00bbfd32497bb6e7fe5fd36655d020592834",
           "sourceFrame": 42,
           "sourceTimestampSeconds": 0.7661160104986877
         }
       ],
       "comparison": {
         "synchronized": true,
-        "label": "Approved motion witness · key 7",
+        "label": "Approved motion witness \u00b7 key 7",
         "authority": "approved false-edge oberhau motion; appearance drift is not canon",
         "frames": [
           {
@@ -41,12 +41,11 @@
       },
       "contract": [
         "Drew acceptance pending",
-        "source frame 42 · 0.766116 s",
-        "approved performance is immutable",
-        "3 anticipated corrective attachments plus 1 synchronized-evidence correction",
-        "rear_forearm_foreshortened justified by cloud run 30581078830",
-        "attempt 2 cloud comparison remains RED across facing, foreshortening, grip, contact, overlap, and silhouette",
-        "no fifth attachment: current failures must first be repaired through the existing four-part vocabulary and transform adjudication"
+        "source frame 42 \u00b7 0.766116 s",
+        "approved timing wrists root feet and support state are immutable",
+        "exactly 4 corrective attachment roots; no fifth attachment",
+        "production-v21 sword vector corrected from synchronized evidence",
+        "attempt 3 must visibly match the witness at normal size before Drew review"
       ],
       "evidence": [
         {
@@ -92,5 +91,5 @@
       ]
     }
   ],
-  "attemptId": "muramasa-canary-001-attempt-002"
+  "attemptId": "muramasa-canary-001-attempt-003"
 }
