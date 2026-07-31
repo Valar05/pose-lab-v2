@@ -147,3 +147,12 @@ code, or metric acceptance tooling was copied.
   local Blender renders and the manifest.
 - Acceptance: diagnostic manifests and Blender renders are guardrails only. The
   cloud V2 route must still visibly read as a fist before the asset is accepted.
+
+### Vanguard Muramasa 2.5D oberhau canary
+
+- Canonical appearance source: `public/assets/vanguard/fleshpunk/idle/frames/idle_0000.png`.
+- Approved motion witness: frame 42 / key 7 under `public/assets/vanguard/fleshpunk/candidates/false-edge-oberhau-001/`.
+- Editable source is the immutable Home Center-backed Blender revision; repo PNGs are quarantined review derivatives.
+- Attempt 003 repairs production v21 using the existing four attachment roots and records all component reuse in `authoring/vanguard_muramasa_canary/part-library.json`.
+- Whole-frame generation, a fifth attachment, and motion changes are forbidden.
+- Human acceptance remains Drew Clarke only.

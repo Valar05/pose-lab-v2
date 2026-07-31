@@ -216,7 +216,7 @@
     "rear_forearm_foreshortened"
   ],
   "humanAccepted": false,
-  "attemptId": "muramasa-canary-001-attempt-002",
+  "attemptId": "muramasa-canary-001-attempt-003",
   "synchronizedExpansionEvidence": {
     "runId": "30581078830",
     "cloudCaptureSha256": "462130acac6d229e6f73661a3cddd9b151874bf18757f07e56eabdf66a5e2a48",
@@ -266,5 +266,64 @@
       1,
       254
     ]
+  },
+  "weaponCorrection": {
+    "sourceFrame": 42,
+    "priorTip": [
+      522.0,
+      384.0
+    ],
+    "correctedTip": [
+      191.492,
+      384.0
+    ],
+    "rootPreserved": [
+      356.746,
+      435.2475
+    ],
+    "primaryHandPreserved": [
+      367.7515,
+      432.5795
+    ],
+    "secondaryHandPreserved": [
+      345.7405,
+      437.9155
+    ],
+    "basisCloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49"
+  },
+  "frozenPerformance": {
+    "sourceFrame": 42,
+    "sourceTimestampSeconds": 0.7661160104986877,
+    "wrists": true,
+    "root": true,
+    "feet": true,
+    "supportState": true,
+    "performanceChanged": false
+  },
+  "latestSynchronizedNormalSizeGate": {
+    "runId": "30598092347",
+    "capturedAt": "2026-07-31T02:06:51Z",
+    "evidencePath": "public/assets/vanguard/fleshpunk/candidates/muramasa-canary-001/evidence/cloud-review/muramasa-canary-001-attempt-003/synchronized-pose-lab-comparison.png",
+    "cloudCaptureSha256": "c4f6cbba7ee9f80a6474f837d0b1efefe001d33aae5c339a3a12a147fa8a0c65",
+    "sourceFrame": 42,
+    "sourceTimestampSeconds": 0.7661160104986877,
+    "synchronized": true,
+    "candidateSourceFrameMatchedWitness": true,
+    "viewport": [
+      1366,
+      900
+    ],
+    "state": "READY_FOR_DREW_REVIEW",
+    "normalSizeSilhouetteMatched": true,
+    "visibleRead": [
+      "facing: candidate and witness sword vectors both project up-left from the synchronized hilt",
+      "overlap/silhouette: torso, breastplate, both raised arms, forearms, and grip read as one continuous overhead chain",
+      "grip/contact: the hilt remains between the two reviewed wrist sockets with both gauntlets visibly contacting the grip",
+      "contact/overlap: the rear boot overlaps the rear shin at the locked ankle instead of floating",
+      "silhouette: both normal-size panels read as the same frame-42 overhead lunge and split support stance while canonical Vanguard appearance remains authoritative"
+    ],
+    "attachmentAdded": false,
+    "performanceChanged": false,
+    "humanAccepted": false
   }
 }
