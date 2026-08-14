@@ -1,0 +1,114 @@
+name: Embodied Kinesis Canary
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/embodied-kinesis-lab
+    paths:
+      - 'config/embodied-kinesis-canary.json'
+      - 'tools/embodied_kinesis_**'
+      - 'src/review-candidates/fist-attack1-candidate-*.js'
+      - 'src/review-constants.js'
+      - '.github/workflows/embodied-kinesis-canary.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  first-person-fist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout unified Lab
+        uses: actions/checkout@v4
+        with:
+          path: pose-lab-v2
+
+      - name: Checkout real FPS reference source
+        uses: actions/checkout@v4
+        with:
+          repository: Valar05/pose-lab
+          path: pose-lab
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Reproduce source-derived decisive keys
+        working-directory: pose-lab-v2
+        run: node scripts/fps-fist-reference.mjs
+
+      - name: Rebuild retargeted rig candidate
+        working-directory: pose-lab-v2
+        run: node scripts/bake-fist-attack1-candidate.mjs
+
+      - name: Regnet structural gate
+        working-directory: pose-lab-v2
+        run: node tools/embodied_kinesis_regnet.mjs
+
+      - name: Build unified Lab surface
+        working-directory: pose-lab-v2
+        run: node scripts/build.mjs
+
+      - name: Install visual-evidence runtime
+        working-directory: pose-lab-v2
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: |
+          npm install --no-save playwright
+          google-chrome --version
+          python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
+          command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
+      - name: Start same-Lab runtime
+        working-directory: pose-lab-v2
+        run: |
+          python3 -m http.server 4173 -d dist > ../kinesis-http.log 2>&1 &
+          echo $! > ../kinesis-http.pid
+          for i in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 0.25
+          done
+          cat ../kinesis-http.log
+          exit 1
+
+      - name: Capture true-FPV keys and motion
+        working-directory: pose-lab-v2
+        env:
+          PLAYWRIGHT_CHROME_CHANNEL: chrome
+          KINESIS_URL: http://127.0.0.1:4173/
+        run: node tools/embodied_kinesis_capture.mjs
+
+      - name: Assemble Motion-Dungeon-style key comparison sheet
+        working-directory: pose-lab-v2
+        run: python3 tools/embodied_kinesis_key_sheet.py
+
+      - name: Encode animated model behavior
+        working-directory: pose-lab-v2
+        run: |
+          STAGE=$(node -p "JSON.parse(require('fs').readFileSync('config/embodied-kinesis-canary.json')).stage")
+          CANDIDATE=$(node -p "JSON.parse(require('fs').readFileSync('config/embodied-kinesis-canary.json')).candidate")
+          ROOT="generated/embodied-kinesis/$STAGE/$CANDIDATE"
+          ffmpeg -hide_banner -loglevel error -y -framerate 24 -i "$ROOT/motion/frame-%03d.png" -c:v libx264 -pix_fmt yuv420p -movflags +faststart "$ROOT/animation-fpv.mp4"
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          cfg=json.loads(Path('config/embodied-kinesis-canary.json').read_text())
+          root=Path('generated/embodied-kinesis')/cfg['stage']/cfg['candidate']
+          outputs={}
+          for name in ['animation-fpv.mp4','key-comparison-sheet.png','runtime-capture.json']:
+              p=root/name
+              outputs[name]={'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+          receipt={'schema':'embodied-kinesis-output-receipt-v1','stage':cfg['stage'],'candidate':cfg['candidate'],'outputs':outputs,'presentableToDrew':False,'reason':'awaiting independent Regnet/Penelope/Venice perceptual gauntlet'}
+          (root/'output-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+          print(json.dumps(receipt,indent=2))
+          PY
+
+      - name: Upload internal canary evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: embodied-kinesis-${{ github.run_id }}
+          path: pose-lab-v2/generated/embodied-kinesis/
+          if-no-files-found: error
+          retention-days: 30
