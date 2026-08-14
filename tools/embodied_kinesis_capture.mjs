@@ -26,8 +26,22 @@ const params = new URLSearchParams({
   cacheBust: String(Date.now()),
 });
 const url = `${baseUrl.replace(/\/?$/, '/')}?${params}`;
+const browserArgs = ['--no-sandbox', '--disable-dev-shm-usage', '--use-gl=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist'];
 
 function safe(value) { return String(value).replace(/[^a-zA-Z0-9_-]+/g, '-'); }
+async function launchInstalledBrowser() {
+  const requested = process.env.PLAYWRIGHT_CHROME_CHANNEL;
+  const attempts = [...new Set([requested, 'chrome', 'msedge', null].filter((value, index, all) => value !== undefined && all.indexOf(value) === index))];
+  const errors = [];
+  for (const channel of attempts) {
+    try {
+      return await chromium.launch({ headless: true, channel: channel || undefined, args: browserArgs });
+    } catch (error) {
+      errors.push(`${channel || 'playwright-default'}: ${error.message}`);
+    }
+  }
+  throw new Error(`No usable Chromium-family browser found. Tried installed Chrome/Edge and Playwright default. ${errors.join(' | ')}`);
+}
 async function setAttackTime(page, seconds) {
   await page.evaluate((value) => {
     const input = document.querySelector('[data-attack-scrub]');
@@ -41,11 +55,7 @@ async function setAttackTime(page, seconds) {
 
 await fs.mkdir(path.join(outDir, 'keys'), { recursive: true });
 await fs.mkdir(path.join(outDir, 'motion'), { recursive: true });
-const browser = await chromium.launch({
-  headless: true,
-  channel: process.env.PLAYWRIGHT_CHROME_CHANNEL || undefined,
-  args: ['--no-sandbox', '--disable-dev-shm-usage', '--use-gl=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist'],
-});
+const browser = await launchInstalledBrowser();
 try {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const consoleEvents = [];
