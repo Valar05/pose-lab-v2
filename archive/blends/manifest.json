@@ -1,0 +1,17 @@
+{
+  "schema": "pose-lab-canonical-blend-archive-v1",
+  "specimens": [
+    {
+      "slug": "remhir",
+      "path": "archive/blends/Remhir.blend",
+      "original_filename": "Remhir.blend",
+      "sha256": "ce670c397e3acad64c29a5b6498df3bd578f418a99b971f38c1d6634e6c0051b",
+      "size_bytes": 6290220,
+      "blender_header": "BLENDER-v277",
+      "provenance": "conversation-upload",
+      "binary_present": false,
+      "status": "INTAKE_BLOCKED_BINARY_UPLOAD",
+      "notes": "Exact source bytes are available in the current conversation runtime. GitHub connector can write UTF-8 files and Git objects but does not expose a file/LFS upload action; do not claim archive completion until the exact .blend bytes are committed and hash-verified."
+    }
+  ]
+}
