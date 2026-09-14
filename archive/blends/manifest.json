@@ -36,6 +36,18 @@
       "binary_present": false,
       "status": "INTAKE_BLOCKED_BINARY_UPLOAD",
       "notes": "Exact source bytes are available in the current conversation runtime. GitHub connector can write UTF-8 files and Git objects but does not expose a file/LFS upload action; do not claim archive completion until the exact .blend bytes are committed and hash-verified."
+    },
+    {
+      "slug": "vanguard-source-280",
+      "path": "archive/blends/Vanguard.blend",
+      "original_filename": "Vanguard (1).blend",
+      "sha256": "5a94e77f78d6c887cc87517d0f8020ca19edc1a12c68dd8cecf17d6368ac38b7",
+      "size_bytes": 10454904,
+      "blender_header": "BLENDER-v280",
+      "provenance": "conversation-upload",
+      "binary_present": false,
+      "status": "INTAKE_BLOCKED_BINARY_UPLOAD",
+      "notes": "Exact source bytes are available in the current conversation runtime. This is a closely related Vanguard source revision to the Pose Lab import: it has 19 bAction datablocks and lacks SwordAttack3 while matching fcurve counts for the 19 common clips. GitHub connector still lacks arbitrary binary/LFS upload; do not claim archive completion until the exact bytes are committed and hash-verified."
     }
   ]
 }
