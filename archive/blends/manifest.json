@@ -24,6 +24,18 @@
       "binary_present": false,
       "status": "INTAKE_BLOCKED_BINARY_UPLOAD",
       "notes": "Exact source bytes are available in the current conversation runtime. GitHub connector can write UTF-8 files and Git objects but does not expose a file/LFS upload action; do not claim archive completion until the exact .blend bytes are committed and hash-verified."
+    },
+    {
+      "slug": "lionheart",
+      "path": "archive/blends/Lionheart.blend",
+      "original_filename": "Lionheart.blend",
+      "sha256": "31667dc375db5921aed13ce6afedbc4d7db5052e31181ec6574862f45ed0fa92",
+      "size_bytes": 10732840,
+      "blender_header": "BLENDER-v280",
+      "provenance": "conversation-upload",
+      "binary_present": false,
+      "status": "INTAKE_BLOCKED_BINARY_UPLOAD",
+      "notes": "Exact source bytes are available in the current conversation runtime. GitHub connector can write UTF-8 files and Git objects but does not expose a file/LFS upload action; do not claim archive completion until the exact .blend bytes are committed and hash-verified."
     }
   ]
 }
