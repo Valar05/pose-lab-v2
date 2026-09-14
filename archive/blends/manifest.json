@@ -12,6 +12,18 @@
       "binary_present": false,
       "status": "INTAKE_BLOCKED_BINARY_UPLOAD",
       "notes": "Exact source bytes are available in the current conversation runtime. GitHub connector can write UTF-8 files and Git objects but does not expose a file/LFS upload action; do not claim archive completion until the exact .blend bytes are committed and hash-verified."
+    },
+    {
+      "slug": "slime",
+      "path": "archive/blends/Slime.blend",
+      "original_filename": "Slime.blend",
+      "sha256": "9f8d3b5e8be174c06414d349fd4dcb560c41877e4db7617e9867a0c1bc5047b7",
+      "size_bytes": 899920,
+      "blender_header": "BLENDER-v278",
+      "provenance": "conversation-upload",
+      "binary_present": false,
+      "status": "INTAKE_BLOCKED_BINARY_UPLOAD",
+      "notes": "Exact source bytes are available in the current conversation runtime. GitHub connector can write UTF-8 files and Git objects but does not expose a file/LFS upload action; do not claim archive completion until the exact .blend bytes are committed and hash-verified."
     }
   ]
 }
