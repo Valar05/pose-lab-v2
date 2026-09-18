@@ -34,6 +34,8 @@ function pngSize(buffer) {
 const manifestPath = 'public/assets/vanguard/fleshpunk/animations.json';
 const manifest = JSON.parse(read(manifestPath).toString('utf8'));
 const viewer = read('src/sprite-viewer.js').toString('utf8');
+const gifEncoder = read('src/gif-encoder.js').toString('utf8');
+const slicer = read('src/sprite-slicer.js').toString('utf8');
 const html = read('index.html').toString('utf8');
 const css = read('src/styles.css').toString('utf8');
 
@@ -84,6 +86,16 @@ assert(viewer.includes('buildDeltaImage') && viewer.includes("stack.classList.to
 assert(!css.includes('sprite-onion-previous {\n  transform:') && !css.includes('sprite-onion-next {\n  transform:'), '2D inspection must not invent frame motion');
 assert(viewer.includes("document.body.dataset.reviewReady = '1'"), '2D review must expose a visual-capture readiness signal');
 assert(css.includes('.sprite-stage.checker') && css.includes('.sprite-frame-strip'), '2D review styles are incomplete');
+assert(viewer.includes('New Pose Lab animation') && viewer.includes('data-import-screen'), 'Sprite Lab must use a full-page import flow inside the 2D viewer');
+assert(viewer.includes('data-import-file') && viewer.includes('data-import-preview'), 'importer must expose a visible file picker and editable sheet canvas');
+assert(!viewer.includes('Grid does not divide') && !viewer.includes('data-import-columns'), 'importer must not require a divisible fixed grid');
+assert(viewer.includes('detectFrameBoxes') && viewer.includes('beginBoxEdit') && viewer.includes('Add box'), 'importer must propose and allow correction of frame boxes');
+assert(viewer.includes('createImportedAnimation') && viewer.includes('manifest.animations.push'), 'contact sheet must become a new Pose Lab animation, not a detached preview');
+assert(viewer.includes('Export GIF') && viewer.includes('encodeGif(frames, animation.frames[0].durationMs)'), 'imported Pose Lab animation must export an animated GIF');
+assert(viewer.includes("localStorage.setItem('pose-lab-sprite-lab-recent'") && viewer.includes("indexedDB.open('pose-lab-sprite-lab'"), 'Sprite Lab must persist source bytes and recent metadata locally');
+assert(slicer.includes('dominantBorderColor') && slicer.includes('projectionRuns'), 'intelligent slicer must derive candidates from source pixels');
+assert(gifEncoder.includes("'image/gif'") && gifEncoder.includes('GIF89a') && gifEncoder.includes('NETSCAPE2.0'), 'Sprite Lab GIF encoder must create a looping GIF artifact');
+assert(css.includes('.sprite-import-screen') && css.includes('.sprite-import-card'), 'full-page Sprite Lab importer styles are incomplete');
 
 const swarmlingManifestPath = 'public/assets/swarmling/fleshpunk/animations.json';
 if (fs.existsSync(path.join(root, swarmlingManifestPath))) {

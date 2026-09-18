@@ -1,3 +1,5 @@
+import { encodeGif } from './gif-encoder.js';
+import { detectFrameBoxes, constrainFrameBox, clearConnectedBackground } from './sprite-slicer.js';
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEFAULT_MANIFEST = './assets/vanguard/fleshpunk/animations.json';
 const manifestUrl = new URL(URL_PARAMS.get('manifest') || DEFAULT_MANIFEST, window.location.href);
@@ -11,6 +13,7 @@ app.innerHTML = `
         <h1>2D Animation Review</h1>
         <p class="sprite-subtitle">Direct PNG playback. No GIF assembly required.</p>
       </div>
+      <button type="button" class="sprite-import-button" data-import-sheet>Import contact sheet</button>
       <nav class="sprite-mode-switch" aria-label="Pose Lab view">
         <a class="active" href="./?view=2d" aria-current="page">2D</a>
         <a href="./?model=vanguard">3D rig</a>
@@ -40,6 +43,7 @@ app.innerHTML = `
             <a data-final-frames target="_blank" rel="noreferrer">Final frames</a>
             <a data-provenance target="_blank" rel="noreferrer">Provenance</a>
             <a data-verifier target="_blank" rel="noreferrer">Verifier</a>
+            <button type="button" data-export-current-gif hidden>Export GIF</button>
           </div>
         </div>
 
@@ -93,6 +97,18 @@ app.innerHTML = `
         <p class="sr-only" data-live-status aria-live="polite"></p>
       </section>
     </main>
+    <section class="sprite-import-screen" data-import-screen hidden aria-label="Import contact sheet">
+      <div class="sprite-import-card">
+        <p class="sprite-eyebrow">Sprite Lab</p><h1>New Pose Lab animation</h1>
+        <p>Choose one contact-sheet image. This creates a session-local animation in this same 2D viewer; it does not overwrite Idle or Sword Attack 1.</p>
+        <label>Contact sheet <input type="file" accept=".png,.webp,.jpg,.jpeg,image/png,image/webp,image/jpeg" data-import-file /></label>
+        <label class="sprite-import-duration">Frame ms <input type="number" min="20" max="2000" value="120" data-import-duration /></label>
+        <div class="sprite-slicer-canvas-wrap" data-import-preview-wrap hidden><canvas data-import-preview aria-label="Editable detected frame boxes"></canvas></div>
+        <div class="sprite-slicer-tools"><button type="button" data-box-add disabled>Add box</button><button type="button" data-box-delete disabled>Delete</button><button type="button" data-box-earlier disabled>Earlier</button><button type="button" data-box-later disabled>Later</button><button type="button" data-redetect disabled>Redetect</button><button type="button" data-restore-import disabled>Restore local draft</button></div>
+        <p data-import-status>Choose a PNG, WebP, or JPEG. Sprite Lab will propose editable frame boxes.</p>
+        <div class="sprite-import-actions"><button type="button" data-import-cancel>Cancel</button><button type="button" class="primary" data-import-confirm disabled>Create Pose Lab animation</button></div>
+      </div>
+    </section>
   </section>
 `;
 
@@ -129,6 +145,23 @@ const frameStrip = app.querySelector('[data-frame-strip]');
 const contract = app.querySelector('[data-contract]');
 const liveStatus = app.querySelector('[data-live-status]');
 const backgroundButtons = [...app.querySelectorAll('[data-background]')];
+const importSheetButton = app.querySelector('[data-import-sheet]');
+const importScreen = app.querySelector('[data-import-screen]');
+const importFile = app.querySelector('[data-import-file]');
+const importPreviewWrap = app.querySelector('[data-import-preview-wrap]');
+const importPreview = app.querySelector('[data-import-preview]');
+const importPreviewContext = importPreview.getContext('2d');
+const addBoxButton = app.querySelector('[data-box-add]');
+const deleteBoxButton = app.querySelector('[data-box-delete]');
+const earlierBoxButton = app.querySelector('[data-box-earlier]');
+const laterBoxButton = app.querySelector('[data-box-later]');
+const redetectButton = app.querySelector('[data-redetect]');
+const restoreImportButton = app.querySelector('[data-restore-import]');
+const importDuration = app.querySelector('[data-import-duration]');
+const importStatus = app.querySelector('[data-import-status]');
+const importCancel = app.querySelector('[data-import-cancel]');
+const importConfirm = app.querySelector('[data-import-confirm]');
+const exportCurrentGif = app.querySelector('[data-export-current-gif]');
 
 let manifest = null;
 let animation = null;
@@ -149,6 +182,12 @@ const deltaPreviousCanvas = document.createElement('canvas');
 const deltaCurrentCanvas = document.createElement('canvas');
 const deltaPreviousContext = deltaPreviousCanvas.getContext('2d', { willReadFrequently: true });
 const deltaCurrentContext = deltaCurrentCanvas.getContext('2d', { willReadFrequently: true });
+let importedSheetFile = null;
+let importedSheetUrl = null;
+let importedSheetImage = null;
+let importedBoxes = [];
+let selectedImportedBox = -1;
+let importPointer = null;
 
 function assetUrl(path) {
   return new URL(path, manifestUrl).href;
@@ -399,6 +438,7 @@ function setAnimation(id, { speak = false } = {}) {
   animationTitle.textContent = animation.label;
   scrubber.max = String(animation.frames.length - 1);
   contactSheetLink.href = assetUrl(animation.contactSheet);
+  exportCurrentGif.hidden = !animation.imported;
   const status = animation.status || 'ready';
   statusBadge.textContent = status;
   statusBadge.dataset.status = status;
@@ -441,6 +481,27 @@ function preloadFrame(src) {
   frameImagePromises.set(src, promise);
   return promise;
 }
+
+function importNumber(input, min, max, fallback) { return Math.max(min, Math.min(max, Math.round(Number(input.value) || fallback))); }
+function setImportStatus(message) { importStatus.textContent = message; }
+function openSpriteDb() { return new Promise((resolve, reject) => { const request = indexedDB.open('pose-lab-sprite-lab', 1); request.onupgradeneeded = () => request.result.createObjectStore('drafts'); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); }); }
+async function saveLocalDraft(file, metadata) { const db = await openSpriteDb(); await new Promise((resolve, reject) => { const transaction = db.transaction('drafts', 'readwrite'); transaction.objectStore('drafts').put({ file, metadata }, 'latest'); transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error); }); db.close(); localStorage.setItem('pose-lab-sprite-lab-recent', JSON.stringify({ name: metadata.source.name, importedAt: metadata.importedAt })); restoreImportButton.disabled = false; }
+async function readLocalDraft() { const db = await openSpriteDb(); const result = await new Promise((resolve, reject) => { const request = db.transaction('drafts').objectStore('drafts').get('latest'); request.onsuccess = () => resolve(request.result || null); request.onerror = () => reject(request.error); }); db.close(); return result; }
+function updateBoxActions() { const active = selectedImportedBox >= 0 && selectedImportedBox < importedBoxes.length; addBoxButton.disabled = !importedSheetImage; deleteBoxButton.disabled = !active; earlierBoxButton.disabled = !active || selectedImportedBox === 0; laterBoxButton.disabled = !active || selectedImportedBox === importedBoxes.length - 1; redetectButton.disabled = !importedSheetImage; importConfirm.disabled = !importedSheetImage || importedBoxes.length === 0; }
+function drawImportPreview() { if (!importedSheetImage) return; importPreviewContext.clearRect(0, 0, importPreview.width, importPreview.height); importPreviewContext.drawImage(importedSheetImage, 0, 0); importPreviewContext.lineWidth = Math.max(2, Math.round(Math.max(importPreview.width, importPreview.height) / 420)); importPreviewContext.font = 'bold ' + Math.max(14, Math.round(importPreview.width / 65)) + 'px system-ui'; importedBoxes.forEach((box, index) => { const selected = index === selectedImportedBox; importPreviewContext.strokeStyle = selected ? '#f0c35a' : '#55d7ff'; importPreviewContext.fillStyle = selected ? 'rgba(240,195,90,.16)' : 'rgba(85,215,255,.10)'; importPreviewContext.fillRect(box.x, box.y, box.width, box.height); importPreviewContext.strokeRect(box.x, box.y, box.width, box.height); importPreviewContext.fillStyle = selected ? '#f0c35a' : '#55d7ff'; importPreviewContext.fillRect(box.x, box.y, Math.max(28, importPreview.width / 42), Math.max(22, importPreview.width / 58)); importPreviewContext.fillStyle = '#071013'; importPreviewContext.fillText(String(index + 1), box.x + 5, box.y + Math.max(17, importPreview.width / 72)); if (selected) { const handle = Math.max(14, importPreview.width / 60); importPreviewContext.fillStyle = '#f0c35a'; importPreviewContext.fillRect(box.x + box.width - handle, box.y + box.height - handle, handle, handle); } }); updateBoxActions(); }
+function detectImportedBoxes() { if (!importedSheetImage) return; const scratch = document.createElement('canvas'); scratch.width = importedSheetImage.width; scratch.height = importedSheetImage.height; const context = scratch.getContext('2d', { willReadFrequently: true }); context.drawImage(importedSheetImage, 0, 0); importedBoxes = detectFrameBoxes(context.getImageData(0, 0, scratch.width, scratch.height)); selectedImportedBox = importedBoxes.length ? 0 : -1; drawImportPreview(); setImportStatus(importedBoxes.length ? 'Detected ' + importedBoxes.length + ' frame' + (importedBoxes.length === 1 ? '' : 's') + '. Tap a box, drag to move, or drag its gold corner to resize.' : 'No confident frames found. Add a box and place it over each frame.'); }
+function validImportType(file) { return Boolean(file && (file.type === 'image/png' || file.type === 'image/webp' || file.type === 'image/jpeg' || /\.(png|webp|jpe?g)$/i.test(file.name))); }
+function loadImportSheet(file, saved = null) { if (!validImportType(file)) { setImportStatus('Unsupported file. Choose PNG, WebP, JPG, or JPEG.'); return; } if (importedSheetUrl) URL.revokeObjectURL(importedSheetUrl); importedSheetFile = file; importedSheetUrl = URL.createObjectURL(file); importedSheetImage = new Image(); importedSheetImage.onload = () => { importPreview.width = importedSheetImage.width; importPreview.height = importedSheetImage.height; importPreviewWrap.hidden = false; if (saved?.boxes?.length) { importedBoxes = saved.boxes.map((box) => constrainFrameBox(box, importedSheetImage.width, importedSheetImage.height)); selectedImportedBox = 0; importDuration.value = String(saved.durationMs || 120); drawImportPreview(); setImportStatus('Restored ' + importedBoxes.length + ' editable frame boxes from local storage.'); } else detectImportedBoxes(); }; importedSheetImage.onerror = () => { importedSheetImage = null; importedBoxes = []; updateBoxActions(); setImportStatus('This PNG, WebP, or JPEG could not be decoded by the browser.'); }; importedSheetImage.src = importedSheetUrl; setImportStatus('Analyzing ' + file.name + '…'); }
+function openImporter() { importScreen.hidden = false; importFile.value = ''; importedSheetFile = null; importedSheetImage = null; importedBoxes = []; selectedImportedBox = -1; importPreviewWrap.hidden = true; updateBoxActions(); setImportStatus('Choose a PNG, WebP, or JPEG. Sprite Lab will propose editable frame boxes.'); readLocalDraft().then((draft) => { restoreImportButton.disabled = !draft; }).catch(() => { restoreImportButton.disabled = true; }); }
+function closeImporter() { importScreen.hidden = true; }
+function previewPoint(event) { const bounds = importPreview.getBoundingClientRect(); return { x: (event.clientX - bounds.left) * importPreview.width / bounds.width, y: (event.clientY - bounds.top) * importPreview.height / bounds.height }; }
+function hitBox(point) { for (let index = importedBoxes.length - 1; index >= 0; index -= 1) { const box = importedBoxes[index]; if (point.x >= box.x && point.x <= box.x + box.width && point.y >= box.y && point.y <= box.y + box.height) return index; } return -1; }
+function beginBoxEdit(event) { if (!importedSheetImage) return; const point = previewPoint(event), hit = hitBox(point); if (hit < 0) return; selectedImportedBox = hit; const box = importedBoxes[hit], handle = Math.max(22, importPreview.width / 45); importPointer = { id: event.pointerId, mode: point.x >= box.x + box.width - handle && point.y >= box.y + box.height - handle ? 'resize' : 'move', start: point, original: { ...box } }; importPreview.setPointerCapture(event.pointerId); drawImportPreview(); }
+function moveBoxEdit(event) { if (!importPointer || event.pointerId !== importPointer.id) return; const point = previewPoint(event), dx = point.x - importPointer.start.x, dy = point.y - importPointer.start.y, original = importPointer.original; importedBoxes[selectedImportedBox] = constrainFrameBox(importPointer.mode === 'resize' ? { ...original, width: original.width + dx, height: original.height + dy } : { ...original, x: original.x + dx, y: original.y + dy }, importPreview.width, importPreview.height); drawImportPreview(); }
+function endBoxEdit(event) { if (importPointer && event.pointerId === importPointer.id) importPointer = null; }
+function canvasBlob(canvas) { return new Promise((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Could not encode a frame.')), 'image/png')); }
+async function createImportedAnimation() { if (!importedSheetImage || !importedSheetFile || !manifest || !importedBoxes.length) return; const durationMs = importNumber(importDuration, 20, 2000, 120); importConfirm.disabled = true; setImportStatus('Building ' + importedBoxes.length + ' Pose Lab frames…'); const frames = []; for (const box of importedBoxes) { const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; const context = canvas.getContext('2d'), scale = Math.min(512 / box.width, 512 / box.height), drawWidth = Math.round(box.width * scale), drawHeight = Math.round(box.height * scale); context.drawImage(importedSheetImage, box.x, box.y, box.width, box.height, Math.round((512 - drawWidth) / 2), Math.round((512 - drawHeight) / 2), drawWidth, drawHeight); const rgba = context.getImageData(0, 0, 512, 512); rgba.data.set(clearConnectedBackground(rgba, 52)); context.putImageData(rgba, 0, 0); frames.push({ src: URL.createObjectURL(await canvasBlob(canvas)), durationMs }); } const id = 'imported-' + Date.now(), label = importedSheetFile.name.replace(/\.[^.]+$/, '') || 'Imported contact sheet'; const metadata = { schema: 'pose-lab-v2-intelligent-sprite-import-v1', status: 'draft', source: { name: importedSheetFile.name, size: importedSheetFile.size, type: importedSheetFile.type, width: importedSheetImage.width, height: importedSheetImage.height }, boxes: importedBoxes.map(({ x, y, width, height }) => ({ x, y, width, height })), frameCount: frames.length, durationMs, importedAt: new Date().toISOString() }; await saveLocalDraft(importedSheetFile, metadata); manifest.animations.push({ id, label, status: 'draft', imported: true, loop: true, contactSheet: importedSheetUrl, sourceMetadata: URL.createObjectURL(new Blob([JSON.stringify(metadata, null, 2) + '\n'], { type: 'application/json' })), verifierReport: importedSheetUrl, groundGuideY: 511, contract: ['auto-detected + human-corrected', '512×512', 'local draft'], frames }); buildAnimationPicker(); closeImporter(); setAnimation(id, { speak: true }); }
+async function exportCurrentAnimationGif() { if (!animation?.imported) return; try { const images = await Promise.all(animation.frames.map((frame) => preloadFrame(frame.src))); const frames = images.map((image) => { const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; canvas.getContext('2d').drawImage(image, 0, 0, 512, 512); return canvas; }); const blob = encodeGif(frames, animation.frames[0].durationMs), url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = animation.label.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.gif'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); announce('GIF downloaded'); } catch (error) { announce(error instanceof Error ? error.message : String(error)); } }
 
 async function boot() {
   try {
@@ -538,6 +599,21 @@ zoomInput.addEventListener('input', () => {
   manualZoom = true;
   setZoom(zoomInput.value);
 });
+importSheetButton.addEventListener('click', openImporter);
+importCancel.addEventListener('click', closeImporter);
+importFile.addEventListener('change', () => loadImportSheet(importFile.files?.[0]));
+importPreview.addEventListener('pointerdown', beginBoxEdit);
+importPreview.addEventListener('pointermove', moveBoxEdit);
+importPreview.addEventListener('pointerup', endBoxEdit);
+importPreview.addEventListener('pointercancel', endBoxEdit);
+addBoxButton.addEventListener('click', () => { if (!importedSheetImage) return; const box = constrainFrameBox({ x: importedSheetImage.width * .25, y: importedSheetImage.height * .25, width: importedSheetImage.width * .5, height: importedSheetImage.height * .5 }, importedSheetImage.width, importedSheetImage.height); importedBoxes.push(box); selectedImportedBox = importedBoxes.length - 1; drawImportPreview(); });
+deleteBoxButton.addEventListener('click', () => { if (selectedImportedBox < 0) return; importedBoxes.splice(selectedImportedBox, 1); selectedImportedBox = Math.min(selectedImportedBox, importedBoxes.length - 1); drawImportPreview(); });
+earlierBoxButton.addEventListener('click', () => { if (selectedImportedBox <= 0) return; [importedBoxes[selectedImportedBox - 1], importedBoxes[selectedImportedBox]] = [importedBoxes[selectedImportedBox], importedBoxes[selectedImportedBox - 1]]; selectedImportedBox -= 1; drawImportPreview(); });
+laterBoxButton.addEventListener('click', () => { if (selectedImportedBox < 0 || selectedImportedBox >= importedBoxes.length - 1) return; [importedBoxes[selectedImportedBox + 1], importedBoxes[selectedImportedBox]] = [importedBoxes[selectedImportedBox], importedBoxes[selectedImportedBox + 1]]; selectedImportedBox += 1; drawImportPreview(); });
+redetectButton.addEventListener('click', detectImportedBoxes);
+restoreImportButton.addEventListener('click', () => readLocalDraft().then((draft) => { if (draft) loadImportSheet(draft.file, draft.metadata); }).catch((error) => setImportStatus(String(error))));
+importConfirm.addEventListener('click', () => createImportedAnimation().catch((error) => { setImportStatus(error instanceof Error ? error.message : String(error)); updateBoxActions(); }));
+exportCurrentGif.addEventListener('click', () => exportCurrentAnimationGif());
 backgroundButtons.forEach((button) => {
   button.addEventListener('click', () => {
     const background = button.dataset.background;

@@ -27,6 +27,10 @@ authoring panels.
 npm run build
 ```
 
+### Sprite Lab contact-sheet GIFs
+
+In the existing `?view=2d` Animation Review, tap **Import contact sheet**. The full-page Sprite Lab importer accepts PNG, WebP, and JPEG, analyzes actual pixels to propose frame boxes without requiring a divisible grid, and lets you move, resize, add, delete, and reorder those boxes. **Create Pose Lab animation** converts the accepted crops into transparent 512×512 draft frames in the same player; **Export GIF** writes the resulting loop. The latest source file and editable draft are stored in browser IndexedDB, with a lightweight recent pointer in localStorage.
+
 ### 2D animation review
 
 Open the direct frame player with:

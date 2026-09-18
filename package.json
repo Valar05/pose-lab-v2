@@ -78,6 +78,8 @@
     "sprite-refinery:plan": "node tools/sprite_refinery_plan.mjs",
     "sprite-refinery:worker": "node tools/sprite_refinery_worker.mjs",
     "sprite-refinery:collect": "node tools/sprite_refinery_collect.mjs",
-    "test:sprite-refinery": "node tools/test_sprite_refinery.mjs"
+    "test:sprite-refinery": "node tools/test_sprite_refinery.mjs",
+    "test:sprite-slicer": "node tools/test_sprite_slicer.mjs",
+    "test:gif-encoder": "node tools/test_gif_encoder.mjs"
   }
 }
