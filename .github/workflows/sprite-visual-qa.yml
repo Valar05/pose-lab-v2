@@ -79,7 +79,7 @@ jobs:
             --out-dir generated/sprite-import-review
       - uses: actions/upload-artifact@v4
         with:
-          name: sprite-visual-evidence-\${{ github.run_id }}
+          name: sprite-visual-evidence-${{ github.run_id }}
           path: |
             generated/sprite-review/
             generated/sprite-import-review/
