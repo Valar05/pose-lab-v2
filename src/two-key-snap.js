@@ -31,10 +31,12 @@ export function buildTwoKeyPlan(options = {}) {
   const holdB = Math.max(20, Math.round(Number(options.holdB) || 500));
   const bridgeAB = Math.max(20, Math.round(Number(options.bridgeAB) || 240));
   const bridgeBA = Math.max(20, Math.round(Number(options.bridgeBA) || 240));
-  const bridgeSteps = Math.max(0, Math.min(24, Math.round(Number(options.bridgeSteps) || 3)));
+  const requestedBridgeSteps = Number(options.bridgeSteps);
+  const bridgeSteps = Math.max(0, Math.min(24, Math.round(Number.isFinite(requestedBridgeSteps) ? requestedBridgeSteps : 3)));
   const pingPong = options.pingPong !== false;
   const easing = options.easing || 'ease-in-out';
-  const deformStrength = Math.max(0, Math.min(100, Number(options.deformStrength ?? options.snapStrength) || 70));
+  const requestedStrength = Number(options.deformStrength ?? options.snapStrength);
+  const deformStrength = Math.max(0, Math.min(100, Number.isFinite(requestedStrength) ? requestedStrength : 70));
   const frames = [{ frameType: 'authored', key: 'A', label: 'Key A', durationMs: holdA, progress: 0 }];
 
   if (bridgeSteps) {
@@ -164,9 +166,12 @@ export function estimateFootAnchor(rgba, width, height, alphaThreshold = 24, sup
 }
 
 export function deriveDeformationRecipe(keyA, keyB, width, height, options = {}) {
-  const alphaThreshold = Math.max(0, Math.min(255, Math.round(Number(options.alphaThreshold) || 24)));
-  const maskPaddingPx = Math.max(0, Math.min(64, Math.round(Number(options.maskPaddingPx) || 2)));
-  const anchorBandPx = Math.max(1, Math.min(96, Math.round(Number(options.anchorBandPx) || 12)));
+  const requestedAlpha = Number(options.alphaThreshold);
+  const requestedPadding = Number(options.maskPaddingPx);
+  const requestedAnchorBand = Number(options.anchorBandPx);
+  const alphaThreshold = Math.max(0, Math.min(255, Math.round(Number.isFinite(requestedAlpha) ? requestedAlpha : 24)));
+  const maskPaddingPx = Math.max(0, Math.min(64, Math.round(Number.isFinite(requestedPadding) ? requestedPadding : 2)));
+  const anchorBandPx = Math.max(1, Math.min(96, Math.round(Number.isFinite(requestedAnchorBand) ? requestedAnchorBand : 12)));
   const masks = {
     A: normalizeMask(options.masks?.A || estimateAlphaMask(keyA, width, height, alphaThreshold, maskPaddingPx), width, height),
     B: normalizeMask(options.masks?.B || estimateAlphaMask(keyB, width, height, alphaThreshold, maskPaddingPx), width, height),
