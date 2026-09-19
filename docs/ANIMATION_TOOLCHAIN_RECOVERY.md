@@ -56,9 +56,10 @@ Hosted importer proof is staged separately so the recovered feature branch remai
 - additive capture: tools/capture_sprite_import_review.mjs
 - workflow: .github/workflows/sprite-visual-qa.yml
 - capture contract: exact source SHA -> four candidates -> keyboard-select frame 4 -> delete -> three frames -> create -> verify 512x512 -> verify IndexedDB source hash and PNG blobs -> reload -> verify draft restoration
+- current hosted-QA branch head after artifact-expression cleanup: 66e9ba40a0297823b0a32ea148bd7efe680284dc
 - first dispatch: GitHub Actions run 35444888829
 
-Run 35444888829 failed in about four seconds before useful workflow execution. This matches the account-wide GitHub-hosted runner provisioning failures observed in September 2026. It is infrastructure evidence, not a Sprite Lab visual verdict. Do not call hosted visual acceptance green until a real hosted browser executes the capture and its screenshot evidence is inspected.
+Run 35444888829 failed in about four seconds before useful workflow execution. A later public Thunder Actions run executed normally, so the evidence now narrows the blocker to private Pose Lab hosted-runner availability rather than GitHub Actions generally. It is infrastructure evidence, not a Sprite Lab visual verdict. Do not call hosted visual acceptance green until a real hosted browser executes the capture and its screenshot evidence is inspected.
 
 ## Recovered sibling knowledge
 
@@ -80,7 +81,7 @@ cornfire-convoy-fp, last-convoy-html5, and fleshpunk--inner-heart contain useful
 
 ### Model Viewer animation review
 
-A local Model Viewer worktree was discovered on agent/blender-animation-review. Its remote branch was not found during GitHub readback, so treat it as archaeology until local commit reachability is checked. Do not silently replace Pose Lab's current Blender render-truth lane with it.
+A local Model Viewer worktree was discovered on agent/blender-animation-review at phone-only commit 63839d4947e15a3b41b4eb55f236b5f0677a81ee. The commit adds generic GLB named-animation playback plus machine-readable hierarchy/animation inventory. Its build and portable smoke passed on the phone. The exact commit is now preserved remotely as recovery/glb-animation-hierarchy-review-63839d4-20260919. Treat it as a useful inspection utility, not a replacement for Pose Lab's authoring or Blender render-truth lane.
 
 ## Retired lane: Command Center Codex workers
 
