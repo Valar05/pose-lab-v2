@@ -12,9 +12,12 @@ on:
       - scripts/build.mjs
       - scripts/smoke.mjs
       - src/sprite-viewer.js
+      - src/sprite-slicer.js
       - src/styles.css
       - tools/capture_sprite_review.mjs
+      - tools/capture_sprite_import_review.mjs
       - tools/test_sprite_review_surface.mjs
+      - tests/fixtures/sprite-lab/image_cc96778d.jpg
       - public/assets/vanguard/fleshpunk/**
 
 permissions:
@@ -35,13 +38,18 @@ jobs:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
       - name: Verify system Chrome
         run: google-chrome --version
+      - name: Verify exact Sprite Lab specimen
+        run: echo "c68c3268a04027ae7f05eea623f344b079360ce6a1f709a35647b1f0cdadcac2  tests/fixtures/sprite-lab/image_cc96778d.jpg" | sha256sum -c -
       - name: Verify and build 2D review
         run: |
+          node --check tools/capture_sprite_import_review.mjs
+          npm run test:sprite-slicer
+          npm run test:gif-encoder
           npm run test:2d
           npm run build
           npm run smoke
           git diff --check
-      - name: Capture Idle and SwordAttack1
+      - name: Capture tracked animations and intelligent importer
         env:
           PLAYWRIGHT_CHROME_CHANNEL: chrome
         run: |
@@ -65,9 +73,15 @@ jobs:
           node tools/capture_sprite_review.mjs \
             --url http://127.0.0.1:4173/ \
             --out-dir generated/sprite-review
+          node tools/capture_sprite_import_review.mjs \
+            --url http://127.0.0.1:4173/ \
+            --fixture tests/fixtures/sprite-lab/image_cc96778d.jpg \
+            --out-dir generated/sprite-import-review
       - uses: actions/upload-artifact@v4
         with:
-          name: sprite-visual-evidence-${{ github.run_id }}
-          path: generated/sprite-review/
+          name: sprite-visual-evidence-\${{ github.run_id }}
+          path: |
+            generated/sprite-review/
+            generated/sprite-import-review/
           if-no-files-found: error
           retention-days: 30
