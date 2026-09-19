@@ -81,6 +81,7 @@
     "test:sprite-refinery": "node tools/test_sprite_refinery.mjs",
     "test:sprite-slicer": "node tools/test_sprite_slicer.mjs",
     "test:gif-encoder": "node tools/test_gif_encoder.mjs",
-    "test:two-key": "node tools/test_two_key_snap.mjs"
+    "test:two-key": "node tools/test_two_key_snap.mjs",
+    "test:two-key:browser": "node tools/test_two_key_native_browser.mjs"
   }
 }
