@@ -1,19 +1,9 @@
 name: Sprite Lab CI
 
+# GitHub-hosted runners are an optional mirror. The recovered feature is
+# verified through the authorized Home Center -> Phone Hands -> primary-phone
+# lane so a hosted-runner provisioning failure cannot masquerade as a code test.
 on:
-  push:
-    branches:
-      - agent/sprite-refinery-mvp
-    paths:
-      - '.github/workflows/sprite-lab-ci.yml'
-      - 'src/sprite-viewer.js'
-      - 'src/sprite-slicer.js'
-      - 'src/gif-encoder.js'
-      - 'src/styles.css'
-      - 'tools/test_sprite_review_surface.mjs'
-      - 'tools/test_sprite_slicer.mjs'
-      - 'tools/test_gif_encoder.mjs'
-      - 'package.json'
   workflow_dispatch:
 
 permissions:
