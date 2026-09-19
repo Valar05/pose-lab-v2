@@ -93,7 +93,8 @@ assert(viewer.includes('detectFrameBoxes') && viewer.includes('beginBoxEdit') &&
 assert(viewer.includes('createImportedAnimation') && viewer.includes('manifest.animations.push'), 'contact sheet must become a new Pose Lab animation, not a detached preview');
 assert(viewer.includes('Export GIF') && viewer.includes('encodeGif(frames, animation.frames.map((frame) => frame.durationMs))'), 'imported Pose Lab animation must export an animated GIF with per-frame timing');
 assert(viewer.includes("localStorage.setItem('pose-lab-sprite-lab-recent'") && viewer.includes("indexedDB.open('pose-lab-sprite-lab'") && viewer.includes('frameBlobs') && viewer.includes('localDraftAnimationFromStorage'), 'Sprite Lab must persist source bytes, rendered frame blobs, and restore the created draft animation');
-assert(viewer.includes('tabindex="0"') && viewer.includes('handleImportPreviewKeydown'), 'editable frame boxes must have a keyboard path in addition to pointer dragging');
+assert(viewer.includes('tabindex="0"') && viewer.includes('handleImportPreviewKeydown') && viewer.includes("event.key === 'PageUp'") && viewer.includes("event.key === 'PageDown'"), 'editable frame boxes must support keyboard selection plus move/resize in addition to pointer dragging');
+assert(css.includes('.sprite-slicer-canvas-wrap canvas:focus-visible'), 'keyboard editing must expose a visible focus indicator');
 assert(slicer.includes('dominantBorderColor') && slicer.includes('projectionRuns'), 'intelligent slicer must derive candidates from source pixels');
 assert(gifEncoder.includes("'image/gif'") && gifEncoder.includes('GIF89a') && gifEncoder.includes('NETSCAPE2.0'), 'Sprite Lab GIF encoder must create a looping GIF artifact');
 assert(css.includes('.sprite-import-screen') && css.includes('.sprite-import-card'), 'full-page Sprite Lab importer styles are incomplete');
