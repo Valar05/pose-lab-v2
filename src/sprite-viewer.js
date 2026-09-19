@@ -1,6 +1,6 @@
 import { encodeGif } from './gif-encoder.js';
 import { detectFrameBoxes, constrainFrameBox, clearConnectedBackground } from './sprite-slicer.js';
-import { installTwoKeySnap } from './two-key-ui.js';
+import { installTwoKeyDeform } from './two-key-ui.js';
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEFAULT_MANIFEST = './assets/vanguard/fleshpunk/animations.json';
 const manifestUrl = new URL(URL_PARAMS.get('manifest') || DEFAULT_MANIFEST, window.location.href);
@@ -197,6 +197,22 @@ function assetUrl(path) {
   return new URL(path, manifestUrl).href;
 }
 
+function mediaUrl(src) {
+  const value = String(src || '');
+  return /^(?:blob:|data:|https?:)/i.test(value) ? value : assetUrl(value);
+}
+
+function frameDisplaySrc(frame) {
+  if (animation && typeof animation.resolveFrameSrc === 'function') {
+    return animation.resolveFrameSrc(frame);
+  }
+  return mediaUrl(frame?.src);
+}
+
+function preloadAnimationFrame(frame) {
+  return preloadFrame(frameDisplaySrc(frame));
+}
+
 function frameAt(index) {
   const count = animation.frames.length;
   return animation.frames[(index + count) % count];
@@ -277,8 +293,8 @@ async function renderDelta() {
   const frame = frameAt(currentFrameIndex);
   const previous = frameAt(currentFrameIndex - 1);
   const [previousAsset, currentAsset] = await Promise.all([
-    preloadFrame(previous.src),
-    preloadFrame(frame.src),
+    preloadAnimationFrame(previous),
+    preloadAnimationFrame(frame),
   ]);
   if (!deltaEnabled || renderKey !== deltaCacheKey()) return;
   const output = buildDeltaImage(previousAsset, currentAsset);
@@ -293,10 +309,15 @@ function renderFrame({ speak = false } = {}) {
   const frameNumber = currentFrameIndex + 1;
   const frameCount = animation.frames.length;
 
-  currentImage.src = assetUrl(frame.src);
+  currentImage.src = frameDisplaySrc(frame);
   currentImage.alt = `${manifest.character}, ${animation.label}, frame ${frameNumber} of ${frameCount}`;
-  previousImage.src = assetUrl(previous.src);
-  nextImage.src = assetUrl(next.src);
+  if (onionEnabled) {
+    previousImage.src = frameDisplaySrc(previous);
+    nextImage.src = frameDisplaySrc(next);
+  } else {
+    previousImage.removeAttribute('src');
+    nextImage.removeAttribute('src');
+  }
   if (deltaEnabled) renderDelta().catch(() => {});
   scrubber.value = String(currentFrameIndex);
   frameReadout.textContent = 'Frame ' + frameNumber + '/' + frameCount + ' · ' + frame.durationMs + ' ms · ' + (frame.label || '') + ' · ' + (frame.frameType || 'frame');
@@ -374,7 +395,8 @@ function buildFrameStrip() {
     button.setAttribute('aria-label', (frame.label || ('Frame ' + (index + 1))) + ', ' + (frame.frameType || 'frame') + ', ' + frame.durationMs + ' milliseconds');
 
     const image = document.createElement('img');
-    image.src = assetUrl(frame.src);
+    if (frame.src) image.src = mediaUrl(frame.src);
+    else image.dataset.proceduralPlaceholder = '1';
     image.alt = '';
     image.loading = 'eager';
     image.decoding = 'async';
@@ -442,15 +464,18 @@ function setAnimation(id, { speak = false } = {}) {
   loopEnabled = animation.loop !== false;
   animationTitle.textContent = animation.label;
   scrubber.max = String(animation.frames.length - 1);
-  contactSheetLink.href = assetUrl(animation.contactSheet);
-  exportCurrentGif.hidden = !animation.imported || animation.mode === 'two-key-snap';
+  contactSheetLink.href = mediaUrl(animation.contactSheet);
+  const parametricTwoKey = animation.mode === 'two-key-deform' || animation.mode === 'two-key-snap';
+  exportCurrentGif.hidden = !animation.imported || parametricTwoKey;
   const status = animation.status || 'ready';
   statusBadge.textContent = status;
   statusBadge.dataset.status = status;
   const firstFrame = animation.frames[0]?.src || '';
-  finalFramesLink.href = firstFrame ? assetUrl(firstFrame.replace(/[^/]+$/, '')) : assetUrl(animation.contactSheet);
-  provenanceLink.href = animation.sourceMetadata ? assetUrl(animation.sourceMetadata) : assetUrl(animation.contactSheet);
-  verifierLink.href = animation.verifierReport ? assetUrl(animation.verifierReport) : assetUrl(animation.sourceMetadata || animation.contactSheet);
+  finalFramesLink.href = parametricTwoKey
+    ? frameDisplaySrc(animation.frames[0])
+    : (firstFrame ? assetUrl(firstFrame.replace(/[^/]+$/, '')) : mediaUrl(animation.contactSheet));
+  provenanceLink.href = animation.sourceMetadata ? mediaUrl(animation.sourceMetadata) : mediaUrl(animation.contactSheet);
+  verifierLink.href = animation.verifierReport ? mediaUrl(animation.verifierReport) : mediaUrl(animation.sourceMetadata || animation.contactSheet);
   contract.replaceChildren(...animation.contract.map((item) => {
     const badge = document.createElement('span');
     badge.textContent = item;
@@ -481,7 +506,7 @@ function preloadFrame(src) {
       resolve(image);
     };
     image.onerror = () => reject(new Error(`Failed to load ${src}`));
-    image.src = assetUrl(src);
+    image.src = mediaUrl(src);
   });
   frameImagePromises.set(src, promise);
   return promise;
@@ -490,7 +515,7 @@ function preloadFrame(src) {
 function importNumber(input, min, max, fallback) { return Math.max(min, Math.min(max, Math.round(Number(input.value) || fallback))); }
 function setImportStatus(message) { importStatus.textContent = message; }
 function openSpriteDb() { return new Promise((resolve, reject) => { const request = indexedDB.open('pose-lab-sprite-lab', 1); request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains('drafts')) request.result.createObjectStore('drafts'); }; request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); }); }
-async function saveLocalDraft(file, metadata, frameBlobs = []) { const db = await openSpriteDb(); await new Promise((resolve, reject) => { const transaction = db.transaction('drafts', 'readwrite'); transaction.objectStore('drafts').put({ file, metadata, frameBlobs }, 'latest'); transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error); }); db.close(); localStorage.setItem('pose-lab-sprite-lab-recent', JSON.stringify({ name: metadata.source.name, importedAt: metadata.importedAt, id: metadata.id })); restoreImportButton.disabled = false; }
+async function saveLocalDraft(file, metadata, frameBlobs = [], extras = {}) { const db = await openSpriteDb(); await new Promise((resolve, reject) => { const transaction = db.transaction('drafts', 'readwrite'); transaction.objectStore('drafts').put({ file, metadata, frameBlobs, ...extras }, 'latest'); transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error); }); db.close(); localStorage.setItem('pose-lab-sprite-lab-recent', JSON.stringify({ name: metadata.source.name, importedAt: metadata.importedAt, id: metadata.id })); restoreImportButton.disabled = false; }
 async function readLocalDraft() { const db = await openSpriteDb(); const result = await new Promise((resolve, reject) => { const request = db.transaction('drafts').objectStore('drafts').get('latest'); request.onsuccess = () => resolve(request.result || null); request.onerror = () => reject(request.error); }); db.close(); return result; }
 function localDraftAnimationFromStorage(draft) {
   if (!draft?.file || !draft?.metadata || !Array.isArray(draft.frameBlobs) || draft.frameBlobs.length === 0) return null;
@@ -513,8 +538,8 @@ function localDraftAnimationFromStorage(draft) {
     sourceMetadata,
     verifierReport: sourceUrl,
     groundGuideY: 511,
-    contract: metadata.mode === 'two-key-snap'
-      ? ['authored endpoints sacred', 'procedural bridge labeled', 'hard-pixel snap, no ghost blend', metadata.settings?.footAnchor ? 'procedural foot anchor on' : 'foot anchor off']
+    contract: metadata.mode === 'two-key-snap' || metadata.mode === 'two-key-deform'
+      ? ['authored endpoints sacred', 'procedural bridge labeled', 'legacy stored bridge draft']
       : ['auto-detected + human-corrected', '512×512', 'browser-local draft'],
     twoKeySettings: metadata.settings || null,
     frames: draft.frameBlobs.map((blob, index) => ({
@@ -693,7 +718,7 @@ async function createImportedAnimation() {
   closeImporter();
   setAnimation(entry.id, { speak: true });
 }
-async function exportCurrentAnimationGif() { if (!animation?.imported) return; try { const images = await Promise.all(animation.frames.map((frame) => preloadFrame(frame.src))); const frames = images.map((image) => { const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; canvas.getContext('2d').drawImage(image, 0, 0, 512, 512); return canvas; }); const blob = encodeGif(frames, animation.frames.map((frame) => frame.durationMs)), url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = animation.label.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.gif'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); announce('GIF downloaded'); } catch (error) { announce(error instanceof Error ? error.message : String(error)); } }
+async function exportCurrentAnimationGif() { if (!animation?.imported || animation.mode === 'two-key-deform' || animation.mode === 'two-key-snap') return; try { const images = await Promise.all(animation.frames.map((frame) => preloadFrame(frame.src))); const frames = images.map((image) => { const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; canvas.getContext('2d').drawImage(image, 0, 0, 512, 512); return canvas; }); const blob = encodeGif(frames, animation.frames.map((frame) => frame.durationMs)), url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = animation.label.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.gif'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); announce('GIF downloaded'); } catch (error) { announce(error instanceof Error ? error.message : String(error)); } }
 
 async function boot() {
   try {
@@ -720,15 +745,16 @@ async function boot() {
       : 'Approved tracked animation set';
     const requestedId = URL_PARAMS.get('animation') || manifest.defaultAnimation;
     animation = manifest.animations.find((entry) => entry.id === requestedId) || manifest.animations[0];
-    await Promise.all(animation.frames.map((frame) => preloadFrame(frame.src)));
+    await Promise.all(animation.frames.filter((frame) => frame.src).map((frame) => preloadFrame(frame.src)));
     setAnimation(animation.id);
-    installTwoKeySnap({
+    await installTwoKeyDeform({
       app,
       getManifest: () => manifest,
       getAnimation: () => animation,
       setAnimation,
       openImporter,
       saveLocalDraft,
+      readLocalDraft,
       upsertLocalDraftAnimation,
       buildAnimationPicker,
       announce,
@@ -779,6 +805,7 @@ onionButton.addEventListener('click', () => {
   }
   stack.classList.toggle('show-onion', onionEnabled);
   setPressed(onionButton, onionEnabled, 'Onion: On', 'Onion: Off');
+  renderFrame();
 });
 deltaButton.addEventListener('click', () => {
   deltaEnabled = !deltaEnabled;
@@ -786,6 +813,8 @@ deltaButton.addEventListener('click', () => {
     onionEnabled = false;
     stack.classList.remove('show-onion');
     setPressed(onionButton, false, 'Onion: On', 'Onion: Off');
+    previousImage.removeAttribute('src');
+    nextImage.removeAttribute('src');
   }
   stack.classList.toggle('show-delta', deltaEnabled);
   setPressed(deltaButton, deltaEnabled, 'Delta: On', 'Delta: Off');
