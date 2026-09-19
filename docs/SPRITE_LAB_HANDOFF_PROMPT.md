@@ -34,19 +34,34 @@ Serve through the existing tmux session `sprite-lab-video` at:
 
 Machine checks are guardrails. The next visual review must use the project's accepted hosted/cloud lane before claiming visual acceptance. On phone, verify the exact specimen can be selected, proposed boxes are visible/editable, deleting the end card yields three frames, the new animation plays in the existing Pose Lab controls, reload restores the draft, and the exported GIF opens as a three-frame loop.
 
-## Recovery update — 2026-09-18
+## Recovery update - 2026-09-18
 
-Recovered the original implementation from commit `789bc3a5d8f3f9ddd831ae98889eeb958d8a5f59` and hardened the implementation through `3c0408c85dca7353ed4c2e4eb6fa080a1f92c7fb`.
+Recovered the original implementation from commit `789bc3a5d8f3f9ddd831ae98889eeb958d8a5f59` and hardened the application/test/documentation tree through `b1a699183b390613c2c7ca35f686c49a6722b659`.
 
 - Created Pose Lab animations now persist their rendered PNG frame blobs, identity, labels, and frame timing in IndexedDB and rehydrate into the animation picker on reload. Older source-only drafts remain restorable in the importer.
 - GIF export now preserves per-frame durations instead of flattening every frame to frame 1's delay; its test uses a portable OS temp directory and checks exact GIF frame timing with Pillow.
 - Manual box constraints now remain inside sources smaller than the normal four-pixel minimum.
 - Frame-box editing now has a complete keyboard path: Page Up/Down changes selection, arrows move, Ctrl/Command + arrows resize, Shift changes the step to ten pixels, status changes are announced, and focus is visibly outlined.
-- Dedicated `Sprite Lab CI` exists at `.github/workflows/sprite-lab-ci.yml` and runs the six handoff checks without the heavier Sprite Refinery collector/PR side effects.
+- `Sprite Lab CI` remains at `.github/workflows/sprite-lab-ci.yml` as an explicit `workflow_dispatch` mirror. Automatic push triggering was removed after GitHub-hosted jobs repeatedly failed before exposing a single step, so hosted-runner provisioning noise cannot masquerade as a Sprite Lab test failure.
 
-### Verification truth
+### Verified runtime receipt
 
-GitHub-hosted verification is currently an infrastructure evidence gap, not a passing result. Sprite Lab CI runs `35414182329`, `35414317344`, `35414324049`, and `35414328610` each completed as failures within a few seconds; the first run's `verify` job exposed no step summaries and its log download returned `BlobNotFound`. The existing Sprite Refinery Batch also failed before useful collector verification on these pushes. Do not translate those failures into a test assertion without job output.
+Home Center Phone Hands command `sprite-lab-verify-b1a6991-v2` completed on `primary-phone` with `exitCode=0` and `ok=true`.
 
-Home Center Phone Hands command `sprite-lab-verify-3c0408c-v1` was queued to `primary-phone` with an exact expected SHA, clean-worktree gate, fast-forward-only update, and all six verification commands. It had not leased when recorded; `primary-phone`'s `lastSeenAtMs` remained `1789783212151` across checks. Therefore runtime test acceptance and hosted visual acceptance remain pending. Do not repeat the older claim that all machine checks passed unless a fresh execution receipt proves it.
+The receipt proves:
+
+- The actual checkout was `/storage/emulated/0/Documents/GodotProjects/pose-lab-v2-sprite-refinery`.
+- It is a Git worktree with `.git` stored as a file. This explains the superseded first verification command, `sprite-lab-verify-3c0408c-v1`, which failed on an incorrect `.git`-must-be-a-directory gate before testing code.
+- The checkout started at `789bc3a5d8f3f9ddd831ae98889eeb958d8a5f59`, fetched the exact remote head `b1a699183b390613c2c7ca35f686c49a6722b659`, and fast-forwarded only.
+- `npm run test:sprite-slicer` passed, including the 1475x720 non-divisible-sheet contract and tiny-source box constraint.
+- `npm run test:gif-encoder` passed with three frames and exact delays `60/120/250 ms`.
+- `npm run test:2d` passed.
+- `npm run build` passed.
+- `npm run smoke` passed.
+- `git diff --check` passed.
+- The checkout ended at `b1a699183b390613c2c7ca35f686c49a6722b659` with the branch tracking `origin/agent/sprite-refinery-mvp` and no worktree changes.
+
+GitHub-hosted runs `35414182329`, `35414317344`, `35414324049`, and `35414328610` remain failed infrastructure evidence: the first run's `verify` job exposed no step summaries and its log download returned `BlobNotFound`. They are not a contradictory test result because no test step was exposed.
+
+Machine/runtime verification is green through the Home Center phone receipt. Hosted visual acceptance is still pending and must not be claimed until the exact specimen is exercised through the accepted hosted/cloud visual lane.
 
