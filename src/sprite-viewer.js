@@ -13,7 +13,7 @@ app.innerHTML = `
         <h1>2D Animation Review</h1>
         <p class="sprite-subtitle">Direct PNG playback. No GIF assembly required.</p>
       </div>
-      <button type="button" class="sprite-import-button" data-import-sheet>Import contact sheet</button>
+      <button type="button" class="sprite-import-button" data-import-sheet>Upload file</button>
       <nav class="sprite-mode-switch" aria-label="Pose Lab view">
         <a class="active" href="./?view=2d" aria-current="page">2D</a>
         <a href="./?model=vanguard">3D rig</a>
@@ -97,16 +97,16 @@ app.innerHTML = `
         <p class="sr-only" data-live-status aria-live="polite"></p>
       </section>
     </main>
-    <section class="sprite-import-screen" data-import-screen hidden aria-label="Import contact sheet">
+    <section class="sprite-import-screen" data-import-screen hidden aria-label="Upload animation source file">
       <div class="sprite-import-card">
         <p class="sprite-eyebrow">Sprite Lab</p><h1>New Pose Lab animation</h1>
-        <p>Choose one contact-sheet image. This creates a browser-local draft animation in this same 2D viewer, survives reload on this device, and does not overwrite Idle or Sword Attack 1.</p>
-        <label>Contact sheet <input type="file" accept=".png,.webp,.jpg,.jpeg,image/png,image/webp,image/jpeg" data-import-file /></label>
+        <p>Choose a video or contact-sheet image from the normal file picker. Video files are sampled into editable frames here; nothing needs to be pre-converted.</p>
+        <label>File <input type="file" data-import-file aria-label="Choose video or image file" /></label>
         <label class="sprite-import-duration">Frame ms <input type="number" min="20" max="2000" value="120" data-import-duration /></label>
         <div class="sprite-slicer-canvas-wrap" data-import-preview-wrap hidden><canvas data-import-preview tabindex="0" aria-describedby="sprite-slicer-help" aria-keyshortcuts="PageUp PageDown ArrowLeft ArrowRight ArrowUp ArrowDown" aria-label="Editable detected frame boxes"></canvas></div>
         <p id="sprite-slicer-help" class="sprite-slicer-help">Pointer: drag a box or its gold resize corner. Keyboard: Page Up/Down selects a frame box; arrows move it; Ctrl/Command + arrows resize it; hold Shift for 10-pixel steps.</p>
         <div class="sprite-slicer-tools"><button type="button" data-box-add disabled>Add box</button><button type="button" data-box-delete disabled>Delete</button><button type="button" data-box-earlier disabled>Earlier</button><button type="button" data-box-later disabled>Later</button><button type="button" data-redetect disabled>Redetect</button><button type="button" data-restore-import disabled>Restore local draft</button></div>
-        <p data-import-status aria-live="polite">Choose a PNG, WebP, or JPEG. Sprite Lab will propose editable frame boxes.</p>
+        <p data-import-status aria-live="polite">Choose a video or image file.</p>
         <div class="sprite-import-actions"><button type="button" data-import-cancel>Cancel</button><button type="button" class="primary" data-import-confirm disabled>Create Pose Lab animation</button></div>
       </div>
     </section>
@@ -186,6 +186,8 @@ const deltaCurrentContext = deltaCurrentCanvas.getContext('2d', { willReadFreque
 let importedSheetFile = null;
 let importedSheetUrl = null;
 let importedSheetImage = null;
+let importedVideoSampleTimes = [];
+let importedVideoMetadata = null;
 let importedBoxes = [];
 let selectedImportedBox = -1;
 let importPointer = null;
@@ -490,12 +492,80 @@ async function saveLocalDraft(file, metadata, frameBlobs = []) { const db = awai
 async function readLocalDraft() { const db = await openSpriteDb(); const result = await new Promise((resolve, reject) => { const request = db.transaction('drafts').objectStore('drafts').get('latest'); request.onsuccess = () => resolve(request.result || null); request.onerror = () => reject(request.error); }); db.close(); return result; }
 function localDraftAnimationFromStorage(draft) { if (!draft?.file || !draft?.metadata || !Array.isArray(draft.frameBlobs) || draft.frameBlobs.length === 0) return null; const metadata = draft.metadata; if (metadata.schema !== 'pose-lab-v2-intelligent-sprite-import-v1' || !metadata.id || draft.frameBlobs.length !== metadata.frameCount) return null; const durations = Array.isArray(metadata.frameDurationsMs) && metadata.frameDurationsMs.length === draft.frameBlobs.length ? metadata.frameDurationsMs : draft.frameBlobs.map(() => metadata.durationMs || 120); const sourceUrl = URL.createObjectURL(draft.file); const sourceMetadata = URL.createObjectURL(new Blob([JSON.stringify(metadata, null, 2) + '\n'], { type: 'application/json' })); return { id: metadata.id, label: metadata.label || metadata.source?.name?.replace(/\.[^.]+$/, '') || 'Imported contact sheet', status: 'draft', imported: true, localDraft: true, loop: true, contactSheet: sourceUrl, sourceMetadata, verifierReport: sourceUrl, groundGuideY: 511, contract: ['auto-detected + human-corrected', '512×512', 'browser-local draft'], frames: draft.frameBlobs.map((blob, index) => ({ src: URL.createObjectURL(blob), durationMs: durations[index] })) }; }
 function upsertLocalDraftAnimation(entry) { manifest.animations = manifest.animations.filter((candidate) => !candidate.localDraft); if (entry) manifest.animations.push(entry); }
-function updateBoxActions() { const active = selectedImportedBox >= 0 && selectedImportedBox < importedBoxes.length; addBoxButton.disabled = !importedSheetImage; deleteBoxButton.disabled = !active; earlierBoxButton.disabled = !active || selectedImportedBox === 0; laterBoxButton.disabled = !active || selectedImportedBox === importedBoxes.length - 1; redetectButton.disabled = !importedSheetImage; importConfirm.disabled = !importedSheetImage || importedBoxes.length === 0; }
+function updateBoxActions() { const active = selectedImportedBox >= 0 && selectedImportedBox < importedBoxes.length; addBoxButton.disabled = !importedSheetImage; deleteBoxButton.disabled = !active; earlierBoxButton.disabled = !active || selectedImportedBox === 0; laterBoxButton.disabled = !active || selectedImportedBox === importedBoxes.length - 1; redetectButton.disabled = !importedSheetImage || isVideoFile(importedSheetFile); importConfirm.disabled = !importedSheetImage || importedBoxes.length === 0; }
 function drawImportPreview() { if (!importedSheetImage) return; importPreviewContext.clearRect(0, 0, importPreview.width, importPreview.height); importPreviewContext.drawImage(importedSheetImage, 0, 0); importPreviewContext.lineWidth = Math.max(2, Math.round(Math.max(importPreview.width, importPreview.height) / 420)); importPreviewContext.font = 'bold ' + Math.max(14, Math.round(importPreview.width / 65)) + 'px system-ui'; importedBoxes.forEach((box, index) => { const selected = index === selectedImportedBox; importPreviewContext.strokeStyle = selected ? '#f0c35a' : '#55d7ff'; importPreviewContext.fillStyle = selected ? 'rgba(240,195,90,.16)' : 'rgba(85,215,255,.10)'; importPreviewContext.fillRect(box.x, box.y, box.width, box.height); importPreviewContext.strokeRect(box.x, box.y, box.width, box.height); importPreviewContext.fillStyle = selected ? '#f0c35a' : '#55d7ff'; importPreviewContext.fillRect(box.x, box.y, Math.max(28, importPreview.width / 42), Math.max(22, importPreview.width / 58)); importPreviewContext.fillStyle = '#071013'; importPreviewContext.fillText(String(index + 1), box.x + 5, box.y + Math.max(17, importPreview.width / 72)); if (selected) { const handle = Math.max(14, importPreview.width / 60); importPreviewContext.fillStyle = '#f0c35a'; importPreviewContext.fillRect(box.x + box.width - handle, box.y + box.height - handle, handle, handle); } }); const selected = importedBoxes[selectedImportedBox]; importPreview.setAttribute('aria-label', selected ? `Editable frame boxes. ${importedBoxes.length} frames. Selected frame ${selectedImportedBox + 1}: x ${selected.x}, y ${selected.y}, width ${selected.width}, height ${selected.height}.` : `Editable frame boxes. ${importedBoxes.length} frames. No frame selected.`); updateBoxActions(); }
 function detectImportedBoxes() { if (!importedSheetImage) return; const scratch = document.createElement('canvas'); scratch.width = importedSheetImage.width; scratch.height = importedSheetImage.height; const context = scratch.getContext('2d', { willReadFrequently: true }); context.drawImage(importedSheetImage, 0, 0); importedBoxes = detectFrameBoxes(context.getImageData(0, 0, scratch.width, scratch.height)); selectedImportedBox = importedBoxes.length ? 0 : -1; drawImportPreview(); setImportStatus(importedBoxes.length ? 'Detected ' + importedBoxes.length + ' frame' + (importedBoxes.length === 1 ? '' : 's') + '. Tap a box, drag to move, or drag its gold corner to resize.' : 'No confident frames found. Add a box and place it over each frame.'); }
-function validImportType(file) { return Boolean(file && (file.type === 'image/png' || file.type === 'image/webp' || file.type === 'image/jpeg' || /\.(png|webp|jpe?g)$/i.test(file.name))); }
-function loadImportSheet(file, saved = null) { if (!validImportType(file)) { setImportStatus('Unsupported file. Choose PNG, WebP, JPG, or JPEG.'); return; } if (importedSheetUrl) URL.revokeObjectURL(importedSheetUrl); importedSheetFile = file; importedSheetUrl = URL.createObjectURL(file); importedSheetImage = new Image(); importedSheetImage.onload = () => { importPreview.width = importedSheetImage.width; importPreview.height = importedSheetImage.height; importPreviewWrap.hidden = false; if (saved?.boxes?.length) { importedBoxes = saved.boxes.map((box) => constrainFrameBox(box, importedSheetImage.width, importedSheetImage.height)); selectedImportedBox = 0; importDuration.value = String(saved.durationMs || 120); drawImportPreview(); setImportStatus('Restored ' + importedBoxes.length + ' editable frame boxes from local storage.'); } else detectImportedBoxes(); }; importedSheetImage.onerror = () => { importedSheetImage = null; importedBoxes = []; updateBoxActions(); setImportStatus('This PNG, WebP, or JPEG could not be decoded by the browser.'); }; importedSheetImage.src = importedSheetUrl; setImportStatus('Analyzing ' + file.name + '…'); }
-function openImporter() { importScreen.hidden = false; importFile.value = ''; importedSheetFile = null; importedSheetImage = null; importedBoxes = []; selectedImportedBox = -1; importPreviewWrap.hidden = true; updateBoxActions(); setImportStatus('Choose a PNG, WebP, or JPEG. Sprite Lab will propose editable frame boxes.'); readLocalDraft().then((draft) => { restoreImportButton.disabled = !draft; }).catch(() => { restoreImportButton.disabled = true; }); }
+function isImageFile(file) { return Boolean(file && (file.type === 'image/png' || file.type === 'image/webp' || file.type === 'image/jpeg' || /\.(png|webp|jpe?g)$/i.test(file.name || ''))); }
+function isVideoFile(file) { return Boolean(file && (((file.type || '').startsWith('video/')) || /\.(mp4|webm|m4v|mov|ogv|ogg)$/i.test(file.name || ''))); }
+function validImportType(file) { return isImageFile(file) || isVideoFile(file); }
+function waitVideoEvent(video, eventName) { return new Promise((resolve, reject) => { const done = () => { cleanup(); resolve(); }; const failed = () => { cleanup(); reject(new Error('This video could not be decoded by the browser.')); }; const cleanup = () => { video.removeEventListener(eventName, done); video.removeEventListener('error', failed); }; video.addEventListener(eventName, done, { once: true }); video.addEventListener('error', failed, { once: true }); }); }
+function videoSampleTimes(durationSeconds, savedTimes = null) { if (Array.isArray(savedTimes) && savedTimes.length) { const end = Math.max(0, durationSeconds * 1000 - 1); return savedTimes.map((value) => Math.max(0, Math.min(end, Number(value) || 0))); } const count = Math.min(24, Math.max(3, Math.ceil(durationSeconds * 8))); return Array.from({ length: count }, (_, index) => ((index + 0.5) / count) * durationSeconds * 1000); }
+async function seekVideo(video, timeSeconds) { if (Math.abs(video.currentTime - timeSeconds) < 0.002) return; const ready = waitVideoEvent(video, 'seeked'); video.currentTime = timeSeconds; await ready; }
+async function loadImportVideo(file, saved = null) {
+  if (importedSheetUrl) URL.revokeObjectURL(importedSheetUrl);
+  importedSheetFile = file;
+  importedSheetUrl = URL.createObjectURL(file);
+  importedSheetImage = null;
+  importedBoxes = [];
+  importedVideoSampleTimes = [];
+  importedVideoMetadata = null;
+  updateBoxActions();
+  setImportStatus('Opening ' + file.name + '…');
+  const video = document.createElement('video');
+  video.muted = true;
+  video.playsInline = true;
+  video.preload = 'auto';
+  video.src = importedSheetUrl;
+  if (video.readyState < 1) await waitVideoEvent(video, 'loadedmetadata');
+  if (video.readyState < 2) await waitVideoEvent(video, 'loadeddata');
+  const duration = Number(video.duration);
+  if (!Number.isFinite(duration) || duration <= 0 || !video.videoWidth || !video.videoHeight) throw new Error('This video has no readable duration or frame size.');
+  const times = videoSampleTimes(duration, saved?.sampleTimesMs);
+  const scale = Math.min(1, 320 / video.videoWidth, 240 / video.videoHeight);
+  const cellWidth = Math.max(1, Math.round(video.videoWidth * scale));
+  const cellHeight = Math.max(1, Math.round(video.videoHeight * scale));
+  const columns = Math.min(6, times.length);
+  const rows = Math.ceil(times.length / columns);
+  const sheet = document.createElement('canvas');
+  sheet.width = cellWidth * columns;
+  sheet.height = cellHeight * rows;
+  const context = sheet.getContext('2d');
+  const boxes = [];
+  for (let index = 0; index < times.length; index += 1) {
+    const x = (index % columns) * cellWidth;
+    const y = Math.floor(index / columns) * cellHeight;
+    const seconds = Math.min(Math.max(0, duration - 0.001), times[index] / 1000);
+    await seekVideo(video, seconds);
+    context.drawImage(video, x, y, cellWidth, cellHeight);
+    boxes.push({ x, y, width: cellWidth, height: cellHeight });
+  }
+  importedSheetImage = sheet;
+  importedVideoSampleTimes = times.map((value) => Math.round(value));
+  importedVideoMetadata = { width: video.videoWidth, height: video.videoHeight, durationMs: Math.round(duration * 1000), sheetWidth: sheet.width, sheetHeight: sheet.height };
+  importPreview.width = sheet.width;
+  importPreview.height = sheet.height;
+  importPreviewWrap.hidden = false;
+  importedBoxes = saved?.boxes?.length ? saved.boxes.map((box) => constrainFrameBox(box, sheet.width, sheet.height)) : boxes;
+  selectedImportedBox = importedBoxes.length ? 0 : -1;
+  importDuration.value = String(saved?.durationMs || 120);
+  drawImportPreview();
+  setImportStatus('Loaded video · sampled ' + importedBoxes.length + ' frames. Delete or reorder any frame, then create the animation.');
+}
+function loadImportSheet(file, saved = null) {
+  if (!validImportType(file)) { setImportStatus('Unsupported file. Choose a normal video or PNG, WebP, JPG, or JPEG image.'); return; }
+  if (isVideoFile(file)) { loadImportVideo(file, saved).catch((error) => { importedSheetImage = null; importedBoxes = []; updateBoxActions(); setImportStatus(error instanceof Error ? error.message : String(error)); }); return; }
+  importedVideoSampleTimes = [];
+  importedVideoMetadata = null;
+  if (importedSheetUrl) URL.revokeObjectURL(importedSheetUrl);
+  importedSheetFile = file;
+  importedSheetUrl = URL.createObjectURL(file);
+  importedSheetImage = new Image();
+  importedSheetImage.onload = () => { importPreview.width = importedSheetImage.width; importPreview.height = importedSheetImage.height; importPreviewWrap.hidden = false; if (saved?.boxes?.length) { importedBoxes = saved.boxes.map((box) => constrainFrameBox(box, importedSheetImage.width, importedSheetImage.height)); selectedImportedBox = 0; importDuration.value = String(saved.durationMs || 120); drawImportPreview(); setImportStatus('Restored ' + importedBoxes.length + ' editable frame boxes from local storage.'); } else detectImportedBoxes(); };
+  importedSheetImage.onerror = () => { importedSheetImage = null; importedBoxes = []; updateBoxActions(); setImportStatus('This image could not be decoded by the browser.'); };
+  importedSheetImage.src = importedSheetUrl;
+  setImportStatus('Analyzing ' + file.name + '…');
+}
+function openImporter() { importScreen.hidden = false; importFile.value = ''; importedSheetFile = null; importedSheetImage = null; importedVideoSampleTimes = []; importedVideoMetadata = null; importedBoxes = []; selectedImportedBox = -1; importPreviewWrap.hidden = true; updateBoxActions(); setImportStatus('Choose a video or image file.'); readLocalDraft().then((draft) => { restoreImportButton.disabled = !draft; }).catch(() => { restoreImportButton.disabled = true; }); }
 function closeImporter() { importScreen.hidden = true; }
 function previewPoint(event) { const bounds = importPreview.getBoundingClientRect(); return { x: (event.clientX - bounds.left) * importPreview.width / bounds.width, y: (event.clientY - bounds.top) * importPreview.height / bounds.height }; }
 function hitBox(point) { for (let index = importedBoxes.length - 1; index >= 0; index -= 1) { const box = importedBoxes[index]; if (point.x >= box.x && point.x <= box.x + box.width && point.y >= box.y && point.y <= box.y + box.height) return index; } return -1; }
@@ -534,7 +604,59 @@ function handleImportPreviewKeydown(event) {
   drawImportPreview();
 }
 function canvasBlob(canvas) { return new Promise((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Could not encode a frame.')), 'image/png')); }
-async function createImportedAnimation() { if (!importedSheetImage || !importedSheetFile || !manifest || !importedBoxes.length) return; const durationMs = importNumber(importDuration, 20, 2000, 120); importConfirm.disabled = true; setImportStatus('Building ' + importedBoxes.length + ' Pose Lab frames…'); const frameBlobs = []; for (const box of importedBoxes) { const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; const context = canvas.getContext('2d'), scale = Math.min(512 / box.width, 512 / box.height), drawWidth = Math.round(box.width * scale), drawHeight = Math.round(box.height * scale); context.drawImage(importedSheetImage, box.x, box.y, box.width, box.height, Math.round((512 - drawWidth) / 2), Math.round((512 - drawHeight) / 2), drawWidth, drawHeight); const rgba = context.getImageData(0, 0, 512, 512); rgba.data.set(clearConnectedBackground(rgba, 52)); context.putImageData(rgba, 0, 0); frameBlobs.push(await canvasBlob(canvas)); } const id = 'imported-' + Date.now(), label = importedSheetFile.name.replace(/\.[^.]+$/, '') || 'Imported contact sheet'; const metadata = { schema: 'pose-lab-v2-intelligent-sprite-import-v1', status: 'draft', id, label, source: { name: importedSheetFile.name, size: importedSheetFile.size, type: importedSheetFile.type, width: importedSheetImage.width, height: importedSheetImage.height }, boxes: importedBoxes.map(({ x, y, width, height }) => ({ x, y, width, height })), frameCount: frameBlobs.length, durationMs, frameDurationsMs: frameBlobs.map(() => durationMs), importedAt: new Date().toISOString() }; await saveLocalDraft(importedSheetFile, metadata, frameBlobs); const entry = localDraftAnimationFromStorage({ file: importedSheetFile, metadata, frameBlobs }); if (!entry) throw new Error('Could not restore the newly created local draft.'); upsertLocalDraftAnimation(entry); buildAnimationPicker(); closeImporter(); setAnimation(entry.id, { speak: true }); }
+async function createImportedAnimation() {
+  if (!importedSheetImage || !importedSheetFile || !manifest || !importedBoxes.length) return;
+  const durationMs = importNumber(importDuration, 20, 2000, 120);
+  importConfirm.disabled = true;
+  setImportStatus('Building ' + importedBoxes.length + ' Pose Lab frames…');
+  const frameBlobs = [];
+  for (const box of importedBoxes) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const context = canvas.getContext('2d');
+    const scale = Math.min(512 / box.width, 512 / box.height);
+    const drawWidth = Math.round(box.width * scale);
+    const drawHeight = Math.round(box.height * scale);
+    context.drawImage(importedSheetImage, box.x, box.y, box.width, box.height, Math.round((512 - drawWidth) / 2), Math.round((512 - drawHeight) / 2), drawWidth, drawHeight);
+    const rgba = context.getImageData(0, 0, 512, 512);
+    rgba.data.set(clearConnectedBackground(rgba, 52));
+    context.putImageData(rgba, 0, 0);
+    frameBlobs.push(await canvasBlob(canvas));
+  }
+  const id = 'imported-' + Date.now();
+  const label = importedSheetFile.name.replace(/\.[^.]+$/, '') || 'Imported media';
+  const videoSource = isVideoFile(importedSheetFile);
+  const metadata = {
+    schema: 'pose-lab-v2-intelligent-sprite-import-v1',
+    status: 'draft',
+    id,
+    label,
+    source: {
+      name: importedSheetFile.name,
+      size: importedSheetFile.size,
+      type: importedSheetFile.type,
+      kind: videoSource ? 'video' : 'image',
+      width: videoSource ? importedVideoMetadata?.width : importedSheetImage.width,
+      height: videoSource ? importedVideoMetadata?.height : importedSheetImage.height,
+      ...(videoSource ? { durationMs: importedVideoMetadata?.durationMs } : {}),
+    },
+    sheet: { width: importedSheetImage.width, height: importedSheetImage.height },
+    ...(videoSource ? { sampleTimesMs: importedVideoSampleTimes } : {}),
+    boxes: importedBoxes.map(({ x, y, width, height }) => ({ x, y, width, height })),
+    frameCount: frameBlobs.length,
+    durationMs,
+    frameDurationsMs: frameBlobs.map(() => durationMs),
+    importedAt: new Date().toISOString(),
+  };
+  await saveLocalDraft(importedSheetFile, metadata, frameBlobs);
+  const entry = localDraftAnimationFromStorage({ file: importedSheetFile, metadata, frameBlobs });
+  if (!entry) throw new Error('Could not restore the newly created local draft.');
+  upsertLocalDraftAnimation(entry);
+  buildAnimationPicker();
+  closeImporter();
+  setAnimation(entry.id, { speak: true });
+}
 async function exportCurrentAnimationGif() { if (!animation?.imported) return; try { const images = await Promise.all(animation.frames.map((frame) => preloadFrame(frame.src))); const frames = images.map((image) => { const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; canvas.getContext('2d').drawImage(image, 0, 0, 512, 512); return canvas; }); const blob = encodeGif(frames, animation.frames.map((frame) => frame.durationMs)), url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = animation.label.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.gif'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); announce('GIF downloaded'); } catch (error) { announce(error instanceof Error ? error.message : String(error)); } }
 
 async function boot() {

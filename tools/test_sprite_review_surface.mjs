@@ -88,6 +88,9 @@ assert(viewer.includes("document.body.dataset.reviewReady = '1'"), '2D review mu
 assert(css.includes('.sprite-stage.checker') && css.includes('.sprite-frame-strip'), '2D review styles are incomplete');
 assert(viewer.includes('New Pose Lab animation') && viewer.includes('data-import-screen'), 'Sprite Lab must use a full-page import flow inside the 2D viewer');
 assert(viewer.includes('data-import-file') && viewer.includes('data-import-preview'), 'importer must expose a visible file picker and editable sheet canvas');
+assert(viewer.includes('<label>File <input type="file" data-import-file') && !viewer.includes('data-import-file accept='), 'Sprite Lab must use an unfiltered native file input instead of an image-only picker');
+assert(viewer.includes('isVideoFile') && viewer.includes('loadImportVideo') && viewer.includes("document.createElement('video')") && viewer.includes('videoSampleTimes'), 'Sprite Lab file upload must decode video files into sampled editable frames');
+assert(viewer.includes('sampleTimesMs') && viewer.includes("kind: videoSource ? 'video' : 'image'"), 'video imports must preserve sampling/provenance metadata');
 assert(!viewer.includes('Grid does not divide') && !viewer.includes('data-import-columns'), 'importer must not require a divisible fixed grid');
 assert(viewer.includes('detectFrameBoxes') && viewer.includes('beginBoxEdit') && viewer.includes('Add box'), 'importer must propose and allow correction of frame boxes');
 assert(viewer.includes('createImportedAnimation') && viewer.includes('manifest.animations.push'), 'contact sheet must become a new Pose Lab animation, not a detached preview');
