@@ -84,6 +84,19 @@ assert.equal(plan.frames[4].key, 'B');
 assert.ok(plan.frames.slice(1, 4).every((frame) => frame.from === 'A' && frame.to === 'B'));
 assert.ok(plan.frames.slice(5).every((frame) => frame.from === 'B' && frame.to === 'A'));
 
+const zeroPlan = buildTwoKeyPlan({
+  holdA: 100,
+  bridgeAB: 100,
+  bridgeSteps: 0,
+  holdB: 100,
+  bridgeBA: 100,
+  pingPong: true,
+  deformStrength: 0,
+});
+assert.equal(zeroPlan.settings.bridgeSteps, 0, 'bridgeSteps=0 must remain zero');
+assert.equal(zeroPlan.settings.deformStrength, 0, 'deformStrength=0 must remain zero');
+assert.deepEqual(zeroPlan.frames.map((frame) => frame.frameType), ['authored', 'authored']);
+
 const recipe = deriveDeformationRecipe(standing, crouched, width, height, {
   plantedFeet: true,
   anchorBandPx: 2,
@@ -93,6 +106,16 @@ const recipe = deriveDeformationRecipe(standing, crouched, width, height, {
 assert.equal(recipe.schema, 'pose-lab-v2-deformation-recipe-v1');
 assert.equal(recipe.method, 'anchored-silhouette-row-warp-v1');
 assert.equal(recipe.plantedFeet, true);
+assert.equal(recipe.maskPaddingPx, 0, 'maskPaddingPx=0 must remain zero');
+assert.equal(recipe.alphaThreshold, 24);
+const zeroThresholdRecipe = deriveDeformationRecipe(standing, crouched, width, height, {
+  plantedFeet: true,
+  anchorBandPx: 2,
+  maskPaddingPx: 0,
+  alphaThreshold: 0,
+});
+assert.equal(zeroThresholdRecipe.alphaThreshold, 0, 'alphaThreshold=0 must remain zero');
+assert.equal(zeroThresholdRecipe.maskPaddingPx, 0, 'zero threshold recipe must keep zero mask padding');
 assert.deepEqual(estimateAlphaMask(standing, width, height, 24, 0), {
   x: 3, y: 1, width: 6, height: 11, source: 'alpha-subject',
 });
