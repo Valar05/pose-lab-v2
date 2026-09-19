@@ -222,6 +222,23 @@ export function installTwoKeySnap({
   let keyA = null;
   let keyB = null;
   let latestAnimationId = null;
+  const activeAtInstall = getAnimation();
+  if (activeAtInstall?.mode === 'two-key-snap') {
+    latestAnimationId = activeAtInstall.id;
+    mode.value = 'two-key-snap';
+    panel.hidden = false;
+    const settings = activeAtInstall.twoKeySettings || {};
+    if (settings.holdA) holdA.value = String(settings.holdA);
+    if (settings.bridgeAB) bridgeAB.value = String(settings.bridgeAB);
+    if (Number.isFinite(settings.bridgeSteps)) bridgeSteps.value = String(settings.bridgeSteps);
+    if (settings.holdB) holdB.value = String(settings.holdB);
+    if (settings.bridgeBA) bridgeBA.value = String(settings.bridgeBA);
+    if (settings.easing) easing.value = settings.easing;
+    if (Number.isFinite(settings.snapStrength)) { snap.value = String(settings.snapStrength); snapOutput.textContent = String(settings.snapStrength); }
+    if (typeof settings.pingPong === 'boolean') pingPong.checked = settings.pingPong;
+    if (typeof settings.footAnchor === 'boolean') footAnchor.checked = settings.footAnchor;
+    setStatus('Reloaded persisted Two-Key animation. Authored/procedural frame identity preserved.');
+  }
 
   function currentTwoKey() {
     const active = getAnimation();

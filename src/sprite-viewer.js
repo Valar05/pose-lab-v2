@@ -1,5 +1,6 @@
 import { encodeGif } from './gif-encoder.js';
 import { detectFrameBoxes, constrainFrameBox, clearConnectedBackground } from './sprite-slicer.js';
+import { installTwoKeySnap } from './two-key-ui.js';
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEFAULT_MANIFEST = './assets/vanguard/fleshpunk/animations.json';
 const manifestUrl = new URL(URL_PARAMS.get('manifest') || DEFAULT_MANIFEST, window.location.href);
@@ -298,7 +299,7 @@ function renderFrame({ speak = false } = {}) {
   nextImage.src = assetUrl(next.src);
   if (deltaEnabled) renderDelta().catch(() => {});
   scrubber.value = String(currentFrameIndex);
-  frameReadout.textContent = `Frame ${frameNumber}/${frameCount} · ${frame.durationMs} ms`;
+  frameReadout.textContent = 'Frame ' + frameNumber + '/' + frameCount + ' · ' + frame.durationMs + ' ms · ' + (frame.label || '') + ' · ' + (frame.frameType || 'frame');
 
   [...frameStrip.querySelectorAll('[data-frame-index]')].forEach((button) => {
     const active = Number(button.dataset.frameIndex) === currentFrameIndex;
@@ -368,8 +369,9 @@ function buildFrameStrip() {
     const button = document.createElement('button');
     button.type = 'button';
     button.dataset.frameIndex = String(index);
+    button.dataset.frameType = frame.frameType || 'frame';
     button.role = 'tab';
-    button.setAttribute('aria-label', `Frame ${index + 1}, ${frame.durationMs} milliseconds`);
+    button.setAttribute('aria-label', (frame.label || ('Frame ' + (index + 1))) + ', ' + (frame.frameType || 'frame') + ', ' + frame.durationMs + ' milliseconds');
 
     const image = document.createElement('img');
     image.src = assetUrl(frame.src);
@@ -378,7 +380,7 @@ function buildFrameStrip() {
     image.decoding = 'async';
 
     const label = document.createElement('span');
-    label.textContent = `${index + 1} · ${frame.durationMs}ms`;
+    label.textContent = (frame.label || String(index + 1)) + ' · ' + (frame.frameType || 'frame') + ' · ' + frame.durationMs + 'ms';
     button.append(image, label);
     button.addEventListener('click', () => {
       pause();
@@ -441,7 +443,7 @@ function setAnimation(id, { speak = false } = {}) {
   animationTitle.textContent = animation.label;
   scrubber.max = String(animation.frames.length - 1);
   contactSheetLink.href = assetUrl(animation.contactSheet);
-  exportCurrentGif.hidden = !animation.imported;
+  exportCurrentGif.hidden = !animation.imported || animation.mode === 'two-key-snap';
   const status = animation.status || 'ready';
   statusBadge.textContent = status;
   statusBadge.dataset.status = status;
@@ -490,7 +492,41 @@ function setImportStatus(message) { importStatus.textContent = message; }
 function openSpriteDb() { return new Promise((resolve, reject) => { const request = indexedDB.open('pose-lab-sprite-lab', 1); request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains('drafts')) request.result.createObjectStore('drafts'); }; request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); }); }
 async function saveLocalDraft(file, metadata, frameBlobs = []) { const db = await openSpriteDb(); await new Promise((resolve, reject) => { const transaction = db.transaction('drafts', 'readwrite'); transaction.objectStore('drafts').put({ file, metadata, frameBlobs }, 'latest'); transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error); }); db.close(); localStorage.setItem('pose-lab-sprite-lab-recent', JSON.stringify({ name: metadata.source.name, importedAt: metadata.importedAt, id: metadata.id })); restoreImportButton.disabled = false; }
 async function readLocalDraft() { const db = await openSpriteDb(); const result = await new Promise((resolve, reject) => { const request = db.transaction('drafts').objectStore('drafts').get('latest'); request.onsuccess = () => resolve(request.result || null); request.onerror = () => reject(request.error); }); db.close(); return result; }
-function localDraftAnimationFromStorage(draft) { if (!draft?.file || !draft?.metadata || !Array.isArray(draft.frameBlobs) || draft.frameBlobs.length === 0) return null; const metadata = draft.metadata; if (metadata.schema !== 'pose-lab-v2-intelligent-sprite-import-v1' || !metadata.id || draft.frameBlobs.length !== metadata.frameCount) return null; const durations = Array.isArray(metadata.frameDurationsMs) && metadata.frameDurationsMs.length === draft.frameBlobs.length ? metadata.frameDurationsMs : draft.frameBlobs.map(() => metadata.durationMs || 120); const sourceUrl = URL.createObjectURL(draft.file); const sourceMetadata = URL.createObjectURL(new Blob([JSON.stringify(metadata, null, 2) + '\n'], { type: 'application/json' })); return { id: metadata.id, label: metadata.label || metadata.source?.name?.replace(/\.[^.]+$/, '') || 'Imported contact sheet', status: 'draft', imported: true, localDraft: true, loop: true, contactSheet: sourceUrl, sourceMetadata, verifierReport: sourceUrl, groundGuideY: 511, contract: ['auto-detected + human-corrected', '512×512', 'browser-local draft'], frames: draft.frameBlobs.map((blob, index) => ({ src: URL.createObjectURL(blob), durationMs: durations[index] })) }; }
+function localDraftAnimationFromStorage(draft) {
+  if (!draft?.file || !draft?.metadata || !Array.isArray(draft.frameBlobs) || draft.frameBlobs.length === 0) return null;
+  const metadata = draft.metadata;
+  if (metadata.schema !== 'pose-lab-v2-intelligent-sprite-import-v1' || !metadata.id || draft.frameBlobs.length !== metadata.frameCount) return null;
+  const durations = Array.isArray(metadata.frameDurationsMs) && metadata.frameDurationsMs.length === draft.frameBlobs.length
+    ? metadata.frameDurationsMs : draft.frameBlobs.map(() => metadata.durationMs || 120);
+  const sourceUrl = URL.createObjectURL(draft.file);
+  const sourceMetadata = URL.createObjectURL(new Blob([JSON.stringify(metadata, null, 2) + '\n'], { type: 'application/json' }));
+  const frameMetadata = Array.isArray(metadata.frames) ? metadata.frames : [];
+  return {
+    id: metadata.id,
+    label: metadata.label || metadata.source?.name?.replace(/\.[^.]+$/, '') || 'Imported media',
+    mode: metadata.mode || 'frame-sequence',
+    status: 'draft',
+    imported: true,
+    localDraft: true,
+    loop: metadata.loop !== false,
+    contactSheet: sourceUrl,
+    sourceMetadata,
+    verifierReport: sourceUrl,
+    groundGuideY: 511,
+    contract: metadata.mode === 'two-key-snap'
+      ? ['authored endpoints sacred', 'procedural bridge labeled', 'hard-pixel snap, no ghost blend', metadata.settings?.footAnchor ? 'procedural foot anchor on' : 'foot anchor off']
+      : ['auto-detected + human-corrected', '512×512', 'browser-local draft'],
+    twoKeySettings: metadata.settings || null,
+    frames: draft.frameBlobs.map((blob, index) => ({
+      src: URL.createObjectURL(blob),
+      durationMs: durations[index],
+      frameType: frameMetadata[index]?.frameType || 'authored',
+      label: frameMetadata[index]?.label || String(index + 1),
+      progress: frameMetadata[index]?.progress,
+      direction: frameMetadata[index]?.direction,
+    })),
+  };
+}
 function upsertLocalDraftAnimation(entry) { manifest.animations = manifest.animations.filter((candidate) => !candidate.localDraft); if (entry) manifest.animations.push(entry); }
 function updateBoxActions() { const active = selectedImportedBox >= 0 && selectedImportedBox < importedBoxes.length; addBoxButton.disabled = !importedSheetImage; deleteBoxButton.disabled = !active; earlierBoxButton.disabled = !active || selectedImportedBox === 0; laterBoxButton.disabled = !active || selectedImportedBox === importedBoxes.length - 1; redetectButton.disabled = !importedSheetImage || isVideoFile(importedSheetFile); importConfirm.disabled = !importedSheetImage || importedBoxes.length === 0; }
 function drawImportPreview() { if (!importedSheetImage) return; importPreviewContext.clearRect(0, 0, importPreview.width, importPreview.height); importPreviewContext.drawImage(importedSheetImage, 0, 0); importPreviewContext.lineWidth = Math.max(2, Math.round(Math.max(importPreview.width, importPreview.height) / 420)); importPreviewContext.font = 'bold ' + Math.max(14, Math.round(importPreview.width / 65)) + 'px system-ui'; importedBoxes.forEach((box, index) => { const selected = index === selectedImportedBox; importPreviewContext.strokeStyle = selected ? '#f0c35a' : '#55d7ff'; importPreviewContext.fillStyle = selected ? 'rgba(240,195,90,.16)' : 'rgba(85,215,255,.10)'; importPreviewContext.fillRect(box.x, box.y, box.width, box.height); importPreviewContext.strokeRect(box.x, box.y, box.width, box.height); importPreviewContext.fillStyle = selected ? '#f0c35a' : '#55d7ff'; importPreviewContext.fillRect(box.x, box.y, Math.max(28, importPreview.width / 42), Math.max(22, importPreview.width / 58)); importPreviewContext.fillStyle = '#071013'; importPreviewContext.fillText(String(index + 1), box.x + 5, box.y + Math.max(17, importPreview.width / 72)); if (selected) { const handle = Math.max(14, importPreview.width / 60); importPreviewContext.fillStyle = '#f0c35a'; importPreviewContext.fillRect(box.x + box.width - handle, box.y + box.height - handle, handle, handle); } }); const selected = importedBoxes[selectedImportedBox]; importPreview.setAttribute('aria-label', selected ? `Editable frame boxes. ${importedBoxes.length} frames. Selected frame ${selectedImportedBox + 1}: x ${selected.x}, y ${selected.y}, width ${selected.width}, height ${selected.height}.` : `Editable frame boxes. ${importedBoxes.length} frames. No frame selected.`); updateBoxActions(); }
@@ -686,6 +722,17 @@ async function boot() {
     animation = manifest.animations.find((entry) => entry.id === requestedId) || manifest.animations[0];
     await Promise.all(animation.frames.map((frame) => preloadFrame(frame.src)));
     setAnimation(animation.id);
+    installTwoKeySnap({
+      app,
+      getManifest: () => manifest,
+      getAnimation: () => animation,
+      setAnimation,
+      openImporter,
+      saveLocalDraft,
+      upsertLocalDraftAnimation,
+      buildAnimationPicker,
+      announce,
+    });
     document.title = `${manifest.character} · 2D Review`;
     document.body.dataset.reviewReady = '1';
     document.body.dataset.reviewMode = '2d';

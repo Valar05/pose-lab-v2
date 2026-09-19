@@ -101,6 +101,14 @@ assert(css.includes('.sprite-slicer-canvas-wrap canvas:focus-visible'), 'keyboar
 assert(slicer.includes('dominantBorderColor') && slicer.includes('projectionRuns'), 'intelligent slicer must derive candidates from source pixels');
 assert(gifEncoder.includes("'image/gif'") && gifEncoder.includes('GIF89a') && gifEncoder.includes('NETSCAPE2.0'), 'Sprite Lab GIF encoder must create a looping GIF artifact');
 assert(css.includes('.sprite-import-screen') && css.includes('.sprite-import-card'), 'full-page Sprite Lab importer styles are incomplete');
+assert(viewer.includes("import { installTwoKeySnap } from './two-key-ui.js';") && viewer.includes('installTwoKeySnap({'), '2D review must install the Two-Key Snap editor');
+assert(viewer.includes('frame.frameType') && viewer.includes('button.dataset.frameType'), 'frame review must visibly preserve authored/procedural identity');
+const twoKeyUi = read('src/two-key-ui.js').toString('utf8');
+assert(twoKeyUi.includes('Two-Key Snap') && twoKeyUi.includes('data-two-key-a') && twoKeyUi.includes('data-two-key-b'), 'Two-Key Snap must expose two authored endpoint file inputs');
+assert(twoKeyUi.includes('Export GIF') && twoKeyUi.includes('Export PNG frames') && twoKeyUi.includes('Export JSON') && twoKeyUi.includes('Export contact sheet'), 'Two-Key Snap export controls are incomplete');
+assert(twoKeyUi.includes('Full sequence') && twoKeyUi.includes('Authored keys only') && twoKeyUi.includes('data-two-key-sheet-labels'), 'Two-Key export scope/contact-sheet variants are incomplete');
+assert(twoKeyUi.includes('Reload exported JSON') && twoKeyUi.includes("schema:'pose-lab-v2-2d-animation-set-v1'"), 'Two-Key JSON must be self-contained and reloadable');
+
 
 const swarmlingManifestPath = 'public/assets/swarmling/fleshpunk/animations.json';
 if (fs.existsSync(path.join(root, swarmlingManifestPath))) {
