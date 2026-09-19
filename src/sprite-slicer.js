@@ -98,9 +98,11 @@ export function detectFrameBoxes({ data, width, height }, options = {}) {
 }
 
 export function constrainFrameBox(box, width, height, minimum = 4) {
-  const x = clamp(Math.round(box.x), 0, Math.max(0, width - minimum));
-  const y = clamp(Math.round(box.y), 0, Math.max(0, height - minimum));
-  return { ...box, x, y, width: clamp(Math.round(box.width), minimum, width - x), height: clamp(Math.round(box.height), minimum, height - y) };
+  const minimumWidth = Math.max(1, Math.min(Math.round(minimum), width));
+  const minimumHeight = Math.max(1, Math.min(Math.round(minimum), height));
+  const x = clamp(Math.round(box.x), 0, Math.max(0, width - minimumWidth));
+  const y = clamp(Math.round(box.y), 0, Math.max(0, height - minimumHeight));
+  return { ...box, x, y, width: clamp(Math.round(box.width), minimumWidth, width - x), height: clamp(Math.round(box.height), minimumHeight, height - y) };
 }
 
 export function clearConnectedBackground({ data, width, height }, tolerance = 48) {
