@@ -8,4 +8,5 @@ const boxes=detectFrameBoxes(irregular); assert.equal(boxes.length,3,'1475x720 i
 const transparent=image(620,340,[0,0,0,0]); rect(transparent,25,25,180,280,[255,20,80,255]); rect(transparent,390,35,190,270,[30,220,160,255]); assert.equal(detectFrameBoxes(transparent).length,2,'transparent sheet must detect islands');
 const cleared=clearConnectedBackground(irregular); assert.equal(cleared[3],0,'edge-connected dominant background becomes transparent'); assert.equal(cleared[(150*irregular.width+100)*4+3],255,'foreground remains opaque');
 assert.deepEqual(constrainFrameBox({x:-5,y:330,width:900,height:1},620,340),{x:0,y:330,width:620,height:4},'manual box edits stay inside source');
+assert.deepEqual(constrainFrameBox({x:0,y:0,width:1,height:1},2,2),{x:0,y:0,width:2,height:2},'tiny sources must not produce boxes larger than the source');
 console.log(JSON.stringify({ok:true,checks:['1475x720 non-divisible sheet','transparent background','reading order','box constraints','transparent edge background']},null,2));
