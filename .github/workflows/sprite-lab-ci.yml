@@ -1,0 +1,37 @@
+name: Sprite Lab CI
+
+on:
+  push:
+    branches:
+      - agent/sprite-refinery-mvp
+    paths:
+      - '.github/workflows/sprite-lab-ci.yml'
+      - 'src/sprite-viewer.js'
+      - 'src/sprite-slicer.js'
+      - 'src/gif-encoder.js'
+      - 'src/styles.css'
+      - 'tools/test_sprite_review_surface.mjs'
+      - 'tools/test_sprite_slicer.mjs'
+      - 'tools/test_gif_encoder.mjs'
+      - 'package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Ensure Pillow is available for GIF validation
+        run: python3 -c "from PIL import Image; print(Image.__version__)" || python3 -m pip install --user --disable-pip-version-check pillow==11.3.0
+      - run: npm run test:sprite-slicer
+      - run: npm run test:gif-encoder
+      - run: npm run test:2d
+      - run: npm run build
+      - run: npm run smoke
+      - run: git diff --check
