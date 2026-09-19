@@ -1,3 +1,11 @@
+# Runtime Status - 2026-09-19
+
+The Command Center Codex worker lane described below is historical, not callable. Current Home Center rejects jobs.* and reports that Codex agents, jobs, sessions, and workers are permanently retired.
+
+The deterministic packaging tools remain useful for self-contained provenance bundles, but they must not be described as proof of a live dispatch surface. Do not create a replacement worker platform inside Pose Lab without a new commission. Hosted visual review remains separate from any diagnostic bundle.
+
+---
+
 # Cloud Worker Animation Surface
 
 Cloud workers are the next execution lane for animation learning. The worker
