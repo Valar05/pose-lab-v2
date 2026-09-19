@@ -103,10 +103,10 @@ app.innerHTML = `
         <p>Choose one contact-sheet image. This creates a browser-local draft animation in this same 2D viewer, survives reload on this device, and does not overwrite Idle or Sword Attack 1.</p>
         <label>Contact sheet <input type="file" accept=".png,.webp,.jpg,.jpeg,image/png,image/webp,image/jpeg" data-import-file /></label>
         <label class="sprite-import-duration">Frame ms <input type="number" min="20" max="2000" value="120" data-import-duration /></label>
-        <div class="sprite-slicer-canvas-wrap" data-import-preview-wrap hidden><canvas data-import-preview tabindex="0" aria-describedby="sprite-slicer-help" aria-label="Editable detected frame boxes"></canvas></div>
-        <p id="sprite-slicer-help" class="sprite-slicer-help">Pointer: drag a box or its gold resize corner. Keyboard: arrows move the selected box; Ctrl/Command + arrows resize it; hold Shift for 10-pixel steps.</p>
+        <div class="sprite-slicer-canvas-wrap" data-import-preview-wrap hidden><canvas data-import-preview tabindex="0" aria-describedby="sprite-slicer-help" aria-keyshortcuts="PageUp PageDown ArrowLeft ArrowRight ArrowUp ArrowDown" aria-label="Editable detected frame boxes"></canvas></div>
+        <p id="sprite-slicer-help" class="sprite-slicer-help">Pointer: drag a box or its gold resize corner. Keyboard: Page Up/Down selects a frame box; arrows move it; Ctrl/Command + arrows resize it; hold Shift for 10-pixel steps.</p>
         <div class="sprite-slicer-tools"><button type="button" data-box-add disabled>Add box</button><button type="button" data-box-delete disabled>Delete</button><button type="button" data-box-earlier disabled>Earlier</button><button type="button" data-box-later disabled>Later</button><button type="button" data-redetect disabled>Redetect</button><button type="button" data-restore-import disabled>Restore local draft</button></div>
-        <p data-import-status>Choose a PNG, WebP, or JPEG. Sprite Lab will propose editable frame boxes.</p>
+        <p data-import-status aria-live="polite">Choose a PNG, WebP, or JPEG. Sprite Lab will propose editable frame boxes.</p>
         <div class="sprite-import-actions"><button type="button" data-import-cancel>Cancel</button><button type="button" class="primary" data-import-confirm disabled>Create Pose Lab animation</button></div>
       </div>
     </section>
@@ -502,7 +502,37 @@ function hitBox(point) { for (let index = importedBoxes.length - 1; index >= 0; 
 function beginBoxEdit(event) { if (!importedSheetImage) return; const point = previewPoint(event), hit = hitBox(point); if (hit < 0) return; selectedImportedBox = hit; const box = importedBoxes[hit], handle = Math.max(22, importPreview.width / 45); importPointer = { id: event.pointerId, mode: point.x >= box.x + box.width - handle && point.y >= box.y + box.height - handle ? 'resize' : 'move', start: point, original: { ...box } }; importPreview.focus({ preventScroll: true }); importPreview.setPointerCapture(event.pointerId); drawImportPreview(); }
 function moveBoxEdit(event) { if (!importPointer || event.pointerId !== importPointer.id) return; const point = previewPoint(event), dx = point.x - importPointer.start.x, dy = point.y - importPointer.start.y, original = importPointer.original; importedBoxes[selectedImportedBox] = constrainFrameBox(importPointer.mode === 'resize' ? { ...original, width: original.width + dx, height: original.height + dy } : { ...original, x: original.x + dx, y: original.y + dy }, importPreview.width, importPreview.height); drawImportPreview(); }
 function endBoxEdit(event) { if (importPointer && event.pointerId === importPointer.id) importPointer = null; }
-function handleImportPreviewKeydown(event) { if (!importedSheetImage || selectedImportedBox < 0 || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return; event.preventDefault(); event.stopPropagation(); const amount = event.shiftKey ? 10 : 1; const resize = event.ctrlKey || event.metaKey; const box = { ...importedBoxes[selectedImportedBox] }; if (resize) { if (event.key === 'ArrowLeft') box.width -= amount; if (event.key === 'ArrowRight') box.width += amount; if (event.key === 'ArrowUp') box.height -= amount; if (event.key === 'ArrowDown') box.height += amount; } else { if (event.key === 'ArrowLeft') box.x -= amount; if (event.key === 'ArrowRight') box.x += amount; if (event.key === 'ArrowUp') box.y -= amount; if (event.key === 'ArrowDown') box.y += amount; } importedBoxes[selectedImportedBox] = constrainFrameBox(box, importPreview.width, importPreview.height); drawImportPreview(); }
+function handleImportPreviewKeydown(event) {
+  if (!importedSheetImage || importedBoxes.length === 0) return;
+  if (event.key === 'PageUp' || event.key === 'PageDown') {
+    event.preventDefault();
+    event.stopPropagation();
+    const direction = event.key === 'PageUp' ? -1 : 1;
+    selectedImportedBox = (selectedImportedBox + direction + importedBoxes.length) % importedBoxes.length;
+    drawImportPreview();
+    setImportStatus('Selected frame box ' + (selectedImportedBox + 1) + ' of ' + importedBoxes.length + '.');
+    return;
+  }
+  if (selectedImportedBox < 0 || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const amount = event.shiftKey ? 10 : 1;
+  const resize = event.ctrlKey || event.metaKey;
+  const box = { ...importedBoxes[selectedImportedBox] };
+  if (resize) {
+    if (event.key === 'ArrowLeft') box.width -= amount;
+    if (event.key === 'ArrowRight') box.width += amount;
+    if (event.key === 'ArrowUp') box.height -= amount;
+    if (event.key === 'ArrowDown') box.height += amount;
+  } else {
+    if (event.key === 'ArrowLeft') box.x -= amount;
+    if (event.key === 'ArrowRight') box.x += amount;
+    if (event.key === 'ArrowUp') box.y -= amount;
+    if (event.key === 'ArrowDown') box.y += amount;
+  }
+  importedBoxes[selectedImportedBox] = constrainFrameBox(box, importPreview.width, importPreview.height);
+  drawImportPreview();
+}
 function canvasBlob(canvas) { return new Promise((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Could not encode a frame.')), 'image/png')); }
 async function createImportedAnimation() { if (!importedSheetImage || !importedSheetFile || !manifest || !importedBoxes.length) return; const durationMs = importNumber(importDuration, 20, 2000, 120); importConfirm.disabled = true; setImportStatus('Building ' + importedBoxes.length + ' Pose Lab frames…'); const frameBlobs = []; for (const box of importedBoxes) { const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; const context = canvas.getContext('2d'), scale = Math.min(512 / box.width, 512 / box.height), drawWidth = Math.round(box.width * scale), drawHeight = Math.round(box.height * scale); context.drawImage(importedSheetImage, box.x, box.y, box.width, box.height, Math.round((512 - drawWidth) / 2), Math.round((512 - drawHeight) / 2), drawWidth, drawHeight); const rgba = context.getImageData(0, 0, 512, 512); rgba.data.set(clearConnectedBackground(rgba, 52)); context.putImageData(rgba, 0, 0); frameBlobs.push(await canvasBlob(canvas)); } const id = 'imported-' + Date.now(), label = importedSheetFile.name.replace(/\.[^.]+$/, '') || 'Imported contact sheet'; const metadata = { schema: 'pose-lab-v2-intelligent-sprite-import-v1', status: 'draft', id, label, source: { name: importedSheetFile.name, size: importedSheetFile.size, type: importedSheetFile.type, width: importedSheetImage.width, height: importedSheetImage.height }, boxes: importedBoxes.map(({ x, y, width, height }) => ({ x, y, width, height })), frameCount: frameBlobs.length, durationMs, frameDurationsMs: frameBlobs.map(() => durationMs), importedAt: new Date().toISOString() }; await saveLocalDraft(importedSheetFile, metadata, frameBlobs); const entry = localDraftAnimationFromStorage({ file: importedSheetFile, metadata, frameBlobs }); if (!entry) throw new Error('Could not restore the newly created local draft.'); upsertLocalDraftAnimation(entry); buildAnimationPicker(); closeImporter(); setAnimation(entry.id, { speak: true }); }
 async function exportCurrentAnimationGif() { if (!animation?.imported) return; try { const images = await Promise.all(animation.frames.map((frame) => preloadFrame(frame.src))); const frames = images.map((image) => { const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; canvas.getContext('2d').drawImage(image, 0, 0, 512, 512); return canvas; }); const blob = encodeGif(frames, animation.frames.map((frame) => frame.durationMs)), url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = animation.label.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.gif'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); announce('GIF downloaded'); } catch (error) { announce(error instanceof Error ? error.message : String(error)); } }
