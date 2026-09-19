@@ -4,7 +4,7 @@ Continue work in `/storage/emulated/0/Documents/GodotProjects/pose-lab-v2-sprite
 
 ## Current outcome
 
-Pose Lab's existing `?view=2d` surface owns Sprite Lab import. The full-page importer accepts PNG, WebP, and JPEG, analyzes pixels for irregular frame regions, overlays editable boxes, and supports touch move/resize plus add/delete/reorder. Accepted crops are background-cleared, centered into 512x512 transparent frames, appended as a new draft animation in the existing player, and persisted with their rendered frame blobs in IndexedDB so the created animation survives reload. GIF export preserves each frame's duration. The editable canvas supports pointer drag/resize and keyboard move/resize.
+Pose Lab's existing `?view=2d` surface owns Sprite Lab import. The full-page importer accepts PNG, WebP, and JPEG, analyzes pixels for irregular frame regions, overlays editable boxes, and supports touch move/resize plus add/delete/reorder. Accepted crops are background-cleared, centered into 512x512 transparent frames, appended as a new draft animation in the existing player, and persisted with their rendered frame blobs in IndexedDB so the created animation survives reload. GIF export preserves each frame's duration. The editable canvas supports pointer drag/resize plus keyboard-only box selection, move, and resize with a visible focus ring.
 
 The former divisible-grid premise is forbidden. Do not reintroduce columns/rows as a required gate.
 
