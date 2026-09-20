@@ -1,0 +1,42 @@
+{
+  "schema": "thirdskin-runtime-plan-v1",
+  "id": "april-run-violet-candidate-1",
+  "character": "April — Thirdskin Commander",
+  "actionClass": "locomotion",
+  "cellCount": 2,
+  "nonIdleCellCount": 1,
+  "cellTable": {
+    "april-run-a": {"role": "idle", "asset": "./run-a-alpha.png", "sha256": "d38a07eecc7653b965f234db19b243209e178603c72d9e09566c869b5aae5c12"},
+    "april-run-b": {"role": "contact", "asset": "./run-b-alpha.png", "sha256": "3028edc5e2a336da1283faf712e576ca415e3c721dd9a26a229704b4e4952feb"}
+  },
+  "deformationCurves": {
+    "run-a-head": {"durationMs": 92, "loop": false, "interpolation": "smoothstep", "controlPoints": [
+      {"t": 0, "values": {"overallScale": 1, "leftStretch": 0.01, "rightStretch": 0, "rotationDeg": -0.4, "translateX": -0.01, "translateY": -0.01, "glow": 0.3, "outline": 0.12}},
+      {"t": 1, "values": {"overallScale": 1.015, "leftStretch": 0.045, "rightStretch": -0.01, "rotationDeg": -1.1, "translateX": -0.025, "translateY": -0.025, "glow": 0.5, "outline": 0.2}}
+    ]},
+    "run-b-drive": {"durationMs": 185, "loop": false, "interpolation": "smoothstep", "controlPoints": [
+      {"t": 0, "values": {"overallScale": 0.99, "leftStretch": -0.02, "rightStretch": 0.04, "rotationDeg": 0.7, "translateX": 0.02, "translateY": -0.01, "glow": 0.35, "outline": 0.14}},
+      {"t": 0.45, "values": {"overallScale": 1.025, "leftStretch": 0, "rightStretch": 0.075, "rotationDeg": 1.3, "translateX": 0.045, "translateY": 0.01, "glow": 0.65, "outline": 0.24}},
+      {"t": 1, "values": {"overallScale": 1, "leftStretch": -0.01, "rightStretch": 0.025, "rotationDeg": 0.4, "translateX": 0.01, "translateY": 0, "glow": 0.35, "outline": 0.14}}
+    ]},
+    "run-a-tail": {"durationMs": 93, "loop": false, "interpolation": "smoothstep", "controlPoints": [
+      {"t": 0, "values": {"overallScale": 1.015, "leftStretch": 0.05, "rightStretch": -0.01, "rotationDeg": -1.1, "translateX": -0.025, "translateY": -0.02, "glow": 0.5, "outline": 0.2}},
+      {"t": 1, "values": {"overallScale": 1, "leftStretch": 0.01, "rightStretch": 0, "rotationDeg": -0.4, "translateX": -0.01, "translateY": -0.01, "glow": 0.3, "outline": 0.12}}
+    ]}
+  },
+  "program": [
+    {"index": 0, "cell": "april-run-a", "role": "idle", "curve": "run-a-head", "durationMs": 92, "effects": []},
+    {"index": 1, "cell": "april-run-b", "role": "contact", "curve": "run-b-drive", "durationMs": 185, "effects": []},
+    {"index": 2, "cell": "april-run-a", "role": "idle", "curve": "run-a-tail", "durationMs": 93, "effects": []}
+  ],
+  "totalDurationMs": 370,
+  "rendererPolicy": {
+    "stage": "Sprite Lab",
+    "viewerQuery": "?view=sprite",
+    "preferredRenderer": "existing DOM/canvas path when sufficient",
+    "escalationRenderer": "Three.js orthographic shader plane when UV deformation, outline sampling, dissolve, or multi-echo layers require it",
+    "forbidRendererEscalationWithoutNeed": true
+  },
+  "review": {"status": "quarantined-candidate", "surface": "sprite-lab", "evidenceUri": null, "humanVerdict": "pending"},
+  "derivedFramesStored": false
+}
