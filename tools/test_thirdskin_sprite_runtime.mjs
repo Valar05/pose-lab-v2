@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { locateProgramStep, normalizeRuntimePlan, sampleCurve } from '../src/thirdskin-runtime.js';
 
 const plan={
@@ -27,4 +28,25 @@ assert.equal(sampleCurve(plan.deformationCurves.snap,9).values.rightStretch,0);
 assert.ok(sampleCurve(plan.deformationCurves.idle,10).values.leftStretch>0);
 assert.equal('frames' in normalized,false);
 assert.throws(()=>normalizeRuntimePlan({...plan,frames:[]},new URL('https://example.test/runtime.json')),/must not contain stored frames/);
-console.log(JSON.stringify({ok:true,checks:['two-source-cells','program-boundaries','curve-sampling','no-stored-frames']}));
+
+const aprilPlanPath=new URL('../public/assets/thirdskin/april/idle-v3/runtime-plan.json',import.meta.url);
+const aprilPlan=JSON.parse(readFileSync(aprilPlanPath,'utf8'));
+const april=normalizeRuntimePlan(aprilPlan,new URL('https://example.test/assets/thirdskin/april/idle-v3/runtime-plan.json'));
+assert.equal(april.deformationContract.mode,'hip-knee-bridge');
+assert.equal(april.deformationContract.upperBody,'rigid translation only');
+assert.equal(april.deformationContract.lowerLegs,'rigid and stationary');
+assert.equal(april.deformationContract.rootMotion,false);
+assert.equal(april.cellTable.idle.sha256,'62286087ef03c82cc98bf5b716073aca78999588a1acd13be11be18718c94346');
+const aprilCurve=april.deformationCurves['anchored-idle-cycle'];
+for(const point of aprilCurve.controlPoints){
+ assert.equal(point.values.overallScale,1);
+ assert.equal(point.values.rotationDeg,0);
+ assert.equal(point.values.translateY,0);
+ assert.equal(point.values.hipUv,.48);
+ assert.equal(point.values.kneeUv,.26);
+}
+assert.equal(sampleCurve(aprilCurve,0).values.hipKneeCrouch,0);
+assert.equal(sampleCurve(aprilCurve,1000).values.hipKneeCrouch,.055);
+assert.equal(sampleCurve(aprilCurve,500).values.hipKneeShear,-.012);
+assert.equal(sampleCurve(aprilCurve,1500).values.hipKneeShear,.012);
+console.log(JSON.stringify({ok:true,checks:['two-source-cells','program-boundaries','curve-sampling','no-stored-frames','april-hip-knee-locality','april-phase-locked-cycle']}));
