@@ -1,0 +1,28 @@
+name: April Native Run Transfer
+
+on:
+  push:
+    branches:
+      - transfer/april-native-run-20260921-r34
+    paths:
+      - transfers/april-v5/**
+      - .github/workflows/april-native-run-transfer.yml
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify phone-origin hashes
+        run: sha256sum -c transfers/april-v5/SHA256SUMS
+      - name: Upload canonical transfer bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: april-native-run-${{ github.run_id }}
+          path: transfers/april-v5/
+          if-no-files-found: error
+          retention-days: 7
