@@ -54,7 +54,7 @@ async function boot() {
   app.innerHTML = `
     <section class="thirdskin-lab">
       <header class="thirdskin-header">
-        <div><p>Thirdskin Commander</p><h1>Sprite Lab</h1><p>Sparse source cells reconstructed by deterministic deformation.</p></div>
+        <div><p>Pose Lab V2 · Thirdskin Commander</p><h1>2D Animation Review</h1><p>Sparse source cells reconstructed by deterministic localized deformation.</p></div>
         <a href="./?view=2d">Legacy frame review</a>
       </header>
       <section class="thirdskin-stage checker" data-stage aria-label="Sprite Lab deformation stage">
@@ -97,15 +97,17 @@ async function boot() {
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -10, 10);
   camera.position.z = 2;
-  const geometry = new THREE.PlaneGeometry(2, 2, 64, 1);
+  const geometry = new THREE.PlaneGeometry(2, 2, 64, 64);
   const baseUniforms = {
     map:{value:null}, overallScale:{value:1}, leftStretch:{value:0}, rightStretch:{value:0},
+    hipKneeCrouch:{value:0}, hipKneeShear:{value:0}, hipUv:{value:.48}, kneeUv:{value:.26},
     rotationRad:{value:0}, translate:{value:new THREE.Vector2(0,0)}, glow:{value:0},
     opacity:{value:1}, texel:{value:new THREE.Vector2(1/512,1/512)}, outline:{value:0},
   };
   const vertexShader = `
     varying vec2 vUv;
     uniform float overallScale,leftStretch,rightStretch,rotationRad;
+    uniform float hipKneeCrouch,hipKneeShear,hipUv,kneeUv;
     uniform vec2 translate;
     void main(){
       vUv=uv;
@@ -114,6 +116,10 @@ async function boot() {
       p.x*=overallScale*(1.0+side);
       p.y*=overallScale;
       p.x+=mix(-leftStretch,rightStretch,uv.x)*0.22;
+      // Lower legs remain fixed; the torso rides as one rigid plate; only this bridge deforms.
+      float bridge=smoothstep(kneeUv,hipUv,uv.y);
+      p.y-=hipKneeCrouch*bridge;
+      p.x+=hipKneeShear*bridge;
       float c=cos(rotationRad),s=sin(rotationRad);
       p.xy=mat2(c,-s,s,c)*p.xy+translate;
       gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
@@ -193,6 +199,10 @@ async function boot() {
     u.overallScale.value=values.overallScale??1;
     u.leftStretch.value=values.leftStretch??0;
     u.rightStretch.value=values.rightStretch??0;
+    u.hipKneeCrouch.value=values.hipKneeCrouch??0;
+    u.hipKneeShear.value=values.hipKneeShear??0;
+    u.hipUv.value=values.hipUv??.48;
+    u.kneeUv.value=values.kneeUv??.26;
     u.rotationRad.value=THREE.MathUtils.degToRad(values.rotationDeg??0);
     u.translate.value.set((values.translateX??0)+echoOffset,values.translateY??0);
     u.glow.value=values.glow??0;
@@ -265,6 +275,6 @@ async function boot() {
 
   document.title=`${plan.character} · Sprite Lab`;
   document.body.dataset.reviewReady='1';
-  document.body.dataset.reviewMode='sprite';
+  document.body.dataset.reviewMode=params.get('view')==='2d'?'pose-2d':'sprite';
   requestAnimationFrame(tick);
 }
