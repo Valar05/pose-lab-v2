@@ -17,3 +17,18 @@ The Three.js path exists because Thirdskin requires asymmetric UV-side stretch, 
 The adapter is runtime-capable but remains visually red until a real compiled recipe with non-placeholder cell hashes is hosted and inspected. The existing April inline six-frame diagnostic is superseded and is not accepted input for this route.
 
 Machine tests are guardrails. Human acceptance occurs on the exact hosted Sprite Lab URL.
+
+
+## Persistent playback-speed control
+
+Every animation review surface exposes a playback-speed **slider by default**.
+
+- Range: `0.10×` through `3.00×`, in `0.05×` steps.
+- The chosen value is written to browser local storage under one shared key: `pose-lab-v2.sprite-playback-speed.v1`.
+- The same stored value is read by both the ordinary 2D animation reviewer and the Thirdskin sparse Sprite Lab route.
+- Switching animations does not reset the slider.
+- Reloading the page does not reset the slider.
+- Timing bytes in manifests and runtime plans remain canonical and unchanged; the slider is strictly a review/playback multiplier.
+- If local storage is unavailable, playback falls back to `1.00×` without blocking review.
+
+This is intentionally a human-tuning surface: Drew can settle on a value once and report the exact multiplier rather than requesting repeated timing edits.
