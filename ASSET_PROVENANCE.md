@@ -163,7 +163,9 @@ code, or metric acceptance tooling was copied.
 - Runtime review asset: `public/assets/fpsplayer/FPSPlayer.glb`
 - Source lineage: original FPSPlayer donor from the Pose Lab / Infinite Brutality family
 - Role: low-poly torso-less first-person body and embedded animation inspection lane
-- Review route: `?model=fpsplayer`
+- Canonical review surface: existing phone-hosted Pose Lab V2 runtime sourced from this GitHub repo; do not create a separate ChatGPT/Site host.
+- Phone route after checkout sync: `http://127.0.0.1:4173/?model=fpsplayer`
+- Review route suffix: `?model=fpsplayer`
 - Direct clip route: `?model=fpsplayer&clip=CLIP_NAME`
 - Embedded source inventory: 55 animations; individual finger bones are preserved
 - Rule: this route is source inspection. Do not retarget, rebuild topology, or alter weights merely to review the original motions.
