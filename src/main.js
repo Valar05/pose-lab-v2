@@ -21,6 +21,7 @@ const ASSETS = {
   ares: './assets/ares/ares_rigged_diffuse.glb',
   securityTitan: './assets/ares/security_titan_rigged_diffuse.glb',
   vanguard: './assets/vanguard/vanguard_rigged_animations.glb',
+  fpsplayer: './assets/fpsplayer/FPSPlayer.glb',
 };
 const MIXAMO_BONE_MAP = Object.freeze({
   Hips: 'mixamorig:Hips',
@@ -131,6 +132,20 @@ const CHARACTER_ASSETS = Object.freeze({
     supportsBakedPoseStates: false,
     supportsFistHands: false,
   },
+  fpsplayer: {
+    key: 'fpsplayer',
+    label: 'FPSPlayer Arms',
+    asset: ASSETS.fpsplayer,
+    source: 'archived FPSPlayer.glb donor from Pose Lab / Infinite Brutality lineage',
+    role: 'torso-less first-person body donor with two articulated arms, limited lower-body presence, individual fingers, and 55 embedded source animations',
+    boneMap: {},
+    supportsSaber: false,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+    supportsAnimationClips: true,
+    autoPlayAnimation: true,
+    defaultClip: 'FistReady',
+  },
   vanguard: {
     key: 'vanguard',
     label: 'Vanguard',
@@ -168,6 +183,9 @@ const CHARACTER_KEY_ALIASES = Object.freeze({
   vanguard: 'vanguard',
   Vanguard: 'vanguard',
   guard: 'vanguard',
+  fpsplayer: 'fpsplayer',
+  fps: 'fpsplayer',
+  arms: 'fpsplayer',
 });
 const CHARACTER_KEYS = Object.freeze(Object.keys(CHARACTER_ASSETS));
 const MESHY_PBR_TEXTURES = {

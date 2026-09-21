@@ -184,6 +184,21 @@ the armature. Foot and ground-contact data are measurements only. Set
 runner continues to use the existing Debian `proot-distro` Blender installation.
 
 
+
+## FPSPlayer Arms Donor Review
+
+The original low-poly FPSPlayer donor is available as an imported animation-inspection model:
+
+```text
+?model=fpsplayer
+?model=fpsplayer&clip=FistReady
+?model=fpsplayer&clip=FistAttack1
+```
+
+The route loads the archived torso-less first-person body donor directly and exposes its embedded animation list through the existing `Anim` cycle control. It auto-plays `FistReady` by default. Use the cycle control to walk the full source action library and identify legacy clips visually without retargeting them first.
+
+This lane is source inspection only. It preserves the original mesh, rig, finger weights, and embedded animation data.
+
 ## Crimson Plume Knight / Arborblade
 
 The new Meshy downloads are imported as a staged Crimson authoring lane:

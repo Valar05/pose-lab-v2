@@ -156,3 +156,15 @@ code, or metric acceptance tooling was copied.
 - Attempt 003 repairs production v21 using the existing four attachment roots and records all component reuse in `authoring/vanguard_muramasa_canary/part-library.json`.
 - Whole-frame generation, a fifth attachment, and motion changes are forbidden.
 - Human acceptance remains Drew Clarke only.
+
+
+## FPSPlayer Arms Donor
+
+- Runtime review asset: `public/assets/fpsplayer/FPSPlayer.glb`
+- Source lineage: original FPSPlayer donor from the Pose Lab / Infinite Brutality family
+- Role: low-poly torso-less first-person body and embedded animation inspection lane
+- Review route: `?model=fpsplayer`
+- Direct clip route: `?model=fpsplayer&clip=CLIP_NAME`
+- Embedded source inventory: 55 animations; individual finger bones are preserved
+- Rule: this route is source inspection. Do not retarget, rebuild topology, or alter weights merely to review the original motions.
+
