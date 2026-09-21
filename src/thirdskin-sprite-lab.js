@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { locateProgramStep, normalizeRuntimePlan, sampleCurve, sha256Hex } from './thirdskin-runtime.js';
+import { MAX_PLAYBACK_SPEED, MIN_PLAYBACK_SPEED, PLAYBACK_SPEED_STEP, formatPlaybackSpeed, readPlaybackSpeed, writePlaybackSpeed } from './playback-preferences.js';
 
 const params = new URLSearchParams(window.location.search);
 const requestedManifest = params.get('manifest');
@@ -20,6 +21,9 @@ styles.textContent = `
   .thirdskin-console button,.thirdskin-console select { min-height:40px; padding:7px 11px; border:1px solid #ffffff30; border-radius:7px; background:#182026; color:#f7f2e8; font:inherit; font-weight:750; }
   .thirdskin-console button[aria-pressed="true"],.thirdskin-console button.active { border-color:#f0c35a; background:#4c2d1f; }
   .thirdskin-console input[type="range"] { width:100%; min-height:30px; }
+  .thirdskin-speed { display:grid; grid-template-columns:auto minmax(140px,260px) auto; gap:8px; align-items:center; min-width:min(100%,360px); }
+  .thirdskin-speed input[type="range"] { width:100%; }
+  .thirdskin-speed output { min-width:4.25em; font-variant-numeric:tabular-nums; text-align:right; color:#d8ecff; font-weight:800; }
   .thirdskin-readout { color:#d8ecff; font-weight:800; }
   .thirdskin-contract { color:#bfeeff; font-size:12px; }
   .thirdskin-failure { max-width:760px; margin:32px auto; padding:20px; }
@@ -45,6 +49,7 @@ async function boot() {
   const response = await fetch(manifestUrl);
   if (!response.ok) throw new Error(`Runtime plan returned ${response.status}`);
   const plan = normalizeRuntimePlan(await response.json(), manifestUrl);
+  const initialPlaybackSpeed = readPlaybackSpeed();
 
   app.innerHTML = `
     <section class="thirdskin-lab">
@@ -61,7 +66,7 @@ async function boot() {
           <button type="button" data-previous aria-label="Previous exposure">◀</button>
           <button type="button" data-play aria-pressed="true">Pause</button>
           <button type="button" data-next aria-label="Next exposure">▶</button>
-          <label>Speed <select data-speed><option value=".25">¼×</option><option value=".5">½×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
+          <label class="thirdskin-speed"><span>Speed</span><input data-speed type="range" min="${MIN_PLAYBACK_SPEED}" max="${MAX_PLAYBACK_SPEED}" step="${PLAYBACK_SPEED_STEP}" value="${initialPlaybackSpeed}" aria-label="Playback speed"><output data-speed-output>${formatPlaybackSpeed(initialPlaybackSpeed)}</output></label>
           <output class="thirdskin-readout" data-readout></output>
         </div>
         <label><span class="sr-only">Program time</span><input data-scrub type="range" min="0" max="${plan.totalDurationMs}" value="0" step="1"></label>
@@ -79,6 +84,7 @@ async function boot() {
   const scrub = app.querySelector('[data-scrub]');
   const playButton = app.querySelector('[data-play]');
   const speedInput = app.querySelector('[data-speed]');
+  const speedOutput = app.querySelector('[data-speed-output]');
   app.querySelector('[data-title]').textContent = `${plan.character} · ${plan.id}`;
   app.querySelector('[data-cell-count]').textContent = String(Object.keys(plan.cells).length);
 
@@ -167,7 +173,7 @@ async function boot() {
   await Promise.all(Object.values(plan.cells).map(verifiedTexture));
 
   let playing=true;
-  let speed=1;
+  let speed=initialPlaybackSpeed;
   let timeMs=0;
   let previousNow=null;
   let activeIndex=-1;
@@ -249,7 +255,12 @@ async function boot() {
   app.querySelector('[data-previous]').addEventListener('click',()=>jump(-1));
   app.querySelector('[data-next]').addEventListener('click',()=>jump(1));
   playButton.addEventListener('click',()=>{playing=!playing;previousNow=null;playButton.textContent=playing?'Pause':'Play';playButton.setAttribute('aria-pressed',String(playing));announce(playing?'Animation playing':'Animation paused');});
-  speedInput.addEventListener('change',()=>{speed=Number(speedInput.value);announce(`Playback speed ${speedInput.options[speedInput.selectedIndex].text}`);});
+  speedInput.addEventListener('input',()=>{
+    speed=writePlaybackSpeed(speedInput.value);
+    speedInput.value=String(speed);
+    speedOutput.textContent=formatPlaybackSpeed(speed);
+    announce(`Playback speed ${formatPlaybackSpeed(speed)}`);
+  });
   scrub.addEventListener('input',()=>{playing=false;playButton.textContent='Play';playButton.setAttribute('aria-pressed','false');timeMs=Number(scrub.value);render();});
 
   document.title=`${plan.character} · Sprite Lab`;
