@@ -1,7 +1,9 @@
+import { MAX_PLAYBACK_SPEED, MIN_PLAYBACK_SPEED, PLAYBACK_SPEED_STEP, formatPlaybackSpeed, readPlaybackSpeed, writePlaybackSpeed } from './playback-preferences.js';
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const DEFAULT_MANIFEST = './assets/vanguard/fleshpunk/animations.json';
 const manifestUrl = new URL(URL_PARAMS.get('manifest') || DEFAULT_MANIFEST, window.location.href);
 const app = document.querySelector('#app');
+const initialPlaybackSpeed = readPlaybackSpeed();
 
 app.innerHTML = `
   <section class="sprite-lab">
@@ -55,14 +57,10 @@ app.innerHTML = `
           <button type="button" class="sprite-play" data-play aria-label="Pause animation">Pause</button>
           <button type="button" data-next aria-label="Next frame">▶</button>
           <output data-frame-readout>Frame —</output>
-          <label>
+          <label class="sprite-speed">
             <span>Speed</span>
-            <select data-speed aria-label="Playback speed">
-              <option value="0.25">¼×</option>
-              <option value="0.5">½×</option>
-              <option value="1" selected>1×</option>
-              <option value="2">2×</option>
-            </select>
+            <input data-speed type="range" min="${MIN_PLAYBACK_SPEED}" max="${MAX_PLAYBACK_SPEED}" step="${PLAYBACK_SPEED_STEP}" value="${initialPlaybackSpeed}" aria-label="Playback speed" />
+            <output data-speed-output>${formatPlaybackSpeed(initialPlaybackSpeed)}</output>
           </label>
         </div>
 
@@ -129,6 +127,7 @@ const previousButton = app.querySelector('[data-previous]');
 const nextButton = app.querySelector('[data-next]');
 const frameReadout = app.querySelector('[data-frame-readout]');
 const speedInput = app.querySelector('[data-speed]');
+const speedOutput = app.querySelector('[data-speed-output]');
 const scrubber = app.querySelector('[data-scrubber]');
 const onionButton = app.querySelector('[data-onion]');
 const deltaButton = app.querySelector('[data-delta]');
@@ -154,7 +153,7 @@ let loopEnabled = true;
 let onionEnabled = false;
 let deltaEnabled = false;
 let groundEnabled = false;
-let playbackSpeed = 1;
+let playbackSpeed = initialPlaybackSpeed;
 let nextFrameAt = null;
 let playbackRequest = null;
 let manualZoom = false;
@@ -584,10 +583,12 @@ scrubber.addEventListener('input', () => {
   currentFrameIndex = Number(scrubber.value);
   renderFrame({ speak: true });
 });
-speedInput.addEventListener('change', () => {
-  playbackSpeed = Number(speedInput.value);
+speedInput.addEventListener('input', () => {
+  playbackSpeed = writePlaybackSpeed(speedInput.value);
+  speedInput.value = String(playbackSpeed);
+  speedOutput.textContent = formatPlaybackSpeed(playbackSpeed);
   nextFrameAt = null;
-  announce(`Playback speed ${speedInput.options[speedInput.selectedIndex].text}`);
+  announce(`Playback speed ${formatPlaybackSpeed(playbackSpeed)}`);
 });
 onionButton.addEventListener('click', () => {
   onionEnabled = !onionEnabled;
