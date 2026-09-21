@@ -187,12 +187,22 @@ runner continues to use the existing Debian `proot-distro` Blender installation.
 
 ## FPSPlayer Arms Donor Review
 
-The original low-poly FPSPlayer donor is available as an imported animation-inspection model:
+The original low-poly FPSPlayer donor is available as an imported animation-inspection model.
 
+Canonical review surface is the existing phone-hosted Pose Lab V2 runtime, sourced from this GitHub repo. Do not create a separate ChatGPT/Site host for this lane.
+
+After the phone checkout has this commit, use the existing phone server:
+
+```text
+http://127.0.0.1:4173/?model=fpsplayer
+http://127.0.0.1:4173/?model=fpsplayer&clip=FistReady
+http://127.0.0.1:4173/?model=fpsplayer&clip=FistAttack1
+```
+
+The bare query forms remain valid on any already-authorized Pose Lab V2 host:
 ```text
 ?model=fpsplayer
 ?model=fpsplayer&clip=FistReady
-?model=fpsplayer&clip=FistAttack1
 ```
 
 The route loads the archived torso-less first-person body donor directly and exposes its embedded animation list through the existing `Anim` cycle control. It auto-plays `FistReady` by default. Use the cycle control to walk the full source action library and identify legacy clips visually without retargeting them first.
