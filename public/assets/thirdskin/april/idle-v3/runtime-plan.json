@@ -1,0 +1,116 @@
+{
+  "schema": "thirdskin-runtime-plan-v1",
+  "id": "april-anchored-idle-v3",
+  "character": "April",
+  "label": "Anchored kinetic idle v3 — localized crouch",
+  "derivedFramesStored": false,
+  "totalDurationMs": 2000,
+  "frameSpace": {
+    "width": 340,
+    "height": 510
+  },
+  "deformationContract": {
+    "mode": "hip-knee-bridge",
+    "hipUv": 0.48,
+    "kneeUv": 0.26,
+    "upperBody": "rigid translation only",
+    "lowerLegs": "rigid and stationary",
+    "rootMotion": false,
+    "phaseLock": "crouch and shear share one closed 2000ms cycle"
+  },
+  "cellTable": {
+    "idle": {
+      "role": "idle",
+      "asset": "./april-idle-cell.webp",
+      "sha256": "62286087ef03c82cc98bf5b716073aca78999588a1acd13be11be18718c94346"
+    }
+  },
+  "deformationCurves": {
+    "anchored-idle-cycle": {
+      "durationMs": 2000,
+      "loop": true,
+      "interpolation": "smoothstep",
+      "controlPoints": [
+        {
+          "t": 0,
+          "values": {
+            "hipKneeCrouch": 0,
+            "hipKneeShear": 0,
+            "hipUv": 0.48,
+            "kneeUv": 0.26,
+            "overallScale": 1,
+            "rotationDeg": 0,
+            "translateX": 0,
+            "translateY": 0
+          }
+        },
+        {
+          "t": 0.25,
+          "values": {
+            "hipKneeCrouch": 0.0275,
+            "hipKneeShear": -0.012,
+            "hipUv": 0.48,
+            "kneeUv": 0.26,
+            "overallScale": 1,
+            "rotationDeg": 0,
+            "translateX": 0,
+            "translateY": 0
+          }
+        },
+        {
+          "t": 0.5,
+          "values": {
+            "hipKneeCrouch": 0.055,
+            "hipKneeShear": 0,
+            "hipUv": 0.48,
+            "kneeUv": 0.26,
+            "overallScale": 1,
+            "rotationDeg": 0,
+            "translateX": 0,
+            "translateY": 0
+          }
+        },
+        {
+          "t": 0.75,
+          "values": {
+            "hipKneeCrouch": 0.0275,
+            "hipKneeShear": 0.012,
+            "hipUv": 0.48,
+            "kneeUv": 0.26,
+            "overallScale": 1,
+            "rotationDeg": 0,
+            "translateX": 0,
+            "translateY": 0
+          }
+        },
+        {
+          "t": 1,
+          "values": {
+            "hipKneeCrouch": 0,
+            "hipKneeShear": 0,
+            "hipUv": 0.48,
+            "kneeUv": 0.26,
+            "overallScale": 1,
+            "rotationDeg": 0,
+            "translateX": 0,
+            "translateY": 0
+          }
+        }
+      ]
+    }
+  },
+  "program": [
+    {
+      "role": "idle",
+      "cell": "idle",
+      "curve": "anchored-idle-cycle",
+      "durationMs": 2000,
+      "effects": []
+    }
+  ],
+  "evidence": {
+    "status": "quarantined-candidate",
+    "sourceSha256": "421bd2d09e7a36686a4181b2b3b1bf6a4f16205ced5b9b3f24b89419fd39f94f",
+    "renderedPreviewSha256": "aeeab3860fdf3354d102279720fb33c426dd7f858e6d6ebad8397dd9a2ca2567"
+  }
+}
