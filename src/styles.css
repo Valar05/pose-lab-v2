@@ -358,6 +358,20 @@ body,
   padding: 6px;
 }
 
+.sprite-speed {
+  flex: 1 1 260px;
+}
+
+.sprite-speed input[type="range"] {
+  min-width: 140px;
+  width: min(260px, 42vw);
+}
+
+.sprite-speed output {
+  min-width: 4.25em;
+  text-align: right;
+}
+
 .sprite-scrubber input {
   width: 100%;
   min-height: 28px;
