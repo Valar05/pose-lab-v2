@@ -29,7 +29,5 @@ jobs:
         run: node tools/test_valkyrie_sprite_transfer.mjs
       - name: Build Pose Lab V2
         run: npm run build
-      - name: Reassemble chunked runtime assets
-        run: node scripts/assemble-valkyrie-transfer.mjs --out-dir dist
       - name: Smoke Pose Lab V2
         run: npm run smoke
