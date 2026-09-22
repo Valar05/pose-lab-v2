@@ -84,6 +84,7 @@
     "test:thirdskin-sprite": "node tools/test_thirdskin_sprite_runtime.mjs",
     "test:playback-preferences": "node tools/test_playback_preferences.mjs",
     "test:fpsplayer-aries-v8": "node tools/test_fpsplayer_aries_v8_registration.mjs",
-    "test:fpv-control-lock": "node tools/test_fpv_control_lock.mjs"
+    "test:fpv-control-lock": "node tools/test_fpv_control_lock.mjs",
+    "test:animation-menu": "node tools/test_imported_animation_menu.mjs"
   }
 }
