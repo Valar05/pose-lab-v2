@@ -329,13 +329,26 @@ app.innerHTML = `
         <button type="button" data-cycle-character>Model: ${ACTIVE_CHARACTER.label}</button>
         <button type="button" data-cycle-tool>Tool: Saber</button>
         <button type="button" data-cycle-pose-state>Pose: Rest</button>
-        <button type="button" data-cycle-animation hidden>Anim: None</button>
+        <button type="button" data-cycle-animation hidden aria-haspopup="listbox" aria-expanded="false">Animation: None</button>
         <button type="button" data-cycle-view-mode>View: Orbit</button>
         <button type="button" data-fpv-control-mode aria-label="FPV touch edits camera; bones are locked">Edit: Camera</button>
         <button type="button" class="fpv-settings-button" data-fpv-settings-toggle aria-label="FPV camera settings" title="FPV camera settings">⚙</button>
         <button type="button" data-attack-review-toggle ${canExposeAttackReview() ? '' : 'hidden'} aria-label="Attack playback controls">Attack</button>
         <button type="button" data-dock-toggle>Tools</button>
         <span class="status" data-status>loading ${ACTIVE_CHARACTER.label}</span>
+      </div>
+      <div class="animation-menu" data-animation-menu hidden aria-label="Animation menu">
+        <div class="animation-menu-header">
+          <strong>Animations</strong>
+          <button type="button" data-animation-close aria-label="Close animation menu">Close</button>
+        </div>
+        <select data-animation-select size="8" aria-label="Choose an animation"></select>
+        <div class="animation-menu-actions">
+          <button type="button" data-animation-play>Play</button>
+          <button type="button" data-animation-pause>Pause</button>
+          <button type="button" data-animation-restart>Restart</button>
+        </div>
+        <output data-animation-status>0 clips</output>
       </div>
       <div class="attack-review" data-attack-review hidden aria-label="Attack candidate review controls">
         <div class="attack-review-row">
@@ -467,6 +480,13 @@ const dockToggleButton = app.querySelector('[data-dock-toggle]');
 const cycleToolButton = app.querySelector('[data-cycle-tool]');
 const cyclePoseStateButton = app.querySelector('[data-cycle-pose-state]');
 const cycleAnimationButton = app.querySelector('[data-cycle-animation]');
+const animationMenu = app.querySelector('[data-animation-menu]');
+const animationSelect = app.querySelector('[data-animation-select]');
+const animationPlayButton = app.querySelector('[data-animation-play]');
+const animationPauseButton = app.querySelector('[data-animation-pause]');
+const animationRestartButton = app.querySelector('[data-animation-restart]');
+const animationCloseButton = app.querySelector('[data-animation-close]');
+const animationStatus = app.querySelector('[data-animation-status]');
 const cycleViewModeButton = app.querySelector('[data-cycle-view-mode]');
 const fpvControlModeButton = app.querySelector('[data-fpv-control-mode]');
 const fpvSettingsToggle = app.querySelector('[data-fpv-settings-toggle]');
@@ -847,6 +867,7 @@ let importedAnimationMixer = null;
 let importedAnimationClips = [];
 let importedAnimationAction = null;
 let activeImportedAnimationClip = null;
+let animationMenuOpen = false;
 let importedRootMotionBone = null;
 let importedRootMotionRestPosition = null;
 const importedAnimationClock = new THREE.Clock();
@@ -2453,10 +2474,44 @@ function importedClipByName(name) {
   return importedAnimationClips.find((clip) => clip.name.toLowerCase() === lower) || null;
 }
 
+function syncImportedAnimationMenu() {
+  if (!animationMenu || !animationSelect || !cycleAnimationButton) return;
+  const clipNames = importedClipNames();
+  if (animationSelect.options.length !== clipNames.length
+      || clipNames.some((name, index) => animationSelect.options[index]?.value !== name)) {
+    animationSelect.replaceChildren(...clipNames.map((name) => {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      return option;
+    }));
+  }
+  const selectedName = activeImportedAnimationClip?.name
+    || importedClipByName(REQUESTED_IMPORTED_CLIP)?.name
+    || importedClipByName(ACTIVE_CHARACTER.defaultClip)?.name
+    || clipNames[0]
+    || '';
+  if (selectedName) animationSelect.value = selectedName;
+  cycleAnimationButton.hidden = clipNames.length === 0;
+  cycleAnimationButton.textContent = `Animation: ${selectedName || 'None'}`;
+  cycleAnimationButton.setAttribute('aria-expanded', animationMenuOpen ? 'true' : 'false');
+  animationMenu.hidden = !animationMenuOpen || clipNames.length === 0;
+  if (animationStatus) {
+    const playback = importedAnimationAction?.paused ? 'paused' : importedAnimationAction ? 'playing' : 'ready';
+    animationStatus.textContent = `${clipNames.length} clips · ${playback}: ${selectedName || 'none'}`;
+  }
+}
+
+function setAnimationMenuOpen(open) {
+  animationMenuOpen = Boolean(open) && importedAnimationClips.length > 0;
+  syncImportedAnimationMenu();
+}
+
 function stopImportedAnimation() {
   importedAnimationAction?.stop();
   importedAnimationAction = null;
   activeImportedAnimationClip = null;
+  syncImportedAnimationMenu();
 }
 
 function playImportedAnimation(name = null) {
@@ -2466,13 +2521,47 @@ function playImportedAnimation(name = null) {
   importedAnimationAction?.stop();
   importedAnimationAction = importedAnimationMixer.clipAction(clip);
   importedAnimationAction.reset();
+  importedAnimationAction.paused = false;
   importedAnimationAction.play();
   activeImportedAnimationClip = clip;
   importedAnimationClock.start();
   statusEl.textContent = `${ACTIVE_CHARACTER.label}: playing ${clip.name}`;
   renderControls();
   updateReadout();
+  syncImportedAnimationMenu();
   return true;
+}
+
+function pauseImportedAnimation() {
+  if (!importedAnimationAction) return;
+  importedAnimationAction.paused = true;
+  statusEl.textContent = `${ACTIVE_CHARACTER.label}: paused ${activeImportedAnimationClip?.name || 'animation'}`;
+  syncImportedAnimationMenu();
+}
+
+function resumeImportedAnimation() {
+  if (!importedAnimationAction) {
+    playImportedAnimation(animationSelect?.value || null);
+    return;
+  }
+  importedAnimationAction.paused = false;
+  importedAnimationAction.play();
+  importedAnimationClock.start();
+  statusEl.textContent = `${ACTIVE_CHARACTER.label}: playing ${activeImportedAnimationClip?.name || 'animation'}`;
+  syncImportedAnimationMenu();
+}
+
+function restartImportedAnimation() {
+  if (!importedAnimationAction) {
+    playImportedAnimation(animationSelect?.value || null);
+    return;
+  }
+  importedAnimationAction.reset();
+  importedAnimationAction.paused = false;
+  importedAnimationAction.play();
+  importedAnimationClock.start();
+  statusEl.textContent = `${ACTIVE_CHARACTER.label}: restarted ${activeImportedAnimationClip?.name || 'animation'}`;
+  syncImportedAnimationMenu();
 }
 
 function setupImportedAnimations(gltf) {
@@ -2481,6 +2570,7 @@ function setupImportedAnimations(gltf) {
   importedRootMotionBone = ACTIVE_CHARACTER.key === 'vanguard' ? meshyRoot.getObjectByName('root') : null;
   importedRootMotionRestPosition = importedRootMotionBone ? importedRootMotionBone.position.clone() : null;
   importedAnimationMixer = new THREE.AnimationMixer(meshyRoot);
+  syncImportedAnimationMenu();
   if (REQUESTED_IMPORTED_CLIP || ACTIVE_CHARACTER.autoPlayAnimation) playImportedAnimation(REQUESTED_IMPORTED_CLIP);
 }
 
@@ -2698,11 +2788,9 @@ function renderControls() {
   }
   cycleToolButton.hidden = !ACTIVE_CHARACTER.supportsSaber;
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
+  cyclePoseStateButton.hidden = ACTIVE_CHARACTER.supportsAnimationClips && activePoseStateOrder().length <= 1;
   cyclePoseStateButton.textContent = `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
-  if (cycleAnimationButton) {
-    cycleAnimationButton.hidden = !importedAnimationClips.length;
-    cycleAnimationButton.textContent = `Anim: ${activeImportedAnimationClip?.name || 'None'}`;
-  }
+  syncImportedAnimationMenu();
   cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
   if (fpvControlModeButton) {
     fpvControlModeButton.hidden = viewMode !== 'firstPerson';
@@ -3996,7 +4084,13 @@ cyclePoseStateButton.addEventListener('click', () => {
   const next = order[(order.indexOf(current) + 1) % order.length];
   setPoseState(next);
 });
-cycleAnimationButton?.addEventListener('click', cycleImportedAnimation);
+cycleAnimationButton?.addEventListener('click', () => setAnimationMenuOpen(!animationMenuOpen));
+animationCloseButton?.addEventListener('click', () => setAnimationMenuOpen(false));
+animationSelect?.addEventListener('change', () => playImportedAnimation(animationSelect.value));
+animationSelect?.addEventListener('dblclick', () => playImportedAnimation(animationSelect.value));
+animationPlayButton?.addEventListener('click', resumeImportedAnimation);
+animationPauseButton?.addEventListener('click', pauseImportedAnimation);
+animationRestartButton?.addEventListener('click', restartImportedAnimation);
 
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => setMode(button.dataset.mode || 'move'));
