@@ -162,6 +162,20 @@ image.colorspace_settings.name = "sRGB"
 image.save()
 image.pack()
 
+# Reopen the encoded PNG instead of trusting Blender's in-memory datablock.
+# This rejects the exact solid-black failure that a fresh image datablock
+# produced on the phone.
+encoded = bpy.data.images.load(OUT_PNG, check_existing=False)
+encoded_values = array("f", [0.0]) * (SIZE * SIZE * 4)
+encoded.pixels.foreach_get(encoded_values)
+encoded_colors = {
+    tuple(round(encoded_values[i + c] * 255.0) for c in range(3))
+    for i in range(0, len(encoded_values), 4)
+}
+if len(encoded_colors) < 8 or max(max(color) for color in encoded_colors) < 90:
+    raise RuntimeError("Encoded v5 PNG failed color/readability gate")
+bpy.data.images.remove(encoded)
+
 for material in bpy.data.materials:
     if not material.use_nodes or not material.node_tree:
         continue
@@ -181,6 +195,7 @@ bpy.ops.wm.save_as_mainfile(filepath=OUT_BLEND)
 print("FPS_ALBEDO_V5_OK")
 print("painted_triangles", painted)
 print("changed_pixels", changed_pixels)
+print("encoded_colors", len(encoded_colors))
 print("actions", len(bpy.data.actions))
 print("blend", OUT_BLEND, os.path.getsize(OUT_BLEND))
 print("png", OUT_PNG, os.path.getsize(OUT_PNG))
