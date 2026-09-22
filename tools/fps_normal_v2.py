@@ -148,14 +148,72 @@ def box_blur(values, radius=10, passes=1):
     return current
 
 
+def rasterize_uv_mask(mesh, uv_layer):
+    mask = bytearray(SIZE * SIZE)
+    mesh.calc_loop_triangles()
+    for tri in mesh.loop_triangles:
+        points = []
+        for loop_index in tri.loops:
+            u, v = uv_layer.data[loop_index].uv
+            points.append((u * (SIZE - 1), (1.0 - v) * (SIZE - 1)))
+        (ax, ay), (bx, by), (cx, cy) = points
+        min_x = max(0, math.floor(min(ax, bx, cx)) - 1)
+        max_x = min(SIZE - 1, math.ceil(max(ax, bx, cx)) + 1)
+        min_y = max(0, math.floor(min(ay, by, cy)) - 1)
+        max_y = min(SIZE - 1, math.ceil(max(ay, by, cy)) + 1)
+        denominator = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
+        if abs(denominator) < 1e-8:
+            continue
+        for y in range(min_y, max_y + 1):
+            py = y + 0.5
+            for x in range(min_x, max_x + 1):
+                px = x + 0.5
+                w0 = ((by - cy) * (px - cx) + (cx - bx) * (py - cy)) / denominator
+                w1 = ((cy - ay) * (px - cx) + (ax - cx) * (py - cy)) / denominator
+                w2 = 1.0 - w0 - w1
+                if w0 >= -0.001 and w1 >= -0.001 and w2 >= -0.001:
+                    mask[y * SIZE + x] = 1
+    return mask
+
+
+def erode_mask(mask, passes=14):
+    current = mask
+    for _ in range(passes):
+        source = current
+        eroded = source[:]
+        for y in range(1, SIZE - 1):
+            row = y * SIZE
+            for x in range(1, SIZE - 1):
+                index = row + x
+                if source[index] and not (
+                    source[index - 1]
+                    and source[index + 1]
+                    and source[index - SIZE]
+                    and source[index + SIZE]
+                ):
+                    eroded[index] = 0
+        current = eroded
+    return current
+
+
 albedo = decode_authored_png(SOURCE_ALBEDO)
 height = array("f", [0.0]) * (SIZE * SIZE)
-painted = bytearray(SIZE * SIZE)
 for index in range(SIZE * SIZE):
     p = index * 4
     rgb = tuple(albedo[p : p + 3])
     height[index] = closest_height(rgb)
-    painted[index] = 1 if max(rgb) >= 24 else 0
+
+arm = bpy.data.objects.get("Arms")
+if arm is None or arm.type != "MESH":
+    raise RuntimeError("Arms mesh not found for UV edge suppression")
+mesh = arm.data
+uv_layer = mesh.uv_layers.get("AlbedoUV_v1") or mesh.uv_layers.active
+if uv_layer is None:
+    raise RuntimeError("AlbedoUV_v1/active UV layer not found")
+safe_uv = erode_mask(rasterize_uv_mask(mesh, uv_layer))
+safe_uv_pixels = sum(safe_uv)
+if safe_uv_pixels < 50000:
+    raise RuntimeError("UV edge suppression removed too much usable surface")
 
 height = box_blur(height)
 normal = bytearray(SIZE * SIZE * 4)
@@ -167,14 +225,7 @@ for y in range(SIZE):
         p = index * 4
         # Keep atlas exteriors and their padded island edges neutral. This
         # prevents mip sampling from inventing a bright UV seam.
-        if (
-            x < 3 or x >= SIZE - 3 or y < 3 or y >= SIZE - 3
-            or not painted[index]
-            or not painted[index - 2]
-            or not painted[index + 2]
-            or not painted[index - 2 * SIZE]
-            or not painted[index + 2 * SIZE]
-        ):
+        if not safe_uv[index]:
             normal[p : p + 4] = bytes((128, 128, 255, 255))
             continue
         dx = (height[index + 2] - height[index - 2]) * 0.5 * NORMAL_STRENGTH
@@ -237,6 +288,7 @@ bpy.ops.wm.save_as_mainfile(filepath=OUT_BLEND)
 print("FPS_NORMAL_V2_OK")
 print("relief_pixels", relief_pixels)
 print("strong_relief_pixels", strong_relief_pixels)
+print("safe_uv_pixels", safe_uv_pixels)
 print("materials_bound", bound)
 print("normal", OUT_NORMAL, os.path.getsize(OUT_NORMAL))
 print("blend", OUT_BLEND, os.path.getsize(OUT_BLEND))
