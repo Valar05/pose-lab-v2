@@ -208,7 +208,7 @@ for material in bpy.data.materials:
         continue
     nodes = material.node_tree.nodes
     links = material.node_tree.links
-    bsdf = nodes.get("Principled BSDF")
+    bsdf = next((node for node in nodes if node.type == "BSDF_PRINCIPLED"), None)
     if bsdf is None:
         continue
     for node in list(nodes):
@@ -236,4 +236,3 @@ print("relief_pixels", relief_pixels)
 print("materials_bound", bound)
 print("normal", OUT_NORMAL, os.path.getsize(OUT_NORMAL))
 print("blend", OUT_BLEND, os.path.getsize(OUT_BLEND))
-
