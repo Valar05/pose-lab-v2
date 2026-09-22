@@ -1,0 +1,11 @@
+{
+  "schema": "pose-lab.sprite-animation-set.v1",
+  "modelKey": "fpsplayer-aries-v8",
+  "sourceModelSha256": "0360bcac731882f20ae39b8e7869251263b6836de175ec701e003949d9e26089",
+  "policy": {
+    "appendOnly": true,
+    "source3DImmutable": true,
+    "acceptedPixelsImmutable": true
+  },
+  "animations": []
+}
