@@ -52,6 +52,7 @@ jobs:
           '
           node tools/capture_valkyrie_sprite_review.mjs http://127.0.0.1:4174/ generated/valkyrie-sprite-review
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: valkyrie-full-sprite-evidence-${{ github.run_id }}
           path: generated/valkyrie-sprite-review/
