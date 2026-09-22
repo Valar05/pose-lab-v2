@@ -269,8 +269,6 @@ for index in range(SIZE * SIZE):
 if min(PALETTE_HEIGHTS[color] for color in BAND_COLORS) <= max(PALETTE_HEIGHTS[color] for color in ARMOR_COLORS) + 0.30:
     raise RuntimeError("Raised gold bands must remain decisively above every armor plateau")
 
-carve_exterior_channel(height, band_mask)
-
 arm = bpy.data.objects.get("Arms")
 if arm is None or arm.type != "MESH":
     raise RuntimeError("Arms mesh not found for UV edge suppression")
@@ -284,6 +282,12 @@ safe_uv_pixels = sum(safe_uv)
 if safe_uv_pixels < 100000:
     raise RuntimeError("UV edge suppression removed too much usable surface")
 
+channel_safe_uv = erode_mask(uv_coverage, passes=18)
+safe_band_mask = bytearray(
+    1 if band_mask[index] and channel_safe_uv[index] else 0
+    for index in range(SIZE * SIZE)
+)
+carve_exterior_channel(height, safe_band_mask)
 height = extend_height_gutter(height, uv_coverage)
 height = box_blur(height)
 normal = bytearray(SIZE * SIZE * 4)
