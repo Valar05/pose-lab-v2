@@ -3,8 +3,8 @@ import bmesh
 import os
 
 DOWNLOAD = "/storage/emulated/0/Download"
-OUT_BLEND = os.path.join(DOWNLOAD, "FPSPlayer_ARIES_Plates_v7.blend")
-OUT_GLB = os.path.join(DOWNLOAD, "FPSPlayer_ARIES_Plates_v7_runtime.glb")
+OUT_BLEND = os.path.join(DOWNLOAD, "FPSPlayer_ARIES_Plates_v7_1.blend")
+OUT_GLB = os.path.join(DOWNLOAD, "FPSPlayer_ARIES_Plates_v7_1_runtime.glb")
 SOURCE_NAME = "Arms"
 PLATE_PREFIX = "ARIES_Plate_"
 
@@ -230,7 +230,7 @@ if "export_force_sampling" in props:
     kwargs["export_force_sampling"] = True
 bpy.ops.export_scene.gltf(**kwargs)
 
-print("FPS_PLATE_GEOMETRY_V1_OK")
+print("FPS_PLATE_GEOMETRY_V1_1_OK")
 print("plate_count", len(created))
 print("plate_names", [o.name for o in created])
 print("source_groups", len(source.vertex_groups))
