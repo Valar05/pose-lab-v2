@@ -1,0 +1,55 @@
+{
+  "schema": "sparse-sprite-character-factory-v1",
+  "character": "vanguard",
+  "motionLibrary": "factory/vanguard.motion.json",
+  "sourceRoot": "source-masters",
+  "atlas": {
+    "manifestSchema": "vanguard-arcade-pose-atlas-v2",
+    "cellSize": 96,
+    "columns": 4,
+    "rows": 3,
+    "paletteColors": 64,
+    "targetBytes": 1000000,
+    "output": "dist/assets/vanguard-pose-atlas-96.png",
+    "manifest": "dist/assets/vanguard-pose-atlas-96.json"
+  },
+  "sources": {
+    "acceptedIdentity": { "file": "vanguard-factory-identity-master.png", "sha256": "dadd4823fef419ee768884f966aec97f9288f5bdd3f5f73280dbba3aae1648e2" },
+    "acceptedContactSheet": { "file": "vanguard-contact-sheet-accepted-v1.png", "sha256": "5a4aecf0433c6f3eef422b94bcc0fd02db9cf7c49d36f4180867580a90df6ff6" },
+    "acceptedContactSheetAlpha": { "file": "vanguard-contact-sheet-accepted-v1-alpha.png", "sha256": "029ce4b8b25a58b0baa45002d69507d7b2e43590771e24b7021825f162262269" }
+  },
+  "poses": [
+    { "id": "idle", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-01-heavy-idle", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [0, 0, 384, 341], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "run-01", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-02-run-contact-a", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [384, 0, 384, 341], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "run-02", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-03-run-compression-a", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [768, 0, 384, 341], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "run-03", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-04-run-passing-a", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [1152, 0, 384, 341], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "run-04", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-05-run-contact-b", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [0, 341, 384, 342], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "run-05", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-06-run-compression-b", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [384, 341, 384, 342], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "run-06", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-07-run-passing-b", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [768, 341, 384, 342], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "brake-pivot", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-08-hard-plant", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [1152, 341, 384, 342], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "reach-brace", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-09-brace-manipulate", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [0, 683, 384, 341], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "dash", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-10-dash", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [384, 683, 384, 341], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "dodge-slide", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-11-dodge-slide", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [768, 683, 384, 341], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" },
+    { "id": "flip-jump", "semanticSourceId": "accepted-vanguard-sheet-v1-cell-12-flip-jump", "source": "acceptedContactSheetAlpha", "kind": "sheet-rect", "rect": [1152, 683, 384, 341], "alpha": "preserved-rgba", "fit": "contain", "anchor": "bottom-center" }
+  ],
+  "recipes": {
+    "heavy-idle": ["idle"],
+    "idle": ["idle"],
+    "run": ["run-01", "run-02", "run-03", "run-04", "run-05", "run-06"],
+    "brake-pivot": ["brake-pivot"],
+    "reach-brace": ["reach-brace"],
+    "dash": ["dash"],
+    "dodge-slide": ["dodge-slide"],
+    "flip-jump": ["flip-jump"]
+  },
+  "futurePosePlan": {
+    "architecture": "same sparse semantic-pose method proven by April",
+    "locomotion": ["run"],
+    "excludedLocomotion": ["walk"],
+    "weaponIdentity": "preserve the accepted multi-barrel minigun silhouette exactly; functionally it is a rotary-profile shotgun / scattergun",
+    "weaponBehavior": ["one-handed signature carry", "two-handed commitment under load", "single brutal scatter blast", "indexed multi-bore volley", "heavy recoil and recovery", "free-hand grapple transitions"],
+    "excludedWeaponBehavior": ["continuous minigun stream", "visual redesign before combat-pose review"],
+    "combat": "separate future pose pass; no combat poses inferred from accepted noncombat sheet",
+    "legacyVanguardWork": "excluded as pose authority"
+  }
+}

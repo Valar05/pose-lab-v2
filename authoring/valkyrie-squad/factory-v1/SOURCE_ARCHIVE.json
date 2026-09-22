@@ -1,0 +1,20 @@
+{
+  "schema": "pose-lab-v2-source-archive-pointer-v1",
+  "libraryFileId": "libfile_5103eaaaad248191b282ca4dab9b67b7",
+  "fileName": "Valkyrie-Squad-Pose-Lab-V2-Source-Masters-2026-09-22.tar.gz",
+  "bytes": 39520167,
+  "sha256": "b84c618551b654cbfbdccae9111481ebfbfccb39d3f56a8903e7d5e5ac6417d2",
+  "origin": {
+    "repository": "Valar05/april-sprite-lab",
+    "commit": "905d3a200e9a34a3832176cc3a761c88ead370ee"
+  },
+  "contains": [
+    "full-resolution April and Vanguard source masters",
+    "acted-reference video",
+    "accepted and quarantined contact sheets",
+    "factory specifications and reconstruction scripts",
+    "verification tests and runtime atlas copies"
+  ],
+  "runtimeDependency": false,
+  "restoreRule": "Verify the archive SHA-256 before extracting. Preserve candidate and accepted labels from the transfer manifest."
+}

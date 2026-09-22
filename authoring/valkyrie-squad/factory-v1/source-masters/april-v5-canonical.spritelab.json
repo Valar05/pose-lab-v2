@@ -1,0 +1,563 @@
+{
+  "animations": [
+    {
+      "fps": 3.8,
+      "frame_ids": [
+        "frame-run6-01-c1af0e62",
+        "frame-run6-02-5a289713",
+        "frame-run6-03-b42ce258",
+        "frame-run6-04-359ef1be",
+        "frame-run6-05-8292a7d0",
+        "frame-run6-06-518ef0a9"
+      ],
+      "id": "run",
+      "loop": true,
+      "motion_program": {
+        "bridge_distortion": {
+          "continuity": "sinusoidal-no-hold",
+          "pivot_lock": "frame-pivot-ground",
+          "secondary_motion": {
+            "cloth": {
+              "amplitude_x": 10,
+              "amplitude_y": 7,
+              "anchor_u": 0.16,
+              "cycles": 2,
+              "release_u": 0.72,
+              "wavelength": 7.5
+            },
+            "cols": 28,
+            "hose": {
+              "amplitude_x": 7,
+              "amplitude_y": 10,
+              "anchor_u": 0.1,
+              "cycles": 2.5,
+              "release_u": 0.68,
+              "wavelength": 10
+            },
+            "rows": 24
+          },
+          "shear": 0.075,
+          "squash": 0.055,
+          "stretch": 0.1
+        },
+        "cycle_ms": 1578.947368421053,
+        "ground_y": 225,
+        "kind": "continuous-balance-secondary-v1"
+      },
+      "name": "run",
+      "proposal": "shipped-april-default-slow-jog-3.8fps",
+      "review_state": "accepted-by-drew-3.8fps-2026-09-21"
+    },
+    {
+      "fps": 10,
+      "frame_ids": [
+        "frame-0001-a95071a3"
+      ],
+      "id": "idle",
+      "loop": true,
+      "motion_program": {
+        "acceptance_statement": "completely acceptable and really freaking good; it is time we can move on",
+        "accepted_by": "Drew",
+        "accepted_candidate_sha256": "b603e52993ef8ff9699b65cb8dfe137e651a8b2c2edd5b66c665d4712ebe0a4e",
+        "accepted_date": "2026-09-21",
+        "accepted_rollback": {
+          "manual_revision": 21,
+          "project_sha256": "5c835035281049dc60779198679a4ea1a4f4120eed0d44b04698a468ab74e226"
+        },
+        "cycle_ms": 1900,
+        "ground_y": 225,
+        "human_verdict_scope": "exact Sprite Lab revision 22 idle; visual parameters unchanged during acceptance",
+        "identity_authority": "frame-0001-a95071a3; accepted violet April",
+        "idle_deformation": {
+          "base_center_contract": "x displacement = 0 below normalized y 0.90",
+          "belly_counter_x": 1.8,
+          "breath_y": 4.0,
+          "center_u": 0.51,
+          "chest_expand": 0.018,
+          "cloth": {
+            "amplitude_x": 2.6,
+            "amplitude_y": 1.5,
+            "phase_lag": 0.72,
+            "wavelength": 3.4
+          },
+          "cols": 28,
+          "ground_lock": "fade-to-zero-at-boots",
+          "hose": {
+            "amplitude_x": 3.8,
+            "amplitude_y": 2.1,
+            "anchor_u": 0.12,
+            "phase_lag": 1.05,
+            "release_u": 0.72,
+            "wavelength": 4.8
+          },
+          "lateral_skew_x": 11.0,
+          "leg_center_u": 0.51,
+          "leg_separation_sharpness": 13,
+          "load_shear": 0.0008,
+          "load_shift_x": 0.35,
+          "rows": 32,
+          "skew_lock_v": 0.9,
+          "skew_start_v": 0.18,
+          "thigh_anchor_contract": "zero displacement at normalized y 0.52 and 0.82; no lower-leg or foot deformation",
+          "thigh_bottom_v": 0.82,
+          "thigh_compression_y": 2.15,
+          "thigh_phase_lag": 0.24,
+          "thigh_top_v": 0.52,
+          "thigh_transfer_x": 1.45
+        },
+        "kind": "one-frame-idle-deformation-v5-anchored-kinetic-chain",
+        "motion_inspiration": [
+          "Ryu standing strips",
+          "Belly of Defiance",
+          "Arcana Choir"
+        ],
+        "preview_scale_compensation": 2.123809523809524,
+        "source_motion_authority": "908959.gif; one authored pose; 1.90 second loop",
+        "watchdown_source": "910203.mp4"
+      },
+      "name": "idle",
+      "notes": [
+        "Revision 22 is Drew-accepted; revision 21 remains the accepted rollback parent.",
+        "One authored frame only; no generated pose or in-between.",
+        "Full shoulder skew and restrained breath/material response preserved.",
+        "New motion is localized strictly between hip and knee anchors.",
+        "Opposed thigh compression trails the upper-body skew by 0.24 radians.",
+        "Feet and lower legs receive zero new displacement.",
+        "Human acceptance locked without changing visual parameters, timing, source frame, atlas, or run animation."
+      ],
+      "proposal": "authored-semantic-one-frame-deformation",
+      "review_state": "accepted-by-drew-2026-09-21",
+      "status": "shipped"
+    },
+    {
+      "fps": 10,
+      "frame_ids": [
+        "frame-0005-cdbec03f"
+      ],
+      "id": "dash",
+      "loop": false,
+      "name": "dash",
+      "proposal": "authored-semantic"
+    },
+    {
+      "fps": 10,
+      "frame_ids": [
+        "frame-0006-acc8f5c6"
+      ],
+      "id": "dodge-slide",
+      "loop": false,
+      "name": "dodge_slide",
+      "proposal": "authored-semantic"
+    },
+    {
+      "fps": 10,
+      "frame_ids": [
+        "frame-0004-5fd053fc"
+      ],
+      "id": "flip-jump",
+      "loop": false,
+      "name": "flip_jump",
+      "proposal": "authored-semantic"
+    },
+    {
+      "fps": 10,
+      "frame_ids": [
+        "frame-combat-idle-910948-c0"
+      ],
+      "id": "combat-idle",
+      "loop": true,
+      "motion_program": {
+        "acceptance_statement": "completely acceptable and really freaking good; it is time we can move on",
+        "accepted_by": "Drew",
+        "accepted_candidate_sha256": "b603e52993ef8ff9699b65cb8dfe137e651a8b2c2edd5b66c665d4712ebe0a4e",
+        "accepted_date": "2026-09-21",
+        "accepted_rollback": {
+          "manual_revision": 21,
+          "project_sha256": "5c835035281049dc60779198679a4ea1a4f4120eed0d44b04698a468ab74e226"
+        },
+        "cycle_ms": 1900,
+        "ground_y": 225,
+        "human_verdict_scope": "exact Sprite Lab revision 22 idle; visual parameters unchanged during acceptance",
+        "identity_authority": "frame-0001-a95071a3; accepted violet April",
+        "idle_deformation": {
+          "base_center_contract": "x displacement = 0 below normalized y 0.90",
+          "belly_counter_x": 1.8,
+          "breath_y": 4.0,
+          "center_u": 0.51,
+          "chest_expand": 0.018,
+          "cloth": {
+            "amplitude_x": 2.6,
+            "amplitude_y": 1.5,
+            "phase_lag": 0.72,
+            "wavelength": 3.4
+          },
+          "cols": 28,
+          "ground_lock": "fade-to-zero-at-boots",
+          "hose": {
+            "amplitude_x": 3.8,
+            "amplitude_y": 2.1,
+            "anchor_u": 0.12,
+            "phase_lag": 1.05,
+            "release_u": 0.72,
+            "wavelength": 4.8
+          },
+          "lateral_skew_x": 11.0,
+          "leg_center_u": 0.51,
+          "leg_separation_sharpness": 13,
+          "load_shear": 0.0008,
+          "load_shift_x": 0.35,
+          "rows": 32,
+          "skew_lock_v": 0.9,
+          "skew_start_v": 0.18,
+          "thigh_anchor_contract": "zero displacement at normalized y 0.52 and 0.82; no lower-leg or foot deformation",
+          "thigh_bottom_v": 0.82,
+          "thigh_compression_y": 2.15,
+          "thigh_phase_lag": 0.24,
+          "thigh_top_v": 0.52,
+          "thigh_transfer_x": 1.45
+        },
+        "kind": "one-frame-idle-deformation-v5-anchored-kinetic-chain",
+        "motion_inspiration": [
+          "Ryu standing strips",
+          "Belly of Defiance",
+          "Arcana Choir"
+        ],
+        "preview_scale_compensation": 2.123809523809524,
+        "source_motion_authority": "908959.gif; one authored pose; 1.90 second loop",
+        "watchdown_source": "910203.mp4"
+      },
+      "name": "combat_idle",
+      "notes": [
+        "Corrected source: 910948.png cell 0 / top-left guarded combat stance.",
+        "Ordinary idle frame-0001-a95071a3 is explicitly not combat idle.",
+        "Uses the accepted 1900 ms one-frame deformation law without changing its parameters.",
+        "Full six-pose combat sheet was alpha-cut and appended to the reusable atlas; no separate animation-only sheet.",
+        "Exact hosted combination awaits Drew's live Sprite Lab verdict."
+      ],
+      "proposal": "accepted-combat-sheet-cell-zero-plus-accepted-idle-law",
+      "review_state": "quarantined-correct-source-awaiting-live-review",
+      "status": "candidate"
+    },
+    {
+      "id": "jab",
+      "name": "jab",
+      "fps": 10,
+      "loop": false,
+      "frame_ids": [
+        "frame-jab-preload-910948-c0",
+        "frame-jab-contact-910948-c1"
+      ],
+      "proposal": "human-authored-from-accepted-cells",
+      "motion_program": {
+        "kind": "anchored-snap-semantic-substitution-v1",
+        "cycle_ms": 520,
+        "ground_y": 225,
+        "strike_mode": "no-step",
+        "anchor_contract": "both soles and bottom-right presentation anchor fixed; zero root translation",
+        "source_authority": "910948.png cell 0 combat idle plus cell 1 jab contact",
+        "timing_authority": "THE ANCHORED SNAP THEOREM; Arcana Choir Sharp/Natural",
+        "normalized_law": "neutral 0; preload -0.5; contact +1.0; recover 0",
+        "anchored_snap": {
+          "idle_frame_id": "frame-jab-preload-910948-c0",
+          "contact_frame_id": "frame-jab-contact-910948-c1",
+          "preload": -0.5,
+          "forward_px": 28,
+          "shear_px": 8,
+          "lift_px": 2.2,
+          "rear_foot_register_x": 33,
+          "load_start": 0.10,
+          "load_end": 0.34,
+          "contact_at": 0.40,
+          "follow_end": 0.68,
+          "cols": 30,
+          "rows": 28
+        }
+      }
+    }
+  ],
+  "detector": {
+    "background": {
+      "confidence": 1,
+      "mode": "alpha",
+      "rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tolerance": 0
+    },
+    "foreground_pixel_count": 979643,
+    "merge_gap": 2,
+    "min_area": 12
+  },
+  "detector_version": "sheet-detector-v3",
+  "frames": [
+    {
+      "animation_id": "idle",
+      "duration_ms": 100,
+      "id": "frame-0001-a95071a3",
+      "order": 0,
+      "pivot": {
+        "x": 109.5,
+        "y": 446
+      },
+      "proposal_confidence": "high",
+      "rect": {
+        "h": 446,
+        "w": 219,
+        "x": 122,
+        "y": 17
+      },
+      "warnings": []
+    },
+    {
+      "animation_id": "flip-jump",
+      "duration_ms": 100,
+      "id": "frame-0004-5fd053fc",
+      "order": 0,
+      "pivot": {
+        "x": 221,
+        "y": 368
+      },
+      "proposal_confidence": "human",
+      "rect": {
+        "h": 368,
+        "w": 442,
+        "x": 1065,
+        "y": 1166
+      },
+      "warnings": []
+    },
+    {
+      "animation_id": "dash",
+      "duration_ms": 100,
+      "id": "frame-0005-cdbec03f",
+      "order": 0,
+      "pivot": {
+        "x": 245,
+        "y": 330
+      },
+      "proposal_confidence": "review",
+      "rect": {
+        "h": 330,
+        "w": 490,
+        "x": 0,
+        "y": 598
+      },
+      "warnings": [
+        "touches-source-edge"
+      ]
+    },
+    {
+      "animation_id": "dodge-slide",
+      "duration_ms": 100,
+      "id": "frame-0006-acc8f5c6",
+      "order": 0,
+      "pivot": {
+        "x": 234,
+        "y": 310
+      },
+      "proposal_confidence": "high",
+      "rect": {
+        "h": 310,
+        "w": 468,
+        "x": 526,
+        "y": 619
+      },
+      "warnings": []
+    },
+    {
+      "animation_id": "run",
+      "duration_ms": 263.15789473684214,
+      "id": "frame-run6-01-c1af0e62",
+      "order": 0,
+      "pivot": {
+        "x": 233,
+        "y": 367
+      },
+      "proposal_confidence": "high",
+      "rect": {
+        "h": 389,
+        "w": 483,
+        "x": 23,
+        "y": 1100
+      },
+      "warnings": []
+    },
+    {
+      "animation_id": "run",
+      "duration_ms": 263.15789473684214,
+      "id": "frame-run6-02-5a289713",
+      "order": 1,
+      "pivot": {
+        "x": 229,
+        "y": 368
+      },
+      "proposal_confidence": "high",
+      "rect": {
+        "h": 384,
+        "w": 421,
+        "x": 539,
+        "y": 1108
+      },
+      "warnings": []
+    },
+    {
+      "animation_id": "run",
+      "duration_ms": 263.15789473684214,
+      "id": "frame-run6-03-b42ce258",
+      "order": 2,
+      "pivot": {
+        "x": 237,
+        "y": 400
+      },
+      "proposal_confidence": "high",
+      "rect": {
+        "h": 413,
+        "w": 457,
+        "x": 1043,
+        "y": 1077
+      },
+      "warnings": []
+    },
+    {
+      "animation_id": "run",
+      "duration_ms": 263.15789473684214,
+      "id": "frame-run6-04-359ef1be",
+      "order": 3,
+      "pivot": {
+        "x": 234,
+        "y": 385
+      },
+      "proposal_confidence": "high",
+      "rect": {
+        "h": 411,
+        "w": 484,
+        "x": 22,
+        "y": 1555
+      },
+      "warnings": []
+    },
+    {
+      "animation_id": "run",
+      "duration_ms": 263.15789473684214,
+      "id": "frame-run6-05-8292a7d0",
+      "order": 4,
+      "pivot": {
+        "x": 209,
+        "y": 383
+      },
+      "proposal_confidence": "high",
+      "rect": {
+        "h": 396,
+        "w": 413,
+        "x": 559,
+        "y": 1570
+      },
+      "warnings": []
+    },
+    {
+      "animation_id": "run",
+      "duration_ms": 263.15789473684214,
+      "id": "frame-run6-06-518ef0a9",
+      "order": 5,
+      "pivot": {
+        "x": 248,
+        "y": 393
+      },
+      "proposal_confidence": "high",
+      "rect": {
+        "h": 411,
+        "w": 462,
+        "x": 1032,
+        "y": 1556
+      },
+      "warnings": []
+    },
+    {
+      "animation_id": "combat-idle",
+      "duration_ms": 100,
+      "id": "frame-combat-idle-910948-c0",
+      "order": 0,
+      "pivot": {
+        "x": 204.0,
+        "y": 378
+      },
+      "proposal_confidence": "human-source",
+      "rect": {
+        "h": 378,
+        "w": 408,
+        "x": 28,
+        "y": 2123
+      },
+      "warnings": []
+    },
+    {
+      "id": "frame-jab-preload-910948-c0",
+      "rect": {
+        "x": 28,
+        "y": 2123,
+        "w": 408,
+        "h": 378
+      },
+      "pivot": {
+        "x": 204,
+        "y": 378
+      },
+      "duration_ms": 208,
+      "animation_id": "jab",
+      "order": 0,
+      "warnings": [],
+      "proposal_confidence": "human",
+      "semantic_role": "combat-idle-preload-reference"
+    },
+    {
+      "id": "frame-jab-contact-910948-c1",
+      "rect": {
+        "x": 535,
+        "y": 2125,
+        "w": 450,
+        "h": 370
+      },
+      "pivot": {
+        "x": 204,
+        "y": 370
+      },
+      "duration_ms": 312,
+      "animation_id": "jab",
+      "order": 1,
+      "warnings": [],
+      "proposal_confidence": "human",
+      "semantic_role": "jab-contact"
+    }
+  ],
+  "manual_revision": 27,
+  "provenance": {
+    "license": "",
+    "notes": "Accepted April general and run atlas extended with exact source 910948.png SHA-256 7e528cec4d32aed5077e7fbb1d90d0044a150d4251308a34d273ffc219d87a90. Combat idle is cell 0 top-left guarded stance, never ordinary idle. Full six-pose combat sheet retained in reusable RGBA atlas.\nV4 alpha repair: the accepted V2 atlas is byte-pixel-identical in rows 0-2047; six combat cells were recut from the original JPEG using threshold 24 only as a border-connected exterior-matte test. Interior dark armor, cloth, hair, hoses, and shadows remain opaque. All six animations and all eleven frame records are unchanged.\nV5 combat palette grade: accepted V4 alpha and all geometry are unchanged. Only visible RGB pixels in rows 2048-3071 were graded against accepted run/idle frame colors using deterministic HSV curves: high-end saturation compression, value gamma 1.25, red hue +0.016 turns, violet hue -0.014 turns.",
+    "source_url": ""
+  },
+  "schema_version": 1,
+  "source": {
+    "background_proposal": {
+      "confidence": 1,
+      "mode": "alpha",
+      "rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "tolerance": 0
+    },
+    "filename": "april-violet-full-sprite-sheet-alpha-v5-combat-palette.png",
+    "height": 3072,
+    "kind": "image",
+    "path": "/data/data/com.termux/files/home/.local/share/sprite-lab/uploads/april-violet-full-sprite-sheet-alpha-v5-combat-palette.png",
+    "sha256": "0d0d1079299c350fa0c95cd459965010fc02aad842b93f56fc65207bedc5f7a3",
+    "transparency_fraction": 0.6948157416449653,
+    "width": 1536
+  },
+  "video_selections": []
+}
