@@ -24,7 +24,8 @@ const tipBasisCandidateSource = read('src/review-candidates/attack1-tip-basis-2.
 const jointPinnedCandidateSource = read('src/review-candidates/attack1-joint-pinned-3.js');
 const davinLowBackKickCandidateSource = read('src/review-candidates/davin-lowbackkick-ares-transfer-1.js');
 const davinIdleCandidateSource = read('src/review-candidates/davin-idle-screenshot-1.js');
-const crimsonLightAttackCandidateSource = read('src/review-candidates/crimson-light-attack1-vanguard-3.js');
+const crimsonLightAttackRejectedCandidateSource = read('src/review-candidates/crimson-light-attack1-vanguard-3.js');
+const crimsonLightAttackCandidateSource = read('src/review-candidates/crimson-light-attack1-vanguard-4.js');
 const attackReviewUrls = read('tools/attack1_review_urls.mjs');
 const crimsonAttackCloudRunner = read('tools/run_crimson_attack1_cloud_review.mjs');
 const githubCrimsonVisualCapture = read('tools/github_crimson_visual_capture.mjs');
@@ -65,7 +66,8 @@ const tipBasisCandidate = parseExportedObject(tipBasisCandidateSource, 'Attack1 
 const jointPinnedCandidate = parseExportedObject(jointPinnedCandidateSource, 'Attack1 joint-pinned candidate preview');
 const davinLowBackKickCandidate = parseExportedObject(davinLowBackKickCandidateSource, 'Davin LowBackKick candidate preview');
 const davinIdleCandidate = parseExportedObject(davinIdleCandidateSource, 'Davin screenshot idle candidate preview');
-const crimsonLightAttackCandidate = parseExportedObject(crimsonLightAttackCandidateSource, 'Crimson light Attack1 candidate preview');
+const crimsonLightAttackRejectedCandidate = parseExportedObject(crimsonLightAttackRejectedCandidateSource, 'rejected Crimson light Attack1 v3 candidate');
+const crimsonLightAttackCandidate = parseExportedObject(crimsonLightAttackCandidateSource, 'Crimson light Attack1 v4 candidate preview');
 
 if (exists('generated/davin-tail-authoring/manifest.json')) {
   const davinTailManifest = JSON.parse(read('generated/davin-tail-authoring/manifest.json'));
@@ -247,18 +249,18 @@ assert(JSON.stringify(crimsonSwordCalibration.hiltLocalPoint) === JSON.stringify
 assert(crimsonSwordCalibration.tipLocalPoint?.[2] > 0.5 && crimsonSwordCalibration.pommelLocalPoint?.[2] < 0, 'Crimson Arborblade pivot must be at the hilt top with blade tip forward on local +Z and pommel behind the grip');
 assert(crimsonVanguardAttackReference.schema === 'pose-lab-v2-crimson-vanguard-swordattack1-reference-v2' && crimsonVanguardAttackReference.sourceClip === 'SwordAttack1', 'Crimson Vanguard reference must identify SwordAttack1');
 assert(crimsonVanguardAttackReference.policy?.role === 'full-body-reference-only' && crimsonVanguardAttackReference.samples?.contact?.props?.['Weapon.R'] && crimsonVanguardAttackReference.samples?.contact?.bones?.RightHand && crimsonVanguardAttackReference.samples?.contact?.bodyBasis?.forward?.some((value) => Math.abs(value) > 0.001), 'Vanguard SwordAttack1 reference must stay reference-only and include Weapon.R/right-hand tracks');
-assert(crimsonLightAttackCandidate.id === 'crimson-light-attack1-vanguard-3' && crimsonLightAttackCandidate.source?.character === 'crimson', 'Crimson light Attack1 candidate must target Crimson with a stable v3 id');
+assert(crimsonLightAttackCandidate.id === 'crimson-light-attack1-vanguard-4' && crimsonLightAttackCandidate.source?.character === 'crimson', 'Crimson light Attack1 candidate must target Crimson with a stable v4 id');
 assert(crimsonLightAttackCandidate.source?.policy?.forbiddenUse?.includes('Do not copy Vanguard Weapon.R'), 'Crimson light Attack1 candidate must preserve the no direct Weapon.R copy policy');
 assert(crimsonLightAttackBaseline.schema === 'pose-lab-v2-crimson-light-attack1-weapon-baseline-v1' && JSON.stringify(crimsonLightAttackBaseline.saberGripLocal) === JSON.stringify(crimsonLightAttackCandidate.source?.savedWeapon?.saberGripLocal), 'Crimson light Attack1 candidate must use the saved user weapon baseline');
-assert(crimsonSharedRestBaseline.schema === 'pose-lab-v2-crimson-shared-rest-baseline-v1' && crimsonSharedRestBaseline.source?.notDerivedFromVanguardAttackFrameZero === true && crimsonSharedRestBaseline.footTruth?.status === 'not-solved', 'Crimson SharedRest baseline must be independent and must not claim solved foot truth');
+assert(crimsonSharedRestBaseline.schema === 'pose-lab-v2-crimson-shared-rest-baseline-v2' && crimsonSharedRestBaseline.source?.notDerivedFromVanguardAttackFrameZero === true && crimsonSharedRestBaseline.footTruth?.status === 'calibrated', 'Crimson SharedRest baseline must be independent and expose calibrated foot truth');
 assert(crimsonLightAttackCandidate.source?.savedWeapon?.bladeLocalAxis?.join(',') === '0,0,1', 'Crimson light Attack1 candidate must preserve Arborblade +Z blade axis');
 assert(crimsonLightAttackCandidate.frames?.length === 8 && crimsonLightAttackCandidate.frames.some((frame) => frame.label === 'contact') && crimsonLightAttackCandidate.frames.some((frame) => frame.label === 'snapPrep'), 'Crimson light Attack1 candidate must include the eight review frames and contact/snapPrep frames');
-assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.status !== 'PASS' && crimsonLightAttackCandidate.source?.reviewVerdict === 'rejected-foot-blind-counterfeit-shared-rest', 'Crimson light Attack1 v3 must remain rejected until independent shared-rest foot truth exists');
-assert((crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.report || []).find((entry) => entry.label === 'contact')?.bladeAngleErrorDeg <= 9, 'Crimson light Attack1 contact frame must point Arborblade world-forward');
-assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.Hips >= 18 && crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.LeftUpLeg >= 7 && crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V3?.bodyTravelDeg?.RightArm >= 48, 'Crimson light Attack1 v3 diagnostic must still expose full-body movement metrics even though visual acceptance is rejected');
-assert(!reviewConstantsSource.includes('crimson-light-attack1-vanguard-3') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-2') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-1'), 'Attack1 review registry must not expose rejected Crimson light Attack1 candidates');
+assert(crimsonLightAttackRejectedCandidate.guardReport?.crimsonLightAttack1V3?.status !== 'PASS' && crimsonLightAttackRejectedCandidate.source?.reviewVerdict === 'rejected-foot-blind-counterfeit-shared-rest', 'Crimson light Attack1 v3 must remain rejected in quarantine');
+assert(crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V4?.status === 'PASS', 'Crimson light Attack1 v4 geometry gate must pass before visual review');
+assert((crimsonLightAttackCandidate.guardReport?.crimsonLightAttack1V4?.report || []).every((entry) => ['left', 'right'].every((side) => entry.feet?.[side]?.soleUpDot >= 0.999)), 'Crimson light Attack1 v4 must record bilateral ground-up sole truth for every frame');
+assert(reviewConstantsSource.includes('crimson-light-attack1-vanguard-4') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-3') && !reviewConstantsSource.includes('crimson-light-attack1-vanguard-2'), 'Attack1 review registry must expose v4 without resurrecting rejected candidates');
 assert(main.includes('explicitCandidateReview') && main.includes('supportsAttackReview: true') && main.includes('loadSharedRestBaseline') && main.includes('SHARED_REST_BASELINE_URL'), 'Runtime must allow explicit attack review and load Crimson SharedRest from its independent baseline artifact');
-assert(!attackReviewUrls.includes('crimson-light-attack1-vanguard-3') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-2') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-1'), 'Attack1 cloud review URLs must not include rejected Crimson light Attack1 candidates');
+assert(attackReviewUrls.includes('crimson-light-attack1-vanguard-4') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-3') && !attackReviewUrls.includes('crimson-light-attack1-vanguard-2'), 'Attack1 cloud review URLs must expose v4 without rejected candidates');
 assert(attackReviewUrls.includes('wakeBrowser: false') && !attackReviewUrls.includes('termux-open-url') && !attackReviewUrls.includes('am start'), 'Attack1 review URL printer must output exact URLs only and never wake a browser');
 assert(crimsonAttackCloudRunner.includes('No accepted Crimson Attack1 candidate is registered') && crimsonAttackCloudRunner.includes('quarantine-only'), 'Crimson Attack1 cloud dispatch must be blocked while only rejected v3 exists');
 assert(attackReviewUrls.includes('attack1-candidate-1') && attackReviewUrls.includes('attack1-joint-pinned-3') && attackReviewUrls.includes('worldSocket') && !attackReviewUrls.includes('attack1-tip-basis-2') && !attackReviewUrls.includes('attack1-tip-match-1') && attackReviewUrls.includes('anticipation') && attackReviewUrls.includes('contact') && attackReviewUrls.includes('recoil'), 'Attack1 review URLs must target candidate prime keys and joint-pinned world-socket overlay URLs');
@@ -431,10 +433,10 @@ assert(main.includes('const candidates = REQUESTED_IDLE_REVIEW ? DAVIN_IDLE_REVI
 assert(main.includes('function sequenceFrameAt') && main.includes('function applyAttackSequenceAt'), 'Attack1 candidate preview must play baked frames only');
 assert(main.includes('data-attack-review') && main.includes('data-attack-review-toggle') && main.includes('data-attack-review-close') && main.includes('data-attack-play') && main.includes('data-attack-pause') && main.includes('data-attack-scrub') && main.includes('data-attack-primes'), 'Attack1 candidate preview must expose closable play/pause, scrub, and prime-key controls');
 assert(main.includes('data-attack-save-key') && main.includes('data-attack-export'), 'Attack1 manual authoring must expose save-key and whole-animation export controls');
-assert(main.includes("schema: 'pose-lab-v2-manual-animation-v1'") && main.includes("seed: 'blank-ready-per-key'") && main.includes('candidateFramesUsed: false'), 'Attack1 manual authoring must export a blank-Ready whole-animation draft that does not use candidate frames');
+assert(main.includes("schema: 'pose-lab-v2-manual-animation-v1'") && main.includes("'blank-ready-per-key'") && main.includes("'character-rest-per-key'") && main.includes('candidateFramesUsed: false'), 'Attack1 manual authoring must seed Meshy from Ready or an imported rig from its own rest pose, never candidate frames');
 assert(main.includes('function createManualAttackDraft') && main.includes('applyReadyPose()') && main.includes('snapshotPoseBones()'), 'Attack1 manual draft keys must initialize from accepted Ready and snapshot the full curated pose state');
 assert(main.includes('function saveManualAttackKey') && main.includes('function exportManualAttackDraft'), 'Attack1 manual authoring must save per-key poses and export the whole animation');
-assert(main.includes('function useManualAttackAuthoring') && main.includes("return ACTIVE_CHARACTER.supportsBakedPoseStates && !REQUESTED_ATTACK2_QUARANTINED && (REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE)"), 'Attack1 without an explicit candidate must enter blank manual authoring while Attack2 requires an explicit candidate');
+assert(main.includes('function useManualAttackAuthoring') && main.includes("ACTIVE_CHARACTER.supportsBakedPoseStates || (REQUESTED_MANUAL_ATTACK && ACTIVE_CHARACTER.supportsAttackReview !== false)") && main.includes('!REQUESTED_ATTACK2_QUARANTINED'), 'Attack1 manual authoring must support baked rigs and explicit imported-rig authoring while Attack2 remains candidate-only');
 assert(main.includes("const WORLD_SOCKET_REVIEW = URL_PARAMS.get('worldSocket') === '1'") && main.includes('data-tip-match-overlay') && main.includes('function updateTipMatchOverlay') && main.includes('function liveJointPinnedProbe') && main.includes('LIVE FAIL'), 'Attack1 joint-pinned preview must expose an explicit live world-socket error overlay');
 assert(main.includes('function setAttackReviewOpen') && main.includes('attackReviewOpen = Boolean(open && canExposeAttackReview() && (REQUESTED_CANDIDATE || manualAttackDraft || useManualAttackAuthoring()))') && main.includes('let attackReviewOpen = Boolean(canExposeAttackReview() && (REQUESTED_MANUAL_ATTACK || REVIEW_CONTROLS_OPEN))') && main.includes('attackReviewPanel.hidden = !(active && attackReviewOpen)'), 'Attack1 controls must be toggleable and review controls must be closed by default unless requested');
 assert(main.includes('function setupAttackReviewControls') && main.includes('function setAttackReviewTime') && main.includes('function playAttackReview') && main.includes('function pauseAttackReview'), 'Attack1 candidate preview controls must be wired to playback and frozen-frame review');
@@ -493,7 +495,7 @@ assert(main.includes('function consumePoseEmptyDoubleTap') && main.includes('pos
 assert(main.includes('function beginPoseEmptyTouch') && main.includes('beginPoseEmptyTouch(points[0])'), 'selected Pose empty touch must reserve the gesture instead of starting camera pan');
 assert(!main.includes('selectedPoseBone = null;\n    updatePoseHandles();\n    suppressTouchPointerEvents = true;\n    beginCameraTouch(points);'), 'empty Pose touch must not clear selected bone before a second finger can start twist');
 assert(!main.includes('pointers.delete(event.pointerId);\n      selectedPoseBone = null;\n      updatePoseHandles();'), 'empty Pose pointer miss must not clear selected bone or fall through to camera');
-assert(main.includes("vanguard: './assets/vanguard/vanguard_rigged_animations.glb'") && main.includes('VANGUARD_BONE_MAP') && main.includes('supportsAnimationClips: true'), 'runtime must register Vanguard as an imported animated character');
+assert(main.includes("vanguard: assetUrl('vanguard/vanguard_rigged_animations.glb')") && main.includes('VANGUARD_BONE_MAP') && main.includes('supportsAnimationClips: true'), 'runtime must register Vanguard as an imported animated character');
 assert(main.includes('supportsAnimationClips: true') && main.includes('importedAnimationMixer') && main.includes('clipAction(clip)'), 'imported model lane must support embedded GLB animation clip playback');
 assert(main.includes('REQUESTED_IMPORTED_CLIP') && main.includes('data-cycle-animation') && main.includes('cycleImportedAnimation'), 'Vanguard clips must be selectable by URL and UI cycle control');
 assert(main.includes('importedRootMotionBone') && main.includes('function suppressImportedRootMotion') && main.includes('applyInPoseLab: false'), 'Vanguard browser playback must suppress saved root motion instead of applying it');
@@ -550,7 +552,7 @@ assert(main.includes('const firstPersonCameraConfig = {') && main.includes("came
 assert(main.includes('headForwardOffset: 0.15') && main.includes('headCameraYOffset: -0.07') && main.includes('lookForward: 1.35'), 'FPV camera must use the latest authored head-forward placement');
 assert(main.includes('fov: 112') && main.includes('near: 0.055'), 'FPV camera must keep the original wide arm-visible framing');
 assert(main.includes('FPV_VISIBLE_BONES') && main.includes('createFpvArmMask') && main.includes('updateFpvBodyMasks'), 'FPV mode must mask chest by replacing the full body with an arm-only skinned mesh');
-assert(main.includes("fistHands: './assets/meshy/meshy_fist_hands.glb'") && main.includes('FIST_VISUAL_REVIEW') && main.includes('attachFistHandsToMeshy'), 'fist routes must load the real Meshy-derived fist hands asset and attach it to hand bones');
+assert(main.includes("fistHands: assetUrl('meshy/meshy_fist_hands.glb')") && main.includes('FIST_VISUAL_REVIEW') && main.includes('attachFistHandsToMeshy'), 'fist routes must load the real Meshy-derived fist hands asset and attach it to hand bones');
 assert(main.includes('ensureFistControlBones') && main.includes('RightFistMitten01') && main.includes('RightFistThumb02') && main.includes('LeftFistMitten01') && main.includes('LeftFistThumb02'), 'fist review must expose selectable mitten and thumb control bones under the hand bones');
 assert(main.includes("['fist', 'fistready', 'fist-ready'].includes(pose)") && main.includes("return 'fistReady'") && main.includes("Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}") && main.includes('data-cycle-animation'), 'FPV review must expose pose and imported-animation selection while booting fist routes into FistReady');
 assert(main.includes('FPV_VISIBLE_BONES_FIST_REPLACEMENT') && main.includes('FIST_VISUAL_REVIEW ? FPV_VISIBLE_BONES_FIST_REPLACEMENT : FPV_VISIBLE_BONES'), 'fist review FPV mask must replace original hand vertices with the derived fist asset');
@@ -594,6 +596,7 @@ if (exists('dist')) {
   assert(exists('dist/src/review-candidates/attack1-tip-basis-2.js'), 'dist must include Attack1 tip-basis candidate preview module');
   assert(exists('dist/src/review-candidates/attack1-joint-pinned-3.js'), 'dist must include Attack1 joint-pinned candidate preview module');
   assert(exists('dist/src/review-candidates/crimson-light-attack1-vanguard-3.js'), 'dist must include Crimson light Attack1 Vanguard v3 candidate preview module');
+  assert(exists('dist/src/review-candidates/crimson-light-attack1-vanguard-4.js'), 'dist must include Crimson light Attack1 Vanguard v4 candidate preview module');
   assert(exists('dist/assets/crimson/crimson_light_attack1_weapon_baseline.json'), 'dist must expose Crimson light Attack1 saved weapon baseline');
   assert(exists('dist/assets/crimson/crimson_shared_rest_baseline.json'), 'dist must expose independent Crimson SharedRest baseline artifact');
   assert(exists('dist/src/review-candidates/fist-ready-candidate-1.js'), 'dist must include FistReady candidate preview module');
@@ -634,6 +637,7 @@ for (const file of [
   'src/review-candidates/attack1-tip-basis-2.js',
   'src/review-candidates/attack1-joint-pinned-3.js',
   'src/review-candidates/crimson-light-attack1-vanguard-3.js',
+  'src/review-candidates/crimson-light-attack1-vanguard-4.js',
   'vendor/three/examples/jsm/loaders/GLTFLoader.js',
   'vendor/three/examples/jsm/controls/OrbitControls.js',
   'vendor/three/examples/jsm/utils/BufferGeometryUtils.js',

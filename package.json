@@ -9,7 +9,7 @@
     "bake:attack1:tip-match": "node scripts/bake-attack1-tip-match-candidate.mjs",
     "bake:attack1:tip-basis": "node scripts/bake-attack1-tip-basis-candidate.mjs",
     "bake:attack1:joint-pinned": "node scripts/bake-attack1-joint-pinned-candidate.mjs",
-    "bake:crimson-light-attack1": "node scripts/bake-crimson-light-attack1-vanguard-3.mjs",
+    "bake:crimson-light-attack1": "node scripts/bake-crimson-light-attack1-vanguard-4.mjs",
     "bake:attack2:candidate": "node scripts/bake-attack2-candidate.mjs",
     "bake:fist-ready": "node scripts/bake-fist-ready-pose.mjs",
     "bake:fist-attack1:candidate": "node scripts/bake-fist-attack1-candidate.mjs",
@@ -69,8 +69,18 @@
     "review:crimson-attack1:cloud": "node tools/run_crimson_attack1_cloud_review.mjs",
     "review:crimson-attack1:blender-compare": "node scripts/render-crimson-vanguard-attack1-compare.mjs",
     "review:crimson-shared-rest:blender-compare": "node scripts/render-crimson-vanguard-shared-rest-compare.mjs",
-    "test": "npm run test:guardrails",
+    "author:crimson-frame-zero:runtime": "node tools/author_crimson_frame_zero_runtime.mjs --angle-deg 48 --write",
+    "test": "npm run test:repo-guardrails",
     "test:crimson-light-attack1:quarantine": "node tools/test_crimson_light_attack_quarantine.mjs",
-    "test:guardrails": "npm run smoke && npm run test:learning-packet && npm run test:cloud-worker-surface && npm run test:crimson-model-viewer-constraints && npm run test:crimson-review-surface && npm run test:crimson-review-assets && npm run test:crimson-cloud-visual-gate && npm run test:crimson-visual-evidence-promotion && npm run test:saber-transform-interaction && npm run test:crimson-light-attack1:quarantine"
+    "test:crimson-light-attack1:geometry": "node tools/test_crimson_light_attack_v4_geometry.mjs",
+    "test:guardrails": "npm run test:repo-guardrails",
+    "test:repo-guardrails": "npm run smoke && npm run test:crimson-model-viewer-constraints && npm run test:crimson-review-surface && npm run test:crimson-review-assets && npm run test:crimson-visual-evidence-promotion && npm run test:saber-transform-interaction && npm run test:crimson-light-attack1 && npm run test:crimson-light-attack1:quarantine && npm run test:crimson-light-attack1:geometry && npm run test:crimson-manual-keyframe && npm run test:crimson-frame-zero-pose-hashes && npm run test:crimson-frame-zero-runtime-authoring && npm run test:crimson-frame-zero-parity && npm run test:crimson-orientation-probe-contract && npm run test:crimson-orientation-space",
+    "test:external-integration": "npm run test:learning-packet && npm run test:cloud-worker-surface && npm run test:crimson-cloud-visual-gate",
+    "test:crimson-manual-keyframe": "node tools/test_crimson_manual_keyframe_authoring.mjs",
+    "test:crimson-frame-zero-runtime-authoring": "node tools/author_crimson_frame_zero_runtime.mjs --angle-deg 48 --check",
+    "test:crimson-frame-zero-parity": "node tools/test_crimson_frame_zero_parity.mjs",
+    "test:crimson-frame-zero-pose-hashes": "python3 tools/test_crimson_frame_zero_pose_hashes.py",
+    "test:crimson-orientation-probe-contract": "python3 tools/test_crimson_orientation_probe_contract.py",
+    "test:crimson-orientation-space": "python3 tools/validate_crimson_orientation_ledger.py public/assets/crimson/crimson-bone-orientation-ledger.json && python3 tools/test_crimson_orientation_space.py && python3 tools/test_crimson_orientation_ledger_comparison.py && python3 tools/compare_crimson_orientation_ledgers.py public/assets/crimson/crimson-bone-orientation-ledger.json public/assets/crimson/crimson-bone-orientation-ledger.json"
   }
 }

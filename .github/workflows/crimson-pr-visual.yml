@@ -1,0 +1,129 @@
+name: Crimson PR Visual Evidence
+
+on:
+  push:
+    branches: [agent/crimson-foot-red-gate, codex/pose-lab-sane]
+    paths-ignore:
+      - "docs/**"
+
+permissions:
+  contents: read
+
+jobs:
+  runtime_frame_zero:
+    name: Runtime frame-zero authority
+    runs-on: ubuntu-latest
+    outputs:
+      candidate_id: ${{ steps.runtime_parity.outputs.candidate_id }}
+      pose_sha: ${{ steps.runtime_parity.outputs.pose_sha }}
+      candidate_module_sha: ${{ steps.runtime_parity.outputs.candidate_module_sha }}
+      authored_glb_sha: ${{ steps.runtime_parity.outputs.authored_glb_sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Re-author frame zero in the exact Three.js runtime basis
+        run: |
+          node tools/author_crimson_frame_zero_runtime.mjs \
+            --angle-deg 48 \
+            --check \
+            --report "generated/crimson-frame-zero-runtime/${GITHUB_RUN_ID}/runtime_authoring_report.json"
+      - name: Bind the runtime report to the committed candidate
+        id: runtime_parity
+        env:
+          RUNTIME_REPORT: generated/crimson-frame-zero-runtime/${{ github.run_id }}/runtime_authoring_report.json
+        run: |
+          set -eu
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import { CRIMSON_COMBAT_READY_VANGUARD_FRAME0_4_SEQUENCE as candidate } from './src/review-candidates/crimson-combat-ready-vanguard-frame0-4.js';
+          import { assertRuntimeAuthoringReportContract } from './tools/github_crimson_visual_capture.mjs';
+          const report = JSON.parse(fs.readFileSync(process.env.RUNTIME_REPORT, 'utf8'));
+          const bound = assertRuntimeAuthoringReportContract(
+            report,
+            'crimson-combat-ready-vanguard-frame0-4',
+            candidate,
+          );
+          fs.appendFileSync(
+            process.env.GITHUB_OUTPUT,
+            `candidate_id=${bound.candidateId}\npose_sha=${bound.poseSha}\ncandidate_module_sha=${bound.candidateModuleSha}\nauthored_glb_sha=${bound.authoredGlbSha}\n`,
+          );
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crimson-frame-zero-runtime-${{ github.run_id }}
+          path: |
+            generated/crimson-frame-zero-runtime/${{ github.run_id }}
+            generated/pose-candidates/crimson-combat-ready-vanguard-frame0-4.authored.glb
+          if-no-files-found: error
+
+  capture-frame-zero:
+    needs: runtime_frame_zero
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright package without browser download
+        run: npm install --no-save playwright
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+      - name: Verify system Chrome
+        run: google-chrome --version
+      - name: Run repository guardrails
+        run: npm test
+      - name: Build the review application
+        run: npm run build
+      - name: Capture Crimson combat-ready frame zero
+        env:
+          PLAYWRIGHT_CHROME_CHANNEL: chrome
+          EXPECTED_CANDIDATE_ID: ${{ needs.runtime_frame_zero.outputs.candidate_id }}
+          EXPECTED_POSE_SHA: ${{ needs.runtime_frame_zero.outputs.pose_sha }}
+          EXPECTED_CANDIDATE_MODULE_SHA: ${{ needs.runtime_frame_zero.outputs.candidate_module_sha }}
+        run: |
+          set -eu
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist > /tmp/crimson-v4-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          URL_LIST="$(node --input-type=module - <<'NODE'
+          const base = 'http://127.0.0.1:4173/index.html';
+          const frames = [['start', 0]];
+          const capture = (primeKey, time, cameraView = null) => {
+            const params = new URLSearchParams({
+              model: 'crimson',
+              pose: 'attack1',
+              candidate: 'crimson-combat-ready-vanguard-frame0-4',
+              attackTime: String(time),
+              quality: 'source',
+              cacheBust: process.env.GITHUB_SHA,
+            });
+            const viewSuffix = cameraView ? ` ${cameraView}` : '';
+            return { label: `frame-zero ${primeKey}${viewSuffix}`, primeKey, time, cameraView, url: `${base}?${params}` };
+          };
+          const urls = frames.map(([primeKey, time]) => capture(primeKey, time));
+          for (const [primeKey, time] of frames) {
+            urls.push(capture(primeKey, time, 'left'), capture(primeKey, time, 'right'));
+          }
+          process.stdout.write(JSON.stringify(urls));
+          NODE
+          )"
+          node tools/github_crimson_visual_capture.mjs \
+            --url-list "$URL_LIST" \
+            --out-dir "generated/crimson-frame-zero-browser/${GITHUB_RUN_ID}" \
+            --target crimson-combat-ready-frame-zero \
+            --job-id "github_actions_${GITHUB_RUN_ID}" \
+            --session-id "browser_session_${GITHUB_RUN_ID}" \
+            --episode-id "browser_episode_${GITHUB_RUN_ID}" \
+            --expected-candidate-id "$EXPECTED_CANDIDATE_ID" \
+            --expected-pose-sha "$EXPECTED_POSE_SHA" \
+            --expected-candidate-module-sha "$EXPECTED_CANDIDATE_MODULE_SHA" \
+            --timeout-ms 45000 \
+            --settle-ms 1500
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crimson-frame-zero-browser-${{ github.run_id }}
+          path: generated/crimson-frame-zero-browser/${{ github.run_id }}
+          if-no-files-found: error

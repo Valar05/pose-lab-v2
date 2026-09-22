@@ -6,21 +6,23 @@ import { ATTACK1_REVIEW_CANDIDATES, CRIMSON_SABER_GRIP_LOCAL, CRIMSON_SWORD_LOCA
 
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const CRIMSON_ASSET_QUALITY = URL_PARAMS.get('quality') === 'source' ? 'source' : 'review';
+const ASSET_ROOT = URL_PARAMS.get('assetRoot') === 'public' ? './public/assets' : './assets';
+const assetUrl = (relativePath) => `${ASSET_ROOT}/${relativePath}`;
 
 const ASSETS = {
-  meshy: './assets/meshy/meshy_apose_walking_with_skin.glb',
-  sabre: './assets/meshy/meshy_real_sabre.glb',
-  crimsonSource: './assets/crimson/crimson_plume_knight_rigged_pbr.glb',
-  arborbladeSource: './assets/crimson/arborblade_sword.glb',
-  crimsonReview: './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb',
-  arborbladeReview: './assets/crimson/arborblade_sword_review.glb',
-  crimson: CRIMSON_ASSET_QUALITY === 'source' ? './assets/crimson/crimson_plume_knight_rigged_pbr.glb' : './assets/crimson/crimson_plume_knight_rigged_pbr_review.glb',
-  arborblade: CRIMSON_ASSET_QUALITY === 'source' ? './assets/crimson/arborblade_sword.glb' : './assets/crimson/arborblade_sword_review.glb',
-  fistHands: './assets/meshy/meshy_fist_hands.glb',
-  davin: './assets/davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb',
-  ares: './assets/ares/ares_rigged_diffuse.glb',
-  securityTitan: './assets/ares/security_titan_rigged_diffuse.glb',
-  vanguard: './assets/vanguard/vanguard_rigged_animations.glb',
+  meshy: assetUrl('meshy/meshy_apose_walking_with_skin.glb'),
+  sabre: assetUrl('meshy/meshy_real_sabre.glb'),
+  crimsonSource: assetUrl('crimson/crimson_plume_knight_rigged_pbr.glb'),
+  arborbladeSource: assetUrl('crimson/arborblade_sword.glb'),
+  crimsonReview: assetUrl('crimson/crimson_plume_knight_rigged_pbr_review.glb'),
+  arborbladeReview: assetUrl('crimson/arborblade_sword_review.glb'),
+  crimson: assetUrl(CRIMSON_ASSET_QUALITY === 'source' ? 'crimson/crimson_plume_knight_rigged_pbr.glb' : 'crimson/crimson_plume_knight_rigged_pbr_review.glb'),
+  arborblade: assetUrl(CRIMSON_ASSET_QUALITY === 'source' ? 'crimson/arborblade_sword.glb' : 'crimson/arborblade_sword_review.glb'),
+  fistHands: assetUrl('meshy/meshy_fist_hands.glb'),
+  davin: assetUrl('davin/davin_wingsworth_kestrel_man_rigged_pbr_tail3.glb'),
+  ares: assetUrl('ares/ares_rigged_diffuse.glb'),
+  securityTitan: assetUrl('ares/security_titan_rigged_diffuse.glb'),
+  vanguard: assetUrl('vanguard/vanguard_rigged_animations.glb'),
 };
 const MIXAMO_BONE_MAP = Object.freeze({
   Hips: 'mixamorig:Hips',
@@ -171,10 +173,10 @@ const CHARACTER_KEY_ALIASES = Object.freeze({
 });
 const CHARACTER_KEYS = Object.freeze(Object.keys(CHARACTER_ASSETS));
 const MESHY_PBR_TEXTURES = {
-  map: './assets/meshy/character_sheet_pbr/base_color.jpg',
-  emissiveMap: './assets/meshy/character_sheet_pbr/emissive.jpg',
-  metallicRoughnessMap: './assets/meshy/character_sheet_pbr/metallic_roughness.jpg',
-  normalMap: './assets/meshy/character_sheet_pbr/normal.png',
+  map: assetUrl('meshy/character_sheet_pbr/base_color.jpg'),
+  emissiveMap: assetUrl('meshy/character_sheet_pbr/emissive.jpg'),
+  metallicRoughnessMap: assetUrl('meshy/character_sheet_pbr/metallic_roughness.jpg'),
+  normalMap: assetUrl('meshy/character_sheet_pbr/normal.png'),
 };
 const REQUESTED_CHARACTER_KEY = CHARACTER_KEY_ALIASES[URL_PARAMS.get('model')]
   || CHARACTER_KEY_ALIASES[URL_PARAMS.get('character')]
@@ -199,7 +201,7 @@ const POSE_STATE_ORDER = ['rest', 'ready', 'fistReady', 'sharedRest', 'attack1']
 const IMPORTED_POSE_STATE_ORDER = ['rest'];
 function activePoseStateOrder() {
   if (ACTIVE_CHARACTER.supportsBakedPoseStates) return POSE_STATE_ORDER;
-  if (REQUESTED_ATTACK_QUARANTINED && REQUESTED_CANDIDATE && ACTIVE_CHARACTER.supportsAttackReview !== false) return ['rest', 'attack1'];
+  if (REQUESTED_ATTACK_QUARANTINED && (REQUESTED_MANUAL_ATTACK || REQUESTED_CANDIDATE) && ACTIVE_CHARACTER.supportsAttackReview !== false) return ['rest', 'attack1'];
   if (REQUESTED_IDLE_REVIEW) return ['rest', 'idle'];
   return REQUESTED_LOWBACKKICK_REVIEW ? ['rest', 'lowBackKick'] : IMPORTED_POSE_STATE_ORDER;
 }
@@ -223,7 +225,7 @@ const REQUESTED_IDLE_REVIEW = ACTIVE_CHARACTER.key === 'davin'
   && ['idle', 'screenshot-idle', 'idle-screenshot'].includes(String(REQUESTED_POSE || '').toLowerCase());
 const LOWBACKKICK_DEFAULT_CANDIDATE = 'davin-lowbackkick-ares-transfer-1';
 const IDLE_DEFAULT_CANDIDATE = 'davin-idle-screenshot-1';
-const SHARED_REST_BASELINE_URL = './assets/crimson/crimson_shared_rest_baseline.json';
+const SHARED_REST_BASELINE_URL = assetUrl('crimson/crimson_shared_rest_baseline.json');
 const REQUESTED_CANDIDATE = URL_PARAMS.get('candidate') || (REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_DEFAULT_CANDIDATE : REQUESTED_IDLE_REVIEW ? IDLE_DEFAULT_CANDIDATE : null);
 const REQUESTED_ATTACK_TIME = URL_PARAMS.get('attackTime');
 const REQUESTED_MANUAL_ATTACK = URL_PARAMS.get('manual') === '1' || URL_PARAMS.get('edit') === 'manual';
@@ -252,13 +254,15 @@ function poseIsAccepted(name) {
 }
 
 function useManualAttackAuthoring() {
-  return ACTIVE_CHARACTER.supportsBakedPoseStates && !REQUESTED_ATTACK2_QUARANTINED && (REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE);
+  return !REQUESTED_ATTACK2_QUARANTINED
+    && (ACTIVE_CHARACTER.supportsBakedPoseStates || (REQUESTED_MANUAL_ATTACK && ACTIVE_CHARACTER.supportsAttackReview !== false))
+    && (REQUESTED_MANUAL_ATTACK || !REQUESTED_CANDIDATE);
 }
 
 function canExposeAttackReview() {
   if (REQUESTED_SHARED_REST) return false;
   if (ACTIVE_CHARACTER.supportsAttackReview === false) return false;
-  return ACTIVE_CHARACTER.supportsBakedPoseStates || Boolean(REQUESTED_CANDIDATE);
+  return ACTIVE_CHARACTER.supportsBakedPoseStates || REQUESTED_MANUAL_ATTACK || Boolean(REQUESTED_CANDIDATE);
 }
 
 const app = document.querySelector('#app');
@@ -444,6 +448,7 @@ const tipMatchReadout = app.querySelector('[data-tip-match-readout]');
 
 let toolMode = 'saber';
 let viewMode = 'orbit';
+let reviewCameraView = 'center';
 let dockOpen = ACTIVE_CHARACTER.key === 'crimson';
 let activePanel = ACTIVE_CHARACTER.key === 'crimson' ? 'model' : null;
 let fpvSettingsOpen = false;
@@ -655,7 +660,10 @@ function markBootTiming(name) {
 function updateReviewReady() {
   if (document.body.dataset.reviewReady === '1' || document.body.dataset.bootFailed === '1') return;
   const saberOk = !ACTIVE_CHARACTER.supportsSaber || (saberAttachmentProof.status === 'attached' && saberAttachmentProof.visibleInViewport === true);
-  const candidateOk = !REQUESTED_CANDIDATE || Boolean(attackPoseSequence);
+  const candidateOk = !REQUESTED_CANDIDATE || Boolean(
+    attackPoseSequence
+    && (!attackPoseSequence.source?.exactAuthoredGlb || document.body.dataset.reviewApplied === '1')
+  );
   const poseOk = !REQUESTED_ATTACK_QUARANTINED || poseState === 'attack1';
   if (firstFrameRendered && document.body.dataset.bootReady === '1' && saberOk && candidateOk && poseOk) {
     markBootTiming('reviewReady');
@@ -799,6 +807,7 @@ const pointers = new Map();
 const poseBones = new Map();
 const poseHandles = new Map();
 const poseBoneRestQuaternions = new Map();
+const poseBoneRestPositions = new Map();
 const readyDeltaMarkers = {
   restHand: new THREE.Mesh(readyDeltaGeometry, readyRestMaterial),
   readyHand: new THREE.Mesh(readyDeltaGeometry, readyReadyMaterial),
@@ -1277,6 +1286,7 @@ function updateSaberAttachmentProof() {
     ? sabreRoot.localToWorld(new THREE.Vector3(...tipLocal))
     : orientationProbe(objectWorldPosition(sabreRoot), objectWorldQuaternion(sabreRoot), sabreBladeLocalAxis(), SABRE_AXIS_PROOF_LENGTH).end;
   const bladeVector = tip.clone().sub(hilt);
+  const bladeDirection = bladeVector.clone().normalize();
   const hiltScreen = worldToScreenPixels(hilt);
   const tipScreen = worldToScreenPixels(tip);
   const screenBounds = screenBoundsForWorldBox(worldBoundsForObject(sabreRoot));
@@ -1286,7 +1296,7 @@ function updateSaberAttachmentProof() {
   saberAttachmentProof.hiltToHandDistance = handPosition ? fixedNumber(hilt.distanceTo(handPosition), 5) : null;
   saberAttachmentProof.swordWorldScale = vectorToFixedArray(swordScale);
   saberAttachmentProof.bladeWorldLength = fixedNumber(bladeVector.length(), 5);
-  saberAttachmentProof.bladeWorldDirection = vectorToFixedArray(bladeVector.normalize());
+  saberAttachmentProof.bladeWorldDirection = vectorToFixedArray(bladeDirection);
   saberAttachmentProof.hiltScreen = [fixedNumber(hiltScreen.x, 1), fixedNumber(hiltScreen.y, 1)];
   saberAttachmentProof.tipScreen = [fixedNumber(tipScreen.x, 1), fixedNumber(tipScreen.y, 1)];
   saberAttachmentProof.screenLengthPx = fixedNumber(screenLengthPx, 1);
@@ -1300,6 +1310,108 @@ function updateSaberAttachmentProof() {
   document.body.dataset.saberScreenLengthPx = String(saberAttachmentProof.screenLengthPx ?? '');
   document.body.dataset.saberVisibleInViewport = String(saberAttachmentProof.visibleInViewport);
   document.body.dataset.crimsonSocketProof = JSON.stringify(saberAttachmentProof);
+
+  const runtimeAuthoring = attackPoseSequence?.source?.runtimeAuthoring;
+  if (!runtimeAuthoring) {
+    delete document.body.dataset.crimsonRuntimeAuthoringProof;
+    delete document.body.dataset.crimsonRuntimeAuthoringStatus;
+    return;
+  }
+  const viewGate = runtimeAuthoring.gates?.silhouette?.views?.[reviewCameraView];
+  const expectedBladeDirectionValues = runtimeAuthoring.gates?.blade?.actualWorldDirection
+    || runtimeAuthoring.bladeWorldDirection;
+  const expectedBladeDirection = Array.isArray(expectedBladeDirectionValues)
+    ? new THREE.Vector3(...expectedBladeDirectionValues).normalize()
+    : null;
+  const expectedHiltScreen = viewGate?.bladeScreen?.hilt;
+  const expectedTipScreen = viewGate?.bladeScreen?.tip;
+  const expectedViewport = runtimeAuthoring.viewport || [986, 900];
+  const rect = canvas.getBoundingClientRect();
+  const bladeAngleDeg = expectedBladeDirection
+    ? THREE.MathUtils.radToDeg(bladeDirection.angleTo(expectedBladeDirection))
+    : Infinity;
+  const hiltScreenError = Array.isArray(expectedHiltScreen)
+    ? hiltScreen.distanceTo(new THREE.Vector2(...expectedHiltScreen))
+    : Infinity;
+  const tipScreenError = Array.isArray(expectedTipScreen)
+    ? tipScreen.distanceTo(new THREE.Vector2(...expectedTipScreen))
+    : Infinity;
+  const thresholds = {
+    bladeAngleDeg: 0.05,
+    screenPointPixels: 2,
+    viewportPixels: 0.5,
+  };
+  const checks = {
+    candidate: (attackPoseSequence.id || REQUESTED_CANDIDATE) === REQUESTED_CANDIDATE,
+    authoringGate: runtimeAuthoring.gates?.status === 'PASS'
+      && runtimeAuthoring.gates?.silhouette?.status === 'PASS',
+    viewGate: viewGate?.status === 'PASS',
+    viewport: Array.isArray(expectedViewport)
+      && Math.abs(rect.width - expectedViewport[0]) <= thresholds.viewportPixels
+      && Math.abs(rect.height - expectedViewport[1]) <= thresholds.viewportPixels,
+    bladeDirection: bladeAngleDeg <= thresholds.bladeAngleDeg,
+    hiltScreen: hiltScreenError <= thresholds.screenPointPixels,
+    tipScreen: tipScreenError <= thresholds.screenPointPixels,
+  };
+  const proof = {
+    schema: 'pose-lab-v2-crimson-runtime-authoring-proof-v1',
+    status: Object.values(checks).every(Boolean) ? 'PASS' : 'FAIL',
+    candidateId: attackPoseSequence.id || REQUESTED_CANDIDATE,
+    view: reviewCameraView,
+    expected: {
+      viewport: expectedViewport,
+      bladeWorldDirection: expectedBladeDirectionValues || null,
+      hiltScreen: expectedHiltScreen || null,
+      tipScreen: expectedTipScreen || null,
+    },
+    actual: {
+      viewport: [fixedNumber(rect.width, 2), fixedNumber(rect.height, 2)],
+      bladeWorldDirection: vectorToFixedArray(bladeDirection),
+      hiltScreen: [fixedNumber(hiltScreen.x, 2), fixedNumber(hiltScreen.y, 2)],
+      tipScreen: [fixedNumber(tipScreen.x, 2), fixedNumber(tipScreen.y, 2)],
+    },
+    errors: {
+      bladeAngleDeg: fixedNumber(bladeAngleDeg, 6),
+      hiltScreenPixels: fixedNumber(hiltScreenError, 3),
+      tipScreenPixels: fixedNumber(tipScreenError, 3),
+    },
+    thresholds,
+    checks,
+  };
+  document.body.dataset.crimsonRuntimeAuthoringStatus = proof.status;
+  document.body.dataset.crimsonRuntimeAuthoringProof = JSON.stringify(proof);
+}
+
+function alignSaberGripToWorldDirection(values) {
+  if (!saberGrip?.parent || !sabreRoot || !Array.isArray(values) || values.length !== 3) return;
+  root.updateMatrixWorld(true);
+  const hilt = sabreRoot.localToWorld(new THREE.Vector3(...activeSaberHiltLocalPoint()));
+  const tip = sabreRoot.localToWorld(new THREE.Vector3(...activeSaberTipLocalPoint()));
+  const current = tip.sub(hilt).normalize();
+  const desired = new THREE.Vector3(...values).normalize();
+  if (!Number.isFinite(desired.lengthSq()) || desired.lengthSq() < 0.99) return;
+  const delta = new THREE.Quaternion().setFromUnitVectors(current, desired);
+  const gripWorld = objectWorldQuaternion(saberGrip);
+  const desiredWorld = delta.multiply(gripWorld).normalize();
+  const parentWorld = objectWorldQuaternion(saberGrip.parent);
+  saberGrip.quaternion.copy(parentWorld.invert().multiply(desiredWorld).normalize());
+  root.updateMatrixWorld(true);
+  updateSaberAttachmentProof();
+}
+
+function seatSaberHiltTowardHand(blendValue) {
+  if (!saberGrip?.parent || !sabreRoot) return;
+  const blend = THREE.MathUtils.clamp(Number(blendValue) || 0, 0, 1);
+  if (blend <= 0) return;
+  root.updateMatrixWorld(true);
+  const hand = findPoseBone('RightHand');
+  if (!hand) return;
+  const hilt = sabreRoot.localToWorld(new THREE.Vector3(...activeSaberHiltLocalPoint()));
+  const handWorld = objectWorldPosition(hand);
+  const gripWorld = objectWorldPosition(saberGrip).add(handWorld.clone().sub(hilt).multiplyScalar(blend));
+  saberGrip.position.copy(saberGrip.parent.worldToLocal(gripWorld));
+  root.updateMatrixWorld(true);
+  updateSaberAttachmentProof();
 }
 
 function readySnapshot() {
@@ -1483,12 +1595,14 @@ function setupPoseHandles() {
   poseBones.clear();
   poseHandles.clear();
   poseBoneRestQuaternions.clear();
+  poseBoneRestPositions.clear();
   for (const name of activePoseHandleNames()) {
     const bone = findPoseBone(name);
     if (!bone) continue;
     poseBones.set(name, bone);
     bone.userData.poseLabV2LogicalName = name;
     poseBoneRestQuaternions.set(name, bone.quaternion.clone());
+    poseBoneRestPositions.set(name, bone.position.clone());
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(POSE_HANDLE_POSITION_FLOATS), 3));
     const handle = new THREE.Mesh(geometry, poseHandleMaterial.clone());
@@ -1586,15 +1700,49 @@ function stopPoseAnimation() {
 }
 
 function applyPoseBones(bones = {}) {
+  const report = { requestedCount: 0, appliedCount: 0, appliedBones: [], missingBones: [], invalidBones: [] };
   for (const [name, values] of Object.entries(bones)) {
+    report.requestedCount += 1;
     const bone = poseBones.get(name);
-    if (!bone) continue;
+    if (!bone) {
+      report.missingBones.push(name);
+      continue;
+    }
     if (Array.isArray(values)) bone.quaternion.copy(quaternionFromArray(values));
     else if (Array.isArray(values?.quaternion)) bone.quaternion.copy(quaternionFromArray(values.quaternion));
     else if (Array.isArray(values?.rotationDeg)) bone.quaternion.copy(quaternionFromRotationDeg(values.rotationDeg));
+    else {
+      report.invalidBones.push(name);
+      continue;
+    }
+    report.appliedCount += 1;
+    report.appliedBones.push(name);
   }
   root.updateMatrixWorld(true);
   updatePoseHandles();
+  return report;
+}
+
+function applyPosePositions(positions = {}) {
+  const report = { requestedCount: 0, appliedCount: 0, appliedBones: [], missingBones: [], invalidBones: [] };
+  for (const [name, values] of Object.entries(positions)) {
+    report.requestedCount += 1;
+    const bone = poseBones.get(name);
+    if (!bone) {
+      report.missingBones.push(name);
+      continue;
+    }
+    if (!Array.isArray(values)) {
+      report.invalidBones.push(name);
+      continue;
+    }
+    bone.position.fromArray(values);
+    report.appliedCount += 1;
+    report.appliedBones.push(name);
+  }
+  root.updateMatrixWorld(true);
+  updatePoseHandles();
+  return report;
 }
 
 function snapshotPoseBones() {
@@ -1624,17 +1772,37 @@ function snapshotSaberFk() {
 }
 
 function applySaberFkSnapshot(snapshot = {}) {
+  const report = { requestedCount: 0, appliedCount: 0, appliedObjects: [], missingObjects: [], invalidObjects: [] };
+  if (snapshot.saberGrip) report.requestedCount += 1;
   if (saberGrip && snapshot.saberGrip) {
-    saberGrip.position.fromArray(snapshot.saberGrip.position || [0, 0, 0]);
-    saberGrip.quaternion.copy(quaternionFromArray(snapshot.saberGrip.quaternion));
-    saberGrip.scale.fromArray(snapshot.saberGrip.scale || [1, 1, 1]);
+    if (Array.isArray(snapshot.saberGrip.position) && Array.isArray(snapshot.saberGrip.quaternion) && Array.isArray(snapshot.saberGrip.scale)) {
+      saberGrip.position.fromArray(snapshot.saberGrip.position);
+      saberGrip.quaternion.copy(quaternionFromArray(snapshot.saberGrip.quaternion));
+      saberGrip.scale.fromArray(snapshot.saberGrip.scale);
+      report.appliedCount += 1;
+      report.appliedObjects.push('saberGrip');
+    } else {
+      report.invalidObjects.push('saberGrip');
+    }
+  } else if (snapshot.saberGrip) {
+    report.missingObjects.push('saberGrip');
   }
+  if (snapshot.sabreLocal) report.requestedCount += 1;
   if (sabreRoot && snapshot.sabreLocal) {
-    sabreRoot.position.fromArray(snapshot.sabreLocal.position || [0, 0, 0]);
-    sabreRoot.quaternion.copy(quaternionFromArray(snapshot.sabreLocal.quaternion));
-    sabreRoot.scale.fromArray(snapshot.sabreLocal.scale || [1, 1, 1]);
+    if (Array.isArray(snapshot.sabreLocal.position) && Array.isArray(snapshot.sabreLocal.quaternion) && Array.isArray(snapshot.sabreLocal.scale)) {
+      sabreRoot.position.fromArray(snapshot.sabreLocal.position);
+      sabreRoot.quaternion.copy(quaternionFromArray(snapshot.sabreLocal.quaternion));
+      sabreRoot.scale.fromArray(snapshot.sabreLocal.scale);
+      report.appliedCount += 1;
+      report.appliedObjects.push('sabreLocal');
+    } else {
+      report.invalidObjects.push('sabreLocal');
+    }
+  } else if (snapshot.sabreLocal) {
+    report.missingObjects.push('sabreLocal');
   }
   root.updateMatrixWorld(true);
+  return report;
 }
 
 function markCustomPose() {
@@ -1652,7 +1820,9 @@ function resetPose() {
   setSabreReviewVisible(true);
   for (const [name, bone] of poseBones) {
     const rest = poseBoneRestQuaternions.get(name);
+    const restPosition = poseBoneRestPositions.get(name);
     if (rest) bone.quaternion.copy(rest);
+    if (restPosition) bone.position.copy(restPosition);
   }
   poseState = 'rest';
   selectedPoseBone = null;
@@ -1759,7 +1929,7 @@ function applySharedRestPose() {
 function applyAttackPose() {
   const candidateId = REQUESTED_CANDIDATE;
   const explicitCandidateReview = Boolean(attackPoseSequence && candidateId && ACTIVE_CHARACTER.supportsAttackReview !== false);
-  if (!ACTIVE_CHARACTER.supportsBakedPoseStates && !explicitCandidateReview) {
+  if (!ACTIVE_CHARACTER.supportsBakedPoseStates && !explicitCandidateReview && !useManualAttackAuthoring()) {
     resetPose();
     setToolMode('pose');
     setMode('rotate');
@@ -1781,7 +1951,7 @@ function applyAttackPose() {
     setMode('rotate');
     setupAttackReviewControls();
     setAttackReviewOpen(true);
-    statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
+    statusEl.textContent = `Attack1 manual: compose ${ACTIVE_CHARACTER.label} directly; Save Key stores frame zero`;
     return;
   }
   if (attackPoseSequence && candidateId) {
@@ -1823,10 +1993,10 @@ function createManualAttackDraft() {
   }
   manualAttackDraft = {
     schema: 'pose-lab-v2-manual-animation-v1',
-    label: 'Attack1 manual blank-Ready draft',
+    label: `${ACTIVE_CHARACTER.label} Attack1 manual keyframe draft`,
     source: {
       readyPreset: readyPosePreset?.label || null,
-      seed: 'blank-ready-per-key',
+      seed: ACTIVE_CHARACTER.supportsBakedPoseStates ? 'blank-ready-per-key' : 'character-rest-per-key',
       candidateFramesUsed: false,
     },
     duration: MANUAL_ATTACK_DURATION,
@@ -1953,7 +2123,13 @@ function sequenceFrameAt(sequence, time, { loop = false } = {}) {
     if (normalizedTime <= next.time) {
       const span = Math.max(0.000001, next.time - previous.time);
       const alpha = THREE.MathUtils.clamp((normalizedTime - previous.time) / span, 0, 1);
-      return { time: normalizedTime, bones: interpolatePoseBones(previous.bones, next.bones, alpha) };
+      return {
+        time: normalizedTime,
+        bones: interpolatePoseBones(previous.bones, next.bones, alpha),
+        positions: interpolatePosePositions(previous.positions, next.positions, alpha),
+        saberGrip: alpha < 0.5 ? previous.saberGrip : next.saberGrip,
+        sabreLocal: alpha < 0.5 ? previous.sabreLocal : next.sabreLocal,
+      };
     }
   }
   return last;
@@ -1971,12 +2147,72 @@ function interpolatePoseBones(a = {}, b = {}, alpha = 0) {
   return bones;
 }
 
+function interpolatePosePositions(a = {}, b = {}, alpha = 0) {
+  const positions = {};
+  const names = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
+  for (const name of names) {
+    const left = a?.[name] || b?.[name];
+    const right = b?.[name] || left;
+    if (!left || !right) continue;
+    positions[name] = vectorToFixedArray(
+      new THREE.Vector3().fromArray(left).lerp(new THREE.Vector3().fromArray(right), alpha),
+    );
+  }
+  return positions;
+}
+
+function publishReviewAppliedProof(frame, bones, positions, saber) {
+  if (!REQUESTED_CANDIDATE || !attackPoseSequence) return;
+  const missingRequestedBones = [...new Set([
+    ...(bones.missingBones || []),
+    ...(positions.missingBones || []),
+  ])].sort();
+  const invalidRequestedBones = [...new Set([
+    ...(bones.invalidBones || []),
+    ...(positions.invalidBones || []),
+  ])].sort();
+  const allRequestedChannelsApplied = bones.requestedCount > 0
+    && bones.appliedCount === bones.requestedCount
+    && positions.appliedCount === positions.requestedCount
+    && saber.appliedCount === saber.requestedCount
+    && missingRequestedBones.length === 0
+    && invalidRequestedBones.length === 0
+    && saber.missingObjects.length === 0
+    && saber.invalidObjects.length === 0;
+  const proof = {
+    schema: 'pose-lab-v2-browser-candidate-apply-proof-v1',
+    status: allRequestedChannelsApplied ? 'PASS' : 'FAIL',
+    candidateId: attackPoseSequence.id || REQUESTED_CANDIDATE,
+    poseSha: attackPoseSequence.source?.poseSha256 || attackPoseSequence.source?.poseSha || '',
+    candidateModuleSha: document.body.dataset.reviewCandidateModuleSha || '',
+    exactAuthoredGlb: attackPoseSequence.source?.exactAuthoredGlb === true,
+    frame: { label: frame.label || null, time: frame.time },
+    zeroMissingRequestedBones: missingRequestedBones.length === 0,
+    allRequestedChannelsApplied,
+    missingRequestedBones,
+    invalidRequestedBones,
+    bones,
+    positions,
+    saber,
+  };
+  document.body.dataset.reviewApplied = proof.status === 'PASS' ? '1' : '0';
+  document.body.dataset.reviewMissingRequestedBones = JSON.stringify(missingRequestedBones);
+  document.body.dataset.reviewAppliedProof = JSON.stringify(proof);
+}
+
 function applyAttackSequenceAt(time, options = {}) {
   const frame = sequenceFrameAt(attackPoseSequence, time, options);
   if (!frame) return;
   setSabreReviewVisible(!attackPoseSequence?.source?.weaponless);
   attackPoseCurrentTime = frame.time;
-  applyPoseBones(frame.bones || {});
+  const boneApplyReport = applyPoseBones(frame.bones || {});
+  const positionApplyReport = applyPosePositions(frame.positions || {});
+  const saberApplyReport = applySaberFkSnapshot(frame);
+  if (!attackPoseSequence?.source?.exactAuthoredGlb) {
+    alignSaberGripToWorldDirection(attackPoseSequence?.source?.runtimeBladeWorldDirection);
+    seatSaberHiltTowardHand(attackPoseSequence?.source?.runtimeHiltSeatBlend);
+  }
+  publishReviewAppliedProof(frame, boneApplyReport, positionApplyReport, saberApplyReport);
   updateAttackReviewControls();
 }
 
@@ -2306,7 +2542,7 @@ function initialPoseStateFromUrl() {
   if (REQUESTED_SHARED_REST) return 'sharedRest';
   if (REQUESTED_IDLE_REVIEW) return 'idle';
   if (REQUESTED_LOWBACKKICK_REVIEW) return 'lowBackKick';
-  if ((ACTIVE_CHARACTER.supportsBakedPoseStates || (REQUESTED_CANDIDATE && ACTIVE_CHARACTER.supportsAttackReview !== false)) && (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED)) return 'attack1';
+  if ((ACTIVE_CHARACTER.supportsBakedPoseStates || ((REQUESTED_MANUAL_ATTACK || REQUESTED_CANDIDATE) && ACTIVE_CHARACTER.supportsAttackReview !== false)) && (REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED)) return 'attack1';
   return 'rest';
 }
 
@@ -2393,21 +2629,44 @@ async function loadSharedRestBaseline() {
   const response = await fetch(`${SHARED_REST_BASELINE_URL}${suffix}`, { cache: 'no-store' });
   if (!response.ok) throw new Error(`failed SharedRest baseline ${response.status}`);
   sharedRestBaseline = await response.json();
-  if (sharedRestBaseline?.schema !== 'pose-lab-v2-crimson-shared-rest-baseline-v1') throw new Error('SharedRest baseline schema mismatch');
+  if (sharedRestBaseline?.schema !== 'pose-lab-v2-crimson-shared-rest-baseline-v2') throw new Error('SharedRest baseline schema mismatch');
   markBootTiming('sharedRestBaselineLoaded');
+}
+
+async function sha256Hex(bytes) {
+  if (!globalThis.crypto?.subtle) throw new Error('Web Crypto SHA-256 is unavailable');
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, '0')).join('');
 }
 
 async function loadReviewCandidate() {
   const cacheBust = URL_PARAMS.get('cacheBust');
-  const suffix = cacheBust ? `?cacheBust=${encodeURIComponent(cacheBust)}` : '';
   const candidates = REQUESTED_IDLE_REVIEW ? DAVIN_IDLE_REVIEW_CANDIDATES : REQUESTED_LOWBACKKICK_REVIEW ? LOWBACKKICK_REVIEW_CANDIDATES : ATTACK1_REVIEW_CANDIDATES;
   const candidate = candidates[REQUESTED_CANDIDATE];
   if (!candidate) return;
   const shouldLoad = REQUESTED_IDLE_REVIEW || REQUESTED_LOWBACKKICK_REVIEW || REQUESTED_ATTACK_QUARANTINED || REQUESTED_ATTACK2_QUARANTINED;
   if (!shouldLoad) return;
-  const candidateModule = await import(`${candidate.module}${suffix}`);
+  const candidateUrl = new URL(candidate.module, import.meta.url);
+  if (cacheBust) candidateUrl.searchParams.set('cacheBust', cacheBust);
+  const response = await fetch(candidateUrl, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`failed review candidate module ${response.status}`);
+  const moduleBytes = await response.arrayBuffer();
+  const candidateModuleSha = await sha256Hex(moduleBytes);
+  const blobUrl = URL.createObjectURL(new Blob([moduleBytes], { type: 'text/javascript' }));
+  let candidateModule;
+  try {
+    candidateModule = await import(blobUrl);
+  } finally {
+    URL.revokeObjectURL(blobUrl);
+  }
   attackPoseSequence = candidateModule[candidate.exportName];
   if (!attackPoseSequence?.frames?.length) throw new Error(`${REQUESTED_ATTACK_LABEL} review candidate ${REQUESTED_CANDIDATE} has no frames`);
+  if (attackPoseSequence.id && attackPoseSequence.id !== REQUESTED_CANDIDATE) {
+    throw new Error(`${REQUESTED_ATTACK_LABEL} review candidate identity mismatch: requested ${REQUESTED_CANDIDATE}, loaded ${attackPoseSequence.id || 'missing id'}`);
+  }
+  document.body.dataset.reviewCandidateId = attackPoseSequence.id || REQUESTED_CANDIDATE;
+  document.body.dataset.reviewPoseSha = attackPoseSequence.source?.poseSha256 || attackPoseSequence.source?.poseSha || '';
+  document.body.dataset.reviewCandidateModuleSha = candidateModuleSha;
   markBootTiming('candidateLoaded');
 }
 
@@ -2848,7 +3107,7 @@ function exportTransform() {
       animations: importedClipNames(),
       activeAnimation: activeImportedAnimationClip?.name || null,
       rootMotion: ACTIVE_CHARACTER.key === 'vanguard' ? {
-        sidecar: './assets/vanguard/vanguard_root_motion.json',
+        sidecar: assetUrl('vanguard/vanguard_root_motion.json'),
         applyInPoseLab: false,
         suppressedBone: importedRootMotionBone?.name || null,
       } : null,
@@ -2888,7 +3147,7 @@ function exportManualAttackDraft() {
     schema: 'pose-lab-v2-manual-animation-v1',
     toolMode,
     status: 'manual-review',
-    label: 'Attack1 manual blank-Ready draft',
+    label: `${ACTIVE_CHARACTER.label} Attack1 manual keyframe draft`,
     assets: {
       character: ACTIVE_CHARACTER.asset,
       characterKey: ACTIVE_CHARACTER.key,
@@ -2899,7 +3158,7 @@ function exportManualAttackDraft() {
     },
     source: {
       readyPreset: readyPosePreset?.label || null,
-      seed: 'blank-ready-per-key',
+      seed: ACTIVE_CHARACTER.supportsBakedPoseStates ? 'blank-ready-per-key' : 'character-rest-per-key',
       candidateFramesUsed: false,
     },
     duration: manualAttackDraft.duration,
@@ -3717,6 +3976,7 @@ function handleTwoFingerTouch(points) {
 }
 
 function snapCamera(view) {
+  reviewCameraView = view;
   if (viewMode !== 'orbit') setViewMode('orbit');
   const focus = sabreRoot ? objectWorldPosition(sabreRoot) : new THREE.Vector3(0, 0.95, 0);
   const distance = Math.max(2.2, camera.position.distanceTo(controls.target));
@@ -3795,7 +4055,7 @@ async function boot() {
       setPoseState(requestedPoseState);
       updateReviewReady();
       if (useManualAttackAuthoring() && poseState === 'attack1') {
-        statusEl.textContent = 'Attack1 manual draft: blank Ready keys';
+        statusEl.textContent = `Attack1 manual: compose ${ACTIVE_CHARACTER.label} directly; Save Key stores frame zero`;
       } else if (attackPoseSequence && REQUESTED_CANDIDATE && isSequenceReviewState()) {
         statusEl.textContent = `${REQUESTED_ATTACK_LABEL} candidate preview: ${REQUESTED_CANDIDATE}; ${attackPoseFixedTime === null ? 'playing' : `${attackPoseCurrentTime.toFixed(3)}s`}`;
       } else if (REQUESTED_LOWBACKKICK_REVIEW) {
