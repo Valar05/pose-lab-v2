@@ -1,0 +1,98 @@
+{
+  "schema": "sparse-sprite-motion-library-v1",
+  "character": "april",
+  "animations": {
+    "combat-idle": {
+      "kind": "anchored-loop",
+      "poses": ["combat-idle"],
+      "durationMs": 1900,
+      "rootMotion": false,
+      "parameters": { "lateralSkewX": 11, "breathY": 4, "chestExpand": 0.018, "skewStartV": 0.18, "skewLockV": 0.9 }
+    },
+    "idle": {
+      "kind": "anchored-loop",
+      "poses": ["general-idle"],
+      "durationMs": 1900,
+      "rootMotion": false,
+      "parameters": { "lateralSkewX": 11, "breathY": 4, "chestExpand": 0.018, "skewStartV": 0.18, "skewLockV": 0.9 }
+    },
+    "run": {
+      "kind": "stepped-bridge-cycle",
+      "poses": ["run-01", "run-02", "run-03", "run-04", "run-05", "run-06"],
+      "durationMs": 1578.947368421053,
+      "fps": 3.8,
+      "rootMotion": false,
+      "groundPivot": [256, 451],
+      "parameters": { "stretch": 0.1, "squash": 0.055, "shear": 0.075, "continuity": "sinusoidal-no-hold" }
+    },
+    "jab": {
+      "kind": "phased-strike",
+      "poses": ["combat-idle", "jab-contact"],
+      "durationMs": 250,
+      "rootMotion": false,
+      "groundPivotY": 451,
+      "parameters": { "preloadPx": -12, "snapPx": 24, "anticipationDrivePx": 14, "contactDrivePx": 18, "contactMs": 167 }
+    },
+    "cross": {
+      "kind": "phased-strike",
+      "poses": ["combat-idle", "cross-contact"],
+      "durationMs": 550,
+      "rootMotion": false,
+      "groundPivotY": 451,
+      "parameters": { "preloadPx": -28, "snapPx": 56, "contactMs": 267 }
+    },
+    "front-kick": {
+      "kind": "phased-strike",
+      "poses": ["combat-idle", "front-kick-chamber", "front-kick-contact"],
+      "durationMs": 820,
+      "rootMotion": false,
+      "groundPivotY": 451,
+      "parameters": { "preloadPx": -18, "snapPx": 36, "legStretchPx": 20, "contactMs": 367, "contactExposureMs": 200 }
+    },
+    "dash": {
+      "kind": "grounded-propel",
+      "poses": ["dash"],
+      "durationMs": 480,
+      "rootMotion": false,
+      "travelOwner": "game-controller",
+      "phases": [
+        { "name": "coil", "durationMs": 90, "channels": { "stretch": [1, 0.93], "squash": [1, 1.04], "shear": [0, -0.03], "blur": [0, 0] } },
+        { "name": "launch", "durationMs": 140, "channels": { "stretch": [0.93, 1.16], "squash": [1.04, 0.92], "shear": [-0.03, 0.08], "blur": [0, 1] } },
+        { "name": "residue", "durationMs": 120, "channels": { "stretch": [1.16, 1.06], "squash": [0.92, 0.97], "shear": [0.08, 0.04], "blur": [1, 0.7] } },
+        { "name": "recovery", "durationMs": 130, "channels": { "stretch": [1.06, 1], "squash": [0.97, 1], "shear": [0.04, 0], "blur": [0.7, 0] } }
+      ],
+      "motionBlur": { "required": true, "samples": 7, "spanPx": 28, "filterPx": 2 }
+    },
+    "dodge-slide": {
+      "kind": "grounded-propel",
+      "poses": ["dodge-slide"],
+      "durationMs": 560,
+      "rootMotion": false,
+      "travelOwner": "game-controller",
+      "groundPivotY": 451,
+      "phases": [
+        { "name": "tuck", "durationMs": 90, "channels": { "stretch": [1, 0.96], "squash": [1, 0.94], "shear": [0, -0.03], "blur": [0, 0] } },
+        { "name": "launch", "durationMs": 140, "channels": { "stretch": [0.96, 1.12], "squash": [0.94, 0.94], "shear": [-0.03, 0.06], "blur": [0, 1] } },
+        { "name": "glide", "durationMs": 210, "channels": { "stretch": [1.12, 1.06], "squash": [0.94, 0.97], "shear": [0.06, 0.04], "blur": [1, 0.65] } },
+        { "name": "skid-recovery", "durationMs": 120, "channels": { "stretch": [1.06, 1], "squash": [0.97, 1], "shear": [0.04, 0], "blur": [0.65, 0] } }
+      ],
+      "motionBlur": { "required": true, "samples": 9, "spanPx": 36, "filterPx": 2 }
+    },
+    "flip-jump": {
+      "kind": "center-axis-rotation",
+      "poses": ["flip-jump"],
+      "durationMs": 760,
+      "rootMotion": false,
+      "travelOwner": "game-controller",
+      "pivot": [270, 200],
+      "rotationDeg": 360,
+      "phases": [
+        { "name": "takeoff", "durationMs": 100 },
+        { "name": "rotation", "durationMs": 460 },
+        { "name": "descent", "durationMs": 100 },
+        { "name": "recovery", "durationMs": 100 }
+      ],
+      "motionBlur": { "required": true, "samples": 6, "spanDeg": 28, "filterPx": 2 }
+    }
+  }
+}
