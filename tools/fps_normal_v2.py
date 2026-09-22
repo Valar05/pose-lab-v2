@@ -176,7 +176,7 @@ def rasterize_uv_mask(mesh, uv_layer):
     return mask
 
 
-def erode_mask(mask, passes=14):
+def erode_mask(mask, passes=3):
     current = mask
     for _ in range(passes):
         source = current
@@ -196,6 +196,40 @@ def erode_mask(mask, passes=14):
     return current
 
 
+def extend_height_gutter(values, coverage, passes=12):
+    """Pad each UV island with its edge height before filtering.
+
+    This removes the artificial drop to the black atlas background without
+    sacrificing the real color/height boundaries inside the island.
+    """
+    current_values = values
+    current_coverage = coverage
+    for _ in range(passes):
+        source_values = current_values
+        source_coverage = current_coverage
+        expanded_values = array("f", source_values)
+        expanded_coverage = source_coverage[:]
+        for y in range(1, SIZE - 1):
+            row = y * SIZE
+            for x in range(1, SIZE - 1):
+                index = row + x
+                if source_coverage[index]:
+                    continue
+                neighbours = (
+                    index - 1,
+                    index + 1,
+                    index - SIZE,
+                    index + SIZE,
+                )
+                samples = [source_values[n] for n in neighbours if source_coverage[n]]
+                if samples:
+                    expanded_values[index] = sum(samples) / len(samples)
+                    expanded_coverage[index] = 1
+        current_values = expanded_values
+        current_coverage = expanded_coverage
+    return current_values
+
+
 albedo = decode_authored_png(SOURCE_ALBEDO)
 height = array("f", [0.0]) * (SIZE * SIZE)
 for index in range(SIZE * SIZE):
@@ -210,11 +244,13 @@ mesh = arm.data
 uv_layer = mesh.uv_layers.get("AlbedoUV_v1") or mesh.uv_layers.active
 if uv_layer is None:
     raise RuntimeError("AlbedoUV_v1/active UV layer not found")
-safe_uv = erode_mask(rasterize_uv_mask(mesh, uv_layer))
+uv_coverage = rasterize_uv_mask(mesh, uv_layer)
+safe_uv = erode_mask(uv_coverage)
 safe_uv_pixels = sum(safe_uv)
-if safe_uv_pixels < 50000:
+if safe_uv_pixels < 100000:
     raise RuntimeError("UV edge suppression removed too much usable surface")
 
+height = extend_height_gutter(height, uv_coverage)
 height = box_blur(height)
 normal = bytearray(SIZE * SIZE * 4)
 relief_pixels = 0
