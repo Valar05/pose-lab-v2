@@ -148,21 +148,19 @@ changed_pixels = sum(
 if changed_pixels < 1000:
     raise RuntimeError("V5 detail pass changed too few pixels")
 
-# A fresh datablock avoids Blender treating a mutated packed v4 image as clean
-# and writing its old encoded bytes back to disk.
 floats = array("f", [0.0]) * len(pixels)
 for i, channel in enumerate(pixels):
     floats[i] = channel / 255.0
-output_image = bpy.data.images.new(
-    "FPSPlayer_ARIES_Albedo_v5", width=SIZE, height=SIZE, alpha=True
-)
-output_image.pixels.foreach_set(floats)
-output_image.update()
-output_image.filepath_raw = OUT_PNG
-output_image.file_format = "PNG"
-output_image.colorspace_settings.name = "sRGB"
-output_image.save()
-output_image.pack()
+image.pixels.foreach_set(floats)
+# foreach_set does not mark a packed image dirty in this Blender build. The
+# explicit update is what makes save encode the changed pixel buffer.
+image.update()
+image.name = "FPSPlayer_ARIES_Albedo_v5"
+image.filepath_raw = OUT_PNG
+image.file_format = "PNG"
+image.colorspace_settings.name = "sRGB"
+image.save()
+image.pack()
 
 for material in bpy.data.materials:
     if not material.use_nodes or not material.node_tree:
@@ -174,7 +172,7 @@ for material in bpy.data.materials:
         bsdf.inputs["Metallic"].default_value = 0.0
     for node in material.node_tree.nodes:
         if node.type == "TEX_IMAGE":
-            node.image = output_image
+            node.image = image
 
 # Save the master before any runtime packaging. GLB export is deliberately not
 # attempted here because Blender 4.3's exporter crashes in this phone proot.
