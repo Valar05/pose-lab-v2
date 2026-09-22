@@ -1,6 +1,9 @@
 import bpy
+import binascii
 import math
 import os
+import struct
+import zlib
 from array import array
 
 DOWNLOAD = "/storage/emulated/0/Download"
@@ -47,6 +50,25 @@ def set_pixel(buf, x, y, color):
     if 0 <= x < SIZE and 0 <= y < SIZE:
         i = (y * SIZE + x) * 4
         buf[i : i + 4] = bytes(color)
+
+
+def png_chunk(kind, payload):
+    body = kind + payload
+    return struct.pack(">I", len(payload)) + body + struct.pack(">I", binascii.crc32(body) & 0xFFFFFFFF)
+
+
+def write_png_rgba(path, buf, width, height):
+    stride = width * 4
+    raw = b"".join(
+        b"\x00" + bytes(buf[y * stride : (y + 1) * stride])
+        for y in range(height - 1, -1, -1)
+    )
+    data = bytearray(b"\x89PNG\r\n\x1a\n")
+    data.extend(png_chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0)))
+    data.extend(png_chunk(b"IDAT", zlib.compress(raw, 9)))
+    data.extend(png_chunk(b"IEND", b""))
+    with open(path, "wb") as handle:
+        handle.write(data)
 
 
 def color_at(position, normal):
@@ -148,25 +170,13 @@ changed_pixels = sum(
 if changed_pixels < 1000:
     raise RuntimeError("V5 detail pass changed too few pixels")
 
-floats = array("f", [0.0]) * len(pixels)
-for i, channel in enumerate(pixels):
-    floats[i] = channel / 255.0
-image.pixels.foreach_set(floats)
-# foreach_set does not mark a packed image dirty in this Blender build. The
-# explicit update is what makes save encode the changed pixel buffer.
-image.update()
-image.name = "FPSPlayer_ARIES_Albedo_v5"
-image.filepath_raw = OUT_PNG
-image.file_format = "PNG"
-image.colorspace_settings.name = "sRGB"
-image.save()
-image.pack()
+write_png_rgba(OUT_PNG, pixels, SIZE, SIZE)
 
 # Reopen the encoded PNG instead of trusting Blender's in-memory datablock.
 # This rejects the exact solid-black failure that a fresh image datablock
 # produced on the phone.
 encoded = bpy.data.images.load(OUT_PNG, check_existing=False)
-encoded_values = array("f", [0.0]) * (SIZE * SIZE * 4)
+encoded_values = array("f", [0.0]) * (encoded.size[0] * encoded.size[1] * 4)
 encoded.pixels.foreach_get(encoded_values)
 encoded_colors = {
     tuple(round(encoded_values[i + c] * 255.0) for c in range(3))
@@ -174,7 +184,9 @@ encoded_colors = {
 }
 if len(encoded_colors) < 8 or max(max(color) for color in encoded_colors) < 90:
     raise RuntimeError("Encoded v5 PNG failed color/readability gate")
-bpy.data.images.remove(encoded)
+encoded.name = "FPSPlayer_ARIES_Albedo_v5"
+encoded.colorspace_settings.name = "sRGB"
+encoded.pack()
 
 for material in bpy.data.materials:
     if not material.use_nodes or not material.node_tree:
@@ -186,7 +198,7 @@ for material in bpy.data.materials:
         bsdf.inputs["Metallic"].default_value = 0.0
     for node in material.node_tree.nodes:
         if node.type == "TEX_IMAGE":
-            node.image = image
+            node.image = encoded
 
 # Save the master before any runtime packaging. GLB export is deliberately not
 # attempted here because Blender 4.3's exporter crashes in this phone proot.
