@@ -7,9 +7,10 @@ import zlib
 from array import array
 
 DOWNLOAD = "/storage/emulated/0/Download"
-OUT_BLEND = os.path.join(DOWNLOAD, "FPSPlayer_UV_Albedo_v5.blend")
-OUT_PNG = os.path.join(DOWNLOAD, "FPSPlayer_ARIES_Albedo_v5.png")
-SIZE = 512
+OUT_BLEND = os.path.join(DOWNLOAD, "FPSPlayer_UV_Albedo_v5_1.blend")
+OUT_PNG = os.path.join(DOWNLOAD, "FPSPlayer_ARIES_Albedo_v5_1.png")
+SIZE = 1024
+GUTTER_PASSES = 6
 
 
 def rgba(rgb):
@@ -114,7 +115,7 @@ def color_at(position, normal):
     return PALETTE["undersuit"]
 
 
-def fill_triangle(buf, uv_points, positions, normal):
+def fill_triangle(buf, mask, uv_points, positions, normal):
     p = [(u * (SIZE - 1), v * (SIZE - 1)) for u, v in uv_points]
     min_x = max(0, math.floor(min(x for x, _ in p)) - 1)
     max_x = min(SIZE - 1, math.ceil(max(x for x, _ in p)) + 1)
@@ -134,14 +135,52 @@ def fill_triangle(buf, uv_points, positions, normal):
             if w0 >= -0.001 and w1 >= -0.001 and w2 >= -0.001:
                 position = positions[0] * w0 + positions[1] * w1 + positions[2] * w2
                 set_pixel(buf, x, y, color_at(position, normal))
+                mask[y * SIZE + x] = 1
+
+
+def dilate_gutters(buf, mask, passes):
+    """Copy painted edge colors outward without altering any painted texel."""
+    total_added = 0
+    for _pass in range(passes):
+        source_mask = mask[:]
+        additions = []
+        for y in range(SIZE):
+            row = y * SIZE
+            for x in range(SIZE):
+                index = row + x
+                if source_mask[index]:
+                    continue
+                neighbor = None
+                if x > 0 and source_mask[index - 1]:
+                    neighbor = index - 1
+                elif x + 1 < SIZE and source_mask[index + 1]:
+                    neighbor = index + 1
+                elif y > 0 and source_mask[index - SIZE]:
+                    neighbor = index - SIZE
+                elif y + 1 < SIZE and source_mask[index + SIZE]:
+                    neighbor = index + SIZE
+                if neighbor is not None:
+                    additions.append((index, neighbor))
+        for index, neighbor in additions:
+            dst = index * 4
+            src = neighbor * 4
+            buf[dst : dst + 4] = buf[src : src + 4]
+            mask[index] = 1
+        total_added += len(additions)
+    return total_added
 
 
 image = next(
-    (img for img in bpy.data.images if "Albedo_v4" in img.name or "Albedo_v3" in img.name),
+    (
+        img
+        for version in ("Albedo_v5", "Albedo_v4", "Albedo_v3")
+        for img in bpy.data.images
+        if version in img.name
+    ),
     None,
 )
 if image is None:
-    raise RuntimeError("Packed Albedo_v4/v3 image not found in Blender master")
+    raise RuntimeError("Packed Albedo_v5/v4/v3 image not found in Blender master")
 if image.size[0] != SIZE or image.size[1] != SIZE:
     image.scale(SIZE, SIZE)
 
@@ -157,18 +196,21 @@ if uv_layer is None:
 
 mesh.calc_loop_triangles()
 painted = 0
+paint_mask = bytearray(SIZE * SIZE)
 for tri in mesh.loop_triangles:
     poly = mesh.polygons[tri.polygon_index]
     uv_points = [tuple(uv_layer.data[i].uv) for i in tri.loops]
     positions = [mesh.vertices[mesh.loops[i].vertex_index].co.copy() for i in tri.loops]
-    fill_triangle(pixels, uv_points, positions, poly.normal)
+    fill_triangle(pixels, paint_mask, uv_points, positions, poly.normal)
     painted += 1
+
+gutter_pixels = dilate_gutters(pixels, paint_mask, GUTTER_PASSES)
 
 changed_pixels = sum(
     1 for i in range(0, len(pixels), 4) if pixels[i : i + 4] != before[i : i + 4]
 )
-if changed_pixels < 1000:
-    raise RuntimeError("V5 detail pass changed too few pixels")
+if changed_pixels < 4000:
+    raise RuntimeError("V5.1 cleanup pass changed too few pixels")
 
 write_png_rgba(OUT_PNG, pixels, SIZE, SIZE)
 
@@ -176,6 +218,8 @@ write_png_rgba(OUT_PNG, pixels, SIZE, SIZE)
 # This rejects the exact solid-black failure that a fresh image datablock
 # produced on the phone.
 encoded = bpy.data.images.load(OUT_PNG, check_existing=False)
+if tuple(encoded.size) != (SIZE, SIZE):
+    raise RuntimeError("Encoded v5.1 PNG has the wrong dimensions")
 encoded_values = array("f", [0.0]) * (encoded.size[0] * encoded.size[1] * 4)
 encoded.pixels.foreach_get(encoded_values)
 encoded_colors = {
@@ -183,8 +227,8 @@ encoded_colors = {
     for i in range(0, len(encoded_values), 4)
 }
 if len(encoded_colors) < 8 or max(max(color) for color in encoded_colors) < 90:
-    raise RuntimeError("Encoded v5 PNG failed color/readability gate")
-encoded.name = "FPSPlayer_ARIES_Albedo_v5"
+    raise RuntimeError("Encoded v5.1 PNG failed color/readability gate")
+encoded.name = "FPSPlayer_ARIES_Albedo_v5_1"
 encoded.colorspace_settings.name = "sRGB"
 encoded.pack()
 
@@ -204,9 +248,10 @@ for material in bpy.data.materials:
 # attempted here because Blender 4.3's exporter crashes in this phone proot.
 bpy.ops.wm.save_as_mainfile(filepath=OUT_BLEND)
 
-print("FPS_ALBEDO_V5_OK")
+print("FPS_ALBEDO_V5_1_OK")
 print("painted_triangles", painted)
 print("changed_pixels", changed_pixels)
+print("gutter_pixels", gutter_pixels)
 print("encoded_colors", len(encoded_colors))
 print("actions", len(bpy.data.actions))
 print("blend", OUT_BLEND, os.path.getsize(OUT_BLEND))
