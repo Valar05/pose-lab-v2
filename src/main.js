@@ -174,6 +174,10 @@ const CHARACTER_ASSETS = Object.freeze({
     firstPersonAnchor: 'Camera',
     firstPersonFallbackAnchor: 'ShoulderCenter',
     firstPersonFov: 105,
+    firstPersonForwardSpace: 'world',
+    firstPersonHeadForwardOffset: 0,
+    firstPersonHeadCameraYOffset: 0,
+    firstPersonNear: 0.035,
   },
   vanguard: {
     key: 'vanguard',
@@ -325,12 +329,26 @@ app.innerHTML = `
         <button type="button" data-cycle-character>Model: ${ACTIVE_CHARACTER.label}</button>
         <button type="button" data-cycle-tool>Tool: Saber</button>
         <button type="button" data-cycle-pose-state>Pose: Rest</button>
-        <button type="button" data-cycle-animation hidden>Anim: None</button>
+        <button type="button" data-cycle-animation hidden aria-haspopup="listbox" aria-expanded="false">Animation: None</button>
         <button type="button" data-cycle-view-mode>View: Orbit</button>
+        <button type="button" data-fpv-control-mode aria-label="FPV touch edits camera; bones are locked">Edit: Camera</button>
         <button type="button" class="fpv-settings-button" data-fpv-settings-toggle aria-label="FPV camera settings" title="FPV camera settings">⚙</button>
         <button type="button" data-attack-review-toggle ${canExposeAttackReview() ? '' : 'hidden'} aria-label="Attack playback controls">Attack</button>
         <button type="button" data-dock-toggle>Tools</button>
         <span class="status" data-status>loading ${ACTIVE_CHARACTER.label}</span>
+      </div>
+      <div class="animation-menu" data-animation-menu hidden aria-label="Animation menu">
+        <div class="animation-menu-header">
+          <strong>Animations</strong>
+          <button type="button" data-animation-close aria-label="Close animation menu">Close</button>
+        </div>
+        <select data-animation-select size="8" aria-label="Choose an animation"></select>
+        <div class="animation-menu-actions">
+          <button type="button" data-animation-play>Play</button>
+          <button type="button" data-animation-pause>Pause</button>
+          <button type="button" data-animation-restart>Restart</button>
+        </div>
+        <output data-animation-status>0 clips</output>
       </div>
       <div class="attack-review" data-attack-review hidden aria-label="Attack candidate review controls">
         <div class="attack-review-row">
@@ -462,7 +480,15 @@ const dockToggleButton = app.querySelector('[data-dock-toggle]');
 const cycleToolButton = app.querySelector('[data-cycle-tool]');
 const cyclePoseStateButton = app.querySelector('[data-cycle-pose-state]');
 const cycleAnimationButton = app.querySelector('[data-cycle-animation]');
+const animationMenu = app.querySelector('[data-animation-menu]');
+const animationSelect = app.querySelector('[data-animation-select]');
+const animationPlayButton = app.querySelector('[data-animation-play]');
+const animationPauseButton = app.querySelector('[data-animation-pause]');
+const animationRestartButton = app.querySelector('[data-animation-restart]');
+const animationCloseButton = app.querySelector('[data-animation-close]');
+const animationStatus = app.querySelector('[data-animation-status]');
 const cycleViewModeButton = app.querySelector('[data-cycle-view-mode]');
+const fpvControlModeButton = app.querySelector('[data-fpv-control-mode]');
 const fpvSettingsToggle = app.querySelector('[data-fpv-settings-toggle]');
 const fpvSettingsPanel = app.querySelector('[data-fpv-settings]');
 const fpvSettingsReadout = app.querySelector('[data-fpv-settings-readout]');
@@ -492,6 +518,7 @@ let viewMode = 'orbit';
 let dockOpen = ACTIVE_CHARACTER.key === 'crimson';
 let activePanel = ACTIVE_CHARACTER.key === 'crimson' ? 'model' : null;
 let fpvSettingsOpen = false;
+let fpvControlMode = 'camera';
 let fpvNudgeState = null;
 let fpvNudgeHoldTimer = null;
 let fpvNudgeRaf = null;
@@ -613,16 +640,23 @@ const firstPersonCameraConfig = {
   anchor: 'Head',
   fallbackAnchor: 'Spine02',
   forwardAxis: 'z',
+  forwardSpace: 'local',
   headForwardOffset: 0.15,
   headCameraYOffset: -0.07,
   lookForward: 1.35,
   lookVertical: 0,
   fov: 112,
   near: 0.055,
+  minDistance: 0.12,
+  maxDistance: 5,
 };
 if (ACTIVE_CHARACTER.firstPersonAnchor) firstPersonCameraConfig.anchor = ACTIVE_CHARACTER.firstPersonAnchor;
 if (ACTIVE_CHARACTER.firstPersonFallbackAnchor) firstPersonCameraConfig.fallbackAnchor = ACTIVE_CHARACTER.firstPersonFallbackAnchor;
 if (ACTIVE_CHARACTER.firstPersonFov) firstPersonCameraConfig.fov = ACTIVE_CHARACTER.firstPersonFov;
+if (ACTIVE_CHARACTER.firstPersonForwardSpace) firstPersonCameraConfig.forwardSpace = ACTIVE_CHARACTER.firstPersonForwardSpace;
+if (Number.isFinite(ACTIVE_CHARACTER.firstPersonHeadForwardOffset)) firstPersonCameraConfig.headForwardOffset = ACTIVE_CHARACTER.firstPersonHeadForwardOffset;
+if (Number.isFinite(ACTIVE_CHARACTER.firstPersonHeadCameraYOffset)) firstPersonCameraConfig.headCameraYOffset = ACTIVE_CHARACTER.firstPersonHeadCameraYOffset;
+if (Number.isFinite(ACTIVE_CHARACTER.firstPersonNear)) firstPersonCameraConfig.near = ACTIVE_CHARACTER.firstPersonNear;
 const FPV_CAMERA_DEFAULTS = Object.freeze({
   headForwardOffset: firstPersonCameraConfig.headForwardOffset,
   headCameraYOffset: firstPersonCameraConfig.headCameraYOffset,
@@ -631,6 +665,8 @@ const FPV_CAMERA_DEFAULTS = Object.freeze({
   fov: firstPersonCameraConfig.fov,
   near: firstPersonCameraConfig.near,
 });
+const fpvCameraPositionOffset = new THREE.Vector3();
+const fpvCameraTargetOffset = new THREE.Vector3();
 const FPV_NUDGE_STEP = 0.01;
 const FPV_NUDGE_HOLD_DELAY_MS = 220;
 const FPV_NUDGE_HOLD_SPEED = 0.12;
@@ -831,6 +867,7 @@ let importedAnimationMixer = null;
 let importedAnimationClips = [];
 let importedAnimationAction = null;
 let activeImportedAnimationClip = null;
+let animationMenuOpen = false;
 let importedRootMotionBone = null;
 let importedRootMotionRestPosition = null;
 const importedAnimationClock = new THREE.Clock();
@@ -1604,7 +1641,8 @@ function updatePoseHandles() {
   if (!poseHandles.size) return;
   for (const [name, handle] of poseHandles) {
     const bone = poseBones.get(name);
-    handle.visible = toolMode === 'pose' && (!isSequenceReviewState() || DEBUG_BONES) && (viewMode !== 'firstPerson' || fpvPoseHandleVisible(name));
+    const fpvBonesEditable = viewMode !== 'firstPerson' || fpvControlMode === 'bones';
+    handle.visible = toolMode === 'pose' && fpvBonesEditable && (!isSequenceReviewState() || DEBUG_BONES) && (viewMode !== 'firstPerson' || fpvPoseHandleVisible(name));
     if (!bone) continue;
     const head = objectWorldPosition(bone);
     const tail = poseBoneTailPosition(bone, head);
@@ -2436,10 +2474,44 @@ function importedClipByName(name) {
   return importedAnimationClips.find((clip) => clip.name.toLowerCase() === lower) || null;
 }
 
+function syncImportedAnimationMenu() {
+  if (!animationMenu || !animationSelect || !cycleAnimationButton) return;
+  const clipNames = importedClipNames();
+  if (animationSelect.options.length !== clipNames.length
+      || clipNames.some((name, index) => animationSelect.options[index]?.value !== name)) {
+    animationSelect.replaceChildren(...clipNames.map((name) => {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      return option;
+    }));
+  }
+  const selectedName = activeImportedAnimationClip?.name
+    || importedClipByName(REQUESTED_IMPORTED_CLIP)?.name
+    || importedClipByName(ACTIVE_CHARACTER.defaultClip)?.name
+    || clipNames[0]
+    || '';
+  if (selectedName) animationSelect.value = selectedName;
+  cycleAnimationButton.hidden = clipNames.length === 0;
+  cycleAnimationButton.textContent = `Animation: ${selectedName || 'None'}`;
+  cycleAnimationButton.setAttribute('aria-expanded', animationMenuOpen ? 'true' : 'false');
+  animationMenu.hidden = !animationMenuOpen || clipNames.length === 0;
+  if (animationStatus) {
+    const playback = importedAnimationAction?.paused ? 'paused' : importedAnimationAction ? 'playing' : 'ready';
+    animationStatus.textContent = `${clipNames.length} clips · ${playback}: ${selectedName || 'none'}`;
+  }
+}
+
+function setAnimationMenuOpen(open) {
+  animationMenuOpen = Boolean(open) && importedAnimationClips.length > 0;
+  syncImportedAnimationMenu();
+}
+
 function stopImportedAnimation() {
   importedAnimationAction?.stop();
   importedAnimationAction = null;
   activeImportedAnimationClip = null;
+  syncImportedAnimationMenu();
 }
 
 function playImportedAnimation(name = null) {
@@ -2449,13 +2521,47 @@ function playImportedAnimation(name = null) {
   importedAnimationAction?.stop();
   importedAnimationAction = importedAnimationMixer.clipAction(clip);
   importedAnimationAction.reset();
+  importedAnimationAction.paused = false;
   importedAnimationAction.play();
   activeImportedAnimationClip = clip;
   importedAnimationClock.start();
   statusEl.textContent = `${ACTIVE_CHARACTER.label}: playing ${clip.name}`;
   renderControls();
   updateReadout();
+  syncImportedAnimationMenu();
   return true;
+}
+
+function pauseImportedAnimation() {
+  if (!importedAnimationAction) return;
+  importedAnimationAction.paused = true;
+  statusEl.textContent = `${ACTIVE_CHARACTER.label}: paused ${activeImportedAnimationClip?.name || 'animation'}`;
+  syncImportedAnimationMenu();
+}
+
+function resumeImportedAnimation() {
+  if (!importedAnimationAction) {
+    playImportedAnimation(animationSelect?.value || null);
+    return;
+  }
+  importedAnimationAction.paused = false;
+  importedAnimationAction.play();
+  importedAnimationClock.start();
+  statusEl.textContent = `${ACTIVE_CHARACTER.label}: playing ${activeImportedAnimationClip?.name || 'animation'}`;
+  syncImportedAnimationMenu();
+}
+
+function restartImportedAnimation() {
+  if (!importedAnimationAction) {
+    playImportedAnimation(animationSelect?.value || null);
+    return;
+  }
+  importedAnimationAction.reset();
+  importedAnimationAction.paused = false;
+  importedAnimationAction.play();
+  importedAnimationClock.start();
+  statusEl.textContent = `${ACTIVE_CHARACTER.label}: restarted ${activeImportedAnimationClip?.name || 'animation'}`;
+  syncImportedAnimationMenu();
 }
 
 function setupImportedAnimations(gltf) {
@@ -2464,6 +2570,7 @@ function setupImportedAnimations(gltf) {
   importedRootMotionBone = ACTIVE_CHARACTER.key === 'vanguard' ? meshyRoot.getObjectByName('root') : null;
   importedRootMotionRestPosition = importedRootMotionBone ? importedRootMotionBone.position.clone() : null;
   importedAnimationMixer = new THREE.AnimationMixer(meshyRoot);
+  syncImportedAnimationMenu();
   if (REQUESTED_IMPORTED_CLIP || ACTIVE_CHARACTER.autoPlayAnimation) playImportedAnimation(REQUESTED_IMPORTED_CLIP);
 }
 
@@ -2630,6 +2737,8 @@ function startFpvNudge(direction, event) {
 
 function resetFpvCameraSettings() {
   Object.assign(firstPersonCameraConfig, FPV_CAMERA_DEFAULTS);
+  fpvCameraPositionOffset.set(0, 0, 0);
+  fpvCameraTargetOffset.set(0, 0, 0);
   updateFirstPersonCamera();
   updateFpvSettingsReadout();
   statusEl.textContent = 'fpv camera: reset';
@@ -2679,12 +2788,19 @@ function renderControls() {
   }
   cycleToolButton.hidden = !ACTIVE_CHARACTER.supportsSaber;
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
+  cyclePoseStateButton.hidden = ACTIVE_CHARACTER.supportsAnimationClips && activePoseStateOrder().length <= 1;
   cyclePoseStateButton.textContent = `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
-  if (cycleAnimationButton) {
-    cycleAnimationButton.hidden = !importedAnimationClips.length;
-    cycleAnimationButton.textContent = `Anim: ${activeImportedAnimationClip?.name || 'None'}`;
-  }
+  syncImportedAnimationMenu();
   cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
+  if (fpvControlModeButton) {
+    fpvControlModeButton.hidden = viewMode !== 'firstPerson';
+    fpvControlModeButton.textContent = `Edit: ${fpvControlMode === 'camera' ? 'Camera' : 'Bones'}`;
+    fpvControlModeButton.classList.toggle('active', fpvControlMode === 'camera');
+    fpvControlModeButton.setAttribute('aria-pressed', fpvControlMode === 'bones' ? 'true' : 'false');
+    fpvControlModeButton.setAttribute('aria-label', fpvControlMode === 'camera'
+      ? 'FPV touch edits camera; bones are locked. Tap to edit bones.'
+      : 'FPV touch edits bones; camera is locked. Tap to edit camera.');
+  }
   updateAttackReviewControls();
   if (poseState === 'attack1' && manualAttackDraft) {
     statusEl.textContent = `Attack1 manual: ${manualAttackSelectedKey}${manualAttackDirty ? ' unsaved' : ''}`;
@@ -2723,37 +2839,74 @@ function applyOrbitCamera() {
   controls.update();
 }
 
-function updateFirstPersonCamera() {
-  if (viewMode !== 'firstPerson' || !meshyRoot) return;
+function firstPersonCameraFrame() {
+  if (!meshyRoot) return null;
   const anchor = findPoseBone(firstPersonCameraConfig.anchor)
     || findPoseBone(firstPersonCameraConfig.fallbackAnchor);
-  if (!anchor) return;
+  if (!anchor) return null;
   root.updateMatrixWorld(true);
   const anchorPosition = objectWorldPosition(anchor);
-  const anchorQuaternion = objectWorldQuaternion(anchor);
-  const forward = localAxisVector(firstPersonCameraConfig.forwardAxis)
-    .applyQuaternion(anchorQuaternion)
-    .normalize();
+  const forward = localAxisVector(firstPersonCameraConfig.forwardAxis);
+  if (firstPersonCameraConfig.forwardSpace !== 'world') {
+    forward.applyQuaternion(objectWorldQuaternion(anchor));
+  }
+  forward.normalize();
   const position = anchorPosition.clone()
     .add(forward.clone().multiplyScalar(firstPersonCameraConfig.headForwardOffset))
     .add(new THREE.Vector3(0, firstPersonCameraConfig.headCameraYOffset, 0));
   const target = anchorPosition.clone()
     .add(forward.clone().multiplyScalar(firstPersonCameraConfig.lookForward))
     .add(new THREE.Vector3(0, firstPersonCameraConfig.lookVertical, 0));
+  return { anchorPosition, position, target };
+}
+
+function captureFpvCameraOffsets() {
+  if (viewMode !== 'firstPerson') return;
+  const frame = firstPersonCameraFrame();
+  if (!frame) return;
+  fpvCameraPositionOffset.copy(camera.position).sub(frame.position);
+  fpvCameraTargetOffset.copy(controls.target).sub(frame.target);
+}
+
+function setFpvControlMode(next) {
+  fpvControlMode = next === 'bones' ? 'bones' : 'camera';
+  gesture = null;
+  touchGesture = null;
+  suppressTouchPointerEvents = false;
+  pointers.clear();
+  controls.enabled = false;
+  updatePoseHandles();
+  renderControls();
+  statusEl.textContent = fpvControlMode === 'camera'
+    ? 'fpv: camera editable; bones locked'
+    : 'fpv: bones editable; camera locked';
+}
+
+function updateFirstPersonCamera() {
+  if (viewMode !== 'firstPerson') return;
+  const frame = firstPersonCameraFrame();
+  if (!frame) return;
+  const position = frame.position.clone().add(fpvCameraPositionOffset);
+  const target = frame.target.clone().add(fpvCameraTargetOffset);
   camera.position.copy(position);
+  controls.target.copy(target);
   camera.up.set(0, 1, 0);
   camera.lookAt(target);
   camera.fov = firstPersonCameraConfig.fov;
   camera.near = firstPersonCameraConfig.near;
   camera.far = orbitCameraState.far;
+  controls.minDistance = firstPersonCameraConfig.minDistance;
+  controls.maxDistance = firstPersonCameraConfig.maxDistance;
   camera.updateProjectionMatrix();
   updateReadyProof({
     fpvCamera: {
       cameraWorldPosition: vectorToFixedArray(camera.position),
-      headWorldPosition: vectorToFixedArray(anchorPosition),
-      headDistance: fixedNumber(camera.position.distanceTo(anchorPosition), 5),
+      headWorldPosition: vectorToFixedArray(frame.anchorPosition),
+      headDistance: fixedNumber(camera.position.distanceTo(frame.anchorPosition), 5),
       fov: firstPersonCameraConfig.fov,
       near: firstPersonCameraConfig.near,
+      forwardSpace: firstPersonCameraConfig.forwardSpace,
+      controlMode: fpvControlMode,
       fpvArmMaskActive: fpvBodyMasks.some((entry) => entry.mask.visible),
       fullBodyVisible: fpvBodyMasks.every((entry) => entry.source.visible),
     },
@@ -2763,6 +2916,9 @@ function updateFirstPersonCamera() {
 function setViewMode(next) {
   if (next === 'firstPerson') {
     viewMode = 'firstPerson';
+    fpvControlMode = 'camera';
+    fpvCameraPositionOffset.set(0, 0, 0);
+    fpvCameraTargetOffset.set(0, 0, 0);
     controls.enabled = false;
     document.body.classList.add('is-fpv');
     ensureFpvBodyMasks();
@@ -3109,6 +3265,7 @@ function orbitCameraByDelta(dx, dy) {
   offset.setFromSpherical(spherical);
   camera.position.copy(controls.target).add(offset);
   controls.update();
+  captureFpvCameraOffsets();
 }
 
 function zoomCameraByDelta(delta) {
@@ -3118,6 +3275,7 @@ function zoomCameraByDelta(delta) {
   offset.setLength(nextLength);
   camera.position.copy(controls.target).add(offset);
   controls.update();
+  captureFpvCameraOffsets();
 }
 
 function panCameraByDelta(dx, dy) {
@@ -3128,6 +3286,7 @@ function panCameraByDelta(dx, dy) {
   camera.position.add(delta);
   controls.target.add(delta);
   controls.update();
+  captureFpvCameraOffsets();
 }
 
 function stopEvent(event) {
@@ -3246,10 +3405,13 @@ function beginPoseEmptyTouch(point) {
 }
 
 function beginCameraTouch(points) {
+  const center = points.length >= 2
+    ? { x: (points[0].x + points[1].x) * 0.5, y: (points[0].y + points[1].y) * 0.5 }
+    : points[0];
   touchGesture = {
     kind: points.length >= 2 ? 'two-camera' : 'one-camera',
-    lastX: points[0].x,
-    lastY: points[0].y,
+    lastX: center.x,
+    lastY: center.y,
     moved: false,
     tapCanCycle: false,
   };
@@ -3277,6 +3439,12 @@ function consumePoseEmptyDoubleTap(point) {
 function handleTouchStart(event) {
   if (!sabreRoot && toolMode !== 'pose') return false;
   const points = touchPoints(event);
+  if (viewMode === 'firstPerson' && fpvControlMode === 'camera' && points.length) {
+    suppressTouchPointerEvents = true;
+    beginCameraTouch(points);
+    stopEvent(event);
+    return true;
+  }
   if (points.length >= 2 && toolMode === 'pose' && selectedPoseBone) {
     suppressTouchPointerEvents = true;
     beginTwoFingerPose(points);
@@ -3338,6 +3506,33 @@ function handleTouchStart(event) {
 function handleTouchMove(event) {
   if ((!sabreRoot && toolMode !== 'pose') || !touchGesture) return false;
   const points = touchPoints(event);
+  if (viewMode === 'firstPerson' && fpvControlMode === 'camera') {
+    if (points.length >= 2) {
+      if (touchGesture.kind !== 'two-camera') beginCameraTouch(points);
+      const distance = touchDistance(points);
+      const center = {
+        x: (points[0].x + points[1].x) * 0.5,
+        y: (points[0].y + points[1].y) * 0.5,
+      };
+      if (lastPinchDistance > 0) zoomCameraByDelta(distance - lastPinchDistance);
+      panCameraByDelta(center.x - touchGesture.lastX, center.y - touchGesture.lastY);
+      lastPinchDistance = distance;
+      touchGesture.lastX = center.x;
+      touchGesture.lastY = center.y;
+      touchGesture.moved = true;
+      statusEl.textContent = 'fpv camera: pinch zoom / drag pan';
+    } else if (points.length === 1) {
+      if (touchGesture.kind !== 'one-camera') beginCameraTouch(points);
+      const point = points[0];
+      orbitCameraByDelta(point.x - touchGesture.lastX, point.y - touchGesture.lastY);
+      touchGesture.lastX = point.x;
+      touchGesture.lastY = point.y;
+      touchGesture.moved = true;
+      statusEl.textContent = 'fpv camera: one-finger orbit';
+    }
+    stopEvent(event);
+    return true;
+  }
   if (points.length >= 2 && toolMode === 'pose' && selectedPoseBone) {
     if (touchGesture.kind !== 'two-pose') beginTwoFingerPose(points);
     handleTwoFingerTouch(points);
@@ -3438,7 +3633,9 @@ function handleTouchEnd(event) {
   lastPinchDistance = 0;
   lastTwistAngle = 0;
   updateReadout();
-  statusEl.textContent = `${mode}: transform ready; empty-space drag orbits camera`;
+  statusEl.textContent = viewMode === 'firstPerson'
+    ? fpvControlMode === 'camera' ? 'fpv: camera editable; bones locked' : 'fpv: bones editable; camera locked'
+    : `${mode}: transform ready; empty-space drag orbits camera`;
   stopEvent(event);
   return true;
 }
@@ -3552,6 +3749,25 @@ function runTouchProbe() {
 
 function startGesture(event) {
   if (!sabreRoot && toolMode !== 'pose') return false;
+  if (viewMode === 'firstPerson' && fpvControlMode === 'camera') {
+    if (event.pointerType === 'touch') {
+      stopEvent(event);
+      return true;
+    }
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    controls.enabled = false;
+    capturePointer(event.pointerId);
+    gesture = {
+      kind: 'fpv-camera',
+      pointerId: event.pointerId,
+      lastX: event.clientX,
+      lastY: event.clientY,
+      moved: false,
+      tapCanCycle: false,
+    };
+    stopEvent(event);
+    return true;
+  }
   if (event.pointerType === 'touch' && suppressTouchPointerEvents) {
     stopEvent(event);
     return true;
@@ -3631,7 +3847,8 @@ function updateGesture(event) {
   const dy = event.clientY - gesture.lastY;
   if (Math.abs(dx) + Math.abs(dy) < 0.5) return true;
 
-  applyEditableGestureDelta(dx, dy, gesture);
+  if (gesture.kind === 'fpv-camera') orbitCameraByDelta(dx, dy);
+  else applyEditableGestureDelta(dx, dy, gesture);
 
   gesture.lastX = event.clientX;
   gesture.lastY = event.clientY;
@@ -3822,6 +4039,7 @@ viewModeButtons.forEach((button) => {
 });
 
 cycleViewModeButton.addEventListener('click', () => setViewMode(viewMode === 'orbit' ? 'firstPerson' : 'orbit'));
+fpvControlModeButton?.addEventListener('click', () => setFpvControlMode(fpvControlMode === 'camera' ? 'bones' : 'camera'));
 
 fpvSettingsToggle.addEventListener('click', () => setFpvSettingsOpen(!fpvSettingsOpen));
 
@@ -3866,7 +4084,13 @@ cyclePoseStateButton.addEventListener('click', () => {
   const next = order[(order.indexOf(current) + 1) % order.length];
   setPoseState(next);
 });
-cycleAnimationButton?.addEventListener('click', cycleImportedAnimation);
+cycleAnimationButton?.addEventListener('click', () => setAnimationMenuOpen(!animationMenuOpen));
+animationCloseButton?.addEventListener('click', () => setAnimationMenuOpen(false));
+animationSelect?.addEventListener('change', () => playImportedAnimation(animationSelect.value));
+animationSelect?.addEventListener('dblclick', () => playImportedAnimation(animationSelect.value));
+animationPlayButton?.addEventListener('click', resumeImportedAnimation);
+animationPauseButton?.addEventListener('click', pauseImportedAnimation);
+animationRestartButton?.addEventListener('click', restartImportedAnimation);
 
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => setMode(button.dataset.mode || 'move'));
@@ -3922,6 +4146,12 @@ canvas.addEventListener('touchstart', handleTouchStart, { capture: true, passive
 canvas.addEventListener('touchmove', handleTouchMove, { capture: true, passive: false });
 canvas.addEventListener('touchend', handleTouchEnd, { capture: true, passive: false });
 canvas.addEventListener('touchcancel', handleTouchEnd, { capture: true, passive: false });
+canvas.addEventListener('wheel', (event) => {
+  if (viewMode !== 'firstPerson' || fpvControlMode !== 'camera') return;
+  zoomCameraByDelta(-event.deltaY * 0.12);
+  statusEl.textContent = 'fpv camera: wheel zoom';
+  stopEvent(event);
+}, { passive: false });
 
 function animate() {
   resize();

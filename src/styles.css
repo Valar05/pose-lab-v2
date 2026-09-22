@@ -636,6 +636,62 @@ canvas {
   pointer-events: auto;
 }
 
+.animation-menu {
+  position: absolute;
+  left: 12px;
+  top: 68px;
+  z-index: 10;
+  display: grid;
+  width: min(420px, calc(100vw - 24px));
+  max-height: min(72vh, 560px);
+  gap: 8px;
+  padding: 10px;
+  overflow: auto;
+  border: 1px solid rgba(240, 195, 90, 0.58);
+  border-radius: 8px;
+  background: rgba(5, 9, 12, 0.96);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.46);
+  pointer-events: auto;
+}
+
+.animation-menu[hidden] {
+  display: none;
+}
+
+.animation-menu-header,
+.animation-menu-actions {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.animation-menu-header strong {
+  margin-right: auto;
+  color: #fff3cf;
+}
+
+.animation-menu select {
+  width: 100%;
+  min-height: min(42vh, 360px);
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 6px;
+  background: #11181f;
+  color: #fff7e8;
+  font: inherit;
+  touch-action: manipulation;
+}
+
+.animation-menu option {
+  min-height: 34px;
+  padding: 7px 8px;
+}
+
+.animation-menu output {
+  color: #d8ecff;
+  font-size: 12px;
+}
+
 .attack-review {
   position: absolute;
   left: 12px;
@@ -844,7 +900,7 @@ body.is-fpv .primary-rail {
   background: rgba(3, 7, 10, 0.72);
 }
 
-body.is-fpv .primary-rail button:not([data-cycle-character]):not([data-cycle-tool]):not([data-cycle-pose-state]):not([data-cycle-view-mode]):not([data-fpv-settings-toggle]):not([data-attack-review-toggle]),
+body.is-fpv .primary-rail button:not([data-cycle-character]):not([data-cycle-tool]):not([data-cycle-pose-state]):not([data-cycle-animation]):not([data-cycle-view-mode]):not([data-fpv-control-mode]):not([data-fpv-settings-toggle]):not([data-attack-review-toggle]),
 body.is-fpv .primary-rail .status,
 body.is-fpv .control-dock {
   display: none !important;
@@ -853,7 +909,9 @@ body.is-fpv .control-dock {
 body.is-fpv .primary-rail button[data-cycle-character],
 body.is-fpv .primary-rail button[data-cycle-tool],
 body.is-fpv .primary-rail button[data-cycle-pose-state],
+body.is-fpv .primary-rail button[data-cycle-animation],
 body.is-fpv .primary-rail button[data-cycle-view-mode],
+body.is-fpv .primary-rail button[data-fpv-control-mode],
 body.is-fpv .primary-rail button[data-fpv-settings-toggle],
 body.is-fpv .primary-rail button[data-attack-review-toggle] {
   display: inline-flex !important;
@@ -865,10 +923,27 @@ body.is-fpv .primary-rail button[data-attack-review-toggle] {
   font-size: 11px;
 }
 
+body.is-fpv .primary-rail button[hidden] {
+  display: none !important;
+}
+
+body.is-fpv .primary-rail button[data-cycle-animation] {
+  max-width: min(220px, 52vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 body.is-fpv .primary-rail button[data-fpv-settings-toggle] {
   min-width: 32px;
   width: 32px;
   font-size: 16px;
+}
+
+body.is-fpv .animation-menu {
+  top: 96px;
+  width: min(420px, calc(100vw - 24px));
+  max-height: calc(100vh - 108px);
 }
 
 body.is-fpv .attack-review {
