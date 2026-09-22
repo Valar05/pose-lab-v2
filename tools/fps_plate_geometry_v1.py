@@ -3,8 +3,8 @@ import bmesh
 import os
 
 DOWNLOAD = "/storage/emulated/0/Download"
-OUT_BLEND = os.path.join(DOWNLOAD, "FPSPlayer_ARIES_Plates_v7_1.blend")
-OUT_GLB = os.path.join(DOWNLOAD, "FPSPlayer_ARIES_Plates_v7_1_runtime.glb")
+OUT_BLEND = os.path.join(DOWNLOAD, "FPSPlayer_ARIES_Plates_v7_2.blend")
+OUT_GLB = os.path.join(DOWNLOAD, "FPSPlayer_ARIES_Plates_v7_2_runtime.glb")
 SOURCE_NAME = "Arms"
 PLATE_PREFIX = "ARIES_Plate_"
 
@@ -84,6 +84,8 @@ def clip_interval(obj, side, lo, hi, face_filter=None):
     loose = [v for v in bm.verts if not v.link_faces]
     if loose:
         bmesh.ops.delete(bm, geom=loose, context="VERTS")
+    bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=1.0e-6)
+    bmesh.ops.dissolve_degenerate(bm, edges=list(bm.edges), dist=1.0e-7)
     if not bm.faces:
         bm.free()
         return False
@@ -141,6 +143,8 @@ for label, lo, hi, thickness, family, face_filter in SPECS:
         bpy.ops.object.modifier_move_to_index(modifier=bevel.name, index=1)
         apply_modifier(obj, solid)
         apply_modifier(obj, bevel)
+        obj.data.validate(verbose=False, clean_customdata=False)
+        obj.data.update(calc_edges=True)
 
         arm_mod = next((m for m in obj.modifiers if m.type == "ARMATURE"), None)
         if arm_mod is None or arm_mod.object != armature:
@@ -181,6 +185,8 @@ if clip_interval(obj, 1, 1.78, 1.84, "top"):
     bpy.ops.object.modifier_move_to_index(modifier=bevel.name, index=1)
     apply_modifier(obj, solid)
     apply_modifier(obj, bevel)
+    obj.data.validate(verbose=False, clean_customdata=False)
+    obj.data.update(calc_edges=True)
     if any(not v.groups for v in obj.data.vertices):
         raise RuntimeError("Unweighted warning plate vertices")
     obj["aries_plate_family"] = "warning"
@@ -230,7 +236,7 @@ if "export_force_sampling" in props:
     kwargs["export_force_sampling"] = True
 bpy.ops.export_scene.gltf(**kwargs)
 
-print("FPS_PLATE_GEOMETRY_V1_1_OK")
+print("FPS_PLATE_GEOMETRY_V1_2_OK")
 print("plate_count", len(created))
 print("plate_names", [o.name for o in created])
 print("source_groups", len(source.vertex_groups))
