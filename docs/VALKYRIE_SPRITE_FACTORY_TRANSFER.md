@@ -15,3 +15,11 @@ This package moves the exact procedural April/Vanguard runtime from ChatGPT Site
 ## Full-sprite presentation correction
 
 The phone review surface now treats the complete transformed sprite as the framing authority for Vanguard combat. The renderer uses one continuous foot-anchored affine draw, dynamically reduces presentation scale only when transformed corners would cross the 18 px review margin, and no longer hard-clips combat silhouettes or rebuilds them from horizontal strips. This preserves long weapons and tall poses while removing slice seams. The transfer workflow captures bayonet-drive, high reverse load, and heavy-idle browser evidence on every relevant branch push.
+
+## Valkyrie gameplay presentation contract
+
+- Vanguard is the main playable character.
+- The remaining Valkyrie characters are assist characters rather than alternate primary player bodies.
+- Assist presentation must preserve the complete authored sprite silhouette, including weapons, hair, equipment, effects, and other extensions outside an expected body box.
+- Review/runtime framing must fit complete visual bounds instead of cropping to a Vanguard-sized character rectangle.
+- Character-specific offset hacks are not acceptance; full-sprite fitting is the reusable presentation primitive.
