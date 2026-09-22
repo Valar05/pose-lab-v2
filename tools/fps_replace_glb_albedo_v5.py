@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Transplant the v5 PNG into the accepted v4 runtime GLB."""
+"""Transplant the v5.1 PNG into the accepted v5 runtime GLB."""
 
 import hashlib
 import json
@@ -7,10 +7,10 @@ import struct
 from pathlib import Path
 
 DOWNLOAD = Path("/storage/emulated/0/Download")
-SOURCE = DOWNLOAD / "FPSPlayer_ARIES_Albedo_v4_runtime.glb"
-ALBEDO = DOWNLOAD / "FPSPlayer_ARIES_Albedo_v5.png"
-OUTPUT = DOWNLOAD / "FPSPlayer_ARIES_Albedo_v5_runtime.glb"
-EXPECTED_SOURCE_SHA256 = "273919016eee969f51b6684ac1a190209ea9e282c34d52c4398dd38d7e814ada"
+SOURCE = DOWNLOAD / "FPSPlayer_ARIES_Albedo_v5_runtime.glb"
+ALBEDO = DOWNLOAD / "FPSPlayer_ARIES_Albedo_v5_1.png"
+OUTPUT = DOWNLOAD / "FPSPlayer_ARIES_Albedo_v5_1_runtime.glb"
+EXPECTED_SOURCE_SHA256 = "91a74e268f3d5cfe4ae3de3bd60eb1290f9db64927340fccbb22ea7721a7d763"
 JSON_CHUNK = 0x4E4F534A
 BIN_CHUNK = 0x004E4942
 
@@ -25,7 +25,7 @@ def align4(value):
 
 source = SOURCE.read_bytes()
 if sha256(source) != EXPECTED_SOURCE_SHA256:
-    raise RuntimeError("Source GLB is not the accepted v4 runtime artifact")
+    raise RuntimeError("Source GLB is not the accepted v5 runtime artifact")
 if source[:4] != b"glTF" or struct.unpack_from("<I", source, 4)[0] != 2:
     raise RuntimeError("Source is not binary glTF 2.0")
 
@@ -68,7 +68,7 @@ for i, candidate in enumerate(views):
     if i != view_index and int(candidate.get("byteOffset", 0)) >= old_span_end:
         candidate["byteOffset"] = int(candidate.get("byteOffset", 0)) + delta
 document["buffers"][0]["byteLength"] = len(new_bin)
-images[0]["name"] = "FPSPlayer_ARIES_Albedo_v5"
+images[0]["name"] = "FPSPlayer_ARIES_Albedo_v5_1"
 
 json_bytes = json.dumps(document, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 json_bytes += b" " * (align4(len(json_bytes)) - len(json_bytes))
@@ -86,9 +86,9 @@ json_length = struct.unpack_from("<I", written, 12)[0]
 bin_start = 20 + json_length + 8
 embedded = written[bin_start + start : bin_start + start + len(png)]
 if embedded != png:
-    raise RuntimeError("Written GLB embedded albedo does not match v5 PNG")
+    raise RuntimeError("Written GLB embedded albedo does not match v5.1 PNG")
 
-print("FPS_GLTF_ALBEDO_TRANSPLANT_V5_OK")
+print("FPS_GLTF_ALBEDO_TRANSPLANT_V5_1_OK")
 print("source_sha256", sha256(source))
 print("albedo_sha256", sha256(png))
 print("output_sha256", sha256(written))
