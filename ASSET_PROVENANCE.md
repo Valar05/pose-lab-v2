@@ -170,3 +170,19 @@ code, or metric acceptance tooling was copied.
 - Embedded source inventory: 55 animations; individual finger bones are preserved
 - Rule: this route is source inspection. Do not retarget, rebuild topology, or alter weights merely to review the original motions.
 
+## FPSPlayer ARIES V8 — accepted material baseline
+
+| Field | Value |
+| --- | --- |
+| Pose Lab model key | `fpsplayer-aries-v8` |
+| Accepted Blender master | `FPSPlayer_ARIES_ORM_v8.blend` |
+| Runtime GLB | `FPSPlayer_ARIES_ORM_v8_runtime.glb` |
+| Runtime SHA-256 | `0360bcac731882f20ae39b8e7869251263b6836de175ec701e003949d9e26089` |
+| Artifact source | `Valar05/taste-trap-material-lab@3f3ae1f3edfacb61d74bb3089264e92c12025109` |
+| Material maps | Albedo V5.1; Normal V3; packed ORM V8 |
+| Accepted inventory | 15 physical plates; 16 meshes; 1 skin; 57 animations |
+| Accepted review | Android first-person view at 105 degree FOV |
+| 2D derivative rule | Append-only under `public/assets/fpsplayer-aries-v8/2d/`; accepted 3D source and accepted pixels remain immutable |
+
+The exact file hashes and the standalone texture hashes are authoritative in `public/assets/fpsplayer-aries-v8/fpsplayer_aries_v8_manifest.json`.
+
