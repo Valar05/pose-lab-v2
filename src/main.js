@@ -610,16 +610,19 @@ const orbitCameraState = {
 };
 const firstPersonCameraConfig = {
   cameraMode: 'head-forward',
-  anchor: ACTIVE_CHARACTER.firstPersonAnchor || 'Head',
-  fallbackAnchor: ACTIVE_CHARACTER.firstPersonFallbackAnchor || 'Spine02',
+  anchor: 'Head',
+  fallbackAnchor: 'Spine02',
   forwardAxis: 'z',
   headForwardOffset: 0.15,
   headCameraYOffset: -0.07,
   lookForward: 1.35,
   lookVertical: 0,
-  fov: ACTIVE_CHARACTER.firstPersonFov || 112,
+  fov: 112,
   near: 0.055,
 };
+if (ACTIVE_CHARACTER.firstPersonAnchor) firstPersonCameraConfig.anchor = ACTIVE_CHARACTER.firstPersonAnchor;
+if (ACTIVE_CHARACTER.firstPersonFallbackAnchor) firstPersonCameraConfig.fallbackAnchor = ACTIVE_CHARACTER.firstPersonFallbackAnchor;
+if (ACTIVE_CHARACTER.firstPersonFov) firstPersonCameraConfig.fov = ACTIVE_CHARACTER.firstPersonFov;
 const FPV_CAMERA_DEFAULTS = Object.freeze({
   headForwardOffset: firstPersonCameraConfig.headForwardOffset,
   headCameraYOffset: firstPersonCameraConfig.headCameraYOffset,
