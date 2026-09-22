@@ -1,0 +1,153 @@
+{
+  "schema": "command-center-visual-qa-evidence-v1",
+  "target": "crimson-sword",
+  "captureKind": "cloud-screenshot",
+  "jobId": "github_actions_29765493275",
+  "sessionId": "browser_session_github_actions_29765493275",
+  "browserEpisode": {
+    "episodeId": "browser_episode_github_actions_29765493275_1",
+    "outcome": "visual_qa_captured"
+  },
+  "label": "crimson-shared-rest-static",
+  "primeKey": null,
+  "attackTime": null,
+  "startUrl": "https://valar05.github.io/pose-lab-v2/?model=crimson&pose=shared-rest&view=orbit&reviewControls=0&cacheBust=shared-rest-2913381",
+  "finalUrl": "https://valar05.github.io/pose-lab-v2/?model=crimson&pose=shared-rest&view=orbit&reviewControls=0&cacheBust=shared-rest-2913381",
+  "capturedAt": "2026-07-20T17:55:13.408Z",
+  "screenshotPath": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29765493275/screenshot.png",
+  "screenshotSha256": "53df7c0a033fe958fc1a15bc7397859d4d50563ebb260122d153b2239ceca9e1",
+  "surface": {
+    "runtime": "github-actions-playwright",
+    "browser": "system-chrome",
+    "channel": "chrome",
+    "mode": "desktop",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    }
+  },
+  "browserSocketProof": {
+    "status": "attached",
+    "parentBone": "RightHand",
+    "hiltToHandDistance": 0.13972,
+    "swordWorldScale": [
+      0.90588,
+      0.90588,
+      0.90588
+    ],
+    "bladeWorldLength": 0.56055,
+    "bladeWorldDirection": [
+      0.17357,
+      0.98482,
+      -0.00002
+    ],
+    "hiltScreen": [
+      367.6,
+      247.1
+    ],
+    "tipScreen": [
+      386.8,
+      90.8
+    ],
+    "screenLengthPx": 157.4,
+    "screenBounds": {
+      "min": [
+        326.6,
+        84.2
+      ],
+      "max": [
+        415.5,
+        346.4
+      ],
+      "size": [
+        88.9,
+        262.3
+      ],
+      "intersectsViewport": true
+    },
+    "visibleInViewport": true
+  },
+  "bootTimings": {
+    "bootStart": 1.4,
+    "firstFrame": 100.1,
+    "candidateLoaded": 302.4,
+    "characterLoaded": 788.9,
+    "bootReady": 800.4,
+    "saberLoaded": 800.6,
+    "saberAttached": 802.6,
+    "reviewReady": 804.4
+  },
+  "debugPayload": {
+    "dataset": {
+      "bootTimingBootStart": "1.4",
+      "bootTimings": "{\"bootStart\":1.4,\"firstFrame\":100.1,\"candidateLoaded\":302.4,\"characterLoaded\":788.9,\"bootReady\":800.4,\"saberLoaded\":800.6,\"saberAttached\":802.6,\"reviewReady\":804.4}",
+      "bootState": "showing Crimson Knight",
+      "firstFrame": "1",
+      "bootTimingFirstFrame": "100.1",
+      "bootTimingCandidateLoaded": "302.4",
+      "bootTimingCharacterLoaded": "788.9",
+      "bootTimingBootReady": "800.4",
+      "bootReady": "1",
+      "pbrReady": "1",
+      "bootTimingSaberLoaded": "800.6",
+      "saberAttachmentStatus": "attached",
+      "saberAttachmentParent": "RightHand",
+      "saberAttachmentDistance": "0.13972",
+      "saberWorldScale": "[0.90588,0.90588,0.90588]",
+      "saberBladeWorldLength": "0.56055",
+      "saberScreenLengthPx": "157.4",
+      "saberVisibleInViewport": "true",
+      "crimsonSocketProof": "{\"status\":\"attached\",\"parentBone\":\"RightHand\",\"hiltToHandDistance\":0.13972,\"swordWorldScale\":[0.90588,0.90588,0.90588],\"bladeWorldLength\":0.56055,\"bladeWorldDirection\":[0.17357,0.98482,-0.00002],\"hiltScreen\":[367.6,247.1],\"tipScreen\":[386.8,90.8],\"screenLengthPx\":157.4,\"screenBounds\":{\"min\":[326.6,84.2],\"max\":[415.5,346.4],\"size\":[88.9,262.3],\"intersectsViewport\":true},\"visibleInViewport\":true}",
+      "bootTimingSaberAttached": "802.6",
+      "bootTimingReviewReady": "804.4",
+      "reviewReady": "1",
+      "reviewAssetQuality": "review",
+      "reviewPoseState": "sharedRest"
+    },
+    "readyState": "complete",
+    "locationHref": "https://valar05.github.io/pose-lab-v2/?model=crimson&pose=shared-rest&view=orbit&reviewControls=0&cacheBust=shared-rest-2913381",
+    "title": "Pose Lab V2 Saber",
+    "visibleText": "Model: Crimson Knight\nTool: Pose\nPose: SharedRest\nAnim: None\nView: Orbit\nAttack1\nTools\nSharedRest ready\nModel\nTransform\nView\nExport\nDavin Wingsworth\nCrimson Knight\nMeshy\nAres\nSecurityTitan\nVanguard",
+    "canvases": [
+      {
+        "width": 986,
+        "height": 900,
+        "clientWidth": 986,
+        "clientHeight": 900,
+        "bounds": [
+          0,
+          0,
+          986,
+          900
+        ]
+      }
+    ]
+  },
+  "consoleEvents": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x2ed4000f4e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x2ed4000f4e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x2ed4000f4e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x2ed4000f4e00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    }
+  ],
+  "pageErrors": [],
+  "networkFailures": [],
+  "responseStatuses": [],
+  "visualRead": "",
+  "assertions": {}
+}

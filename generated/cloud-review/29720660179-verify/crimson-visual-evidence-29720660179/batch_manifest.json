@@ -1,0 +1,152 @@
+{
+  "schema": "pose-lab-v2-cloud-visual-batch-v1",
+  "target": "crimson-sword",
+  "capturedAt": "2026-07-20T06:05:50.680Z",
+  "captureCount": 8,
+  "captures": [
+    {
+      "label": "crimson-light-attack1-vanguard-3 start 0.000000s",
+      "primeKey": "start",
+      "time": 0,
+      "manifest": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/01-start/visual_qa_manifest.json",
+      "screenshot": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/01-start/screenshot.png",
+      "screenshotSha256": "09f09ccf5b444c1eedaa205fc74c7a02975dfbe6a68701f3a0fe6f5c7d999e52",
+      "bootTimings": {
+        "bootStart": 1.5,
+        "firstFrame": 206,
+        "candidateLoaded": 479.6,
+        "characterLoaded": 888.1,
+        "bootReady": 899.6,
+        "saberLoaded": 899.7,
+        "saberAttached": 907.2,
+        "reviewReady": 916
+      }
+    },
+    {
+      "label": "crimson-light-attack1-vanguard-3 earlyWindup 0.100000s",
+      "primeKey": "earlyWindup",
+      "time": 0.1,
+      "manifest": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/02-earlywindup/visual_qa_manifest.json",
+      "screenshot": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/02-earlywindup/screenshot.png",
+      "screenshotSha256": "14016cc329edf151a1ccc013357632cf0e76bb87401896d5191406cf3a7d4ecb",
+      "bootTimings": {
+        "bootStart": 1.8,
+        "firstFrame": 11.4,
+        "candidateLoaded": 101.8,
+        "characterLoaded": 615.4,
+        "bootReady": 621.2,
+        "saberLoaded": 621.2,
+        "saberAttached": 622.2,
+        "reviewReady": 623.7
+      }
+    },
+    {
+      "label": "crimson-light-attack1-vanguard-3 anticipation 0.183333s",
+      "primeKey": "anticipation",
+      "time": 0.183333,
+      "manifest": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/03-anticipation/visual_qa_manifest.json",
+      "screenshot": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/03-anticipation/screenshot.png",
+      "screenshotSha256": "38bbecc2de2e06349031041d4a8d87f02229a5548cc2f54cb6f5f41d6dbf8700",
+      "bootTimings": {
+        "bootStart": 1,
+        "firstFrame": 9.7,
+        "candidateLoaded": 117.1,
+        "characterLoaded": 515.7,
+        "bootReady": 522.1,
+        "saberLoaded": 522.1,
+        "saberAttached": 523.3,
+        "reviewReady": 524.7
+      }
+    },
+    {
+      "label": "crimson-light-attack1-vanguard-3 snapPrep 0.283333s",
+      "primeKey": "snapPrep",
+      "time": 0.283333,
+      "manifest": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/04-snapprep/visual_qa_manifest.json",
+      "screenshot": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/04-snapprep/screenshot.png",
+      "screenshotSha256": "d312bede496a8ff9fe6e7c0cb91753ce9ec8699192e1b218f4171b4f11984650",
+      "bootTimings": {
+        "bootStart": 1.1,
+        "firstFrame": 9.3,
+        "candidateLoaded": 103.3,
+        "characterLoaded": 530.2,
+        "bootReady": 538.1,
+        "saberLoaded": 538.1,
+        "saberAttached": 539.4,
+        "reviewReady": 541
+      }
+    },
+    {
+      "label": "crimson-light-attack1-vanguard-3 contact 0.383333s",
+      "primeKey": "contact",
+      "time": 0.383333,
+      "manifest": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/05-contact/visual_qa_manifest.json",
+      "screenshot": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/05-contact/screenshot.png",
+      "screenshotSha256": "c4b3d7553f3291c680dfa8a3fbab528ec07ade44520c2c78f30ab35fff4ec722",
+      "bootTimings": {
+        "bootStart": 1.7,
+        "firstFrame": 12.4,
+        "candidateLoaded": 112.8,
+        "characterLoaded": 632.8,
+        "bootReady": 639.9,
+        "saberLoaded": 640,
+        "saberAttached": 641.1,
+        "reviewReady": 642.5
+      }
+    },
+    {
+      "label": "crimson-light-attack1-vanguard-3 contactHold 0.500000s",
+      "primeKey": "contactHold",
+      "time": 0.5,
+      "manifest": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/06-contacthold/visual_qa_manifest.json",
+      "screenshot": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/06-contacthold/screenshot.png",
+      "screenshotSha256": "67247fae94a656595623c31e1f2abd3627e528e9ae65c7fe598031f893f6807d",
+      "bootTimings": {
+        "bootStart": 1,
+        "firstFrame": 13,
+        "candidateLoaded": 115.1,
+        "characterLoaded": 566.1,
+        "bootReady": 574.1,
+        "saberLoaded": 574.1,
+        "saberAttached": 575.1,
+        "reviewReady": 576.5
+      }
+    },
+    {
+      "label": "crimson-light-attack1-vanguard-3 settle 0.566667s",
+      "primeKey": "settle",
+      "time": 0.566667,
+      "manifest": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/07-settle/visual_qa_manifest.json",
+      "screenshot": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/07-settle/screenshot.png",
+      "screenshotSha256": "316202099db40e787ee982ed7180e97b619f09345fabd282b671d4a369947600",
+      "bootTimings": {
+        "bootStart": 0.8,
+        "firstFrame": 14.5,
+        "candidateLoaded": 123.5,
+        "characterLoaded": 620.7,
+        "bootReady": 628.3,
+        "saberLoaded": 628.3,
+        "saberAttached": 629.6,
+        "reviewReady": 631.2
+      }
+    },
+    {
+      "label": "crimson-light-attack1-vanguard-3 followThrough 0.620000s",
+      "primeKey": "followThrough",
+      "time": 0.62,
+      "manifest": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/08-followthrough/visual_qa_manifest.json",
+      "screenshot": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/08-followthrough/screenshot.png",
+      "screenshotSha256": "e6211779770ea2bf79ea9c1e5908d3baf9fe30db2979d64e2a25f94d94660e2a",
+      "bootTimings": {
+        "bootStart": 1.1,
+        "firstFrame": 12.6,
+        "candidateLoaded": 115,
+        "characterLoaded": 587.6,
+        "bootReady": 595.1,
+        "saberLoaded": 595.3,
+        "saberAttached": 596.4,
+        "reviewReady": 597.9
+      }
+    }
+  ]
+}

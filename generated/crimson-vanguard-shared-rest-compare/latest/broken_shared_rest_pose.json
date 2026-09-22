@@ -1,0 +1,12 @@
+{
+  "schema": "pose-lab-v2-broken-shared-rest-pose-v1",
+  "createdAt": "2026-07-22T14:04:42.250388+00:00",
+  "failures": [
+    {
+      "frame": "source",
+      "code": "CRIMSON_SHARED_REST_FOOT_TRUTH_NOT_SOLVED",
+      "actual": "not-solved",
+      "expected": "SharedRest artifact must certify heel/toe/sole or equivalent foot truth before Blender comparison can be useful"
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "schema": "command-center-visual-qa-evidence-v1",
+  "target": "crimson-sword",
+  "captureKind": "cloud-screenshot",
+  "jobId": "github_actions_29720660179",
+  "sessionId": "browser_session_github_actions_29720660179",
+  "browserEpisode": {
+    "episodeId": "browser_episode_github_actions_29720660179_2",
+    "outcome": "visual_qa_captured"
+  },
+  "label": "crimson-light-attack1-vanguard-3 earlyWindup 0.100000s",
+  "primeKey": "earlyWindup",
+  "attackTime": 0.1,
+  "startUrl": "https://valar05.github.io/pose-lab-v2/?pose=attack1&candidate=crimson-light-attack1-vanguard-3&cacheBust=attack1-6a7ec8e&model=crimson&view=orbit&reviewControls=1&attackTime=0.1",
+  "finalUrl": "https://valar05.github.io/pose-lab-v2/?pose=attack1&candidate=crimson-light-attack1-vanguard-3&cacheBust=attack1-6a7ec8e&model=crimson&view=orbit&reviewControls=1&attackTime=0.1",
+  "capturedAt": "2026-07-20T06:05:37.138Z",
+  "screenshotPath": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29720660179/02-earlywindup/screenshot.png",
+  "screenshotSha256": "14016cc329edf151a1ccc013357632cf0e76bb87401896d5191406cf3a7d4ecb",
+  "surface": {
+    "runtime": "github-actions-playwright",
+    "browser": "system-chrome",
+    "channel": "chrome",
+    "mode": "desktop",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    }
+  },
+  "browserSocketProof": {
+    "status": "attached",
+    "parentBone": "RightHand",
+    "hiltToHandDistance": 0.13972,
+    "swordWorldScale": [
+      0.90588,
+      0.90588,
+      0.90588
+    ],
+    "bladeWorldLength": 0.56055,
+    "bladeWorldDirection": [
+      0.99863,
+      0.05223,
+      0.00008
+    ],
+    "hiltScreen": [
+      452.1,
+      297.2
+    ],
+    "tipScreen": [
+      585.7,
+      292.9
+    ],
+    "screenLengthPx": 133.7,
+    "screenBounds": {
+      "min": [
+        366,
+        265.5
+      ],
+      "max": [
+        596.3,
+        331
+      ],
+      "size": [
+        230.3,
+        65.4
+      ],
+      "intersectsViewport": true
+    },
+    "visibleInViewport": true
+  },
+  "bootTimings": {
+    "bootStart": 1.8,
+    "firstFrame": 11.4,
+    "candidateLoaded": 101.8,
+    "characterLoaded": 615.4,
+    "bootReady": 621.2,
+    "saberLoaded": 621.2,
+    "saberAttached": 622.2,
+    "reviewReady": 623.7
+  },
+  "debugPayload": {
+    "dataset": {
+      "bootTimingBootStart": "1.8",
+      "bootTimings": "{\"bootStart\":1.8,\"firstFrame\":11.4,\"candidateLoaded\":101.8,\"characterLoaded\":615.4,\"bootReady\":621.2,\"saberLoaded\":621.2,\"saberAttached\":622.2,\"reviewReady\":623.7}",
+      "bootState": "showing Crimson Knight",
+      "firstFrame": "1",
+      "bootTimingFirstFrame": "11.4",
+      "bootTimingCandidateLoaded": "101.8",
+      "bootTimingCharacterLoaded": "615.4",
+      "bootTimingBootReady": "621.2",
+      "bootReady": "1",
+      "pbrReady": "1",
+      "bootTimingSaberLoaded": "621.2",
+      "saberAttachmentStatus": "attached",
+      "saberAttachmentParent": "RightHand",
+      "saberAttachmentDistance": "0.13972",
+      "saberWorldScale": "[0.90588,0.90588,0.90588]",
+      "saberBladeWorldLength": "0.56055",
+      "saberScreenLengthPx": "133.7",
+      "saberVisibleInViewport": "true",
+      "crimsonSocketProof": "{\"status\":\"attached\",\"parentBone\":\"RightHand\",\"hiltToHandDistance\":0.13972,\"swordWorldScale\":[0.90588,0.90588,0.90588],\"bladeWorldLength\":0.56055,\"bladeWorldDirection\":[0.99863,0.05223,0.00008],\"hiltScreen\":[452.1,297.2],\"tipScreen\":[585.7,292.9],\"screenLengthPx\":133.7,\"screenBounds\":{\"min\":[366,265.5],\"max\":[596.3,331],\"size\":[230.3,65.4],\"intersectsViewport\":true},\"visibleInViewport\":true}",
+      "bootTimingSaberAttached": "622.2",
+      "bootTimingReviewReady": "623.7",
+      "reviewReady": "1",
+      "reviewAssetQuality": "review",
+      "reviewPoseState": "attack1"
+    },
+    "readyState": "complete",
+    "locationHref": "https://valar05.github.io/pose-lab-v2/?pose=attack1&candidate=crimson-light-attack1-vanguard-3&cacheBust=attack1-6a7ec8e&model=crimson&view=orbit&reviewControls=1&attackTime=0.1",
+    "title": "Pose Lab V2 Saber",
+    "visibleText": "Model: Crimson Knight\nTool: Saber\nPose: Attack1\nAnim: None\nView: Orbit\nAttack1\nTools\nAttack1 candidate preview: crimson-light-attack1-vanguard-3; 0.100s\nPlay\nPause\n0.100s\nClose\nstart\nearlyWindup\nanticipation\nsnapPrep\ncontact\ncontactHold\nsettle\nfollowThrough\nModel\nTransform\nView\nExport\nDavin Wingsworth\nCrimson Knight\nMeshy\nAres\nSecurityTitan\nVanguard",
+    "canvases": [
+      {
+        "width": 986,
+        "height": 900,
+        "clientWidth": 986,
+        "clientHeight": 900,
+        "bounds": [
+          0,
+          0,
+          986,
+          900
+        ]
+      }
+    ]
+  },
+  "consoleEvents": [],
+  "pageErrors": [],
+  "networkFailures": [],
+  "responseStatuses": [],
+  "visualRead": "",
+  "assertions": {}
+}

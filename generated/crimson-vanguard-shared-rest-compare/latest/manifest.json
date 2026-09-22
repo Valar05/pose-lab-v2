@@ -1,0 +1,16 @@
+{
+  "schema": "pose-lab-v2-crimson-vanguard-shared-rest-blender-compare-v1",
+  "createdAt": "2026-07-22T14:04:42.247910+00:00",
+  "classification": "diagnostic-blocker-not-acceptance",
+  "sourcePose": {
+    "vanguard": "blocked before Blender import",
+    "crimson": "crimson-vanguard-shared-rest-baseline-1",
+    "animationPlayback": false
+  },
+  "expected": "SharedRest must be an independent authored pose with solved foot truth before side-by-side Blender review.",
+  "status": "FAIL",
+  "frames": [],
+  "failureCount": 1,
+  "brokenTransformsPath": "broken_shared_rest_pose.json",
+  "note": "Fail-closed source contract gate. Blender import/render is skipped because the independent SharedRest baseline artifact is missing solved foot truth."
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "pose-lab-v2-cloud-visual-batch-v1",
+  "target": "crimson-sword",
+  "capturedAt": "2026-07-20T17:59:13.212Z",
+  "captureCount": 1,
+  "captures": [
+    {
+      "label": "crimson-shared-rest-static",
+      "primeKey": null,
+      "time": null,
+      "manifest": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29765796207/visual_qa_manifest.json",
+      "screenshot": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29765796207/screenshot.png",
+      "screenshotSha256": "93246f4d1b69872736bcdf67e587448494faffefdde400e371cfab28fdcd61e3",
+      "bootTimings": {
+        "bootStart": 1.6,
+        "firstFrame": 104.5,
+        "candidateLoaded": 311.3,
+        "characterLoaded": 747.7,
+        "bootReady": 763.2,
+        "saberLoaded": 763.3,
+        "saberAttached": 769.4,
+        "reviewReady": 778.8
+      }
+    }
+  ]
+}

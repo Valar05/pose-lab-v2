@@ -320,6 +320,7 @@ app.innerHTML = `
     <div class="control-dock" aria-label="Secondary editor controls" hidden>
       <div class="panel-tabs" aria-label="Control panels">
         <button type="button" data-panel-toggle="model">Model</button>
+        <button type="button" data-panel-toggle="clips" data-clips-tab hidden>Clips</button>
         <button type="button" data-panel-toggle="transform">Transform</button>
         <button type="button" data-panel-toggle="view">View</button>
         <button type="button" data-panel-toggle="export">Export</button>
@@ -329,6 +330,9 @@ app.innerHTML = `
         <div class="panel-row model-switcher" aria-label="Model switcher">
           ${CHARACTER_KEYS.map(modelButtonHtml).join('')}
         </div>
+      </section>
+      <section class="control-panel" data-panel="clips" aria-label="Animation clip controls" hidden>
+        <div class="panel-row clip-switcher" data-clip-list aria-label="Animation clip switcher"></div>
       </section>
       <section class="control-panel" data-panel="transform" aria-label="Transform controls" hidden>
         <div class="panel-row hidden-actions" aria-hidden="true">
@@ -411,6 +415,8 @@ const dockToggleButton = app.querySelector('[data-dock-toggle]');
 const cycleToolButton = app.querySelector('[data-cycle-tool]');
 const cyclePoseStateButton = app.querySelector('[data-cycle-pose-state]');
 const cycleAnimationButton = app.querySelector('[data-cycle-animation]');
+const clipListEl = app.querySelector('[data-clip-list]');
+const clipsTabButton = app.querySelector('[data-clips-tab]');
 const cycleViewModeButton = app.querySelector('[data-cycle-view-mode]');
 const fpvSettingsToggle = app.querySelector('[data-fpv-settings-toggle]');
 const fpvSettingsPanel = app.querySelector('[data-fpv-settings]');
@@ -2424,6 +2430,10 @@ function stopImportedAnimation() {
   activeImportedAnimationClip = null;
 }
 
+function clipButtonLabel(name) {
+  return String(name || '').replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2');
+}
+
 function playImportedAnimation(name = null) {
   if (!importedAnimationMixer || !importedAnimationClips.length) return false;
   const clip = importedClipByName(name) || (ACTIVE_CHARACTER.defaultClip ? importedClipByName(ACTIVE_CHARACTER.defaultClip) : null) || importedAnimationClips[0];
@@ -2626,6 +2636,21 @@ function setFpvFov(value) {
   statusEl.textContent = `fpv camera: fov ${firstPersonCameraConfig.fov}`;
 }
 
+function renderImportedClipControls() {
+  if (!clipListEl) return;
+  const clips = importedClipNames();
+  clipListEl.replaceChildren();
+  for (const name of clips) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.clipName = name;
+    button.textContent = clipButtonLabel(name);
+    button.title = name;
+    button.classList.toggle('active', activeImportedAnimationClip?.name === name);
+    clipListEl.append(button);
+  }
+}
+
 function renderControls() {
   if (cycleCharacterButton) {
     cycleCharacterButton.textContent = `Model: ${ACTIVE_CHARACTER.label}`;
@@ -2647,7 +2672,10 @@ function renderControls() {
   });
   resetSaberButton.hidden = toolMode !== 'saber';
   resetPoseButton.hidden = toolMode !== 'pose';
-  panelToggleButtons.forEach((button) => button.classList.toggle('active', button.dataset.panelToggle === activePanel));
+  panelToggleButtons.forEach((button) => {
+    if (button.dataset.panelToggle === 'clips') button.hidden = !importedAnimationClips.length;
+    button.classList.toggle('active', button.dataset.panelToggle === activePanel);
+  });
   dockEl.hidden = !dockOpen;
   dockToggleButton.classList.toggle('active', dockOpen);
   if (viewMode !== 'firstPerson') {
@@ -2662,10 +2690,13 @@ function renderControls() {
   cycleToolButton.hidden = !ACTIVE_CHARACTER.supportsSaber;
   cycleToolButton.textContent = `Tool: ${toolMode === 'pose' ? 'Pose' : 'Saber'}`;
   cyclePoseStateButton.textContent = `Pose: ${POSE_STATE_LABELS[poseState] || 'Custom'}`;
+  if (clipsTabButton) clipsTabButton.hidden = !importedAnimationClips.length;
   if (cycleAnimationButton) {
     cycleAnimationButton.hidden = !importedAnimationClips.length;
     cycleAnimationButton.textContent = `Anim: ${activeImportedAnimationClip?.name || 'None'}`;
+    cycleAnimationButton.title = importedAnimationClips.length ? importedClipNames().join(' | ') : 'No imported animation clips';
   }
+  renderImportedClipControls();
   cycleViewModeButton.textContent = `View: ${viewMode === 'firstPerson' ? 'FPV' : 'Orbit'}`;
   updateAttackReviewControls();
   if (poseState === 'attack1' && manualAttackDraft) {
@@ -3850,6 +3881,11 @@ cyclePoseStateButton.addEventListener('click', () => {
   setPoseState(next);
 });
 cycleAnimationButton?.addEventListener('click', cycleImportedAnimation);
+clipListEl?.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-clip-name]');
+  if (!button) return;
+  playImportedAnimation(button.dataset.clipName);
+});
 
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => setMode(button.dataset.mode || 'move'));

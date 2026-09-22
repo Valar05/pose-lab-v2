@@ -1,0 +1,153 @@
+{
+  "schema": "command-center-visual-qa-evidence-v1",
+  "target": "crimson-sword",
+  "captureKind": "cloud-screenshot",
+  "jobId": "github_actions_29715740214",
+  "sessionId": "browser_session_github_actions_29715740214",
+  "browserEpisode": {
+    "episodeId": "browser_episode_github_actions_29715740214_1",
+    "outcome": "visual_qa_captured"
+  },
+  "label": "crimson-light-attack1-vanguard-3 start 0.000000s",
+  "primeKey": "start",
+  "attackTime": 0,
+  "startUrl": "https://valar05.github.io/pose-lab-v2/?pose=attack1&candidate=crimson-light-attack1-vanguard-3&cacheBust=attack1-4418f39&model=crimson&view=orbit&reviewControls=1&attackTime=0",
+  "finalUrl": "https://valar05.github.io/pose-lab-v2/?pose=attack1&candidate=crimson-light-attack1-vanguard-3&cacheBust=attack1-4418f39&model=crimson&view=orbit&reviewControls=1&attackTime=0",
+  "capturedAt": "2026-07-20T03:57:01.163Z",
+  "screenshotPath": "/home/runner/work/pose-lab-v2/pose-lab-v2/generated/cloud-visual-evidence/crimson-sword/github-actions-29715740214/01-start/screenshot.png",
+  "screenshotSha256": "b25868fb79d53a8a171ee72bf81efec6e6af5fb6f3199df803cd227313cfdd7c",
+  "surface": {
+    "runtime": "github-actions-playwright",
+    "browser": "system-chrome",
+    "channel": "chrome",
+    "mode": "desktop",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    }
+  },
+  "browserSocketProof": {
+    "status": "attached",
+    "parentBone": "RightHand",
+    "hiltToHandDistance": 0.13972,
+    "swordWorldScale": [
+      0.90588,
+      0.90588,
+      0.90588
+    ],
+    "bladeWorldLength": 0.56055,
+    "bladeWorldDirection": [
+      0.0645,
+      -0.04494,
+      0.99691
+    ],
+    "hiltScreen": [
+      370.7,
+      462.9
+    ],
+    "tipScreen": [
+      277.3,
+      493.4
+    ],
+    "screenLengthPx": 98.3,
+    "screenBounds": {
+      "min": [
+        248.4,
+        426.7
+      ],
+      "max": [
+        446.7,
+        517.2
+      ],
+      "size": [
+        198.3,
+        90.5
+      ],
+      "intersectsViewport": true
+    },
+    "visibleInViewport": true
+  },
+  "bootTimings": {
+    "bootStart": 1.1,
+    "firstFrame": 26.9,
+    "candidateLoaded": 158,
+    "characterLoaded": 664.4,
+    "bootReady": 671.7,
+    "saberLoaded": 671.8,
+    "saberAttached": 673.2,
+    "reviewReady": 674.4
+  },
+  "debugPayload": {
+    "dataset": {
+      "bootTimingBootStart": "1.1",
+      "bootTimings": "{\"bootStart\":1.1,\"firstFrame\":26.9,\"candidateLoaded\":158,\"characterLoaded\":664.4,\"bootReady\":671.7,\"saberLoaded\":671.8,\"saberAttached\":673.2,\"reviewReady\":674.4}",
+      "bootState": "showing Crimson Knight",
+      "firstFrame": "1",
+      "bootTimingFirstFrame": "26.9",
+      "bootTimingCandidateLoaded": "158",
+      "bootTimingCharacterLoaded": "664.4",
+      "bootTimingBootReady": "671.7",
+      "bootReady": "1",
+      "pbrReady": "1",
+      "bootTimingSaberLoaded": "671.8",
+      "saberAttachmentStatus": "attached",
+      "saberAttachmentParent": "RightHand",
+      "saberAttachmentDistance": "0.13972",
+      "saberWorldScale": "[0.90588,0.90588,0.90588]",
+      "saberBladeWorldLength": "0.56055",
+      "saberScreenLengthPx": "98.3",
+      "saberVisibleInViewport": "true",
+      "crimsonSocketProof": "{\"status\":\"attached\",\"parentBone\":\"RightHand\",\"hiltToHandDistance\":0.13972,\"swordWorldScale\":[0.90588,0.90588,0.90588],\"bladeWorldLength\":0.56055,\"bladeWorldDirection\":[0.0645,-0.04494,0.99691],\"hiltScreen\":[370.7,462.9],\"tipScreen\":[277.3,493.4],\"screenLengthPx\":98.3,\"screenBounds\":{\"min\":[248.4,426.7],\"max\":[446.7,517.2],\"size\":[198.3,90.5],\"intersectsViewport\":true},\"visibleInViewport\":true}",
+      "bootTimingSaberAttached": "673.2",
+      "bootTimingReviewReady": "674.4",
+      "reviewReady": "1",
+      "reviewAssetQuality": "review",
+      "reviewPoseState": "attack1"
+    },
+    "readyState": "complete",
+    "locationHref": "https://valar05.github.io/pose-lab-v2/?pose=attack1&candidate=crimson-light-attack1-vanguard-3&cacheBust=attack1-4418f39&model=crimson&view=orbit&reviewControls=1&attackTime=0",
+    "title": "Pose Lab V2 Saber",
+    "visibleText": "Model: Crimson Knight\nTool: Saber\nPose: Attack1\nAnim: None\nView: Orbit\nAttack1\nTools\nAttack1 candidate preview: crimson-light-attack1-vanguard-3; 0.000s\nPlay\nPause\n0.000s\nClose\nstart\nearlyWindup\nanticipation\nsnapPrep\ncontact\ncontactHold\nsettle\nfollowThrough\nModel\nTransform\nView\nExport\nDavin Wingsworth\nCrimson Knight\nMeshy\nAres\nSecurityTitan\nVanguard",
+    "canvases": [
+      {
+        "width": 986,
+        "height": 900,
+        "clientWidth": 986,
+        "clientHeight": 900,
+        "bounds": [
+          0,
+          0,
+          986,
+          900
+        ]
+      }
+    ]
+  },
+  "consoleEvents": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x153c00100200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x153c00100200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x153c00100200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x153c00100200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    }
+  ],
+  "pageErrors": [],
+  "networkFailures": [],
+  "responseStatuses": [],
+  "visualRead": "",
+  "assertions": {}
+}
