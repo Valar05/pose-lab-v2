@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify:
@@ -57,3 +57,26 @@ jobs:
           path: generated/valkyrie-sprite-review/
           if-no-files-found: error
           retention-days: 30
+      - name: Persist browser QA receipt
+        run: |
+          mkdir -p docs/receipts
+          RECEIPT="docs/receipts/valkyrie-full-sprite-qa-${GITHUB_SHA}.json"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const report=JSON.parse(fs.readFileSync('generated/valkyrie-sprite-review/report.json','utf8'));
+          const receipt={
+            schema:'valkyrie-full-sprite-qa-receipt-v1',
+            testedSha:process.env.GITHUB_SHA,
+            workflowRunId:process.env.GITHUB_RUN_ID,
+            workflowRunAttempt:process.env.GITHUB_RUN_ATTEMPT,
+            generatedAt:new Date().toISOString(),
+            report
+          };
+          fs.writeFileSync(`docs/receipts/valkyrie-full-sprite-qa-${process.env.GITHUB_SHA}.json`,JSON.stringify(receipt,null,2)+'\n');
+          NODE
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$RECEIPT"
+          git commit -m "Record Valkyrie full-sprite QA receipt for ${GITHUB_SHA}"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
