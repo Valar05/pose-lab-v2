@@ -450,3 +450,18 @@ When waking a cloud URL:
    as the default review lane, or `--run-id` to reuse an inspected cloud capture.
 7. Do not use the word "pass" unless `npm run accept:crimson-sword` passed
    against current cloud screenshot evidence.
+
+## FPSPlayer ARIES V8
+
+The user-accepted ARIES material build is registered as a distinct model and does not replace the archived `fpsplayer` donor.
+
+- Phone review route: `?model=fpsplayer-aries-v8&view=fpv&clip=FistReady`
+- Runtime: `public/assets/fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8_runtime.glb`
+- Blender master: `authoring/fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8.blend`
+- Materials: albedo V5.1, normal V3, and packed ORM V8
+- Inventory: 15 physical armor plates, 16 meshes, one skin, and 57 embedded clips
+- Accepted first-person baseline: 105 degree FOV
+- Validation: `npm run test:fpsplayer-aries-v8`
+
+All sprite sheets, atlases, masks, frame metadata, and animation registrations derived from this model belong under `public/assets/fpsplayer-aries-v8/2d/`. The accepted 3D source and accepted 2D pixels are immutable; new 2D work is append-only and must be reviewed in the phone-hosted Pose Lab V2 surface.
+

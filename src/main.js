@@ -22,6 +22,7 @@ const ASSETS = {
   securityTitan: './assets/ares/security_titan_rigged_diffuse.glb',
   vanguard: './assets/vanguard/vanguard_rigged_animations.glb',
   fpsplayer: './assets/fpsplayer/FPSPlayer.glb',
+  fpsplayerAriesV8: './assets/fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8_runtime.glb',
 };
 const MIXAMO_BONE_MAP = Object.freeze({
   Hips: 'mixamorig:Hips',
@@ -146,6 +147,34 @@ const CHARACTER_ASSETS = Object.freeze({
     autoPlayAnimation: true,
     defaultClip: 'FistReady',
   },
+  'fpsplayer-aries-v8': {
+    key: 'fpsplayer-aries-v8',
+    label: 'FPSPlayer ARIES V8',
+    asset: ASSETS.fpsplayerAriesV8,
+    source: '/storage/emulated/0/Download/FPSPlayer_ARIES_ORM_v8.blend',
+    role: 'accepted ARIES V8 first-person arms baseline with 15 physical armor plates, albedo V5.1, normal V3, packed ORM V8, and 57 embedded source animations; immutable 3D source for append-only 2D derivatives',
+    boneMap: {
+      Head: 'Camera',
+      Spine02: 'ShoulderCenter',
+      LeftShoulder: 'ShoulderCenter',
+      LeftArm: 'Arm.L',
+      LeftForeArm: 'Forearm.L',
+      LeftHand: 'Hand.L',
+      RightShoulder: 'ShoulderCenter',
+      RightArm: 'Arm.R',
+      RightForeArm: 'Forearm.R',
+      RightHand: 'Hand.R',
+    },
+    supportsSaber: false,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+    supportsAnimationClips: true,
+    autoPlayAnimation: true,
+    defaultClip: 'FistReady',
+    firstPersonAnchor: 'Camera',
+    firstPersonFallbackAnchor: 'ShoulderCenter',
+    firstPersonFov: 105,
+  },
   vanguard: {
     key: 'vanguard',
     label: 'Vanguard',
@@ -186,6 +215,10 @@ const CHARACTER_KEY_ALIASES = Object.freeze({
   fpsplayer: 'fpsplayer',
   fps: 'fpsplayer',
   arms: 'fpsplayer',
+  'fpsplayer-aries-v8': 'fpsplayer-aries-v8',
+  'aries-v8': 'fpsplayer-aries-v8',
+  aries: 'fpsplayer-aries-v8',
+  'fps-v8': 'fpsplayer-aries-v8',
 });
 const CHARACTER_KEYS = Object.freeze(Object.keys(CHARACTER_ASSETS));
 const MESHY_PBR_TEXTURES = {
@@ -587,6 +620,9 @@ const firstPersonCameraConfig = {
   fov: 112,
   near: 0.055,
 };
+if (ACTIVE_CHARACTER.firstPersonAnchor) firstPersonCameraConfig.anchor = ACTIVE_CHARACTER.firstPersonAnchor;
+if (ACTIVE_CHARACTER.firstPersonFallbackAnchor) firstPersonCameraConfig.fallbackAnchor = ACTIVE_CHARACTER.firstPersonFallbackAnchor;
+if (ACTIVE_CHARACTER.firstPersonFov) firstPersonCameraConfig.fov = ACTIVE_CHARACTER.firstPersonFov;
 const FPV_CAMERA_DEFAULTS = Object.freeze({
   headForwardOffset: firstPersonCameraConfig.headForwardOffset,
   headCameraYOffset: firstPersonCameraConfig.headCameraYOffset,
