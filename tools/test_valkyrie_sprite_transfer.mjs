@@ -17,4 +17,8 @@ for(const id of [...expectedApril,...expectedVanguard])assert(moduleSource.inclu
 assert(moduleSource.includes("revisedAsset('../assets/valkyrie-squad/factory-v1/runtime/"),'runtime assets must resolve inside Pose Lab V2');
 assert(moduleSource.includes("url.searchParams.set('cacheBust',ASSET_REVISION)"),'runtime assets must inherit the deployed revision');
 assert(moduleSource.includes("setCharacter(character,false);document.body.dataset.reviewReady='1'"),'runtime readiness must follow decoded media and populated state');
-console.log(JSON.stringify({ok:true,april:expectedApril.length,vanguard:expectedVanguard.length,total:20,checks:['animation-id equality','asset sha256','Pose Lab asset paths','runtime readiness']},null,2));
+assert(moduleSource.includes('const FULL_SPRITE_VIEW=Object.freeze({sourceSize:512,pivotX:256,pivotY:512,centerX:256,groundY:448,maxScale:.75,safeMargin:18,driveLever:384})'),'full-sprite presentation contract missing');
+assert(moduleSource.includes('function fullSpriteFitTransform(state,offsetX=0,angleOffset=0)'),'full-sprite fit helper missing');
+assert(!moduleSource.includes('const rows=32,sourceSlice=512/rows,baseX=64,baseY=64,baseSize=384,destSlice=baseSize/rows,groundY=448'),'Vanguard combat must not be rendered as horizontal slices');
+assert(!moduleSource.includes('ctx.rect(18,18,476,476);ctx.clip()'),'Vanguard combat must not hard-clip complete silhouettes');
+console.log(JSON.stringify({ok:true,april:expectedApril.length,vanguard:expectedVanguard.length,total:20,checks:['animation-id equality','asset sha256','Pose Lab asset paths','runtime readiness','continuous full-sprite fit','no combat hard clip']},null,2));
