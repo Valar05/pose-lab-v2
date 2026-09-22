@@ -123,7 +123,8 @@ if image is None:
 if image.size[0] != SIZE or image.size[1] != SIZE:
     image.scale(SIZE, SIZE)
 
-pixels, floats = image_bytes(image)
+pixels, _source_floats = image_bytes(image)
+before = bytes(pixels)
 arm = bpy.data.objects.get("Arms")
 if arm is None or arm.type != "MESH":
     raise RuntimeError("Arms mesh not found")
@@ -141,15 +142,27 @@ for tri in mesh.loop_triangles:
     fill_triangle(pixels, uv_points, positions, poly.normal)
     painted += 1
 
+changed_pixels = sum(
+    1 for i in range(0, len(pixels), 4) if pixels[i : i + 4] != before[i : i + 4]
+)
+if changed_pixels < 1000:
+    raise RuntimeError("V5 detail pass changed too few pixels")
+
+# A fresh datablock avoids Blender treating a mutated packed v4 image as clean
+# and writing its old encoded bytes back to disk.
+floats = array("f", [0.0]) * len(pixels)
 for i, channel in enumerate(pixels):
     floats[i] = channel / 255.0
-image.pixels.foreach_set(floats)
-image.name = "FPSPlayer_ARIES_Albedo_v5"
-image.filepath_raw = OUT_PNG
-image.file_format = "PNG"
-image.colorspace_settings.name = "sRGB"
-image.save()
-image.pack()
+output_image = bpy.data.images.new(
+    "FPSPlayer_ARIES_Albedo_v5", width=SIZE, height=SIZE, alpha=True
+)
+output_image.pixels.foreach_set(floats)
+output_image.update()
+output_image.filepath_raw = OUT_PNG
+output_image.file_format = "PNG"
+output_image.colorspace_settings.name = "sRGB"
+output_image.save()
+output_image.pack()
 
 for material in bpy.data.materials:
     if not material.use_nodes or not material.node_tree:
@@ -161,7 +174,7 @@ for material in bpy.data.materials:
         bsdf.inputs["Metallic"].default_value = 0.0
     for node in material.node_tree.nodes:
         if node.type == "TEX_IMAGE":
-            node.image = image
+            node.image = output_image
 
 # Save the master before any runtime packaging. GLB export is deliberately not
 # attempted here because Blender 4.3's exporter crashes in this phone proot.
@@ -169,6 +182,7 @@ bpy.ops.wm.save_as_mainfile(filepath=OUT_BLEND)
 
 print("FPS_ALBEDO_V5_OK")
 print("painted_triangles", painted)
+print("changed_pixels", changed_pixels)
 print("actions", len(bpy.data.actions))
 print("blend", OUT_BLEND, os.path.getsize(OUT_BLEND))
 print("png", OUT_PNG, os.path.getsize(OUT_PNG))
