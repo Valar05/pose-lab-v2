@@ -1,0 +1,578 @@
+{
+  "schema": "vanguard-combat-ground-lock/v1",
+  "policy": "no-step",
+  "target": {
+    "image-left": [
+      13.0,
+      91.0
+    ],
+    "image-right": [
+      66.5,
+      92.0
+    ]
+  },
+  "tolerancePx": 1,
+  "frames": [
+    {
+      "frame": "pose-00.png",
+      "before": {
+        "image-left": [
+          13.5,
+          92.0
+        ],
+        "image-right": [
+          64.5,
+          92.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            -0.5,
+            -1.0
+          ],
+          "rightLowerLeg": [
+            2.5,
+            1.0
+          ]
+        },
+        {
+          "global": [
+            0.0,
+            1.0
+          ],
+          "rightLowerLeg": [
+            0.0,
+            -1.0
+          ]
+        },
+        {
+          "global": [
+            0.0,
+            0.0
+          ],
+          "rightLowerLeg": [
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.0,
+          91.0
+        ],
+        "image-right": [
+          66.5,
+          92.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-01.png",
+      "before": {
+        "image-left": [
+          17.5,
+          91.0
+        ],
+        "image-right": [
+          69.0,
+          92.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            -4.5,
+            0.0
+          ],
+          "rightLowerLeg": [
+            2.0,
+            0.0
+          ]
+        },
+        {
+          "global": [
+            0.5,
+            0.0
+          ],
+          "rightLowerLeg": [
+            -0.5,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          12.5,
+          91.0
+        ],
+        "image-right": [
+          66.5,
+          92.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-02.png",
+      "before": {
+        "image-left": [
+          13.0,
+          91.0
+        ],
+        "image-right": [
+          66.5,
+          92.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            0.0,
+            0.0
+          ],
+          "rightLowerLeg": [
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.0,
+          91.0
+        ],
+        "image-right": [
+          66.5,
+          92.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-03.png",
+      "before": {
+        "image-left": [
+          18.5,
+          91.0
+        ],
+        "image-right": [
+          72.5,
+          92.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            -5.5,
+            0.0
+          ],
+          "rightLowerLeg": [
+            -0.5,
+            0.0
+          ]
+        },
+        {
+          "global": [
+            -0.5,
+            0.0
+          ],
+          "rightLowerLeg": [
+            0.5,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.5,
+          91.0
+        ],
+        "image-right": [
+          66.5,
+          92.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-04.png",
+      "before": {
+        "image-left": [
+          12.5,
+          85.0
+        ],
+        "image-right": [
+          66.5,
+          85.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            0.5,
+            6.0
+          ],
+          "rightLowerLeg": [
+            -0.5,
+            1.0
+          ]
+        },
+        {
+          "global": [
+            -0.5,
+            0.0
+          ],
+          "rightLowerLeg": [
+            0.5,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.5,
+          91.0
+        ],
+        "image-right": [
+          66.5,
+          92.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-05.png",
+      "before": {
+        "image-left": [
+          12.0,
+          84.0
+        ],
+        "image-right": [
+          63.5,
+          85.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            1.0,
+            7.0
+          ],
+          "rightLowerLeg": [
+            2.0,
+            0.0
+          ]
+        },
+        {
+          "global": [
+            0.0,
+            0.0
+          ],
+          "rightLowerLeg": [
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.0,
+          91.0
+        ],
+        "image-right": [
+          66.5,
+          92.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-06.png",
+      "before": {
+        "image-left": [
+          15.0,
+          85.0
+        ],
+        "image-right": [
+          69.0,
+          85.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            -2.0,
+            6.0
+          ],
+          "rightLowerLeg": [
+            -0.5,
+            1.0
+          ]
+        },
+        {
+          "global": [
+            0.0,
+            0.0
+          ],
+          "rightLowerLeg": [
+            -0.5,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.0,
+          91.0
+        ],
+        "image-right": [
+          67.0,
+          92.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-07.png",
+      "before": {
+        "image-left": [
+          7.5,
+          85.0
+        ],
+        "image-right": [
+          70.0,
+          85.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            5.5,
+            6.0
+          ],
+          "rightLowerLeg": [
+            -9.0,
+            1.0
+          ]
+        },
+        {
+          "global": [
+            0.0,
+            0.0
+          ],
+          "rightLowerLeg": [
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.0,
+          91.0
+        ],
+        "image-right": [
+          66.5,
+          92.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-08.png",
+      "before": {
+        "image-left": [
+          21.5,
+          72.0
+        ],
+        "image-right": [
+          72.0,
+          85.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            -8.5,
+            19.0
+          ],
+          "rightLowerLeg": [
+            3.0,
+            -12.0
+          ]
+        },
+        {
+          "global": [
+            -5.5,
+            0.0
+          ],
+          "rightLowerLeg": [
+            6.0,
+            0.0
+          ]
+        },
+        {
+          "global": [
+            -5.5,
+            -4.0
+          ],
+          "rightLowerLeg": [
+            5.5,
+            4.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.5,
+          91.0
+        ],
+        "image-right": [
+          65.5,
+          91.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-09.png",
+      "before": {
+        "image-left": [
+          14.5,
+          84.0
+        ],
+        "image-right": [
+          72.0,
+          85.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            -1.5,
+            7.0
+          ],
+          "rightLowerLeg": [
+            -4.0,
+            0.0
+          ]
+        },
+        {
+          "global": [
+            -0.5,
+            0.0
+          ],
+          "rightLowerLeg": [
+            0.5,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.5,
+          91.0
+        ],
+        "image-right": [
+          66.5,
+          92.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-10.png",
+      "before": {
+        "image-left": [
+          11.5,
+          85.0
+        ],
+        "image-right": [
+          73.5,
+          85.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            1.5,
+            6.0
+          ],
+          "rightLowerLeg": [
+            -8.5,
+            1.0
+          ]
+        },
+        {
+          "global": [
+            0.0,
+            1.0
+          ],
+          "rightLowerLeg": [
+            -1.5,
+            -1.0
+          ]
+        },
+        {
+          "global": [
+            0.0,
+            0.0
+          ],
+          "rightLowerLeg": [
+            0.5,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.0,
+          91.0
+        ],
+        "image-right": [
+          66.0,
+          92.0
+        ]
+      }
+    },
+    {
+      "frame": "pose-11.png",
+      "before": {
+        "image-left": [
+          16.0,
+          85.0
+        ],
+        "image-right": [
+          73.0,
+          85.0
+        ]
+      },
+      "iterations": [
+        {
+          "global": [
+            -3.0,
+            6.0
+          ],
+          "rightLowerLeg": [
+            -3.5,
+            1.0
+          ]
+        },
+        {
+          "global": [
+            0.0,
+            0.0
+          ],
+          "rightLowerLeg": [
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "after": {
+        "image-left": [
+          13.0,
+          91.0
+        ],
+        "image-right": [
+          66.5,
+          92.0
+        ]
+      }
+    }
+  ],
+  "warning": "Mechanical registration is not anatomical or visual acceptance."
+}

@@ -1,0 +1,95 @@
+{
+  "schema": "pose-lab-v2-valkyrie-sprite-transfer-v1",
+  "status": "quarantined",
+  "source": {
+    "repository": "ChatGPT Site source repository",
+    "revision": "905d3a200e9a34a3832176cc3a761c88ead370ee",
+    "siteVersion": 30
+  },
+  "runtime": {
+    "view": "valkyrie",
+    "animationFramesBaked": false,
+    "semanticPoseCellsOnly": true,
+    "filtering": "nearest-neighbor",
+    "rootMotion": false
+  },
+  "animationIds": {
+    "april": [
+      "combat-idle",
+      "idle",
+      "run",
+      "jab",
+      "cross",
+      "front-kick",
+      "dash",
+      "dodge-slide",
+      "flip-jump"
+    ],
+    "vanguard": [
+      "heavy-idle",
+      "run",
+      "brake-pivot",
+      "reach-brace",
+      "dash",
+      "dodge-slide",
+      "flip-jump",
+      "shotgun-blast",
+      "bayonet-drive",
+      "weapon-bash",
+      "grapple-entry"
+    ]
+  },
+  "counts": {
+    "april": 9,
+    "vanguard": 11,
+    "total": 20
+  },
+  "acceptance": {
+    "april": "preserved exact Site state; human verdicts carried per project manifest",
+    "vanguardNoncombat": "accepted factory identity and pose library; motion state preserved from Site",
+    "vanguardCombat": "candidate-v3; visual acceptance pending"
+  },
+  "assets": [
+    {
+      "path": "runtime/april-pose-atlas-96.png",
+      "bytes": 61003,
+      "sha256": "1f283f698f8ca17074ab77e832f57dc6c4697614c11e6b27747ecb252128b284"
+    },
+    {
+      "path": "runtime/april-pose-atlas-96.json",
+      "bytes": 6647,
+      "sha256": "da64f82712acb81b9a6e892839a2df029a86aa8e743c485f63b11a8ff3fad2e3"
+    },
+    {
+      "path": "runtime/vanguard-pose-atlas-96.png",
+      "bytes": 42680,
+      "sha256": "d36cd7d344e82300037af45dd78e2c882454336b0715e52412c5e6b232c4a29e"
+    },
+    {
+      "path": "runtime/vanguard-pose-atlas-96.json",
+      "bytes": 5384,
+      "sha256": "73b3ba18d34d14d1a370f00aeacf6f6fa65933fe337145dfca5b970c6f8dba62"
+    },
+    {
+      "path": "runtime/vanguard-combat-pose-atlas-96-candidate-v3-refined-grounded.png",
+      "bytes": 161588,
+      "sha256": "2cbce2e386dfdbfc74268383cfe26c0799a0ede7052178f661a9f7c259372f44"
+    },
+    {
+      "path": "project.json",
+      "bytes": 8811,
+      "sha256": "544a3ccf3740d36b4fabdeb97a0adfd75b2060efea114edf7f2c622523b9649e"
+    }
+  ],
+  "provenance": {
+    "authoringPath": "authoring/valkyrie-squad/factory-v1",
+    "bulkySourceArchive": {
+      "libraryFileId": "libfile_5103eaaaad248191b282ca4dab9b67b7",
+      "fileName": "Valkyrie-Squad-Pose-Lab-V2-Source-Masters-2026-09-22.tar.gz",
+      "bytes": 39520167,
+      "sha256": "b84c618551b654cbfbdccae9111481ebfbfccb39d3f56a8903e7d5e5ac6417d2"
+    },
+    "noBlendPresentInSource": true,
+    "rejectedHistoryPreserved": true
+  }
+}

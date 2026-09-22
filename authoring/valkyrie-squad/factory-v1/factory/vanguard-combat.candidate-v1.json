@@ -1,0 +1,69 @@
+{
+  "schema": "vanguard-combat-candidate/v1",
+  "state": "candidate-v3-refined-alpha-grounded-awaiting-drew-visual-review",
+  "motionAuthority": {
+    "file": "911865.jpg",
+    "role": "Drew air-rifle choreography contact sheet",
+    "constraints": [
+      "firearm hand transitions",
+      "whole-body bracing",
+      "recoil compression",
+      "reverse-grip weapon bash",
+      "downward follow-through",
+      "one-hand retention with released grapple hand"
+    ]
+  },
+  "identityAuthority": {
+    "file": "source-masters/vanguard-factory-identity-master.png",
+    "sha256": "dadd4823fef419ee768884f966aec97f9288f5bdd3f5f73280dbba3aae1648e2"
+  },
+  "renderCandidate": {
+    "file": "source-masters/vanguard-combat-contact-sheet-candidate-v1.png",
+    "sha256": "f71a0dbc747524c75e3c6ece77122ad8b6423f31a472d43cdfdd26a3adcb1096",
+    "alphaFile": "source-masters/vanguard-combat-contact-sheet-candidate-v2-refined-alpha.png",
+    "alphaSha256": "05d6a5ff9fd8df36a298beef38e1ce2eb7bb94a9b34050baf3d86a3a148e2230",
+    "alphaPolicy": "per-cell polynomial brown-matte model plus residual-seeded GrabCut; source RGB preserved",
+    "weaponAudit": "all 12 complete weapon silhouettes present in refined high-resolution alpha candidate",
+    "grid": [4, 3],
+    "poseCount": 12
+  },
+  "runtimeAtlas": {
+    "file": "dist/assets/vanguard-combat-pose-atlas-96-candidate-v3-refined-grounded.png",
+    "sha256": "2cbce2e386dfdbfc74268383cfe26c0799a0ede7052178f661a9f7c259372f44",
+    "bytes": 161588,
+    "cellSize": [96, 96],
+    "grid": [4, 3],
+    "alpha": true,
+    "filtering": "nearest-neighbor",
+    "animationFramesBaked": false
+  },
+  "poses": [
+    "low-carry",
+    "carry-transition",
+    "low-ready",
+    "high-guard",
+    "forward-aim",
+    "blast-contact",
+    "recoil",
+    "bayonet-thrust",
+    "reverse-windup",
+    "overhead-apex",
+    "downward-followthrough",
+    "grapple-retention"
+  ],
+  "motionTests": {
+    "shotgun-blast": {"axis": "backward", "durationMs": 800, "keys": ["low-carry", "grapple-retention", "blast-contact", "recoil", "low-carry"], "recovery": "rotational settle"},
+    "bayonet-drive": {"axis": "forward", "durationMs": 680, "keys": ["low-ready", "bayonet-thrust", "low-ready"], "recovery": "forward mass stop"},
+    "weapon-bash": {"axis": "downward", "durationMs": 1020, "keys": ["low-carry", "reverse-windup", "overhead-apex", "downward-followthrough", "low-carry"], "recovery": "low weighted settle"},
+    "grapple-entry": {"axis": "inward", "weaponContinuity": "visible-throughout", "postGrabShear": "forward-upper-body", "durationMs": 920, "keys": ["low-carry", "grapple-retention", "carry-transition", "blast-contact", "low-carry"], "picturedContactPose": "blast-contact", "recovery": "one-hand retention settle", "maxBodyTravelPx": 4, "prohibitedPoses": ["high-guard upward-angle pose", "recoil pose shared with retention THOOM", "forward shoulder-charge translation"]}
+  },
+  "locks": {
+    "camera": "fixed",
+    "rootMotion": false,
+    "groundPivot": "two-foot registered atlas plus ankle-zero deformation",
+    "groundLockReport": "factory/vanguard-combat-ground-lock.candidate-v3.json",
+    "groundTolerancePx": 1,
+    "safeMarginPx": 18,
+    "acceptedNoncombatFactoryMutation": false
+  }
+}
