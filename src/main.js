@@ -573,8 +573,7 @@ function updateReadyProof(values = {}) {
 }
 
 function blockPoseTouchPointer(event) {
-  const fpvCameraOwnsTouch = viewMode === 'firstPerson' && fpvControlMode === 'camera';
-  if (event.pointerType !== 'touch' || toolMode !== 'pose' || (!suppressTouchPointerEvents && !fpvCameraOwnsTouch)) return;
+  if (event.pointerType !== 'touch' || toolMode !== 'pose' || !suppressTouchPointerEvents) return;
   updateTouchProof({ orbitBlocked: true, lastTouchAction: 'blocked-duplicate-touch-pointer' });
   event.preventDefault();
   event.stopPropagation();
