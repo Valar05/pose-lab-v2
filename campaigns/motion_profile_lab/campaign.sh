@@ -13,6 +13,7 @@ LATEST_RECEIPT="$STATE_ROOT/latest-receipt.txt"
 HISTORY_FILE="$STATE_ROOT/history.log"
 LOG_FILE="$STATE_ROOT/campaign.log"
 RUN_DIR="$STATE_ROOT/runs"
+MANAGED_ROOT="$STATE_ROOT/repo"
 SCRIPT_SELF="$0"
 
 mkdir -p "$STATE_ROOT" "$RUN_DIR"
@@ -170,18 +171,45 @@ worker_main() {
   fi
 
   cd "$ROOT"
-  worker_update "$run_id" "verify_repo" "$started" "verifying origin/main and preservation boundary" "$ROOT" "" "$resume_of"
+  worker_update "$run_id" "verify_repo" "$started" "verifying origin and preservation boundary" "$ROOT" "" "$resume_of"
   REMOTE="$(git remote get-url origin 2>/dev/null || true)"
   case "$REMOTE" in *Valar05/pose-lab-v2*) ;; *) worker_fail "$run_id" "$started" "$resume_of" "verify_repo" 40 "wrong origin: $REMOTE" "$ROOT" "";; esac
-  [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ] || worker_fail "$run_id" "$started" "$resume_of" "verify_repo" 41 "checkout is not on main" "$ROOT" ""
-  if [ -n "$(git status --porcelain)" ]; then
+
+  worker_update "$run_id" "update" "$started" "fetching origin/main" "$ROOT" "" "$resume_of"
+  git fetch --prune origin main
+
+  USE_MANAGED=0
+  if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
+    USE_MANAGED=1
+    printf '[%s] preserve: user checkout is not on main; using managed checkout\n' "$(iso)"
+  elif [ -n "$(git status --porcelain)" ]; then
+    USE_MANAGED=1
+    printf '[%s] preserve: user checkout is dirty; using managed checkout\n' "$(iso)"
     git status --short
-    worker_fail "$run_id" "$started" "$resume_of" "preservation" 42 "dirty worktree; refusing to trample local work" "$ROOT" ""
+  elif ! git merge-base --is-ancestor HEAD origin/main; then
+    USE_MANAGED=1
+    printf '[%s] preserve: user main has local/divergent commits; using managed checkout\n' "$(iso)"
   fi
 
-  worker_update "$run_id" "update" "$started" "fetching and fast-forwarding origin/main" "$ROOT" "" "$resume_of"
-  git fetch --prune origin main
-  git merge --ff-only origin/main
+  if [ "$USE_MANAGED" -eq 0 ]; then
+    worker_update "$run_id" "update" "$started" "fast-forwarding user checkout" "$ROOT" "" "$resume_of"
+    git merge --ff-only origin/main
+  else
+    worker_update "$run_id" "managed_checkout" "$started" "preserving user checkout and preparing campaign-owned current-main checkout" "$MANAGED_ROOT" "" "$resume_of"
+    if [ ! -d "$MANAGED_ROOT/.git" ]; then
+      rm -rf "$MANAGED_ROOT"
+      git clone "$REPO_HTTPS" "$MANAGED_ROOT"
+    fi
+    ROOT="$MANAGED_ROOT"
+    cd "$ROOT"
+    MREMOTE="$(git remote get-url origin 2>/dev/null || true)"
+    case "$MREMOTE" in *Valar05/pose-lab-v2*) ;; *) worker_fail "$run_id" "$started" "$resume_of" "managed_checkout" 41 "managed checkout has wrong origin: $MREMOTE" "$ROOT" "";; esac
+    git fetch --prune origin main
+    git checkout -B main origin/main
+    git reset --hard origin/main
+    git clean -fd
+  fi
+
   HEAD_SHA="$(git rev-parse HEAD)"
 
   worker_update "$run_id" "dependencies" "$started" "ensuring npm dependencies" "$ROOT" "$HEAD_SHA" "$resume_of"
