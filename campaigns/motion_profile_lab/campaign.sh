@@ -95,7 +95,7 @@ assert_tools() {
 campaign_canary() {
   local quiet="${1:-}"
   assert_tools
-  local csession="${SESSION}-canary-$"
+  local csession="${SESSION}-canary-$(date +%s)-${RANDOM:-0}"
   tmux new-session -d -s "$csession" "sh -c 'trap \"exit 0\" TERM INT; sleep 300 & wait'" || fatal 21 "canary launch failed"
   sleep 0.25
   tmux has-session -t "$csession" 2>/dev/null || fatal 22 "canary session not alive"
