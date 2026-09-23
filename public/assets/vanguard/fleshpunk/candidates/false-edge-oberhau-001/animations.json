@@ -1,0 +1,143 @@
+{
+  "schema": "pose-lab-v2-2d-animation-set-v1",
+  "character": "Fleshpunk Vanguard — False Edge Oberhau Candidate 001",
+  "defaultAnimation": "false-edge-arcade-520ms",
+  "status": "quarantined",
+  "frameSpace": {
+    "width": 512,
+    "height": 512,
+    "colorMode": "RGBA",
+    "background": "transparent",
+    "facing": "screen-right",
+    "camera": "fixed"
+  },
+  "authority": {
+    "posePixelsMotionOrder": "Vanguard_False_Edge_Oberhau_Repaired_001.gif",
+    "timingComparisonOnly": true,
+    "excluded": [
+      "invented in-betweens",
+      "pose edits",
+      "per-frame reframing",
+      "foot-anchor changes",
+      "weapon recomposition"
+    ]
+  },
+  "animations": [
+    {
+      "id": "false-edge-review-1160ms",
+      "label": "False Edge — Original 1160 ms",
+      "loop": true,
+      "contactSheet": "contact-sheet.png",
+      "sourceMetadata": "source-metadata.json",
+      "groundGuideY": 435,
+      "contract": [
+        "same eight repaired poses",
+        "original GIF timing",
+        "fixed 512x512 canvas",
+        "support contacts preserved",
+        "quarantined comparison candidate"
+      ],
+      "frames": [
+        {
+          "src": "frames/false-edge-oberhau_0000.png",
+          "durationMs": 140,
+          "sha256": "cc92624587e880b6f9741aff320547e1359f490390689c3ee13e75f3675c5e67"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0001.png",
+          "durationMs": 140,
+          "sha256": "ad05a668b2a5d06029c32cd613af1efff8039c9892ebb1ac42a3e18d76358250"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0002.png",
+          "durationMs": 120,
+          "sha256": "b66665f89776510dee139355b4008f34ee86dab7682007daeb9554e53ed6705b"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0003.png",
+          "durationMs": 120,
+          "sha256": "10aeda020d690d6451ae4eb3edbccb2886b5cd9206ce8f88983dcb1271ac2c62"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0004.png",
+          "durationMs": 120,
+          "sha256": "523dfff3640d464d965bf8cab9d3bf821a57befc05aee49c2255dc4f0b79f963"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0005.png",
+          "durationMs": 120,
+          "sha256": "20a3d24d3c533d4194c85fea1656bb9a129e4d540b56f1a3355e491d965dffe8"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0006.png",
+          "durationMs": 140,
+          "sha256": "bda6d2c33f0e8e4ac642c2bfd09c6d1d46c6be30e4b1e919bc27e225ae80911c"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0007.png",
+          "durationMs": 260,
+          "sha256": "e7de9d259414c15652c47e8e7181b691b9dccffee3ab00058503bcd245bfb6a7"
+        }
+      ]
+    },
+    {
+      "id": "false-edge-arcade-520ms",
+      "label": "False Edge — Arcade 520 ms",
+      "loop": true,
+      "contactSheet": "contact-sheet.png",
+      "sourceMetadata": "source-metadata.json",
+      "groundGuideY": 435,
+      "contract": [
+        "same eight repaired poses",
+        "timing-only arcade pass",
+        "compressed travel",
+        "readable final hold",
+        "fixed 512x512 canvas",
+        "support contacts preserved",
+        "quarantined comparison candidate"
+      ],
+      "frames": [
+        {
+          "src": "frames/false-edge-oberhau_0000.png",
+          "durationMs": 70,
+          "sha256": "cc92624587e880b6f9741aff320547e1359f490390689c3ee13e75f3675c5e67"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0001.png",
+          "durationMs": 50,
+          "sha256": "ad05a668b2a5d06029c32cd613af1efff8039c9892ebb1ac42a3e18d76358250"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0002.png",
+          "durationMs": 45,
+          "sha256": "b66665f89776510dee139355b4008f34ee86dab7682007daeb9554e53ed6705b"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0003.png",
+          "durationMs": 45,
+          "sha256": "10aeda020d690d6451ae4eb3edbccb2886b5cd9206ce8f88983dcb1271ac2c62"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0004.png",
+          "durationMs": 55,
+          "sha256": "523dfff3640d464d965bf8cab9d3bf821a57befc05aee49c2255dc4f0b79f963"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0005.png",
+          "durationMs": 60,
+          "sha256": "20a3d24d3c533d4194c85fea1656bb9a129e4d540b56f1a3355e491d965dffe8"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0006.png",
+          "durationMs": 75,
+          "sha256": "bda6d2c33f0e8e4ac642c2bfd09c6d1d46c6be30e4b1e919bc27e225ae80911c"
+        },
+        {
+          "src": "frames/false-edge-oberhau_0007.png",
+          "durationMs": 120,
+          "sha256": "e7de9d259414c15652c47e8e7181b691b9dccffee3ab00058503bcd245bfb6a7"
+        }
+      ]
+    }
+  ]
+}

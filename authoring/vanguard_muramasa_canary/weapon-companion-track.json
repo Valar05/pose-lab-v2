@@ -1,0 +1,232 @@
+{
+  "schema": "vanguard-source-witnessed-weapon-track-v1",
+  "status": "reviewed-manual-companion",
+  "source": {
+    "videoSha256": "35df8d71b98a259d0906379e950d93de72964ef8846c8f55238c57ce33dbf333",
+    "width": 720,
+    "height": 1280,
+    "coordinateSpace": "decoded source display pixels",
+    "annotationBasis": "visible sword pixels cross-checked against reviewed wrists",
+    "mirrored": false
+  },
+  "ownership": {
+    "driver": "sword-root-and-primary-hand",
+    "primaryHand": "right",
+    "secondaryHand": "left",
+    "secondaryConstraint": "recorded hilt socket",
+    "doubleSolveForbidden": true
+  },
+  "frames": [
+    {
+      "sourceFrame": 0,
+      "timestampSeconds": 0.0,
+      "root": [
+        422.2434,
+        558.6429
+      ],
+      "tip": [
+        325.0,
+        478.0
+      ],
+      "activeEdge": "false-edge",
+      "primaryHand": [
+        425.5307,
+        555.6843
+      ],
+      "secondaryHand": [
+        418.956,
+        561.6016
+      ],
+      "origin": "manual-source-witnessed"
+    },
+    {
+      "sourceFrame": 7,
+      "timestampSeconds": 0.1276860017,
+      "root": [
+        411.5,
+        557.5
+      ],
+      "tip": [
+        307.0,
+        470.0
+      ],
+      "activeEdge": "false-edge",
+      "primaryHand": [
+        415.0,
+        554.0
+      ],
+      "secondaryHand": [
+        408.0,
+        561.0
+      ],
+      "origin": "manual-source-witnessed"
+    },
+    {
+      "sourceFrame": 13,
+      "timestampSeconds": 0.2371311461,
+      "root": [
+        395.0,
+        550.0
+      ],
+      "tip": [
+        255.0,
+        545.0
+      ],
+      "activeEdge": "false-edge",
+      "primaryHand": [
+        399.0,
+        548.0
+      ],
+      "secondaryHand": [
+        391.0,
+        552.0
+      ],
+      "origin": "manual-source-witnessed"
+    },
+    {
+      "sourceFrame": 14,
+      "timestampSeconds": 0.2553736685,
+      "root": [
+        389.0,
+        550.0
+      ],
+      "tip": [
+        252.0,
+        551.0
+      ],
+      "activeEdge": "false-edge",
+      "primaryHand": [
+        393.0,
+        548.0
+      ],
+      "secondaryHand": [
+        385.0,
+        552.0
+      ],
+      "origin": "manual-source-witnessed"
+    },
+    {
+      "sourceFrame": 24,
+      "timestampSeconds": 0.4377989374,
+      "root": [
+        366.0,
+        514.0
+      ],
+      "tip": [
+        300.0,
+        640.0
+      ],
+      "activeEdge": "false-edge",
+      "primaryHand": [
+        370.0,
+        511.0
+      ],
+      "secondaryHand": [
+        362.0,
+        517.0
+      ],
+      "origin": "manual-source-witnessed"
+    },
+    {
+      "sourceFrame": 36,
+      "timestampSeconds": 0.6566984061,
+      "root": [
+        360.0,
+        442.0
+      ],
+      "tip": [
+        505.0,
+        395.0
+      ],
+      "activeEdge": "false-edge",
+      "primaryHand": [
+        365.0,
+        438.0
+      ],
+      "secondaryHand": [
+        355.0,
+        446.0
+      ],
+      "origin": "manual-source-witnessed"
+    },
+    {
+      "sourceFrame": 42,
+      "timestampSeconds": 0.7661160105,
+      "root": [
+        356.746,
+        435.2475
+      ],
+      "tip": [
+        191.492,
+        384.0
+      ],
+      "activeEdge": "false-edge",
+      "primaryHand": [
+        367.7515,
+        432.5795
+      ],
+      "secondaryHand": [
+        345.7405,
+        437.9155
+      ],
+      "origin": "manual-source-witnessed-corrected-from-production-v21-synchronized-comparison"
+    },
+    {
+      "sourceFrame": 47,
+      "timestampSeconds": 0.8573286674,
+      "root": [
+        356.0,
+        420.0
+      ],
+      "tip": [
+        558.0,
+        364.0
+      ],
+      "activeEdge": "false-edge",
+      "primaryHand": [
+        367.0,
+        417.0
+      ],
+      "secondaryHand": [
+        345.0,
+        423.0
+      ],
+      "origin": "manual-source-witnessed"
+    }
+  ],
+  "corrections": [
+    {
+      "sourceFrame": 42,
+      "kind": "canonical-screen-right-sword-vector-horizontal-component-reversal",
+      "priorTip": [
+        522.0,
+        384.0
+      ],
+      "correctedTip": [
+        191.492,
+        384.0
+      ],
+      "rootPreserved": [
+        356.746,
+        435.2475
+      ],
+      "primaryHandPreserved": [
+        367.7515,
+        432.5795
+      ],
+      "secondaryHandPreserved": [
+        345.7405,
+        437.9155
+      ],
+      "timestampSecondsPreserved": 0.7661160105,
+      "method": "mirror only the source-display X component about the preserved sword root; retain projected length and vertical component",
+      "basis": {
+        "productionVersion": 21,
+        "runId": "30582812601",
+        "cloudCaptureSha256": "2c45cfce48e12477885cb0d17e5a1d62259b1b827029a80ecd888703c8a93c49",
+        "visibleFailure": "candidate sword vector opposed the approved synchronized frame-42 witness"
+      },
+      "performanceChanged": false
+    }
+  ]
+}

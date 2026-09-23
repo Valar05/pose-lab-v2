@@ -23,6 +23,8 @@ const ASSETS = {
   ares: assetUrl('ares/ares_rigged_diffuse.glb'),
   securityTitan: assetUrl('ares/security_titan_rigged_diffuse.glb'),
   vanguard: assetUrl('vanguard/vanguard_rigged_animations.glb'),
+  fpsplayer: assetUrl('fpsplayer/FPSPlayer.glb'),
+  fpsplayerAriesV8: assetUrl('fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8_runtime.glb'),
 };
 const MIXAMO_BONE_MAP = Object.freeze({
   Hips: 'mixamorig:Hips',

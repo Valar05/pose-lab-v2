@@ -1,0 +1,2453 @@
+{
+  "schema": "vanguard-blender-scene-inspection-v1",
+  "scene": "Vanguard_Muramasa_Canary_001",
+  "blenderVersion": "4.3.2",
+  "objects": [
+    {
+      "name": "ATTACH_BreastplateTurn3Q",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_status",
+        "attempt_id",
+        "corrective_attachment_id",
+        "human_accepted",
+        "performance_changed",
+        "source_frame"
+      ]
+    },
+    {
+      "name": "ATTACH_BreastplateTurn3Q__FarUpperArm",
+      "type": "MESH",
+      "parent": "ATTACH_BreastplateTurn3Q",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
+      ]
+    },
+    {
+      "name": "ATTACH_BreastplateTurn3Q__NearUpperArm",
+      "type": "MESH",
+      "parent": "ATTACH_BreastplateTurn3Q",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
+      ]
+    },
+    {
+      "name": "ATTACH_BreastplateTurn3Q__Torso",
+      "type": "MESH",
+      "parent": "ATTACH_BreastplateTurn3Q",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "ATTACH_OverheadTwoHandGrip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_status",
+        "attempt_id",
+        "corrective_attachment_id",
+        "human_accepted",
+        "performance_changed",
+        "source_frame"
+      ]
+    },
+    {
+      "name": "ATTACH_OverheadTwoHandGrip__HandsAndHilt",
+      "type": "MESH",
+      "parent": "ATTACH_OverheadTwoHandGrip",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "secondary_hand_constraint",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
+      ]
+    },
+    {
+      "name": "ATTACH_OverheadTwoHandGrip__PrimaryForearm",
+      "type": "MESH",
+      "parent": "ATTACH_OverheadTwoHandGrip",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
+      ]
+    },
+    {
+      "name": "ATTACH_RearBootForeshortened",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_status",
+        "attempt_id",
+        "corrective_attachment_id",
+        "human_accepted",
+        "performance_changed",
+        "source_frame"
+      ]
+    },
+    {
+      "name": "ATTACH_RearBootForeshortened__BootAndShinSeat",
+      "type": "MESH",
+      "parent": "ATTACH_RearBootForeshortened",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "locked_ankle_output",
+        "locked_toe_output",
+        "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "ATTACH_RearForearmForeshortened",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_status",
+        "attempt_id",
+        "cloud_capture_sha256",
+        "corrective_attachment_id",
+        "human_accepted",
+        "performance_changed",
+        "source_frame"
+      ]
+    },
+    {
+      "name": "ATTACH_RearForearmForeshortened__ElbowToWrist",
+      "type": "MESH",
+      "parent": "ATTACH_RearForearmForeshortened",
+      "collections": [
+        "Attachments_Corrective"
+      ],
+      "customProperties": [
+        "attachment_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
+      ]
+    },
+    {
+      "name": "AdapterDiagnosticCamera",
+      "type": "CAMERA",
+      "parent": null,
+      "collections": [
+        "Scene Collection"
+      ],
+      "customProperties": [
+        "hc_id"
+      ]
+    },
+    {
+      "name": "CTRL_HiltSecondarySocket",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id"
+      ]
+    },
+    {
+      "name": "CTRL_RootWitness",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "per_frame_recentering",
+        "source_role"
+      ]
+    },
+    {
+      "name": "CTRL_SwordPrimaryHand",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id"
+      ]
+    },
+    {
+      "name": "CTRL_SwordSecondaryHand",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "double_solve_forbidden",
+        "evidence_target",
+        "hc_id"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_00",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_01",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_02",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_03",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_04",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_05",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_06",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_07",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_08",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_09",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_10",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_11",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_12",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_13",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_14",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_15",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_16",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_17",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_18",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_19",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_20",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_21",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_22",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_23",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_24",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_25",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_26",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_27",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_28",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_29",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_30",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_31",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_32",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_33",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_34",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_35",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_36",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_37",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_38",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_39",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_40",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_41",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_42",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_43",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_44",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_45",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_46",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_47",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_48",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_49",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_50",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_51",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_52",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_53",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_54",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_55",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_56",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_57",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_58",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_59",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_60",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_61",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_62",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_63",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_64",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_65",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_66",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_face_67",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_ankle",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_big_toe",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_ear",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_elbow",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_eye",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_index_dip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_index_mcp",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_index_pip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_index_tip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_middle_dip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_middle_mcp",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_middle_pip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_middle_tip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_pinky_dip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_pinky_mcp",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_pinky_pip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_pinky_tip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_ring_dip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_ring_mcp",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_ring_pip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_ring_tip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_thumb_cmc",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_thumb_ip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_thumb_mcp",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_thumb_tip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hand_wrist",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_heel",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_hip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_knee",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_shoulder",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_small_toe",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_left_wrist",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_nose",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_ankle",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_big_toe",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_ear",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_elbow",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_eye",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_index_dip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_index_mcp",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_index_pip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_index_tip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_middle_dip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_middle_mcp",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_middle_pip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_middle_tip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_pinky_dip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_pinky_mcp",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_pinky_pip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_pinky_tip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_ring_dip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_ring_mcp",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_ring_pip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_ring_tip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_thumb_cmc",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_thumb_ip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_thumb_mcp",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_thumb_tip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hand_wrist",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_heel",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_hip",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_knee",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_shoulder",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_small_toe",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "EVIDENCE_right_wrist",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "hc_id",
+        "landmark_id",
+        "reviewed_track_text_block",
+        "source_sample_count",
+        "timeline_animated"
+      ]
+    },
+    {
+      "name": "PART_CanonicalSword",
+      "type": "MESH",
+      "parent": null,
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "active_edge",
+        "canonical_source",
+        "corrected_tip_source_pixels",
+        "driver_chain",
+        "prior_tip_source_pixels",
+        "production_v21_vector_corrected",
+        "source_bounds_top_left_pixels",
+        "source_segment",
+        "target_segment"
+      ]
+    },
+    {
+      "name": "PART_FrontShin",
+      "type": "MESH",
+      "parent": null,
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "canonical_source",
+        "hc_id",
+        "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "PART_FrontThigh",
+      "type": "MESH",
+      "parent": null,
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "canonical_source",
+        "hc_id",
+        "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "PART_HeadHelmetPlume",
+      "type": "EMPTY",
+      "parent": null,
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "canonical_base_recut"
+      ]
+    },
+    {
+      "name": "PART_HeadHelmetPlume__HelmetFace",
+      "type": "MESH",
+      "parent": "PART_HeadHelmetPlume",
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "canonical_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "PART_HeadHelmetPlume__PlumeHair",
+      "type": "MESH",
+      "parent": "PART_HeadHelmetPlume",
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "canonical_component_of",
+        "canonical_source",
+        "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "PART_RearShin",
+      "type": "MESH",
+      "parent": null,
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "canonical_source",
+        "hc_id",
+        "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "PART_RearThigh",
+      "type": "MESH",
+      "parent": null,
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "canonical_source",
+        "hc_id",
+        "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "PART_SkirtPelvis",
+      "type": "MESH",
+      "parent": null,
+      "collections": [
+        "Puppet_Canonical"
+      ],
+      "customProperties": [
+        "canonical_source",
+        "hc_id",
+        "source_bounds_top_left_pixels"
+      ]
+    },
+    {
+      "name": "VanguardControlArmature",
+      "type": "ARMATURE",
+      "parent": null,
+      "collections": [
+        "Controls_ReviewedTrack"
+      ],
+      "customProperties": [
+        "animated_landmark_count",
+        "event_lock_status",
+        "full_3d_character",
+        "hc_id",
+        "imported_frame_count",
+        "imported_landmark_count",
+        "representation",
+        "source_resampled"
+      ]
+    },
+    {
+      "name": "Vanguard_GameCamera",
+      "type": "CAMERA",
+      "parent": null,
+      "collections": [
+        "Scene_Root"
+      ],
+      "customProperties": [
+        "hc_id"
+      ]
+    }
+  ],
+  "collections": [
+    "Attachments_Corrective",
+    "Controls_ReviewedTrack",
+    "Diagnostics_Render",
+    "Evidence_GroundedMotion",
+    "Pose_Layout_Render",
+    "Puppet_Canonical",
+    "Reference_Images",
+    "Scene_Root"
+  ],
+  "textBlocks": [
+    {
+      "name": "GroundedMotion_EventMap.json",
+      "characters": 2658
+    },
+    {
+      "name": "GroundedMotion_RawPredictions.json",
+      "characters": 4330253
+    },
+    {
+      "name": "GroundedMotion_ReviewedTrack.json",
+      "characters": 9212755
+    },
+    {
+      "name": "GroundedMotion_ReviewedTrackSet.json",
+      "characters": 10366809
+    },
+    {
+      "name": "Vanguard_CanaryConfig.json",
+      "characters": 2750
+    },
+    {
+      "name": "Vanguard_ConstraintLedger.json",
+      "characters": 1571
+    },
+    {
+      "name": "Vanguard_PartLibrary.json",
+      "characters": 4861
+    },
+    {
+      "name": "Vanguard_WeaponCompanionTrack.json",
+      "characters": 2335
+    }
+  ],
+  "animation": {
+    "frameStart": 1,
+    "frameEnd": 254,
+    "fps": 54.82198443113198,
+    "actions": 62,
+    "animatedEvidenceControls": 61,
+    "completeEmbeddedLandmarkStreams": 133
+  },
+  "camera": {
+    "name": "Vanguard_GameCamera",
+    "type": "ORTHO",
+    "orthographicScale": 5.119999885559082,
+    "resolution": [
+      512,
+      512
+    ]
+  },
+  "correctiveAttachments": [
+    "breastplate_turn_3q",
+    "overhead_two_hand_grip",
+    "rear_boot_foreshortened",
+    "rear_forearm_foreshortened"
+  ],
+  "postRenderScaffoldingRemoved": {
+    "objects": 114,
+    "meshes": 111
+  },
+  "humanAccepted": false,
+  "attemptId": "muramasa-canary-001-attempt-003"
+}

@@ -1,0 +1,515 @@
+{
+  "name": "Fleshpunk Vanguard SwordAttack1 \u2014 Screen Right",
+  "authority": {
+    "pose_camera_facing_timing": "vanguard-steel-swordattack1-screen-right-pose-authority.png",
+    "appearance": "Fleshpunk Vanguard concept art",
+    "excluded": [
+      "Crimson model",
+      "bitmap mirroring",
+      "generator-authored per-frame reframing",
+      "pose-aware stabilization",
+      "invented in-betweens"
+    ]
+  },
+  "layout": {
+    "columns": 4,
+    "rows": 3,
+    "cell_width": 512,
+    "cell_height": 512
+  },
+  "animation": {
+    "frame_count": 12,
+    "frame_durations_ms": [
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      70,
+      80,
+      80,
+      120
+    ],
+    "preview_loop_duration_ms": 750,
+    "order": "row-major"
+  },
+  "contract": {
+    "facing": "screen-right",
+    "camera": "fixed",
+    "pose_edits": "none intended",
+    "appearance_edit_only": true,
+    "registration": "source-derived rigid Y-only canvas translation"
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0000.png",
+      "source_bbox": [
+        189,
+        123,
+        303,
+        338
+      ],
+      "fleshpunk_bbox": [
+        167,
+        108,
+        326,
+        385
+      ],
+      "sha256": "0e19158efaed6ce81f72216e36928d872694bfa08eaf0bba88fed3a4735b5651",
+      "pre_registration": {
+        "file_sha256": "0e19158efaed6ce81f72216e36928d872694bfa08eaf0bba88fed3a4735b5651",
+        "pixel_sha256": "642ffb86beeb1c3a14adf2bc03bddd224681daac8b6659051cd66bd1d5bd3a46",
+        "fleshpunk_bbox": [
+          167,
+          108,
+          326,
+          385
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          0
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "642ffb86beeb1c3a14adf2bc03bddd224681daac8b6659051cd66bd1d5bd3a46"
+    },
+    {
+      "frame": 1,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0001.png",
+      "source_bbox": [
+        194,
+        132,
+        308,
+        338
+      ],
+      "fleshpunk_bbox": [
+        188,
+        127,
+        331,
+        385
+      ],
+      "sha256": "e3686a7bf0e7829ffa95acb4391af793d1f77e38c9caa7af4b04795fa58849ef",
+      "pre_registration": {
+        "file_sha256": "e3686a7bf0e7829ffa95acb4391af793d1f77e38c9caa7af4b04795fa58849ef",
+        "pixel_sha256": "71bca12d7b62d9f3fa694e7f2377df7d36d6acfd43a84fe4d7522563ceaa054c",
+        "fleshpunk_bbox": [
+          188,
+          127,
+          331,
+          385
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          0
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "71bca12d7b62d9f3fa694e7f2377df7d36d6acfd43a84fe4d7522563ceaa054c"
+    },
+    {
+      "frame": 2,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0002.png",
+      "source_bbox": [
+        201,
+        130,
+        345,
+        338
+      ],
+      "fleshpunk_bbox": [
+        193,
+        127,
+        391,
+        385
+      ],
+      "sha256": "5027d8758fd2f7244c4f518718e8633d9b6403de1a5675c59b4ebba6fbfa828e",
+      "pre_registration": {
+        "file_sha256": "5027d8758fd2f7244c4f518718e8633d9b6403de1a5675c59b4ebba6fbfa828e",
+        "pixel_sha256": "77a9686920ea297be4126e501a5dda5fe5f339ac37b285213d39e1c3f15dfdf0",
+        "fleshpunk_bbox": [
+          193,
+          127,
+          391,
+          385
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          0
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "77a9686920ea297be4126e501a5dda5fe5f339ac37b285213d39e1c3f15dfdf0"
+    },
+    {
+      "frame": 3,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0003.png",
+      "source_bbox": [
+        78,
+        121,
+        291,
+        338
+      ],
+      "fleshpunk_bbox": [
+        38,
+        116,
+        317,
+        385
+      ],
+      "sha256": "2d2fdef357a6e90527d455743a24604be6b3ef84fbb5d3846da52e14bb970e5d",
+      "pre_registration": {
+        "file_sha256": "2d2fdef357a6e90527d455743a24604be6b3ef84fbb5d3846da52e14bb970e5d",
+        "pixel_sha256": "20e2ac39ea01a5c92a71119baf5c1dcc33fec4875de83b8b87b4e4cd7d220690",
+        "fleshpunk_bbox": [
+          38,
+          116,
+          317,
+          385
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          0
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "20e2ac39ea01a5c92a71119baf5c1dcc33fec4875de83b8b87b4e4cd7d220690"
+    },
+    {
+      "frame": 4,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0004.png",
+      "source_bbox": [
+        97,
+        93,
+        305,
+        338
+      ],
+      "fleshpunk_bbox": [
+        65,
+        107,
+        330,
+        385
+      ],
+      "sha256": "64aa04280fa88c746c0de7c0f4a85a8243aaed73fcda58998fdccb1a4a2e882b",
+      "pre_registration": {
+        "file_sha256": "f3f91cb7f2c2e6e06da49d3821d7f2c73f281fb2b22ebdeb0d38f6106f88e286",
+        "pixel_sha256": "39ba5c31384209d207981ab4534dd4b3638c310ea2fd3f6ac7a4ee4fe7b4674f",
+        "fleshpunk_bbox": [
+          65,
+          100,
+          330,
+          378
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          7
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "bcf82c6d003fabc573de67751e68736f535ecca73829723981e55c10e41a04b3"
+    },
+    {
+      "frame": 5,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0005.png",
+      "source_bbox": [
+        142,
+        147,
+        435,
+        338
+      ],
+      "fleshpunk_bbox": [
+        127,
+        161,
+        457,
+        385
+      ],
+      "sha256": "2ae81c167ddf031c4ca1134933f69eb066464c21e6e6c8d059f07875cf970b83",
+      "pre_registration": {
+        "file_sha256": "3fef1a252d1c71db3c55340ce4b2517edb1fb0d4dc047c0965a461a5e48eec78",
+        "pixel_sha256": "918dcee1d77053f236846e5eaaac1e5138f73ad0d072414b6dd9c4ec5ae208e4",
+        "fleshpunk_bbox": [
+          127,
+          154,
+          457,
+          378
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          7
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "c8fda63642a83ebcec60ce5082831ecd1b93d8aa1a029c41752d41e58a56aa45"
+    },
+    {
+      "frame": 6,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0006.png",
+      "source_bbox": [
+        139,
+        174,
+        382,
+        353
+      ],
+      "fleshpunk_bbox": [
+        124,
+        183,
+        419,
+        400
+      ],
+      "sha256": "35514f39562151d302944a50f123eef9c8e36944dbfe50549c77c1651c932a56",
+      "pre_registration": {
+        "file_sha256": "7226135aa9195cd98c6d5f6e908f8e71b3a2f43e98f823e7f5c7f54f3708da1d",
+        "pixel_sha256": "67aa8f0496569f8717f55b8b3a3889d08bb5ffaf49ffe55b0988b6224681a463",
+        "fleshpunk_bbox": [
+          124,
+          185,
+          419,
+          402
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          -2
+        ],
+        "native_source_bottom_y": 353,
+        "expected_fleshpunk_bottom_y": 400
+      },
+      "pixel_sha256": "12089b5537fc4a43233a2c3ec4a99adf577395cf6227542a6c519021e07a8f8b"
+    },
+    {
+      "frame": 7,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0007.png",
+      "source_bbox": [
+        143,
+        171,
+        390,
+        338
+      ],
+      "fleshpunk_bbox": [
+        125,
+        188,
+        429,
+        385
+      ],
+      "sha256": "b5ddc51d0850c00a09f37d0fbd8d7ccffafa1569e5ce8a24de825004e1dec3ae",
+      "pre_registration": {
+        "file_sha256": "168fe729a2926113fa5ca3133a79588ea4d346e4562eef221a4954124b262340",
+        "pixel_sha256": "9f8ea7f79c168460f73c8eddfe20773f1506b6201d41250828180373a77fe5ed",
+        "fleshpunk_bbox": [
+          125,
+          185,
+          429,
+          382
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          3
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "df1cd016fe42bca5b2c161aea95d3689ad2e1cb484b5f36f4d94ee71a34d6143"
+    },
+    {
+      "frame": 8,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0008.png",
+      "source_bbox": [
+        146,
+        168,
+        391,
+        338
+      ],
+      "fleshpunk_bbox": [
+        125,
+        187,
+        429,
+        385
+      ],
+      "sha256": "5d64e7be94df658bbddd505a8fcda3f50cdd2ec243761c9d755caad672ee010f",
+      "pre_registration": {
+        "file_sha256": "b25c4a12d6def9b23165fef78b6402a0c3f8fedbe7271ef0f7754add49c05a67",
+        "pixel_sha256": "d3fa4784306c0a21f8f6d434a769f7825f10a993fb1bdd810b725cb8f5aee625",
+        "fleshpunk_bbox": [
+          125,
+          166,
+          429,
+          364
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          21
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "8f06fd689db96c1264726d8a09ac800278ba84de153516531539fc1de0407b65"
+    },
+    {
+      "frame": 9,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0009.png",
+      "source_bbox": [
+        164,
+        166,
+        399,
+        338
+      ],
+      "fleshpunk_bbox": [
+        140,
+        189,
+        435,
+        385
+      ],
+      "sha256": "92ff62a6c51b6a097f6661960431cdb3417e5d1079384708066b632476f1a77e",
+      "pre_registration": {
+        "file_sha256": "2612ad96c08ed3893ecc62a46b8994d8ab0e03395f118248fcd9b4eb22082bd9",
+        "pixel_sha256": "6fa1b8fc4ad85624ef592f669ffb14193a26e0c228bd0790dea5c2e68d43660e",
+        "fleshpunk_bbox": [
+          140,
+          168,
+          435,
+          364
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          21
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "a02b9b4b537881959b7fd62d1f9e1a0a84dad0953a68fd41d71ca37015ee4231"
+    },
+    {
+      "frame": 10,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0010.png",
+      "source_bbox": [
+        208,
+        94,
+        317,
+        338
+      ],
+      "fleshpunk_bbox": [
+        202,
+        98,
+        327,
+        385
+      ],
+      "sha256": "fce9d899c53d215cd6980062ff9972f62405f96195960640471dd35cc808967e",
+      "pre_registration": {
+        "file_sha256": "23e9392f2ae96a2c3382b37b53ff88749493ff5ce1d41ac88bdd4e9dfcb6026c",
+        "pixel_sha256": "308b04dbf63b6dc6376215c401460b393906bf8fe456fd3017c4dcd00b38a80a",
+        "fleshpunk_bbox": [
+          202,
+          77,
+          327,
+          364
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          21
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "65af3c5d321486da17fdf0d66c720e3bd45042d89078339b01f0b3f80bc3ff93"
+    },
+    {
+      "frame": 11,
+      "path": "frames/fleshpunk-vanguard-swordattack1-screen-right_0011.png",
+      "source_bbox": [
+        180,
+        61,
+        296,
+        338
+      ],
+      "fleshpunk_bbox": [
+        182,
+        83,
+        309,
+        385
+      ],
+      "sha256": "685b15ef795b1077345a16b8ef26c31bf2bba2adc5782ea2815bdb16ffaafda3",
+      "pre_registration": {
+        "file_sha256": "5df2785576d97229fe8a872bc20ace00d582e16988ca4eb8abe67ee7997cc6f6",
+        "pixel_sha256": "dbb042848756167d49b43239c5f537f8b09576569034db3cfc14b7236b2bf5f9",
+        "fleshpunk_bbox": [
+          182,
+          62,
+          309,
+          364
+        ]
+      },
+      "registration": {
+        "translation_px": [
+          0,
+          21
+        ],
+        "native_source_bottom_y": 338,
+        "expected_fleshpunk_bottom_y": 385
+      },
+      "pixel_sha256": "4e5f27dbb502955298587b76bc9023fd9c445052a4ab2aec1eefcf7379cbb7b3"
+    }
+  ],
+  "sha256": {
+    "contact-sheet.png": "98936c33dc92aea6231e37b5de1c5a997376a679e7dcbc1afe875ab85501216b"
+  },
+  "registration": {
+    "schema": "pose-lab-v2-source-envelope-registration-v1",
+    "axis": "y",
+    "reference_frame": 0,
+    "source_anchor": "native source_bbox bottom",
+    "source_to_fleshpunk_offset_px": 47,
+    "translation_px_by_frame": [
+      0,
+      0,
+      0,
+      0,
+      7,
+      7,
+      -2,
+      3,
+      21,
+      21,
+      21,
+      21
+    ],
+    "transform": "integer rigid canvas translation only",
+    "forbidden": [
+      "scale",
+      "rotation",
+      "mirror",
+      "crop",
+      "repaint",
+      "bone edit",
+      "camera edit"
+    ],
+    "native_motion_preserved": true
+  }
+}

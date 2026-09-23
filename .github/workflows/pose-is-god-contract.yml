@@ -1,0 +1,32 @@
+name: Pose Is God Contract
+
+on:
+  pull_request:
+    paths:
+      - AGENTS.md
+      - docs/POSE_IS_GOD.md
+      - tools/verify_pose_review_bundle.mjs
+      - tools/test_pose_review_bundle.mjs
+      - .github/workflows/pose-is-god-contract.yml
+  push:
+    paths:
+      - AGENTS.md
+      - docs/POSE_IS_GOD.md
+      - tools/verify_pose_review_bundle.mjs
+      - tools/test_pose_review_bundle.mjs
+      - .github/workflows/pose-is-god-contract.yml
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Test fail-closed review bundle gate
+        run: node tools/test_pose_review_bundle.mjs

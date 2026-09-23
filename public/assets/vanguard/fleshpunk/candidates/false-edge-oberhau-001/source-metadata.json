@@ -1,0 +1,60 @@
+{
+  "schema": "pose-lab-v2-2d-candidate-source-v1",
+  "status": "quarantined",
+  "candidate": "vanguard-false-edge-oberhau-candidate-001-20260729",
+  "source": {
+    "repository": "Valar05/pose-lab-v2",
+    "repositoryCommit": "d4d79b1daf85ced704fb654b6da2b8e6b0f44dfd",
+    "repositoryPath": "generated/vanguard/Vanguard_False_Edge_Oberhau_Repaired_001_REVIEW_LOOP.gif",
+    "gifSha256": "225e9171f38a563f394cd8702b4981f2f008b1c24cf18bcc2fe04171755b1c71",
+    "gifBytes": 234188,
+    "selectedSourceFrames": [
+      0,
+      7,
+      13,
+      14,
+      24,
+      36,
+      42,
+      47
+    ]
+  },
+  "repair": {
+    "artChanges": [
+      "removed crossed and detached sword fragments",
+      "restored rear leg and foot"
+    ],
+    "registration": {
+      "groundY": 435,
+      "leftSupportLockedThroughTravel": true,
+      "rightSupportLockedAfterLanding": true,
+      "transform": "whole-frame rigid translation only"
+    }
+  },
+  "comparison": {
+    "sameFrameBytes": true,
+    "originalDurationMs": 1160,
+    "arcadeDurationMs": 520,
+    "arcadeDurationsMs": [
+      70,
+      50,
+      45,
+      45,
+      55,
+      60,
+      75,
+      120
+    ],
+    "timingIntent": [
+      "brief opening read",
+      "compressed travel",
+      "fast turnover",
+      "short follow-through",
+      "readable final pose"
+    ]
+  },
+  "human": {
+    "verdict": "pending",
+    "evidence": null
+  }
+}

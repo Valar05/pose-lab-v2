@@ -1,5 +1,26 @@
 # Asset Provenance
 
+## Swarmling
+
+- Authoring source: `authoring/swarmling/Swarmling.blend`
+- Authoring manifest: `authoring/swarmling/manifest.json`
+- Source SHA-256: `1ec19b77e6bf4e0cf1fbb85c5a875d76afce68145e8494af548a046b2770b0ca`
+- Source Blender version: 4.04
+- Embedded action names observed before native inspection: `Idle`, `Attack`
+- Tank Kata source inventory:
+  - `assets/generated/meshy/swarmling/Meshy_AI_Swarmling_0723173944_texture.glb`
+  - `assets/generated/meshy/swarmling/Meshy_AI_Swarmling_biped.zip`
+  - `assets/generated/meshy/swarmling/manifest.json`
+- Role: first Fleshpunk beat-em-up enemy and control specimen for ordinary
+  approach, interruption, stagger, and death behavior before Slasherrats teach
+  the game's continuous U-turn movement grammar.
+- Animation rule: native source animation owns pose, limb ownership, timing,
+  and camera-relative choreography. Appearance work may improve costume,
+  materials, colors, and surface treatment without changing animation geometry.
+- Current status: the `.blend` source is preserved in Pose Lab V2. Native
+  Blender inventory, runtime GLB export, locked gameplay-camera renders, and
+  concept-art anchoring remain required before visual acceptance.
+
 
 
 ## Crimson Plume Knight / Arborblade
@@ -126,3 +147,41 @@ code, or metric acceptance tooling was copied.
   local Blender renders and the manifest.
 - Acceptance: diagnostic manifests and Blender renders are guardrails only. The
   cloud V2 route must still visibly read as a fist before the asset is accepted.
+
+### Vanguard Muramasa 2.5D oberhau canary
+
+- Canonical appearance source: `public/assets/vanguard/fleshpunk/idle/frames/idle_0000.png`.
+- Approved motion witness: frame 42 / key 7 under `public/assets/vanguard/fleshpunk/candidates/false-edge-oberhau-001/`.
+- Editable source is the immutable Home Center-backed Blender revision; repo PNGs are quarantined review derivatives.
+- Attempt 003 repairs production v21 using the existing four attachment roots and records all component reuse in `authoring/vanguard_muramasa_canary/part-library.json`.
+- Whole-frame generation, a fifth attachment, and motion changes are forbidden.
+- Human acceptance remains Drew Clarke only.
+
+
+## FPSPlayer Arms Donor
+
+- Runtime review asset: `public/assets/fpsplayer/FPSPlayer.glb`
+- Source lineage: original FPSPlayer donor from the Pose Lab / Infinite Brutality family
+- Role: low-poly torso-less first-person body and embedded animation inspection lane
+- Canonical review surface: existing phone-hosted Pose Lab V2 runtime sourced from this GitHub repo; do not create a separate ChatGPT/Site host.
+- Phone route after checkout sync: `http://127.0.0.1:4173/?model=fpsplayer`
+- Review route suffix: `?model=fpsplayer`
+- Direct clip route: `?model=fpsplayer&clip=CLIP_NAME`
+- Embedded source inventory: 55 animations; individual finger bones are preserved
+- Rule: this route is source inspection. Do not retarget, rebuild topology, or alter weights merely to review the original motions.
+
+## FPSPlayer ARIES V8 — accepted material baseline
+
+| Field | Value |
+| --- | --- |
+| Pose Lab model key | `fpsplayer-aries-v8` |
+| Accepted Blender master | `FPSPlayer_ARIES_ORM_v8.blend` |
+| Runtime GLB | `FPSPlayer_ARIES_ORM_v8_runtime.glb` |
+| Runtime SHA-256 | `0360bcac731882f20ae39b8e7869251263b6836de175ec701e003949d9e26089` |
+| Artifact source | `Valar05/taste-trap-material-lab@3f3ae1f3edfacb61d74bb3089264e92c12025109` |
+| Material maps | Albedo V5.1; Normal V3; packed ORM V8 |
+| Accepted inventory | 15 physical plates; 16 meshes; 1 skin; 57 animations |
+| Accepted review | Android first-person view at 105 degree FOV |
+| 2D derivative rule | Append-only under `public/assets/fpsplayer-aries-v8/2d/`; accepted 3D source and accepted pixels remain immutable |
+
+The exact file hashes and the standalone texture hashes are authoritative in `public/assets/fpsplayer-aries-v8/fpsplayer_aries_v8_manifest.json`.

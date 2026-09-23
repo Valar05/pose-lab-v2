@@ -27,6 +27,37 @@ authoring panels.
 npm run build
 ```
 
+### 2D animation review
+
+Open the direct frame player with:
+
+```text
+?view=2d
+?view=2d&animation=idle
+?view=2d&animation=swordattack1
+```
+
+The 2D view plays the approved transparent PNG frames directly from
+`public/assets/vanguard/fleshpunk/animations.json`. It does not assemble or
+decode a GIF. It supports play/pause, per-frame timing, scrubbing, frame
+stepping, onion-skin deltas, zoom, ground guide, and multiple review
+backgrounds. Space toggles playback; Left/Right step; Home/End jump to the
+first/last frame.
+
+`Onion` overlays the exact adjacent frames without moving them. `Delta` shows
+only changed pixels: gold for appearing pixels, cyan for disappearing pixels,
+and magenta for surface changes. Inspection never stabilizes, shifts, or
+otherwise edits the source frames.
+
+The initial shippable set is Fleshpunk Vanguard `Idle` and `SwordAttack1`.
+Their exact 512x512 frame bytes, timing, hashes, source metadata, and contact
+sheets live under `public/assets/vanguard/fleshpunk/`. Verify that contract
+with:
+
+```sh
+npm run test:2d
+```
+
 Tap the real sabre, then use:
 
 - `Move` to drag it in the camera plane;
@@ -130,6 +161,53 @@ The imported character routes are for direct manual posing and contact
 sheet/source-art preparation. They do not use Meshy Ready, Attack1, fist hands,
 or the real sabre placement lane unless the Meshy model is explicitly selected.
 
+### Vanguard idle game export
+
+The canonical imported Vanguard GLB can be exported as one deterministic,
+game-ready idle slice:
+
+```sh
+npm run export:vanguard-idle
+```
+
+The command uses Vanguard's embedded native `Idle` action, one locked
+orthographic model-left camera (Vanguard faces screen-right), and transparent
+RGBA output. It writes the
+numbered sequence, contact sheet, GIF, and metadata under
+`generated/vanguard/idle/`. Verification fails closed when the camera changes,
+the armature object moves, the background is not transparent, frame dimensions
+differ, either canonical IK foot control moves more than two pixels, or the
+rendered ground-contact row moves more than two pixels. The exporter samples
+Vanguard's native `Idle` without muting root curves, rewriting bones, or moving
+the armature. Foot and ground-contact data are measurements only. Set
+`BLENDER_BIN` to an existing Blender executable; without it, the repo-owned
+runner continues to use the existing Debian `proot-distro` Blender installation.
+
+
+
+## FPSPlayer Arms Donor Review
+
+The original low-poly FPSPlayer donor is available as an imported animation-inspection model.
+
+Canonical review surface is the existing phone-hosted Pose Lab V2 runtime, sourced from this GitHub repo. Do not create a separate ChatGPT/Site host for this lane.
+
+After the phone checkout has this commit, use the existing phone server:
+
+```text
+http://127.0.0.1:4173/?model=fpsplayer
+http://127.0.0.1:4173/?model=fpsplayer&clip=FistReady
+http://127.0.0.1:4173/?model=fpsplayer&clip=FistAttack1
+```
+
+The bare query forms remain valid on any already-authorized Pose Lab V2 host:
+```text
+?model=fpsplayer
+?model=fpsplayer&clip=FistReady
+```
+
+The route loads the archived torso-less first-person body donor directly and exposes its embedded animation list through the existing `Anim` cycle control. It auto-plays `FistReady` by default. Use the cycle control to walk the full source action library and identify legacy clips visually without retargeting them first.
+
+This lane is source inspection only. It preserves the original mesh, rig, finger weights, and embedded animation data.
 
 ## Crimson Plume Knight / Arborblade
 
@@ -228,6 +306,13 @@ helmet feathers, cyan eyeholes, and bounded steel sword/props material. The
 original albedo files are still not present. Root
 motion is saved separately in `public/assets/vanguard/vanguard_root_motion.json`
 for game use and is intentionally suppressed in Pose Lab playback.
+
+The resumable multi-clip appearance handoff extends the same native pose-packet
+truth through one repository command: `npm run refinery:vanguard --`. See
+[Vanguard Sprite Refinery](docs/VANGUARD_SPRITE_REFINERY.md) for preparation,
+manual ChatGPT handoff, ingestion, structural verification, explicit approval,
+collection, workflow fan-out, and the machine-readable batch contract. This
+lane never automates an appearance provider.
 
 ## Davin Tail Chain
 
@@ -365,3 +450,17 @@ When waking a cloud URL:
    as the default review lane, or `--run-id` to reuse an inspected cloud capture.
 7. Do not use the word "pass" unless `npm run accept:crimson-sword` passed
    against current cloud screenshot evidence.
+
+## FPSPlayer ARIES V8
+
+The user-accepted ARIES material build is registered as a distinct model and does not replace the archived `fpsplayer` donor.
+
+- Phone review route: `?model=fpsplayer-aries-v8&view=fpv&clip=FistReady`
+- Runtime: `public/assets/fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8_runtime.glb`
+- Blender master: `authoring/fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8.blend`
+- Materials: albedo V5.1, normal V3, and packed ORM V8
+- Inventory: 15 physical armor plates, 16 meshes, one skin, and 57 embedded clips
+- Accepted first-person baseline: 105 degree FOV
+- Validation: `npm run test:fpsplayer-aries-v8`
+
+All sprite sheets, atlases, masks, frame metadata, and animation registrations derived from this model belong under `public/assets/fpsplayer-aries-v8/2d/`. The accepted 3D source and accepted 2D pixels are immutable; new 2D work is append-only and must be reviewed in the phone-hosted Pose Lab V2 surface.

@@ -1,0 +1,99 @@
+{
+  "schema": "pose-lab-v2-2d-animation-set-v1",
+  "character": "Fleshpunk Vanguard",
+  "defaultAnimation": "oberhau-hardest-key-canary-001",
+  "reviewState": "READY FOR DREW REVIEW \u2014 attempt 3 synchronized normal-size silhouette match; NOT ACCEPTED",
+  "frameSpace": {
+    "width": 512,
+    "height": 512,
+    "background": "transparent",
+    "facing": "screen-right"
+  },
+  "animations": [
+    {
+      "id": "oberhau-hardest-key-canary-001",
+      "label": "Oberhau hardest key \u00b7 canary 001 \u00b7 attempt 3",
+      "loop": false,
+      "groundGuideY": 376,
+      "contactSheet": "evidence/source-aligned-adapter-diagnostic.png",
+      "primaryLabel": "Blender candidate \u00b7 NOT ACCEPTED",
+      "frames": [
+        {
+          "src": "frames/hardest-key-candidate.png",
+          "durationMs": 1000,
+          "sha256": "1b5d34fb6f356b4e14d4e71533aa00bbfd32497bb6e7fe5fd36655d020592834",
+          "sourceFrame": 42,
+          "sourceTimestampSeconds": 0.7661160104986877
+        }
+      ],
+      "comparison": {
+        "synchronized": true,
+        "label": "Approved motion witness \u00b7 key 7",
+        "authority": "approved false-edge oberhau motion; appearance drift is not canon",
+        "frames": [
+          {
+            "src": "../false-edge-oberhau-001/frames/false-edge-oberhau_0006.png",
+            "sha256": "bda6d2c33f0e8e4ac642c2bfd09c6d1d46c6be30e4b1e919bc27e225ae80911c",
+            "sourceFrame": 42,
+            "sourceTimestampSeconds": 0.7661160104986877
+          }
+        ]
+      },
+      "contract": [
+        "Drew acceptance pending",
+        "source frame 42 \u00b7 0.766116 s",
+        "approved timing wrists root feet and support state are immutable",
+        "exactly 4 corrective attachment roots; no fifth attachment",
+        "production-v21 sword vector corrected from synchronized evidence",
+        "attempt 3 normal-size synchronized silhouette matched on cloud run 30598092347; Drew acceptance still pending"
+      ],
+      "evidence": [
+        {
+          "label": "Adapter gate: source + MMPose + Blender",
+          "src": "evidence/source-aligned-adapter-diagnostic.png"
+        },
+        {
+          "label": "Non-rendered pose layout",
+          "src": "evidence/non-rendered-pose-layout.png"
+        },
+        {
+          "label": "Blender control projection",
+          "src": "evidence/blender-control-projection.png"
+        },
+        {
+          "label": "Mapping manifest",
+          "src": "evidence/mapping-manifest.json"
+        },
+        {
+          "label": "Scene inspection",
+          "src": "evidence/scene-inspection-manifest.json"
+        },
+        {
+          "label": "Validation report",
+          "src": "evidence/validation-report.json"
+        },
+        {
+          "label": "Corrective attachment ledger",
+          "src": "evidence/part-library.json"
+        },
+        {
+          "label": "Constraint ledger",
+          "src": "evidence/constraint-ledger.json"
+        },
+        {
+          "label": "Attempt 1 synchronized RED",
+          "src": "evidence/cloud-review/muramasa-canary-001-attempt-001/synchronized-pose-lab-comparison.png"
+        },
+        {
+          "label": "Attempt 2 synchronized RED",
+          "src": "evidence/cloud-review/muramasa-canary-001-attempt-002/synchronized-pose-lab-comparison.png"
+        },
+        {
+          "label": "Attempt 3 synchronized READY FOR DREW REVIEW",
+          "src": "evidence/cloud-review/muramasa-canary-001-attempt-003/synchronized-pose-lab-comparison.png"
+        }
+      ]
+    }
+  ],
+  "attemptId": "muramasa-canary-001-attempt-003"
+}

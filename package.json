@@ -81,6 +81,16 @@
     "test:crimson-frame-zero-parity": "node tools/test_crimson_frame_zero_parity.mjs",
     "test:crimson-frame-zero-pose-hashes": "python3 tools/test_crimson_frame_zero_pose_hashes.py",
     "test:crimson-orientation-probe-contract": "python3 tools/test_crimson_orientation_probe_contract.py",
-    "test:crimson-orientation-space": "python3 tools/validate_crimson_orientation_ledger.py public/assets/crimson/crimson-bone-orientation-ledger.json && python3 tools/test_crimson_orientation_space.py && python3 tools/test_crimson_orientation_ledger_comparison.py && python3 tools/compare_crimson_orientation_ledgers.py public/assets/crimson/crimson-bone-orientation-ledger.json public/assets/crimson/crimson-bone-orientation-ledger.json"
+    "test:crimson-orientation-space": "python3 tools/validate_crimson_orientation_ledger.py public/assets/crimson/crimson-bone-orientation-ledger.json && python3 tools/test_crimson_orientation_space.py && python3 tools/test_crimson_orientation_ledger_comparison.py && python3 tools/compare_crimson_orientation_ledgers.py public/assets/crimson/crimson-bone-orientation-ledger.json public/assets/crimson/crimson-bone-orientation-ledger.json",
+    "export:vanguard-idle": "node scripts/export-vanguard-idle.mjs",
+    "test:vanguard-idle-export": "python3 tools/test_vanguard_idle_export.py",
+    "inspect:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/inspect_swarmling_blend.py --",
+    "build:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/export_swarmling_glb.py --",
+    "export:swarmling-idle": "node scripts/export-swarmling-idle.mjs",
+    "audit:swarmling-actions": "node scripts/run-blender-tool.mjs tools/render_swarmling_action_audit_blender.py -- --blend authoring/swarmling/Swarmling.blend --out-dir generated/swarmling/action-audit",
+    "test:vanguard-muramasa-canary": "node tools/test_vanguard_muramasa_canary.mjs",
+    "test:thirdskin-sprite": "node tools/test_thirdskin_sprite_runtime.mjs",
+    "test:playback-preferences": "node tools/test_playback_preferences.mjs",
+    "test:fpsplayer-aries-v8": "node tools/test_fpsplayer_aries_v8_registration.mjs"
   }
 }

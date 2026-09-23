@@ -15,9 +15,31 @@ if (separator !== '--') {
 }
 
 const absoluteTool = path.resolve(root, toolPath);
+const configuredBlender = process.env.BLENDER_BIN?.trim();
+const command = configuredBlender || 'proot-distro';
+const commandArgs = configuredBlender
+  ? ['--background', '--python-exit-code', '1', '--python', absoluteTool, '--', ...toolArgs]
+  : [
+      'login',
+      'debian',
+      '--',
+      'env',
+      '-u',
+      'PYTHONHOME',
+      'PYTHONPATH=/usr/lib/python3/dist-packages:/usr/local/lib/python3.13/dist-packages',
+      'blender',
+      '--background',
+      '--python-exit-code',
+      '1',
+      '--python',
+      absoluteTool,
+      '--',
+      ...toolArgs,
+    ];
+
 const result = spawnSync(
-  'proot-distro',
-  ['login', 'debian', '--', 'env', '-u', 'PYTHONHOME', 'PYTHONPATH=/usr/lib/python3/dist-packages:/usr/local/lib/python3.13/dist-packages', 'blender', '--background', '--python-exit-code', '1', '--python', absoluteTool, '--', ...toolArgs],
+  command,
+  commandArgs,
   { cwd: root, stdio: 'inherit' }
 );
 

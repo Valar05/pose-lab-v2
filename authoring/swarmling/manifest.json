@@ -1,0 +1,54 @@
+{
+  "schema": "pose-lab-v2-swarmling-source-v1",
+  "character": "Swarmling",
+  "role": "first enemy and control specimen for the Fleshpunk beat-em-up",
+  "source": {
+    "file": "Swarmling.blend",
+    "sha256": "1ec19b77e6bf4e0cf1fbb85c5a875d76afce68145e8494af548a046b2770b0ca",
+    "sizeBytes": 6709976,
+    "blenderVersion": "4.04",
+    "libraryFileId": "libfile_644954418ab481918f1554103c492f4f"
+  },
+  "observedWithoutBlender": {
+    "embeddedPreview": true,
+    "actionNamesVisibleInFileStrings": [
+      "Idle",
+      "Attack"
+    ]
+  },
+  "qa": {
+    "tankKataWorkflowRun": "https://github.com/Valar05/tank-kata/actions/runs/30033907866",
+    "lfsObjectsVerified": true,
+    "lockedGameplayView": "world_pos_x",
+    "locomotionActions": [
+      {
+        "name": "Armature|RunFast|baselayer",
+        "frameRange": [
+          0.8000000715255737,
+          12.0
+        ],
+        "fps": 24.0
+      },
+      {
+        "name": "Armature|running|baselayer",
+        "frameRange": [
+          0.8000000715255737,
+          16.0
+        ],
+        "fps": 24.0
+      }
+    ]
+  },
+  "conceptArt": {
+    "path": "../../public/assets/swarmling/concept/swarmling-style-anchor-v1.png",
+    "promptPath": "../../public/assets/swarmling/concept/swarmling-style-anchor-v1.prompt.md",
+    "sha256": "3ad2e0db06604120d1e255171d89775cc2a2527ea7634ee293b46d5d3bde3ac6",
+    "authority": "appearance-only"
+  },
+  "status": "source-preserved-qa-rendered-awaiting-native-blend-export",
+  "acceptance": {
+    "geometry": "native source only; do not retarget, mirror, repair, or reinterpret animation poses",
+    "gameplayCamera": "lock one orthographic camera after orientation review",
+    "appearance": "concept art may change costume, materials, color, and surface treatment only"
+  }
+}

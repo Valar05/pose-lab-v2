@@ -1,0 +1,51 @@
+{
+  "schema": "pose-lab.asset-package.v1",
+  "modelKey": "fpsplayer-aries-v8",
+  "label": "FPSPlayer ARIES V8",
+  "status": "user-accepted-3d-baseline",
+  "acceptedAtUtc": "2026-09-22",
+  "reviewRoute": "?model=fpsplayer-aries-v8&view=fpv&clip=FistReady",
+  "source": {
+    "authoringBlend": "authoring/fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8.blend",
+    "runtimeGlb": "public/assets/fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8_runtime.glb",
+    "artifactRepository": "Valar05/taste-trap-material-lab",
+    "artifactBranch": "codex/fps-arms-orm-v8",
+    "artifactCommit": "3f3ae1f3edfacb61d74bb3089264e92c12025109",
+    "siteSourceCommit": "3cbc7d4bff7702de962a9e32cc271b0a259f4603"
+  },
+  "inventory": {
+    "meshes": 16,
+    "physicalPlateMeshes": 15,
+    "skins": 1,
+    "animations": 57,
+    "materials": [
+      "ARIES_Plate_Material",
+      "Player"
+    ],
+    "textures": {
+      "albedo": "FPSPlayer_ARIES_Albedo_v5_1.png",
+      "normal": "FPSPlayer_ARIES_Normal_v3.png",
+      "orm": "FPSPlayer_ARIES_ORM_v8.png"
+    }
+  },
+  "acceptedView": {
+    "mode": "first-person",
+    "fovDegrees": 105,
+    "defaultClip": "FistReady"
+  },
+  "files": {
+    "authoring/fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8.blend": "6b34374b9b97dab79717d5491d89ab071d3f293120d64bd58e960ce992a648b1",
+    "authoring/fpsplayer-aries-v8/blender-build-final.log": "953edcfddab4d8d4f9233b2135e57ae576b53b1a86f4928c3085c2db99ed3ea6",
+    "public/assets/fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8_runtime.glb": "0360bcac731882f20ae39b8e7869251263b6836de175ec701e003949d9e26089",
+    "public/assets/fpsplayer-aries-v8/FPSPlayer_ARIES_Albedo_v5_1.png": "ef6cd5c1fded3fe85a158438a2ac589937a90bcb41cefb3fea4030279022aa41",
+    "public/assets/fpsplayer-aries-v8/FPSPlayer_ARIES_Normal_v3.png": "d88025aa3cd3a4971387da1039a3f74550a5747590b96584b5ee3890632430ea",
+    "public/assets/fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8.png": "19ccd374ccc2c62af219fc4177946b3667cf7b5bf560c1ad8df1feaf2aa54bed"
+  },
+  "twoDUpdatePolicy": {
+    "source3DImmutable": true,
+    "derivativeDirectory": "public/assets/fpsplayer-aries-v8/2d",
+    "appendOnly": true,
+    "replaceAcceptedPixels": false,
+    "reviewSurface": "phone-hosted Pose Lab V2"
+  }
+}
