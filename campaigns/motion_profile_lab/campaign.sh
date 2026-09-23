@@ -5,7 +5,7 @@ CAMPAIGN_ID="pose-lab-v2-motion-profile-lab"
 REPO_SLUG="Valar05/pose-lab-v2"
 REPO_HTTPS="https://github.com/Valar05/pose-lab-v2.git"
 PORT="${POSE_LAB_PORT:-4173}"
-URL="http://127.0.0.1:${PORT}/?view=motion"
+URL="http://127.0.0.1:${PORT}/motion.html"
 SESSION="plv2-motion-profile"
 STATE_ROOT="${POSE_LAB_CAMPAIGN_STATE:-$HOME/.local/state/$CAMPAIGN_ID}"
 STATE_FILE="$STATE_ROOT/state.env"
@@ -241,7 +241,7 @@ worker_main() {
   [ "$READY" -eq 1 ] || worker_fail "$run_id" "$started" "$resume_of" "server" 44 "server failed readiness check" "$ROOT" "$HEAD_SHA"
 
   worker_update "$run_id" "verify_route" "$started" "verifying Motion Profile Lab route and module" "$ROOT" "$HEAD_SHA" "$resume_of"
-  curl -fsS "$URL" | grep -q 'loading Pose Lab V2' || worker_fail "$run_id" "$started" "$resume_of" "verify_route" 45 "route did not return Pose Lab shell" "$ROOT" "$HEAD_SHA"
+  curl -fsS "$URL" | grep -q 'loading Motion Profile Lab' || worker_fail "$run_id" "$started" "$resume_of" "verify_route" 45 "route did not return Pose Lab shell" "$ROOT" "$HEAD_SHA"
   curl -fsS "http://127.0.0.1:$PORT/src/motion-profile-editor.js" | grep -q 'Motion Profile Lab' || worker_fail "$run_id" "$started" "$resume_of" "verify_route" 46 "motion editor module not reachable" "$ROOT" "$HEAD_SHA"
 
   worker_update "$run_id" "open" "$started" "opening Motion Profile Lab on Android" "$ROOT" "$HEAD_SHA" "$resume_of"
