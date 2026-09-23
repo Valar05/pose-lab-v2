@@ -55,9 +55,11 @@
       const startupView = startupParams.get('view');
       const startupEntry = startupView === 'sprite'
         ? './src/thirdskin-sprite-lab.js'
-        : ['2d', 'sprites'].includes(startupView)
-          ? './src/sprite-viewer.js'
-          : './src/main.js';
+        : startupView === 'motion'
+          ? './src/motion-profile-editor.js'
+          : ['2d', 'sprites'].includes(startupView)
+            ? './src/sprite-viewer.js'
+            : './src/main.js';
       import(`${startupEntry}${startupSuffix}`).catch((error) => {
         showStartupFailure('module import failed', error?.stack || error);
       });
