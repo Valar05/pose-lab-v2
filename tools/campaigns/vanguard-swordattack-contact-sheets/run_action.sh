@@ -2,17 +2,17 @@
 set -Eeuo pipefail
 
 if [ "$#" -lt 1 ]; then
-  echo "usage: $0 SwordAttackN [samples]" >&2
+  echo "usage: $0 ACTION [samples]" >&2
   exit 2
 fi
 
 ACTION="$1"
-SAMPLES="${2:-${SAMPLES:-9}}"
+SAMPLES="${2:-${SAMPLES:-7}}"
 
 case "$ACTION" in
-  SwordAttack1|SwordAttack2|SwordAttack3|SwordAttack4|SwordAttack5) ;;
+  0T-Pose|ClubIdle|Idle|Jump|JumpCrouch|JumpForward|Land|LedgeClimb|LedgeGrab|LedgeGrabHang|Midair|MidairSwordAttack1|MidairSwordAttack2|RunForwardOld|SpinAttack|SwordAttack1|SwordAttack2|SwordAttack3|SwordAttack4|SwordAttack5) ;;
   *)
-    echo "[error] unsupported action: $ACTION" >&2
+    echo "[error] unsupported Vanguard action: $ACTION" >&2
     exit 3
     ;;
 esac
@@ -20,7 +20,7 @@ esac
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 STAMP="$(date +%Y%m%d-%H%M%S)"
-OUT_DIR="$REPO_ROOT/generated/vanguard-swordattack-contact-sheets/$ACTION/$STAMP"
+OUT_DIR="$REPO_ROOT/generated/vanguard-donor-contact-sheets/$ACTION/$STAMP"
 LOG="$OUT_DIR/run.log"
 RECEIPT="$OUT_DIR/CLIPBOARD.txt"
 SHEET="$OUT_DIR/${ACTION}_contact_sheet.png"
@@ -38,7 +38,7 @@ copy_receipt() {
 finish() {
   code=$?
   {
-    echo "VANGUARD SWORD CONTACT SHEET CAMPAIGN"
+    echo "VANGUARD DONOR CONTACT SHEET"
     echo "status=$([ "$code" -eq 0 ] && echo SUCCESS || echo ERROR)"
     echo "exit_code=$code"
     echo "action=$ACTION"
@@ -50,7 +50,7 @@ finish() {
     echo
     echo "---- LAST LOG LINES ----"
     if [ -f "$LOG" ]; then
-      tail -n 120 "$LOG"
+      tail -n 100 "$LOG"
     else
       echo "(log was not created)"
     fi
@@ -64,10 +64,6 @@ trap finish EXIT
 
 {
   echo "[campaign] action=$ACTION samples=$SAMPLES"
-  echo "[campaign] repo=$REPO_ROOT"
-  echo "[campaign] asset=$ASSET"
-  echo "[campaign] out=$OUT_DIR"
-
   cd "$REPO_ROOT"
 
   test -f "$ASSET" || {
@@ -75,7 +71,7 @@ trap finish EXIT
     exit 20
   }
 
-  echo "[1/3] render native $ACTION samples with repo Blender runner"
+  echo "[1/3] render native $ACTION samples"
   node scripts/run-blender-tool.mjs tools/export_vanguard_idle_game_blender.py --     --asset public/assets/vanguard/vanguard_rigged_animations.glb     --out-dir "$OUT_DIR"     --action "$ACTION"     --frame-count "$SAMPLES"     --output-fps "$SAMPLES"     --source-fps 60     --camera-side left     --width 512     --height 512     --foot-anchor-tolerance-px 9999
 
   echo "[2/3] assemble numbered contact sheet"
