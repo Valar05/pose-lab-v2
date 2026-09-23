@@ -132,7 +132,7 @@ launch_worker() {
   printf '%s | RUN_START run=%s resume_of=%s\n' "$(iso)" "$run_id" "$resume_of" >> "$HISTORY_FILE"
 
   tmux new-session -d -s "$SESSION" \
-    "bash '$SCRIPT_SELF' __worker '$run_id' '$started' '$resume_of' >>'$LOG_FILE' 2>&1"
+    "POSE_LAB_PORT='$PORT' bash '$SCRIPT_SELF' __worker '$run_id' '$started' '$resume_of' >>'$LOG_FILE' 2>&1"
 
   sleep 0.2
   tmux has-session -t "$SESSION" 2>/dev/null || fatal 31 "worker failed to start"
