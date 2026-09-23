@@ -230,7 +230,7 @@ worker_main() {
   if curl -fsS "http://127.0.0.1:$PORT/" >/dev/null 2>&1; then
     worker_fail "$run_id" "$started" "$resume_of" "server" 43 "port $PORT already in use" "$ROOT" "$HEAD_SHA"
   fi
-  python3 -m http.server "$PORT" --bind 127.0.0.1 >>"$LOG_FILE" 2>&1 &
+  python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$ROOT/dist" >>"$LOG_FILE" 2>&1 &
   SERVER_PID=$!
 
   READY=0
