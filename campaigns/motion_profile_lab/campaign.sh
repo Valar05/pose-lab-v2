@@ -13,6 +13,7 @@ LATEST_RECEIPT="$STATE_ROOT/latest-receipt.txt"
 HISTORY_FILE="$STATE_ROOT/history.log"
 LOG_FILE="$STATE_ROOT/campaign.log"
 RUN_DIR="$STATE_ROOT/runs"
+SERVER_PID_FILE="$STATE_ROOT/server.pid"
 MANAGED_ROOT="$STATE_ROOT/repo"
 SCRIPT_SELF="$0"
 
@@ -124,6 +125,15 @@ launch_worker() {
   if tmux has-session -t "$SESSION" 2>/dev/null; then
     fatal 30 "campaign already running; use status/follow/stop"
   fi
+  if [ -f "$SERVER_PID_FILE" ]; then
+    stale_pid="$(cat "$SERVER_PID_FILE" 2>/dev/null || true)"
+    if [ -n "$stale_pid" ] && kill -0 "$stale_pid" 2>/dev/null; then
+      kill -TERM "$stale_pid" 2>/dev/null || true
+      sleep 0.2
+      kill -0 "$stale_pid" 2>/dev/null && kill -KILL "$stale_pid" 2>/dev/null || true
+    fi
+    rm -f "$SERVER_PID_FILE"
+  fi
 
   local run_id="$(date +%Y%m%dT%H%M%S)-$$"
   local started="$(ts)"
@@ -232,6 +242,17 @@ worker_main() {
   fi
   python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$ROOT/dist" >>"$LOG_FILE" 2>&1 &
   SERVER_PID=$!
+  printf '%s
+' "$SERVER_PID" > "$SERVER_PID_FILE"
+  cleanup_server() {
+    if [ -n "${SERVER_PID:-}" ] && kill -0 "$SERVER_PID" 2>/dev/null; then
+      kill -TERM "$SERVER_PID" 2>/dev/null || true
+      sleep 0.2
+      kill -0 "$SERVER_PID" 2>/dev/null && kill -KILL "$SERVER_PID" 2>/dev/null || true
+    fi
+    rm -f "$SERVER_PID_FILE"
+  }
+  trap cleanup_server EXIT TERM INT
 
   READY=0
   for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do
@@ -279,6 +300,15 @@ follow_logs() {
 }
 
 stop_campaign() {
+  if [ -f "$SERVER_PID_FILE" ]; then
+    server_pid="$(cat "$SERVER_PID_FILE" 2>/dev/null || true)"
+    if [ -n "$server_pid" ] && kill -0 "$server_pid" 2>/dev/null; then
+      kill -TERM "$server_pid" 2>/dev/null || true
+      sleep 0.2
+      kill -0 "$server_pid" 2>/dev/null && kill -KILL "$server_pid" 2>/dev/null || true
+    fi
+    rm -f "$SERVER_PID_FILE"
+  fi
   if ! tmux has-session -t "$SESSION" 2>/dev/null; then
     if load_state; then
       write_state "$RUN_ID" "$PHASE" "stopped" "$STARTED_AT" "$(ts)" "stop requested; session already absent" "$ROOT" "$HEAD_SHA" "$RESUME_OF"
