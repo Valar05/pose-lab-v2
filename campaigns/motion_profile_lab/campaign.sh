@@ -93,6 +93,7 @@ assert_tools() {
 }
 
 campaign_canary() {
+  local quiet="${1:-}"
   assert_tools
   command -v setsid >/dev/null 2>&1 || fatal 20 "missing required command: setsid"
   local csession="${SESSION}-canary-$$"
@@ -109,13 +110,15 @@ campaign_canary() {
     tmux kill-session -t "$csession" 2>/dev/null || true
   fi
   tmux has-session -t "$csession" 2>/dev/null && fatal 24 "out-of-band stop canary failed"
-  emit_receipt "CANARY_OK campaign=$CAMPAIGN_ID process_isolation=tmux out_of_band_stop=verified"
+  if [ "$quiet" != "--quiet" ]; then
+    emit_receipt "CANARY_OK campaign=$CAMPAIGN_ID process_isolation=tmux out_of_band_stop=verified"
+  fi
 }
 
 launch_worker() {
   local resume_of="${1:-}"
   assert_tools
-  campaign_canary >/dev/null
+  campaign_canary --quiet
 
   if tmux has-session -t "$SESSION" 2>/dev/null; then
     fatal 30 "campaign already running; use status/follow/stop"
