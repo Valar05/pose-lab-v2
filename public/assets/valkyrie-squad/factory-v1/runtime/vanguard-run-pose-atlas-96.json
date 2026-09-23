@@ -1,0 +1,203 @@
+{
+  "schema": "vanguard-approved-run-pose-atlas-v1",
+  "source": {
+    "name": "biomechanical_warrior_running_sprite_sheet.png",
+    "sha256": "fc121638fe04310f35b684c9e20dda578d64868ca4a66215bdbc71956dcfd8b7",
+    "layout": [
+      3,
+      2
+    ],
+    "cellSize": [
+      512,
+      512
+    ],
+    "frameOrder": [
+      "top-left",
+      "top-middle",
+      "top-right",
+      "bottom-left",
+      "bottom-middle",
+      "bottom-right"
+    ],
+    "reviewGifAuthority": false
+  },
+  "runtime": {
+    "file": "vanguard-run-pose-atlas-96.png",
+    "sha256": "3503b13779b96e490fbf97efaafb7103cfa3e422e66225f35caa92632891c99b",
+    "cellSize": [
+      96,
+      96
+    ],
+    "grid": [
+      3,
+      2
+    ],
+    "poseCount": 6,
+    "animationFramesBaked": false,
+    "runtimeMotion": "procedural",
+    "filtering": "nearest-neighbor",
+    "paletteColors": 64
+  },
+  "registration": {
+    "method": "stable-upper-body translation-only registration on fixed 512x512 cells",
+    "offsets512": [
+      [
+        -26,
+        -14
+      ],
+      [
+        0,
+        -15
+      ],
+      [
+        28,
+        -14
+      ],
+      [
+        -26,
+        14
+      ],
+      [
+        2,
+        13
+      ],
+      [
+        27,
+        13
+      ]
+    ],
+    "scaleEdits": false,
+    "rotationEdits": false,
+    "poseEdits": false,
+    "note": "Only per-frame translation was used to cancel sheet-placement drift. Authored hips/legs and weapon silhouettes are preserved."
+  },
+  "proceduralPreset": {
+    "authority": "authoring/valkyrie-squad/factory-v1/source-masters/april-v5-canonical.spritelab.json",
+    "runtime": "src/valkyrie-sprite-lab.js#RUN + drawBridgeDistortedSprite",
+    "fps": 3.8,
+    "poseMs": 263.15789473684214,
+    "cycleMs": 1578.947368421053,
+    "rootMotion": false,
+    "pivot": [
+      256,
+      451
+    ],
+    "camera": {
+      "scale": 0.8,
+      "centerX": 256,
+      "groundY": 399
+    },
+    "bridge": {
+      "stretch": 0.1,
+      "squash": 0.055,
+      "shear": 0.075,
+      "continuity": "sinusoidal-no-hold"
+    },
+    "secondaryMotion": {
+      "cols": 28,
+      "rows": 24,
+      "cloth": {
+        "amplitude_x": 10,
+        "amplitude_y": 7,
+        "anchor_u": 0.16,
+        "cycles": 2,
+        "release_u": 0.72,
+        "wavelength": 7.5
+      },
+      "hose": {
+        "amplitude_x": 7,
+        "amplitude_y": 10,
+        "anchor_u": 0.1,
+        "cycles": 2.5,
+        "release_u": 0.68,
+        "wavelength": 10
+      }
+    }
+  },
+  "poses": [
+    {
+      "id": "run-01",
+      "index": 0,
+      "rect": [
+        0,
+        0,
+        96,
+        96
+      ],
+      "pivot": [
+        256,
+        451
+      ]
+    },
+    {
+      "id": "run-02",
+      "index": 1,
+      "rect": [
+        96,
+        0,
+        96,
+        96
+      ],
+      "pivot": [
+        256,
+        451
+      ]
+    },
+    {
+      "id": "run-03",
+      "index": 2,
+      "rect": [
+        192,
+        0,
+        96,
+        96
+      ],
+      "pivot": [
+        256,
+        451
+      ]
+    },
+    {
+      "id": "run-04",
+      "index": 3,
+      "rect": [
+        0,
+        96,
+        96,
+        96
+      ],
+      "pivot": [
+        256,
+        451
+      ]
+    },
+    {
+      "id": "run-05",
+      "index": 4,
+      "rect": [
+        96,
+        96,
+        96,
+        96
+      ],
+      "pivot": [
+        256,
+        451
+      ]
+    },
+    {
+      "id": "run-06",
+      "index": 5,
+      "rect": [
+        192,
+        96,
+        96,
+        96
+      ],
+      "pivot": [
+        256,
+        451
+      ]
+    }
+  ]
+}
