@@ -43,6 +43,21 @@ app.innerHTML = `
   .transport{height:54px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;justify-content:center;background:#0e1317}
   .transport button{min-width:44px}
   .frame-list{display:grid;gap:8px}
+  .library-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .library-tools{display:grid;gap:8px;margin-bottom:10px}
+  .library-tools input,.library-tools select{width:100%}
+  .import-button{display:flex;align-items:center;justify-content:center;min-height:40px;border:1px solid var(--line);border-radius:7px;background:#182028;color:var(--text);font-weight:800;cursor:pointer}
+  .library-meta{font-size:11px;color:var(--muted);margin:8px 0 10px}
+  .thumb-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .thumb{border:1px solid var(--line);border-radius:8px;background:#0b1014;padding:6px;display:grid;gap:5px;cursor:pointer;text-align:left}
+  .thumb:hover,.thumb.active{border-color:var(--accent)}
+  .thumb-canvas{width:100%;aspect-ratio:1/1;background:
+    linear-gradient(45deg,#20272d 25%,transparent 25%),linear-gradient(-45deg,#20272d 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#20272d 75%),linear-gradient(-45deg,transparent 75%,#20272d 75%),#151a1e;
+    background-position:0 0,0 8px,8px -8px,-8px 0;background-size:16px 16px;border-radius:5px;image-rendering:pixelated}
+  .thumb strong{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .thumb small{color:var(--muted);font-size:10px}
+  .mobile-only{display:none}
   .frame-card{border:1px solid var(--line);border-radius:8px;padding:8px;background:#0c1115}
   .frame-card.active{border-color:var(--accent);box-shadow:0 0 0 1px #e3a84b55 inset}
   .frame-label{display:flex;justify-content:space-between;gap:8px;font-weight:750;margin-bottom:6px}
@@ -69,7 +84,10 @@ app.innerHTML = `
     .workspace{grid-template-columns:1fr;display:block}
     .side{border:0;border-bottom:1px solid var(--line)}
     .side.right{border:0;border-top:1px solid var(--line)}
-    .workspace .side:first-child{display:none}
+    .mobile-only{display:inline-flex}
+    .frame-library{display:none;position:fixed;z-index:50;left:0;right:0;top:0;bottom:0;background:var(--panel);padding:14px;overflow:auto}
+    .frame-library.open{display:block}
+    .thumb-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
     .stage{min-height:43dvh}
     .side.right{max-height:none}
     .timeline{height:205px}
@@ -80,6 +98,7 @@ app.innerHTML = `
 <section>
   <header class="topbar">
     <span class="brand">Motion Profile Lab</span>
+    <button data-library-open class="mobile-only">Frames</button>
     <select data-profile aria-label="Motion profile">${profileOptions}</select>
     <button data-copy>Copy Profile</button>
     <span class="spacer"></span>
@@ -88,9 +107,28 @@ app.innerHTML = `
   </header>
 
   <main class="workspace">
-    <aside class="side">
-      <div class="section-title">Pose Frames</div>
-      <div class="frame-list" data-frames></div>
+    <aside class="side frame-library" data-library-panel>
+      <div class="library-head">
+        <div>
+          <div class="section-title">Frame Library</div>
+          <strong data-assign-target>Assign to: ready</strong>
+        </div>
+        <button data-library-close class="mobile-only" aria-label="Close frame library">×</button>
+      </div>
+      <div class="library-tools">
+        <input data-library-search type="search" placeholder="Search frames, sheets, tags">
+        <select data-library-sheet aria-label="Filter by source sheet">
+          <option value="">All sheets</option>
+        </select>
+        <select data-import-grid aria-label="Sprite sheet grid">
+          <option value="auto">Auto grid</option>
+          <option value="4x3">4 × 3</option>
+          <option value="4x4">4 × 4</option>
+        </select>
+        <label class="import-button">＋ Add Sheet<input data-import-sheet type="file" accept="image/png,image/jpeg,image/webp" hidden></label>
+      </div>
+      <div class="library-meta" data-library-meta>No sheets loaded yet.</div>
+      <div class="thumb-grid" data-library-grid></div>
     </aside>
 
     <section class="stage-wrap">
@@ -150,11 +188,22 @@ let raf = null;
 let playStartedAt = 0;
 let playStartedAtNormalized = 0;
 const frameValues = {};
+const frameMeta = {};
+let libraryItems = [];
+let recentItemIds = [];
+let activeAssignRole = working.frameRoles[0]?.id || 'ready';
 
 const q = (s) => app.querySelector(s);
 const qa = (s) => [...app.querySelectorAll(s)];
 const profileSelect = q('[data-profile]');
-const framesEl = q('[data-frames]');
+const libraryPanel = q('[data-library-panel]');
+const libraryGrid = q('[data-library-grid]');
+const librarySearch = q('[data-library-search]');
+const librarySheet = q('[data-library-sheet]');
+const libraryMeta = q('[data-library-meta]');
+const assignTarget = q('[data-assign-target]');
+const importSheet = q('[data-import-sheet]');
+const importGrid = q('[data-import-grid]');
 const track = q('[data-track]');
 const stage = q('[data-stage]');
 const inspector = q('[data-key-inspector]');
@@ -197,7 +246,7 @@ function renderStage(){
     };
     stage.append(img);
   } else {
-    stage.innerHTML = `<div class="stage-placeholder"><strong>${role || 'Pose'}</strong><br>Assign a pose frame on the left.<br><small>The stage will preview the selected/current key here.</small></div>`;
+    stage.innerHTML = `<div class="stage-placeholder"><strong>${role || 'Pose'}</strong><br>Open Frames and choose a thumbnail.<br><small>Imported sheets are batch-normalized to canonical 96px cells.</small></div>`;
   }
   qa('.frame-card').forEach((el)=>el.classList.toggle('active', el.dataset.role===role));
 }
@@ -209,27 +258,152 @@ function updatePlayhead(){
   renderStage();
 }
 
-function renderFrames(){
-  framesEl.innerHTML = working.frameRoles.map((role)=>`
-    <div class="frame-card" data-role="${role.id}">
-      <div class="frame-label">
-        <span>${role.label}</span>
-        <span style="color:var(--muted);font-size:11px">${role.required===false?'optional':'required'}</span>
-      </div>
-      <input data-frame-role="${role.id}" value="${frameValues[role.id] || ''}" placeholder="paste image URL / asset path">
-    </div>`).join('');
-  qa('[data-frame-role]').forEach((input)=>{
-    input.addEventListener('input',()=>{
-      frameValues[input.dataset.frameRole] = input.value;
-      renderStage();
-    });
-    input.closest('.frame-card').addEventListener('click',(e)=>{
-      if(e.target.tagName !== 'INPUT'){
-        const key = working.keys.find((k)=>k.id===input.dataset.frameRole);
-        if(key){ selectedKeyId=key.id; playhead=key.at; renderTimeline(); updatePlayhead(); }
+function inferGrid(fileName, image){
+  const name=(fileName||'').toLowerCase();
+  if(importGrid.value !== 'auto'){
+    const [cols,rows]=importGrid.value.split('x').map(Number);
+    return {cols,rows};
+  }
+  if(name.includes('913745')) return {cols:4,rows:3};
+  if(name.includes('913748')) return {cols:4,rows:4};
+  const ratio=image.naturalWidth/image.naturalHeight;
+  return ratio > 1.2 ? {cols:4,rows:3} : {cols:4,rows:4};
+}
+
+function inferSheetTags(sheetId){
+  if(sheetId.includes('913745')) return ['vanguard','body','unarmed','combat'];
+  if(sheetId.includes('913748')) return ['vanguard','bayonet','claw','thrust','weapon'];
+  return ['vanguard','imported'];
+}
+
+function normalizeCell(sourceCanvas){
+  const ctx=sourceCanvas.getContext('2d',{willReadFrequently:true});
+  const image=ctx.getImageData(0,0,sourceCanvas.width,sourceCanvas.height);
+  const d=image.data;
+  let minX=sourceCanvas.width,minY=sourceCanvas.height,maxX=-1,maxY=-1;
+  for(let y=0;y<sourceCanvas.height;y++){
+    for(let x=0;x<sourceCanvas.width;x++){
+      const i=(y*sourceCanvas.width+x)*4;
+      const m=Math.max(d[i],d[i+1],d[i+2]);
+      let a=0;
+      if(m>5) a=Math.max(0,Math.min(255,Math.round((m-5)/(28-5)*255)));
+      d[i+3]=a;
+      if(a>8){ if(x<minX)minX=x;if(y<minY)minY=y;if(x>maxX)maxX=x;if(y>maxY)maxY=y; }
+    }
+  }
+  ctx.putImageData(image,0,0);
+  if(maxX<minX || maxY<minY) return document.createElement('canvas');
+  const bw=maxX-minX+1,bh=maxY-minY+1;
+  const canonical=document.createElement('canvas');
+  canonical.width=96; canonical.height=96;
+  const c=canonical.getContext('2d');
+  c.imageSmoothingEnabled=true; c.imageSmoothingQuality='high';
+  const sharedScale=.22;
+  let dw=Math.max(1,Math.round(bw*sharedScale));
+  let dh=Math.max(1,Math.round(bh*sharedScale));
+  const fit=Math.min(1,88/dw,88/dh);
+  dw=Math.max(1,Math.round(dw*fit)); dh=Math.max(1,Math.round(dh*fit));
+  const dx=Math.round((96-dw)/2);
+  const dy=Math.max(0,90-dh);
+  c.drawImage(sourceCanvas,minX,minY,bw,bh,dx,dy,dw,dh);
+  return canonical;
+}
+
+async function importSpriteSheet(file){
+  const url=URL.createObjectURL(file);
+  try{
+    const image=new Image();
+    image.src=url;
+    await image.decode();
+    const {cols,rows}=inferGrid(file.name,image);
+    const sheetId=(file.name.replace(/\.[^.]+$/,'') || `sheet-${Date.now()}`);
+    const tags=inferSheetTags(sheetId);
+    const full=document.createElement('canvas');
+    full.width=image.naturalWidth; full.height=image.naturalHeight;
+    full.getContext('2d').drawImage(image,0,0);
+    const cellW=image.naturalWidth/cols, cellH=image.naturalHeight/rows;
+    const added=[];
+    for(let row=0;row<rows;row++){
+      for(let col=0;col<cols;col++){
+        const cell=document.createElement('canvas');
+        cell.width=Math.round(cellW); cell.height=Math.round(cellH);
+        cell.getContext('2d').drawImage(full,
+          Math.round(col*cellW),Math.round(row*cellH),Math.round(cellW),Math.round(cellH),
+          0,0,cell.width,cell.height);
+        const normalized=normalizeCell(cell);
+        const id=`${sheetId}:r${row+1}c${col+1}`;
+        added.push({
+          id,sheet:sheetId,row:row+1,col:col+1,index:row*cols+col,
+          tags:[...tags,'normalized-96'],
+          dataUrl:normalized.toDataURL('image/png'),
+          canonicalPx:96
+        });
       }
-    });
+    }
+    libraryItems=[...libraryItems.filter(x=>x.sheet!==sheetId),...added];
+    refreshSheetFilter();
+    renderLibrary();
+    status.textContent=`Imported ${added.length} canonical 96px frames from ${sheetId}`;
+  } finally { URL.revokeObjectURL(url); }
+}
+
+function refreshSheetFilter(){
+  const current=librarySheet.value;
+  const sheets=[...new Set(libraryItems.map(x=>x.sheet))].sort();
+  librarySheet.innerHTML='<option value="">All sheets</option>'+sheets.map(id=>`<option value="${id}">${id}</option>`).join('');
+  if(sheets.includes(current)) librarySheet.value=current;
+}
+
+function resolveAssignRole(){
+  const direct=working.frameRoles.find(r=>r.id===selectedKeyId);
+  if(direct) return direct.id;
+  const transition=working.transitions.find(t=>t.id===selectedKeyId);
+  return transition?.to || activeAssignRole || working.frameRoles[0]?.id;
+}
+
+function assignLibraryItem(item){
+  activeAssignRole=resolveAssignRole();
+  frameValues[activeAssignRole]=item.dataUrl;
+  frameMeta[activeAssignRole]={id:item.id,sheet:item.sheet,row:item.row,col:item.col,tags:item.tags};
+  recentItemIds=[item.id,...recentItemIds.filter(id=>id!==item.id)].slice(0,12);
+  assignTarget.textContent=`Assign to: ${activeAssignRole} · ${item.id}`;
+  status.textContent=`${item.id} → ${activeAssignRole}`;
+  renderLibrary();
+  renderStage();
+  updateRecipe();
+  if(matchMedia('(max-width:900px)').matches) libraryPanel.classList.remove('open');
+}
+
+function renderLibrary(){
+  activeAssignRole=resolveAssignRole();
+  assignTarget.textContent=`Assign to: ${activeAssignRole}`;
+  const query=librarySearch.value.trim().toLowerCase();
+  const sheet=librarySheet.value;
+  const filtered=libraryItems.filter(item=>{
+    if(sheet && item.sheet!==sheet) return false;
+    if(!query) return true;
+    return [item.id,item.sheet,...item.tags].join(' ').toLowerCase().includes(query);
   });
+  libraryMeta.textContent=libraryItems.length
+    ? `${filtered.length} shown · ${libraryItems.length} canonical 96px frames · click to assign`
+    : 'Add a source sheet. The whole sheet is batch-normalized to 96px cells.';
+  libraryGrid.innerHTML='';
+  for(const item of filtered){
+    const button=document.createElement('button');
+    button.type='button'; button.className='thumb';
+    if(frameMeta[activeAssignRole]?.id===item.id) button.classList.add('active');
+    const img=document.createElement('img');
+    img.className='thumb-canvas'; img.src=item.dataUrl; img.alt=item.id;
+    const strong=document.createElement('strong'); strong.textContent=item.id;
+    const small=document.createElement('small'); small.textContent=item.tags.filter(t=>t!=='normalized-96').slice(0,3).join(' · ');
+    button.append(img,strong,small);
+    button.addEventListener('click',()=>assignLibraryItem(item));
+    libraryGrid.append(button);
+  }
+}
+
+function renderFrames(){
+  renderLibrary();
 }
 
 function renderTimeline(){
@@ -243,7 +417,7 @@ function renderTimeline(){
     el.style.left=`calc(16px + (100% - 32px) * ${key.at})`;
     el.innerHTML=`<div class="diamond"></div><div class="key-label">${key.id}</div>`;
     el.addEventListener('click',()=>{
-      selectedKeyId=key.id; playhead=Number(el.dataset.at); renderTimeline(); renderInspector(); updatePlayhead();
+      selectedKeyId=key.id; playhead=Number(el.dataset.at); activeAssignRole=resolveAssignRole(); renderTimeline(); renderInspector(); renderLibrary(); updatePlayhead();
     });
     track.append(el);
   }
@@ -273,7 +447,11 @@ function renderInspector(){
 }
 
 function buildInstance(){
-  const frameMap={...frameValues};
+  const frameMap={};
+  for(const role of working.frameRoles){
+    if(frameMeta[role.id]) frameMap[role.id]=frameMeta[role.id].id;
+    else if(frameValues[role.id]) frameMap[role.id]=frameValues[role.id];
+  }
   const timingOverrides={};
   keyState().forEach((k)=>timingOverrides[k.id]=k.at);
   return instantiateProfile(working,{
@@ -303,6 +481,7 @@ function render(){
   selectedKeyId=working.keys[0]?.id;
   playhead=0;
   renderFrames();
+  refreshSheetFilter();
   renderTimeline();
   updateRecipe();
   updatePlayhead();
@@ -365,6 +544,19 @@ q('[data-preview]').addEventListener('click',()=>{
     status.textContent='Recipe previewed';
   }catch(err){status.textContent=err.message;}
 });
+q('[data-library-open]').addEventListener('click',()=>libraryPanel.classList.add('open'));
+q('[data-library-close]').addEventListener('click',()=>libraryPanel.classList.remove('open'));
+librarySearch.addEventListener('input',renderLibrary);
+librarySheet.addEventListener('change',renderLibrary);
+importSheet.addEventListener('change',async()=>{
+  const file=importSheet.files?.[0];
+  if(!file) return;
+  status.textContent='Importing and downrezzing whole sheet…';
+  try{ await importSpriteSheet(file); }
+  catch(err){ status.textContent=`Import failed: ${err.message}`; }
+  finally{ importSheet.value=''; }
+});
+
 q('[data-save]').addEventListener('click',()=>{
   try{
     const inst=buildInstance();
