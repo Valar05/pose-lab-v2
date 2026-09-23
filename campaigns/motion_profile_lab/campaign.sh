@@ -136,7 +136,7 @@ launch_worker() {
 
   sleep 0.2
   tmux has-session -t "$SESSION" 2>/dev/null || fatal 31 "worker failed to start"
-  emit_receipt "RUNNING campaign=$CAMPAIGN_ID run=$run_id status='bash $SCRIPT_SELF status' follow='bash $SCRIPT_SELF follow' stop='bash $SCRIPT_SELF stop' receipts='bash $SCRIPT_SELF receipts'"
+  emit_receipt "RUNNING campaign=$CAMPAIGN_ID run=$run_id url=$URL status='bash $SCRIPT_SELF status' follow='bash $SCRIPT_SELF follow' stop='bash $SCRIPT_SELF stop' receipts='bash $SCRIPT_SELF receipts'"
 }
 
 worker_update() {
