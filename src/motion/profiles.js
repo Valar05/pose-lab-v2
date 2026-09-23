@@ -72,6 +72,72 @@ export const MOTION_PROFILES = Object.freeze({
     ],
     loop:true,
     parameters:{cadence:{type:'number',default:1,min:.25,max:2},bounce:{type:'number',default:1,min:0,max:2},smear:{type:'number',default:.2,min:0,max:1}}
+  },
+  'slide@1': {
+    schema:'pose-lab.motion-profile.v1',
+    id:'slide', version:1, label:'Slide',
+    family:'locomotion',
+    frameRoles:[
+      {id:'entry',label:'Entry',required:true},
+      {id:'lowExtend',label:'Low Extend',required:true},
+      {id:'recovery',label:'Recovery',required:false}
+    ],
+    keys:[
+      {id:'entry',at:0},
+      {id:'drop',at:.16},
+      {id:'glide',at:.42},
+      {id:'recover',at:.78},
+      {id:'settle',at:1}
+    ],
+    transitions:[
+      {id:'drop',from:'entry',to:'lowExtend',easing:'easeOutCubic',
+       modifiers:['translate','torsoCompression','squashStretch'],
+       filters:[{id:'directionalBlur',envelope:[0,.3,.8,0]},{id:'smearTrail',envelope:[0,.25,.9,0]}],
+       constraints:['preserveSilhouette','preserveBaseline']},
+      {id:'recover',from:'lowExtend',to:'entry',easing:'easeInOutCubic',
+       modifiers:['recoilCompress'],filters:[],constraints:['preserveBaseline']}
+    ],
+    parameters:{
+      lowness:{type:'number',default:1,min:.5,max:1.5},
+      glide:{type:'number',default:1,min:.25,max:2},
+      smear:{type:'number',default:.3,min:0,max:1},
+      recovery:{type:'number',default:1,min:.25,max:2}
+    }
+  },
+  'jump@1': {
+    schema:'pose-lab.motion-profile.v1',
+    id:'jump', version:1, label:'Jump',
+    family:'airborne',
+    frameRoles:[
+      {id:'crouch',label:'Crouch',required:true},
+      {id:'airborne',label:'Airborne',required:true},
+      {id:'landing',label:'Landing',required:false}
+    ],
+    keys:[
+      {id:'crouch',at:0},
+      {id:'launch',at:.16},
+      {id:'apex',at:.48},
+      {id:'descent',at:.72},
+      {id:'landing',at:.9},
+      {id:'settle',at:1}
+    ],
+    transitions:[
+      {id:'launch',from:'crouch',to:'airborne',easing:'easeOutCubic',
+       modifiers:['translate','squashStretch','pivotShift'],
+       filters:[{id:'directionalBlur',envelope:[0,.3,.7,0]}],
+       constraints:['preserveSilhouette']},
+      {id:'landing',from:'airborne',to:'crouch',easing:'easeInOutCubic',
+       modifiers:['translate','recoilCompress','squashStretch'],
+       filters:[{id:'contactEcho',envelope:[0,0,.8,.15]}],
+       constraints:['preserveSilhouette','preserveBaseline']}
+    ],
+    parameters:{
+      height:{type:'number',default:1,min:.25,max:2},
+      hang:{type:'number',default:1,min:.25,max:2},
+      travel:{type:'number',default:1,min:0,max:2},
+      landingWeight:{type:'number',default:1,min:.25,max:2},
+      smear:{type:'number',default:.2,min:0,max:1}
+    }
   }
 });
 
