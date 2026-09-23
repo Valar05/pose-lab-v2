@@ -95,18 +95,19 @@ assert_tools() {
 campaign_canary() {
   local quiet="${1:-}"
   assert_tools
-  command -v setsid >/dev/null 2>&1 || fatal 20 "missing required command: setsid"
-  local csession="${SESSION}-canary-$$"
-  tmux new-session -d -s "$csession" "exec setsid sh -c 'sleep 300'" || fatal 21 "canary launch failed"
-  sleep 0.2
+  local csession="${SESSION}-canary-$"
+  tmux new-session -d -s "$csession" "sh -c 'trap \"exit 0\" TERM INT; sleep 300 & wait'" || fatal 21 "canary launch failed"
+  sleep 0.25
   tmux has-session -t "$csession" 2>/dev/null || fatal 22 "canary session not alive"
   local pid
   pid="$(tmux list-panes -t "$csession" -F '#{pane_pid}' | head -n1)"
   [ -n "$pid" ] || fatal 23 "canary pane pid missing"
-  kill -TERM "-$pid" 2>/dev/null || true
-  sleep 0.2
+  kill -TERM "$pid" 2>/dev/null || true
+  for _ in 1 2 3 4 5; do
+    tmux has-session -t "$csession" 2>/dev/null || break
+    sleep 0.2
+  done
   if tmux has-session -t "$csession" 2>/dev/null; then
-    kill -KILL "-$pid" 2>/dev/null || true
     tmux kill-session -t "$csession" 2>/dev/null || true
   fi
   tmux has-session -t "$csession" 2>/dev/null && fatal 24 "out-of-band stop canary failed"
@@ -131,7 +132,7 @@ launch_worker() {
   printf '%s | RUN_START run=%s resume_of=%s\n' "$(iso)" "$run_id" "$resume_of" >> "$HISTORY_FILE"
 
   tmux new-session -d -s "$SESSION" \
-    "exec setsid bash '$SCRIPT_SELF' __worker '$run_id' '$started' '$resume_of' >>'$LOG_FILE' 2>&1"
+    "bash '$SCRIPT_SELF' __worker '$run_id' '$started' '$resume_of' >>'$LOG_FILE' 2>&1"
 
   sleep 0.2
   tmux has-session -t "$SESSION" 2>/dev/null || fatal 31 "worker failed to start"
@@ -288,13 +289,12 @@ stop_campaign() {
   local pid
   pid="$(tmux list-panes -t "$SESSION" -F '#{pane_pid}' | head -n1)"
   if [ -n "$pid" ]; then
-    kill -TERM "-$pid" 2>/dev/null || true
+    kill -TERM "$pid" 2>/dev/null || true
     for _ in 1 2 3 4 5 6 7 8 9 10; do
       tmux has-session -t "$SESSION" 2>/dev/null || break
       sleep 0.2
     done
     if tmux has-session -t "$SESSION" 2>/dev/null; then
-      kill -KILL "-$pid" 2>/dev/null || true
       tmux kill-session -t "$SESSION" 2>/dev/null || true
     fi
   else
