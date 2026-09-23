@@ -47,6 +47,58 @@ For animation/sprite iteration:
 
 Do not package, schedule, document, refactor, or generalize before the canary is visible unless explicitly requested.
 
+## Hard-pose character-transfer rule
+
+When a task requires **exact pose fidelity + exact character fidelity + exact frame function**, treat it as a hard-constraint transfer/edit task, not a normal image-generation task.
+
+Typical signals:
+- “match this pose exactly”;
+- “make this character in this pose”;
+- “keep the weapon / silhouette / costume”;
+- “this is a sprite / animation frame”;
+- “lock the upper body”;
+- “only move the hips / legs / one named region.”
+
+Required workflow:
+
+1. Identify the **pose authority**: the image that defines body geometry.
+2. Identify the **character authority**: the image(s) that define identity, costume, weapon, proportions, and rendering style.
+3. Identify the **frame authority**: the exact animation role the frame must serve.
+4. Lock non-changing properties explicitly:
+   - camera/yaw;
+   - scale;
+   - upper-body silhouette when requested;
+   - weapon hand and weapon silhouette;
+   - character identity;
+   - any region the user says must not change.
+5. Prefer **edit / pose-transfer / inpaint / locked-region transformation** over fresh unconstrained generation when pose fidelity matters.
+6. If the first serious attempt drifts structurally, **stop rerolling**. Escalate immediately to harder constraints or a surgical edit.
+7. Only the user-authorized region may materially change.
+
+Do not spend multiple retries on fresh generation when the failure is structural.
+
+### Animation-specific hard constraints
+
+For sprite animation frames:
+
+- preserve camera and apparent scale across the sequence;
+- preserve character identity and weapon-hand continuity;
+- when the user asks for a locked upper body, treat the upper body as immutable and drive motion through pelvis/hips/legs;
+- do not add torso yaw, arm invention, costume drift, or weapon redesign merely to make the pose easier;
+- generate one frame when the slot is exact;
+- generate two neighboring frames only when both slots are explicitly defined;
+- do not create broad “motion-ish” candidates after the required slot is known.
+
+Before calling a hard-pose frame successful, inspect for:
+- pose fidelity;
+- camera/yaw drift;
+- scale drift;
+- limb hallucination;
+- weapon-hand consistency;
+- whether the frame actually fills the intended animation slot.
+
+If any of these fail, say so and repair the exact failure instead of praising a near miss.
+
 ## Pose Lab / Widget Fidget rule
 
 When the user asks for a Pose-Lab-like preview in ChatGPT:
