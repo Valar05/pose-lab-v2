@@ -318,8 +318,25 @@ def render(recipe_path: Path, out_dir: Path) -> dict[str, Any]:
         atlas_path = (repo_root / atlas_spec["path"]).resolve()
         if not atlas_path.is_file():
             raise FileNotFoundError(f"missing atlas {atlas_id}: {atlas_path}")
-        atlas_cache[atlas_id] = Image.open(atlas_path).convert("RGBA")
-        atlas_hashes[atlas_id] = sha256_file(atlas_path)
+
+        digest = sha256_file(atlas_path)
+        expected_digest = atlas_spec.get("sha256")
+        if expected_digest and digest != expected_digest:
+            raise ValueError(
+                f"atlas {atlas_id} SHA-256 mismatch: expected {expected_digest}, got {digest}"
+            )
+
+        opened = Image.open(atlas_path).convert("RGBA")
+        expected_size = atlas_spec.get("size")
+        if expected_size:
+            wanted = tuple(int(v) for v in expected_size)
+            if opened.size != wanted:
+                raise ValueError(
+                    f"atlas {atlas_id} size mismatch: expected {wanted}, got {opened.size}"
+                )
+
+        atlas_cache[atlas_id] = opened
+        atlas_hashes[atlas_id] = digest
 
     for source_id, source_spec in recipe["sources"].items():
         kind = source_spec.get("kind", "image")
