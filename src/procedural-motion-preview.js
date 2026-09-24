@@ -152,19 +152,6 @@ function buildSlash(){
    return c;
  }
 
- if(isHorizontal){
-   // IMPORTANT: keep the full square source-plane geometry.
-   // Cropping the crescent destroyed the pivot and left almost no Y extent,
-   // which made RotateX/perspective visually meaningless.
-   const size=Math.max(128,Number(recipe.effect.projectionTextureSize??384));
-   const o=document.createElement('canvas');
-   o.width=size;o.height=size;
-   const oc=o.getContext('2d',{willReadFrequently:true});
-   oc.drawImage(slash,0,0,slash.naturalWidth,slash.naturalHeight,0,0,size,size);
-   slashMap=colorizeCanvas(o);
-   return;
- }
-
  const c=document.createElement('canvas');c.width=slash.naturalWidth;c.height=slash.naturalHeight;
  const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(slash,0,0);
  const im=x.getImageData(0,0,c.width,c.height),d=im.data;let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
@@ -202,16 +189,34 @@ function drawEffectImage(target,image,x,y,rotationDeg=0){
  target.restore();
 }
 function transformedSlash(image,spec){
- // Neutral baseline: NO rotation, flip, scale, stretch, shear, or perspective.
- return image;
+ const rot=Number(spec.rotationDeg??0)*Math.PI/180;
+ const sx=Number(spec.scaleX??1)*(spec.flipX?-1:1);
+ const sy=Number(spec.scaleY??1)*(spec.flipY?-1:1);
+
+ if(Math.abs(rot)<1e-9&&sx===1&&sy===1)return image;
+
+ const c=Math.abs(Math.cos(rot)),sn=Math.abs(Math.sin(rot));
+ const out=document.createElement('canvas');
+ out.width=Math.max(1,Math.ceil(image.width*c+image.height*sn));
+ out.height=Math.max(1,Math.ceil(image.width*sn+image.height*c));
+ const oc=out.getContext('2d');
+ oc.translate(out.width/2,out.height/2);
+ oc.rotate(rot);
+ oc.scale(sx,sy);
+ oc.drawImage(image,-image.width/2,-image.height/2);
+ return out;
 }
 function drawSlash(e,layerName='front'){
  if(!e||!slashMap)return;
 
  const spec=recipe.effect||{};
  const image=transformedSlash(slashMap,spec);
- const x=Number(spec.position?.[0]??0);
- const y=Number(spec.position?.[1]??0);
+
+ const bodyRef=body(recipe.stage?.centerSource||'idle');
+ const bodyLength=bodyRef.canvas.height;
+ const x=Number(spec.position?.[0]??0)+bodyLength*Number(spec.translateBodyX??0);
+ const y=Number(spec.position?.[1]??0)+bodyLength*Number(spec.translateBodyY??0);
+
  const reveal=clamp(Number(e.reveal??0));
  if(reveal<=0)return;
 
