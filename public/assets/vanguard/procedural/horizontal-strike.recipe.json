@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Strike · preserve full slash plane → Z45 → global X2 → X-60 → perspective depth",
+  "description": "Vanguard Horizontal Strike · transform reset baseline",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -192,8 +192,8 @@
     "source": "slash-horizontal-clean",
     "width": 168,
     "position": [
-      0,
-      0
+      130,
+      122
     ],
     "pivot": [
       160,
@@ -251,47 +251,33 @@
     "wideOpacity": 0.5,
     "revealMode": "radial-sector",
     "transform": "none",
-    "localPivot": [
-      105,
-      35
-    ],
     "startClock": 9,
     "endClock": 3,
     "pitchScaleY": 1,
     "yawShearX": 0,
     "nearSide": "right",
     "farSide": "left",
-    "radialPivot": [
-      0.92,
-      0.5
-    ],
-    "radialStartDeg": 8,
-    "radialSweepDeg": 190,
-    "revealStartDeg": 22,
-    "projectionMode": "matrix3d-preserve-source-plane",
-    "planeCenter": [
-      215,
-      184
-    ],
-    "rotateZDeg": 45,
-    "rotateXDeg": -60,
-    "focalPx": 150,
-    "planeScale": 0.24,
-    "globalScaleX": 2,
-    "flipX": true,
-    "flipY": true,
+    "revealStartDeg": 0,
+    "projectionMode": "none",
+    "rotateZDeg": 0,
+    "rotateXDeg": 0,
+    "focalPx": 260,
+    "planeScale": 1,
+    "globalScaleX": 1,
+    "flipX": false,
+    "flipY": false,
     "vanguardDepth": 0,
-    "revealSweepDeg": 210,
+    "revealSweepDeg": 180,
     "revealCounterClockwise": true,
-    "tessellation": [
-      30,
-      18
-    ],
-    "projectionTextureSize": 384,
     "revealPivot": [
       0.5,
       0.5
-    ]
+    ],
+    "rotationDeg": 0,
+    "scaleX": 1,
+    "scaleY": 1,
+    "depthSplit": 0.5,
+    "backSide": "left"
   },
   "stage": {
     "centerX": 215,
@@ -301,6 +287,6 @@
   "motionAuthority": {
     "kind": "native-vanguard-clip",
     "clip": "SwordAttack3",
-    "description": "80 chamber → 62 stab/contact → 61 overhead recovery; slash uses real matrix projection and depth split"
+    "description": "80 chamber → 62 stab/contact → 61 overhead recovery; slash transform reset to neutral baseline"
   }
 }
