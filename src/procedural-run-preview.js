@@ -35,18 +35,49 @@ function cell(cellNo){
 function segments(){const total=recipe.poses.reduce((s,p)=>s+p.weight,0);let acc=0;return recipe.poses.map((p,i)=>{const a=acc/total;acc+=p.weight;return{p,i,a,b:acc/total}})}
 function stateAt(t){const segs=segments();t=((t%1)+1)%1;const s=segs.find(x=>t>=x.a&&t<x.b)||segs.at(-1);const u=(t-s.a)/(s.b-s.a);return{p:s.p,next:recipe.poses[(s.i+1)%recipe.poses.length],u}}
 function interp(a,b,u){const e=smooth(u),A=a.deform,B=b.deform;return{shearX:lerp(A.shearX||0,B.shearX||0,e),scaleX:lerp(A.scaleX??1,B.scaleX??1,e),scaleY:lerp(A.scaleY??1,B.scaleY??1,e),shiftX:lerp(A.shiftX||0,B.shiftX||0,e),shiftY:lerp(A.shiftY||0,B.shiftY||0,e)}}
-function draw(p,d,a){const it=cell(p.cell),[px,py]=recipe.canvas.anchor;ctx.save();ctx.globalAlpha=a;ctx.translate(px,py);ctx.transform(d.scaleX,0,d.shearX,d.scaleY,d.shiftX||0,d.shiftY||0);ctx.drawImage(it.image,-it.anchor[0],-it.anchor[1]);ctx.restore()}
+function draw(p,d,a,regionCompression=0){
+ const it=cell(p.cell),[px,py]=recipe.canvas.anchor;
+ ctx.save();ctx.globalAlpha=a;ctx.translate(px,py);ctx.transform(d.scaleX,0,d.shearX,d.scaleY,d.shiftX||0,d.shiftY||0);
+ const dx=-it.anchor[0],dy=-it.anchor[1];
+ if(isIdle && regionCompression>0 && recipe.continuous?.upperLegCompression){
+   const spec=recipe.continuous.upperLegCompression;
+   const hip=Math.round(it.image.height*spec.hipFraction);
+   const knee=Math.round(it.image.height*spec.kneeFraction);
+   const bandH=Math.max(1,knee-hip);
+   const squash=1-regionCompression;
+   const bulge=1+(spec.horizontalBulge||0)*(regionCompression/(spec.amplitude||0.10));
+   // top unchanged
+   ctx.drawImage(it.image,0,0,it.image.width,hip,dx,dy,it.image.width,hip);
+   // hip-to-knee only: squash around its own center, clipped to original band
+   ctx.save();
+   ctx.beginPath();ctx.rect(dx,dy+hip,it.image.width,bandH);ctx.clip();
+   const targetH=bandH*squash,targetW=it.image.width*bulge;
+   const tx=dx-(targetW-it.image.width)/2;
+   const ty=dy+hip+(bandH-targetH)/2;
+   ctx.drawImage(it.image,0,hip,it.image.width,bandH,tx,ty,targetW,targetH);
+   ctx.restore();
+   // knees downward unchanged
+   ctx.drawImage(it.image,0,knee,it.image.width,it.image.height-knee,dx,dy+knee,it.image.width,it.image.height-knee);
+ }else{
+   ctx.drawImage(it.image,dx,dy);
+ }
+ ctx.restore();
+}
 function render(t){
  let p,d,nextCell;
  if(isIdle && recipe.continuous?.mode==='sine'){
    p=recipe.poses[0];
    const phase=(t+(recipe.continuous.phaseOffset||0))*Math.PI*2;
+   const legSpec=recipe.continuous.upperLegCompression;
+   const legPhase=phase+((legSpec?.phaseOffset||0)*Math.PI*2);
+   const legCompression=legSpec ? (legSpec.amplitude||0)*((Math.sin(legPhase)+1)/2) : 0;
    d={
      shearX:(recipe.continuous.shearXAmplitude||0)*Math.sin(phase),
      scaleX:1,
      scaleY:1,
      shiftX:0,
-     shiftY:0
+     shiftY:0,
+     upperLegCompression:legCompression
    };
    nextCell=p.cell;
  }else{
@@ -54,11 +85,11 @@ function render(t){
    p=s.p; nextCell=s.next.cell; d=interp(s.p,s.next,s.u);
  }
  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
- draw(p,d,1);
+ draw(p,d,1,d.upperLegCompression||0);
  phaseEl.textContent=isIdle?'continuous-idle':p.id;
  timeEl.textContent=Math.round(t*recipe.cycleMs)+' / '+recipe.cycleMs+' ms';
  scrub.value=String(t);
- kv.innerHTML=`<div>Atlas cell</div><div>${p.cell}</div><div>Next cell</div><div>${nextCell}</div><div>Shear X</div><div>${d.shearX.toFixed(3)}</div><div>Shift X/Y</div><div>${d.shiftX.toFixed(2)} / ${d.shiftY.toFixed(2)}</div><div>Scale X/Y</div><div>${d.scaleX.toFixed(3)} / ${d.scaleY.toFixed(3)}</div><div>Root motion</div><div>OFF</div>`;
+ kv.innerHTML=`<div>Atlas cell</div><div>${p.cell}</div><div>Next cell</div><div>${nextCell}</div><div>Shear X</div><div>${d.shearX.toFixed(3)}</div><div>Shift X/Y</div><div>${d.shiftX.toFixed(2)} / ${d.shiftY.toFixed(2)}</div><div>Scale X/Y</div><div>${d.scaleX.toFixed(3)} / ${d.scaleY.toFixed(3)}</div><div>Upper leg</div><div>${((d.upperLegCompression||0)*100).toFixed(1)}%</div><div>Root motion</div><div>OFF</div>`;
 }
 function loop(now){let t=offset;if(playing)t=(offset+(now-start)/recipe.cycleMs)%1;render(t);requestAnimationFrame(loop)}
 playBtn.onclick=()=>{if(playing){offset=(offset+(performance.now()-start)/recipe.cycleMs)%1;playing=false;playBtn.textContent='▶'}else{start=performance.now();playing=true;playBtn.textContent='❚❚'}};
