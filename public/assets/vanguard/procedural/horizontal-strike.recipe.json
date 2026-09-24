@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Strike · live-tunable slash controls",
+  "description": "Vanguard Horizontal Strike · live controls with independent Rotate Z / Tilt X / Yaw Y",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -268,13 +268,15 @@
       0.5,
       0.5
     ],
-    "rotationDeg": 30,
     "scaleX": 1,
     "scaleY": 1,
     "depthSplit": 0.5,
     "backSide": "left",
     "positionMode": "absolute",
-    "liveControls": true
+    "liveControls": true,
+    "rotateZDeg": 30,
+    "tiltXDeg": 0,
+    "yawYDeg": 0
   },
   "stage": {
     "centerX": 215,
