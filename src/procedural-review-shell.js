@@ -11,7 +11,7 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
   .anim-select{min-width:175px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;align-items:start}
   .stagewrap{min-width:0}.stage-toolbar{display:flex;gap:7px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);background:#0b1116;flex-wrap:wrap}
   .stage-toolbar input{width:min(270px,42vw)}.zoom-readout{min-width:52px;text-align:center;font-size:12px;color:var(--muted)}
-  .viewport{position:relative;min-height:440px;height:min(68dvh,720px);overflow:hidden;background:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px),#050709;background-size:32px 32px;touch-action:none;cursor:grab}
+  .viewport{position:relative;min-height:440px;height:min(68dvh,720px);overflow:hidden;background:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px),#050709;background-size:32px 32px;touch-action:pan-y;cursor:grab}
   .viewport.dragging{cursor:grabbing}.holder{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);transform-origin:center;will-change:transform}
   canvas{display:block;background:#000;border:1px solid #202b33;image-rendering:pixelated;box-shadow:0 12px 40px #0008}
   .transport{display:grid;grid-template-columns:auto auto minmax(120px,1fr) auto;gap:9px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#0d1318}
@@ -55,9 +55,17 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
   function fit(){const pad=28;panX=0;panY=0;setZoom(Math.max(.5,Math.min(4,Math.min((viewport.clientWidth-pad)/canvas.width,(viewport.clientHeight-pad)/canvas.height))));}
   zoomInput.oninput=()=>setZoom(zoomInput.value);q('[data-zoom-in]').onclick=()=>setZoom(zoom+.15);q('[data-zoom-out]').onclick=()=>setZoom(zoom-.15);
   q('[data-fit]').onclick=fit;q('[data-one]').onclick=()=>{panX=0;panY=0;setZoom(1)};q('[data-center]').onclick=()=>{panX=0;panY=0;apply()};
-  viewport.onpointerdown=e=>{drag=true;viewport.classList.add('dragging');viewport.setPointerCapture(e.pointerId);sx=e.clientX;sy=e.clientY;px=panX;py=panY};
+  viewport.onpointerdown=e=>{
+    if(e.pointerType==='touch' && zoom<=1.05) return;
+    drag=true;viewport.classList.add('dragging');
+    if(e.pointerType!=='touch') viewport.setPointerCapture(e.pointerId);
+    sx=e.clientX;sy=e.clientY;px=panX;py=panY;
+  };
   viewport.onpointermove=e=>{if(!drag)return;panX=px+e.clientX-sx;panY=py+e.clientY-sy;apply()};
-  const end=e=>{drag=false;viewport.classList.remove('dragging');try{viewport.releasePointerCapture(e.pointerId)}catch{}};
+  const end=e=>{
+    drag=false;viewport.classList.remove('dragging');
+    if(e.pointerType!=='touch'){try{viewport.releasePointerCapture(e.pointerId)}catch{}}
+  };
   viewport.onpointerup=end;viewport.onpointercancel=end;
   return {app,q,canvas,viewport,fit,setZoom,getZoom:()=>zoom};
 }
