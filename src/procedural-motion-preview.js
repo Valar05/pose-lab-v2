@@ -192,19 +192,24 @@ function transformedSlash(image,spec){
 
  function project(u,v){
    // local plane coords centered on source; y is UP in 3D space.
-   let x=((u-.5)*W)*scale*gx*fx;
+   let x=((u-.5)*W)*scale*fx;
    let y=((.5-v)*H)*scale*fy;
    let z=0;
 
-   // rotate around Z first
+   // 1) Rotate the slash plane around Z first.
    const xz=x*Math.cos(rz)-y*Math.sin(rz);
    const yz=x*Math.sin(rz)+y*Math.cos(rz);
-   x=xz;y=yz;
+   x=xz;
+   y=yz;
 
-   // then rotate around X. Negative angle sends the top edge rearward.
+   // 2) Stretch GLOBAL / post-Z screen-world X, exactly as requested.
+   x*=gx;
+
+   // 3) Then pitch around X. Negative angle sends the top edge rearward/down.
    const yx=y*Math.cos(rx)-z*Math.sin(rx);
    const zx=y*Math.sin(rx)+z*Math.cos(rx);
-   y=yx;z=zx;
+   y=yx;
+   z=zx;
 
    const denom=Math.max(40,focal-z);
    const p=focal/denom;
