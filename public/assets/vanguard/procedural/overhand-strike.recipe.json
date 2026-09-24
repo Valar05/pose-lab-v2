@@ -16,10 +16,10 @@
       255
     ],
     "anchor": [
-      215,
+      92,
       226
     ],
-    "anchorMeaning": "canonical Vanguard bottom-center review anchor"
+    "anchorMeaning": "approved attack-local rear-foot pivot"
   },
   "atlases": {
     "vanguard-canonical": {
@@ -42,7 +42,7 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "bottom-center"
+      "anchorMode": "rear-foot-left"
     },
     "chamber": {
       "kind": "atlas-cell",
@@ -50,7 +50,7 @@
       "cell": 26,
       "role": "body",
       "trim": true,
-      "anchorMode": "bottom-center"
+      "anchorMode": "rear-foot-left"
     },
     "commit": {
       "kind": "atlas-cell",
@@ -58,7 +58,7 @@
       "cell": 40,
       "role": "body",
       "trim": true,
-      "anchorMode": "bottom-center"
+      "anchorMode": "rear-foot-left"
     },
     "preimpact": {
       "kind": "atlas-cell",
@@ -66,7 +66,7 @@
       "cell": 32,
       "role": "body",
       "trim": true,
-      "anchorMode": "bottom-center"
+      "anchorMode": "rear-foot-left"
     },
     "contact": {
       "kind": "atlas-cell",
@@ -74,7 +74,7 @@
       "cell": 35,
       "role": "body",
       "trim": true,
-      "anchorMode": "bottom-center"
+      "anchorMode": "rear-foot-left"
     },
     "slash-right": {
       "kind": "image",
@@ -237,11 +237,11 @@
     "source": "slash-right",
     "width": 184,
     "position": [
-      201,
+      78,
       82
     ],
     "pivot": [
-      283,
+      160,
       198
     ],
     "startClock": 10,
@@ -296,5 +296,10 @@
     "wideBlurPx": 7.5,
     "tightOpacity": 0.65,
     "wideOpacity": 0.55
+  },
+  "stage": {
+    "centerX": 215,
+    "centerSource": "idle",
+    "mode": "translate-composite-after-local-authoring"
   }
 }
