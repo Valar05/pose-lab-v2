@@ -83,6 +83,9 @@ node scripts/build.mjs
 
 cp -f "$PROC/vanguard-pose-atlas-90.png" "$DIST_PROC/vanguard-pose-atlas-90.png"
 cp -f "$PROC/slash_horizontal_clean.png" "$DIST_PROC/slash_horizontal_clean.png"
+cp -f "$PROC/slash_right.png" "$DIST_PROC/slash_right.png"
+cp -f "$PROC/undercut-strike.recipe.json" "$DIST_PROC/undercut-strike.recipe.json"
+cp -f "$PROC/attack2-uppercut.recipe.json" "$DIST_PROC/attack2-uppercut.recipe.json"
 cp -f "$PROC/horizontal-strike.recipe.json" "$DIST_PROC/horizontal-strike.recipe.json"
 
 echo
