@@ -12,8 +12,8 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
   .stagewrap{min-width:0}.stage-toolbar{display:flex;gap:7px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);background:#0b1116;flex-wrap:wrap}
   .stage-toolbar input{width:min(270px,42vw)}.zoom-readout{min-width:52px;text-align:center;font-size:12px;color:var(--muted)}
   .viewport{position:relative;min-height:440px;height:min(68dvh,720px);overflow:hidden;background:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px),#050709;background-size:32px 32px;touch-action:pan-y;cursor:grab}
-  .viewport.dragging{cursor:grabbing}.holder{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);transform-origin:center;will-change:transform}
-  canvas{display:block;background:#000;border:1px solid #202b33;image-rendering:pixelated;box-shadow:0 12px 40px #0008}
+  .viewport.dragging{cursor:grabbing}.holder{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);will-change:transform}
+  canvas{display:block;background:#000;border:1px solid #202b33;image-rendering:pixelated;box-shadow:0 12px 40px #0008;max-width:none;max-height:none}
   .transport{display:grid;grid-template-columns:auto auto minmax(120px,1fr) auto;gap:9px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#0d1318}
   .transport input{width:100%}.side{background:var(--panel);border-left:1px solid var(--line);padding:14px;min-height:100%}
   .phase{font-size:23px;font-weight:900;color:var(--accent);margin:5px 0 12px}.meta{font-size:12px;color:var(--muted);line-height:1.55}
@@ -51,7 +51,13 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
   q('[data-profiles]').onclick=()=>location.href='./motion.html';
 
   let zoom=1,panX=0,panY=0,drag=false,sx=0,sy=0,px=0,py=0;
-  function apply(){holder.style.transform=`translate(calc(-50% + ${panX}px),calc(-50% + ${panY}px)) scale(${zoom})`;zoomInput.value=String(zoom);zoomReadout.textContent=Math.round(zoom*100)+'%';}
+  function apply(){
+    holder.style.transform=`translate(calc(-50% + ${panX}px),calc(-50% + ${panY}px))`;
+    const w=Math.max(1,Math.round(canvas.width*zoom)),h=Math.max(1,Math.round(canvas.height*zoom));
+    canvas.style.width=w+'px';canvas.style.height=h+'px';
+    holder.style.width=w+'px';holder.style.height=h+'px';
+    zoomInput.value=String(zoom);zoomReadout.textContent=Math.round(zoom*100)+'%';
+  }
   function setZoom(v){zoom=Math.max(.5,Math.min(4,Number(v)));apply();}
   function fit(){const pad=28;panX=0;panY=0;setZoom(Math.max(.5,Math.min(4,Math.min((viewport.clientWidth-pad)/canvas.width,(viewport.clientHeight-pad)/canvas.height))));}
   zoomInput.oninput=()=>setZoom(zoomInput.value);q('[data-zoom-in]').onclick=()=>setZoom(zoom+.15);q('[data-zoom-out]').onclick=()=>setZoom(zoom-.15);
