@@ -208,9 +208,16 @@ function drawSlash(e,layerName='front'){
  const px=image.width*Number(pivot[0]??.5);
  const py=image.height*Number(pivot[1]??.5);
 
- const rot=Number(spec.rotationDeg??0)*Math.PI/180;
+ const rotZ=Number(spec.rotateZDeg??0)*Math.PI/180;
+ const tiltX=Number(spec.tiltXDeg??0)*Math.PI/180;
+ const yawY=Number(spec.yawYDeg??0)*Math.PI/180;
  const sx=Number(spec.scaleX??1)*(spec.flipX?-1:1);
  const sy=Number(spec.scaleY??1)*(spec.flipY?-1:1);
+
+ // Keep normal 2D Rotate Z separate from pseudo-3D controls.
+ // Tilt X compresses Y; Yaw Y adds horizontal projective shear.
+ const pseudoScaleY=Math.max(.06,Math.abs(Math.cos(tiltX)));
+ const pseudoShearX=Math.tan(yawY)*.65;
 
  const start=Number(spec.revealStartDeg??0)*Math.PI/180;
  const sweep=Number(spec.revealSweepDeg??180)*Math.PI/180;
@@ -241,8 +248,9 @@ function drawSlash(e,layerName='front'){
 
  ctx.save();
  ctx.translate(stageOffsetX()+x+px,y+py);
- ctx.rotate(rot);
+ ctx.rotate(rotZ);
  ctx.scale(sx,sy);
+ ctx.transform(1,0,pseudoShearX,pseudoScaleY,0,0);
 
  // Reveal in slash-local space, after placement transform.
  ctx.beginPath();
@@ -312,7 +320,9 @@ function installHorizontalControls(){
    <div style="display:grid;grid-template-columns:92px 1fr 54px;gap:7px 8px;align-items:center;font-size:12px">
      <label>X</label><input data-hc="x" type="range" min="-250" max="450" step="1"><output data-out="x"></output>
      <label>Y</label><input data-hc="y" type="range" min="-250" max="450" step="1"><output data-out="y"></output>
-     <label>Rotate °</label><input data-hc="rot" type="range" min="-180" max="180" step="1"><output data-out="rot"></output>
+     <label>Rotate Z °</label><input data-hc="rotz" type="range" min="-180" max="180" step="1"><output data-out="rotz"></output>
+     <label>Tilt X °</label><input data-hc="tiltx" type="range" min="-89" max="89" step="1"><output data-out="tiltx"></output>
+     <label>Yaw Y °</label><input data-hc="yawy" type="range" min="-75" max="75" step="1"><output data-out="yawy"></output>
      <label>Scale X</label><input data-hc="sx" type="range" min="-3" max="3" step=".05"><output data-out="sx"></output>
      <label>Scale Y</label><input data-hc="sy" type="range" min="-3" max="3" step=".05"><output data-out="sy"></output>
      <label>Depth split</label><input data-hc="split" type="range" min="0" max="1" step=".01"><output data-out="split"></output>
@@ -335,7 +345,9 @@ function installHorizontalControls(){
  const controls={
    x:box.querySelector('[data-hc="x"]'),
    y:box.querySelector('[data-hc="y"]'),
-   rot:box.querySelector('[data-hc="rot"]'),
+   rotz:box.querySelector('[data-hc="rotz"]'),
+   tiltx:box.querySelector('[data-hc="tiltx"]'),
+   yawy:box.querySelector('[data-hc="yawy"]'),
    sx:box.querySelector('[data-hc="sx"]'),
    sy:box.querySelector('[data-hc="sy"]'),
    split:box.querySelector('[data-hc="split"]'),
@@ -348,7 +360,9 @@ function installHorizontalControls(){
  function setValues(){
    controls.x.value=fx.position?.[0]??0;
    controls.y.value=fx.position?.[1]??0;
-   controls.rot.value=fx.rotationDeg??0;
+   controls.rotz.value=fx.rotateZDeg??0;
+   controls.tiltx.value=fx.tiltXDeg??0;
+   controls.yawy.value=fx.yawYDeg??0;
    controls.sx.value=(fx.flipX?-1:1)*Math.abs(Number(fx.scaleX??1));
    controls.sy.value=(fx.flipY?-1:1)*Math.abs(Number(fx.scaleY??1));
    controls.split.value=fx.depthSplit??.5;
@@ -359,13 +373,15 @@ function installHorizontalControls(){
    refreshOutputs();
  }
  function refreshOutputs(){
-   for(const k of ['x','y','rot','sx','sy','split','rstart','rsweep']){
+   for(const k of ['x','y','rotz','tiltx','yawy','sx','sy','split','rstart','rsweep']){
      box.querySelector('[data-out="'+k+'"]').textContent=controls[k].value;
    }
  }
  function apply(){
    fx.position=[Number(controls.x.value),Number(controls.y.value)];
-   fx.rotationDeg=Number(controls.rot.value);
+   fx.rotateZDeg=Number(controls.rotz.value);
+   fx.tiltXDeg=Number(controls.tiltx.value);
+   fx.yawYDeg=Number(controls.yawy.value);
    const sx=Number(controls.sx.value),sy=Number(controls.sy.value);
    fx.scaleX=Math.max(.01,Math.abs(sx));
    fx.scaleY=Math.max(.01,Math.abs(sy));
@@ -379,13 +395,15 @@ function installHorizontalControls(){
  }
  Object.values(controls).forEach(el=>{el.oninput=apply;el.onchange=apply;});
  box.querySelector('[data-hc-reset]').onclick=()=>{
-   Object.assign(fx,{position:[130,122],rotationDeg:0,scaleX:1,scaleY:1,flipX:false,flipY:false,depthSplit:.5,revealStartDeg:0,revealSweepDeg:180});
+   Object.assign(fx,{position:[130,122],rotateZDeg:0,tiltXDeg:0,yawYDeg:0,scaleX:1,scaleY:1,flipX:false,flipY:false,depthSplit:.5,revealStartDeg:0,revealSweepDeg:180});
    controls.full.checked=false;setValues();render(offset);
  };
  box.querySelector('[data-hc-copy]').onclick=async()=>{
    const payload={
      position:fx.position,
-     rotationDeg:fx.rotationDeg,
+     rotateZDeg:fx.rotateZDeg,
+     tiltXDeg:fx.tiltXDeg,
+     yawYDeg:fx.yawYDeg,
      scaleX:fx.scaleX,
      scaleY:fx.scaleY,
      flipX:fx.flipX,
