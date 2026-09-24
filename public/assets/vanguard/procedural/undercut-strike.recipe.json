@@ -1,8 +1,8 @@
 {
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
-  "id": "vanguard-undercut-strike-procedural-v1",
+  "id": "vanguard-undercut-strike-procedural-v2",
   "subject": "vanguard",
-  "description": "Vanguard Undercut Strike · Pose Lab 2 live procedural proof",
+  "description": "Vanguard Undercut Strike · expanded 90-pose atlas",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -23,16 +23,15 @@
   },
   "atlases": {
     "vanguard-canonical": {
-      "path": "assets/vanguard/procedural/vanguard-pose-atlas-54.png",
+      "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
       "columns": 6,
-      "rows": 9,
+      "rows": 15,
       "indexBase": 1,
       "mode": "blue-key",
       "size": [
-        1536,
-        1316
-      ],
-      "sha256": "acb551e180b72233770bb62d371318945d848f89462435bc7c11c069b4d6b47b"
+        1037,
+        1536
+      ]
     }
   },
   "sources": {
@@ -47,7 +46,7 @@
     "chamber": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 42,
+      "cell": 79,
       "role": "body",
       "trim": true,
       "anchorMode": "rear-foot-left"
@@ -55,7 +54,7 @@
     "commit": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 35,
+      "cell": 77,
       "role": "body",
       "trim": true,
       "anchorMode": "rear-foot-left"
@@ -63,7 +62,7 @@
     "preimpact": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 34,
+      "cell": 64,
       "role": "body",
       "trim": true,
       "anchorMode": "rear-foot-left"
@@ -71,7 +70,7 @@
     "contact": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 29,
+      "cell": 68,
       "role": "body",
       "trim": true,
       "anchorMode": "rear-foot-left"
@@ -82,6 +81,22 @@
       "mode": "black-luminance-alpha",
       "role": "effect",
       "trim": true
+    },
+    "recovery": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 84,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "settle": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 80,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
     }
   },
   "phases": [
@@ -191,7 +206,7 @@
     },
     {
       "id": "recoil-1",
-      "source": "contact",
+      "source": "recovery",
       "durationMs": 95,
       "deform": {
         "shearX": -0.12,
@@ -208,7 +223,7 @@
     },
     {
       "id": "recoil-2",
-      "source": "contact",
+      "source": "settle",
       "durationMs": 90,
       "deform": {
         "shearX": -0.03,
