@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Slash · exact user-uploaded order: chamber → stab/contact → overhead arc-finish",
+  "description": "Vanguard Horizontal Slash · normalized 80 → 62 → 61 with clean horizontal slash asset",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -41,7 +41,8 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "cell-bottom-center"
+      "anchorMode": "cell-bottom-center",
+      "normalizeForegroundHeightPx": 88
     },
     "chamber": {
       "kind": "atlas-cell",
@@ -49,7 +50,8 @@
       "cell": 80,
       "role": "body",
       "trim": true,
-      "anchorMode": "cell-bottom-center"
+      "anchorMode": "cell-bottom-center",
+      "normalizeForegroundHeightPx": 88
     },
     "commit": {
       "kind": "atlas-cell",
@@ -57,7 +59,8 @@
       "cell": 62,
       "role": "body",
       "trim": true,
-      "anchorMode": "cell-bottom-center"
+      "anchorMode": "cell-bottom-center",
+      "normalizeForegroundHeightPx": 88
     },
     "contact": {
       "kind": "atlas-cell",
@@ -65,11 +68,12 @@
       "cell": 61,
       "role": "body",
       "trim": true,
-      "anchorMode": "cell-bottom-center"
+      "anchorMode": "cell-bottom-center",
+      "normalizeForegroundHeightPx": 88
     },
-    "slash-right": {
+    "slash-horizontal-clean": {
       "kind": "image",
-      "path": "assets/vanguard/procedural/slash_right.png",
+      "path": "assets/vanguard/procedural/slash_horizontal_clean.png",
       "mode": "black-luminance-alpha",
       "role": "effect",
       "trim": true
@@ -168,11 +172,11 @@
     }
   ],
   "effect": {
-    "source": "slash-right",
-    "width": 210,
+    "source": "slash-horizontal-clean",
+    "width": 230,
     "position": [
-      26,
-      118
+      78,
+      126
     ],
     "pivot": [
       160,
@@ -228,7 +232,7 @@
     "wideBlurPx": 7.5,
     "tightOpacity": 0.65,
     "wideOpacity": 0.55,
-    "rotationDeg": -8,
+    "rotationDeg": 90,
     "revealMode": "jovian-ring",
     "transform": "none",
     "localPivot": [
@@ -237,8 +241,8 @@
     ],
     "startClock": 9,
     "endClock": 3,
-    "pitchScaleY": 0.34,
-    "yawShearX": 0.18
+    "pitchScaleY": 0.58,
+    "yawShearX": 0
   },
   "stage": {
     "centerX": 215,
