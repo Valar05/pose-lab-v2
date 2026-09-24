@@ -363,8 +363,8 @@ function installHorizontalControls(){
    controls.rotz.value=fx.rotateZDeg??0;
    controls.tiltx.value=fx.tiltXDeg??0;
    controls.yawy.value=fx.yawYDeg??0;
-   controls.sx.value=(fx.flipX?-1:1)*Math.abs(Number(fx.scaleX??1));
-   controls.sy.value=(fx.flipY?-1:1)*Math.abs(Number(fx.scaleY??1));
+   controls.sx.value=Number(fx.scaleX??1);
+   controls.sy.value=Number(fx.scaleY??1);
    controls.split.value=fx.depthSplit??.5;
    controls.rstart.value=fx.revealStartDeg??0;
    controls.rsweep.value=fx.revealSweepDeg??180;
@@ -383,10 +383,10 @@ function installHorizontalControls(){
    fx.tiltXDeg=Number(controls.tiltx.value);
    fx.yawYDeg=Number(controls.yawy.value);
    const sx=Number(controls.sx.value),sy=Number(controls.sy.value);
-   fx.scaleX=Math.max(.01,Math.abs(sx));
-   fx.scaleY=Math.max(.01,Math.abs(sy));
-   fx.flipX=controls.flipx.checked || sx<0;
-   fx.flipY=controls.flipy.checked || sy<0;
+   fx.scaleX=Math.abs(sx)<.01?(sx<0?-.01:.01):sx;
+   fx.scaleY=Math.abs(sy)<.01?(sy<0?-.01:.01):sy;
+   fx.flipX=controls.flipx.checked;
+   fx.flipY=controls.flipy.checked;
    fx.depthSplit=Number(controls.split.value);
    fx.revealStartDeg=Number(controls.rstart.value);
    fx.revealSweepDeg=Number(controls.rsweep.value);
