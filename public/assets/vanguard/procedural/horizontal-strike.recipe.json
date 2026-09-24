@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Strike · live controls with independent Rotate Z / Tilt X / Yaw Y",
+  "description": "Vanguard Horizontal Strike · approved live-tuned orientation and effect controls",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -192,8 +192,8 @@
     "source": "slash-horizontal-clean",
     "width": 168,
     "position": [
-      130,
-      122
+      80,
+      25
     ],
     "pivot": [
       160,
@@ -257,10 +257,10 @@
     "yawShearX": 0,
     "nearSide": "right",
     "farSide": "left",
-    "revealStartDeg": 0,
+    "revealStartDeg": 32,
     "projectionMode": "none",
-    "flipX": true,
-    "flipY": false,
+    "flipX": false,
+    "flipY": true,
     "vanguardDepth": 0,
     "revealSweepDeg": 180,
     "revealCounterClockwise": true,
@@ -268,15 +268,15 @@
       0.5,
       0.5
     ],
-    "scaleX": 1,
+    "scaleX": -0.3,
     "scaleY": 1,
-    "depthSplit": 0.5,
+    "depthSplit": 0.81,
     "backSide": "left",
     "positionMode": "absolute",
     "liveControls": true,
-    "rotateZDeg": 30,
-    "tiltXDeg": 0,
-    "yawYDeg": 0
+    "rotateZDeg": -92,
+    "tiltXDeg": -38,
+    "yawYDeg": -15
   },
   "stage": {
     "centerX": 215,
