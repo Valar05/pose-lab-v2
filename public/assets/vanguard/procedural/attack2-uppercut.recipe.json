@@ -276,7 +276,8 @@
     "scaleX": 1,
     "scaleY": 1,
     "flipX": false,
-    "flipY": true
+    "flipY": true,
+    "liveControls": true
   },
   "stage": {
     "centerX": 215,

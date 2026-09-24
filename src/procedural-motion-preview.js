@@ -214,7 +214,7 @@ function drawSlash(e,layerName='front'){
  const rotZ=Number(spec.rotateZDeg??0)*Math.PI/180;
  const tiltX=Number(spec.tiltXDeg??0)*Math.PI/180;
  const yawY=Number(spec.yawYDeg??0)*Math.PI/180;
- const sx=Number(spec.scaleX??1)*(spec.flipX?-1:1);
+ const sx=Number(spec.scaleX??1);
  const sy=Number(spec.scaleY??1)*(spec.flipY?-1:1);
 
  // Keep normal 2D Rotate Z separate from pseudo-3D controls.
@@ -229,12 +229,23 @@ function drawSlash(e,layerName='front'){
    : start-sweep*reveal;
 
  function passImage(color){
-   if(!color)return image;
+   let source=image;
+   if(spec.flipX){
+     const mirrored=document.createElement('canvas');
+     mirrored.width=image.width;
+     mirrored.height=image.height;
+     const mc=mirrored.getContext('2d');
+     mc.translate(image.width,0);
+     mc.scale(-1,1);
+     mc.drawImage(image,0,0);
+     source=mirrored;
+   }
+   if(!color)return source;
    const tint=document.createElement('canvas');
    tint.width=image.width;
    tint.height=image.height;
    const tc=tint.getContext('2d');
-   tc.drawImage(image,0,0);
+   tc.drawImage(source,0,0);
    tc.globalCompositeOperation='source-in';
    tc.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
    tc.fillRect(0,0,tint.width,tint.height);
@@ -293,7 +304,7 @@ function drawSlash(e,layerName='front'){
  ctx.restore();
 }
 function render(ms){
- const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null; if(isHorizontal&&window.__horizontalControls?.controls.full.checked&&e){e.reveal=1;e.core=1;e.tightGlow=1;e.wideGlow=.7;}
+ const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null; if(window.__slashControls?.controls.full.checked&&e){e.reveal=1;e.core=1;e.tightGlow=1;e.wideGlow=.7;}
  ctx.setTransform(1,0,0,1,0,0);
  ctx.fillStyle='#000';
  ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -312,14 +323,13 @@ function loop(now){let ms=offset;if(playing)ms=(offset+(now-start))%total;render
 play.onclick=()=>{if(playing){offset=(offset+(performance.now()-start))%total;playing=false;play.textContent='▶'}else{start=performance.now();playing=true;play.textContent='❚❚'}};
 restart.onclick=()=>{offset=0;start=performance.now();render(0)};scrub.oninput=()=>{offset=Number(scrub.value)*total;start=performance.now();render(offset)};
 
-function installHorizontalControls(){
- if(!isHorizontal)return;
+function installSlashControls(){
  const side=document.querySelector('.side');
- if(!side||side.querySelector('[data-horizontal-controls]'))return;
+ if(!side||side.querySelector('[data-slash-controls]'))return;
 
  const box=document.createElement('details');
  box.open=true;
- box.setAttribute('data-horizontal-controls','');
+ box.setAttribute('data-slash-controls','');
  box.innerHTML=`
    <summary style="font-size:15px;margin-bottom:10px">Slash Controls</summary>
    <div style="display:grid;grid-template-columns:92px 1fr 54px;gap:7px 8px;align-items:center;font-size:12px">
@@ -335,7 +345,7 @@ function installHorizontalControls(){
      <label>Reveal sweep</label><input data-hc="rsweep" type="range" min="1" max="360" step="1"><output data-out="rsweep"></output>
    </div>
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-     <label><input data-hc="flipx" type="checkbox"> Flip X</label>
+     <label><input data-hc="flipx" type="checkbox"> Invert X</label>
      <label><input data-hc="flipy" type="checkbox"> Flip Y</label>
      <label><input data-hc="full" type="checkbox"> Full effect</label>
    </div>
@@ -421,7 +431,7 @@ function installHorizontalControls(){
    box.querySelector('[data-hc-copy]').textContent='Copied';
    setTimeout(()=>box.querySelector('[data-hc-copy]').textContent='Copy values',800);
  };
- window.__horizontalControls={box,controls};
+ window.__slashControls={box,controls};
  setValues();
 }
 
@@ -450,7 +460,7 @@ try{
  }
  buildSlash();
  for(const [id,src] of Object.entries(recipe.sources))if(src.role==='body')body(id);
- installHorizontalControls();
+ installSlashControls();
  render(0);
  requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
 }catch(err){document.querySelector('#app').innerHTML='<pre style="padding:18px;color:#ff8a8a;white-space:pre-wrap"></pre>';document.querySelector('#app pre').textContent=err?.stack||String(err)}
