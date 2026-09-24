@@ -1,0 +1,272 @@
+{
+  "schema": "pose-lab-v2-procedural-motion-recipe-v1",
+  "id": "vanguard-horizontal-strike-procedural-v1",
+  "subject": "vanguard",
+  "description": "Vanguard Horizontal Slash · three authored poses + pitched Jovian ring",
+  "rootMotion": false,
+  "canvas": {
+    "size": [
+      430,
+      260
+    ],
+    "background": [
+      0,
+      0,
+      0,
+      255
+    ],
+    "anchor": [
+      92,
+      226
+    ],
+    "anchorMeaning": "approved attack-local rear-foot pivot"
+  },
+  "atlases": {
+    "vanguard-canonical": {
+      "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
+      "columns": 6,
+      "rows": 15,
+      "indexBase": 1,
+      "mode": "blue-key",
+      "size": [
+        1037,
+        1536
+      ]
+    }
+  },
+  "sources": {
+    "idle": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 2,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "chamber": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 61,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "commit": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 80,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "contact": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 62,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "slash-right": {
+      "kind": "image",
+      "path": "assets/vanguard/procedural/slash_right.png",
+      "mode": "black-luminance-alpha",
+      "role": "effect",
+      "trim": true
+    }
+  },
+  "phases": [
+    {
+      "id": "idle",
+      "source": "idle",
+      "durationMs": 70,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1
+      }
+    },
+    {
+      "id": "horizontal-chamber",
+      "source": "chamber",
+      "durationMs": 95,
+      "deform": {
+        "shearX": 0.08,
+        "scaleX": 1,
+        "scaleY": 1
+      }
+    },
+    {
+      "id": "release",
+      "source": "commit",
+      "durationMs": 55,
+      "deform": {
+        "shearX": -0.1,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "effect": {
+        "reveal": 0.28,
+        "core": 0.55,
+        "tightGlow": 0.42,
+        "wideGlow": 0.24
+      }
+    },
+    {
+      "id": "lateral-contact",
+      "source": "contact",
+      "durationMs": 120,
+      "deform": {
+        "shearX": -0.22,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "effect": {
+        "reveal": 1,
+        "core": 1,
+        "tightGlow": 1,
+        "wideGlow": 0.68
+      }
+    },
+    {
+      "id": "follow-through",
+      "source": "contact",
+      "durationMs": 85,
+      "deform": {
+        "shearX": -0.16,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "effect": {
+        "reveal": 1,
+        "core": 0.44,
+        "tightGlow": 0.48,
+        "wideGlow": 0.52
+      }
+    },
+    {
+      "id": "recoil-1",
+      "source": "contact",
+      "durationMs": 95,
+      "deform": {
+        "shearX": -0.08,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "effect": {
+        "reveal": 1,
+        "core": 0.14,
+        "tightGlow": 0.18,
+        "wideGlow": 0.24
+      }
+    },
+    {
+      "id": "recoil-2",
+      "source": "contact",
+      "durationMs": 85,
+      "deform": {
+        "shearX": -0.025,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0.04
+      }
+    },
+    {
+      "id": "idle-return",
+      "source": "idle",
+      "durationMs": 100,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1
+      }
+    }
+  ],
+  "effect": {
+    "source": "slash-right",
+    "width": 210,
+    "position": [
+      26,
+      118
+    ],
+    "pivot": [
+      160,
+      198
+    ],
+    "featherDeg": 8,
+    "alphaGain": 1.3,
+    "gradientStops": [
+      {
+        "at": 0,
+        "rgb": [
+          110,
+          20,
+          0
+        ]
+      },
+      {
+        "at": 0.18,
+        "rgb": [
+          255,
+          105,
+          0
+        ]
+      },
+      {
+        "at": 0.55,
+        "rgb": [
+          255,
+          20,
+          8
+        ]
+      },
+      {
+        "at": 1,
+        "rgb": [
+          255,
+          245,
+          120
+        ]
+      }
+    ],
+    "tightGlowRgb": [
+      255,
+      180,
+      28
+    ],
+    "wideGlowRgb": [
+      255,
+      42,
+      0
+    ],
+    "tightBlurPx": 2.4,
+    "wideBlurPx": 7.5,
+    "tightOpacity": 0.65,
+    "wideOpacity": 0.55,
+    "rotationDeg": -8,
+    "revealMode": "jovian-ring",
+    "transform": "none",
+    "localPivot": [
+      105,
+      35
+    ],
+    "startClock": 9,
+    "endClock": 3,
+    "pitchScaleY": 0.34,
+    "yawShearX": 0.18
+  },
+  "stage": {
+    "centerX": 215,
+    "centerSource": "idle",
+    "mode": "translate-composite-after-local-authoring"
+  },
+  "motionAuthority": {
+    "kind": "expanded-vanguard-atlas",
+    "description": "Three-pose horizontal cut: cell 61 chamber, cell 80 release, cell 62 contact"
+  }
+}
