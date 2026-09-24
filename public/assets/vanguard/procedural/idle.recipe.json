@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-run-recipe-v1",
   "id": "vanguard-idle-procedural-v2",
   "subject": "vanguard",
-  "poseAuthority": "Vanguard atlas cell 9",
+  "poseAuthority": "canonical 90-pose Vanguard atlas cell 9",
   "motionAuthority": "opening idle section of 911845.mp4",
   "rootMotion": false,
   "travelOwner": "none",
@@ -18,15 +18,15 @@
     "anchorMeaning": "canonical Vanguard bottom-center review anchor"
   },
   "atlas": {
-    "file": "assets/vanguard/procedural/vanguard-pose-atlas-54.png",
+    "file": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
     "columns": 6,
-    "rows": 9,
+    "rows": 15,
     "indexBase": 1,
     "size": [
-      1536,
-      1316
+      1037,
+      1536
     ],
-    "sha256": "acb551e180b72233770bb62d371318945d848f89462435bc7c11c069b4d6b47b"
+    "sha256": "98f0920139a94fcc93074a765c721e7e1f4c083311c2c1cea9edaa8f2e087ed1"
   },
   "cycleMs": 2200,
   "blendWindow": 0,
@@ -74,5 +74,6 @@
       "phaseOffset": 0.25,
       "mode": "piecewise-height-compress"
     }
-  }
+  },
+  "bodyScale": 1.5
 }
