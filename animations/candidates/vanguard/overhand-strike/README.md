@@ -6,7 +6,7 @@ This is the first end-to-end proof of Pose Lab V2 procedural sparse-sprite attac
 
 The renderer reads body anchors directly from the canonical Vanguard sprite atlas:
 
-`public/assets/vanguard/fleshpunk/canon/Vanguard_Canonical_Character_and_Pose_Sheet_2026-07-30.png`
+`authoring/vanguard-procedural/source/vanguard-pose-atlas-48.png`
 
 The recipe uses 1-based row-major cells:
 
@@ -39,3 +39,12 @@ animations/candidates/vanguard/overhand-strike/generated/recipe-resolved.json
 ```
 
 The recipe, atlas cells, deformation values, effect parameters, and source hashes are the durable animation definition. Generated GIF/strip files are review artifacts, not source authority.
+
+
+## Atlas identity lock
+
+The required Vanguard atlas is exactly 1536x1170 with SHA-256:
+
+`0f6183b8cfa516388ec62b70b79773037c3bfe21576ae9bc0a52510eac8a4420`
+
+Any other image must fail closed.
