@@ -22,30 +22,65 @@ const cache=new Map(),clamp=v=>Math.max(0,Math.min(1,v)),ease=t=>{t=clamp(t);ret
 const loadImage=src=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('Could not load '+src));i.src=src;});
 function rect(spec,cell){const idx=cell-(spec.indexBase||0),c=idx%spec.columns,r=Math.floor(idx/spec.columns);const x0=Math.round(c*atlas.naturalWidth/spec.columns),x1=Math.round((c+1)*atlas.naturalWidth/spec.columns),y0=Math.round(r*atlas.naturalHeight/spec.rows),y1=Math.round((r+1)*atlas.naturalHeight/spec.rows);return[x0,y0,x1-x0,y1-y0]}
 function body(sourceId){
- if(cache.has(sourceId))return cache.get(sourceId);const src=recipe.sources[sourceId],spec=recipe.atlases[src.atlas],[sx,sy,sw,sh]=rect(spec,src.cell);
- const raw=document.createElement('canvas');raw.width=sw;raw.height=sh;const rc=raw.getContext('2d',{willReadFrequently:true});rc.drawImage(atlas,sx,sy,sw,sh,0,0,sw,sh);
- const im=rc.getImageData(0,0,sw,sh),d=im.data;let minX=sw,minY=sh,maxX=-1,maxY=-1;
- for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){const i=(y*sw+x)*4,R=d[i],G=d[i+1],B=d[i+2];if(B>110&&B>R+35&&B>G+35)d[i+3]=0;if(d[i+3]>8){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y)}}
- rc.putImageData(im,0,0);if(maxX<minX)throw new Error('Empty atlas cell '+src.cell);
- const trim=document.createElement('canvas');trim.width=maxX-minX+1;trim.height=maxY-minY+1;trim.getContext('2d').drawImage(raw,minX,minY,trim.width,trim.height,0,0,trim.width,trim.height);
+ if(cache.has(sourceId))return cache.get(sourceId);
+ const src=recipe.sources[sourceId],spec=recipe.atlases[src.atlas],[sx,sy,sw,sh]=rect(spec,src.cell);
+
+ const raw=document.createElement('canvas');
+ raw.width=sw;raw.height=sh;
+ const rc=raw.getContext('2d',{willReadFrequently:true});
+ rc.drawImage(atlas,sx,sy,sw,sh,0,0,sw,sh);
+
+ const im=rc.getImageData(0,0,sw,sh),d=im.data;
+ let minX=sw,minY=sh,maxX=-1,maxY=-1;
+ for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+   const i=(y*sw+x)*4,R=d[i],G=d[i+1],B=d[i+2];
+   if(B>110&&B>R+35&&B>G+35)d[i+3]=0;
+   if(d[i+3]>8){
+     minX=Math.min(minX,x);minY=Math.min(minY,y);
+     maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
+   }
+ }
+ rc.putImageData(im,0,0);
+ if(maxX<minX)throw new Error('Empty atlas cell '+src.cell);
+
+ // Horizontal Slash uses a common atlas-cell coordinate system.
+ // Do NOT independently trim its authored poses or their apparent height/grounding drifts.
+ if(src.anchorMode==='cell-bottom-center'){
+   const item={
+     canvas:raw,
+     anchor:[Math.round(sw/2),sh-1],
+     cell:src.cell,
+     cellGeometry:true
+   };
+   cache.set(sourceId,item);
+   return item;
+ }
+
+ const trim=document.createElement('canvas');
+ trim.width=maxX-minX+1;trim.height=maxY-minY+1;
+ trim.getContext('2d').drawImage(raw,minX,minY,trim.width,trim.height,0,0,trim.width,trim.height);
+
  let anchorX=Math.round(trim.width/2);
  if(src.anchorMode==='rear-foot-left'){
    const td=trim.getContext('2d',{willReadFrequently:true}).getImageData(0,0,trim.width,trim.height).data;
-   const band=Math.min(16,trim.height),y0=trim.height-band;let spans=[],start=null;
+   const band=Math.min(16,trim.height),y0=trim.height-band;let spans=[],spanStart=null;
    for(let x=0;x<trim.width;x++){
      let hit=false;
      for(let y=y0;y<trim.height;y++){if(td[(y*trim.width+x)*4+3]>8){hit=true;break;}}
-     if(hit&&start===null)start=x;
-     if(!hit&&start!==null){spans.push([start,x-1]);start=null;}
+     if(hit&&spanStart===null)spanStart=x;
+     if(!hit&&spanStart!==null){spans.push([spanStart,x-1]);spanStart=null;}
    }
-   if(start!==null)spans.push([start,trim.width-1]);
+   if(spanStart!==null)spans.push([spanStart,trim.width-1]);
    const span=spans[0]||[0,trim.width-1];let sum=0,count=0;
    for(let x=span[0];x<=span[1];x++)for(let y=y0;y<trim.height;y++){
      if(td[(y*trim.width+x)*4+3]>8){sum+=x;count++;}
    }
    anchorX=count?Math.round(sum/count):span[0];
  }
- const item={canvas:trim,anchor:[anchorX,trim.height-1],cell:src.cell};cache.set(sourceId,item);return item;
+
+ const item={canvas:trim,anchor:[anchorX,trim.height-1],cell:src.cell};
+ cache.set(sourceId,item);
+ return item;
 }
 function clock(v){return(v%12)*30-90}
 function phaseAt(ms){let a=0;for(let i=0;i<phases.length;i++){const p=phases[i];if(ms<a+p.durationMs||i===phases.length-1)return{p,i,u:clamp((ms-a)/p.durationMs)};a+=p.durationMs}}
