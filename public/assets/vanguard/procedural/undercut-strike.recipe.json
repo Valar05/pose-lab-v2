@@ -81,22 +81,6 @@
       "mode": "black-luminance-alpha",
       "role": "effect",
       "trim": true
-    },
-    "recovery": {
-      "kind": "atlas-cell",
-      "atlas": "vanguard-canonical",
-      "cell": 84,
-      "role": "body",
-      "trim": true,
-      "anchorMode": "rear-foot-left"
-    },
-    "settle": {
-      "kind": "atlas-cell",
-      "atlas": "vanguard-canonical",
-      "cell": 80,
-      "role": "body",
-      "trim": true,
-      "anchorMode": "rear-foot-left"
     }
   },
   "phases": [
@@ -206,13 +190,13 @@
     },
     {
       "id": "recoil-1",
-      "source": "recovery",
+      "source": "contact",
       "durationMs": 95,
       "deform": {
-        "shearX": -0.12,
-        "scaleX": 1.03,
-        "scaleY": 0.995,
-        "shiftY": 1
+        "shearX": -0.14,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 1,
@@ -223,13 +207,13 @@
     },
     {
       "id": "recoil-2",
-      "source": "settle",
+      "source": "contact",
       "durationMs": 90,
       "deform": {
-        "shearX": -0.03,
-        "scaleX": 1.01,
-        "scaleY": 0.99,
-        "shiftY": 2
+        "shearX": -0.05,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 0,
@@ -253,8 +237,8 @@
     "source": "slash-right",
     "width": 148,
     "position": [
-      96,
-      96
+      46,
+      132
     ],
     "pivot": [
       160,
