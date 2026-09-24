@@ -78,7 +78,7 @@
     "slash-right": {
       "kind": "effect-atlas-cell",
       "atlas": "slash-canonical",
-      "cell": 6,
+      "cell": 5,
       "role": "effect",
       "trim": true
     }
