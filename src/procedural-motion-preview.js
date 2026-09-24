@@ -130,7 +130,6 @@ function body(sourceId){
  cache.set(sourceId,item);
  return item;
 }
-function clock(v){return(v%12)*30-90}
 function phaseAt(ms){let a=0;for(let i=0;i<phases.length;i++){const p=phases[i];if(ms<a+p.durationMs||i===phases.length-1)return{p,i,u:clamp((ms-a)/p.durationMs)};a+=p.durationMs}}
 function iv(i,u,key,name){const a=phases[i],b=phases[Math.min(phases.length-1,i+1)],fallback=key==='deform'?({shearX:0,scaleX:1,scaleY:1,shiftX:0,shiftY:0}[name]):0;return lerp(Number(a[key]?.[name]??fallback),Number(b[key]?.[name]??a[key]?.[name]??fallback),ease(u))}
 function effectCell(image,spec,cell){
@@ -195,27 +194,13 @@ function drawBody(id,d){
  ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
  ctx.restore();
 }
-function drawEffectImage(target,image,x,y,rotationDeg=0){
- if(!rotationDeg){target.drawImage(image,x,y);return;}
- const cx=x+image.width/2,cy=y+image.height/2;
- target.save();
- target.translate(cx,cy);
- target.rotate(rotationDeg*Math.PI/180);
- target.drawImage(image,-image.width/2,-image.height/2);
- target.restore();
-}
-function transformedSlash(image,spec){
- // Keep raw slash geometry. All tuning transforms happen at draw time
- // around a stable local pivot, so rotation never changes/crops the bitmap.
- return image;
-}
 function drawSlash(e,layerName='front'){
  if(!e||!slashMap)return;
 
  const spec=recipe.effect||{};
  const hasDepthSplit=Number.isFinite(Number(spec.depthSplit));
  if(!hasDepthSplit && layerName==='back')return;
- const image=transformedSlash(slashMap,spec);
+ const image=slashMap;
  const x=Number(spec.position?.[0]??0);
  const y=Number(spec.position?.[1]??0);
  const reveal=clamp(Number(e.reveal??0));
