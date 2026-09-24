@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-run-recipe-v1",
   "id": "vanguard-sixframe-run-procedural-v1",
   "subject": "vanguard",
-  "poseAuthority": "canonical 90-pose Vanguard atlas cells 49–54",
+  "poseAuthority": "canonical 90-pose Vanguard atlas cells 49\u201354",
   "motionAuthority": "911832.mp4 procedural run reference",
   "rootMotion": false,
   "travelOwner": "game-controller",
@@ -28,7 +28,10 @@
     ],
     "sha256": "98f0920139a94fcc93074a765c721e7e1f4c083311c2c1cea9edaa8f2e087ed1",
     "rowBounds": {
-      "8": [790, 890]
+      "8": [
+        790,
+        890
+      ]
     }
   },
   "cycleMs": 1050,
@@ -115,5 +118,39 @@
     "forward body commitment persists across the whole cycle",
     "loop returns continuously from passing-b to contact-a"
   ],
-  "bodyScale": 1.5
+  "bodyScale": 1.5,
+  "registration": {
+    "byCell": {
+      "49": {
+        "offsetX": -3,
+        "offsetY": -2,
+        "scale": 1.0
+      },
+      "50": {
+        "offsetX": 0,
+        "offsetY": -2,
+        "scale": 1.1
+      },
+      "51": {
+        "offsetX": 3,
+        "offsetY": -2,
+        "scale": 1.0
+      },
+      "52": {
+        "offsetX": -3,
+        "offsetY": 2,
+        "scale": 1.0
+      },
+      "53": {
+        "offsetX": 0,
+        "offsetY": 2,
+        "scale": 1.0
+      },
+      "54": {
+        "offsetX": 3,
+        "offsetY": 2,
+        "scale": 1.0
+      }
+    }
+  }
 }
