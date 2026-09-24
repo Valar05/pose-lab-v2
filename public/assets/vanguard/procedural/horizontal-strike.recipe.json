@@ -70,10 +70,10 @@
       "anchorMode": "ground-contact-center",
       "isolateLargestComponent": true
     },
-    "slash-horizontal-clean": {
-      "kind": "image",
-      "path": "assets/vanguard/procedural/slash_horizontal_clean.png",
-      "mode": "black-luminance-alpha",
+    "slash-right": {
+      "kind": "effect-atlas-cell",
+      "atlas": "slash-canonical",
+      "cell": 6,
       "role": "effect",
       "trim": true
     }
@@ -189,7 +189,7 @@
     }
   ],
   "effect": {
-    "source": "slash-horizontal-clean",
+    "source": "slash-right",
     "width": 168,
     "position": [
       80,
@@ -287,5 +287,18 @@
     "kind": "native-vanguard-clip",
     "clip": "SwordAttack3",
     "description": "80 chamber → 62 stab/contact → 61 overhead recovery; slash transform reset to neutral baseline"
+  },
+  "effectAtlases": {
+    "slash-canonical": {
+      "path": "assets/vanguard/procedural/diorama-slash-atlas.png",
+      "columns": 4,
+      "rows": 2,
+      "indexBase": 1,
+      "size": [
+        768,
+        384
+      ],
+      "sha256": "94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70"
+    }
   }
 }
