@@ -20,17 +20,16 @@ git -C "$ROOT" fetch origin main
 mkdir -p "$STATE"
 
 find_sha() {
-  local want="$1"; shift
-  local p got
+  local want="$1"
+  shift
+  local p got root
+
   for p in "$@"; do
     [[ -f "$p" ]] || continue
-    got="$(sha256sum "$p" | awk '{print $1}')"
-    [[ "$got" == "$want" ]] && { printf '%s\n' "$p"; return 0; }
-  done
-  while IFS= read -r -d '' p; do
     got="$(sha256sum "$p" 2>/dev/null | awk '{print $1}')"
     [[ "$got" == "$want" ]] && { printf '%s\n' "$p"; return 0; }
-  local root
+  done
+
   for root in "$LIVE" "$ROOT" "/storage/emulated/0/Documents/GodotProjects" "/storage/emulated/0/Download"; do
     [[ -d "$root" ]] || continue
     while IFS= read -r -d '' p; do
@@ -38,6 +37,7 @@ find_sha() {
       [[ "$got" == "$want" ]] && { printf '%s\n' "$p"; return 0; }
     done < <(find "$root" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0 2>/dev/null)
   done
+
   return 1
 }
 
