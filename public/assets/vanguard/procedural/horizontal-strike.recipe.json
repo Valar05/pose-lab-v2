@@ -192,8 +192,8 @@
     "source": "slash-horizontal-clean",
     "width": 168,
     "position": [
-      92,
-      146
+      118,
+      122
     ],
     "pivot": [
       160,
@@ -260,14 +260,14 @@
     "endClock": 3,
     "pitchScaleY": 1,
     "yawShearX": 0,
-    "depthSplit": 0.55,
+    "depthSplit": 0.5,
     "nearSide": "right",
     "farSide": "left",
     "scaleX": -0.5,
     "scaleY": 0.5,
     "radialPivot": [
-      0.88,
-      0.52
+      0.92,
+      0.5
     ],
     "radialStartDeg": 8,
     "radialSweepDeg": 190
