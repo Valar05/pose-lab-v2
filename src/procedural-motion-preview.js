@@ -212,29 +212,8 @@ function drawSlash(e,layerName='front'){
  const spec=recipe.effect||{};
  const image=transformedSlash(slashMap,spec);
 
- const bodyRef=body(recipe.stage?.centerSource||'idle');
-
- // Measure only the visible Vanguard height for "one body length".
- const bc=bodyRef.canvas.getContext('2d',{willReadFrequently:true});
- const bim=bc.getImageData(0,0,bodyRef.canvas.width,bodyRef.canvas.height);
- const bd=bim.data;
- let bminY=bodyRef.canvas.height,bmaxY=-1;
- for(let by=0;by<bodyRef.canvas.height;by++)for(let bx=0;bx<bodyRef.canvas.width;bx++){
-   if(bd[(by*bodyRef.canvas.width+bx)*4+3]>8){
-     bminY=Math.min(bminY,by);bmaxY=Math.max(bmaxY,by);
-   }
- }
- const bodyVisibleH=Math.max(1,bmaxY-bminY+1);
-
- // Start from the neutral slash baseline position, then apply exactly
- // left one body length and up one quarter body length.
- // Keep transform canvas center compensation separate from placement.
- const baseX=Number(spec.position?.[0]??130);
- const baseY=Number(spec.position?.[1]??122);
- const centerCompX=(image.width-slashMap.width)/2;
- const centerCompY=(image.height-slashMap.height)/2;
- const x=baseX + bodyVisibleH*Number(spec.offsetBodyX??0) - centerCompX;
- const y=baseY + bodyVisibleH*Number(spec.offsetBodyY??0) - centerCompY;
+ const x=Number(spec.position?.[0]??0);
+ const y=Number(spec.position?.[1]??0);
 
  const reveal=clamp(Number(e.reveal??0));
  if(reveal<=0)return;
@@ -305,7 +284,7 @@ function drawSlash(e,layerName='front'){
  ctx.restore();
 }
 function render(ms){
- const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null;
+ const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null; if(isHorizontal&&window.__horizontalControls?.controls.full.checked&&e){e.reveal=1;e.core=1;e.tightGlow=1;e.wideGlow=.7;}
  ctx.setTransform(1,0,0,1,0,0);
  ctx.fillStyle='#000';
  ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -324,6 +303,109 @@ function loop(now){let ms=offset;if(playing)ms=(offset+(now-start))%total;render
 play.onclick=()=>{if(playing){offset=(offset+(performance.now()-start))%total;playing=false;play.textContent='▶'}else{start=performance.now();playing=true;play.textContent='❚❚'}};
 restart.onclick=()=>{offset=0;start=performance.now();render(0)};scrub.oninput=()=>{offset=Number(scrub.value)*total;start=performance.now();render(offset)};
 
+function installHorizontalControls(){
+ if(!isHorizontal)return;
+ const side=document.querySelector('.side');
+ if(!side||side.querySelector('[data-horizontal-controls]'))return;
+
+ const box=document.createElement('details');
+ box.open=true;
+ box.setAttribute('data-horizontal-controls','');
+ box.innerHTML=`
+   <summary style="font-size:15px;margin-bottom:10px">Slash Controls</summary>
+   <div style="display:grid;grid-template-columns:92px 1fr 54px;gap:7px 8px;align-items:center;font-size:12px">
+     <label>X</label><input data-hc="x" type="range" min="-250" max="450" step="1"><output data-out="x"></output>
+     <label>Y</label><input data-hc="y" type="range" min="-250" max="450" step="1"><output data-out="y"></output>
+     <label>Rotate °</label><input data-hc="rot" type="range" min="-180" max="180" step="1"><output data-out="rot"></output>
+     <label>Scale X</label><input data-hc="sx" type="range" min="-3" max="3" step=".05"><output data-out="sx"></output>
+     <label>Scale Y</label><input data-hc="sy" type="range" min="-3" max="3" step=".05"><output data-out="sy"></output>
+     <label>Depth split</label><input data-hc="split" type="range" min="0" max="1" step=".01"><output data-out="split"></output>
+     <label>Reveal start</label><input data-hc="rstart" type="range" min="-180" max="360" step="1"><output data-out="rstart"></output>
+     <label>Reveal sweep</label><input data-hc="rsweep" type="range" min="1" max="360" step="1"><output data-out="rsweep"></output>
+   </div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+     <label><input data-hc="flipx" type="checkbox"> Flip X</label>
+     <label><input data-hc="flipy" type="checkbox"> Flip Y</label>
+     <label><input data-hc="full" type="checkbox"> Full effect</label>
+   </div>
+   <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">
+     <button data-hc-reset>Reset</button>
+     <button data-hc-copy>Copy values</button>
+   </div>
+ `;
+ side.insertBefore(box,side.querySelector('details'));
+
+ const fx=recipe.effect;
+ const controls={
+   x:box.querySelector('[data-hc="x"]'),
+   y:box.querySelector('[data-hc="y"]'),
+   rot:box.querySelector('[data-hc="rot"]'),
+   sx:box.querySelector('[data-hc="sx"]'),
+   sy:box.querySelector('[data-hc="sy"]'),
+   split:box.querySelector('[data-hc="split"]'),
+   rstart:box.querySelector('[data-hc="rstart"]'),
+   rsweep:box.querySelector('[data-hc="rsweep"]'),
+   flipx:box.querySelector('[data-hc="flipx"]'),
+   flipy:box.querySelector('[data-hc="flipy"]'),
+   full:box.querySelector('[data-hc="full"]')
+ };
+ function setValues(){
+   controls.x.value=fx.position?.[0]??0;
+   controls.y.value=fx.position?.[1]??0;
+   controls.rot.value=fx.rotationDeg??0;
+   controls.sx.value=(fx.flipX?-1:1)*Math.abs(Number(fx.scaleX??1));
+   controls.sy.value=(fx.flipY?-1:1)*Math.abs(Number(fx.scaleY??1));
+   controls.split.value=fx.depthSplit??.5;
+   controls.rstart.value=fx.revealStartDeg??0;
+   controls.rsweep.value=fx.revealSweepDeg??180;
+   controls.flipx.checked=!!fx.flipX;
+   controls.flipy.checked=!!fx.flipY;
+   refreshOutputs();
+ }
+ function refreshOutputs(){
+   for(const k of ['x','y','rot','sx','sy','split','rstart','rsweep']){
+     box.querySelector('[data-out="'+k+'"]').textContent=controls[k].value;
+   }
+ }
+ function apply(){
+   fx.position=[Number(controls.x.value),Number(controls.y.value)];
+   fx.rotationDeg=Number(controls.rot.value);
+   const sx=Number(controls.sx.value),sy=Number(controls.sy.value);
+   fx.scaleX=Math.max(.01,Math.abs(sx));
+   fx.scaleY=Math.max(.01,Math.abs(sy));
+   fx.flipX=controls.flipx.checked || sx<0;
+   fx.flipY=controls.flipy.checked || sy<0;
+   fx.depthSplit=Number(controls.split.value);
+   fx.revealStartDeg=Number(controls.rstart.value);
+   fx.revealSweepDeg=Number(controls.rsweep.value);
+   refreshOutputs();
+   render(offset);
+ }
+ Object.values(controls).forEach(el=>{el.oninput=apply;el.onchange=apply;});
+ box.querySelector('[data-hc-reset]').onclick=()=>{
+   Object.assign(fx,{position:[130,122],rotationDeg:0,scaleX:1,scaleY:1,flipX:false,flipY:false,depthSplit:.5,revealStartDeg:0,revealSweepDeg:180});
+   controls.full.checked=false;setValues();render(offset);
+ };
+ box.querySelector('[data-hc-copy]').onclick=async()=>{
+   const payload={
+     position:fx.position,
+     rotationDeg:fx.rotationDeg,
+     scaleX:fx.scaleX,
+     scaleY:fx.scaleY,
+     flipX:fx.flipX,
+     flipY:fx.flipY,
+     depthSplit:fx.depthSplit,
+     revealStartDeg:fx.revealStartDeg,
+     revealSweepDeg:fx.revealSweepDeg
+   };
+   try{await navigator.clipboard.writeText(JSON.stringify(payload,null,2));}catch{}
+   box.querySelector('[data-hc-copy]').textContent='Copied';
+   setTimeout(()=>box.querySelector('[data-hc-copy]').textContent='Copy values',800);
+ };
+ window.__horizontalControls={box,controls};
+ setValues();
+}
+
 try{
  const recipePath=isHorizontal
    ? './assets/vanguard/procedural/horizontal-strike.recipe.json'
@@ -332,5 +414,5 @@ try{
      : './assets/vanguard/procedural/overhand-strike.recipe.json';
  recipe=await fetch(recipePath,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;phases=recipe.phases;total=phases.reduce((n,p)=>n+Number(p.durationMs),0);canvas.width=recipe.canvas.size[0];canvas.height=recipe.canvas.size[1];
  const spec=recipe.atlases['vanguard-canonical'],atlasPath=spec.path.startsWith('./')?spec.path:'./'+spec.path,effectSource=recipe.sources[recipe.effect.source],slashPath=effectSource.path.startsWith('./')?effectSource.path:'./'+effectSource.path;
- [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);buildSlash();for(const [id,s] of Object.entries(recipe.sources))if(s.role==='body')body(id);render(0);requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
+ [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);buildSlash();for(const [id,s] of Object.entries(recipe.sources))if(s.role==='body')body(id);installHorizontalControls();render(0);requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
 }catch(err){document.querySelector('#app').innerHTML='<pre style="padding:18px;color:#ff8a8a;white-space:pre-wrap"></pre>';document.querySelector('#app pre').textContent=err?.stack||String(err)}
