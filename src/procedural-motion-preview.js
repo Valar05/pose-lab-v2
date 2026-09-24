@@ -4,13 +4,16 @@ const params=new URLSearchParams(location.search);
 const requested=params.get('procedural');
 const animation=requested==='vanguard-undercut-strike'
   ? 'vanguard-undercut-strike'
-  : requested==='vanguard-horizontal-strike'
-    ? 'vanguard-horizontal-strike'
-    : 'vanguard-overhand-strike';
+  : requested==='vanguard-attack2-uppercut'
+    ? 'vanguard-attack2-uppercut'
+    : requested==='vanguard-horizontal-strike'
+      ? 'vanguard-horizontal-strike'
+      : 'vanguard-overhand-strike';
 const isUndercut=animation==='vanguard-undercut-strike';
+const isAttack2=animation==='vanguard-attack2-uppercut';
 const isHorizontal=animation==='vanguard-horizontal-strike';
 const ui=createProceduralReviewShell({
-  title:isHorizontal?'Vanguard Horizontal Slash':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
+  title:isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
   animation,
   accent:'#ffbd4a'
 });
@@ -423,9 +426,11 @@ function installHorizontalControls(){
 try{
  const recipePath=isHorizontal
    ? './assets/vanguard/procedural/horizontal-strike.recipe.json'
-   : isUndercut
-     ? './assets/vanguard/procedural/undercut-strike.recipe.json'
-     : './assets/vanguard/procedural/overhand-strike.recipe.json';
+   : isAttack2
+     ? './assets/vanguard/procedural/attack2-uppercut.recipe.json'
+     : isUndercut
+       ? './assets/vanguard/procedural/undercut-strike.recipe.json'
+       : './assets/vanguard/procedural/overhand-strike.recipe.json';
  recipe=await fetch(recipePath,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;phases=recipe.phases;total=phases.reduce((n,p)=>n+Number(p.durationMs),0);canvas.width=recipe.canvas.size[0];canvas.height=recipe.canvas.size[1];
  const spec=recipe.atlases['vanguard-canonical'],atlasPath=spec.path.startsWith('./')?spec.path:'./'+spec.path,effectSource=recipe.sources[recipe.effect.source],slashPath=effectSource.path.startsWith('./')?effectSource.path:'./'+effectSource.path;
  [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);buildSlash();for(const [id,s] of Object.entries(recipe.sources))if(s.role==='body')body(id);installHorizontalControls();render(0);requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
