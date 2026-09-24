@@ -18,7 +18,7 @@ animations/candidates/vanguard/overhand-strike/recipe.json
 
 BODY AUTHORITY
 
-public/assets/vanguard/fleshpunk/canon/Vanguard_Canonical_Character_and_Pose_Sheet_2026-07-30.png
+authoring/vanguard-procedural/source/vanguard-pose-atlas-48.png
 
 The recipe resolves these 1-based, row-major atlas cells itself:
 
@@ -74,3 +74,12 @@ Show the generated GIF and strip.
 Report the resolved atlas hash and cell references.
 Human-visible animation is acceptance.
 Do not substitute loose body PNGs or ask me to upload body frames.
+
+
+## Atlas identity lock
+
+The required Vanguard atlas is exactly 1536x1170 with SHA-256:
+
+`0f6183b8cfa516388ec62b70b79773037c3bfe21576ae9bc0a52510eac8a4420`
+
+Any other image must fail closed.
