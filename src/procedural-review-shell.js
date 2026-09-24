@@ -23,6 +23,7 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
   </style>
   <header class="top"><strong>Pose Lab V2 · Procedural</strong><span class="pill">LIVE</span>
     <select class="anim-select" data-animation>
+      <option value="vanguard-idle">Vanguard · Idle</option>
       <option value="vanguard-run">Vanguard · Run</option>
       <option value="vanguard-overhand-strike">Vanguard · Overhand Strike</option>
     </select>
