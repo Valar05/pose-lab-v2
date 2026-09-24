@@ -46,11 +46,15 @@ function body(sourceId){
  // Horizontal Slash uses a common atlas-cell coordinate system.
  // Do NOT independently trim its authored poses or their apparent height/grounding drifts.
  if(src.anchorMode==='cell-bottom-center'){
+   const foregroundHeight=Math.max(1,maxY-minY+1);
+   const targetHeight=Number(src.normalizeForegroundHeightPx||foregroundHeight);
+   const bodyScale=targetHeight/foregroundHeight;
    const item={
      canvas:raw,
      anchor:[Math.round(sw/2),sh-1],
      cell:src.cell,
-     cellGeometry:true
+     cellGeometry:true,
+     bodyScale
    };
    cache.set(sourceId,item);
    return item;
@@ -116,7 +120,16 @@ function stageOffsetX(){
  const localCenter=px-it.anchor[0]+it.canvas.width/2;
  return (recipe.stage?.centerX??215)-localCenter;
 }
-function drawBody(id,d){const it=body(id),[px,py]=recipe.canvas.anchor;ctx.save();ctx.translate(stageOffsetX(),0);ctx.translate(px,py);ctx.transform(d.scaleX,0,d.shearX,d.scaleY,d.shiftX||0,d.shiftY||0);ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);ctx.restore()}
+function drawBody(id,d){
+ const it=body(id),[px,py]=recipe.canvas.anchor;
+ const bs=Number(it.bodyScale||1);
+ ctx.save();
+ ctx.translate(stageOffsetX(),0);
+ ctx.translate(px,py);
+ ctx.transform((d.scaleX||1)*bs,0,d.shearX,(d.scaleY||1)*bs,d.shiftX||0,d.shiftY||0);
+ ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
+ ctx.restore();
+}
 function drawEffectImage(target,image,x,y,rotationDeg=0){
  if(!rotationDeg){target.drawImage(image,x,y);return;}
  const cx=x+image.width/2,cy=y+image.height/2;
@@ -232,6 +245,6 @@ try{
      ? './assets/vanguard/procedural/undercut-strike.recipe.json'
      : './assets/vanguard/procedural/overhand-strike.recipe.json';
  recipe=await fetch(recipePath,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;phases=recipe.phases;total=phases.reduce((n,p)=>n+Number(p.durationMs),0);canvas.width=recipe.canvas.size[0];canvas.height=recipe.canvas.size[1];
- const spec=recipe.atlases['vanguard-canonical'],atlasPath=spec.path.startsWith('./')?spec.path:'./'+spec.path,slashPath=recipe.sources['slash-right'].path.startsWith('./')?recipe.sources['slash-right'].path:'./'+recipe.sources['slash-right'].path;
+ const spec=recipe.atlases['vanguard-canonical'],atlasPath=spec.path.startsWith('./')?spec.path:'./'+spec.path,effectSource=recipe.sources[recipe.effect.source],slashPath=effectSource.path.startsWith('./')?effectSource.path:'./'+effectSource.path;
  [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);buildSlash();for(const [id,s] of Object.entries(recipe.sources))if(s.role==='body')body(id);render(0);requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
 }catch(err){document.querySelector('#app').innerHTML='<pre style="padding:18px;color:#ff8a8a;white-space:pre-wrap"></pre>';document.querySelector('#app pre').textContent=err?.stack||String(err)}
