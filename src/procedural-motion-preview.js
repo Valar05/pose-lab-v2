@@ -4,13 +4,16 @@ const params=new URLSearchParams(location.search);
 const requested=params.get('procedural');
 const animation=requested==='vanguard-undercut-strike'
   ? 'vanguard-undercut-strike'
-  : requested==='vanguard-horizontal-strike'
-    ? 'vanguard-horizontal-strike'
-    : 'vanguard-overhand-strike';
+  : requested==='vanguard-attack2-uppercut'
+    ? 'vanguard-attack2-uppercut'
+    : requested==='vanguard-horizontal-strike'
+      ? 'vanguard-horizontal-strike'
+      : 'vanguard-overhand-strike';
 const isUndercut=animation==='vanguard-undercut-strike';
+const isAttack2=animation==='vanguard-attack2-uppercut';
 const isHorizontal=animation==='vanguard-horizontal-strike';
 const ui=createProceduralReviewShell({
-  title:isHorizontal?'Vanguard Horizontal Slash':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
+  title:isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
   animation,
   accent:'#ffbd4a'
 });
@@ -152,19 +155,6 @@ function buildSlash(){
    return c;
  }
 
- if(isHorizontal){
-   // IMPORTANT: keep the full square source-plane geometry.
-   // Cropping the crescent destroyed the pivot and left almost no Y extent,
-   // which made RotateX/perspective visually meaningless.
-   const size=Math.max(128,Number(recipe.effect.projectionTextureSize??384));
-   const o=document.createElement('canvas');
-   o.width=size;o.height=size;
-   const oc=o.getContext('2d',{willReadFrequently:true});
-   oc.drawImage(slash,0,0,slash.naturalWidth,slash.naturalHeight,0,0,size,size);
-   slashMap=colorizeCanvas(o);
-   return;
- }
-
  const c=document.createElement('canvas');c.width=slash.naturalWidth;c.height=slash.naturalHeight;
  const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(slash,0,0);
  const im=x.getImageData(0,0,c.width,c.height),d=im.data;let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
@@ -202,119 +192,106 @@ function drawEffectImage(target,image,x,y,rotationDeg=0){
  target.restore();
 }
 function transformedSlash(image,spec){
-  // Do NOT pre-transform or trim the slash.
-  // Rotation / shear / flip / scale must happen in world draw space
-  // or the pivot walks and the result clips.
-  return image;
+ // Keep raw slash geometry. All tuning transforms happen at draw time
+ // around a stable local pivot, so rotation never changes/crops the bitmap.
+ return image;
 }
-
 function drawSlash(e,layerName='front'){
-  if(!e || !slashMap) return;
+ if(!e||!slashMap)return;
 
-  const spec = recipe.effect || {};
-  const img = slashMap;
+ const spec=recipe.effect||{};
+ const image=transformedSlash(slashMap,spec);
+ const x=Number(spec.position?.[0]??0);
+ const y=Number(spec.position?.[1]??0);
+ const reveal=clamp(Number(e.reveal??0));
+ if(reveal<=0)return;
 
-  const reveal = clamp(e.reveal);
-  const split = Math.max(.10, Math.min(.90, Number(spec.depthSplit ?? .54)));
-  const pivot = spec.revealPivot || [.18, .78];
-  const startDeg = Number(spec.revealStartDeg ?? -12);
-  const spanDeg = Number(spec.revealSpanDeg ?? 150);
-  const backIsLeft = (spec.backSide || 'left') === 'left';
+ const split=Math.max(.05,Math.min(.95,Number(spec.depthSplit??.5)));
+ const pivot=spec.revealPivot||[.5,.5];
+ const px=image.width*Number(pivot[0]??.5);
+ const py=image.height*Number(pivot[1]??.5);
 
-  const pos = spec.position || [0,0];
-  const x = Number(pos[0] ?? 0);
-  const y = Number(pos[1] ?? 0);
+ const rotZ=Number(spec.rotateZDeg??0)*Math.PI/180;
+ const tiltX=Number(spec.tiltXDeg??0)*Math.PI/180;
+ const yawY=Number(spec.yawYDeg??0)*Math.PI/180;
+ const sx=Number(spec.scaleX??1)*(spec.flipX?-1:1);
+ const sy=Number(spec.scaleY??1)*(spec.flipY?-1:1);
 
-  const px = img.width  * Number(pivot[0] ?? .18);
-  const py = img.height * Number(pivot[1] ?? .78);
+ // Keep normal 2D Rotate Z separate from pseudo-3D controls.
+ // Tilt X compresses Y; Yaw Y adds horizontal projective shear.
+ const pseudoScaleY=Math.max(.06,Math.abs(Math.cos(tiltX)));
+ const pseudoShearX=Math.tan(yawY)*.65;
 
-  const rot = Number(spec.rotationDeg || 0) * Math.PI / 180;
-  const sx  = (spec.flipX ? -1 : 1) * Number(spec.stretchX ?? 1);
-  const sy  = (spec.flipY ? -1 : 1) * Number(spec.pitchScaleY ?? 1);
-  const shx = Number(spec.yawShearX ?? 0);
+ const start=Number(spec.revealStartDeg??0)*Math.PI/180;
+ const sweep=Number(spec.revealSweepDeg??180)*Math.PI/180;
+ const end=spec.revealCounterClockwise===false
+   ? start+sweep*reveal
+   : start-sweep*reveal;
 
-  const cx = stageOffsetX() + x + px;
-  const cy = y + py;
+ function passImage(color){
+   if(!color)return image;
+   const tint=document.createElement('canvas');
+   tint.width=image.width;
+   tint.height=image.height;
+   const tc=tint.getContext('2d');
+   tc.drawImage(image,0,0);
+   tc.globalCompositeOperation='source-in';
+   tc.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
+   tc.fillRect(0,0,tint.width,tint.height);
+   return tint;
+ }
 
-  function tintPass(color){
-    if(!color) return img;
-    const tint = document.createElement('canvas');
-    tint.width = img.width;
-    tint.height = img.height;
-    const tc = tint.getContext('2d');
-    tc.drawImage(img,0,0);
-    tc.globalCompositeOperation = 'source-in';
-    tc.fillStyle = `rgb(${color[0]},${color[1]},${color[2]})`;
-    tc.fillRect(0,0,tint.width,tint.height);
-    return tint;
-  }
+ const radius=Math.hypot(image.width,image.height)*2.5;
+ const backIsLeft=(spec.backSide||'left')==='left';
+ const passes=[
+   {a:e.wideGlow*spec.wideOpacity,b:spec.wideBlurPx,color:spec.wideGlowRgb},
+   {a:e.tightGlow*spec.tightOpacity,b:spec.tightBlurPx,color:spec.tightGlowRgb},
+   {a:e.core,b:0,color:null}
+ ];
 
-  function clipHalf(c){
-    const front = layerName !== 'back';
-    const drawLeftHalf = front ? !backIsLeft : backIsLeft;
-    const pad = Math.max(img.width, img.height);
+ ctx.save();
+ ctx.translate(stageOffsetX()+x+px,y+py);
+ ctx.rotate(rotZ);
+ ctx.scale(sx,sy);
+ ctx.transform(1,0,pseudoShearX,pseudoScaleY,0,0);
 
-    c.beginPath();
-    if(drawLeftHalf){
-      c.rect(
-        -px - pad,
-        -py - pad,
-        img.width * split + pad * 2,
-        img.height + pad * 2
-      );
-    }else{
-      c.rect(
-        -px + img.width * split - pad,
-        -py - pad,
-        img.width * (1 - split) + pad * 2,
-        img.height + pad * 2
-      );
-    }
-    c.clip();
-  }
+ // Reveal in slash-local space, after placement transform.
+ ctx.beginPath();
+ ctx.moveTo(0,0);
+ ctx.arc(0,0,radius,start,end,spec.revealCounterClockwise!==false);
+ ctx.closePath();
+ ctx.clip();
 
-  const passes = [
-    { a: e.wideGlow  * (spec.wideOpacity  ?? .34), b: spec.wideBlurPx  ?? 10, color: spec.wideGlowRgb  || [255,110,30] },
-    { a: e.tightGlow * (spec.tightOpacity ?? .62), b: spec.tightBlurPx ??  3, color: spec.tightGlowRgb || [255,165,90] },
-    { a: e.core, b: 0, color: null }
-  ];
+ // Split in slash-local space, not transformed scratch-canvas coordinates.
+ ctx.beginPath();
+ const splitX=-px+image.width*split;
+ if(layerName==='back'){
+   if(backIsLeft){
+     ctx.rect(-px-8,-py-8,image.width*split+16,image.height+16);
+   }else{
+     ctx.rect(splitX-8,-py-8,image.width*(1-split)+16,image.height+16);
+   }
+ }else{
+   if(backIsLeft){
+     ctx.rect(splitX-8,-py-8,image.width*(1-split)+16,image.height+16);
+   }else{
+     ctx.rect(-px-8,-py-8,image.width*split+16,image.height+16);
+   }
+ }
+ ctx.clip();
 
-  ctx.save();
-
-  // Transform in world space around a stable pivot.
-  ctx.translate(cx, cy);
-  if(rot) ctx.rotate(rot);
-  ctx.transform(1, 0, shx, 1, 0, 0);
-  ctx.scale(sx, sy);
-
-  // Real radial reveal, in local slash space.
-  const radius = Math.max(img.width, img.height) * 2.5;
-  const start = startDeg * Math.PI / 180;
-  const end   = (startDeg + spanDeg * reveal) * Math.PI / 180;
-
-  ctx.beginPath();
-  ctx.moveTo(0,0);
-  ctx.arc(0,0,radius,start,end,false);
-  ctx.closePath();
-  ctx.clip();
-
-  // Then split into back/front halves.
-  clipHalf(ctx);
-
-  for(const p of passes){
-    if(p.a <= 0) continue;
-    ctx.save();
-    ctx.globalAlpha = p.a;
-    ctx.filter = p.b ? `blur(${p.b}px)` : 'none';
-    ctx.drawImage(tintPass(p.color), -px, -py);
-    ctx.restore();
-  }
-
-  ctx.restore();
+ for(const q of passes){
+   if(q.a<=0)continue;
+   ctx.save();
+   ctx.globalAlpha=q.a;
+   ctx.filter=q.b?`blur(${q.b}px)`:'none';
+   ctx.drawImage(passImage(q.color),-px,-py);
+   ctx.restore();
+ }
+ ctx.restore();
 }
-
 function render(ms){
- const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null;
+ const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null; if(isHorizontal&&window.__horizontalControls?.controls.full.checked&&e){e.reveal=1;e.core=1;e.tightGlow=1;e.wideGlow=.7;}
  ctx.setTransform(1,0,0,1,0,0);
  ctx.fillStyle='#000';
  ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -333,13 +310,128 @@ function loop(now){let ms=offset;if(playing)ms=(offset+(now-start))%total;render
 play.onclick=()=>{if(playing){offset=(offset+(performance.now()-start))%total;playing=false;play.textContent='▶'}else{start=performance.now();playing=true;play.textContent='❚❚'}};
 restart.onclick=()=>{offset=0;start=performance.now();render(0)};scrub.oninput=()=>{offset=Number(scrub.value)*total;start=performance.now();render(offset)};
 
+function installHorizontalControls(){
+ if(!isHorizontal)return;
+ const side=document.querySelector('.side');
+ if(!side||side.querySelector('[data-horizontal-controls]'))return;
+
+ const box=document.createElement('details');
+ box.open=true;
+ box.setAttribute('data-horizontal-controls','');
+ box.innerHTML=`
+   <summary style="font-size:15px;margin-bottom:10px">Slash Controls</summary>
+   <div style="display:grid;grid-template-columns:92px 1fr 54px;gap:7px 8px;align-items:center;font-size:12px">
+     <label>X</label><input data-hc="x" type="range" min="-250" max="450" step="1"><output data-out="x"></output>
+     <label>Y</label><input data-hc="y" type="range" min="-250" max="450" step="1"><output data-out="y"></output>
+     <label>Rotate Z °</label><input data-hc="rotz" type="range" min="-180" max="180" step="1"><output data-out="rotz"></output>
+     <label>Tilt X °</label><input data-hc="tiltx" type="range" min="-89" max="89" step="1"><output data-out="tiltx"></output>
+     <label>Yaw Y °</label><input data-hc="yawy" type="range" min="-75" max="75" step="1"><output data-out="yawy"></output>
+     <label>Scale X</label><input data-hc="sx" type="range" min="-3" max="3" step=".05"><output data-out="sx"></output>
+     <label>Scale Y</label><input data-hc="sy" type="range" min="-3" max="3" step=".05"><output data-out="sy"></output>
+     <label>Depth split</label><input data-hc="split" type="range" min="0" max="1" step=".01"><output data-out="split"></output>
+     <label>Reveal start</label><input data-hc="rstart" type="range" min="-180" max="360" step="1"><output data-out="rstart"></output>
+     <label>Reveal sweep</label><input data-hc="rsweep" type="range" min="1" max="360" step="1"><output data-out="rsweep"></output>
+   </div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+     <label><input data-hc="flipx" type="checkbox"> Flip X</label>
+     <label><input data-hc="flipy" type="checkbox"> Flip Y</label>
+     <label><input data-hc="full" type="checkbox"> Full effect</label>
+   </div>
+   <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">
+     <button data-hc-reset>Reset</button>
+     <button data-hc-copy>Copy values</button>
+   </div>
+ `;
+ side.insertBefore(box,side.querySelector('details'));
+
+ const fx=recipe.effect;
+ const controls={
+   x:box.querySelector('[data-hc="x"]'),
+   y:box.querySelector('[data-hc="y"]'),
+   rotz:box.querySelector('[data-hc="rotz"]'),
+   tiltx:box.querySelector('[data-hc="tiltx"]'),
+   yawy:box.querySelector('[data-hc="yawy"]'),
+   sx:box.querySelector('[data-hc="sx"]'),
+   sy:box.querySelector('[data-hc="sy"]'),
+   split:box.querySelector('[data-hc="split"]'),
+   rstart:box.querySelector('[data-hc="rstart"]'),
+   rsweep:box.querySelector('[data-hc="rsweep"]'),
+   flipx:box.querySelector('[data-hc="flipx"]'),
+   flipy:box.querySelector('[data-hc="flipy"]'),
+   full:box.querySelector('[data-hc="full"]')
+ };
+ function setValues(){
+   controls.x.value=fx.position?.[0]??0;
+   controls.y.value=fx.position?.[1]??0;
+   controls.rotz.value=fx.rotateZDeg??0;
+   controls.tiltx.value=fx.tiltXDeg??0;
+   controls.yawy.value=fx.yawYDeg??0;
+   controls.sx.value=Number(fx.scaleX??1);
+   controls.sy.value=Number(fx.scaleY??1);
+   controls.split.value=fx.depthSplit??.5;
+   controls.rstart.value=fx.revealStartDeg??0;
+   controls.rsweep.value=fx.revealSweepDeg??180;
+   controls.flipx.checked=!!fx.flipX;
+   controls.flipy.checked=!!fx.flipY;
+   refreshOutputs();
+ }
+ function refreshOutputs(){
+   for(const k of ['x','y','rotz','tiltx','yawy','sx','sy','split','rstart','rsweep']){
+     box.querySelector('[data-out="'+k+'"]').textContent=controls[k].value;
+   }
+ }
+ function apply(){
+   fx.position=[Number(controls.x.value),Number(controls.y.value)];
+   fx.rotateZDeg=Number(controls.rotz.value);
+   fx.tiltXDeg=Number(controls.tiltx.value);
+   fx.yawYDeg=Number(controls.yawy.value);
+   const sx=Number(controls.sx.value),sy=Number(controls.sy.value);
+   fx.scaleX=Math.abs(sx)<.01?(sx<0?-.01:.01):sx;
+   fx.scaleY=Math.abs(sy)<.01?(sy<0?-.01:.01):sy;
+   fx.flipX=controls.flipx.checked;
+   fx.flipY=controls.flipy.checked;
+   fx.depthSplit=Number(controls.split.value);
+   fx.revealStartDeg=Number(controls.rstart.value);
+   fx.revealSweepDeg=Number(controls.rsweep.value);
+   refreshOutputs();
+   render(offset);
+ }
+ Object.values(controls).forEach(el=>{el.oninput=apply;el.onchange=apply;});
+ box.querySelector('[data-hc-reset]').onclick=()=>{
+   Object.assign(fx,{position:[130,122],rotateZDeg:0,tiltXDeg:0,yawYDeg:0,scaleX:1,scaleY:1,flipX:false,flipY:false,depthSplit:.5,revealStartDeg:0,revealSweepDeg:180});
+   controls.full.checked=false;setValues();render(offset);
+ };
+ box.querySelector('[data-hc-copy]').onclick=async()=>{
+   const payload={
+     position:fx.position,
+     rotateZDeg:fx.rotateZDeg,
+     tiltXDeg:fx.tiltXDeg,
+     yawYDeg:fx.yawYDeg,
+     scaleX:fx.scaleX,
+     scaleY:fx.scaleY,
+     flipX:fx.flipX,
+     flipY:fx.flipY,
+     depthSplit:fx.depthSplit,
+     revealStartDeg:fx.revealStartDeg,
+     revealSweepDeg:fx.revealSweepDeg
+   };
+   try{await navigator.clipboard.writeText(JSON.stringify(payload,null,2));}catch{}
+   box.querySelector('[data-hc-copy]').textContent='Copied';
+   setTimeout(()=>box.querySelector('[data-hc-copy]').textContent='Copy values',800);
+ };
+ window.__horizontalControls={box,controls};
+ setValues();
+}
+
 try{
  const recipePath=isHorizontal
    ? './assets/vanguard/procedural/horizontal-strike.recipe.json'
-   : isUndercut
-     ? './assets/vanguard/procedural/undercut-strike.recipe.json'
-     : './assets/vanguard/procedural/overhand-strike.recipe.json';
+   : isAttack2
+     ? './assets/vanguard/procedural/attack2-uppercut.recipe.json'
+     : isUndercut
+       ? './assets/vanguard/procedural/undercut-strike.recipe.json'
+       : './assets/vanguard/procedural/overhand-strike.recipe.json';
  recipe=await fetch(recipePath,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;phases=recipe.phases;total=phases.reduce((n,p)=>n+Number(p.durationMs),0);canvas.width=recipe.canvas.size[0];canvas.height=recipe.canvas.size[1];
  const spec=recipe.atlases['vanguard-canonical'],atlasPath=spec.path.startsWith('./')?spec.path:'./'+spec.path,effectSource=recipe.sources[recipe.effect.source],slashPath=effectSource.path.startsWith('./')?effectSource.path:'./'+effectSource.path;
- [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);buildSlash();for(const [id,s] of Object.entries(recipe.sources))if(s.role==='body')body(id);render(0);requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
+ [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);buildSlash();for(const [id,s] of Object.entries(recipe.sources))if(s.role==='body')body(id);installHorizontalControls();render(0);requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
 }catch(err){document.querySelector('#app').innerHTML='<pre style="padding:18px;color:#ff8a8a;white-space:pre-wrap"></pre>';document.querySelector('#app pre').textContent=err?.stack||String(err)}

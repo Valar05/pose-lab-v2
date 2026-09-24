@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Strike \u00b7 transform reset baseline",
+  "description": "Vanguard Horizontal Strike · approved live-tuned orientation and effect controls",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -192,8 +192,8 @@
     "source": "slash-horizontal-clean",
     "width": 168,
     "position": [
-      88,
-      112
+      80,
+      25
     ],
     "pivot": [
       160,
@@ -257,13 +257,8 @@
     "yawShearX": 0,
     "nearSide": "right",
     "farSide": "left",
-    "revealStartDeg": 0,
+    "revealStartDeg": 32,
     "projectionMode": "none",
-    "rotateZDeg": -30,
-    "rotateXDeg": 0,
-    "focalPx": 260,
-    "planeScale": 1,
-    "globalScaleX": 1,
     "flipX": false,
     "flipY": true,
     "vanguardDepth": 0,
@@ -273,11 +268,15 @@
       0.5,
       0.5
     ],
-    "rotationDeg": -30,
-    "scaleX": 1,
+    "scaleX": -0.3,
     "scaleY": 1,
-    "depthSplit": 0.5,
-    "backSide": "left"
+    "depthSplit": 0.81,
+    "backSide": "left",
+    "positionMode": "absolute",
+    "liveControls": true,
+    "rotateZDeg": -92,
+    "tiltXDeg": -38,
+    "yawYDeg": -15
   },
   "stage": {
     "centerX": 215,
@@ -287,6 +286,6 @@
   "motionAuthority": {
     "kind": "native-vanguard-clip",
     "clip": "SwordAttack3",
-    "description": "80 chamber \u2192 62 stab/contact \u2192 61 overhead recovery; slash transform reset to neutral baseline"
+    "description": "80 chamber → 62 stab/contact → 61 overhead recovery; slash transform reset to neutral baseline"
   }
 }
