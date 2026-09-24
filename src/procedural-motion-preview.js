@@ -85,67 +85,80 @@ function drawEffectImage(target,image,x,y,rotationDeg=0){
  target.drawImage(image,-image.width/2,-image.height/2);
  target.restore();
 }
+function transformedSlash(image,spec){
+ const mode=spec.transform||'none';
+ const rot=Number(spec.rotationDeg||0);
+ const flipY=mode==='flip-y';
+ const flipX=mode==='flip-x';
+ const swap=Math.abs(rot)%180===90;
+ const out=document.createElement('canvas');
+ out.width=swap?image.height:image.width;
+ out.height=swap?image.width:image.height;
+ const x=out.getContext('2d');
+ x.translate(out.width/2,out.height/2);
+ if(rot)x.rotate(rot*Math.PI/180);
+ x.scale(flipX?-1:1,flipY?-1:1);
+ x.drawImage(image,-image.width/2,-image.height/2);
+ return out;
+}
 function drawSlash(e){
  if(!e)return;
  const s=recipe.effect;
+ const image=transformedSlash(slashMap,s);
+ const x=s.position[0],y=s.position[1];
+
+ // Build the colored/glow passes from the transformed image itself so every
+ // mask and bound matches what is actually drawn.
+ function passImage(color){
+   if(!color)return image;
+   const tint=document.createElement('canvas');
+   tint.width=image.width;tint.height=image.height;
+   const tc=tint.getContext('2d');
+   tc.drawImage(image,0,0);
+   tc.globalCompositeOperation='source-in';
+   tc.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
+   tc.fillRect(0,0,tint.width,tint.height);
+   return tint;
+ }
+
  const layer=document.createElement('canvas');
  layer.width=canvas.width;layer.height=canvas.height;
  const lc=layer.getContext('2d');
-
  lc.save();
 
- if(s.revealMode==='linear-bottom-to-top'){
-   const reveal=clamp(e.reveal);
-   const h=slashMap.height*reveal;
-   const y=s.position[1]+slashMap.height-h;
+ const reveal=clamp(e.reveal);
+ if(s.revealMode==='radial-local' && reveal<0.999){
+   const lp=s.localPivot||[image.width/2,image.height/2];
+   const px=x+lp[0],py=y+lp[1];
+   const startDeg=clock(s.startClock);
+   let endDeg=clock(s.endClock);
+   while(endDeg<=startDeg)endDeg+=360;
+   const current=(startDeg+(endDeg-startDeg)*reveal)*Math.PI/180;
+   const start=startDeg*Math.PI/180;
+   const radius=Math.hypot(image.width,image.height)*1.5;
    lc.beginPath();
-   lc.rect(
-     s.position[0]-slashMap.width,
-     y-slashMap.height,
-     slashMap.width*3,
-     h+slashMap.height
-   );
-   lc.clip();
- }else{
-   const startDeg=clock(s.startClock),endBase=clock(s.endClock);
-   let end=endBase;while(end<=startDeg)end+=360;
-   const cur=(startDeg+(end-startDeg)*clamp(e.reveal))*Math.PI/180;
-   const startRad=startDeg*Math.PI/180;
-   const r=Math.hypot(canvas.width,canvas.height)*2;
-   lc.beginPath();
-   lc.moveTo(s.pivot[0],s.pivot[1]);
-   lc.arc(s.pivot[0],s.pivot[1],r,startRad,cur,false);
+   lc.moveTo(px,py);
+   lc.arc(px,py,radius,start,current,false);
    lc.closePath();
    lc.clip();
  }
+ // At full reveal there is deliberately NO clip at all.
 
  const passes=[
    {a:e.wideGlow*s.wideOpacity,b:s.wideBlurPx,color:s.wideGlowRgb},
    {a:e.tightGlow*s.tightOpacity,b:s.tightBlurPx,color:s.tightGlowRgb},
    {a:e.core,b:0,color:null}
  ];
-
  for(const p of passes){
    if(p.a<=0)continue;
    lc.save();
    lc.globalAlpha=p.a;
    lc.filter=p.b?`blur(${p.b}px)`:'none';
-   if(p.color){
-     const tint=document.createElement('canvas');
-     tint.width=slashMap.width;tint.height=slashMap.height;
-     const tc=tint.getContext('2d');
-     tc.drawImage(slashMap,0,0);
-     tc.globalCompositeOperation='source-in';
-     tc.fillStyle=`rgb(${p.color[0]},${p.color[1]},${p.color[2]})`;
-     tc.fillRect(0,0,tint.width,tint.height);
-     drawEffectImage(lc,tint,s.position[0],s.position[1],s.rotationDeg||0);
-   }else{
-     drawEffectImage(lc,slashMap,s.position[0],s.position[1],s.rotationDeg||0);
-   }
+   lc.drawImage(passImage(p.color),x,y);
    lc.restore();
  }
-
  lc.restore();
+
  ctx.save();
  ctx.translate(stageOffsetX(),0);
  ctx.drawImage(layer,0,0);
