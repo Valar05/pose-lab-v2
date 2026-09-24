@@ -1,8 +1,8 @@
 {
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
-  "id": "vanguard-attack2-uppercut-procedural-v1",
+  "id": "vanguard-undercut-strike-procedural-v2",
   "subject": "vanguard",
-  "description": "Vanguard Attack 2 Uppercut · drawn-out three-pose sequence",
+  "description": "Vanguard Undercut Strike · expanded 90-pose atlas",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -46,20 +46,34 @@
     "chamber": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 20,
+      "cell": 79,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left",
-      "isolateLargestComponent": true
+      "anchorMode": "rear-foot-left"
+    },
+    "commit": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 77,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "preimpact": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 64,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
     },
     "contact": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 21,
+      "cell": 68,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left",
-      "isolateLargestComponent": true
+      "anchorMode": "rear-foot-left"
     },
     "slash-right": {
       "kind": "image",
@@ -67,22 +81,13 @@
       "mode": "black-luminance-alpha",
       "role": "effect",
       "trim": true
-    },
-    "rise": {
-      "kind": "atlas-cell",
-      "atlas": "vanguard-canonical",
-      "cell": 32,
-      "role": "body",
-      "trim": true,
-      "anchorMode": "rear-foot-left",
-      "isolateLargestComponent": true
     }
   },
   "phases": [
     {
       "id": "idle",
       "source": "idle",
-      "durationMs": 80,
+      "durationMs": 75,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
@@ -92,56 +97,72 @@
     {
       "id": "anticipation",
       "source": "idle",
-      "durationMs": 95,
+      "durationMs": 75,
       "deform": {
-        "shearX": 0.08,
+        "shearX": 0.1,
         "scaleX": 1,
-        "scaleY": 0.985,
+        "scaleY": 0.97,
         "shiftY": 1
       }
     },
     {
       "id": "low-chamber",
       "source": "chamber",
-      "durationMs": 150,
+      "durationMs": 70,
       "deform": {
-        "shearX": 0.1,
-        "scaleX": 1,
-        "scaleY": 1,
+        "shearX": 0.08,
+        "scaleX": 1.01,
+        "scaleY": 0.98,
         "shiftY": 1
       },
       "effect": {
-        "reveal": 0.08,
-        "core": 0.22,
-        "tightGlow": 0.14,
-        "wideGlow": 0.08
+        "reveal": 0.1,
+        "core": 0.3,
+        "tightGlow": 0.18,
+        "wideGlow": 0.12
       }
     },
     {
-      "id": "rising-drive",
-      "source": "rise",
-      "durationMs": 155,
+      "id": "undercut-commit",
+      "source": "commit",
+      "durationMs": 45,
       "deform": {
-        "shearX": -0.18,
+        "shearX": -0.1,
         "scaleX": 1.02,
-        "scaleY": 1,
+        "scaleY": 0.99
+      },
+      "effect": {
+        "reveal": 0.48,
+        "core": 0.72,
+        "tightGlow": 0.52,
+        "wideGlow": 0.3
+      }
+    },
+    {
+      "id": "rise-through",
+      "source": "preimpact",
+      "durationMs": 45,
+      "deform": {
+        "shearX": -0.24,
+        "scaleX": 1.04,
+        "scaleY": 1.01,
         "shiftY": -1
       },
       "effect": {
-        "reveal": 0.62,
-        "core": 0.82,
-        "tightGlow": 0.7,
-        "wideGlow": 0.38
+        "reveal": 0.84,
+        "core": 0.92,
+        "tightGlow": 0.82,
+        "wideGlow": 0.46
       }
     },
     {
       "id": "high-contact",
       "source": "contact",
-      "durationMs": 180,
+      "durationMs": 125,
       "deform": {
-        "shearX": -0.3,
-        "scaleX": 1.04,
-        "scaleY": 1.01,
+        "shearX": -0.34,
+        "scaleX": 1.06,
+        "scaleY": 1.02,
         "shiftY": -2
       },
       "effect": {
@@ -154,51 +175,61 @@
     {
       "id": "high-follow-through",
       "source": "contact",
-      "durationMs": 120,
+      "durationMs": 90,
       "deform": {
-        "shearX": -0.2,
-        "scaleX": 1.03,
-        "scaleY": 1,
-        "shiftY": -1
+        "shearX": -0.25,
+        "scaleX": 1.05,
+        "scaleY": 1
       },
       "effect": {
         "reveal": 1,
         "core": 0.42,
-        "tightGlow": 0.46,
-        "wideGlow": 0.5
+        "tightGlow": 0.45,
+        "wideGlow": 0.55
       }
     },
     {
-      "id": "recoil",
+      "id": "recoil-1",
       "source": "contact",
-      "durationMs": 90,
+      "durationMs": 95,
       "deform": {
-        "shearX": -0.08,
+        "shearX": -0.14,
         "scaleX": 1,
         "scaleY": 1,
         "shiftY": 0
       },
       "effect": {
-        "reveal": 0.35,
-        "core": 0.14,
-        "tightGlow": 0.15,
-        "wideGlow": 0.2
+        "reveal": 1,
+        "core": 0.16,
+        "tightGlow": 0.18,
+        "wideGlow": 0.26
       }
     },
     {
-      "id": "idle-return",
-      "source": "idle",
-      "durationMs": 60,
+      "id": "recoil-2",
+      "source": "contact",
+      "durationMs": 90,
       "deform": {
-        "shearX": 0,
+        "shearX": -0.05,
         "scaleX": 1,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 0,
         "core": 0,
         "tightGlow": 0,
-        "wideGlow": 0
+        "wideGlow": 0.05
+      }
+    },
+    {
+      "id": "idle-return",
+      "source": "idle",
+      "durationMs": 105,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1
       }
     }
   ],
@@ -279,7 +310,7 @@
     "mode": "translate-composite-after-local-authoring"
   },
   "motionAuthority": {
-    "kind": "approved-vanguard-atlas-poses",
-    "description": "20 low chamber → 32 rising drive → 21 high finish; slash grammar inherited from the prior undercut."
+    "kind": "reference-sheet",
+    "description": "SwordAttack2/3D Vanguard donor: nine uniform samples, low-to-high undercut"
   }
 }
