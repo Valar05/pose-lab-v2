@@ -192,8 +192,8 @@
     "source": "slash-horizontal-clean",
     "width": 168,
     "position": [
-      68,
-      145
+      92,
+      146
     ],
     "pivot": [
       160,
@@ -250,7 +250,7 @@
     "tightOpacity": 0.65,
     "wideOpacity": 0.55,
     "rotationDeg": -90,
-    "revealMode": "near-right-to-far-left",
+    "revealMode": "radial-counterclockwise-near-to-far",
     "transform": "none",
     "localPivot": [
       105,
@@ -258,11 +258,19 @@
     ],
     "startClock": 9,
     "endClock": 3,
-    "pitchScaleY": 0.42,
+    "pitchScaleY": 1,
     "yawShearX": 0,
     "depthSplit": 0.55,
     "nearSide": "right",
-    "farSide": "left"
+    "farSide": "left",
+    "scaleX": -0.5,
+    "scaleY": 0.5,
+    "radialPivot": [
+      0.88,
+      0.52
+    ],
+    "radialStartDeg": 8,
+    "radialSweepDeg": 190
   },
   "stage": {
     "centerX": 215,
