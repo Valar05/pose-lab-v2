@@ -1,6 +1,13 @@
 import { createProceduralReviewShell } from './procedural-review-shell.js';
 
-const ui=createProceduralReviewShell({title:'Vanguard Run',animation:'vanguard-run',accent:'#59d5e8'});
+const params=new URLSearchParams(location.search);
+const animation=params.get('procedural')==='vanguard-idle'?'vanguard-idle':'vanguard-run';
+const isIdle=animation==='vanguard-idle';
+const ui=createProceduralReviewShell({
+  title:isIdle?'Vanguard Idle':'Vanguard Run',
+  animation,
+  accent:isIdle?'#d9b37c':'#59d5e8'
+});
 const {q,canvas,fit}=ui;
 const ctx=canvas.getContext('2d'); ctx.imageSmoothingEnabled=true;
 const phaseEl=q('[data-phase]'), kv=q('[data-kv]'), timeEl=q('[data-time]'), scrub=q('[data-scrub]'), playBtn=q('[data-play]');
@@ -21,7 +28,7 @@ function cell(cellNo){
  const rc=raw.getContext('2d',{willReadFrequently:true}); rc.drawImage(atlas,sx,sy,sw,sh,0,0,sw,sh);
  const im=rc.getImageData(0,0,sw,sh),d=im.data; let minX=sw,minY=sh,maxX=-1,maxY=-1;
  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){const i=(y*sw+x)*4,R=d[i],G=d[i+1],B=d[i+2];if(B>110&&B>R+35&&B>G+35)d[i+3]=0;if(d[i+3]>8){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y)}}
- rc.putImageData(im,0,0); if(maxX<minX)throw new Error('Empty run atlas cell '+cellNo);
+ rc.putImageData(im,0,0); if(maxX<minX)throw new Error('Empty Vanguard atlas cell '+cellNo);
  const trim=document.createElement('canvas'); trim.width=maxX-minX+1; trim.height=maxY-minY+1; trim.getContext('2d').drawImage(raw,minX,minY,trim.width,trim.height,0,0,trim.width,trim.height);
  const item={image:trim,anchor:[Math.round(trim.width/2),trim.height-1]}; cache.set(cellNo,item); return item;
 }
@@ -41,7 +48,8 @@ playBtn.onclick=()=>{if(playing){offset=(offset+(performance.now()-start)/recipe
 q('[data-restart]').onclick=()=>{offset=0;start=performance.now();render(0)};scrub.oninput=()=>{offset=Number(scrub.value);start=performance.now();render(offset)};
 
 try{
- recipe=await fetch('./assets/vanguard/procedural/run.recipe.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});
+ const recipePath=isIdle?'./assets/vanguard/procedural/idle.recipe.json':'./assets/vanguard/procedural/run.recipe.json';
+ recipe=await fetch(recipePath,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});
  q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;
  const atlasPath=recipe.atlas.file.startsWith('./')?recipe.atlas.file:'./'+recipe.atlas.file;atlas=await loadImage(atlasPath);
  if(atlas.naturalWidth!==recipe.atlas.size[0]||atlas.naturalHeight!==recipe.atlas.size[1])throw new Error(`Wrong Vanguard atlas dimensions: expected ${recipe.atlas.size.join('x')}, got ${atlas.naturalWidth}x${atlas.naturalHeight}`);
