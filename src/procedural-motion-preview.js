@@ -189,40 +189,29 @@ function drawEffectImage(target,image,x,y,rotationDeg=0){
  target.restore();
 }
 function transformedSlash(image,spec){
- const rot=Number(spec.rotationDeg??0)*Math.PI/180;
- const sx=Number(spec.scaleX??1)*(spec.flipX?-1:1);
- const sy=Number(spec.scaleY??1)*(spec.flipY?-1:1);
-
- if(Math.abs(rot)<1e-9&&sx===1&&sy===1)return image;
-
- const c=Math.abs(Math.cos(rot)),sn=Math.abs(Math.sin(rot));
- const out=document.createElement('canvas');
- out.width=Math.max(1,Math.ceil(image.width*c+image.height*sn));
- out.height=Math.max(1,Math.ceil(image.width*sn+image.height*c));
- const oc=out.getContext('2d');
- oc.translate(out.width/2,out.height/2);
- oc.rotate(rot);
- oc.scale(sx,sy);
- oc.drawImage(image,-image.width/2,-image.height/2);
- return out;
+ // Keep raw slash geometry. All tuning transforms happen at draw time
+ // around a stable local pivot, so rotation never changes/crops the bitmap.
+ return image;
 }
 function drawSlash(e,layerName='front'){
  if(!e||!slashMap)return;
 
  const spec=recipe.effect||{};
  const image=transformedSlash(slashMap,spec);
-
  const x=Number(spec.position?.[0]??0);
  const y=Number(spec.position?.[1]??0);
-
  const reveal=clamp(Number(e.reveal??0));
  if(reveal<=0)return;
 
- const split=Math.max(.1,Math.min(.9,Number(spec.depthSplit??.5)));
- const splitX=x+image.width*split;
+ const split=Math.max(.05,Math.min(.95,Number(spec.depthSplit??.5)));
  const pivot=spec.revealPivot||[.5,.5];
- const cx=x+image.width*pivot[0];
- const cy=y+image.height*pivot[1];
+ const px=image.width*Number(pivot[0]??.5);
+ const py=image.height*Number(pivot[1]??.5);
+
+ const rot=Number(spec.rotationDeg??0)*Math.PI/180;
+ const sx=Number(spec.scaleX??1)*(spec.flipX?-1:1);
+ const sy=Number(spec.scaleY??1)*(spec.flipY?-1:1);
+
  const start=Number(spec.revealStartDeg??0)*Math.PI/180;
  const sweep=Number(spec.revealSweepDeg??180)*Math.PI/180;
  const end=spec.revealCounterClockwise===false
@@ -242,45 +231,52 @@ function drawSlash(e,layerName='front'){
    return tint;
  }
 
- const layer=document.createElement('canvas');
- layer.width=canvas.width;
- layer.height=canvas.height;
- const lc=layer.getContext('2d');
-
- lc.save();
- const radius=Math.hypot(image.width,image.height)*2;
- lc.beginPath();
- lc.moveTo(cx,cy);
- lc.arc(cx,cy,radius,start,end,spec.revealCounterClockwise!==false);
- lc.closePath();
- lc.clip();
-
- lc.beginPath();
- if(layerName==='back'){
-   lc.rect(x-4,y-4,image.width*split+8,image.height+8);
- }else{
-   lc.rect(splitX-4,y-4,image.width*(1-split)+8,image.height+8);
- }
- lc.clip();
-
+ const radius=Math.hypot(image.width,image.height)*2.5;
+ const backIsLeft=(spec.backSide||'left')==='left';
  const passes=[
    {a:e.wideGlow*spec.wideOpacity,b:spec.wideBlurPx,color:spec.wideGlowRgb},
    {a:e.tightGlow*spec.tightOpacity,b:spec.tightBlurPx,color:spec.tightGlowRgb},
    {a:e.core,b:0,color:null}
  ];
- for(const q of passes){
-   if(q.a<=0)continue;
-   lc.save();
-   lc.globalAlpha=q.a;
-   lc.filter=q.b?`blur(${q.b}px)`:'none';
-   lc.drawImage(passImage(q.color),x,y);
-   lc.restore();
- }
- lc.restore();
 
  ctx.save();
- ctx.translate(stageOffsetX(),0);
- ctx.drawImage(layer,0,0);
+ ctx.translate(stageOffsetX()+x+px,y+py);
+ ctx.rotate(rot);
+ ctx.scale(sx,sy);
+
+ // Reveal in slash-local space, after placement transform.
+ ctx.beginPath();
+ ctx.moveTo(0,0);
+ ctx.arc(0,0,radius,start,end,spec.revealCounterClockwise!==false);
+ ctx.closePath();
+ ctx.clip();
+
+ // Split in slash-local space, not transformed scratch-canvas coordinates.
+ ctx.beginPath();
+ const splitX=-px+image.width*split;
+ if(layerName==='back'){
+   if(backIsLeft){
+     ctx.rect(-px-8,-py-8,image.width*split+16,image.height+16);
+   }else{
+     ctx.rect(splitX-8,-py-8,image.width*(1-split)+16,image.height+16);
+   }
+ }else{
+   if(backIsLeft){
+     ctx.rect(splitX-8,-py-8,image.width*(1-split)+16,image.height+16);
+   }else{
+     ctx.rect(-px-8,-py-8,image.width*split+16,image.height+16);
+   }
+ }
+ ctx.clip();
+
+ for(const q of passes){
+   if(q.a<=0)continue;
+   ctx.save();
+   ctx.globalAlpha=q.a;
+   ctx.filter=q.b?`blur(${q.b}px)`:'none';
+   ctx.drawImage(passImage(q.color),-px,-py);
+   ctx.restore();
+ }
  ctx.restore();
 }
 function render(ms){
