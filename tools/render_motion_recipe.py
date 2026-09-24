@@ -71,6 +71,33 @@ def load_source(path: Path, mode: str) -> Image.Image:
     raise ValueError(f"unsupported source mode: {mode}")
 
 
+def find_repo_root(start: Path) -> Path:
+    current = start.resolve()
+    for candidate in [current, *current.parents]:
+        if (candidate / "package.json").is_file() and (candidate / "tools").is_dir():
+            return candidate
+    raise FileNotFoundError("could not locate Pose Lab V2 repository root")
+
+
+def crop_atlas_cell(atlas: Image.Image, atlas_spec: dict[str, Any], cell: int) -> Image.Image:
+    cols = int(atlas_spec["columns"])
+    rows = int(atlas_spec["rows"])
+    index_base = int(atlas_spec.get("indexBase", 0))
+    idx = int(cell) - index_base
+    if idx < 0 or idx >= cols * rows:
+        raise ValueError(f"atlas cell {cell} is outside {cols}x{rows} grid")
+    col = idx % cols
+    row = idx // cols
+
+    # Proportional edges intentionally support atlases whose dimensions do not
+    # divide evenly into the declared grid.
+    x0 = round(col * atlas.width / cols)
+    x1 = round((col + 1) * atlas.width / cols)
+    y0 = round(row * atlas.height / rows)
+    y1 = round((row + 1) * atlas.height / rows)
+    return atlas.crop((x0, y0, x1, y1))
+
+
 def trim_rgba(image: Image.Image) -> Image.Image:
     bbox = image.getbbox()
     return image.crop(bbox) if bbox else image
@@ -282,16 +309,48 @@ def render(recipe_path: Path, out_dir: Path) -> dict[str, Any]:
     source_images: dict[str, Image.Image] = {}
     source_hashes: dict[str, str] = {}
     source_anchors: dict[str, tuple[int, int]] = {}
+    repo_root = find_repo_root(recipe_path.parent)
+
+    atlas_cache: dict[str, Image.Image] = {}
+    atlas_hashes: dict[str, str] = {}
+
+    for atlas_id, atlas_spec in recipe.get("atlases", {}).items():
+        atlas_path = (repo_root / atlas_spec["path"]).resolve()
+        if not atlas_path.is_file():
+            raise FileNotFoundError(f"missing atlas {atlas_id}: {atlas_path}")
+        atlas_cache[atlas_id] = Image.open(atlas_path).convert("RGBA")
+        atlas_hashes[atlas_id] = sha256_file(atlas_path)
 
     for source_id, source_spec in recipe["sources"].items():
-        source_path = (recipe_path.parent / source_spec["path"]).resolve()
-        if not source_path.is_file():
-            raise FileNotFoundError(f"missing source {source_id}: {source_path}")
-        image = load_source(source_path, source_spec.get("mode", "rgba"))
+        kind = source_spec.get("kind", "image")
+        if kind == "atlas-cell":
+            atlas_id = source_spec["atlas"]
+            if atlas_id not in atlas_cache:
+                raise ValueError(f"source {source_id} references unknown atlas {atlas_id}")
+            raw = crop_atlas_cell(atlas_cache[atlas_id], recipe["atlases"][atlas_id], int(source_spec["cell"]))
+            mode = source_spec.get("mode", recipe["atlases"][atlas_id].get("mode", "rgba"))
+            # Apply source mode to the cropped cell without round-tripping through disk.
+            if mode == "rgba":
+                image = raw.convert("RGBA")
+            elif mode == "blue-key":
+                image = blue_key_to_alpha(raw)
+            elif mode == "black-luminance-alpha":
+                image = black_luminance_to_alpha(raw)
+            else:
+                raise ValueError(f"unsupported atlas-cell mode: {mode}")
+            source_hashes[source_id] = f"{atlas_hashes[atlas_id]}#cell={source_spec['cell']}"
+        elif kind == "image":
+            source_path = (repo_root / source_spec["path"]).resolve() if source_spec.get("repoRelative", False) else (recipe_path.parent / source_spec["path"]).resolve()
+            if not source_path.is_file():
+                raise FileNotFoundError(f"missing source {source_id}: {source_path}")
+            image = load_source(source_path, source_spec.get("mode", "rgba"))
+            source_hashes[source_id] = sha256_file(source_path)
+        else:
+            raise ValueError(f"unsupported source kind: {kind}")
+
         if source_spec.get("trim", True):
             image = trim_rgba(image)
         source_images[source_id] = image
-        source_hashes[source_id] = sha256_file(source_path)
         if source_spec.get("role", "body") == "body":
             source_anchors[source_id] = resolve_anchor(image, source_spec)
 
@@ -409,6 +468,7 @@ def render(recipe_path: Path, out_dir: Path) -> dict[str, Any]:
         "rootMotion": False,
         "canvas": recipe["canvas"],
         "sourceHashes": source_hashes,
+        "atlasHashes": atlas_hashes,
         "phases": resolved_phases,
         "outputs": {
             "previewGif": str(gif_path),
