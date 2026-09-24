@@ -135,11 +135,12 @@ LOG="$STATE/server.log"
 tmux new-session -d -s "$SESSION"   "cd '$WORK' && exec python3 -m http.server '$PORT' --bind 127.0.0.1 --directory '$WORK/dist' >>'$LOG' 2>&1"
 
 BASE="http://127.0.0.1:$PORT"
-URL="$BASE/motion.html?procedural=vanguard-horizontal-strike"
+REV="$(git -C "$WORK" rev-parse --short HEAD)"
+URL="$BASE/motion.html?procedural=vanguard-attack2-uppercut&rev=$REV"
 
 READY=0
 for _ in $(seq 1 50); do
-  if curl -fsS "$URL" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/src/procedural-motion-preview.js" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/horizontal-strike.recipe.json" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/slash_horizontal_clean.png" -o /dev/null 2>/dev/null; then
+  if curl -fsS "$URL" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/src/procedural-motion-preview.js" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/horizontal-strike.recipe.json" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/slash_horizontal_clean.png" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/slash_right.png" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/attack2-uppercut.recipe.json" -o /dev/null 2>/dev/null; then
     READY=1
     break
   fi
@@ -153,11 +154,13 @@ if [[ "$READY" -ne 1 ]]; then
 fi
 
 echo
-echo "VANGUARD_HORIZONTAL_PROJECTIVE_REFRESH_OK"
+echo "POSE_LAB_REFRESH_OK"
 echo "url=$URL"
-echo "pose_order=80->62->61"
-echo "slash=projected near/front -> far/rear"
-echo "composite=back slash -> Vanguard -> front slash"
+echo "live_head=$(git -C "$WORK" rev-parse HEAD)"
+echo "original_undercut=restored"
+echo "attack2_uppercut=20->32->21"
+echo "attack2_total_ms=930"
+echo "slash_right_http=OK"
 
 if command -v termux-open-url >/dev/null 2>&1; then
   termux-open-url "$URL" || true
