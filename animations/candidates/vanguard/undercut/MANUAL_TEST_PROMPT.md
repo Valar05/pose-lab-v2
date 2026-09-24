@@ -1,10 +1,12 @@
-# Manual Test Prompt — Vanguard Undercut Procedural Recipe
+# Manual Test Prompt — Vanguard Atlas-Driven Undercut
 
 FORTRESS ONLINE. EXECUTE, DO NOT REDESIGN.
 
 MISSION
 
-Prove the new Pose Lab V2 procedural recipe machinery by reproducing the approved Vanguard undercut from one declarative recipe.
+Prove the Pose Lab V2 procedural motion renderer by rebuilding the Vanguard undercut directly from the existing Vanguard sprite atlas.
+
+NO BODY IMAGE ATTACHMENTS ARE REQUIRED OR ALLOWED.
 
 REPOSITORY
 
@@ -14,33 +16,31 @@ AUTHORITATIVE RECIPE
 
 animations/candidates/vanguard/undercut/recipe.json
 
-RENDERER
+BODY AUTHORITY
 
-tools/render_motion_recipe.py
+public/assets/vanguard/fleshpunk/canon/Vanguard_Canonical_Character_and_Pose_Sheet_2026-07-30.png
 
-INPUTS
+The recipe resolves these 1-based, row-major atlas cells itself:
 
-I will provide/attach these exact source images:
+- idle: 2
+- chamber: 26
+- commit: 40
+- preimpact: 32
+- contact: 35
 
-1. Vanguard idle
-2. Vanguard Attack 1 chamber
-3. Vanguard Attack 1 commit
-4. Vanguard Attack 1 pre-impact
-5. Vanguard Attack 1 contact
-6. Diorama slash_right key
+Do not extract or save those cells as new source PNGs. The renderer must crop them directly from the atlas at runtime.
 
-Do not redraw, regenerate, reinterpret, rotate, replace, or invent any body pose.
+SLASH AUTHORITY
 
-Save the supplied files to the exact recipe asset paths:
+Use the existing phone asset:
 
-animations/candidates/vanguard/undercut/assets/vanguard_idle.png
-animations/candidates/vanguard/undercut/assets/vanguard_attack1_chamber.png
-animations/candidates/vanguard/undercut/assets/vanguard_attack1_commit.png
-animations/candidates/vanguard/undercut/assets/vanguard_attack1_preimpact.png
-animations/candidates/vanguard/undercut/assets/vanguard_attack1_contact.png
-animations/candidates/vanguard/undercut/assets/slash_right.png
+/storage/emulated/0/Download/Diorama-Slash-Keys/slash_right.png
 
-Then run exactly:
+Do not rotate or translate the slash during the animation. Its position/orientation are fixed by the recipe; only reveal/glow/fade change.
+
+RUN
+
+From the Pose Lab V2 repository root:
 
 npm run motion:render -- animations/candidates/vanguard/undercut/recipe.json
 
@@ -54,22 +54,23 @@ MOTION CONTRACT
 
 - No root motion.
 - Rear planted foot stays pinned.
+- Body source frames come only from the atlas cells named above.
 - Idle -> lean-back anticipation -> chamber -> commit -> strong forward contact.
-- Contact uses the strongest forward shear.
+- Contact uses the strongest forward skew.
 - Contact holds long enough to read.
-- No authored recovery frame may be introduced.
-- Recoil must be derived procedurally from the contact pose.
-- Full animation returns to Idle.
-- Slash is independent of body animation.
-- Slash orientation and screen placement stay fixed.
-- Slash reveals clockwise from approximately 10:00 to 5:00.
-- Slash reaches maximum brightness/open state only briefly.
-- Tight emissive glow peaks at contact.
-- Core burns off before the wider glow haze.
-- Slash luminance map controls the fade.
+- No authored recovery frame.
+- Recoil derives procedurally from the contact atlas cell.
+- Full animation returns to atlas Idle.
+- Slash is independent from body motion.
+- Slash fixed orientation/placement.
+- Clockwise reveal about 10:00 -> 5:00.
+- Brief full-open emissive peak.
+- Core fades before wide glow haze.
+- Luminance controls the slash burnoff.
 
 EVIDENCE
 
-Show me the generated GIF and strip. Report the resolved recipe path and source hashes. Do not claim success from tests alone. Human-visible animation is the acceptance surface.
-
-If anything fails, stop at the failing boundary and report exactly what failed. Do not substitute a different pose, animation, viewer, renderer, or architecture.
+Show the generated GIF and strip.
+Report the resolved atlas hash and cell references.
+Human-visible animation is acceptance.
+Do not substitute loose body PNGs or ask me to upload body frames.
