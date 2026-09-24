@@ -71,7 +71,7 @@ find_asset "$PROC/slash_horizontal_clean.png"   "$ROOT/public/assets/vanguard/pr
   }
 
 
-find_asset "$PROC/slash_right.png" "$ROOT/public/assets/vanguard/procedural/slash_right.png" "$STATE/slash_right.png" "/storage/emulated/0/Download/slash_right.png" || {
+find_asset "$PROC/slash_right.png" "$ROOT/public/assets/vanguard/procedural/slash_right.png" "$STATE/slash_right.png" "$HOME/.local/state/pose-lab-v2-vanguard-run-live/worktree/public/assets/vanguard/procedural/slash_right.png" "/storage/emulated/0/Download/Diorama-Slash-Keys/slash_right.png" "/storage/emulated/0/Download/slash_right.png" || {
     echo "STOP: missing slash_right.png"
     exit 13
   }
