@@ -37,11 +37,28 @@ function stateAt(t){const segs=segments();t=((t%1)+1)%1;const s=segs.find(x=>t>=
 function interp(a,b,u){const e=smooth(u),A=a.deform,B=b.deform;return{shearX:lerp(A.shearX||0,B.shearX||0,e),scaleX:lerp(A.scaleX??1,B.scaleX??1,e),scaleY:lerp(A.scaleY??1,B.scaleY??1,e),shiftX:lerp(A.shiftX||0,B.shiftX||0,e),shiftY:lerp(A.shiftY||0,B.shiftY||0,e)}}
 function draw(p,d,a){const it=cell(p.cell),[px,py]=recipe.canvas.anchor;ctx.save();ctx.globalAlpha=a;ctx.translate(px,py);ctx.transform(d.scaleX,0,d.shearX,d.scaleY,d.shiftX||0,d.shiftY||0);ctx.drawImage(it.image,-it.anchor[0],-it.anchor[1]);ctx.restore()}
 function render(t){
- const s=stateAt(t),d=interp(s.p,s.next,s.u);ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
- const blend=recipe.blendWindow??0,edge=1-blend;
- if(blend>0&&s.u>edge){const x=smooth((s.u-edge)/blend);draw(s.p,d,1-x);draw(s.next,d,x)}else draw(s.p,d,1);
- phaseEl.textContent=s.p.id;timeEl.textContent=Math.round(t*recipe.cycleMs)+' / '+recipe.cycleMs+' ms';scrub.value=String(t);
- kv.innerHTML=`<div>Atlas cell</div><div>${s.p.cell}</div><div>Next cell</div><div>${s.next.cell}</div><div>Shear X</div><div>${d.shearX.toFixed(3)}</div><div>Shift X/Y</div><div>${d.shiftX.toFixed(2)} / ${d.shiftY.toFixed(2)}</div><div>Scale X/Y</div><div>${d.scaleX.toFixed(3)} / ${d.scaleY.toFixed(3)}</div><div>Root motion</div><div>OFF</div>`;
+ let p,d,nextCell;
+ if(isIdle && recipe.continuous?.mode==='sine'){
+   p=recipe.poses[0];
+   const phase=(t+(recipe.continuous.phaseOffset||0))*Math.PI*2;
+   d={
+     shearX:(recipe.continuous.shearXAmplitude||0)*Math.sin(phase),
+     scaleX:1,
+     scaleY:1,
+     shiftX:0,
+     shiftY:0
+   };
+   nextCell=p.cell;
+ }else{
+   const s=stateAt(t);
+   p=s.p; nextCell=s.next.cell; d=interp(s.p,s.next,s.u);
+ }
+ ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
+ draw(p,d,1);
+ phaseEl.textContent=isIdle?'continuous-idle':p.id;
+ timeEl.textContent=Math.round(t*recipe.cycleMs)+' / '+recipe.cycleMs+' ms';
+ scrub.value=String(t);
+ kv.innerHTML=`<div>Atlas cell</div><div>${p.cell}</div><div>Next cell</div><div>${nextCell}</div><div>Shear X</div><div>${d.shearX.toFixed(3)}</div><div>Shift X/Y</div><div>${d.shiftX.toFixed(2)} / ${d.shiftY.toFixed(2)}</div><div>Scale X/Y</div><div>${d.scaleX.toFixed(3)} / ${d.scaleY.toFixed(3)}</div><div>Root motion</div><div>OFF</div>`;
 }
 function loop(now){let t=offset;if(playing)t=(offset+(now-start)/recipe.cycleMs)%1;render(t);requestAnimationFrame(loop)}
 playBtn.onclick=()=>{if(playing){offset=(offset+(performance.now()-start)/recipe.cycleMs)%1;playing=false;playBtn.textContent='▶'}else{start=performance.now();playing=true;playBtn.textContent='❚❚'}};
