@@ -50,7 +50,11 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
   const q=s=>app.querySelector(s), canvas=q('[data-canvas]'), viewport=q('[data-viewport]'), holder=q('[data-holder]');
   const zoomInput=q('[data-zoom]'), zoomReadout=q('[data-zoom-readout]'), select=q('[data-animation]');
   select.value=animation;
-  select.onchange=()=>{location.href='./motion.html?procedural='+encodeURIComponent(select.value);};
+  select.onchange=()=>{
+    const p=new URLSearchParams(location.search);
+    const rev=p.get('rev');
+    location.href='./motion.html?procedural='+encodeURIComponent(select.value)+(rev?'&rev='+encodeURIComponent(rev):'');
+  };
   q('[data-profiles]').onclick=()=>location.href='./motion.html';
 
   let zoom=1,panX=0,panY=0,drag=false,sx=0,sy=0,px=0,py=0;
