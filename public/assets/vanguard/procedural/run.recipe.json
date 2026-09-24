@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-run-recipe-v1",
   "id": "vanguard-sixframe-run-procedural-v1",
   "subject": "vanguard",
-  "poseAuthority": "exact accepted 54-pose Vanguard atlas",
+  "poseAuthority": "canonical 90-pose Vanguard atlas cells 49–54",
   "motionAuthority": "911832.mp4 procedural run reference",
   "rootMotion": false,
   "travelOwner": "game-controller",
@@ -18,15 +18,15 @@
     "anchorMeaning": "canonical Vanguard bottom-center review anchor"
   },
   "atlas": {
-    "file": "assets/vanguard/procedural/vanguard-pose-atlas-54.png",
+    "file": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
     "columns": 6,
-    "rows": 9,
+    "rows": 15,
     "indexBase": 1,
     "size": [
-      1536,
-      1316
+      1037,
+      1536
     ],
-    "sha256": "acb551e180b72233770bb62d371318945d848f89462435bc7c11c069b4d6b47b"
+    "sha256": "98f0920139a94fcc93074a765c721e7e1f4c083311c2c1cea9edaa8f2e087ed1"
   },
   "cycleMs": 1050,
   "blendWindow": 0.08,
@@ -111,5 +111,6 @@
     "passing poses sweep faster",
     "forward body commitment persists across the whole cycle",
     "loop returns continuously from passing-b to contact-a"
-  ]
+  ],
+  "bodyScale": 1.5
 }
