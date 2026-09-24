@@ -63,6 +63,11 @@ find_asset() {
   return 1
 }
 
+find_asset "$PROC/vanguard-pose-atlas-54.png"   "$ROOT/public/assets/vanguard/procedural/vanguard-pose-atlas-54.png"   "/storage/emulated/0/Download/vanguard-pose-atlas-54.png"   "/storage/emulated/0/Download/918376.png" || {
+    echo "STOP: missing vanguard-pose-atlas-54.png"
+    exit 11
+  }
+
 find_asset "$PROC/vanguard-pose-atlas-90.png"   "$ROOT/public/assets/vanguard/procedural/vanguard-pose-atlas-90.png"   "/storage/emulated/0/Download/vanguard-pose-atlas-90.png"   "/storage/emulated/0/Download/918598.png" || {
     echo "STOP: missing vanguard-pose-atlas-90.png"
     exit 11
@@ -91,6 +96,7 @@ echo "=== BUILD ==="
 cd "$WORK"
 node scripts/build.mjs
 
+cp -f "$PROC/vanguard-pose-atlas-54.png" "$DIST_PROC/vanguard-pose-atlas-54.png"
 cp -f "$PROC/vanguard-pose-atlas-90.png" "$DIST_PROC/vanguard-pose-atlas-90.png"
 cp -f "$PROC/slash_horizontal_clean.png" "$DIST_PROC/slash_horizontal_clean.png"
 cp -f "$PROC/slash_right.png" "$DIST_PROC/slash_right.png"
@@ -146,7 +152,7 @@ URL="$BASE/motion.html?procedural=vanguard-attack2-uppercut&rev=$REV"
 
 READY=0
 for _ in $(seq 1 50); do
-  if curl -fsS "$URL" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/src/procedural-motion-preview.js" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/horizontal-strike.recipe.json" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/slash_horizontal_clean.png" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/slash_right.png" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/attack2-uppercut.recipe.json" -o /dev/null 2>/dev/null; then
+  if curl -fsS "$URL" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/src/procedural-motion-preview.js" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/horizontal-strike.recipe.json" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/slash_horizontal_clean.png" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/vanguard-pose-atlas-54.png" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/slash_right.png" -o /dev/null 2>/dev/null &&      curl -fsS "$BASE/assets/vanguard/procedural/attack2-uppercut.recipe.json" -o /dev/null 2>/dev/null; then
     READY=1
     break
   fi
@@ -166,6 +172,8 @@ echo "live_head=$(git -C "$WORK" rev-parse HEAD)"
 echo "original_undercut=restored"
 echo "attack2_uppercut=20->32->21"
 echo "attack2_total_ms=930"
+echo "atlas54_http=OK"
+echo "atlas90_http=OK"
 echo "slash_right_http=OK"
 
 OPENED=0
