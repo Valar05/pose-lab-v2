@@ -70,6 +70,12 @@ find_asset "$PROC/slash_horizontal_clean.png"   "$ROOT/public/assets/vanguard/pr
     exit 12
   }
 
+
+find_asset "$PROC/slash_right.png" "$ROOT/public/assets/vanguard/procedural/slash_right.png" "$STATE/slash_right.png" "/storage/emulated/0/Download/slash_right.png" || {
+    echo "STOP: missing slash_right.png"
+    exit 13
+  }
+
 echo
 echo "=== BUILD ==="
 cd "$WORK"
