@@ -1,6 +1,6 @@
 {
   "schema": "pose-lab-v2-procedural-run-recipe-v1",
-  "id": "vanguard-idle-procedural-v1",
+  "id": "vanguard-idle-procedural-v2",
   "subject": "vanguard",
   "poseAuthority": "Vanguard atlas cell 9",
   "motionAuthority": "opening idle section of 911845.mp4",
@@ -28,11 +28,11 @@
     ],
     "sha256": "acb551e180b72233770bb62d371318945d848f89462435bc7c11c069b4d6b47b"
   },
-  "cycleMs": 3600,
+  "cycleMs": 2200,
   "blendWindow": 0,
   "poses": [
     {
-      "id": "idle-center",
+      "id": "idle",
       "cell": 9,
       "weight": 1,
       "deform": {
@@ -42,42 +42,6 @@
         "shiftX": 0,
         "shiftY": 0
       }
-    },
-    {
-      "id": "idle-breathe-in",
-      "cell": 9,
-      "weight": 1,
-      "deform": {
-        "shearX": -0.032,
-        "scaleX": 1,
-        "scaleY": 1,
-        "shiftX": 1.5,
-        "shiftY": -2
-      }
-    },
-    {
-      "id": "idle-weight-shift",
-      "cell": 9,
-      "weight": 1,
-      "deform": {
-        "shearX": 0.024,
-        "scaleX": 1,
-        "scaleY": 1,
-        "shiftX": -1,
-        "shiftY": 0
-      }
-    },
-    {
-      "id": "idle-settle",
-      "cell": 9,
-      "weight": 1,
-      "deform": {
-        "shearX": 0.012,
-        "scaleX": 1,
-        "scaleY": 1,
-        "shiftX": 0.5,
-        "shiftY": 2
-      }
     }
   ],
   "secondary": {
@@ -86,11 +50,22 @@
     "bobPx": 0
   },
   "acceptance": [
-    "cell 9 remains the only authored pose",
-    "scale stays exactly 1.0",
+    "atlas cell 9 remains the only authored pose",
+    "continuous motion with no holds",
+    "linear phase progression",
+    "no vertical bob",
+    "no scaling",
     "no root/world translation",
-    "slow shear and tiny sprite-local weight transfer remain visible at phone review scale",
     "weapon carriage remains stable",
-    "loop closes without a visible snap"
-  ]
+    "loop closes continuously"
+  ],
+  "continuous": {
+    "mode": "sine",
+    "shearXAmplitude": 0.028,
+    "phaseOffset": 0,
+    "shiftXAmplitude": 0,
+    "shiftYAmplitude": 0,
+    "scaleXAmplitude": 0,
+    "scaleYAmplitude": 0
+  }
 }
