@@ -192,8 +192,8 @@
     "source": "slash-horizontal-clean",
     "width": 168,
     "position": [
-      118,
-      122
+      142,
+      146
     ],
     "pivot": [
       160,
@@ -264,13 +264,14 @@
     "nearSide": "right",
     "farSide": "left",
     "scaleX": -0.5,
-    "scaleY": 0.5,
+    "scaleY": -0.5,
     "radialPivot": [
       0.92,
       0.5
     ],
     "radialStartDeg": 8,
-    "radialSweepDeg": 190
+    "radialSweepDeg": 190,
+    "depthSplitCanvasX": 215
   },
   "stage": {
     "centerX": 215,
