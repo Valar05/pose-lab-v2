@@ -1,25 +1,30 @@
 # Vanguard Undercut Procedural Proof
 
-This directory is the first end-to-end proof of Pose Lab V2 procedural sparse-sprite attack rendering.
+This is the first end-to-end proof of Pose Lab V2 procedural sparse-sprite attack rendering.
 
-The recipe is authoritative. Source images are immutable inputs. The renderer may deform, pin, composite, reveal, glow and time those sources, but it may not invent or redraw a body pose.
+## Body source
 
-## Required assets
+The renderer reads body anchors directly from the canonical Vanguard sprite atlas:
 
-Place these exact source images under `assets/`:
+`public/assets/vanguard/fleshpunk/canon/Vanguard_Canonical_Character_and_Pose_Sheet_2026-07-30.png`
 
-- `vanguard_idle.png`
-- `vanguard_attack1_chamber.png`
-- `vanguard_attack1_commit.png`
-- `vanguard_attack1_preimpact.png`
-- `vanguard_attack1_contact.png`
-- `slash_right.png`
+The recipe uses 1-based row-major cells:
 
-The body anchors should be the approved Vanguard frames. `slash_right.png` should be the grayscale/white Diorama slash key on black.
+- idle 2
+- chamber 26
+- commit 40
+- preimpact 32
+- contact 35
 
-## One-command render
+No loose body PNGs are part of this contract.
 
-From the Pose Lab V2 repository root:
+## Effect source
+
+The current phone proof reads the already-delivered Diorama slash key from:
+
+`/storage/emulated/0/Download/Diorama-Slash-Keys/slash_right.png`
+
+## Render
 
 ```sh
 npm run motion:render -- animations/candidates/vanguard/undercut/recipe.json
@@ -33,15 +38,4 @@ animations/candidates/vanguard/undercut/generated/strip.png
 animations/candidates/vanguard/undercut/generated/recipe-resolved.json
 ```
 
-## Contract
-
-- no root motion;
-- rear foot is the deformation pivot;
-- body source art is immutable;
-- contact has the strongest forward shear;
-- recovery uses the contact pose procedurally, not a new recovery drawing;
-- motion resolves back to Idle;
-- slash is a separate fixed-orientation overlay;
-- slash uses angular reveal, emissive glow, luminance-driven burnoff.
-
-If this recipe cannot reproduce the approved undercut, fix the renderer/recipe. Do not silently add a new pose.
+The recipe, atlas cells, deformation values, effect parameters, and source hashes are the durable animation definition. Generated GIF/strip files are review artifacts, not source authority.
