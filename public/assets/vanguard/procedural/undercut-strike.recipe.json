@@ -310,6 +310,7 @@
     "flipY": true,
     "liveControls": true
   },
+  "bodyScale": 1.5,
   "stage": {
     "centerX": 215,
     "centerSource": "idle",

@@ -278,6 +278,7 @@
     "tiltXDeg": -38,
     "yawYDeg": -15
   },
+  "bodyScale": 1.5,
   "stage": {
     "centerX": 215,
     "centerSource": "idle",
