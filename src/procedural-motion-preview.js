@@ -131,6 +131,40 @@ function clock(v){return(v%12)*30-90}
 function phaseAt(ms){let a=0;for(let i=0;i<phases.length;i++){const p=phases[i];if(ms<a+p.durationMs||i===phases.length-1)return{p,i,u:clamp((ms-a)/p.durationMs)};a+=p.durationMs}}
 function iv(i,u,key,name){const a=phases[i],b=phases[Math.min(phases.length-1,i+1)],fallback=key==='deform'?({shearX:0,scaleX:1,scaleY:1,shiftX:0,shiftY:0}[name]):0;return lerp(Number(a[key]?.[name]??fallback),Number(b[key]?.[name]??a[key]?.[name]??fallback),ease(u))}
 function buildSlash(){
+ function colorizeCanvas(c){
+   const x=c.getContext('2d',{willReadFrequently:true});
+   const pix=x.getImageData(0,0,c.width,c.height),pd=pix.data;
+   const stops=recipe.effect.gradientStops.slice().sort((a,b)=>a.at-b.at);
+   function colorFor(vv){
+     const n=vv/255;let a=stops[0],b=stops[stops.length-1];
+     for(let i=0;i<stops.length-1;i++){
+       if(n>=stops[i].at&&n<=stops[i+1].at){a=stops[i];b=stops[i+1];break;}
+     }
+     const t=(b.at-a.at)?(n-a.at)/(b.at-a.at):0;
+     return [0,1,2].map(k=>Math.round(lerp(a.rgb[k],b.rgb[k],t)));
+   }
+   for(let i=0;i<pd.length;i+=4){
+     const vv=Math.max(pd[i],pd[i+1],pd[i+2]),rgb=colorFor(vv);
+     pd[i]=rgb[0];pd[i+1]=rgb[1];pd[i+2]=rgb[2];
+     pd[i+3]=Math.max(0,Math.min(255,Math.round(vv*recipe.effect.alphaGain)));
+   }
+   x.putImageData(pix,0,0);
+   return c;
+ }
+
+ if(isHorizontal){
+   // IMPORTANT: keep the full square source-plane geometry.
+   // Cropping the crescent destroyed the pivot and left almost no Y extent,
+   // which made RotateX/perspective visually meaningless.
+   const size=Math.max(128,Number(recipe.effect.projectionTextureSize??384));
+   const o=document.createElement('canvas');
+   o.width=size;o.height=size;
+   const oc=o.getContext('2d',{willReadFrequently:true});
+   oc.drawImage(slash,0,0,slash.naturalWidth,slash.naturalHeight,0,0,size,size);
+   slashMap=colorizeCanvas(o);
+   return;
+ }
+
  const c=document.createElement('canvas');c.width=slash.naturalWidth;c.height=slash.naturalHeight;
  const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(slash,0,0);
  const im=x.getImageData(0,0,c.width,c.height),d=im.data;let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
@@ -141,20 +175,8 @@ function buildSlash(){
  const crop=document.createElement('canvas');crop.width=maxX-minX+1;crop.height=maxY-minY+1;
  crop.getContext('2d').drawImage(c,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
  const w=recipe.effect.width,h=Math.max(1,Math.round(crop.height*w/crop.width)),o=document.createElement('canvas');o.width=w;o.height=h;
- const oc=o.getContext('2d',{willReadFrequently:true});oc.drawImage(crop,0,0,w,h);
- const pix=oc.getImageData(0,0,w,h),pd=pix.data,stops=recipe.effect.gradientStops.slice().sort((a,b)=>a.at-b.at);
- function colorFor(vv){
-   const n=vv/255;let a=stops[0],b=stops[stops.length-1];
-   for(let i=0;i<stops.length-1;i++){if(n>=stops[i].at&&n<=stops[i+1].at){a=stops[i];b=stops[i+1];break;}}
-   const t=(b.at-a.at)?(n-a.at)/(b.at-a.at):0;
-   return [0,1,2].map(k=>Math.round(lerp(a.rgb[k],b.rgb[k],t)));
- }
- for(let i=0;i<pd.length;i+=4){
-   const vv=Math.max(pd[i],pd[i+1],pd[i+2]),rgb=colorFor(vv);
-   pd[i]=rgb[0];pd[i+1]=rgb[1];pd[i+2]=rgb[2];
-   pd[i+3]=Math.max(0,Math.min(255,Math.round(vv*recipe.effect.alphaGain)));
- }
- oc.putImageData(pix,0,0);slashMap=o;
+ o.getContext('2d').drawImage(crop,0,0,w,h);
+ slashMap=colorizeCanvas(o);
 }
 function stageOffsetX(){
  const key=recipe.stage?.centerSource||'idle',it=body(key),[px]=recipe.canvas.anchor;
