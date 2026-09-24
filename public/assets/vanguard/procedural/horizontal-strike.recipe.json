@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Strike · SwordAttack3 · projected near-to-far depth wrap",
+  "description": "Vanguard Horizontal Strike · true 4x4 plane projection · near/front to far/rear",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -190,10 +190,10 @@
   ],
   "effect": {
     "source": "slash-horizontal-clean",
-    "width": 168,
+    "width": 180,
     "position": [
-      100,
-      104
+      0,
+      0
     ],
     "pivot": [
       160,
@@ -245,11 +245,10 @@
       42,
       0
     ],
-    "tightBlurPx": 2.4,
-    "wideBlurPx": 7.5,
+    "tightBlurPx": 2.2,
+    "wideBlurPx": 6.8,
     "tightOpacity": 0.65,
-    "wideOpacity": 0.55,
-    "rotationDeg": 45,
+    "wideOpacity": 0.5,
     "revealMode": "radial-sector",
     "transform": "none",
     "localPivot": [
@@ -260,29 +259,34 @@
     "endClock": 3,
     "pitchScaleY": 1,
     "yawShearX": 0,
-    "depthSplit": 0.52,
     "nearSide": "right",
     "farSide": "left",
-    "scaleX": -0.5,
-    "scaleY": -0.5,
     "radialPivot": [
       0.92,
       0.5
     ],
     "radialStartDeg": 8,
     "radialSweepDeg": 190,
-    "depthSplitCanvasX": 215,
-    "stretchX": 2,
-    "pitchDropPx": 22,
-    "backShiftXPx": -38,
-    "backScaleX": 0.58,
-    "backSide": "left",
-    "revealPivot": [
-      0.86,
-      0.62
+    "revealStartDeg": 16,
+    "projectionMode": "matrix3d",
+    "planeCenter": [
+      215,
+      158
     ],
-    "revealStartDeg": 158,
-    "revealSpanDeg": 112
+    "rotateZDeg": 45,
+    "rotateXDeg": -60,
+    "focalPx": 260,
+    "planeScale": 0.62,
+    "globalScaleX": 2,
+    "flipX": true,
+    "flipY": true,
+    "vanguardDepth": 0,
+    "revealSweepDeg": 190,
+    "revealCounterClockwise": true,
+    "tessellation": [
+      28,
+      14
+    ]
   },
   "stage": {
     "centerX": 215,
@@ -292,6 +296,6 @@
   "motionAuthority": {
     "kind": "native-vanguard-clip",
     "clip": "SwordAttack3",
-    "description": "Exact uploaded sequence: 80 chamber, 62 stab/contact, 61 overhead recovery"
+    "description": "80 chamber → 62 stab/contact → 61 overhead recovery; slash uses real matrix projection and depth split"
   }
 }
