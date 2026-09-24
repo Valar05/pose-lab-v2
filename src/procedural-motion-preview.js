@@ -202,159 +202,83 @@ function drawEffectImage(target,image,x,y,rotationDeg=0){
  target.restore();
 }
 function transformedSlash(image,spec){
- const W=image.width,H=image.height;
- const center=spec.planeCenter||[215,158];
- const rz=Number(spec.rotateZDeg??45)*Math.PI/180;
- const rx=Number(spec.rotateXDeg??-60)*Math.PI/180;
- const focal=Number(spec.focalPx??260);
- const scale=Number(spec.planeScale??.62);
- const gx=Number(spec.globalScaleX??2);
- const fx=spec.flipX?-1:1;
- const fy=spec.flipY?-1:1;
-
- function project(u,v){
-   // local plane coords centered on source; y is UP in 3D space.
-   let x=((u-.5)*W)*scale*fx;
-   let y=((.5-v)*H)*scale*fy;
-   let z=0;
-
-   // 1) Rotate the slash plane around Z first.
-   const xz=x*Math.cos(rz)-y*Math.sin(rz);
-   const yz=x*Math.sin(rz)+y*Math.cos(rz);
-   x=xz;
-   y=yz;
-
-   // 2) Stretch GLOBAL / post-Z screen-world X, exactly as requested.
-   x*=gx;
-
-   // 3) Then pitch around X. Negative angle sends the top edge rearward/down.
-   const yx=y*Math.cos(rx)-z*Math.sin(rx);
-   const zx=y*Math.sin(rx)+z*Math.cos(rx);
-   y=yx;
-   z=zx;
-
-   const denom=Math.max(40,focal-z);
-   const p=focal/denom;
-   return {
-     x:center[0]+x*p,
-     y:center[1]-y*p,
-     z,
-     p
-   };
- }
-
- return {image,W,H,project};
+ // Neutral baseline: NO rotation, flip, scale, stretch, shear, or perspective.
+ return image;
 }
 function drawSlash(e,layerName='front'){
  if(!e||!slashMap)return;
+
  const spec=recipe.effect||{};
+ const image=transformedSlash(slashMap,spec);
+ const x=Number(spec.position?.[0]??0);
+ const y=Number(spec.position?.[1]??0);
  const reveal=clamp(Number(e.reveal??0));
  if(reveal<=0)return;
 
- const plane=transformedSlash(slashMap,spec);
- const cols=Math.max(8,Number(spec.tessellation?.[0]??28));
- const rows=Math.max(4,Number(spec.tessellation?.[1]??14));
- const depth0=Number(spec.vanguardDepth??0);
+ const split=Math.max(.1,Math.min(.9,Number(spec.depthSplit??.5)));
+ const splitX=x+image.width*split;
+ const pivot=spec.revealPivot||[.5,.5];
+ const cx=x+image.width*pivot[0];
+ const cy=y+image.height*pivot[1];
+ const start=Number(spec.revealStartDeg??0)*Math.PI/180;
+ const sweep=Number(spec.revealSweepDeg??180)*Math.PI/180;
+ const end=spec.revealCounterClockwise===false
+   ? start+sweep*reveal
+   : start-sweep*reveal;
 
- function makeRevealSource(color){
-   const src=document.createElement('canvas');
-   src.width=plane.W;src.height=plane.H;
-   const sx=src.getContext('2d');
-   const rp=spec.revealPivot||[.88,.60];
-   const cx=plane.W*rp[0],cy=plane.H*rp[1];
-   const radius=Math.hypot(plane.W,plane.H)*2;
-   const start=Number(spec.revealStartDeg??16)*Math.PI/180;
-   const sweep=Number(spec.revealSweepDeg??190)*Math.PI/180;
-   const end=spec.revealCounterClockwise===false
-     ? start+sweep*reveal
-     : start-sweep*reveal;
-
-   sx.save();
-   sx.beginPath();
-   sx.moveTo(cx,cy);
-   sx.arc(cx,cy,radius,start,end,spec.revealCounterClockwise!==false);
-   sx.closePath();
-   sx.clip();
-   sx.drawImage(plane.image,0,0);
-   sx.restore();
-
-   if(color){
-     sx.globalCompositeOperation='source-in';
-     sx.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
-     sx.fillRect(0,0,src.width,src.height);
-     sx.globalCompositeOperation='source-over';
-   }
-   return src;
+ function passImage(color){
+   if(!color)return image;
+   const tint=document.createElement('canvas');
+   tint.width=image.width;
+   tint.height=image.height;
+   const tc=tint.getContext('2d');
+   tc.drawImage(image,0,0);
+   tc.globalCompositeOperation='source-in';
+   tc.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
+   tc.fillRect(0,0,tint.width,tint.height);
+   return tint;
  }
 
- function affineFor(s0,s1,s2,d0,d1,d2){
-   const x0=s0[0],y0=s0[1],x1=s1[0],y1=s1[1],x2=s2[0],y2=s2[1];
-   const X0=d0.x,Y0=d0.y,X1=d1.x,Y1=d1.y,X2=d2.x,Y2=d2.y;
-   const det=x0*(y1-y2)+x1*(y2-y0)+x2*(y0-y1);
-   if(Math.abs(det)<1e-6)return null;
-   const a=(X0*(y1-y2)+X1*(y2-y0)+X2*(y0-y1))/det;
-   const c=(X0*(x2-x1)+X1*(x0-x2)+X2*(x1-x0))/det;
-   const e=(X0*(x1*y2-x2*y1)+X1*(x2*y0-x0*y2)+X2*(x0*y1-x1*y0))/det;
-   const b=(Y0*(y1-y2)+Y1*(y2-y0)+Y2*(y0-y1))/det;
-   const d=(Y0*(x2-x1)+Y1*(x0-x2)+Y2*(x1-x0))/det;
-   const f=(Y0*(x1*y2-x2*y1)+Y1*(x2*y0-x0*y2)+Y2*(x0*y1-x1*y0))/det;
-   return [a,b,c,d,e,f];
+ const layer=document.createElement('canvas');
+ layer.width=canvas.width;
+ layer.height=canvas.height;
+ const lc=layer.getContext('2d');
+
+ lc.save();
+ const radius=Math.hypot(image.width,image.height)*2;
+ lc.beginPath();
+ lc.moveTo(cx,cy);
+ lc.arc(cx,cy,radius,start,end,spec.revealCounterClockwise!==false);
+ lc.closePath();
+ lc.clip();
+
+ lc.beginPath();
+ if(layerName==='back'){
+   lc.rect(x-4,y-4,image.width*split+8,image.height+8);
+ }else{
+   lc.rect(splitX-4,y-4,image.width*(1-split)+8,image.height+8);
  }
-
- function renderProjected(source){
-   const layer=document.createElement('canvas');
-   layer.width=canvas.width;layer.height=canvas.height;
-   const lc=layer.getContext('2d');
-   lc.imageSmoothingEnabled=true;
-
-   function tri(s0,s1,s2,d0,d1,d2){
-     const avgZ=(d0.z+d1.z+d2.z)/3;
-     const wantsBack=layerName==='back';
-     if(wantsBack ? avgZ>=depth0 : avgZ<depth0)return;
-     const m=affineFor(s0,s1,s2,d0,d1,d2);
-     if(!m)return;
-
-     lc.save();
-     lc.beginPath();
-     lc.moveTo(d0.x,d0.y);lc.lineTo(d1.x,d1.y);lc.lineTo(d2.x,d2.y);
-     lc.closePath();lc.clip();
-     lc.setTransform(m[0],m[1],m[2],m[3],m[4],m[5]);
-     lc.drawImage(source,0,0);
-     lc.restore();
-   }
-
-   for(let j=0;j<rows;j++){
-     const v0=j/rows,v1=(j+1)/rows;
-     for(let i=0;i<cols;i++){
-       const u0=i/cols,u1=(i+1)/cols;
-       const s00=[u0*plane.W,v0*plane.H],s10=[u1*plane.W,v0*plane.H];
-       const s01=[u0*plane.W,v1*plane.H],s11=[u1*plane.W,v1*plane.H];
-       const p00=plane.project(u0,v0),p10=plane.project(u1,v0);
-       const p01=plane.project(u0,v1),p11=plane.project(u1,v1);
-       tri(s00,s10,s11,p00,p10,p11);
-       tri(s00,s11,s01,p00,p11,p01);
-     }
-   }
-   return layer;
- }
+ lc.clip();
 
  const passes=[
-   {alpha:e.wideGlow*spec.wideOpacity,blur:spec.wideBlurPx,color:spec.wideGlowRgb},
-   {alpha:e.tightGlow*spec.tightOpacity,blur:spec.tightBlurPx,color:spec.tightGlowRgb},
-   {alpha:e.core,blur:0,color:null}
+   {a:e.wideGlow*spec.wideOpacity,b:spec.wideBlurPx,color:spec.wideGlowRgb},
+   {a:e.tightGlow*spec.tightOpacity,b:spec.tightBlurPx,color:spec.tightGlowRgb},
+   {a:e.core,b:0,color:null}
  ];
-
  for(const q of passes){
-   if(q.alpha<=0)continue;
-   const source=makeRevealSource(q.color);
-   const layer=renderProjected(source);
-   ctx.save();
-   ctx.translate(stageOffsetX(),0);
-   ctx.globalAlpha=q.alpha;
-   ctx.filter=q.blur?`blur(${q.blur}px)`:'none';
-   ctx.drawImage(layer,0,0);
-   ctx.restore();
+   if(q.a<=0)continue;
+   lc.save();
+   lc.globalAlpha=q.a;
+   lc.filter=q.b?`blur(${q.b}px)`:'none';
+   lc.drawImage(passImage(q.color),x,y);
+   lc.restore();
  }
+ lc.restore();
+
+ ctx.save();
+ ctx.translate(stageOffsetX(),0);
+ ctx.drawImage(layer,0,0);
+ ctx.restore();
 }
 function render(ms){
  const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null;
