@@ -19,7 +19,7 @@
       215,
       226
     ],
-    "anchorMeaning": "canonical Vanguard atlas-cell bottom-center anchor"
+    "anchorMeaning": "fixed Vanguard ground-contact anchor, native atlas pixel scale"
   },
   "atlases": {
     "vanguard-canonical": {
@@ -41,8 +41,7 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "cell-bottom-center",
-      "normalizeForegroundHeightPx": 88
+      "anchorMode": "ground-contact-center"
     },
     "chamber": {
       "kind": "atlas-cell",
@@ -50,8 +49,7 @@
       "cell": 80,
       "role": "body",
       "trim": true,
-      "anchorMode": "cell-bottom-center",
-      "normalizeForegroundHeightPx": 88
+      "anchorMode": "ground-contact-center"
     },
     "commit": {
       "kind": "atlas-cell",
@@ -59,8 +57,7 @@
       "cell": 62,
       "role": "body",
       "trim": true,
-      "anchorMode": "cell-bottom-center",
-      "normalizeForegroundHeightPx": 88
+      "anchorMode": "ground-contact-center"
     },
     "contact": {
       "kind": "atlas-cell",
@@ -68,8 +65,7 @@
       "cell": 61,
       "role": "body",
       "trim": true,
-      "anchorMode": "cell-bottom-center",
-      "normalizeForegroundHeightPx": 88
+      "anchorMode": "ground-contact-center"
     },
     "slash-horizontal-clean": {
       "kind": "image",
@@ -247,7 +243,7 @@
   "stage": {
     "centerX": 215,
     "centerSource": "idle",
-    "mode": "fixed-atlas-cell-center"
+    "mode": "native-pixel-scale-ground-anchor"
   },
   "motionAuthority": {
     "kind": "expanded-vanguard-atlas",
