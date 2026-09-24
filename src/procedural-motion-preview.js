@@ -181,9 +181,10 @@ function drawEffectImage(target,image,x,y,rotationDeg=0){
 }
 function transformedSlash(image,spec){
  const rot=Number(spec.rotationDeg||0);
- const pitch=Math.max(0.08,Number(spec.pitchScaleY??1));
+ const sx=Number(spec.scaleX??1);
+ const sy=Number(spec.scaleY??1);
 
- // Stage 1: rotate the slash with NO squash.
+ // Rotate first.
  const pad=Math.ceil(Math.max(image.width,image.height));
  const scratch=document.createElement('canvas');
  scratch.width=image.width+pad*2;
@@ -193,16 +194,14 @@ function transformedSlash(image,spec){
  if(rot)sc.rotate(rot*Math.PI/180);
  sc.drawImage(image,-image.width/2,-image.height/2);
 
- // Tight crop the rotated alpha bounds.
+ // Tight crop rotated alpha bounds.
  const im=sc.getImageData(0,0,scratch.width,scratch.height);
- const d=im.data;
+ const px=im.data;
  let minX=scratch.width,minY=scratch.height,maxX=-1,maxY=-1;
- for(let yy=0;yy<scratch.height;yy++){
-   for(let xx=0;xx<scratch.width;xx++){
-     if(d[(yy*scratch.width+xx)*4+3]>4){
-       minX=Math.min(minX,xx);minY=Math.min(minY,yy);
-       maxX=Math.max(maxX,xx);maxY=Math.max(maxY,yy);
-     }
+ for(let y=0;y<scratch.height;y++)for(let x=0;x<scratch.width;x++){
+   if(px[(y*scratch.width+x)*4+3]>4){
+     minX=Math.min(minX,x);minY=Math.min(minY,y);
+     maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
    }
  }
  if(maxX<minX)return image;
@@ -215,15 +214,22 @@ function transformedSlash(image,spec){
    0,0,rotated.width,rotated.height
  );
 
- // Stage 2: squash SCREEN-SPACE Y after rotation.
- // This guarantees a lateral band rather than compressing the wrong local axis.
+ // Then scale in final screen space. Negative X flips horizontally.
  const out=document.createElement('canvas');
- out.width=rotated.width;
- out.height=Math.max(1,Math.round(rotated.height*pitch));
- out.getContext('2d').drawImage(
-   rotated,0,0,rotated.width,rotated.height,
-   0,0,out.width,out.height
- );
+ out.width=Math.max(1,Math.round(rotated.width*Math.abs(sx)));
+ out.height=Math.max(1,Math.round(rotated.height*Math.abs(sy)));
+ const oc=out.getContext('2d');
+ oc.save();
+ if(sx<0){
+   oc.translate(out.width,0);
+   oc.scale(-1,1);
+ }
+ if(sy<0){
+   oc.translate(0,out.height);
+   oc.scale(1,-1);
+ }
+ oc.drawImage(rotated,0,0,rotated.width,rotated.height,0,0,out.width,out.height);
+ oc.restore();
  return out;
 }
 function drawSlash(e,layerName='front'){
@@ -231,14 +237,12 @@ function drawSlash(e,layerName='front'){
 
  const spec=recipe.effect;
  const image=transformedSlash(slashMap,spec);
- const x=spec.position[0];
- const y=spec.position[1];
+ const x=spec.position[0],y=spec.position[1];
 
  function passImage(color){
    if(!color)return image;
    const tint=document.createElement('canvas');
-   tint.width=image.width;
-   tint.height=image.height;
+   tint.width=image.width;tint.height=image.height;
    const tc=tint.getContext('2d');
    tc.drawImage(image,0,0);
    tc.globalCompositeOperation='source-in';
@@ -248,26 +252,32 @@ function drawSlash(e,layerName='front'){
  }
 
  const layer=document.createElement('canvas');
- layer.width=canvas.width;
- layer.height=canvas.height;
+ layer.width=canvas.width;layer.height=canvas.height;
  const lc=layer.getContext('2d');
-
  const reveal=clamp(e.reveal);
  const split=Math.max(.15,Math.min(.85,Number(spec.depthSplit??.55)));
  const splitX=x+image.width*split;
 
  lc.save();
 
- // Near/right -> far/left. At reveal=0 nothing is visible.
- // As reveal grows, the clip expands leftward from the near/right cap.
+ // TRUE radial reveal: near/right -> far/left, counterclockwise.
  if(reveal<0.999){
-   const visible=Math.max(0,image.width*reveal);
+   const np=spec.radialPivot||[0.88,0.52];
+   const px=x+image.width*np[0];
+   const py=y+image.height*np[1];
+   const radius=Math.hypot(image.width,image.height)*2.0;
+   const start=(Number(spec.radialStartDeg??8))*Math.PI/180;
+   const sweep=(Number(spec.radialSweepDeg??190))*Math.PI/180;
+   const end=start-sweep*reveal;
+
    lc.beginPath();
-   lc.rect(x+image.width-visible,y,visible,image.height);
+   lc.moveTo(px,py);
+   lc.arc(px,py,radius,start,end,true);
+   lc.closePath();
    lc.clip();
  }
 
- // Far/left half behind Vanguard, near/right half in front.
+ // Far/left behind Vanguard, near/right in front.
  lc.beginPath();
  if(layerName==='back'){
    lc.rect(x,y,image.width*split+2,image.height);
@@ -281,7 +291,6 @@ function drawSlash(e,layerName='front'){
    {a:e.tightGlow*spec.tightOpacity,b:spec.tightBlurPx,color:spec.tightGlowRgb},
    {a:e.core,b:0,color:null}
  ];
-
  for(const q of passes){
    if(q.a<=0)continue;
    lc.save();
@@ -292,7 +301,6 @@ function drawSlash(e,layerName='front'){
  }
 
  lc.restore();
-
  ctx.save();
  ctx.translate(stageOffsetX(),0);
  ctx.drawImage(layer,0,0);
