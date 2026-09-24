@@ -172,10 +172,10 @@
   ],
   "effect": {
     "source": "slash-horizontal-clean",
-    "width": 230,
+    "width": 210,
     "position": [
-      78,
-      126
+      92,
+      118
     ],
     "pivot": [
       160,
@@ -240,7 +240,7 @@
     ],
     "startClock": 9,
     "endClock": 3,
-    "pitchScaleY": 0.58,
+    "pitchScaleY": 0.72,
     "yawShearX": 0
   },
   "stage": {
