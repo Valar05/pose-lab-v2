@@ -214,8 +214,15 @@ function drawSlash(e,layerName='front'){
 
  const bodyRef=body(recipe.stage?.centerSource||'idle');
  const bodyLength=bodyRef.canvas.height;
- const x=Number(spec.position?.[0]??0)+bodyLength*Number(spec.translateBodyX??0);
- const y=Number(spec.position?.[1]??0)+bodyLength*Number(spec.translateBodyY??0);
+
+ // Keep the slash VISUAL CENTER fixed when rotation/flip expands its canvas.
+ // Canvas Y grows downward, so a negative translateBodyY correctly means UP.
+ const baseX=Number(spec.position?.[0]??0);
+ const baseY=Number(spec.position?.[1]??0);
+ const centerCompX=(image.width-slashMap.width)/2;
+ const centerCompY=(image.height-slashMap.height)/2;
+ const x=baseX+bodyLength*Number(spec.translateBodyX??0)-centerCompX;
+ const y=baseY+bodyLength*Number(spec.translateBodyY??0)-centerCompY;
 
  const reveal=clamp(Number(e.reveal??0));
  if(reveal<=0)return;
