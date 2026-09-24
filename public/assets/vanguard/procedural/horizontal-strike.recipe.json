@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Strike · true 4x4 plane projection · near/front to far/rear",
+  "description": "Vanguard Horizontal Strike · preserve full slash plane → Z45 → global X2 → X-60 → perspective depth",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -190,7 +190,7 @@
   ],
   "effect": {
     "source": "slash-horizontal-clean",
-    "width": 180,
+    "width": 168,
     "position": [
       0,
       0
@@ -267,25 +267,30 @@
     ],
     "radialStartDeg": 8,
     "radialSweepDeg": 190,
-    "revealStartDeg": 16,
-    "projectionMode": "matrix3d",
+    "revealStartDeg": 22,
+    "projectionMode": "matrix3d-preserve-source-plane",
     "planeCenter": [
       215,
-      158
+      184
     ],
     "rotateZDeg": 45,
     "rotateXDeg": -60,
-    "focalPx": 260,
-    "planeScale": 0.62,
+    "focalPx": 150,
+    "planeScale": 0.24,
     "globalScaleX": 2,
     "flipX": true,
     "flipY": true,
     "vanguardDepth": 0,
-    "revealSweepDeg": 190,
+    "revealSweepDeg": 210,
     "revealCounterClockwise": true,
     "tessellation": [
-      28,
-      14
+      30,
+      18
+    ],
+    "projectionTextureSize": 384,
+    "revealPivot": [
+      0.5,
+      0.5
     ]
   },
   "stage": {
