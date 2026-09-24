@@ -214,35 +214,27 @@ function drawSlash(e,layerName='front'){
 
  const bodyRef=body(recipe.stage?.centerSource||'idle');
 
- // Compute Vanguard's ACTUAL visible foreground bounds, not atlas-cell size.
- // This makes "one body length left" and "quarter body up" literal and stable.
+ // Measure only the visible Vanguard height for "one body length".
  const bc=bodyRef.canvas.getContext('2d',{willReadFrequently:true});
  const bim=bc.getImageData(0,0,bodyRef.canvas.width,bodyRef.canvas.height);
  const bd=bim.data;
- let bminX=bodyRef.canvas.width,bminY=bodyRef.canvas.height,bmaxX=-1,bmaxY=-1;
+ let bminY=bodyRef.canvas.height,bmaxY=-1;
  for(let by=0;by<bodyRef.canvas.height;by++)for(let bx=0;bx<bodyRef.canvas.width;bx++){
    if(bd[(by*bodyRef.canvas.width+bx)*4+3]>8){
-     bminX=Math.min(bminX,bx);bminY=Math.min(bminY,by);
-     bmaxX=Math.max(bmaxX,bx);bmaxY=Math.max(bmaxY,by);
+     bminY=Math.min(bminY,by);bmaxY=Math.max(bmaxY,by);
    }
  }
  const bodyVisibleH=Math.max(1,bmaxY-bminY+1);
- const bodyVisibleCenterLocalX=(bminX+bmaxX)/2;
- const bodyVisibleCenterLocalY=(bminY+bmaxY)/2;
 
- // Convert body-local visible center into stage coordinates.
- const [bodyAnchorX,bodyAnchorY]=recipe.canvas.anchor;
- const bodyCenterX=bodyAnchorX-bodyRef.anchor[0]+bodyVisibleCenterLocalX;
- const bodyCenterY=bodyAnchorY-bodyRef.anchor[1]+bodyVisibleCenterLocalY;
-
- // Anchor the transformed slash by its VISUAL CENTER.
- // Negative Y is unambiguously UP because canvas Y increases downward.
- const x=bodyCenterX
-   + bodyVisibleH*Number(spec.offsetBodyX??0)
-   - image.width/2;
- const y=bodyCenterY
-   + bodyVisibleH*Number(spec.offsetBodyY??0)
-   - image.height/2;
+ // Start from the neutral slash baseline position, then apply exactly
+ // left one body length and up one quarter body length.
+ // Keep transform canvas center compensation separate from placement.
+ const baseX=Number(spec.position?.[0]??130);
+ const baseY=Number(spec.position?.[1]??122);
+ const centerCompX=(image.width-slashMap.width)/2;
+ const centerCompY=(image.height-slashMap.height)/2;
+ const x=baseX + bodyVisibleH*Number(spec.offsetBodyX??0) - centerCompX;
+ const y=baseY + bodyVisibleH*Number(spec.offsetBodyY??0) - centerCompY;
 
  const reveal=clamp(Number(e.reveal??0));
  if(reveal<=0)return;
