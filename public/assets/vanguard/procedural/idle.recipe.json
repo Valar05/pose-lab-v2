@@ -1,0 +1,62 @@
+{
+  "schema": "pose-lab-v2-procedural-run-recipe-v1",
+  "id": "vanguard-idle-procedural-v1",
+  "subject": "vanguard",
+  "poseAuthority": "Vanguard atlas cell 9",
+  "motionAuthority": "opening idle section of 911845.mp4",
+  "rootMotion": false,
+  "travelOwner": "none",
+  "canvas": {
+    "size": [430, 260],
+    "anchor": [215, 226],
+    "anchorMeaning": "canonical Vanguard bottom-center review anchor"
+  },
+  "atlas": {
+    "file": "assets/vanguard/procedural/vanguard-pose-atlas-54.png",
+    "columns": 6,
+    "rows": 9,
+    "indexBase": 1,
+    "size": [1536, 1316],
+    "sha256": "acb551e180b72233770bb62d371318945d848f89462435bc7c11c069b4d6b47b"
+  },
+  "cycleMs": 3200,
+  "blendWindow": 0,
+  "poses": [
+    {
+      "id": "idle-center",
+      "cell": 9,
+      "weight": 1,
+      "deform": {"shearX": 0, "scaleX": 1, "scaleY": 1, "shiftY": 0}
+    },
+    {
+      "id": "idle-breathe-in",
+      "cell": 9,
+      "weight": 1,
+      "deform": {"shearX": -0.012, "scaleX": 1, "scaleY": 1, "shiftY": -1}
+    },
+    {
+      "id": "idle-weight-shift",
+      "cell": 9,
+      "weight": 1,
+      "deform": {"shearX": 0.008, "scaleX": 1, "scaleY": 1, "shiftY": 0}
+    },
+    {
+      "id": "idle-settle",
+      "cell": 9,
+      "weight": 1,
+      "deform": {"shearX": 0.004, "scaleX": 1, "scaleY": 1, "shiftY": 1}
+    }
+  ],
+  "secondary": {
+    "forwardSkewPulse": 0,
+    "breathScaleY": 0,
+    "bobPx": 0
+  },
+  "acceptance": [
+    "cell 9 remains the only authored pose",
+    "no root translation",
+    "weapon carriage remains stable",
+    "motion reads as breathing and weight shift rather than an action",
+    "loop closes without a visible snap"
+  ]
+}
