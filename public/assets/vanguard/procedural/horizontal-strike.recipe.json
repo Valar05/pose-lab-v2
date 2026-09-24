@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Slash · monotonic near→far reveal · screen-space flattened depth split",
+  "description": "Vanguard Horizontal Strike · SwordAttack3 · projected near-to-far depth wrap",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -100,9 +100,9 @@
     {
       "id": "chamber",
       "source": "chamber",
-      "durationMs": 105,
+      "durationMs": 125,
       "deform": {
-        "shearX": 0.035,
+        "shearX": -0.12,
         "scaleX": 1,
         "scaleY": 1,
         "shiftX": 0,
@@ -118,27 +118,27 @@
     {
       "id": "stab-contact",
       "source": "commit",
-      "durationMs": 105,
+      "durationMs": 130,
       "deform": {
-        "shearX": -0.055,
+        "shearX": 0.14,
         "scaleX": 1,
         "scaleY": 1,
         "shiftX": 0,
         "shiftY": 0
       },
       "effect": {
-        "reveal": 1,
-        "core": 1,
-        "tightGlow": 1,
-        "wideGlow": 0.72
+        "reveal": 0.46,
+        "core": 0.94,
+        "tightGlow": 0.82,
+        "wideGlow": 0.42
       }
     },
     {
-      "id": "arc-finish",
+      "id": "recover-high",
       "source": "contact",
-      "durationMs": 115,
+      "durationMs": 155,
       "deform": {
-        "shearX": -0.025,
+        "shearX": 0.04,
         "scaleX": 1,
         "scaleY": 1,
         "shiftX": 0,
@@ -146,17 +146,17 @@
       },
       "effect": {
         "reveal": 1,
-        "core": 0.42,
+        "core": 0.56,
         "tightGlow": 0.48,
-        "wideGlow": 0.5
+        "wideGlow": 0.28
       }
     },
     {
-      "id": "settle-skew",
+      "id": "settle",
       "source": "contact",
-      "durationMs": 95,
+      "durationMs": 85,
       "deform": {
-        "shearX": -0.01,
+        "shearX": 0,
         "scaleX": 1,
         "scaleY": 1,
         "shiftX": 0,
@@ -166,13 +166,13 @@
         "reveal": 0,
         "core": 0,
         "tightGlow": 0,
-        "wideGlow": 0.04
+        "wideGlow": 0
       }
     },
     {
       "id": "idle-return",
       "source": "idle",
-      "durationMs": 105,
+      "durationMs": 90,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
@@ -192,8 +192,8 @@
     "source": "slash-horizontal-clean",
     "width": 168,
     "position": [
-      142,
-      146
+      100,
+      104
     ],
     "pivot": [
       160,
@@ -249,8 +249,8 @@
     "wideBlurPx": 7.5,
     "tightOpacity": 0.65,
     "wideOpacity": 0.55,
-    "rotationDeg": -90,
-    "revealMode": "radial-counterclockwise-near-to-far",
+    "rotationDeg": 45,
+    "revealMode": "radial-sector",
     "transform": "none",
     "localPivot": [
       105,
@@ -260,7 +260,7 @@
     "endClock": 3,
     "pitchScaleY": 1,
     "yawShearX": 0,
-    "depthSplit": 0.5,
+    "depthSplit": 0.52,
     "nearSide": "right",
     "farSide": "left",
     "scaleX": -0.5,
@@ -271,7 +271,18 @@
     ],
     "radialStartDeg": 8,
     "radialSweepDeg": 190,
-    "depthSplitCanvasX": 215
+    "depthSplitCanvasX": 215,
+    "stretchX": 2,
+    "pitchDropPx": 22,
+    "backShiftXPx": -38,
+    "backScaleX": 0.58,
+    "backSide": "left",
+    "revealPivot": [
+      0.86,
+      0.62
+    ],
+    "revealStartDeg": 158,
+    "revealSpanDeg": 112
   },
   "stage": {
     "centerX": 215,
@@ -279,7 +290,8 @@
     "mode": "native-pixel-scale-ground-anchor"
   },
   "motionAuthority": {
-    "kind": "expanded-vanguard-atlas",
+    "kind": "native-vanguard-clip",
+    "clip": "SwordAttack3",
     "description": "Exact uploaded sequence: 80 chamber, 62 stab/contact, 61 overhead recovery"
   }
 }
