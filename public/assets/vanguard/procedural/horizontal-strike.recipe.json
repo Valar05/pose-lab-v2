@@ -16,10 +16,10 @@
       255
     ],
     "anchor": [
-      92,
+      215,
       226
     ],
-    "anchorMeaning": "approved attack-local rear-foot pivot"
+    "anchorMeaning": "canonical Vanguard atlas-cell bottom-center anchor"
   },
   "atlases": {
     "vanguard-canonical": {
@@ -41,7 +41,7 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "bottom-center"
+      "anchorMode": "cell-bottom-center"
     },
     "chamber": {
       "kind": "atlas-cell",
@@ -49,7 +49,7 @@
       "cell": 80,
       "role": "body",
       "trim": true,
-      "anchorMode": "bottom-center"
+      "anchorMode": "cell-bottom-center"
     },
     "commit": {
       "kind": "atlas-cell",
@@ -57,7 +57,7 @@
       "cell": 62,
       "role": "body",
       "trim": true,
-      "anchorMode": "bottom-center"
+      "anchorMode": "cell-bottom-center"
     },
     "contact": {
       "kind": "atlas-cell",
@@ -65,7 +65,7 @@
       "cell": 61,
       "role": "body",
       "trim": true,
-      "anchorMode": "bottom-center"
+      "anchorMode": "cell-bottom-center"
     },
     "slash-right": {
       "kind": "image",
@@ -243,7 +243,7 @@
   "stage": {
     "centerX": 215,
     "centerSource": "idle",
-    "mode": "translate-composite-after-local-authoring"
+    "mode": "fixed-atlas-cell-center"
   },
   "motionAuthority": {
     "kind": "expanded-vanguard-atlas",
