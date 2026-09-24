@@ -2,33 +2,106 @@
   "schema": "pose-lab-v2-procedural-run-recipe-v1",
   "id": "vanguard-sixframe-run-procedural-v1",
   "subject": "vanguard",
-  "poseAuthority": "exact accepted 48-pose Vanguard atlas",
+  "poseAuthority": "exact accepted 54-pose Vanguard atlas",
   "motionAuthority": "911832.mp4 procedural run reference",
   "rootMotion": false,
   "travelOwner": "game-controller",
-  "canvas": {"size":[430,260],"anchor":[102,229]},
+  "canvas": {
+    "size": [
+      430,
+      260
+    ],
+    "anchor": [
+      215,
+      226
+    ],
+    "anchorMeaning": "canonical Vanguard bottom-center review anchor"
+  },
   "atlas": {
-    "file": "assets/vanguard/procedural/vanguard-pose-atlas-48.png",
+    "file": "assets/vanguard/procedural/vanguard-pose-atlas-54.png",
     "columns": 6,
-    "rows": 8,
+    "rows": 9,
     "indexBase": 1,
-    "size": [1536,1170],
-    "sha256": "0f6183b8cfa516388ec62b70b79773037c3bfe21576ae9bc0a52510eac8a4420"
+    "size": [
+      1536,
+      1316
+    ],
+    "sha256": "acb551e180b72233770bb62d371318945d848f89462435bc7c11c069b4d6b47b"
   },
   "cycleMs": 1050,
-  "blendWindow": 0.20,
+  "blendWindow": 0.08,
   "poses": [
-    {"id":"contact-a","cell":6,"weight":1.10,"deform":{"shearX":-0.12,"scaleX":1.025,"scaleY":0.985,"shiftY":0}},
-    {"id":"compression-a","cell":17,"weight":1.18,"deform":{"shearX":-0.16,"scaleX":0.985,"scaleY":0.935,"shiftY":7}},
-    {"id":"passing-a","cell":3,"weight":0.86,"deform":{"shearX":-0.22,"scaleX":1.075,"scaleY":0.965,"shiftY":-5}},
-    {"id":"contact-b","cell":8,"weight":1.10,"deform":{"shearX":-0.13,"scaleX":1.025,"scaleY":0.985,"shiftY":0}},
-    {"id":"compression-b","cell":4,"weight":1.18,"deform":{"shearX":-0.17,"scaleX":0.985,"scaleY":0.935,"shiftY":7}},
-    {"id":"passing-b","cell":5,"weight":0.86,"deform":{"shearX":-0.23,"scaleX":1.075,"scaleY":0.965,"shiftY":-5}}
+    {
+      "id": "run-1",
+      "cell": 49,
+      "weight": 1.1,
+      "deform": {
+        "shearX": 0.0375,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftY": 0
+      }
+    },
+    {
+      "id": "run-2",
+      "cell": 50,
+      "weight": 1.18,
+      "deform": {
+        "shearX": -0.0475,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftY": 0
+      }
+    },
+    {
+      "id": "run-3",
+      "cell": 51,
+      "weight": 0.86,
+      "deform": {
+        "shearX": 0.0375,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftY": 0
+      }
+    },
+    {
+      "id": "run-4",
+      "cell": 52,
+      "weight": 1.1,
+      "deform": {
+        "shearX": -0.0475,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftY": 0
+      }
+    },
+    {
+      "id": "run-5",
+      "cell": 53,
+      "weight": 1.18,
+      "deform": {
+        "shearX": 0.0375,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftY": 0
+      }
+    },
+    {
+      "id": "run-6",
+      "cell": 54,
+      "weight": 0.86,
+      "deform": {
+        "shearX": -0.0475,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftY": 0
+      }
+    }
   ],
   "secondary": {
-    "forwardSkewPulse": 0.025,
-    "breathScaleY": 0.012,
-    "bobPx": 2.25
+    "forwardSkewPulse": 0,
+    "breathScaleY": 0,
+    "bobPx": 0
   },
   "acceptance": [
     "six authored atlas poses remain the pose authority",
