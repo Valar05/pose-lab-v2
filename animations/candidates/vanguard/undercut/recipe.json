@@ -1,0 +1,161 @@
+{
+  "schema": "pose-lab-v2-procedural-motion-recipe-v1",
+  "id": "vanguard-undercut-procedural-proof-v1",
+  "subject": "vanguard",
+  "description": "Golden procedural proof for Vanguard Attack 1 / undercut. Immutable pose anchors plus pinned-foot deformation, procedural recoil, and a separate slash overlay.",
+  "rootMotion": false,
+  "canvas": {
+    "size": [430, 260],
+    "background": [0, 0, 0, 255],
+    "anchor": [92, 226],
+    "anchorMeaning": "rear planted foot"
+  },
+  "sources": {
+    "idle": {
+      "path": "assets/vanguard_idle.png",
+      "mode": "blue-key",
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "chamber": {
+      "path": "assets/vanguard_attack1_chamber.png",
+      "mode": "black-luminance-alpha",
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "commit": {
+      "path": "assets/vanguard_attack1_commit.png",
+      "mode": "black-luminance-alpha",
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "preimpact": {
+      "path": "assets/vanguard_attack1_preimpact.png",
+      "mode": "black-luminance-alpha",
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "contact": {
+      "path": "assets/vanguard_attack1_contact.png",
+      "mode": "black-luminance-alpha",
+      "role": "body",
+      "trim": true,
+      "anchorMode": "rear-foot-left"
+    },
+    "slash-right": {
+      "path": "assets/slash_right.png",
+      "mode": "black-luminance-alpha",
+      "role": "effect",
+      "trim": true
+    }
+  },
+  "phases": [
+    {
+      "id": "idle",
+      "source": "idle",
+      "durationMs": 75,
+      "deform": {"shearX": 0.0, "scaleX": 1.0, "scaleY": 1.0}
+    },
+    {
+      "id": "anticipation",
+      "source": "idle",
+      "durationMs": 75,
+      "deform": {"shearX": 0.10, "scaleX": 1.0, "scaleY": 0.97, "shiftY": 1.0}
+    },
+    {
+      "id": "chamber",
+      "source": "chamber",
+      "durationMs": 70,
+      "deform": {"shearX": 0.06, "scaleX": 1.01, "scaleY": 0.98},
+      "effect": {"reveal": 0.10, "core": 0.30, "tightGlow": 0.18, "wideGlow": 0.12}
+    },
+    {
+      "id": "cross-commit",
+      "source": "commit",
+      "durationMs": 45,
+      "deform": {"shearX": -0.10, "scaleX": 1.02, "scaleY": 0.99},
+      "effect": {"reveal": 0.48, "core": 0.72, "tightGlow": 0.52, "wideGlow": 0.30}
+    },
+    {
+      "id": "lean-forward",
+      "source": "preimpact",
+      "durationMs": 45,
+      "deform": {"shearX": -0.24, "scaleX": 1.04, "scaleY": 1.01, "shiftY": -1.0},
+      "effect": {"reveal": 0.84, "core": 0.92, "tightGlow": 0.82, "wideGlow": 0.46}
+    },
+    {
+      "id": "contact",
+      "source": "contact",
+      "durationMs": 125,
+      "deform": {"shearX": -0.34, "scaleX": 1.06, "scaleY": 1.02, "shiftY": -2.0},
+      "effect": {"reveal": 1.0, "core": 1.0, "tightGlow": 1.0, "wideGlow": 0.70}
+    },
+    {
+      "id": "follow-through",
+      "source": "contact",
+      "durationMs": 90,
+      "deform": {"shearX": -0.25, "scaleX": 1.05, "scaleY": 1.0},
+      "effect": {"reveal": 1.0, "core": 0.42, "tightGlow": 0.45, "wideGlow": 0.55}
+    },
+    {
+      "id": "recoil-1",
+      "source": "contact",
+      "durationMs": 95,
+      "deform": {"shearX": -0.12, "scaleX": 1.03, "scaleY": 0.995, "shiftY": 1.0},
+      "effect": {"reveal": 1.0, "core": 0.16, "tightGlow": 0.18, "wideGlow": 0.26}
+    },
+    {
+      "id": "recoil-2",
+      "source": "contact",
+      "durationMs": 90,
+      "deform": {"shearX": -0.03, "scaleX": 1.01, "scaleY": 0.99, "shiftY": 2.0},
+      "effect": {"reveal": 0.0, "core": 0.0, "tightGlow": 0.0, "wideGlow": 0.05}
+    },
+    {
+      "id": "idle-return",
+      "source": "idle",
+      "durationMs": 105,
+      "deform": {"shearX": 0.0, "scaleX": 1.0, "scaleY": 1.0}
+    }
+  ],
+  "effect": {
+    "source": "slash-right",
+    "width": 184,
+    "position": [78, 82],
+    "pivot": [160, 198],
+    "startClock": 10.0,
+    "endClock": 5.0,
+    "featherDeg": 14.0,
+    "alphaGain": 1.30,
+    "gradientStops": [
+      {"at": 0.00, "rgb": [110, 20, 0]},
+      {"at": 0.18, "rgb": [255, 105, 0]},
+      {"at": 0.55, "rgb": [255, 20, 8]},
+      {"at": 1.00, "rgb": [255, 245, 120]}
+    ],
+    "tightGlowRgb": [255, 180, 28],
+    "wideGlowRgb": [255, 42, 0],
+    "tightBlurPx": 2.4,
+    "wideBlurPx": 7.5,
+    "tightOpacity": 0.65,
+    "wideOpacity": 0.55
+  },
+  "acceptance": {
+    "must": [
+      "rear foot remains pinned",
+      "no root motion",
+      "contact leans strongly forward",
+      "no invented recovery pose",
+      "recoil derives procedurally from contact",
+      "animation returns to idle",
+      "slash orientation and placement remain fixed",
+      "slash reveals clockwise from about 10:00 to 5:00",
+      "slash full-open state is brief",
+      "core fades before wide emissive haze"
+    ]
+  }
+}
