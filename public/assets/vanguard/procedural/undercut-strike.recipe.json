@@ -236,7 +236,7 @@
   ],
   "effect": {
     "source": "slash-right",
-    "width": 184,
+    "width": 154,
     "position": [
       78,
       82
@@ -245,8 +245,6 @@
       160,
       198
     ],
-    "startClock": 7,
-    "endClock": 1,
     "featherDeg": 14,
     "alphaGain": 1.3,
     "gradientStops": [
@@ -297,8 +295,8 @@
     "wideBlurPx": 7.5,
     "tightOpacity": 0.65,
     "wideOpacity": 0.55,
-    "rotationDeg": 180,
-    "direction": "low-to-high-undercut"
+    "rotationDeg": 90,
+    "revealMode": "linear-bottom-to-top"
   },
   "stage": {
     "centerX": 215,
