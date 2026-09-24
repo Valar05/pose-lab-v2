@@ -37,7 +37,7 @@ function body(sourceId){
  let minX=sw,minY=sh,maxX=-1,maxY=-1;
  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
    const i=(y*sw+x)*4,R=d[i],G=d[i+1],B=d[i+2];
-   if(B>110&&B>R+35&&B>G+35)d[i+3]=0;
+   if(B>110&&B>R+35&&B>G+35){d[i]=0;d[i+1]=0;d[i+2]=0;d[i+3]=0;}else if(B>80&&B>Math.max(R,G)+18){d[i+2]=Math.max(R,G)+18;}
    if(d[i+3]>8){
      minX=Math.min(minX,x);minY=Math.min(minY,y);
      maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);

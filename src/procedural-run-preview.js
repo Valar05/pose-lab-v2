@@ -29,7 +29,7 @@ function cell(cellNo){
  const [sx,sy,sw,sh]=rectFor(cellNo),raw=document.createElement('canvas'); raw.width=sw; raw.height=sh;
  const rc=raw.getContext('2d',{willReadFrequently:true}); rc.drawImage(atlas,sx,sy,sw,sh,0,0,sw,sh);
  const im=rc.getImageData(0,0,sw,sh),d=im.data; let minX=sw,minY=sh,maxX=-1,maxY=-1;
- for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){const i=(y*sw+x)*4,R=d[i],G=d[i+1],B=d[i+2];if(B>110&&B>R+35&&B>G+35)d[i+3]=0;if(d[i+3]>8){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y)}}
+ for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){const i=(y*sw+x)*4,R=d[i],G=d[i+1],B=d[i+2];if(B>110&&B>R+35&&B>G+35){d[i]=0;d[i+1]=0;d[i+2]=0;d[i+3]=0;}else if(B>80&&B>Math.max(R,G)+18){d[i+2]=Math.max(R,G)+18;}if(d[i+3]>8){minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y)}}
  rc.putImageData(im,0,0); if(maxX<minX)throw new Error('Empty Vanguard atlas cell '+cellNo);
  const trim=document.createElement('canvas'); trim.width=maxX-minX+1; trim.height=maxY-minY+1; trim.getContext('2d').drawImage(raw,minX,minY,trim.width,trim.height,0,0,trim.width,trim.height);
  const item={image:trim,anchor:[Math.round(trim.width/2),trim.height-1]}; cache.set(cellNo,item); return item;
