@@ -19,23 +19,28 @@ echo "=== FETCH MAIN ==="
 git -C "$ROOT" fetch origin main
 mkdir -p "$STATE"
 
-find_sha() {
+find_named_exact() {
   local want="$1"
   shift
-  local p got root
+  local p got root name
 
+  # First check explicit known paths.
   for p in "$@"; do
     [[ -f "$p" ]] || continue
     got="$(sha256sum "$p" 2>/dev/null | awk '{print $1}')"
     [[ "$got" == "$want" ]] && { printf '%s\n' "$p"; return 0; }
   done
 
-  for root in "$LIVE" "$ROOT" "/storage/emulated/0/Documents/GodotProjects" "/storage/emulated/0/Download"; do
+  # Then look up only the known filenames, not every image on storage.
+  for root in     "$LIVE/public/assets/vanguard/procedural"     "$ROOT/public/assets/vanguard/procedural"     "/storage/emulated/0/Download"     "/storage/emulated/0/Download/Diorama-Slash-Keys"     "/storage/emulated/0/Documents/GodotProjects"; do
     [[ -d "$root" ]] || continue
-    while IFS= read -r -d '' p; do
-      got="$(sha256sum "$p" 2>/dev/null | awk '{print $1}')"
-      [[ "$got" == "$want" ]] && { printf '%s\n' "$p"; return 0; }
-    done < <(find "$root" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) -print0 2>/dev/null)
+    for name in "vanguard-pose-atlas-90.png" "918598.png" "diorama_slash_runtime_atlas_192.png" "diorama-slash-atlas.png"; do
+      while IFS= read -r p; do
+        [[ -f "$p" ]] || continue
+        got="$(sha256sum "$p" 2>/dev/null | awk '{print $1}')"
+        [[ "$got" == "$want" ]] && { printf '%s\n' "$p"; return 0; }
+      done < <(find "$root" -maxdepth 5 -type f -name "$name" -print 2>/dev/null)
+    done
   done
 
   return 1
@@ -52,13 +57,13 @@ if [[ "$need_boot" -eq 1 ]]; then
   slash_src=""
 
   if ! git -C "$ROOT" cat-file -e "origin/main:$POSE_REL" 2>/dev/null; then
-    pose_src="$(find_sha "$POSE_SHA"       "$LIVE/$POSE_REL"       "$ROOT/$POSE_REL"       "/storage/emulated/0/Download/918598.png"       "/storage/emulated/0/Download/vanguard-pose-atlas-90.png" || true)"
+    pose_src="$(find_named_exact "$POSE_SHA"       "$LIVE/$POSE_REL"       "$ROOT/$POSE_REL"       "/storage/emulated/0/Download/918598.png"       "/storage/emulated/0/Download/vanguard-pose-atlas-90.png" || true)"
     [[ -n "$pose_src" ]] || { echo "STOP: canonical 90-pose atlas not found"; exit 11; }
     echo "import_pose=$pose_src"
   fi
 
   if ! git -C "$ROOT" cat-file -e "origin/main:$SLASH_REL" 2>/dev/null; then
-    slash_src="$(find_sha "$SLASH_SHA"       "$LIVE/$SLASH_REL"       "$ROOT/$SLASH_REL"       "/storage/emulated/0/Download/diorama_slash_runtime_atlas_192.png"       "/storage/emulated/0/Download/Diorama-Slash-Keys/diorama_slash_runtime_atlas_192.png"       "/storage/emulated/0/Download/diorama-slash-atlas.png" || true)"
+    slash_src="$(find_named_exact "$SLASH_SHA"       "$LIVE/$SLASH_REL"       "$ROOT/$SLASH_REL"       "/storage/emulated/0/Download/diorama_slash_runtime_atlas_192.png"       "/storage/emulated/0/Download/Diorama-Slash-Keys/diorama_slash_runtime_atlas_192.png"       "/storage/emulated/0/Download/diorama-slash-atlas.png" || true)"
     [[ -n "$slash_src" ]] || { echo "STOP: canonical slash atlas not found"; exit 12; }
     echo "import_slash=$slash_src"
   fi
