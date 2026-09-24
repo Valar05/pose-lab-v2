@@ -168,8 +168,19 @@ echo "attack2_uppercut=20->32->21"
 echo "attack2_total_ms=930"
 echo "slash_right_http=OK"
 
-if command -v /system/bin/am >/dev/null 2>&1; then
-  /system/bin/am start -a android.intent.action.VIEW -d "$URL" >/dev/null 2>&1 || true
-elif command -v termux-open-url >/dev/null 2>&1; then
-  termux-open-url "$URL" || true
+OPENED=0
+if [[ -x /system/bin/am ]]; then
+  if /system/bin/am start -a android.intent.action.VIEW -d "$URL" >/dev/null 2>&1; then
+    OPENED=1
+  fi
+fi
+if [[ "$OPENED" -ne 1 ]] && command -v termux-open-url >/dev/null 2>&1; then
+  if termux-open-url "$URL"; then
+    OPENED=1
+  fi
+fi
+if [[ "$OPENED" -eq 1 ]]; then
+  echo "auto_open=OK"
+else
+  echo "auto_open=FAILED url=$URL"
 fi
