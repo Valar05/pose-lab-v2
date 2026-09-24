@@ -40,6 +40,39 @@ function body(sourceId){
      maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
    }
  }
+ if(src.isolateLargestComponent){
+   const seen=new Uint8Array(sw*sh),components=[];
+   const neighbors=[[1,0],[-1,0],[0,1],[0,-1]];
+   for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+     const pi=y*sw+x;
+     if(seen[pi]||d[pi*4+3]<=8)continue;
+     const stack=[[x,y]],pixels=[];seen[pi]=1;
+     while(stack.length){
+       const [cx,cy]=stack.pop(),ci=cy*sw+cx;
+       pixels.push(ci);
+       for(const [dx,dy] of neighbors){
+         const nx=cx+dx,ny=cy+dy;
+         if(nx<0||ny<0||nx>=sw||ny>=sh)continue;
+         const ni=ny*sw+nx;
+         if(seen[ni]||d[ni*4+3]<=8)continue;
+         seen[ni]=1;stack.push([nx,ny]);
+       }
+     }
+     components.push(pixels);
+   }
+   components.sort((a,b)=>b.length-a.length);
+   const keep=new Uint8Array(sw*sh);
+   if(components[0])for(const i of components[0])keep[i]=1;
+   minX=sw;minY=sh;maxX=-1;maxY=-1;
+   for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+     const i=y*sw+x,di=i*4;
+     if(!keep[i])d[di+3]=0;
+     if(d[di+3]>8){
+       minX=Math.min(minX,x);minY=Math.min(minY,y);
+       maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
+     }
+   }
+ }
  rc.putImageData(im,0,0);
  if(maxX<minX)throw new Error('Empty atlas cell '+src.cell);
 
