@@ -66,6 +66,13 @@
     "shiftXAmplitude": 0,
     "shiftYAmplitude": 0,
     "scaleXAmplitude": 0,
-    "scaleYAmplitude": 0
+    "scaleYAmplitude": 0,
+    "upperLegCompression": {
+      "amplitude": 0.1,
+      "hipFraction": 0.5,
+      "kneeFraction": 0.78,
+      "horizontalBulge": 0.04,
+      "phaseOffset": 0.25
+    }
   }
 }
