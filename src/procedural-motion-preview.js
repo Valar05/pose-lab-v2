@@ -45,16 +45,24 @@ function body(sourceId){
 
  // Horizontal Slash uses a common atlas-cell coordinate system.
  // Do NOT independently trim its authored poses or their apparent height/grounding drifts.
- if(src.anchorMode==='cell-bottom-center'){
-   const foregroundHeight=Math.max(1,maxY-minY+1);
-   const targetHeight=Number(src.normalizeForegroundHeightPx||foregroundHeight);
-   const bodyScale=targetHeight/foregroundHeight;
+ if(src.anchorMode==='ground-contact-center'){
+   // Preserve native atlas scale. Use the actual lowest occupied foreground row
+   // as the common ground line, and center on the foreground touching that row.
+   const groundY=maxY;
+   const bandTop=Math.max(minY,groundY-5);
+   let sumX=0,countX=0;
+   for(let y=bandTop;y<=groundY;y++){
+     for(let x=minX;x<=maxX;x++){
+       if(d[(y*sw+x)*4+3]>8){sumX+=x;countX++;}
+     }
+   }
+   const groundX=countX?Math.round(sumX/countX):Math.round((minX+maxX)/2);
    const item={
      canvas:raw,
-     anchor:[Math.round(sw/2),sh-1],
+     anchor:[groundX,groundY],
      cell:src.cell,
      cellGeometry:true,
-     bodyScale
+     bodyScale:1
    };
    cache.set(sourceId,item);
    return item;
@@ -122,11 +130,10 @@ function stageOffsetX(){
 }
 function drawBody(id,d){
  const it=body(id),[px,py]=recipe.canvas.anchor;
- const bs=Number(it.bodyScale||1);
  ctx.save();
  ctx.translate(stageOffsetX(),0);
  ctx.translate(px,py);
- ctx.transform((d.scaleX||1)*bs,0,d.shearX,(d.scaleY||1)*bs,d.shiftX||0,d.shiftY||0);
+ ctx.transform(d.scaleX||1,0,d.shearX,d.scaleY||1,d.shiftX||0,d.shiftY||0);
  ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
  ctx.restore();
 }
