@@ -1,10 +1,16 @@
 import { createProceduralReviewShell } from './procedural-review-shell.js';
 
 const params=new URLSearchParams(location.search);
-const animation=params.get('procedural')==='vanguard-undercut-strike'?'vanguard-undercut-strike':'vanguard-overhand-strike';
+const requested=params.get('procedural');
+const animation=requested==='vanguard-undercut-strike'
+  ? 'vanguard-undercut-strike'
+  : requested==='vanguard-horizontal-strike'
+    ? 'vanguard-horizontal-strike'
+    : 'vanguard-overhand-strike';
 const isUndercut=animation==='vanguard-undercut-strike';
+const isHorizontal=animation==='vanguard-horizontal-strike';
 const ui=createProceduralReviewShell({
-  title:isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
+  title:isHorizontal?'Vanguard Horizontal Slash':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
   animation,
   accent:'#ffbd4a'
 });
@@ -90,14 +96,21 @@ function transformedSlash(image,spec){
  const rot=Number(spec.rotationDeg||0);
  const flipY=mode==='flip-y';
  const flipX=mode==='flip-x';
- const swap=Math.abs(rot)%180===90;
+ const pitch=Math.max(0.08,Number(spec.pitchScaleY??1));
+ const yaw=Number(spec.yawShearX||0);
+
+ // Large enough scratch plane for rotated/sheared projection.
+ const pad=Math.ceil(Math.max(image.width,image.height)*0.75);
  const out=document.createElement('canvas');
- out.width=swap?image.height:image.width;
- out.height=swap?image.width:image.height;
+ out.width=image.width+pad*2;
+ out.height=Math.max(1,Math.ceil(image.height*pitch)+pad*2);
  const x=out.getContext('2d');
+
  x.translate(out.width/2,out.height/2);
  if(rot)x.rotate(rot*Math.PI/180);
- x.scale(flipX?-1:1,flipY?-1:1);
+ // This affine is our cheap "out of screen plane" projection:
+ // y compression = pitch, x-from-y = yaw.
+ x.transform(flipX?-1:1,0,yaw,flipY?-pitch:pitch,0,0);
  x.drawImage(image,-image.width/2,-image.height/2);
  return out;
 }
@@ -127,7 +140,12 @@ function drawSlash(e){
  lc.save();
 
  const reveal=clamp(e.reveal);
- if(s.revealMode==='radial-local' && reveal<0.999){
+ if(s.revealMode==='jovian-ring' && reveal<0.999){
+   const visible=Math.max(1,image.width*reveal);
+   lc.beginPath();
+   lc.rect(x,y,visible,image.height);
+   lc.clip();
+ }else if(s.revealMode==='radial-local' && reveal<0.999){
    const lp=s.localPivot||[image.width/2,image.height/2];
    const px=x+lp[0],py=y+lp[1];
    const startDeg=clock(s.startClock);
@@ -173,7 +191,11 @@ play.onclick=()=>{if(playing){offset=(offset+(performance.now()-start))%total;pl
 restart.onclick=()=>{offset=0;start=performance.now();render(0)};scrub.oninput=()=>{offset=Number(scrub.value)*total;start=performance.now();render(offset)};
 
 try{
- const recipePath=isUndercut?'./assets/vanguard/procedural/undercut-strike.recipe.json':'./assets/vanguard/procedural/overhand-strike.recipe.json';
+ const recipePath=isHorizontal
+   ? './assets/vanguard/procedural/horizontal-strike.recipe.json'
+   : isUndercut
+     ? './assets/vanguard/procedural/undercut-strike.recipe.json'
+     : './assets/vanguard/procedural/overhand-strike.recipe.json';
  recipe=await fetch(recipePath,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;phases=recipe.phases;total=phases.reduce((n,p)=>n+Number(p.durationMs),0);canvas.width=recipe.canvas.size[0];canvas.height=recipe.canvas.size[1];
  const spec=recipe.atlases['vanguard-canonical'],atlasPath=spec.path.startsWith('./')?spec.path:'./'+spec.path,slashPath=recipe.sources['slash-right'].path.startsWith('./')?recipe.sources['slash-right'].path:'./'+recipe.sources['slash-right'].path;
  [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);buildSlash();for(const [id,s] of Object.entries(recipe.sources))if(s.role==='body')body(id);render(0);requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
