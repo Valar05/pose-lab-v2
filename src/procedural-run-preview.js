@@ -64,7 +64,8 @@ function draw(p,d,a){
  ctx.save();
  ctx.globalAlpha=a;
  ctx.translate(px,py);
- ctx.transform(d.scaleX,0,d.shearX,d.scaleY,d.shiftX||0,d.shiftY||0);
+ const bodyScale=Number(recipe.bodyScale??1);
+ ctx.transform((d.scaleX??1)*bodyScale,0,d.shearX,(d.scaleY??1)*bodyScale,d.shiftX||0,d.shiftY||0);
  ctx.drawImage(image,-anchor[0],-anchor[1]);
  ctx.restore();
 }
