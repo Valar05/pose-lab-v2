@@ -1,0 +1,96 @@
+{
+  "atlas": "diorama-slash-atlas.png",
+  "cellSize": 192,
+  "columns": 4,
+  "rows": 2,
+  "entries": [
+    {
+      "index": 1,
+      "name": "launcher",
+      "file": "launcher.png",
+      "col": 0,
+      "row": 0,
+      "x": 0,
+      "y": 0,
+      "w": 192,
+      "h": 192
+    },
+    {
+      "index": 2,
+      "name": "slash_diagonal_left",
+      "file": "slash_diagonal_left.png",
+      "col": 1,
+      "row": 0,
+      "x": 192,
+      "y": 0,
+      "w": 192,
+      "h": 192
+    },
+    {
+      "index": 3,
+      "name": "slash_diagonal_right",
+      "file": "slash_diagonal_right.png",
+      "col": 2,
+      "row": 0,
+      "x": 384,
+      "y": 0,
+      "w": 192,
+      "h": 192
+    },
+    {
+      "index": 4,
+      "name": "slash_down",
+      "file": "slash_down.png",
+      "col": 3,
+      "row": 0,
+      "x": 576,
+      "y": 0,
+      "w": 192,
+      "h": 192
+    },
+    {
+      "index": 5,
+      "name": "slash_left",
+      "file": "slash_left.png",
+      "col": 0,
+      "row": 1,
+      "x": 0,
+      "y": 192,
+      "w": 192,
+      "h": 192
+    },
+    {
+      "index": 6,
+      "name": "slash_right",
+      "file": "slash_right.png",
+      "col": 1,
+      "row": 1,
+      "x": 192,
+      "y": 192,
+      "w": 192,
+      "h": 192
+    },
+    {
+      "index": 7,
+      "name": "cross_slash",
+      "file": "cross_slash.png",
+      "col": 2,
+      "row": 1,
+      "x": 384,
+      "y": 192,
+      "w": 192,
+      "h": 192
+    },
+    {
+      "index": 8,
+      "name": "horizontal_jovian_full",
+      "file": "horizontal_jovian_full.png",
+      "col": 3,
+      "row": 1,
+      "x": 576,
+      "y": 192,
+      "w": 192,
+      "h": 192
+    }
+  ]
+}
