@@ -35,6 +35,25 @@ function cell(cellNo){
 function segments(){const total=recipe.poses.reduce((s,p)=>s+p.weight,0);let acc=0;return recipe.poses.map((p,i)=>{const a=acc/total;acc+=p.weight;return{p,i,a,b:acc/total}})}
 function stateAt(t){const segs=segments();t=((t%1)+1)%1;const s=segs.find(x=>t>=x.a&&t<x.b)||segs.at(-1);const u=(t-s.a)/(s.b-s.a);return{p:s.p,next:recipe.poses[(s.i+1)%recipe.poses.length],u}}
 function interp(a,b,u){const e=smooth(u),A=a.deform,B=b.deform;return{shearX:lerp(A.shearX||0,B.shearX||0,e),scaleX:lerp(A.scaleX??1,B.scaleX??1,e),scaleY:lerp(A.scaleY??1,B.scaleY??1,e),shiftX:lerp(A.shiftX||0,B.shiftX||0,e),shiftY:lerp(A.shiftY||0,B.shiftY||0,e)}}
+function piecewiseCompressUpperLegs(image,amount,spec){
+ if(!amount||amount<=0)return image;
+ const hip=Math.max(0,Math.min(image.height-2,Math.round(image.height*(spec.hipFraction??0.48))));
+ const knee=Math.max(hip+1,Math.min(image.height-1,Math.round(image.height*(spec.kneeFraction??0.76))));
+ const bandH=knee-hip;
+ const compressedH=Math.max(1,Math.round(bandH*(1-amount)));
+ const delta=bandH-compressedH;
+ const out=document.createElement('canvas');
+ out.width=image.width;
+ out.height=Math.max(1,image.height-delta);
+ const oc=out.getContext('2d');
+ // top stays unchanged
+ oc.drawImage(image,0,0,image.width,hip,0,0,image.width,hip);
+ // hips->knees compress continuously
+ oc.drawImage(image,0,hip,image.width,bandH,0,hip,image.width,compressedH);
+ // everything below knees translates upward with no gap
+ oc.drawImage(image,0,knee,image.width,image.height-knee,0,hip+compressedH,image.width,image.height-knee);
+ return out;
+}
 function draw(p,d,a,regionCompression=0){
  const it=cell(p.cell),[px,py]=recipe.canvas.anchor;
  ctx.save();ctx.globalAlpha=a;ctx.translate(px,py);ctx.transform(d.scaleX,0,d.shearX,d.scaleY,d.shiftX||0,d.shiftY||0);
@@ -71,6 +90,11 @@ function render(t){
    const legSpec=recipe.continuous.upperLegCompression;
    const legPhase=phase+((legSpec?.phaseOffset||0)*Math.PI*2);
    const legCompression=legSpec ? (legSpec.amplitude||0)*((Math.sin(legPhase)+1)/2) : 0;
+   const legSpec=recipe.continuous.upperLegCompression;
+   const legPhase=phase+((legSpec?.phaseOffset||0)*Math.PI*2);
+   const legCompression=legSpec
+     ? (legSpec.amplitude||0)*((1-Math.cos(legPhase))/2)
+     : 0;
    d={
      shearX:(recipe.continuous.shearXAmplitude||0)*Math.sin(phase),
      scaleX:1,
@@ -85,7 +109,7 @@ function render(t){
    p=s.p; nextCell=s.next.cell; d=interp(s.p,s.next,s.u);
  }
  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
- draw(p,d,1,d.upperLegCompression||0);
+ draw(p,d,1);
  phaseEl.textContent=isIdle?'continuous-idle':p.id;
  timeEl.textContent=Math.round(t*recipe.cycleMs)+' / '+recipe.cycleMs+' ms';
  scrub.value=String(t);
