@@ -34,7 +34,7 @@ sync_from_main() {
   echo "UPDATED $rel"
 }
 
-for rel in   motion.html   src/procedural-review-shell.js   src/procedural-run-preview.js   src/procedural-motion-preview.js   public/assets/vanguard/procedural/run.recipe.json   public/assets/vanguard/procedural/idle.recipe.json   public/assets/vanguard/procedural/overhand-strike.recipe.json   public/assets/vanguard/procedural/undercut-strike.recipe.json   public/assets/vanguard/procedural/horizontal-strike.recipe.json
+for rel in   motion.html   src/procedural-review-shell.js   src/procedural-run-preview.js   src/procedural-motion-preview.js   public/assets/vanguard/procedural/run.recipe.json   public/assets/vanguard/procedural/idle.recipe.json   public/assets/vanguard/procedural/overhand-strike.recipe.json   public/assets/vanguard/procedural/undercut-strike.recipe.json   public/assets/vanguard/procedural/attack2-uppercut.recipe.json   public/assets/vanguard/procedural/horizontal-strike.recipe.json
 do
   sync_from_main "$rel"
 done
