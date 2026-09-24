@@ -5,7 +5,7 @@ CAMPAIGN_ID="pose-lab-v2-motion-profile-lab"
 REPO_SLUG="Valar05/pose-lab-v2"
 REPO_HTTPS="https://github.com/Valar05/pose-lab-v2.git"
 PORT="${POSE_LAB_PORT:-4173}"
-URL="http://127.0.0.1:${PORT}/?view=motion"
+URL="http://127.0.0.1:${PORT}/motion.html"
 SESSION="plv2-motion-profile"
 STATE_ROOT="${POSE_LAB_CAMPAIGN_STATE:-$HOME/.local/state/$CAMPAIGN_ID}"
 STATE_FILE="$STATE_ROOT/state.env"
@@ -13,6 +13,7 @@ LATEST_RECEIPT="$STATE_ROOT/latest-receipt.txt"
 HISTORY_FILE="$STATE_ROOT/history.log"
 LOG_FILE="$STATE_ROOT/campaign.log"
 RUN_DIR="$STATE_ROOT/runs"
+SERVER_PID_FILE="$STATE_ROOT/server.pid"
 MANAGED_ROOT="$STATE_ROOT/repo"
 SCRIPT_SELF="$0"
 
@@ -93,32 +94,45 @@ assert_tools() {
 }
 
 campaign_canary() {
+  local quiet="${1:-}"
   assert_tools
-  command -v setsid >/dev/null 2>&1 || fatal 20 "missing required command: setsid"
-  local csession="${SESSION}-canary-$$"
-  tmux new-session -d -s "$csession" "exec setsid sh -c 'sleep 300'" || fatal 21 "canary launch failed"
-  sleep 0.2
+  local csession="${SESSION}-canary-$(date +%s)-${RANDOM:-0}"
+  tmux new-session -d -s "$csession" "sh -c 'trap \"exit 0\" TERM INT; sleep 300 & wait'" || fatal 21 "canary launch failed"
+  sleep 0.25
   tmux has-session -t "$csession" 2>/dev/null || fatal 22 "canary session not alive"
   local pid
   pid="$(tmux list-panes -t "$csession" -F '#{pane_pid}' | head -n1)"
   [ -n "$pid" ] || fatal 23 "canary pane pid missing"
-  kill -TERM "-$pid" 2>/dev/null || true
-  sleep 0.2
+  kill -TERM "$pid" 2>/dev/null || true
+  for _ in 1 2 3 4 5; do
+    tmux has-session -t "$csession" 2>/dev/null || break
+    sleep 0.2
+  done
   if tmux has-session -t "$csession" 2>/dev/null; then
-    kill -KILL "-$pid" 2>/dev/null || true
     tmux kill-session -t "$csession" 2>/dev/null || true
   fi
   tmux has-session -t "$csession" 2>/dev/null && fatal 24 "out-of-band stop canary failed"
-  emit_receipt "CANARY_OK campaign=$CAMPAIGN_ID process_isolation=tmux out_of_band_stop=verified"
+  if [ "$quiet" != "--quiet" ]; then
+    emit_receipt "CANARY_OK campaign=$CAMPAIGN_ID process_isolation=tmux out_of_band_stop=verified"
+  fi
 }
 
 launch_worker() {
   local resume_of="${1:-}"
   assert_tools
-  campaign_canary >/dev/null
+  campaign_canary --quiet
 
   if tmux has-session -t "$SESSION" 2>/dev/null; then
     fatal 30 "campaign already running; use status/follow/stop"
+  fi
+  if [ -f "$SERVER_PID_FILE" ]; then
+    stale_pid="$(cat "$SERVER_PID_FILE" 2>/dev/null || true)"
+    if [ -n "$stale_pid" ] && kill -0 "$stale_pid" 2>/dev/null; then
+      kill -TERM "$stale_pid" 2>/dev/null || true
+      sleep 0.2
+      kill -0 "$stale_pid" 2>/dev/null && kill -KILL "$stale_pid" 2>/dev/null || true
+    fi
+    rm -f "$SERVER_PID_FILE"
   fi
 
   local run_id="$(date +%Y%m%dT%H%M%S)-$$"
@@ -128,11 +142,11 @@ launch_worker() {
   printf '%s | RUN_START run=%s resume_of=%s\n' "$(iso)" "$run_id" "$resume_of" >> "$HISTORY_FILE"
 
   tmux new-session -d -s "$SESSION" \
-    "exec setsid bash '$SCRIPT_SELF' __worker '$run_id' '$started' '$resume_of' >>'$LOG_FILE' 2>&1"
+    "POSE_LAB_PORT='$PORT' bash '$SCRIPT_SELF' __worker '$run_id' '$started' '$resume_of' >>'$LOG_FILE' 2>&1"
 
   sleep 0.2
   tmux has-session -t "$SESSION" 2>/dev/null || fatal 31 "worker failed to start"
-  emit_receipt "RUNNING campaign=$CAMPAIGN_ID run=$run_id status='bash $SCRIPT_SELF status' follow='bash $SCRIPT_SELF follow' stop='bash $SCRIPT_SELF stop' receipts='bash $SCRIPT_SELF receipts'"
+  emit_receipt "RUNNING campaign=$CAMPAIGN_ID run=$run_id url=$URL status='bash $SCRIPT_SELF status' follow='bash $SCRIPT_SELF follow' stop='bash $SCRIPT_SELF stop' receipts='bash $SCRIPT_SELF receipts'"
 }
 
 worker_update() {
@@ -226,8 +240,19 @@ worker_main() {
   if curl -fsS "http://127.0.0.1:$PORT/" >/dev/null 2>&1; then
     worker_fail "$run_id" "$started" "$resume_of" "server" 43 "port $PORT already in use" "$ROOT" "$HEAD_SHA"
   fi
-  python3 -m http.server "$PORT" --bind 127.0.0.1 >>"$LOG_FILE" 2>&1 &
+  python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$ROOT/dist" >>"$LOG_FILE" 2>&1 &
   SERVER_PID=$!
+  printf '%s
+' "$SERVER_PID" > "$SERVER_PID_FILE"
+  cleanup_server() {
+    if [ -n "${SERVER_PID:-}" ] && kill -0 "$SERVER_PID" 2>/dev/null; then
+      kill -TERM "$SERVER_PID" 2>/dev/null || true
+      sleep 0.2
+      kill -0 "$SERVER_PID" 2>/dev/null && kill -KILL "$SERVER_PID" 2>/dev/null || true
+    fi
+    rm -f "$SERVER_PID_FILE"
+  }
+  trap cleanup_server EXIT TERM INT
 
   READY=0
   for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do
@@ -237,7 +262,7 @@ worker_main() {
   [ "$READY" -eq 1 ] || worker_fail "$run_id" "$started" "$resume_of" "server" 44 "server failed readiness check" "$ROOT" "$HEAD_SHA"
 
   worker_update "$run_id" "verify_route" "$started" "verifying Motion Profile Lab route and module" "$ROOT" "$HEAD_SHA" "$resume_of"
-  curl -fsS "$URL" | grep -q 'loading Pose Lab V2' || worker_fail "$run_id" "$started" "$resume_of" "verify_route" 45 "route did not return Pose Lab shell" "$ROOT" "$HEAD_SHA"
+  curl -fsS "$URL" | grep -q 'loading Motion Profile Lab' || worker_fail "$run_id" "$started" "$resume_of" "verify_route" 45 "route did not return Pose Lab shell" "$ROOT" "$HEAD_SHA"
   curl -fsS "http://127.0.0.1:$PORT/src/motion-profile-editor.js" | grep -q 'Motion Profile Lab' || worker_fail "$run_id" "$started" "$resume_of" "verify_route" 46 "motion editor module not reachable" "$ROOT" "$HEAD_SHA"
 
   worker_update "$run_id" "open" "$started" "opening Motion Profile Lab on Android" "$ROOT" "$HEAD_SHA" "$resume_of"
@@ -275,6 +300,15 @@ follow_logs() {
 }
 
 stop_campaign() {
+  if [ -f "$SERVER_PID_FILE" ]; then
+    server_pid="$(cat "$SERVER_PID_FILE" 2>/dev/null || true)"
+    if [ -n "$server_pid" ] && kill -0 "$server_pid" 2>/dev/null; then
+      kill -TERM "$server_pid" 2>/dev/null || true
+      sleep 0.2
+      kill -0 "$server_pid" 2>/dev/null && kill -KILL "$server_pid" 2>/dev/null || true
+    fi
+    rm -f "$SERVER_PID_FILE"
+  fi
   if ! tmux has-session -t "$SESSION" 2>/dev/null; then
     if load_state; then
       write_state "$RUN_ID" "$PHASE" "stopped" "$STARTED_AT" "$(ts)" "stop requested; session already absent" "$ROOT" "$HEAD_SHA" "$RESUME_OF"
@@ -285,13 +319,12 @@ stop_campaign() {
   local pid
   pid="$(tmux list-panes -t "$SESSION" -F '#{pane_pid}' | head -n1)"
   if [ -n "$pid" ]; then
-    kill -TERM "-$pid" 2>/dev/null || true
+    kill -TERM "$pid" 2>/dev/null || true
     for _ in 1 2 3 4 5 6 7 8 9 10; do
       tmux has-session -t "$SESSION" 2>/dev/null || break
       sleep 0.2
     done
     if tmux has-session -t "$SESSION" 2>/dev/null; then
-      kill -KILL "-$pid" 2>/dev/null || true
       tmux kill-session -t "$SESSION" 2>/dev/null || true
     fi
   else

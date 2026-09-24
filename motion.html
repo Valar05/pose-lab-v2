@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pose Lab V2 · Motion Profile Lab</title>
+    <style>
+      body {
+        margin: 0;
+        background: #101315;
+        color: #f2ede3;
+        font-family: system-ui, sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <main id="app" aria-label="Pose Lab V2 Motion Profile Lab">
+      <p style="padding:16px">loading Motion Profile Lab</p>
+    </main>
+    <script type="module">
+      import('./src/motion-profile-editor.js').catch((error) => {
+        const app = document.querySelector('#app');
+        if (app) {
+          app.innerHTML = '<section style="padding:16px"><h1>Motion Profile Lab failed</h1><pre style="white-space:pre-wrap"></pre></section>';
+          app.querySelector('pre').textContent = error?.stack || String(error);
+        }
+      });
+    </script>
+  </body>
+</html>

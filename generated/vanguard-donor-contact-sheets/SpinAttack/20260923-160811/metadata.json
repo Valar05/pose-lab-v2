@@ -1,0 +1,949 @@
+{
+  "schema": "pose-lab-v2-vanguard-idle-game-export-v1",
+  "status": "rendered-pending-verification",
+  "source": {
+    "repository": "Valar05/pose-lab-v2",
+    "asset": "public/assets/vanguard/vanguard_rigged_animations.glb",
+    "assetSha256": "70609931d8bcb5803728e8d7a27f0157984954c02a407b0904da42885fd485ab",
+    "actionRequested": "SpinAttack",
+    "actionResolved": "SpinAttack_rig",
+    "actionFrameRange": [
+      0.0,
+      53.0
+    ],
+    "importedBlenderActionFrameRange": [
+      0.0,
+      21.200001
+    ],
+    "sourceFps": 60.0,
+    "importedBlenderFps": 24.0,
+    "durationSeconds": 0.88333333,
+    "samplePolicy": "uniform loop samples; terminal duplicate excluded",
+    "rootMotionSuppressed": false,
+    "animationModified": false
+  },
+  "output": {
+    "width": 512,
+    "height": 512,
+    "colorMode": "RGBA",
+    "background": "transparent",
+    "frameCount": 9,
+    "outputFps": 9.0,
+    "sequencePattern": "idle_%04d.png",
+    "contactSheet": "contact_sheet.png",
+    "previewGif": "idle.gif"
+  },
+  "contract": {
+    "camera": "one locked orthographic side-view camera",
+    "cameraType": "ORTHO",
+    "cameraSide": "model-left",
+    "cameraMatrixWorld": [
+      -4.4e-08,
+      -4.4e-08,
+      -1.0,
+      -16.442182541,
+      -1.0,
+      0.0,
+      4.4e-08,
+      -0.788309634,
+      0.0,
+      1.0,
+      -4.4e-08,
+      0.550848365,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "cameraOrthoScale": 4.477618217,
+    "cameraTransformTolerance": 0.0,
+    "armatureMatrixWorld": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "armatureObjectTransform": "unchanged from imported asset",
+    "rootMotionPolicy": "native source must remain stationary; fail instead of modify",
+    "footAnchorTolerancePx": 9999.0,
+    "renderedGroundContactTolerancePx": 9999.0,
+    "footAnchorStabilization": false,
+    "animationModifications": [],
+    "retargeting": false,
+    "poseAuthoring": false,
+    "nativeIdleOnly": true
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "sourceFrame": 0.0,
+      "blenderImportedFrame": 0.0,
+      "image": "idle_0000.png",
+      "imageSha256": "f4a6b7475adbedfd1eacce3164c2007277f411ac3508597de280baa5e72447ac",
+      "pivot": {
+        "x": 165.8593,
+        "y": 318.9877,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "leftFootAnchor": {
+        "x": 206.5318,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.L",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "rightFootAnchor": {
+        "x": 128.1629,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.R",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "footAnchor": {
+        "x": 167.3473,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bones": [
+          "foot.ik.L",
+          "foot.ik.R"
+        ],
+        "method": "projected midpoint of canonical left/right IK foot controls; measurement only"
+      },
+      "swordRoot": {
+        "x": 199.6667,
+        "y": 117.3938,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "swordTip": {
+        "x": 88.8285,
+        "y": 229.4875,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "frameDurationMs": 111.111111,
+      "cameraMatrixWorld": [
+        -4.4e-08,
+        -4.4e-08,
+        -1.0,
+        -16.442182541,
+        -1.0,
+        0.0,
+        4.4e-08,
+        -0.788309634,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.550848365,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.477618217,
+      "armatureMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rootLocation": [
+        0.0,
+        1.535e-06,
+        0.0
+      ]
+    },
+    {
+      "frame": 1,
+      "sourceFrame": 5.888889,
+      "blenderImportedFrame": 2.355556,
+      "image": "idle_0001.png",
+      "imageSha256": "4dacdccac69647b3ac4fee5c3f5c5a028abaf0b9656021b22b508e0cd4538377",
+      "pivot": {
+        "x": 159.0863,
+        "y": 318.9877,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "leftFootAnchor": {
+        "x": 206.5215,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.L",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "rightFootAnchor": {
+        "x": 127.2038,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.R",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "footAnchor": {
+        "x": 166.8627,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bones": [
+          "foot.ik.L",
+          "foot.ik.R"
+        ],
+        "method": "projected midpoint of canonical left/right IK foot controls; measurement only"
+      },
+      "swordRoot": {
+        "x": 122.5956,
+        "y": 207.2321,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "swordTip": {
+        "x": 35.3266,
+        "y": 123.039,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "frameDurationMs": 111.111111,
+      "cameraMatrixWorld": [
+        -4.4e-08,
+        -4.4e-08,
+        -1.0,
+        -16.442182541,
+        -1.0,
+        0.0,
+        4.4e-08,
+        -0.788309634,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.550848365,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.477618217,
+      "armatureMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rootLocation": [
+        0.0,
+        0.059233334,
+        0.0
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceFrame": 11.777778,
+      "blenderImportedFrame": 4.711111,
+      "image": "idle_0002.png",
+      "imageSha256": "28f83b477654721de56ae14510fa4014a4c3c3aa16341c48ea568808c404f080",
+      "pivot": {
+        "x": 181.8809,
+        "y": 318.9877,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "leftFootAnchor": {
+        "x": 206.5314,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.L",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "rightFootAnchor": {
+        "x": 126.5552,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.R",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "footAnchor": {
+        "x": 166.5433,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bones": [
+          "foot.ik.L",
+          "foot.ik.R"
+        ],
+        "method": "projected midpoint of canonical left/right IK foot controls; measurement only"
+      },
+      "swordRoot": {
+        "x": 132.0006,
+        "y": 225.6868,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "swordTip": {
+        "x": 52.0013,
+        "y": 196.1501,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "frameDurationMs": 111.111111,
+      "cameraMatrixWorld": [
+        -4.4e-08,
+        -4.4e-08,
+        -1.0,
+        -16.442182541,
+        -1.0,
+        0.0,
+        4.4e-08,
+        -0.788309634,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.550848365,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.477618217,
+      "armatureMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rootLocation": [
+        0.0,
+        -0.140112683,
+        0.0
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceFrame": 17.666667,
+      "blenderImportedFrame": 7.066667,
+      "image": "idle_0003.png",
+      "imageSha256": "a5ba2084f2cbcbb76bb731955e506cda24478c581ef12181a8b058d811ff34a4",
+      "pivot": {
+        "x": 291.0956,
+        "y": 318.9877,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "leftFootAnchor": {
+        "x": 206.5323,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.L",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "rightFootAnchor": {
+        "x": 286.1615,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.R",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "footAnchor": {
+        "x": 246.3469,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bones": [
+          "foot.ik.L",
+          "foot.ik.R"
+        ],
+        "method": "projected midpoint of canonical left/right IK foot controls; measurement only"
+      },
+      "swordRoot": {
+        "x": 343.054,
+        "y": 197.7083,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "swordTip": {
+        "x": 476.6866,
+        "y": 176.475,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "frameDurationMs": 111.111111,
+      "cameraMatrixWorld": [
+        -4.4e-08,
+        -4.4e-08,
+        -1.0,
+        -16.442182541,
+        -1.0,
+        0.0,
+        4.4e-08,
+        -0.788309634,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.550848365,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.477618217,
+      "armatureMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rootLocation": [
+        0.0,
+        -1.095233202,
+        0.0
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceFrame": 23.555556,
+      "blenderImportedFrame": 9.422223,
+      "image": "idle_0004.png",
+      "imageSha256": "b5dc5507255238f136ba0357552b02062819e677783731d85f8757836c564835",
+      "pivot": {
+        "x": 278.4325,
+        "y": 318.9877,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "leftFootAnchor": {
+        "x": 205.4429,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.L",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "rightFootAnchor": {
+        "x": 284.1676,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.R",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "footAnchor": {
+        "x": 244.8052,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bones": [
+          "foot.ik.L",
+          "foot.ik.R"
+        ],
+        "method": "projected midpoint of canonical left/right IK foot controls; measurement only"
+      },
+      "swordRoot": {
+        "x": 215.6018,
+        "y": 168.6825,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "swordTip": {
+        "x": 97.3054,
+        "y": 110.9336,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "frameDurationMs": 111.111111,
+      "cameraMatrixWorld": [
+        -4.4e-08,
+        -4.4e-08,
+        -1.0,
+        -16.442182541,
+        -1.0,
+        0.0,
+        4.4e-08,
+        -0.788309634,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.550848365,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.477618217,
+      "armatureMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rootLocation": [
+        0.0,
+        -0.984490037,
+        0.0
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceFrame": 29.444444,
+      "blenderImportedFrame": 11.777778,
+      "image": "idle_0005.png",
+      "imageSha256": "be696e1458f540a9770dc1367235ccb6755aa7d677a23a38e96af7bd61dddc70",
+      "pivot": {
+        "x": 272.8716,
+        "y": 318.9877,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "leftFootAnchor": {
+        "x": 220.9805,
+        "y": 300.2171,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.L",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "rightFootAnchor": {
+        "x": 283.9308,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.R",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "footAnchor": {
+        "x": 252.4557,
+        "y": 302.8464,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bones": [
+          "foot.ik.L",
+          "foot.ik.R"
+        ],
+        "method": "projected midpoint of canonical left/right IK foot controls; measurement only"
+      },
+      "swordRoot": {
+        "x": 232.8155,
+        "y": 169.305,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "swordTip": {
+        "x": 66.4659,
+        "y": 138.679,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "frameDurationMs": 111.111111,
+      "cameraMatrixWorld": [
+        -4.4e-08,
+        -4.4e-08,
+        -1.0,
+        -16.442182541,
+        -1.0,
+        0.0,
+        4.4e-08,
+        -0.788309634,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.550848365,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.477618217,
+      "armatureMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rootLocation": [
+        0.0,
+        -0.935858309,
+        0.0
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceFrame": 35.333333,
+      "blenderImportedFrame": 14.133334,
+      "image": "idle_0006.png",
+      "imageSha256": "9b67a2c7046933ee9d89181550f83afbce84ec60e36c0f8a787597e44a4975c6",
+      "pivot": {
+        "x": 267.0433,
+        "y": 318.9877,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "leftFootAnchor": {
+        "x": 286.1555,
+        "y": 280.6346,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.L",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "rightFootAnchor": {
+        "x": 283.5016,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.R",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "footAnchor": {
+        "x": 284.8285,
+        "y": 293.0551,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bones": [
+          "foot.ik.L",
+          "foot.ik.R"
+        ],
+        "method": "projected midpoint of canonical left/right IK foot controls; measurement only"
+      },
+      "swordRoot": {
+        "x": 282.2284,
+        "y": 167.7245,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "swordTip": {
+        "x": 145.8823,
+        "y": 190.9766,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "frameDurationMs": 111.111111,
+      "cameraMatrixWorld": [
+        -4.4e-08,
+        -4.4e-08,
+        -1.0,
+        -16.442182541,
+        -1.0,
+        0.0,
+        4.4e-08,
+        -0.788309634,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.550848365,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.477618217,
+      "armatureMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rootLocation": [
+        0.0,
+        -0.884888172,
+        0.0
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceFrame": 41.222222,
+      "blenderImportedFrame": 16.488889,
+      "image": "idle_0007.png",
+      "imageSha256": "7516da3f64491b7d11c48bdb13c8d8857db27227b5792d8e041223d77756fec9",
+      "pivot": {
+        "x": 288.4341,
+        "y": 318.9877,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "leftFootAnchor": {
+        "x": 335.7715,
+        "y": 292.1288,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.L",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "rightFootAnchor": {
+        "x": 290.802,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.R",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "footAnchor": {
+        "x": 313.2868,
+        "y": 298.8022,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bones": [
+          "foot.ik.L",
+          "foot.ik.R"
+        ],
+        "method": "projected midpoint of canonical left/right IK foot controls; measurement only"
+      },
+      "swordRoot": {
+        "x": 339.4471,
+        "y": 162.3347,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "swordTip": {
+        "x": 296.0165,
+        "y": 130.9681,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "frameDurationMs": 111.111111,
+      "cameraMatrixWorld": [
+        -4.4e-08,
+        -4.4e-08,
+        -1.0,
+        -16.442182541,
+        -1.0,
+        0.0,
+        4.4e-08,
+        -0.788309634,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.550848365,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.477618217,
+      "armatureMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rootLocation": [
+        0.0,
+        -1.071957707,
+        0.0
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceFrame": 47.111111,
+      "blenderImportedFrame": 18.844445,
+      "image": "idle_0008.png",
+      "imageSha256": "77f3c0dba80dc855e5ec5034b6cac9933d7d9989a923778480a35c14a589a0c6",
+      "pivot": {
+        "x": 323.5547,
+        "y": 318.9877,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "leftFootAnchor": {
+        "x": 376.8404,
+        "y": 305.1853,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.L",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "rightFootAnchor": {
+        "x": 301.2597,
+        "y": 305.4756,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bone": "foot.ik.R",
+        "method": "projected canonical IK foot control; measurement only"
+      },
+      "footAnchor": {
+        "x": 339.05,
+        "y": 305.3305,
+        "space": "pixels-top-left",
+        "inFrame": true,
+        "bones": [
+          "foot.ik.L",
+          "foot.ik.R"
+        ],
+        "method": "projected midpoint of canonical left/right IK foot controls; measurement only"
+      },
+      "swordRoot": {
+        "x": 391.3323,
+        "y": 150.05,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "swordTip": {
+        "x": 237.4243,
+        "y": 78.7108,
+        "space": "pixels-top-left",
+        "inFrame": true
+      },
+      "frameDurationMs": 111.111111,
+      "cameraMatrixWorld": [
+        -4.4e-08,
+        -4.4e-08,
+        -1.0,
+        -16.442182541,
+        -1.0,
+        0.0,
+        4.4e-08,
+        -0.788309634,
+        0.0,
+        1.0,
+        -4.4e-08,
+        0.550848365,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.477618217,
+      "armatureMatrixWorld": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rootLocation": [
+        0.0,
+        -1.379100204,
+        0.0
+      ]
+    }
+  ],
+  "verification": {
+    "status": "PENDING",
+    "failures": []
+  }
+}

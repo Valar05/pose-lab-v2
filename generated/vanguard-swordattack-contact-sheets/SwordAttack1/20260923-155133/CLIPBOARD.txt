@@ -1,0 +1,57 @@
+VANGUARD SWORD CONTACT SHEET CAMPAIGN
+status=SUCCESS
+exit_code=0
+action=SwordAttack1
+samples=9
+contact_sheet=/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/SwordAttack1_contact_sheet.png
+out_dir=/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133
+log=/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/run.log
+
+---- LAST LOG LINES ----
+[campaign] action=SwordAttack1 samples=9
+[campaign] repo=/storage/emulated/0/Documents/GodotProjects/pose-lab-v2
+[campaign] asset=/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/public/assets/vanguard/vanguard_rigged_animations.glb
+[campaign] out=/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133
+[1/2] render native SwordAttack1 samples with repo Blender runner
+proot warning: can't sanitize binding "/proc/self/fd/1": No such file or directory
+proot warning: can't sanitize binding "/proc/self/fd/2": No such file or directory
+20:51:38 | INFO: Data are loaded, start creating Blender stuff
+20:51:39 | INFO: Blender create Mesh node Cube.001
+20:51:39 | INFO: Blender create Mesh node Long_Sword_Cube.001
+20:51:40 | INFO: glTF import finished in 2.01s
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+Blender 4.3.2
+Saved: '/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/idle_0000.png'
+Time: 00:02.34 (Saving: 00:00.33)
+
+Saved: '/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/idle_0001.png'
+Time: 00:00.30 (Saving: 00:00.03)
+
+Saved: '/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/idle_0002.png'
+Time: 00:00.37 (Saving: 00:00.07)
+
+Saved: '/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/idle_0003.png'
+Time: 00:00.30 (Saving: 00:00.04)
+
+Saved: '/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/idle_0004.png'
+Time: 00:00.33 (Saving: 00:00.06)
+
+Saved: '/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/idle_0005.png'
+Time: 00:00.33 (Saving: 00:00.06)
+
+Saved: '/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/idle_0006.png'
+Time: 00:00.33 (Saving: 00:00.05)
+
+Saved: '/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/idle_0007.png'
+Time: 00:00.35 (Saving: 00:00.08)
+
+Saved: '/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/idle_0008.png'
+Time: 00:00.39 (Saving: 00:00.12)
+
+{"status": "RENDERED", "outDir": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133", "frames": 9, "action": "SwordAttack1_rig", "camera": "locked-orthographic"}
+
+Blender quit
+[2/2] assemble numbered contact sheet
+{"status": "OK", "contactSheet": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/SwordAttack1_contact_sheet.png", "frames": 9, "columns": 3, "rows": 3}
+[success] /storage/emulated/0/Documents/GodotProjects/pose-lab-v2/generated/vanguard-swordattack-contact-sheets/SwordAttack1/20260923-155133/SwordAttack1_contact_sheet.png
