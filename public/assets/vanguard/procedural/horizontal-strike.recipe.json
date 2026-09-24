@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Strike · simple transform baseline: CW30 + flipY + left1body + up0.25body",
+  "description": "Vanguard Horizontal Strike · CW30 + flipY + visible-body-relative offset",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -273,8 +273,9 @@
     "scaleY": 1,
     "depthSplit": 0.5,
     "backSide": "left",
-    "translateBodyX": -1,
-    "translateBodyY": -0.25
+    "positionMode": "body-visible-center",
+    "offsetBodyX": -1,
+    "offsetBodyY": -0.25
   },
   "stage": {
     "centerX": 215,
