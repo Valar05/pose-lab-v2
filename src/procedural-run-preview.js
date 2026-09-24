@@ -63,11 +63,14 @@ function draw(p,d,a){
    ? piecewiseCompressUpperLegs(base.image,d.upperLegCompression,spec)
    : base.image;
  const anchor=[Math.round(image.width/2),image.height-1];
+ const reg=recipe.registration?.byCell?.[String(p.cell)]||{};
+ const regScale=Number(reg.scale??1);
+ const regX=Number(reg.offsetX??0),regY=Number(reg.offsetY??0);
  ctx.save();
  ctx.globalAlpha=a;
- ctx.translate(px,py);
+ ctx.translate(px+regX,py+regY);
  const bodyScale=Number(recipe.bodyScale??1);
- ctx.transform((d.scaleX??1)*bodyScale,0,d.shearX,(d.scaleY??1)*bodyScale,d.shiftX||0,d.shiftY||0);
+ ctx.transform((d.scaleX??1)*bodyScale*regScale,0,d.shearX,(d.scaleY??1)*bodyScale*regScale,d.shiftX||0,d.shiftY||0);
  ctx.drawImage(image,-anchor[0],-anchor[1]);
  ctx.restore();
 }
