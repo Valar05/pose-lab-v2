@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Slash · SwordAttack3 · counterclockwise near→far depth split",
+  "description": "Vanguard Horizontal Slash · monotonic near→far reveal · screen-space flattened depth split",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -89,6 +89,12 @@
         "scaleY": 1,
         "shiftX": 0,
         "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
       }
     },
     {
@@ -101,6 +107,12 @@
         "scaleY": 1,
         "shiftX": 0,
         "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
       }
     },
     {
@@ -118,7 +130,7 @@
         "reveal": 1,
         "core": 1,
         "tightGlow": 1,
-        "wideGlow": 0.68
+        "wideGlow": 0.72
       }
     },
     {
@@ -134,8 +146,8 @@
       },
       "effect": {
         "reveal": 1,
-        "core": 0.5,
-        "tightGlow": 0.52,
+        "core": 0.42,
+        "tightGlow": 0.48,
         "wideGlow": 0.5
       }
     },
@@ -167,6 +179,12 @@
         "scaleY": 1,
         "shiftX": 0,
         "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
       }
     }
   ],
@@ -174,8 +192,8 @@
     "source": "slash-horizontal-clean",
     "width": 168,
     "position": [
-      54,
-      124
+      68,
+      145
     ],
     "pivot": [
       160,
@@ -232,7 +250,7 @@
     "tightOpacity": 0.65,
     "wideOpacity": 0.55,
     "rotationDeg": -90,
-    "revealMode": "counterclockwise-near-to-far",
+    "revealMode": "near-right-to-far-left",
     "transform": "none",
     "localPivot": [
       105,
