@@ -47,32 +47,47 @@ git -C "$ROOT" cat-file -e "origin/main:$SLASH_REL" 2>/dev/null || need_boot=1
 
 if [[ "$need_boot" -eq 1 ]]; then
   echo "=== ONE-TIME GIT ASSET IMPORT ==="
-  git -C "$ROOT" worktree remove --force "$BOOT" >/dev/null 2>&1 || true
-  rm -rf "$BOOT"
-  git -C "$ROOT" worktree prune
-  git -C "$ROOT" worktree add --detach "$BOOT" origin/main >/dev/null
-  mkdir -p "$BOOT/public/assets/vanguard/procedural"
+
+  pose_src=""
+  slash_src=""
 
   if ! git -C "$ROOT" cat-file -e "origin/main:$POSE_REL" 2>/dev/null; then
-    src="$(find_sha "$POSE_SHA"       "/storage/emulated/0/Download/918598.png"       "/storage/emulated/0/Download/vanguard-pose-atlas-90.png" || true)"
-    [[ -n "$src" ]] || { echo "STOP: canonical 90-pose atlas not found"; exit 11; }
-    cp -f "$src" "$BOOT/$POSE_REL"
-    echo "import_pose=$(basename "$src")"
+    pose_src="$(find_sha "$POSE_SHA"       "$LIVE/$POSE_REL"       "$ROOT/$POSE_REL"       "/storage/emulated/0/Download/918598.png"       "/storage/emulated/0/Download/vanguard-pose-atlas-90.png" || true)"
+    [[ -n "$pose_src" ]] || { echo "STOP: canonical 90-pose atlas not found"; exit 11; }
+    echo "import_pose=$pose_src"
   fi
 
   if ! git -C "$ROOT" cat-file -e "origin/main:$SLASH_REL" 2>/dev/null; then
-    src="$(find_sha "$SLASH_SHA"       "/storage/emulated/0/Download/diorama_slash_runtime_atlas_192.png"       "/storage/emulated/0/Download/Diorama-Slash-Keys/diorama_slash_runtime_atlas_192.png"       "/storage/emulated/0/Download/diorama-slash-atlas.png" || true)"
-    [[ -n "$src" ]] || { echo "STOP: canonical slash atlas not found"; exit 12; }
-    cp -f "$src" "$BOOT/$SLASH_REL"
-    echo "import_slash=$(basename "$src")"
+    slash_src="$(find_sha "$SLASH_SHA"       "$LIVE/$SLASH_REL"       "$ROOT/$SLASH_REL"       "/storage/emulated/0/Download/diorama_slash_runtime_atlas_192.png"       "/storage/emulated/0/Download/Diorama-Slash-Keys/diorama_slash_runtime_atlas_192.png"       "/storage/emulated/0/Download/diorama-slash-atlas.png" || true)"
+    [[ -n "$slash_src" ]] || { echo "STOP: canonical slash atlas not found"; exit 12; }
+    echo "import_slash=$slash_src"
   fi
 
-  git -C "$BOOT" add "$POSE_REL" "$SLASH_REL"
-  if ! git -C "$BOOT" diff --cached --quiet; then
-    git -C "$BOOT" -c user.name="Pose Lab Canonicalizer" -c user.email="pose-lab@local"       commit -m "Commit canonical Vanguard pose and slash atlases" >/dev/null
-    git -C "$BOOT" push origin HEAD:main
-    git -C "$ROOT" fetch origin main
+  TMP_INDEX="$STATE/bootstrap.index"
+  rm -f "$TMP_INDEX"
+  export GIT_INDEX_FILE="$TMP_INDEX"
+  git -C "$ROOT" read-tree origin/main
+
+  if [[ -n "$pose_src" ]]; then
+    pose_blob="$(git -C "$ROOT" hash-object -w "$pose_src")"
+    git -C "$ROOT" update-index --add --cacheinfo 100644 "$pose_blob" "$POSE_REL"
   fi
+
+  if [[ -n "$slash_src" ]]; then
+    slash_blob="$(git -C "$ROOT" hash-object -w "$slash_src")"
+    git -C "$ROOT" update-index --add --cacheinfo 100644 "$slash_blob" "$SLASH_REL"
+  fi
+
+  tree="$(git -C "$ROOT" write-tree)"
+  parent="$(git -C "$ROOT" rev-parse origin/main)"
+  commit="$(printf '%s\n' "Commit canonical Vanguard pose and slash atlases" |     git -C "$ROOT" -c user.name="Pose Lab Canonicalizer" -c user.email="pose-lab@local"     commit-tree "$tree" -p "$parent")"
+
+  unset GIT_INDEX_FILE
+  rm -f "$TMP_INDEX"
+
+  git -C "$ROOT" push origin "$commit":refs/heads/main
+  git -C "$ROOT" fetch origin main
+  echo "asset_commit=$commit"
 fi
 
 echo "=== REFRESH LIVE WORKTREE ==="
