@@ -4,7 +4,23 @@
   "subject": "vanguard",
   "description": "Vanguard Overhand Strike · live procedural proof",
   "rootMotion": false,
-  "canvas": {"size":[430,260],"background":[0,0,0,255],"anchor":[92,226],"anchorMeaning":"rear planted foot"},
+  "canvas": {
+    "size": [
+      430,
+      260
+    ],
+    "background": [
+      0,
+      0,
+      0,
+      255
+    ],
+    "anchor": [
+      215,
+      226
+    ],
+    "anchorMeaning": "canonical Vanguard bottom-center review anchor"
+  },
   "atlases": {
     "vanguard-canonical": {
       "path": "assets/vanguard/procedural/vanguard-pose-atlas-48.png",
@@ -12,40 +28,273 @@
       "rows": 8,
       "indexBase": 1,
       "mode": "blue-key",
-      "size": [1536,1170],
+      "size": [
+        1536,
+        1170
+      ],
       "sha256": "0f6183b8cfa516388ec62b70b79773037c3bfe21576ae9bc0a52510eac8a4420"
     }
   },
   "sources": {
-    "idle":{"kind":"atlas-cell","atlas":"vanguard-canonical","cell":2,"role":"body","trim":true,"anchorMode":"rear-foot-left"},
-    "chamber":{"kind":"atlas-cell","atlas":"vanguard-canonical","cell":26,"role":"body","trim":true,"anchorMode":"rear-foot-left"},
-    "commit":{"kind":"atlas-cell","atlas":"vanguard-canonical","cell":40,"role":"body","trim":true,"anchorMode":"rear-foot-left"},
-    "preimpact":{"kind":"atlas-cell","atlas":"vanguard-canonical","cell":32,"role":"body","trim":true,"anchorMode":"rear-foot-left"},
-    "contact":{"kind":"atlas-cell","atlas":"vanguard-canonical","cell":35,"role":"body","trim":true,"anchorMode":"rear-foot-left"},
-    "slash-right":{"kind":"image","path":"assets/vanguard/procedural/slash_right.png","mode":"black-luminance-alpha","role":"effect","trim":true}
+    "idle": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 2,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "bottom-center"
+    },
+    "chamber": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 26,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "bottom-center"
+    },
+    "commit": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 40,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "bottom-center"
+    },
+    "preimpact": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 32,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "bottom-center"
+    },
+    "contact": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 35,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "bottom-center"
+    },
+    "slash-right": {
+      "kind": "image",
+      "path": "assets/vanguard/procedural/slash_right.png",
+      "mode": "black-luminance-alpha",
+      "role": "effect",
+      "trim": true
+    }
   },
   "phases": [
-    {"id":"idle","source":"idle","durationMs":75,"deform":{"shearX":0.0,"scaleX":1.0,"scaleY":1.0}},
-    {"id":"anticipation","source":"idle","durationMs":75,"deform":{"shearX":0.10,"scaleX":1.0,"scaleY":0.97,"shiftY":1.0}},
-    {"id":"chamber","source":"chamber","durationMs":70,"deform":{"shearX":0.06,"scaleX":1.01,"scaleY":0.98},"effect":{"reveal":0.10,"core":0.30,"tightGlow":0.18,"wideGlow":0.12}},
-    {"id":"cross-commit","source":"commit","durationMs":45,"deform":{"shearX":-0.10,"scaleX":1.02,"scaleY":0.99},"effect":{"reveal":0.48,"core":0.72,"tightGlow":0.52,"wideGlow":0.30}},
-    {"id":"lean-forward","source":"preimpact","durationMs":45,"deform":{"shearX":-0.24,"scaleX":1.04,"scaleY":1.01,"shiftY":-1.0},"effect":{"reveal":0.84,"core":0.92,"tightGlow":0.82,"wideGlow":0.46}},
-    {"id":"contact","source":"contact","durationMs":125,"deform":{"shearX":-0.34,"scaleX":1.06,"scaleY":1.02,"shiftY":-2.0},"effect":{"reveal":1.0,"core":1.0,"tightGlow":1.0,"wideGlow":0.70}},
-    {"id":"follow-through","source":"contact","durationMs":90,"deform":{"shearX":-0.25,"scaleX":1.05,"scaleY":1.0},"effect":{"reveal":1.0,"core":0.42,"tightGlow":0.45,"wideGlow":0.55}},
-    {"id":"recoil-1","source":"contact","durationMs":95,"deform":{"shearX":-0.12,"scaleX":1.03,"scaleY":0.995,"shiftY":1.0},"effect":{"reveal":1.0,"core":0.16,"tightGlow":0.18,"wideGlow":0.26}},
-    {"id":"recoil-2","source":"contact","durationMs":90,"deform":{"shearX":-0.03,"scaleX":1.01,"scaleY":0.99,"shiftY":2.0},"effect":{"reveal":0.0,"core":0.0,"tightGlow":0.0,"wideGlow":0.05}},
-    {"id":"idle-return","source":"idle","durationMs":105,"deform":{"shearX":0.0,"scaleX":1.0,"scaleY":1.0}}
+    {
+      "id": "idle",
+      "source": "idle",
+      "durationMs": 75,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1
+      }
+    },
+    {
+      "id": "anticipation",
+      "source": "idle",
+      "durationMs": 75,
+      "deform": {
+        "shearX": 0.1,
+        "scaleX": 1,
+        "scaleY": 0.97,
+        "shiftY": 1
+      }
+    },
+    {
+      "id": "chamber",
+      "source": "chamber",
+      "durationMs": 70,
+      "deform": {
+        "shearX": 0.06,
+        "scaleX": 1.01,
+        "scaleY": 0.98
+      },
+      "effect": {
+        "reveal": 0.1,
+        "core": 0.3,
+        "tightGlow": 0.18,
+        "wideGlow": 0.12
+      }
+    },
+    {
+      "id": "cross-commit",
+      "source": "commit",
+      "durationMs": 45,
+      "deform": {
+        "shearX": -0.1,
+        "scaleX": 1.02,
+        "scaleY": 0.99
+      },
+      "effect": {
+        "reveal": 0.48,
+        "core": 0.72,
+        "tightGlow": 0.52,
+        "wideGlow": 0.3
+      }
+    },
+    {
+      "id": "lean-forward",
+      "source": "preimpact",
+      "durationMs": 45,
+      "deform": {
+        "shearX": -0.24,
+        "scaleX": 1.04,
+        "scaleY": 1.01,
+        "shiftY": -1
+      },
+      "effect": {
+        "reveal": 0.84,
+        "core": 0.92,
+        "tightGlow": 0.82,
+        "wideGlow": 0.46
+      }
+    },
+    {
+      "id": "contact",
+      "source": "contact",
+      "durationMs": 125,
+      "deform": {
+        "shearX": -0.34,
+        "scaleX": 1.06,
+        "scaleY": 1.02,
+        "shiftY": -2
+      },
+      "effect": {
+        "reveal": 1,
+        "core": 1,
+        "tightGlow": 1,
+        "wideGlow": 0.7
+      }
+    },
+    {
+      "id": "follow-through",
+      "source": "contact",
+      "durationMs": 90,
+      "deform": {
+        "shearX": -0.25,
+        "scaleX": 1.05,
+        "scaleY": 1
+      },
+      "effect": {
+        "reveal": 1,
+        "core": 0.42,
+        "tightGlow": 0.45,
+        "wideGlow": 0.55
+      }
+    },
+    {
+      "id": "recoil-1",
+      "source": "contact",
+      "durationMs": 95,
+      "deform": {
+        "shearX": -0.12,
+        "scaleX": 1.03,
+        "scaleY": 0.995,
+        "shiftY": 1
+      },
+      "effect": {
+        "reveal": 1,
+        "core": 0.16,
+        "tightGlow": 0.18,
+        "wideGlow": 0.26
+      }
+    },
+    {
+      "id": "recoil-2",
+      "source": "contact",
+      "durationMs": 90,
+      "deform": {
+        "shearX": -0.03,
+        "scaleX": 1.01,
+        "scaleY": 0.99,
+        "shiftY": 2
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0.05
+      }
+    },
+    {
+      "id": "idle-return",
+      "source": "idle",
+      "durationMs": 105,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1
+      }
+    }
   ],
   "effect": {
-    "source":"slash-right","width":184,"position":[78,82],"pivot":[160,198],
-    "startClock":10.0,"endClock":5.0,"featherDeg":14.0,"alphaGain":1.30,
-    "gradientStops":[
-      {"at":0.00,"rgb":[110,20,0]},
-      {"at":0.18,"rgb":[255,105,0]},
-      {"at":0.55,"rgb":[255,20,8]},
-      {"at":1.00,"rgb":[255,245,120]}
+    "source": "slash-right",
+    "width": 184,
+    "position": [
+      201,
+      82
     ],
-    "tightGlowRgb":[255,180,28],"wideGlowRgb":[255,42,0],
-    "tightBlurPx":2.4,"wideBlurPx":7.5,"tightOpacity":0.65,"wideOpacity":0.55
+    "pivot": [
+      283,
+      198
+    ],
+    "startClock": 10,
+    "endClock": 5,
+    "featherDeg": 14,
+    "alphaGain": 1.3,
+    "gradientStops": [
+      {
+        "at": 0,
+        "rgb": [
+          110,
+          20,
+          0
+        ]
+      },
+      {
+        "at": 0.18,
+        "rgb": [
+          255,
+          105,
+          0
+        ]
+      },
+      {
+        "at": 0.55,
+        "rgb": [
+          255,
+          20,
+          8
+        ]
+      },
+      {
+        "at": 1,
+        "rgb": [
+          255,
+          245,
+          120
+        ]
+      }
+    ],
+    "tightGlowRgb": [
+      255,
+      180,
+      28
+    ],
+    "wideGlowRgb": [
+      255,
+      42,
+      0
+    ],
+    "tightBlurPx": 2.4,
+    "wideBlurPx": 7.5,
+    "tightOpacity": 0.65,
+    "wideOpacity": 0.55
   }
 }
