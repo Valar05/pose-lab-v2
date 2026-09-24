@@ -182,20 +182,19 @@ function drawEffectImage(target,image,x,y,rotationDeg=0){
 function transformedSlash(image,spec){
  const rot=Number(spec.rotationDeg||0);
  const pitch=Math.max(0.08,Number(spec.pitchScaleY??1));
- const yaw=Number(spec.yawShearX||0);
 
+ // Stage 1: rotate the slash with NO squash.
  const pad=Math.ceil(Math.max(image.width,image.height));
  const scratch=document.createElement('canvas');
  scratch.width=image.width+pad*2;
  scratch.height=image.height+pad*2;
- const x=scratch.getContext('2d',{willReadFrequently:true});
+ const sc=scratch.getContext('2d',{willReadFrequently:true});
+ sc.translate(scratch.width/2,scratch.height/2);
+ if(rot)sc.rotate(rot*Math.PI/180);
+ sc.drawImage(image,-image.width/2,-image.height/2);
 
- x.translate(scratch.width/2,scratch.height/2);
- if(rot)x.rotate(rot*Math.PI/180);
- x.transform(1,0,yaw,pitch,0,0);
- x.drawImage(image,-image.width/2,-image.height/2);
-
- const im=x.getImageData(0,0,scratch.width,scratch.height);
+ // Tight crop the rotated alpha bounds.
+ const im=sc.getImageData(0,0,scratch.width,scratch.height);
  const d=im.data;
  let minX=scratch.width,minY=scratch.height,maxX=-1,maxY=-1;
  for(let yy=0;yy<scratch.height;yy++){
@@ -208,12 +207,21 @@ function transformedSlash(image,spec){
  }
  if(maxX<minX)return image;
 
+ const rotated=document.createElement('canvas');
+ rotated.width=maxX-minX+1;
+ rotated.height=maxY-minY+1;
+ rotated.getContext('2d').drawImage(
+   scratch,minX,minY,rotated.width,rotated.height,
+   0,0,rotated.width,rotated.height
+ );
+
+ // Stage 2: squash SCREEN-SPACE Y after rotation.
+ // This guarantees a lateral band rather than compressing the wrong local axis.
  const out=document.createElement('canvas');
- out.width=maxX-minX+1;
- out.height=maxY-minY+1;
+ out.width=rotated.width;
+ out.height=Math.max(1,Math.round(rotated.height*pitch));
  out.getContext('2d').drawImage(
-   scratch,
-   minX,minY,out.width,out.height,
+   rotated,0,0,rotated.width,rotated.height,
    0,0,out.width,out.height
  );
  return out;
@@ -250,24 +258,16 @@ function drawSlash(e,layerName='front'){
 
  lc.save();
 
- // Visual counterclockwise sweep:
- // begin at the bright right/near cap, travel across the upper arc toward left/far.
+ // Near/right -> far/left. At reveal=0 nothing is visible.
+ // As reveal grows, the clip expands leftward from the near/right cap.
  if(reveal<0.999){
-   const cx=x+image.width/2;
-   const cy=y+image.height/2;
-   const radius=Math.hypot(image.width,image.height)*1.3;
-   const startAngle=0;
-   const endAngle=-Math.PI*reveal;
-
+   const visible=Math.max(0,image.width*reveal);
    lc.beginPath();
-   lc.moveTo(cx,cy);
-   lc.arc(cx,cy,radius,startAngle,endAngle,true);
-   lc.closePath();
+   lc.rect(x+image.width-visible,y,visible,image.height);
    lc.clip();
  }
 
- // Far/left section goes behind Vanguard.
- // Near/right cap goes in front.
+ // Far/left half behind Vanguard, near/right half in front.
  lc.beginPath();
  if(layerName==='back'){
    lc.rect(x,y,image.width*split+2,image.height);
