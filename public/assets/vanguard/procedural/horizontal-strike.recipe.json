@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Strike · transform reset baseline",
+  "description": "Vanguard Horizontal Strike · simple transform baseline: CW30 + flipY + left1body + up0.25body",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -259,13 +259,8 @@
     "farSide": "left",
     "revealStartDeg": 0,
     "projectionMode": "none",
-    "rotateZDeg": 0,
-    "rotateXDeg": 0,
-    "focalPx": 260,
-    "planeScale": 1,
-    "globalScaleX": 1,
     "flipX": false,
-    "flipY": false,
+    "flipY": true,
     "vanguardDepth": 0,
     "revealSweepDeg": 180,
     "revealCounterClockwise": true,
@@ -273,11 +268,13 @@
       0.5,
       0.5
     ],
-    "rotationDeg": 0,
+    "rotationDeg": 30,
     "scaleX": 1,
     "scaleY": 1,
     "depthSplit": 0.5,
-    "backSide": "left"
+    "backSide": "left",
+    "translateBodyX": -1,
+    "translateBodyY": -0.25
   },
   "stage": {
     "centerX": 215,
