@@ -194,7 +194,7 @@ function transformedSlash(image,spec){
  if(rot)sc.rotate(rot*Math.PI/180);
  sc.drawImage(image,-image.width/2,-image.height/2);
 
- // Tight crop rotated alpha bounds.
+ // Tight crop rotated alpha.
  const im=sc.getImageData(0,0,scratch.width,scratch.height);
  const px=im.data;
  let minX=scratch.width,minY=scratch.height,maxX=-1,maxY=-1;
@@ -214,20 +214,14 @@ function transformedSlash(image,spec){
    0,0,rotated.width,rotated.height
  );
 
- // Then scale in final screen space. Negative X flips horizontally.
+ // Final screen-space scale. Negative X/Y are real flips.
  const out=document.createElement('canvas');
  out.width=Math.max(1,Math.round(rotated.width*Math.abs(sx)));
  out.height=Math.max(1,Math.round(rotated.height*Math.abs(sy)));
  const oc=out.getContext('2d');
  oc.save();
- if(sx<0){
-   oc.translate(out.width,0);
-   oc.scale(-1,1);
- }
- if(sy<0){
-   oc.translate(0,out.height);
-   oc.scale(1,-1);
- }
+ if(sx<0){ oc.translate(out.width,0); oc.scale(-1,1); }
+ if(sy<0){ oc.translate(0,out.height); oc.scale(1,-1); }
  oc.drawImage(rotated,0,0,rotated.width,rotated.height,0,0,out.width,out.height);
  oc.restore();
  return out;
@@ -239,32 +233,12 @@ function drawSlash(e,layerName='front'){
  const image=transformedSlash(slashMap,spec);
  const x=spec.position[0],y=spec.position[1];
 
- // Build literal half-images. This is not just a clip around one foreground pass:
- // far half and near half become separate canvases with identical dimensions/origin.
- const split=Math.max(.15,Math.min(.85,Number(spec.depthSplit??.5)));
- const cut=Math.round(image.width*split);
-
- function halfImage(which){
-   const out=document.createElement('canvas');
-   out.width=image.width;
-   out.height=image.height;
-   const oc=out.getContext('2d');
-   if(which==='back'){
-     oc.drawImage(image,0,0,cut,image.height,0,0,cut,image.height);
-   }else{
-     oc.drawImage(image,cut,0,image.width-cut,image.height,cut,0,image.width-cut,image.height);
-   }
-   return out;
- }
-
- const half=halfImage(layerName);
-
  function passImage(color){
-   if(!color)return half;
+   if(!color)return image;
    const tint=document.createElement('canvas');
-   tint.width=half.width;tint.height=half.height;
+   tint.width=image.width;tint.height=image.height;
    const tc=tint.getContext('2d');
-   tc.drawImage(half,0,0);
+   tc.drawImage(image,0,0);
    tc.globalCompositeOperation='source-in';
    tc.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
    tc.fillRect(0,0,tint.width,tint.height);
@@ -274,24 +248,40 @@ function drawSlash(e,layerName='front'){
  const layer=document.createElement('canvas');
  layer.width=canvas.width;layer.height=canvas.height;
  const lc=layer.getContext('2d');
-
- // Same radial mask for BOTH halves, so the ring grows coherently through depth.
  const reveal=clamp(e.reveal);
+
+ // Convert canonical canvas split into this local effect layer.
+ const splitCanvasX=Number(spec.depthSplitCanvasX??215);
+ const stageShift=stageOffsetX();
+ const localSplitX=splitCanvasX-stageShift;
+
  lc.save();
+
+ // TRUE radial reveal, near/right -> far/left, counterclockwise.
  if(reveal<0.999){
-   const np=spec.radialPivot||[0.92,0.50];
-   const px=x+image.width*np[0];
-   const py=y+image.height*np[1];
-   const radius=Math.hypot(image.width,image.height)*2.0;
+   const px=x+image.width*0.88;
+   const py=y+image.height*0.52;
+   const radius=Math.hypot(image.width,image.height)*2;
    const start=(Number(spec.radialStartDeg??8))*Math.PI/180;
    const sweep=(Number(spec.radialSweepDeg??190))*Math.PI/180;
    const end=start-sweep*reveal;
+
    lc.beginPath();
    lc.moveTo(px,py);
    lc.arc(px,py,radius,start,end,true);
    lc.closePath();
    lc.clip();
  }
+
+ // ACTUAL depth split at Vanguard's center:
+ // far/left is behind her, near/right is in front.
+ lc.beginPath();
+ if(layerName==='back'){
+   lc.rect(0,0,Math.max(0,localSplitX),canvas.height);
+ }else{
+   lc.rect(Math.max(0,localSplitX),0,canvas.width-localSplitX,canvas.height);
+ }
+ lc.clip();
 
  const passes=[
    {a:e.wideGlow*spec.wideOpacity,b:spec.wideBlurPx,color:spec.wideGlowRgb},
@@ -306,10 +296,11 @@ function drawSlash(e,layerName='front'){
    lc.drawImage(passImage(q.color),x,y);
    lc.restore();
  }
+
  lc.restore();
 
  ctx.save();
- ctx.translate(stageOffsetX(),0);
+ ctx.translate(stageShift,0);
  ctx.drawImage(layer,0,0);
  ctx.restore();
 }
