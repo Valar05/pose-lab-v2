@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Slash · normalized 80 → 62 → 61 with clean horizontal slash asset",
+  "description": "Vanguard Horizontal Slash · SwordAttack3 · counterclockwise near→far depth split",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -172,10 +172,10 @@
   ],
   "effect": {
     "source": "slash-horizontal-clean",
-    "width": 210,
+    "width": 168,
     "position": [
-      92,
-      118
+      54,
+      124
     ],
     "pivot": [
       160,
@@ -231,8 +231,8 @@
     "wideBlurPx": 7.5,
     "tightOpacity": 0.65,
     "wideOpacity": 0.55,
-    "rotationDeg": 90,
-    "revealMode": "jovian-ring",
+    "rotationDeg": -90,
+    "revealMode": "counterclockwise-near-to-far",
     "transform": "none",
     "localPivot": [
       105,
@@ -240,8 +240,11 @@
     ],
     "startClock": 9,
     "endClock": 3,
-    "pitchScaleY": 0.72,
-    "yawShearX": 0
+    "pitchScaleY": 0.42,
+    "yawShearX": 0,
+    "depthSplit": 0.55,
+    "nearSide": "right",
+    "farSide": "left"
   },
   "stage": {
     "centerX": 215,
