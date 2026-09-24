@@ -19,7 +19,9 @@ const loadImage=src=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i
 function rectFor(cell){
  const a=recipe.atlas,idx=cell-a.indexBase,c=idx%a.columns,r=Math.floor(idx/a.columns);
  const x0=Math.round(c*atlas.naturalWidth/a.columns),x1=Math.round((c+1)*atlas.naturalWidth/a.columns);
- const y0=Math.round(r*atlas.naturalHeight/a.rows),y1=Math.round((r+1)*atlas.naturalHeight/a.rows);
+ const explicit=a.rowBounds?.[String(r)];
+ const y0=explicit?Number(explicit[0]):Math.round(r*atlas.naturalHeight/a.rows);
+ const y1=explicit?Number(explicit[1]):Math.round((r+1)*atlas.naturalHeight/a.rows);
  return [x0,y0,x1-x0,y1-y0];
 }
 function cell(cellNo){
