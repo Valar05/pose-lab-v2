@@ -133,6 +133,16 @@ function body(sourceId){
 function clock(v){return(v%12)*30-90}
 function phaseAt(ms){let a=0;for(let i=0;i<phases.length;i++){const p=phases[i];if(ms<a+p.durationMs||i===phases.length-1)return{p,i,u:clamp((ms-a)/p.durationMs)};a+=p.durationMs}}
 function iv(i,u,key,name){const a=phases[i],b=phases[Math.min(phases.length-1,i+1)],fallback=key==='deform'?({shearX:0,scaleX:1,scaleY:1,shiftX:0,shiftY:0}[name]):0;return lerp(Number(a[key]?.[name]??fallback),Number(b[key]?.[name]??a[key]?.[name]??fallback),ease(u))}
+function effectCell(image,spec,cell){
+ const idx=cell-(spec.indexBase||0),c=idx%spec.columns,r=Math.floor(idx/spec.columns);
+ const iw=image.naturalWidth||image.width,ih=image.naturalHeight||image.height;
+ const x0=Math.round(c*iw/spec.columns),x1=Math.round((c+1)*iw/spec.columns);
+ const y0=Math.round(r*ih/spec.rows),y1=Math.round((r+1)*ih/spec.rows);
+ const out=document.createElement('canvas');
+ out.width=x1-x0;out.height=y1-y0;
+ out.getContext('2d').drawImage(image,x0,y0,out.width,out.height,0,0,out.width,out.height);
+ return out;
+}
 function buildSlash(){
  function colorizeCanvas(c){
    const x=c.getContext('2d',{willReadFrequently:true});
@@ -155,8 +165,9 @@ function buildSlash(){
    return c;
  }
 
- const c=document.createElement('canvas');c.width=slash.naturalWidth;c.height=slash.naturalHeight;
- const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(slash,0,0);
+ const sw=slash.naturalWidth||slash.width,sh=slash.naturalHeight||slash.height;
+ const c=document.createElement('canvas');c.width=sw;c.height=sh;
+ const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(slash,0,0,sw,sh);
  const im=x.getImageData(0,0,c.width,c.height),d=im.data;let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
  for(let y=0;y<c.height;y++)for(let xx=0;xx<c.width;xx++){
    const i=(y*c.width+xx)*4,vv=Math.max(d[i],d[i+1],d[i+2]);
@@ -170,7 +181,8 @@ function buildSlash(){
 }
 function stageOffsetX(){
  const key=recipe.stage?.centerSource||'idle',it=body(key),[px]=recipe.canvas.anchor;
- const localCenter=px-it.anchor[0]+it.canvas.width/2;
+ const bodyScale=Number(recipe.bodyScale??1);
+ const localCenter=px-it.anchor[0]*bodyScale+(it.canvas.width*bodyScale)/2;
  return (recipe.stage?.centerX??215)-localCenter;
 }
 function drawBody(id,d){
@@ -178,7 +190,8 @@ function drawBody(id,d){
  ctx.save();
  ctx.translate(stageOffsetX(),0);
  ctx.translate(px,py);
- ctx.transform(d.scaleX||1,0,d.shearX,d.scaleY||1,d.shiftX||0,d.shiftY||0);
+ const bodyScale=Number(recipe.bodyScale??1);
+ ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);
  ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
  ctx.restore();
 }
@@ -196,93 +209,19 @@ function transformedSlash(image,spec){
  // around a stable local pivot, so rotation never changes/crops the bitmap.
  return image;
 }
-function drawLegacySlash(e,layerName='front'){
- if(!e||!slashMap||layerName==='back')return;
- const s=recipe.effect||{};
- const mode=s.transform||'none';
- const rot=Number(s.rotationDeg||0);
- const flipY=mode==='flip-y';
- const flipX=mode==='flip-x';
- const swap=Math.abs(rot)%180===90;
- const image=document.createElement('canvas');
- image.width=swap?slashMap.height:slashMap.width;
- image.height=swap?slashMap.width:slashMap.height;
- const ix=image.getContext('2d');
- ix.translate(image.width/2,image.height/2);
- if(rot)ix.rotate(rot*Math.PI/180);
- ix.scale(flipX?-1:1,flipY?-1:1);
- ix.drawImage(slashMap,-slashMap.width/2,-slashMap.height/2);
-
- const x=Number(s.position?.[0]??0),y=Number(s.position?.[1]??0);
- const reveal=clamp(Number(e.reveal??0));
- if(reveal<=0)return;
-
- const layer=document.createElement('canvas');
- layer.width=canvas.width; layer.height=canvas.height;
- const lc=layer.getContext('2d');
- lc.save();
-
- if(s.revealMode==='radial-local' && reveal<0.999){
-   const lp=s.localPivot||[image.width/2,image.height/2];
-   const px=x+lp[0],py=y+lp[1];
-   const startDeg=clock(Number(s.startClock??7.5));
-   let endDeg=clock(Number(s.endClock??1.5));
-   while(endDeg<=startDeg)endDeg+=360;
-   const start=startDeg*Math.PI/180;
-   const current=(startDeg+(endDeg-startDeg)*reveal)*Math.PI/180;
-   const radius=Math.hypot(image.width,image.height)*1.5;
-   lc.beginPath();
-   lc.moveTo(px,py);
-   lc.arc(px,py,radius,start,current,false);
-   lc.closePath();
-   lc.clip();
- }
-
- function passImage(color){
-   if(!color)return image;
-   const tint=document.createElement('canvas');
-   tint.width=image.width;tint.height=image.height;
-   const tc=tint.getContext('2d');
-   tc.drawImage(image,0,0);
-   tc.globalCompositeOperation='source-in';
-   tc.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
-   tc.fillRect(0,0,tint.width,tint.height);
-   return tint;
- }
-
- const passes=[
-   {a:Number(e.wideGlow||0)*Number(s.wideOpacity??.55),b:Number(s.wideBlurPx??7.5),color:s.wideGlowRgb},
-   {a:Number(e.tightGlow||0)*Number(s.tightOpacity??.65),b:Number(s.tightBlurPx??2.4),color:s.tightGlowRgb},
-   {a:Number(e.core||0),b:0,color:null}
- ];
- for(const p of passes){
-   if(p.a<=0)continue;
-   lc.save();
-   lc.globalAlpha=p.a;
-   lc.filter=p.b?`blur(${p.b}px)`:'none';
-   lc.drawImage(passImage(p.color),x,y);
-   lc.restore();
- }
- lc.restore();
-
- ctx.save();
- ctx.translate(stageOffsetX(),0);
- ctx.drawImage(layer,0,0);
- ctx.restore();
-}
-
 function drawSlash(e,layerName='front'){
- if(!isHorizontal)return drawLegacySlash(e,layerName);
  if(!e||!slashMap)return;
 
  const spec=recipe.effect||{};
+ const hasDepthSplit=Number.isFinite(Number(spec.depthSplit));
+ if(!hasDepthSplit && layerName==='back')return;
  const image=transformedSlash(slashMap,spec);
  const x=Number(spec.position?.[0]??0);
  const y=Number(spec.position?.[1]??0);
  const reveal=clamp(Number(e.reveal??0));
  if(reveal<=0)return;
 
- const split=Math.max(.05,Math.min(.95,Number(spec.depthSplit??.5)));
+ const split=hasDepthSplit?Math.max(.05,Math.min(.95,Number(spec.depthSplit))):.5;
  const pivot=spec.revealPivot||[.5,.5];
  const px=image.width*Number(pivot[0]??.5);
  const py=image.height*Number(pivot[1]??.5);
@@ -338,23 +277,25 @@ function drawSlash(e,layerName='front'){
  ctx.closePath();
  ctx.clip();
 
- // Split in slash-local space, not transformed scratch-canvas coordinates.
- ctx.beginPath();
- const splitX=-px+image.width*split;
- if(layerName==='back'){
-   if(backIsLeft){
-     ctx.rect(-px-8,-py-8,image.width*split+16,image.height+16);
+ // Optional depth split. Without one, the front pass draws the whole slash.
+ if(hasDepthSplit){
+   ctx.beginPath();
+   const splitX=-px+image.width*split;
+   if(layerName==='back'){
+     if(backIsLeft){
+       ctx.rect(-px-8,-py-8,image.width*split+16,image.height+16);
+     }else{
+       ctx.rect(splitX-8,-py-8,image.width*(1-split)+16,image.height+16);
+     }
    }else{
-     ctx.rect(splitX-8,-py-8,image.width*(1-split)+16,image.height+16);
+     if(backIsLeft){
+       ctx.rect(splitX-8,-py-8,image.width*(1-split)+16,image.height+16);
+     }else{
+       ctx.rect(-px-8,-py-8,image.width*split+16,image.height+16);
+     }
    }
- }else{
-   if(backIsLeft){
-     ctx.rect(splitX-8,-py-8,image.width*(1-split)+16,image.height+16);
-   }else{
-     ctx.rect(-px-8,-py-8,image.width*split+16,image.height+16);
-   }
+   ctx.clip();
  }
- ctx.clip();
 
  for(const q of passes){
    if(q.a<=0)continue;
@@ -508,6 +449,23 @@ try{
        ? './assets/vanguard/procedural/undercut-strike.recipe.json'
        : './assets/vanguard/procedural/overhand-strike.recipe.json';
  recipe=await fetch(recipePath,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;phases=recipe.phases;total=phases.reduce((n,p)=>n+Number(p.durationMs),0);canvas.width=recipe.canvas.size[0];canvas.height=recipe.canvas.size[1];
- const spec=recipe.atlases['vanguard-canonical'],atlasPath=spec.path.startsWith('./')?spec.path:'./'+spec.path,effectSource=recipe.sources[recipe.effect.source],slashPath=effectSource.path.startsWith('./')?effectSource.path:'./'+effectSource.path;
- [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);buildSlash();for(const [id,s] of Object.entries(recipe.sources))if(s.role==='body')body(id);installHorizontalControls();render(0);requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
+ const spec=recipe.atlases['vanguard-canonical'];
+ const atlasPath=spec.path.startsWith('./')?spec.path:'./'+spec.path;
+ const effectSource=recipe.sources[recipe.effect.source];
+ if(effectSource.kind==='effect-atlas-cell'){
+   const es=recipe.effectAtlases?.[effectSource.atlas];
+   if(!es)throw new Error('Missing effect atlas '+effectSource.atlas);
+   const effectPath=es.path.startsWith('./')?es.path:'./'+es.path;
+   const loaded=await Promise.all([loadImage(atlasPath),loadImage(effectPath)]);
+   atlas=loaded[0];
+   slash=effectCell(loaded[1],es,effectSource.cell);
+ }else{
+   const slashPath=effectSource.path.startsWith('./')?effectSource.path:'./'+effectSource.path;
+   [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);
+ }
+ buildSlash();
+ for(const [id,src] of Object.entries(recipe.sources))if(src.role==='body')body(id);
+ installHorizontalControls();
+ render(0);
+ requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
 }catch(err){document.querySelector('#app').innerHTML='<pre style="padding:18px;color:#ff8a8a;white-space:pre-wrap"></pre>';document.querySelector('#app pre').textContent=err?.stack||String(err)}
