@@ -7,8 +7,14 @@
   "rootMotion": false,
   "travelOwner": "none",
   "canvas": {
-    "size": [430, 260],
-    "anchor": [215, 226],
+    "size": [
+      430,
+      260
+    ],
+    "anchor": [
+      215,
+      226
+    ],
     "anchorMeaning": "canonical Vanguard bottom-center review anchor"
   },
   "atlas": {
@@ -16,35 +22,62 @@
     "columns": 6,
     "rows": 9,
     "indexBase": 1,
-    "size": [1536, 1316],
+    "size": [
+      1536,
+      1316
+    ],
     "sha256": "acb551e180b72233770bb62d371318945d848f89462435bc7c11c069b4d6b47b"
   },
-  "cycleMs": 3200,
+  "cycleMs": 3600,
   "blendWindow": 0,
   "poses": [
     {
       "id": "idle-center",
       "cell": 9,
       "weight": 1,
-      "deform": {"shearX": 0, "scaleX": 1, "scaleY": 1, "shiftY": 0}
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      }
     },
     {
       "id": "idle-breathe-in",
       "cell": 9,
       "weight": 1,
-      "deform": {"shearX": -0.012, "scaleX": 1, "scaleY": 1, "shiftY": -1}
+      "deform": {
+        "shearX": -0.032,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 1.5,
+        "shiftY": -2
+      }
     },
     {
       "id": "idle-weight-shift",
       "cell": 9,
       "weight": 1,
-      "deform": {"shearX": 0.008, "scaleX": 1, "scaleY": 1, "shiftY": 0}
+      "deform": {
+        "shearX": 0.024,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": -1,
+        "shiftY": 0
+      }
     },
     {
       "id": "idle-settle",
       "cell": 9,
       "weight": 1,
-      "deform": {"shearX": 0.004, "scaleX": 1, "scaleY": 1, "shiftY": 1}
+      "deform": {
+        "shearX": 0.012,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0.5,
+        "shiftY": 2
+      }
     }
   ],
   "secondary": {
@@ -54,9 +87,10 @@
   },
   "acceptance": [
     "cell 9 remains the only authored pose",
-    "no root translation",
+    "scale stays exactly 1.0",
+    "no root/world translation",
+    "slow shear and tiny sprite-local weight transfer remain visible at phone review scale",
     "weapon carriage remains stable",
-    "motion reads as breathing and weight shift rather than an action",
     "loop closes without a visible snap"
   ]
 }
