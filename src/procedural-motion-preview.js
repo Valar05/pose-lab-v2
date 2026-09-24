@@ -239,12 +239,32 @@ function drawSlash(e,layerName='front'){
  const image=transformedSlash(slashMap,spec);
  const x=spec.position[0],y=spec.position[1];
 
+ // Build literal half-images. This is not just a clip around one foreground pass:
+ // far half and near half become separate canvases with identical dimensions/origin.
+ const split=Math.max(.15,Math.min(.85,Number(spec.depthSplit??.5)));
+ const cut=Math.round(image.width*split);
+
+ function halfImage(which){
+   const out=document.createElement('canvas');
+   out.width=image.width;
+   out.height=image.height;
+   const oc=out.getContext('2d');
+   if(which==='back'){
+     oc.drawImage(image,0,0,cut,image.height,0,0,cut,image.height);
+   }else{
+     oc.drawImage(image,cut,0,image.width-cut,image.height,cut,0,image.width-cut,image.height);
+   }
+   return out;
+ }
+
+ const half=halfImage(layerName);
+
  function passImage(color){
-   if(!color)return image;
+   if(!color)return half;
    const tint=document.createElement('canvas');
-   tint.width=image.width;tint.height=image.height;
+   tint.width=half.width;tint.height=half.height;
    const tc=tint.getContext('2d');
-   tc.drawImage(image,0,0);
+   tc.drawImage(half,0,0);
    tc.globalCompositeOperation='source-in';
    tc.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
    tc.fillRect(0,0,tint.width,tint.height);
@@ -254,37 +274,24 @@ function drawSlash(e,layerName='front'){
  const layer=document.createElement('canvas');
  layer.width=canvas.width;layer.height=canvas.height;
  const lc=layer.getContext('2d');
+
+ // Same radial mask for BOTH halves, so the ring grows coherently through depth.
  const reveal=clamp(e.reveal);
- const split=Math.max(.15,Math.min(.85,Number(spec.depthSplit??.55)));
- const splitX=x+image.width*split;
-
  lc.save();
-
- // TRUE radial reveal: near/right -> far/left, counterclockwise.
  if(reveal<0.999){
-   const np=spec.radialPivot||[0.88,0.52];
+   const np=spec.radialPivot||[0.92,0.50];
    const px=x+image.width*np[0];
    const py=y+image.height*np[1];
    const radius=Math.hypot(image.width,image.height)*2.0;
    const start=(Number(spec.radialStartDeg??8))*Math.PI/180;
    const sweep=(Number(spec.radialSweepDeg??190))*Math.PI/180;
    const end=start-sweep*reveal;
-
    lc.beginPath();
    lc.moveTo(px,py);
    lc.arc(px,py,radius,start,end,true);
    lc.closePath();
    lc.clip();
  }
-
- // Far/left behind Vanguard, near/right in front.
- lc.beginPath();
- if(layerName==='back'){
-   lc.rect(x,y,image.width*split+2,image.height);
- }else{
-   lc.rect(splitX-2,y,image.width*(1-split)+4,image.height);
- }
- lc.clip();
 
  const passes=[
    {a:e.wideGlow*spec.wideOpacity,b:spec.wideBlurPx,color:spec.wideGlowRgb},
@@ -299,8 +306,8 @@ function drawSlash(e,layerName='front'){
    lc.drawImage(passImage(q.color),x,y);
    lc.restore();
  }
-
  lc.restore();
+
  ctx.save();
  ctx.translate(stageOffsetX(),0);
  ctx.drawImage(layer,0,0);
