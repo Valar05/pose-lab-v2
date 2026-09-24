@@ -76,9 +76,9 @@
       "anchorMode": "rear-foot-left"
     },
     "slash-right": {
-      "kind": "image",
-      "path": "assets/vanguard/procedural/slash_right.png",
-      "mode": "black-luminance-alpha",
+      "kind": "effect-atlas-cell",
+      "atlas": "slash-canonical",
+      "cell": 6,
       "role": "effect",
       "trim": true
     }
@@ -294,15 +294,20 @@
     "wideBlurPx": 7.5,
     "tightOpacity": 0.65,
     "wideOpacity": 0.55,
-    "rotationDeg": 0,
-    "revealMode": "radial-local",
-    "transform": "flip-y",
-    "localPivot": [
-      28,
-      112
+    "revealStartDeg": 135,
+    "revealSweepDeg": 180,
+    "revealCounterClockwise": false,
+    "revealPivot": [
+      0.5,
+      0.5
     ],
-    "startClock": 7.5,
-    "endClock": 1.5
+    "rotateZDeg": 0,
+    "tiltXDeg": 0,
+    "yawYDeg": 0,
+    "scaleX": 1,
+    "scaleY": 1,
+    "flipX": false,
+    "flipY": true
   },
   "stage": {
     "centerX": 215,
@@ -312,5 +317,18 @@
   "motionAuthority": {
     "kind": "reference-sheet",
     "description": "SwordAttack2/3D Vanguard donor: nine uniform samples, low-to-high undercut"
+  },
+  "effectAtlases": {
+    "slash-canonical": {
+      "path": "assets/vanguard/procedural/diorama-slash-atlas.png",
+      "columns": 4,
+      "rows": 2,
+      "indexBase": 1,
+      "size": [
+        768,
+        384
+      ],
+      "sha256": "94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70"
+    }
   }
 }
