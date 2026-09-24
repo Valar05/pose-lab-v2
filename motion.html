@@ -20,9 +20,12 @@
     </main>
     <script type="module">
       const params = new URLSearchParams(location.search);
-      const modulePath = params.get('procedural')
-        ? './src/procedural-motion-preview.js'
-        : './src/motion-profile-editor.js';
+      const procedural = params.get('procedural');
+      const modulePath = procedural === 'vanguard-run'
+        ? './src/procedural-run-preview.js'
+        : procedural
+          ? './src/procedural-motion-preview.js'
+          : './src/motion-profile-editor.js';
       import(modulePath).catch((error) => {
         const app = document.querySelector('#app');
         if (app) {
