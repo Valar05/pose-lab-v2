@@ -54,32 +54,18 @@ function piecewiseCompressUpperLegs(image,amount,spec){
  oc.drawImage(image,0,knee,image.width,image.height-knee,0,hip+compressedH,image.width,image.height-knee);
  return out;
 }
-function draw(p,d,a,regionCompression=0){
- const it=cell(p.cell),[px,py]=recipe.canvas.anchor;
- ctx.save();ctx.globalAlpha=a;ctx.translate(px,py);ctx.transform(d.scaleX,0,d.shearX,d.scaleY,d.shiftX||0,d.shiftY||0);
- const dx=-it.anchor[0],dy=-it.anchor[1];
- if(isIdle && regionCompression>0 && recipe.continuous?.upperLegCompression){
-   const spec=recipe.continuous.upperLegCompression;
-   const hip=Math.round(it.image.height*spec.hipFraction);
-   const knee=Math.round(it.image.height*spec.kneeFraction);
-   const bandH=Math.max(1,knee-hip);
-   const squash=1-regionCompression;
-   const bulge=1+(spec.horizontalBulge||0)*(regionCompression/(spec.amplitude||0.10));
-   // top unchanged
-   ctx.drawImage(it.image,0,0,it.image.width,hip,dx,dy,it.image.width,hip);
-   // hip-to-knee only: squash around its own center, clipped to original band
-   ctx.save();
-   ctx.beginPath();ctx.rect(dx,dy+hip,it.image.width,bandH);ctx.clip();
-   const targetH=bandH*squash,targetW=it.image.width*bulge;
-   const tx=dx-(targetW-it.image.width)/2;
-   const ty=dy+hip+(bandH-targetH)/2;
-   ctx.drawImage(it.image,0,hip,it.image.width,bandH,tx,ty,targetW,targetH);
-   ctx.restore();
-   // knees downward unchanged
-   ctx.drawImage(it.image,0,knee,it.image.width,it.image.height-knee,dx,dy+knee,it.image.width,it.image.height-knee);
- }else{
-   ctx.drawImage(it.image,dx,dy);
- }
+function draw(p,d,a){
+ const base=cell(p.cell),[px,py]=recipe.canvas.anchor;
+ const spec=recipe.continuous?.upperLegCompression;
+ const image=(isIdle && spec && (d.upperLegCompression||0)>0)
+   ? piecewiseCompressUpperLegs(base.image,d.upperLegCompression,spec)
+   : base.image;
+ const anchor=[Math.round(image.width/2),image.height-1];
+ ctx.save();
+ ctx.globalAlpha=a;
+ ctx.translate(px,py);
+ ctx.transform(d.scaleX,0,d.shearX,d.scaleY,d.shiftX||0,d.shiftY||0);
+ ctx.drawImage(image,-anchor[0],-anchor[1]);
  ctx.restore();
 }
 function render(t){
@@ -87,9 +73,6 @@ function render(t){
  if(isIdle && recipe.continuous?.mode==='sine'){
    p=recipe.poses[0];
    const phase=(t+(recipe.continuous.phaseOffset||0))*Math.PI*2;
-   const legSpec=recipe.continuous.upperLegCompression;
-   const legPhase=phase+((legSpec?.phaseOffset||0)*Math.PI*2);
-   const legCompression=legSpec ? (legSpec.amplitude||0)*((Math.sin(legPhase)+1)/2) : 0;
    const legSpec=recipe.continuous.upperLegCompression;
    const legPhase=phase+((legSpec?.phaseOffset||0)*Math.PI*2);
    const legCompression=legSpec
@@ -105,10 +88,14 @@ function render(t){
    };
    nextCell=p.cell;
  }else{
-   const s=stateAt(t);
-   p=s.p; nextCell=s.next.cell; d=interp(s.p,s.next,s.u);
+   const state=stateAt(t);
+   p=state.p;
+   nextCell=state.next.cell;
+   d=interp(state.p,state.next,state.u);
  }
- ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
+ ctx.setTransform(1,0,0,1,0,0);
+ ctx.fillStyle='#000';
+ ctx.fillRect(0,0,canvas.width,canvas.height);
  draw(p,d,1);
  phaseEl.textContent=isIdle?'continuous-idle':p.id;
  timeEl.textContent=Math.round(t*recipe.cycleMs)+' / '+recipe.cycleMs+' ms';
