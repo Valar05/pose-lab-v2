@@ -187,19 +187,39 @@ function transformedSlash(image,spec){
  const pitch=Math.max(0.08,Number(spec.pitchScaleY??1));
  const yaw=Number(spec.yawShearX||0);
 
- // Large enough scratch plane for rotated/sheared projection.
- const pad=Math.ceil(Math.max(image.width,image.height)*0.75);
- const out=document.createElement('canvas');
- out.width=image.width+pad*2;
- out.height=Math.max(1,Math.ceil(image.height*pitch)+pad*2);
- const x=out.getContext('2d');
+ // Render the projected slash onto a generous scratch canvas first.
+ const pad=Math.ceil(Math.max(image.width,image.height));
+ const scratch=document.createElement('canvas');
+ scratch.width=image.width+pad*2;
+ scratch.height=image.height+pad*2;
+ const x=scratch.getContext('2d',{willReadFrequently:true});
 
- x.translate(out.width/2,out.height/2);
+ x.translate(scratch.width/2,scratch.height/2);
  if(rot)x.rotate(rot*Math.PI/180);
- // This affine is our cheap "out of screen plane" projection:
- // y compression = pitch, x-from-y = yaw.
  x.transform(flipX?-1:1,0,yaw,flipY?-pitch:pitch,0,0);
  x.drawImage(image,-image.width/2,-image.height/2);
+
+ // CRITICAL: crop the transformed result back to its actual luminous alpha bounds.
+ // Positioning the padded scratch canvas was pushing the slash almost entirely offstage.
+ const im=x.getImageData(0,0,scratch.width,scratch.height);
+ const d=im.data;
+ let minX=scratch.width,minY=scratch.height,maxX=-1,maxY=-1;
+ for(let yy=0;yy<scratch.height;yy++)for(let xx=0;xx<scratch.width;xx++){
+   if(d[(yy*scratch.width+xx)*4+3]>4){
+     minX=Math.min(minX,xx);minY=Math.min(minY,yy);
+     maxX=Math.max(maxX,xx);maxY=Math.max(maxY,yy);
+   }
+ }
+ if(maxX<minX)return image;
+
+ const out=document.createElement('canvas');
+ out.width=maxX-minX+1;
+ out.height=maxY-minY+1;
+ out.getContext('2d').drawImage(
+   scratch,
+   minX,minY,out.width,out.height,
+   0,0,out.width,out.height
+ );
  return out;
 }
 function drawSlash(e){
