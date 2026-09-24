@@ -180,14 +180,10 @@ function drawEffectImage(target,image,x,y,rotationDeg=0){
  target.restore();
 }
 function transformedSlash(image,spec){
- const mode=spec.transform||'none';
  const rot=Number(spec.rotationDeg||0);
- const flipY=mode==='flip-y';
- const flipX=mode==='flip-x';
  const pitch=Math.max(0.08,Number(spec.pitchScaleY??1));
  const yaw=Number(spec.yawShearX||0);
 
- // Render the projected slash onto a generous scratch canvas first.
  const pad=Math.ceil(Math.max(image.width,image.height));
  const scratch=document.createElement('canvas');
  scratch.width=image.width+pad*2;
@@ -196,18 +192,18 @@ function transformedSlash(image,spec){
 
  x.translate(scratch.width/2,scratch.height/2);
  if(rot)x.rotate(rot*Math.PI/180);
- x.transform(flipX?-1:1,0,yaw,flipY?-pitch:pitch,0,0);
+ x.transform(1,0,yaw,pitch,0,0);
  x.drawImage(image,-image.width/2,-image.height/2);
 
- // CRITICAL: crop the transformed result back to its actual luminous alpha bounds.
- // Positioning the padded scratch canvas was pushing the slash almost entirely offstage.
  const im=x.getImageData(0,0,scratch.width,scratch.height);
  const d=im.data;
  let minX=scratch.width,minY=scratch.height,maxX=-1,maxY=-1;
- for(let yy=0;yy<scratch.height;yy++)for(let xx=0;xx<scratch.width;xx++){
-   if(d[(yy*scratch.width+xx)*4+3]>4){
-     minX=Math.min(minX,xx);minY=Math.min(minY,yy);
-     maxX=Math.max(maxX,xx);maxY=Math.max(maxY,yy);
+ for(let yy=0;yy<scratch.height;yy++){
+   for(let xx=0;xx<scratch.width;xx++){
+     if(d[(yy*scratch.width+xx)*4+3]>4){
+       minX=Math.min(minX,xx);minY=Math.min(minY,yy);
+       maxX=Math.max(maxX,xx);maxY=Math.max(maxY,yy);
+     }
    }
  }
  if(maxX<minX)return image;
@@ -222,18 +218,19 @@ function transformedSlash(image,spec){
  );
  return out;
 }
-function drawSlash(e){
+function drawSlash(e,layerName='front'){
  if(!e)return;
- const s=recipe.effect;
- const image=transformedSlash(slashMap,s);
- const x=s.position[0],y=s.position[1];
 
- // Build the colored/glow passes from the transformed image itself so every
- // mask and bound matches what is actually drawn.
+ const spec=recipe.effect;
+ const image=transformedSlash(slashMap,spec);
+ const x=spec.position[0];
+ const y=spec.position[1];
+
  function passImage(color){
    if(!color)return image;
    const tint=document.createElement('canvas');
-   tint.width=image.width;tint.height=image.height;
+   tint.width=image.width;
+   tint.height=image.height;
    const tc=tint.getContext('2d');
    tc.drawImage(image,0,0);
    tc.globalCompositeOperation='source-in';
@@ -243,46 +240,57 @@ function drawSlash(e){
  }
 
  const layer=document.createElement('canvas');
- layer.width=canvas.width;layer.height=canvas.height;
+ layer.width=canvas.width;
+ layer.height=canvas.height;
  const lc=layer.getContext('2d');
- lc.save();
 
  const reveal=clamp(e.reveal);
- if(s.revealMode==='jovian-ring' && reveal<0.999){
-   const visible=Math.max(1,image.width*reveal);
+ const split=Math.max(.15,Math.min(.85,Number(spec.depthSplit??.55)));
+ const splitX=x+image.width*split;
+
+ lc.save();
+
+ // Visual counterclockwise sweep:
+ // begin at the bright right/near cap, travel across the upper arc toward left/far.
+ if(reveal<0.999){
+   const cx=x+image.width/2;
+   const cy=y+image.height/2;
+   const radius=Math.hypot(image.width,image.height)*1.3;
+   const startAngle=0;
+   const endAngle=-Math.PI*reveal;
+
    lc.beginPath();
-   lc.rect(x,y,visible,image.height);
-   lc.clip();
- }else if(s.revealMode==='radial-local' && reveal<0.999){
-   const lp=s.localPivot||[image.width/2,image.height/2];
-   const px=x+lp[0],py=y+lp[1];
-   const startDeg=clock(s.startClock);
-   let endDeg=clock(s.endClock);
-   while(endDeg<=startDeg)endDeg+=360;
-   const current=(startDeg+(endDeg-startDeg)*reveal)*Math.PI/180;
-   const start=startDeg*Math.PI/180;
-   const radius=Math.hypot(image.width,image.height)*1.5;
-   lc.beginPath();
-   lc.moveTo(px,py);
-   lc.arc(px,py,radius,start,current,false);
+   lc.moveTo(cx,cy);
+   lc.arc(cx,cy,radius,startAngle,endAngle,true);
    lc.closePath();
    lc.clip();
  }
- // At full reveal there is deliberately NO clip at all.
+
+ // Far/left section goes behind Vanguard.
+ // Near/right cap goes in front.
+ lc.beginPath();
+ if(layerName==='back'){
+   lc.rect(x,y,image.width*split+2,image.height);
+ }else{
+   lc.rect(splitX-2,y,image.width*(1-split)+4,image.height);
+ }
+ lc.clip();
 
  const passes=[
-   {a:e.wideGlow*s.wideOpacity,b:s.wideBlurPx,color:s.wideGlowRgb},
-   {a:e.tightGlow*s.tightOpacity,b:s.tightBlurPx,color:s.tightGlowRgb},
+   {a:e.wideGlow*spec.wideOpacity,b:spec.wideBlurPx,color:spec.wideGlowRgb},
+   {a:e.tightGlow*spec.tightOpacity,b:spec.tightBlurPx,color:spec.tightGlowRgb},
    {a:e.core,b:0,color:null}
  ];
- for(const p of passes){
-   if(p.a<=0)continue;
+
+ for(const q of passes){
+   if(q.a<=0)continue;
    lc.save();
-   lc.globalAlpha=p.a;
-   lc.filter=p.b?`blur(${p.b}px)`:'none';
-   lc.drawImage(passImage(p.color),x,y);
+   lc.globalAlpha=q.a;
+   lc.filter=q.b?`blur(${q.b}px)`:'none';
+   lc.drawImage(passImage(q.color),x,y);
    lc.restore();
  }
+
  lc.restore();
 
  ctx.save();
@@ -292,7 +300,19 @@ function drawSlash(e){
 }
 function render(ms){
  const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null;
- ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);drawBody(p.source,d);drawSlash(e);phaseEl.textContent=p.id;timeEl.textContent=Math.round(ms)+' / '+total+' ms';scrub.value=String(ms/total);const src=recipe.sources[p.source];kv.innerHTML=`<div>Atlas cell</div><div>${src.cell??''}</div><div>Shear X</div><div>${d.shearX.toFixed(3)}</div><div>Scale X/Y</div><div>${d.scaleX.toFixed(3)} / ${d.scaleY.toFixed(3)}</div><div>Root motion</div><div>OFF</div>`;
+ ctx.setTransform(1,0,0,1,0,0);
+ ctx.fillStyle='#000';
+ ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ drawSlash(e,'back');
+ drawBody(p.source,d);
+ drawSlash(e,'front');
+
+ phaseEl.textContent=p.id;
+ timeEl.textContent=Math.round(ms)+' / '+total+' ms';
+ scrub.value=String(ms/total);
+ const src=recipe.sources[p.source];
+ kv.innerHTML=`<div>Atlas cell</div><div>${src.cell??''}</div><div>Shear X</div><div>${d.shearX.toFixed(3)}</div><div>Scale X/Y</div><div>${d.scaleX.toFixed(3)} / ${d.scaleY.toFixed(3)}</div><div>Root motion</div><div>OFF</div>`;
 }
 function loop(now){let ms=offset;if(playing)ms=(offset+(now-start))%total;render(ms);requestAnimationFrame(loop)}
 play.onclick=()=>{if(playing){offset=(offset+(performance.now()-start))%total;playing=false;play.textContent='▶'}else{start=performance.now();playing=true;play.textContent='❚❚'}};
