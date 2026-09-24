@@ -19,7 +19,11 @@
       <p style="padding:16px">loading Motion Profile Lab</p>
     </main>
     <script type="module">
-      import('./src/motion-profile-editor.js').catch((error) => {
+      const params = new URLSearchParams(location.search);
+      const modulePath = params.get('procedural')
+        ? './src/procedural-motion-preview.js'
+        : './src/motion-profile-editor.js';
+      import(modulePath).catch((error) => {
         const app = document.querySelector('#app');
         if (app) {
           app.innerHTML = '<section style="padding:16px"><h1>Motion Profile Lab failed</h1><pre style="white-space:pre-wrap"></pre></section>';
