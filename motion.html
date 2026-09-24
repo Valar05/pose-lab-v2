@@ -26,7 +26,9 @@
         : procedural
           ? './src/procedural-motion-preview.js'
           : './src/motion-profile-editor.js';
-      import(modulePath).catch((error) => {
+      const rev = params.get('rev');
+      const importPath = rev ? modulePath + '?rev=' + encodeURIComponent(rev) : modulePath;
+      import(importPath).catch((error) => {
         const app = document.querySelector('#app');
         if (app) {
           app.innerHTML = '<section style="padding:16px"><h1>Motion Profile Lab failed</h1><pre style="white-space:pre-wrap"></pre></section>';
