@@ -86,24 +86,70 @@ function drawEffectImage(target,image,x,y,rotationDeg=0){
  target.restore();
 }
 function drawSlash(e){
- if(!e)return;const s=recipe.effect,startDeg=clock(s.startClock),endBase=clock(s.endClock);let end=endBase;while(end<=startDeg)end+=360;const cur=(startDeg+(end-startDeg)*clamp(e.reveal))*Math.PI/180,startRad=startDeg*Math.PI/180,r=Math.hypot(canvas.width,canvas.height)*2;
- const layer=document.createElement('canvas');layer.width=canvas.width;layer.height=canvas.height;const lc=layer.getContext('2d');lc.save();lc.beginPath();lc.moveTo(s.pivot[0],s.pivot[1]);lc.arc(s.pivot[0],s.pivot[1],r,startRad,cur,false);lc.closePath();lc.clip();
+ if(!e)return;
+ const s=recipe.effect;
+ const layer=document.createElement('canvas');
+ layer.width=canvas.width;layer.height=canvas.height;
+ const lc=layer.getContext('2d');
+
+ lc.save();
+
+ if(s.revealMode==='linear-bottom-to-top'){
+   const reveal=clamp(e.reveal);
+   const h=slashMap.height*reveal;
+   const y=s.position[1]+slashMap.height-h;
+   lc.beginPath();
+   lc.rect(
+     s.position[0]-slashMap.width,
+     y-slashMap.height,
+     slashMap.width*3,
+     h+slashMap.height
+   );
+   lc.clip();
+ }else{
+   const startDeg=clock(s.startClock),endBase=clock(s.endClock);
+   let end=endBase;while(end<=startDeg)end+=360;
+   const cur=(startDeg+(end-startDeg)*clamp(e.reveal))*Math.PI/180;
+   const startRad=startDeg*Math.PI/180;
+   const r=Math.hypot(canvas.width,canvas.height)*2;
+   lc.beginPath();
+   lc.moveTo(s.pivot[0],s.pivot[1]);
+   lc.arc(s.pivot[0],s.pivot[1],r,startRad,cur,false);
+   lc.closePath();
+   lc.clip();
+ }
+
  const passes=[
    {a:e.wideGlow*s.wideOpacity,b:s.wideBlurPx,color:s.wideGlowRgb},
    {a:e.tightGlow*s.tightOpacity,b:s.tightBlurPx,color:s.tightGlowRgb},
    {a:e.core,b:0,color:null}
  ];
+
  for(const p of passes){
-   if(p.a<=0)continue;lc.save();lc.globalAlpha=p.a;lc.filter=p.b?`blur(${p.b}px)`:'none';
+   if(p.a<=0)continue;
+   lc.save();
+   lc.globalAlpha=p.a;
+   lc.filter=p.b?`blur(${p.b}px)`:'none';
    if(p.color){
-     const tint=document.createElement('canvas');tint.width=slashMap.width;tint.height=slashMap.height;
-     const tc=tint.getContext('2d');tc.drawImage(slashMap,0,0);tc.globalCompositeOperation='source-in';
-     tc.fillStyle=`rgb(${p.color[0]},${p.color[1]},${p.color[2]})`;tc.fillRect(0,0,tint.width,tint.height);
+     const tint=document.createElement('canvas');
+     tint.width=slashMap.width;tint.height=slashMap.height;
+     const tc=tint.getContext('2d');
+     tc.drawImage(slashMap,0,0);
+     tc.globalCompositeOperation='source-in';
+     tc.fillStyle=`rgb(${p.color[0]},${p.color[1]},${p.color[2]})`;
+     tc.fillRect(0,0,tint.width,tint.height);
      drawEffectImage(lc,tint,s.position[0],s.position[1],s.rotationDeg||0);
-   }else drawEffectImage(lc,slashMap,s.position[0],s.position[1],s.rotationDeg||0);
+   }else{
+     drawEffectImage(lc,slashMap,s.position[0],s.position[1],s.rotationDeg||0);
+   }
    lc.restore();
  }
- lc.restore();ctx.save();ctx.translate(stageOffsetX(),0);ctx.drawImage(layer,0,0);ctx.restore();
+
+ lc.restore();
+ ctx.save();
+ ctx.translate(stageOffsetX(),0);
+ ctx.drawImage(layer,0,0);
+ ctx.restore();
 }
 function render(ms){
  const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null;
