@@ -196,7 +196,83 @@ function transformedSlash(image,spec){
  // around a stable local pivot, so rotation never changes/crops the bitmap.
  return image;
 }
+function drawLegacySlash(e,layerName='front'){
+ if(!e||!slashMap||layerName==='back')return;
+ const s=recipe.effect||{};
+ const mode=s.transform||'none';
+ const rot=Number(s.rotationDeg||0);
+ const flipY=mode==='flip-y';
+ const flipX=mode==='flip-x';
+ const swap=Math.abs(rot)%180===90;
+ const image=document.createElement('canvas');
+ image.width=swap?slashMap.height:slashMap.width;
+ image.height=swap?slashMap.width:slashMap.height;
+ const ix=image.getContext('2d');
+ ix.translate(image.width/2,image.height/2);
+ if(rot)ix.rotate(rot*Math.PI/180);
+ ix.scale(flipX?-1:1,flipY?-1:1);
+ ix.drawImage(slashMap,-slashMap.width/2,-slashMap.height/2);
+
+ const x=Number(s.position?.[0]??0),y=Number(s.position?.[1]??0);
+ const reveal=clamp(Number(e.reveal??0));
+ if(reveal<=0)return;
+
+ const layer=document.createElement('canvas');
+ layer.width=canvas.width; layer.height=canvas.height;
+ const lc=layer.getContext('2d');
+ lc.save();
+
+ if(s.revealMode==='radial-local' && reveal<0.999){
+   const lp=s.localPivot||[image.width/2,image.height/2];
+   const px=x+lp[0],py=y+lp[1];
+   const startDeg=clock(Number(s.startClock??7.5));
+   let endDeg=clock(Number(s.endClock??1.5));
+   while(endDeg<=startDeg)endDeg+=360;
+   const start=startDeg*Math.PI/180;
+   const current=(startDeg+(endDeg-startDeg)*reveal)*Math.PI/180;
+   const radius=Math.hypot(image.width,image.height)*1.5;
+   lc.beginPath();
+   lc.moveTo(px,py);
+   lc.arc(px,py,radius,start,current,false);
+   lc.closePath();
+   lc.clip();
+ }
+
+ function passImage(color){
+   if(!color)return image;
+   const tint=document.createElement('canvas');
+   tint.width=image.width;tint.height=image.height;
+   const tc=tint.getContext('2d');
+   tc.drawImage(image,0,0);
+   tc.globalCompositeOperation='source-in';
+   tc.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
+   tc.fillRect(0,0,tint.width,tint.height);
+   return tint;
+ }
+
+ const passes=[
+   {a:Number(e.wideGlow||0)*Number(s.wideOpacity??.55),b:Number(s.wideBlurPx??7.5),color:s.wideGlowRgb},
+   {a:Number(e.tightGlow||0)*Number(s.tightOpacity??.65),b:Number(s.tightBlurPx??2.4),color:s.tightGlowRgb},
+   {a:Number(e.core||0),b:0,color:null}
+ ];
+ for(const p of passes){
+   if(p.a<=0)continue;
+   lc.save();
+   lc.globalAlpha=p.a;
+   lc.filter=p.b?`blur(${p.b}px)`:'none';
+   lc.drawImage(passImage(p.color),x,y);
+   lc.restore();
+ }
+ lc.restore();
+
+ ctx.save();
+ ctx.translate(stageOffsetX(),0);
+ ctx.drawImage(layer,0,0);
+ ctx.restore();
+}
+
 function drawSlash(e,layerName='front'){
+ if(!isHorizontal)return drawLegacySlash(e,layerName);
  if(!e||!slashMap)return;
 
  const spec=recipe.effect||{};
