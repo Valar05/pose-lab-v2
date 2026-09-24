@@ -23,16 +23,16 @@
   },
   "atlases": {
     "vanguard-canonical": {
-      "path": "assets/vanguard/procedural/vanguard-pose-atlas-54.png",
+      "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
       "columns": 6,
-      "rows": 9,
+      "rows": 15,
       "indexBase": 1,
       "mode": "blue-key",
       "size": [
-        1536,
-        1316
+        1037,
+        1536
       ],
-      "sha256": "acb551e180b72233770bb62d371318945d848f89462435bc7c11c069b4d6b47b"
+      "sha256": "98f0920139a94fcc93074a765c721e7e1f4c083311c2c1cea9edaa8f2e087ed1"
     }
   },
   "sources": {
@@ -77,9 +77,9 @@
       "anchorMode": "rear-foot-left"
     },
     "slash-right": {
-      "kind": "image",
-      "path": "assets/vanguard/procedural/slash_right.png",
-      "mode": "black-luminance-alpha",
+      "kind": "effect-atlas-cell",
+      "atlas": "slash-canonical",
+      "cell": 6,
       "role": "effect",
       "trim": true
     }
@@ -244,8 +244,6 @@
       160,
       198
     ],
-    "startClock": 10,
-    "endClock": 5,
     "featherDeg": 14,
     "alphaGain": 1.3,
     "gradientStops": [
@@ -295,11 +293,39 @@
     "tightBlurPx": 2.4,
     "wideBlurPx": 7.5,
     "tightOpacity": 0.65,
-    "wideOpacity": 0.55
+    "wideOpacity": 0.55,
+    "revealStartDeg": 135,
+    "revealSweepDeg": 180,
+    "revealCounterClockwise": false,
+    "revealPivot": [
+      0.5,
+      0.5
+    ],
+    "rotateZDeg": 0,
+    "tiltXDeg": 0,
+    "yawYDeg": 0,
+    "scaleX": 1,
+    "scaleY": 1,
+    "flipX": false,
+    "flipY": true
   },
   "stage": {
     "centerX": 215,
     "centerSource": "idle",
     "mode": "translate-composite-after-local-authoring"
+  },
+  "bodyScale": 1.5,
+  "effectAtlases": {
+    "slash-canonical": {
+      "path": "assets/vanguard/procedural/diorama-slash-atlas.png",
+      "columns": 4,
+      "rows": 2,
+      "indexBase": 1,
+      "size": [
+        768,
+        384
+      ],
+      "sha256": "94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70"
+    }
   }
 }
