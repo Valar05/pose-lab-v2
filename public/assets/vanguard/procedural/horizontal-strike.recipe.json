@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Strike · CW30 + mirror across Y axis + baseline left/up offset",
+  "description": "Vanguard Horizontal Strike · live-tunable slash controls",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -273,9 +273,8 @@
     "scaleY": 1,
     "depthSplit": 0.5,
     "backSide": "left",
-    "positionMode": "baseline-plus-visible-body-offset",
-    "offsetBodyX": -1,
-    "offsetBodyY": -0.25
+    "positionMode": "absolute",
+    "liveControls": true
   },
   "stage": {
     "centerX": 215,
