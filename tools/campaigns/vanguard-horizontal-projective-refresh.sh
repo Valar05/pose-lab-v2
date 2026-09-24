@@ -21,7 +21,10 @@ if [[ ! -d "$WORK/.git" && ! -f "$WORK/.git" ]]; then
   mkdir -p "$STATE"
   git -C "$ROOT" worktree prune
   git -C "$ROOT" worktree add --detach "$WORK" origin/main
+else
+  git -C "$WORK" reset --hard origin/main
 fi
+echo "live_head=$(git -C "$WORK" rev-parse HEAD)"
 
 sync_from_main() {
   local rel="$1"
@@ -165,6 +168,8 @@ echo "attack2_uppercut=20->32->21"
 echo "attack2_total_ms=930"
 echo "slash_right_http=OK"
 
-if command -v termux-open-url >/dev/null 2>&1; then
+if command -v /system/bin/am >/dev/null 2>&1; then
+  /system/bin/am start -a android.intent.action.VIEW -d "$URL" >/dev/null 2>&1 || true
+elif command -v termux-open-url >/dev/null 2>&1; then
   termux-open-url "$URL" || true
 fi
