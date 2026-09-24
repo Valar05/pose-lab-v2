@@ -1,6 +1,13 @@
 import { createProceduralReviewShell } from './procedural-review-shell.js';
 
-const ui=createProceduralReviewShell({title:'Vanguard Overhand Strike',animation:'vanguard-overhand-strike',accent:'#ffbd4a'});
+const params=new URLSearchParams(location.search);
+const animation=params.get('procedural')==='vanguard-undercut-strike'?'vanguard-undercut-strike':'vanguard-overhand-strike';
+const isUndercut=animation==='vanguard-undercut-strike';
+const ui=createProceduralReviewShell({
+  title:isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
+  animation,
+  accent:'#ffbd4a'
+});
 const {q,canvas,fit}=ui;
 const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=true;
 const play=q('[data-play]'),restart=q('[data-restart]'),scrub=q('[data-scrub]'),phaseEl=q('[data-phase]'),timeEl=q('[data-time]'),kv=q('[data-kv]');
@@ -69,6 +76,15 @@ function stageOffsetX(){
  return (recipe.stage?.centerX??215)-localCenter;
 }
 function drawBody(id,d){const it=body(id),[px,py]=recipe.canvas.anchor;ctx.save();ctx.translate(stageOffsetX(),0);ctx.translate(px,py);ctx.transform(d.scaleX,0,d.shearX,d.scaleY,d.shiftX||0,d.shiftY||0);ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);ctx.restore()}
+function drawEffectImage(target,image,x,y,rotationDeg=0){
+ if(!rotationDeg){target.drawImage(image,x,y);return;}
+ const cx=x+image.width/2,cy=y+image.height/2;
+ target.save();
+ target.translate(cx,cy);
+ target.rotate(rotationDeg*Math.PI/180);
+ target.drawImage(image,-image.width/2,-image.height/2);
+ target.restore();
+}
 function drawSlash(e){
  if(!e)return;const s=recipe.effect,startDeg=clock(s.startClock),endBase=clock(s.endClock);let end=endBase;while(end<=startDeg)end+=360;const cur=(startDeg+(end-startDeg)*clamp(e.reveal))*Math.PI/180,startRad=startDeg*Math.PI/180,r=Math.hypot(canvas.width,canvas.height)*2;
  const layer=document.createElement('canvas');layer.width=canvas.width;layer.height=canvas.height;const lc=layer.getContext('2d');lc.save();lc.beginPath();lc.moveTo(s.pivot[0],s.pivot[1]);lc.arc(s.pivot[0],s.pivot[1],r,startRad,cur,false);lc.closePath();lc.clip();
@@ -83,8 +99,8 @@ function drawSlash(e){
      const tint=document.createElement('canvas');tint.width=slashMap.width;tint.height=slashMap.height;
      const tc=tint.getContext('2d');tc.drawImage(slashMap,0,0);tc.globalCompositeOperation='source-in';
      tc.fillStyle=`rgb(${p.color[0]},${p.color[1]},${p.color[2]})`;tc.fillRect(0,0,tint.width,tint.height);
-     lc.drawImage(tint,s.position[0],s.position[1]);
-   }else lc.drawImage(slashMap,s.position[0],s.position[1]);
+     drawEffectImage(lc,tint,s.position[0],s.position[1],s.rotationDeg||0);
+   }else drawEffectImage(lc,slashMap,s.position[0],s.position[1],s.rotationDeg||0);
    lc.restore();
  }
  lc.restore();ctx.save();ctx.translate(stageOffsetX(),0);ctx.drawImage(layer,0,0);ctx.restore();
@@ -98,7 +114,8 @@ play.onclick=()=>{if(playing){offset=(offset+(performance.now()-start))%total;pl
 restart.onclick=()=>{offset=0;start=performance.now();render(0)};scrub.oninput=()=>{offset=Number(scrub.value)*total;start=performance.now();render(offset)};
 
 try{
- recipe=await fetch('./assets/vanguard/procedural/overhand-strike.recipe.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;phases=recipe.phases;total=phases.reduce((n,p)=>n+Number(p.durationMs),0);canvas.width=recipe.canvas.size[0];canvas.height=recipe.canvas.size[1];
+ const recipePath=isUndercut?'./assets/vanguard/procedural/undercut-strike.recipe.json':'./assets/vanguard/procedural/overhand-strike.recipe.json';
+ recipe=await fetch(recipePath,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;phases=recipe.phases;total=phases.reduce((n,p)=>n+Number(p.durationMs),0);canvas.width=recipe.canvas.size[0];canvas.height=recipe.canvas.size[1];
  const spec=recipe.atlases['vanguard-canonical'],atlasPath=spec.path.startsWith('./')?spec.path:'./'+spec.path,slashPath=recipe.sources['slash-right'].path.startsWith('./')?recipe.sources['slash-right'].path:'./'+recipe.sources['slash-right'].path;
  [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);buildSlash();for(const [id,s] of Object.entries(recipe.sources))if(s.role==='body')body(id);render(0);requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
 }catch(err){document.querySelector('#app').innerHTML='<pre style="padding:18px;color:#ff8a8a;white-space:pre-wrap"></pre>';document.querySelector('#app pre').textContent=err?.stack||String(err)}
