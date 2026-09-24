@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Slash · three authored poses + pitched Jovian ring",
+  "description": "Vanguard Horizontal Slash · exact user-uploaded order: chamber → stab/contact → overhead arc-finish",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -41,31 +41,31 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left"
+      "anchorMode": "bottom-center"
     },
     "chamber": {
-      "kind": "atlas-cell",
-      "atlas": "vanguard-canonical",
-      "cell": 61,
-      "role": "body",
-      "trim": true,
-      "anchorMode": "rear-foot-left"
-    },
-    "commit": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
       "cell": 80,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left"
+      "anchorMode": "bottom-center"
     },
-    "contact": {
+    "commit": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
       "cell": 62,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left"
+      "anchorMode": "bottom-center"
+    },
+    "contact": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 61,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "bottom-center"
     },
     "slash-right": {
       "kind": "image",
@@ -79,47 +79,37 @@
     {
       "id": "idle",
       "source": "idle",
-      "durationMs": 70,
+      "durationMs": 65,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
       }
     },
     {
-      "id": "horizontal-chamber",
+      "id": "chamber",
       "source": "chamber",
-      "durationMs": 95,
+      "durationMs": 105,
       "deform": {
-        "shearX": 0.08,
+        "shearX": 0.035,
         "scaleX": 1,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
       }
     },
     {
-      "id": "release",
+      "id": "stab-contact",
       "source": "commit",
-      "durationMs": 55,
+      "durationMs": 105,
       "deform": {
-        "shearX": -0.1,
+        "shearX": -0.055,
         "scaleX": 1,
-        "scaleY": 1
-      },
-      "effect": {
-        "reveal": 0.28,
-        "core": 0.55,
-        "tightGlow": 0.42,
-        "wideGlow": 0.24
-      }
-    },
-    {
-      "id": "lateral-contact",
-      "source": "contact",
-      "durationMs": 120,
-      "deform": {
-        "shearX": -0.22,
-        "scaleX": 1,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 1,
@@ -129,45 +119,33 @@
       }
     },
     {
-      "id": "follow-through",
+      "id": "arc-finish",
       "source": "contact",
-      "durationMs": 85,
-      "deform": {
-        "shearX": -0.16,
-        "scaleX": 1,
-        "scaleY": 1
-      },
-      "effect": {
-        "reveal": 1,
-        "core": 0.44,
-        "tightGlow": 0.48,
-        "wideGlow": 0.52
-      }
-    },
-    {
-      "id": "recoil-1",
-      "source": "contact",
-      "durationMs": 95,
-      "deform": {
-        "shearX": -0.08,
-        "scaleX": 1,
-        "scaleY": 1
-      },
-      "effect": {
-        "reveal": 1,
-        "core": 0.14,
-        "tightGlow": 0.18,
-        "wideGlow": 0.24
-      }
-    },
-    {
-      "id": "recoil-2",
-      "source": "contact",
-      "durationMs": 85,
+      "durationMs": 115,
       "deform": {
         "shearX": -0.025,
         "scaleX": 1,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 1,
+        "core": 0.5,
+        "tightGlow": 0.52,
+        "wideGlow": 0.5
+      }
+    },
+    {
+      "id": "settle-skew",
+      "source": "contact",
+      "durationMs": 95,
+      "deform": {
+        "shearX": -0.01,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 0,
@@ -179,11 +157,13 @@
     {
       "id": "idle-return",
       "source": "idle",
-      "durationMs": 100,
+      "durationMs": 105,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
       }
     }
   ],
@@ -267,6 +247,6 @@
   },
   "motionAuthority": {
     "kind": "expanded-vanguard-atlas",
-    "description": "Three-pose horizontal cut: cell 61 chamber, cell 80 release, cell 62 contact"
+    "description": "Exact uploaded sequence: 80 chamber, 62 stab/contact, 61 overhead recovery"
   }
 }
