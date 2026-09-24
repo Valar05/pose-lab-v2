@@ -1,0 +1,201 @@
+{
+  "schema": "pose-lab-v2-procedural-motion-resolved-v1",
+  "recipe": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/animations/candidates/vanguard/overhand-strike/recipe.json",
+  "id": "vanguard-overhand-strike-procedural-proof-v2",
+  "subject": "vanguard",
+  "rootMotion": false,
+  "canvas": {
+    "size": [
+      430,
+      260
+    ],
+    "background": [
+      0,
+      0,
+      0,
+      255
+    ],
+    "anchor": [
+      92,
+      226
+    ],
+    "anchorMeaning": "rear planted foot"
+  },
+  "sourceHashes": {
+    "idle": "444085b2f385130ddfc84ef4b9ecab758ca19e43a47bc93d09fa3fb4a452aefb#cell=2",
+    "chamber": "444085b2f385130ddfc84ef4b9ecab758ca19e43a47bc93d09fa3fb4a452aefb#cell=26",
+    "commit": "444085b2f385130ddfc84ef4b9ecab758ca19e43a47bc93d09fa3fb4a452aefb#cell=40",
+    "preimpact": "444085b2f385130ddfc84ef4b9ecab758ca19e43a47bc93d09fa3fb4a452aefb#cell=32",
+    "contact": "444085b2f385130ddfc84ef4b9ecab758ca19e43a47bc93d09fa3fb4a452aefb#cell=35",
+    "slash-right": "f0a84b074e10b735dc9022404520fd5a20c53138dbcfd2ebce49b104992d86c8"
+  },
+  "atlasHashes": {
+    "vanguard-canonical": "444085b2f385130ddfc84ef4b9ecab758ca19e43a47bc93d09fa3fb4a452aefb"
+  },
+  "phases": [
+    {
+      "index": 0,
+      "id": "idle",
+      "source": "idle",
+      "durationMs": 75,
+      "deform": {
+        "shearX": 0.0,
+        "scaleX": 1.0,
+        "scaleY": 1.0
+      },
+      "effect": null
+    },
+    {
+      "index": 1,
+      "id": "anticipation",
+      "source": "idle",
+      "durationMs": 75,
+      "deform": {
+        "shearX": 0.1,
+        "scaleX": 1.0,
+        "scaleY": 0.97,
+        "shiftY": 1.0
+      },
+      "effect": null
+    },
+    {
+      "index": 2,
+      "id": "chamber",
+      "source": "chamber",
+      "durationMs": 70,
+      "deform": {
+        "shearX": 0.06,
+        "scaleX": 1.01,
+        "scaleY": 0.98
+      },
+      "effect": {
+        "reveal": 0.1,
+        "core": 0.3,
+        "tightGlow": 0.18,
+        "wideGlow": 0.12
+      }
+    },
+    {
+      "index": 3,
+      "id": "cross-commit",
+      "source": "commit",
+      "durationMs": 45,
+      "deform": {
+        "shearX": -0.1,
+        "scaleX": 1.02,
+        "scaleY": 0.99
+      },
+      "effect": {
+        "reveal": 0.48,
+        "core": 0.72,
+        "tightGlow": 0.52,
+        "wideGlow": 0.3
+      }
+    },
+    {
+      "index": 4,
+      "id": "lean-forward",
+      "source": "preimpact",
+      "durationMs": 45,
+      "deform": {
+        "shearX": -0.24,
+        "scaleX": 1.04,
+        "scaleY": 1.01,
+        "shiftY": -1.0
+      },
+      "effect": {
+        "reveal": 0.84,
+        "core": 0.92,
+        "tightGlow": 0.82,
+        "wideGlow": 0.46
+      }
+    },
+    {
+      "index": 5,
+      "id": "contact",
+      "source": "contact",
+      "durationMs": 125,
+      "deform": {
+        "shearX": -0.34,
+        "scaleX": 1.06,
+        "scaleY": 1.02,
+        "shiftY": -2.0
+      },
+      "effect": {
+        "reveal": 1.0,
+        "core": 1.0,
+        "tightGlow": 1.0,
+        "wideGlow": 0.7
+      }
+    },
+    {
+      "index": 6,
+      "id": "follow-through",
+      "source": "contact",
+      "durationMs": 90,
+      "deform": {
+        "shearX": -0.25,
+        "scaleX": 1.05,
+        "scaleY": 1.0
+      },
+      "effect": {
+        "reveal": 1.0,
+        "core": 0.42,
+        "tightGlow": 0.45,
+        "wideGlow": 0.55
+      }
+    },
+    {
+      "index": 7,
+      "id": "recoil-1",
+      "source": "contact",
+      "durationMs": 95,
+      "deform": {
+        "shearX": -0.12,
+        "scaleX": 1.03,
+        "scaleY": 0.995,
+        "shiftY": 1.0
+      },
+      "effect": {
+        "reveal": 1.0,
+        "core": 0.16,
+        "tightGlow": 0.18,
+        "wideGlow": 0.26
+      }
+    },
+    {
+      "index": 8,
+      "id": "recoil-2",
+      "source": "contact",
+      "durationMs": 90,
+      "deform": {
+        "shearX": -0.03,
+        "scaleX": 1.01,
+        "scaleY": 0.99,
+        "shiftY": 2.0
+      },
+      "effect": {
+        "reveal": 0.0,
+        "core": 0.0,
+        "tightGlow": 0.0,
+        "wideGlow": 0.05
+      }
+    },
+    {
+      "index": 9,
+      "id": "idle-return",
+      "source": "idle",
+      "durationMs": 105,
+      "deform": {
+        "shearX": 0.0,
+        "scaleX": 1.0,
+        "scaleY": 1.0
+      },
+      "effect": null
+    }
+  ],
+  "outputs": {
+    "previewGif": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/animations/candidates/vanguard/overhand-strike/generated/preview.gif",
+    "stripPng": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/animations/candidates/vanguard/overhand-strike/generated/strip.png"
+  }
+}

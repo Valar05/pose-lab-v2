@@ -202,84 +202,117 @@ function drawEffectImage(target,image,x,y,rotationDeg=0){
  target.restore();
 }
 function transformedSlash(image,spec){
- // Neutral baseline: NO rotation, flip, scale, stretch, shear, or perspective.
- return image;
+  // Do NOT pre-transform or trim the slash.
+  // Rotation / shear / flip / scale must happen in world draw space
+  // or the pivot walks and the result clips.
+  return image;
 }
+
 function drawSlash(e,layerName='front'){
- if(!e||!slashMap)return;
+  if(!e || !slashMap) return;
 
- const spec=recipe.effect||{};
- const image=transformedSlash(slashMap,spec);
- const x=Number(spec.position?.[0]??0);
- const y=Number(spec.position?.[1]??0);
- const reveal=clamp(Number(e.reveal??0));
- if(reveal<=0)return;
+  const spec = recipe.effect || {};
+  const img = slashMap;
 
- const split=Math.max(.1,Math.min(.9,Number(spec.depthSplit??.5)));
- const splitX=x+image.width*split;
- const pivot=spec.revealPivot||[.5,.5];
- const cx=x+image.width*pivot[0];
- const cy=y+image.height*pivot[1];
- const start=Number(spec.revealStartDeg??0)*Math.PI/180;
- const sweep=Number(spec.revealSweepDeg??180)*Math.PI/180;
- const end=spec.revealCounterClockwise===false
-   ? start+sweep*reveal
-   : start-sweep*reveal;
+  const reveal = clamp(e.reveal);
+  const split = Math.max(.10, Math.min(.90, Number(spec.depthSplit ?? .54)));
+  const pivot = spec.revealPivot || [.18, .78];
+  const startDeg = Number(spec.revealStartDeg ?? -12);
+  const spanDeg = Number(spec.revealSpanDeg ?? 150);
+  const backIsLeft = (spec.backSide || 'left') === 'left';
 
- function passImage(color){
-   if(!color)return image;
-   const tint=document.createElement('canvas');
-   tint.width=image.width;
-   tint.height=image.height;
-   const tc=tint.getContext('2d');
-   tc.drawImage(image,0,0);
-   tc.globalCompositeOperation='source-in';
-   tc.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
-   tc.fillRect(0,0,tint.width,tint.height);
-   return tint;
- }
+  const pos = spec.position || [0,0];
+  const x = Number(pos[0] ?? 0);
+  const y = Number(pos[1] ?? 0);
 
- const layer=document.createElement('canvas');
- layer.width=canvas.width;
- layer.height=canvas.height;
- const lc=layer.getContext('2d');
+  const px = img.width  * Number(pivot[0] ?? .18);
+  const py = img.height * Number(pivot[1] ?? .78);
 
- lc.save();
- const radius=Math.hypot(image.width,image.height)*2;
- lc.beginPath();
- lc.moveTo(cx,cy);
- lc.arc(cx,cy,radius,start,end,spec.revealCounterClockwise!==false);
- lc.closePath();
- lc.clip();
+  const rot = Number(spec.rotationDeg || 0) * Math.PI / 180;
+  const sx  = (spec.flipX ? -1 : 1) * Number(spec.stretchX ?? 1);
+  const sy  = (spec.flipY ? -1 : 1) * Number(spec.pitchScaleY ?? 1);
+  const shx = Number(spec.yawShearX ?? 0);
 
- lc.beginPath();
- if(layerName==='back'){
-   lc.rect(x-4,y-4,image.width*split+8,image.height+8);
- }else{
-   lc.rect(splitX-4,y-4,image.width*(1-split)+8,image.height+8);
- }
- lc.clip();
+  const cx = stageOffsetX() + x + px;
+  const cy = y + py;
 
- const passes=[
-   {a:e.wideGlow*spec.wideOpacity,b:spec.wideBlurPx,color:spec.wideGlowRgb},
-   {a:e.tightGlow*spec.tightOpacity,b:spec.tightBlurPx,color:spec.tightGlowRgb},
-   {a:e.core,b:0,color:null}
- ];
- for(const q of passes){
-   if(q.a<=0)continue;
-   lc.save();
-   lc.globalAlpha=q.a;
-   lc.filter=q.b?`blur(${q.b}px)`:'none';
-   lc.drawImage(passImage(q.color),x,y);
-   lc.restore();
- }
- lc.restore();
+  function tintPass(color){
+    if(!color) return img;
+    const tint = document.createElement('canvas');
+    tint.width = img.width;
+    tint.height = img.height;
+    const tc = tint.getContext('2d');
+    tc.drawImage(img,0,0);
+    tc.globalCompositeOperation = 'source-in';
+    tc.fillStyle = `rgb(${color[0]},${color[1]},${color[2]})`;
+    tc.fillRect(0,0,tint.width,tint.height);
+    return tint;
+  }
 
- ctx.save();
- ctx.translate(stageOffsetX(),0);
- ctx.drawImage(layer,0,0);
- ctx.restore();
+  function clipHalf(c){
+    const front = layerName !== 'back';
+    const drawLeftHalf = front ? !backIsLeft : backIsLeft;
+    const pad = Math.max(img.width, img.height);
+
+    c.beginPath();
+    if(drawLeftHalf){
+      c.rect(
+        -px - pad,
+        -py - pad,
+        img.width * split + pad * 2,
+        img.height + pad * 2
+      );
+    }else{
+      c.rect(
+        -px + img.width * split - pad,
+        -py - pad,
+        img.width * (1 - split) + pad * 2,
+        img.height + pad * 2
+      );
+    }
+    c.clip();
+  }
+
+  const passes = [
+    { a: e.wideGlow  * (spec.wideOpacity  ?? .34), b: spec.wideBlurPx  ?? 10, color: spec.wideGlowRgb  || [255,110,30] },
+    { a: e.tightGlow * (spec.tightOpacity ?? .62), b: spec.tightBlurPx ??  3, color: spec.tightGlowRgb || [255,165,90] },
+    { a: e.core, b: 0, color: null }
+  ];
+
+  ctx.save();
+
+  // Transform in world space around a stable pivot.
+  ctx.translate(cx, cy);
+  if(rot) ctx.rotate(rot);
+  ctx.transform(1, 0, shx, 1, 0, 0);
+  ctx.scale(sx, sy);
+
+  // Real radial reveal, in local slash space.
+  const radius = Math.max(img.width, img.height) * 2.5;
+  const start = startDeg * Math.PI / 180;
+  const end   = (startDeg + spanDeg * reveal) * Math.PI / 180;
+
+  ctx.beginPath();
+  ctx.moveTo(0,0);
+  ctx.arc(0,0,radius,start,end,false);
+  ctx.closePath();
+  ctx.clip();
+
+  // Then split into back/front halves.
+  clipHalf(ctx);
+
+  for(const p of passes){
+    if(p.a <= 0) continue;
+    ctx.save();
+    ctx.globalAlpha = p.a;
+    ctx.filter = p.b ? `blur(${p.b}px)` : 'none';
+    ctx.drawImage(tintPass(p.color), -px, -py);
+    ctx.restore();
+  }
+
+  ctx.restore();
 }
+
 function render(ms){
  const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null;
  ctx.setTransform(1,0,0,1,0,0);
