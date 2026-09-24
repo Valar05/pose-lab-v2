@@ -1,0 +1,42 @@
+{
+  "schema": "pose-lab-v2-procedural-run-recipe-v1",
+  "id": "vanguard-sixframe-run-procedural-v1",
+  "subject": "vanguard",
+  "poseAuthority": "exact accepted 48-pose Vanguard atlas",
+  "motionAuthority": "911832.mp4 procedural run reference",
+  "rootMotion": false,
+  "travelOwner": "game-controller",
+  "canvas": {"size":[430,260],"anchor":[102,229]},
+  "atlas": {
+    "file": "assets/vanguard/procedural/vanguard-pose-atlas-48.png",
+    "columns": 6,
+    "rows": 8,
+    "indexBase": 1,
+    "size": [1536,1170],
+    "sha256": "0f6183b8cfa516388ec62b70b79773037c3bfe21576ae9bc0a52510eac8a4420"
+  },
+  "cycleMs": 1050,
+  "blendWindow": 0.20,
+  "poses": [
+    {"id":"contact-a","cell":6,"weight":1.10,"deform":{"shearX":-0.12,"scaleX":1.025,"scaleY":0.985,"shiftY":0}},
+    {"id":"compression-a","cell":17,"weight":1.18,"deform":{"shearX":-0.16,"scaleX":0.985,"scaleY":0.935,"shiftY":7}},
+    {"id":"passing-a","cell":3,"weight":0.86,"deform":{"shearX":-0.22,"scaleX":1.075,"scaleY":0.965,"shiftY":-5}},
+    {"id":"contact-b","cell":8,"weight":1.10,"deform":{"shearX":-0.13,"scaleX":1.025,"scaleY":0.985,"shiftY":0}},
+    {"id":"compression-b","cell":4,"weight":1.18,"deform":{"shearX":-0.17,"scaleX":0.985,"scaleY":0.935,"shiftY":7}},
+    {"id":"passing-b","cell":5,"weight":0.86,"deform":{"shearX":-0.23,"scaleX":1.075,"scaleY":0.965,"shiftY":-5}}
+  ],
+  "secondary": {
+    "forwardSkewPulse": 0.025,
+    "breathScaleY": 0.012,
+    "bobPx": 2.25
+  },
+  "acceptance": [
+    "six authored atlas poses remain the pose authority",
+    "rear-foot contact remains visually pinned",
+    "no root translation",
+    "contact and compression read heavier than passing poses",
+    "passing poses sweep faster",
+    "forward body commitment persists across the whole cycle",
+    "loop returns continuously from passing-b to contact-a"
+  ]
+}
