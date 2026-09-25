@@ -134,3 +134,14 @@ These are named failure classes. Treat recurrence as a guard failure, not a crea
 - A discovered prerequisite repair does NOT require a new user prompt when it only reconciles repo enforcement/infrastructure with already-settled campaign rules and does not expand the requested creative mutation surface.
 - After repairing the prerequisite, rerun the guard/verifier and continue through the requested visible review boundary.
 - Stop only when the prerequisite repair would change locked creative content, expand authority, require unavailable evidence, or cross an explicitly forbidden boundary.
+
+## Sprite-sheet production lessons
+- Use original authored sheets as mechanical source; generated derivatives are review-only.
+- Shrink source before inference/measurement for speed.
+- Apply one shared scale to a regular sheet; do not normalize frames independently.
+- Preserve source order and source-cell geometry.
+- Grow atlas/cells instead of clipping or shrinking useful poses.
+- Match the established body/ground anchor convention.
+- Cleanup must distinguish phantom fragments from legitimate separated geometry; use explicit masks when needed.
+- Prefer inclusion over premature dedupe; exact duplicates may be removed, meaningful near-duplicates stay.
+- Static atlas review and animation review are separate acceptance gates.
