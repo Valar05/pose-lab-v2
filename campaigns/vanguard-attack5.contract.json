@@ -20,7 +20,8 @@
   },
   "timingAuthority": {
     "kind": "Vanguard-3D-SwordAttack5",
-    "durationMs": 1000
+    "durationMs": 650,
+    "note": "SwordAttack5 relative cadence; user-authored opening-jab total 650ms."
   },
   "accepted": {
     "bodyCells": true,
