@@ -93,6 +93,10 @@
       "anchorPoint": [
         72,
         94
+      ],
+      "registrationOffset": [
+        34,
+        0
       ]
     },
     "spray": {
