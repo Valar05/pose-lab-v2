@@ -1,0 +1,32 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v1",
+  "id": "vanguard-shoulder-charge-2026-09-25",
+  "mission": "Add a heavy counter-attack shoulder-charge animation using canonical atlas cells 89 and 90, with skew/scale interpolation, and canonical idle cell 2 as both first and last frame.",
+  "authority": {
+    "pose": "canonical vanguard-pose-atlas-90.png; user-designated cells 89 and 90",
+    "idle": "canonical cell 2",
+    "timing": "bespoke heavy-counter cadence requested by user"
+  },
+  "locks": {
+    "existingAttacks": "Attacks 1-5 and Butt Smash remain immutable",
+    "atlas": "vanguard-pose-atlas-90.png immutable"
+  },
+  "writableSurface": [
+    "public/assets/vanguard/procedural/shoulder-charge.recipe.json",
+    "src/procedural-motion-preview.js",
+    "campaigns/vanguard-shoulder-charge.contract.json",
+    "tools/campaigns/vanguard-shoulder-charge-guard.py",
+    "tools/campaigns/vanguard-shoulder-charge-refresh.sh"
+  ],
+  "executionLane": "GitHub canonical source -> phone disposable worktree -> existing localhost Pose Lab V2 runtime",
+  "forbidden": [
+    "new viewer",
+    "GIF/video substitution",
+    "phone browser architecture substitution",
+    "Browser Nerve",
+    "changes to existing attack recipes",
+    "atlas mutation"
+  ],
+  "visualGate": "http://127.0.0.1:8766/motion.html?procedural=vanguard-shoulder-charge&rev=<served-rev>&nocache=<timestamp>",
+  "status": "sealed-before-apply"
+}
