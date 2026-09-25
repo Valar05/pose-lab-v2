@@ -16,7 +16,42 @@ mapfile -t PICK < <(find "$DL" -maxdepth 1 -type f -iname '*.png' -printf '%T@ %
 cp -- "${PICK[0]}" "$INBOX/superman-01.png"
 cp -- "${PICK[1]}" "$INBOX/superman-02.png"
 printf 'source_1=%s\nsource_2=%s\n' "${PICK[0]}" "${PICK[1]}"
-mapfile -t SRC < <(find "$INBOX" -maxdepth 1 -type f -name 'superman-*.png' | sort)
+echo "=== SEGMENT INDIVIDUAL POSES FROM SOURCE SHEETS ==="
+python3 - "$INBOX/superman-01.png" "$INBOX/superman-02.png" "$INBOX" <<'PYSEG'
+from PIL import Image
+from pathlib import Path
+import sys
+out=Path(sys.argv[3])
+for si,fn in enumerate(sys.argv[1:3],1):
+ im=Image.open(fn).convert("RGB")
+ # black-background source sheets: foreground is any materially non-black pixel.
+ px=im.load(); w,h=im.size
+ mask=[[False]*w for _ in range(h)]
+ for y in range(h):
+  for x in range(w):
+   r,g,b=px[x,y]
+   mask[y][x]=max(r,g,b)>=28
+ # column occupancy separates the large authored figures without guessing fixed dimensions.
+ occ=[sum(mask[y][x] for y in range(h)) for x in range(w)]
+ runs=[]; start=None
+ for x,n in enumerate(occ+[0]):
+  if n>3 and start is None: start=x
+  if n<=3 and start is not None:
+   if x-start>=max(20,w//12): runs.append((start,x))
+   start=None
+ if len(runs)<2: raise SystemExit(f"STOP: source {fn} yielded {len(runs)} pose regions, expected >=2")
+ # keep the two widest meaningful regions, then restore reading order
+ runs=sorted(sorted(runs,key=lambda q:q[1]-q[0],reverse=True)[:2])
+ for pi,(x0,x1) in enumerate(runs,1):
+  ys=[y for y in range(h) if any(mask[y][x] for x in range(x0,x1))]
+  if not ys: raise SystemExit("STOP: empty segmented pose")
+  y0=max(0,min(ys)-8); y1=min(h,max(ys)+9); x0=max(0,x0-8); x1=min(w,x1+8)
+  crop=im.crop((x0,y0,x1,y1))
+  crop.save(out/f"pose-{si:02d}-{pi:02d}.png")
+  print(f"segmented=source{si}/pose{pi} rect={x0},{y0},{x1-x0},{y1-y0}")
+PYSEG
+mapfile -t SRC < <(find "$INBOX" -maxdepth 1 -type f -name 'pose-*.png' | sort)
+[[ "${#SRC[@]}" -eq 4 ]] || { echo "STOP: expected four individual pose crops, got ${#SRC[@]}"; exit 4; }
 python3 - "$ATLAS" "$OUT" "$MANIFEST" "${SRC[@]}" <<'PY'
 from PIL import Image,ImageFilter,ImageEnhance
 from pathlib import Path
