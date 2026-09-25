@@ -8,9 +8,14 @@ MANIFEST="$ROOT/public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.m
 cd "$ROOT"
 echo "=== APPEND-ONLY VANGUARD ATLAS ==="
 [[ -f "$ATLAS" ]] || { echo "STOP: canonical atlas missing"; exit 2; }
+rm -rf "$INBOX"
 mkdir -p "$INBOX"
-mapfile -t SRC < <(find "$INBOX" -maxdepth 1 -type f -name "superman-*.png" | sort)
-[[ "${#SRC[@]}" -gt 0 ]] || { echo "STOP: place prepared superman-*.png files in $INBOX"; exit 3; }
+mapfile -t PICK < <(find "$DL" -maxdepth 1 -type f -iname '*.png' -printf '%T@ %p\n' | sort -nr | head -2 | cut -d' ' -f2-)
+[[ "${#PICK[@]}" -eq 2 ]] || { echo "STOP: expected two PNGs in Downloads"; exit 3; }
+cp -- "${PICK[0]}" "$INBOX/superman-01.png"
+cp -- "${PICK[1]}" "$INBOX/superman-02.png"
+printf 'source_1=%s\nsource_2=%s\n' "${PICK[0]}" "${PICK[1]}"
+mapfile -t SRC < <(find "$INBOX" -maxdepth 1 -type f -name 'superman-*.png' | sort)
 python3 - "$ATLAS" "$OUT" "$MANIFEST" "${SRC[@]}" <<'PY'
 from PIL import Image,ImageFilter,ImageEnhance
 from pathlib import Path
