@@ -235,72 +235,6 @@ function drawBody(id,d){
  ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
  ctx.restore();
 }
-
-function revealOriginFor(sourceId){
- const it=body(sourceId);
- const src=recipe.sources[sourceId]||{};
- const canvas=it.canvas;
- const data=canvas.getContext('2d',{willReadFrequently:true})
-   .getImageData(0,0,canvas.width,canvas.height).data;
-
- let minX=canvas.width,minY=canvas.height,maxX=-1,maxY=-1;
-
- for(let y=0;y<canvas.height;y++){
-   for(let x=0;x<canvas.width;x++){
-     if(data[(y*canvas.width+x)*4+3]>8){
-       minX=Math.min(minX,x);
-       minY=Math.min(minY,y);
-       maxX=Math.max(maxX,x);
-       maxY=Math.max(maxY,y);
-     }
-   }
- }
-
- if(maxX<minX||maxY<minY){
-   return [
-     stageOffsetX()+recipe.canvas.anchor[0],
-     recipe.canvas.anchor[1]
-   ];
- }
-
- // The head is the upper occupied portion of the body.
- // Use the median occupied X in the top quarter to avoid
- // weapon/limb outliers and keep the origin tied to the sprite.
- const headLimit=minY+(maxY-minY)*0.26;
- const xs=[];
- let ySum=0,yCount=0;
-
- for(let y=minY;y<=headLimit;y++){
-   for(let x=minX;x<=maxX;x++){
-     if(data[(y*canvas.width+x)*4+3]>8){
-       xs.push(x);
-       ySum+=y;
-       yCount++;
-     }
-   }
- }
-
- if(!xs.length){
-   xs.push(Math.round((minX+maxX)/2));
-   ySum=minY+(maxY-minY)*0.12;
-   yCount=1;
- }
-
- xs.sort((a,b)=>a-b);
- const headX=xs[Math.floor(xs.length/2)];
- const headY=ySum/yCount;
-
- const bodyScale=Number(recipe.bodyScale??1);
- const stageX=stageOffsetX()
-   +recipe.canvas.anchor[0]
-   +(headX-Number(src.anchorPoint?.[0]??it.anchor[0]))*bodyScale;
-
- const stageY=recipe.canvas.anchor[1]
-   +(headY-Number(src.anchorPoint?.[1]??it.anchor[1]))*bodyScale;
-
- return [stageX,stageY];
-}
-
 function drawSlash(e,layerName='front'){
  if(!e||!slashMap)return;
 
@@ -368,29 +302,18 @@ function drawSlash(e,layerName='front'){
  ];
 
  ctx.save();
-
- // Radial reveal is deliberately created in stage coordinates.
- // Its origin is Vanguard's head, not the slash pivot.
- if(spec.revealMode==='radial'){
-   const origin=revealOriginFor(spec.revealOriginBody||'commit');
-   ctx.beginPath();
-   ctx.arc(
-     origin[0],
-     origin[1],
-     Math.max(0,radius*reveal),
-     0,
-     Math.PI*2
-   );
-   ctx.clip();
- }
-
  ctx.translate(stageOffsetX()+x+px,y+py);
  ctx.rotate(rotZ);
  ctx.scale(sx,sy);
  ctx.transform(1,0,pseudoShearX,pseudoScaleY,0,0);
 
- // "none" means no reveal clipping.
- if(spec.revealMode!=='none' && spec.revealMode!=='radial'){
+ // Reveal in slash-local space, after placement transform.
+ // radial = true expanding circular mask from the slash pivot.
+ if(spec.revealMode==='radial'){
+   ctx.beginPath();
+   ctx.arc(0,0,Math.max(0,radius*reveal),0,Math.PI*2);
+   ctx.clip();
+ }else if(spec.revealMode!=='none'){
    ctx.beginPath();
    ctx.moveTo(0,0);
    ctx.arc(0,0,radius,start,end,spec.revealCounterClockwise!==false);
