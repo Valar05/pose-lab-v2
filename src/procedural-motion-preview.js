@@ -2,7 +2,9 @@ import { createProceduralReviewShell } from './procedural-review-shell.js';
 
 const params=new URLSearchParams(location.search);
 const requested=params.get('procedural');
-const animation=requested==='vanguard-shoulder-charge'\n  ? 'vanguard-shoulder-charge'\n  : requested==='vanguard-butt-smash'
+const animation=requested==='vanguard-shoulder-charge'
+  ? 'vanguard-shoulder-charge'
+  : requested==='vanguard-butt-smash'
   ? 'vanguard-butt-smash'
   : requested==='vanguard-attack5'
   ? 'vanguard-attack5'
@@ -13,7 +15,8 @@ const animation=requested==='vanguard-shoulder-charge'\n  ? 'vanguard-shoulder-c
     : requested==='vanguard-horizontal-strike'
       ? 'vanguard-horizontal-strike'
       : 'vanguard-overhand-strike';
-const isShoulderCharge=animation==='vanguard-shoulder-charge';\nconst isButtSmash=animation==='vanguard-butt-smash';
+const isShoulderCharge=animation==='vanguard-shoulder-charge';
+const isButtSmash=animation==='vanguard-butt-smash';
 const isAttack5=animation==='vanguard-attack5';
 const isUndercut=animation==='vanguard-undercut-strike';
 const isAttack2=animation==='vanguard-attack2-uppercut';
@@ -574,7 +577,9 @@ function installSlashControls(){
 }
 
 try{
- const recipePath=isShoulderCharge\n   ? './assets/vanguard/procedural/shoulder-charge.recipe.json'\n   : isButtSmash
+ const recipePath=isShoulderCharge
+   ? './assets/vanguard/procedural/shoulder-charge.recipe.json'
+   : isButtSmash
    ? './assets/vanguard/procedural/butt-smash.recipe.json'
    : isAttack5
    ? './assets/vanguard/procedural/attack5.recipe.json'
