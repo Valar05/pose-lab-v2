@@ -297,14 +297,14 @@
     "wideBlurPx": 7.5,
     "tightOpacity": 0.65,
     "wideOpacity": 0.55,
-    "revealStartDeg": 135,
-    "revealSweepDeg": 180,
+    "revealStartDeg": 180,
+    "revealSweepDeg": 120,
     "revealCounterClockwise": false,
     "revealPivot": [
       0.5,
       0.5
     ],
-    "revealMode": "radial",
+    "revealMode": "angular",
     "rotateZDeg": -75,
     "tiltXDeg": 0,
     "yawYDeg": 0,
