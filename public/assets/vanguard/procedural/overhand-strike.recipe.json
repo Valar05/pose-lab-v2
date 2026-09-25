@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-overhand-strike-procedural-proof-v4",
   "subject": "vanguard",
-  "description": "Vanguard Overhand Strike · live procedural proof",
+  "description": "Vanguard Overhand Strike \u00b7 live procedural proof",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -130,7 +130,7 @@
         0
       ],
       "anchorPoint": [
-        50,
+        46,
         89
       ]
     },
