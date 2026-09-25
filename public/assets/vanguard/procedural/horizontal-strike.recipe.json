@@ -105,7 +105,7 @@
     "slash-right": {
       "kind": "effect-atlas-cell",
       "atlas": "slash-canonical",
-      "cell": 8,
+      "cell": 5,
       "role": "effect",
       "trim": true,
       "preserveCellBounds": true
@@ -335,5 +335,9 @@
       ],
       "sha256": "e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"
     }
+  },
+  "locomotion": {
+    "footPinning": true,
+    "rootMotion": false
   }
 }
