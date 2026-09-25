@@ -41,7 +41,15 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center"
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        58,
+        96
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
     },
     "coil": {
       "kind": "atlas-cell",
@@ -71,7 +79,7 @@
         83
       ],
       "registrationOffset": [
-        -34,
+        0,
         0
       ]
     },
