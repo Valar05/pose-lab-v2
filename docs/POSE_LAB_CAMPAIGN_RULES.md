@@ -342,3 +342,51 @@ For new or materially changed campaign machinery:
 7. REVERIFY and require the same verdict/receipt predicates.
 
 A campaign that only works because the current model is clever enough to remember unwritten context is not production-ready.
+
+
+## Image-generation pose/reference doctrine — learned 2026-09-25
+
+These rules govern generative pose mining before mechanical sprite extraction. They inherit the same authority separation and sealed-plan discipline used elsewhere in Pose Lab.
+
+### Reference roles are typed and non-interchangeable
+- Before generation, assign each supplied reference an explicit role: CHARACTER/MODEL, WEAPON, POSE/SKELETON, EXAGGERATION, STYLE, or LAYOUT.
+- A reference controls only its declared role. Pose reference does not redesign the character or weapon; character reference does not override requested body geometry; exaggeration reference does not donate choreography.
+- When multiple references conflict, resolve by property-specific authority before generation. Never blend authorities by visual similarity.
+- If a previously generated candidate is accepted for one property only, that acceptance does not promote its other properties.
+
+### Preserve accepted identity while mining pose diversity
+- For established characters, character identity and canonical weapon geometry are locked during pose exploration unless explicitly unlocked.
+- A new pose request changes pose/choreography only. It does not authorize a new weapon, grip architecture, costume, proportions, or character interpretation.
+- If a generation preserves pose but drifts character/weapon identity, reject it as a candidate rather than treating the drift as a new baseline.
+- Do not use a visibly rejected derivative as the next generation's identity authority.
+
+### Contact-sheet mining beats false precision when requested
+- When exact single-pose generation repeatedly drifts, prefer a contact-sheet mining pass when Drew authorizes spam/harvest.
+- A mining sheet is a set of independent candidate solutions, NOT an animation sequence unless explicitly requested.
+- Candidate poses on a mining sheet must have materially distinct silhouettes, centers of gravity, torso/hip relationships, and action lines. Six near-duplicates is a failed sheet.
+- "Exaggerate like reference X" means match X's RANGE/AMPLITUDE of pose separation, not X's choreography.
+- Human pose references define joint/body geometry when designated pose authority. Exaggeration may amplify that geometry but may not replace it with a generic run, lunge, dash, butt strike, or weapon attack.
+
+### Shoulder/body-action distinction
+- If the requested action is shoulder-led, the shoulder/body must visibly lead the action line.
+- Weapon motion must not become the apparent primary attack unless explicitly requested.
+- A shoulder charge is not satisfied by forward translation alone. It requires readable shoulder displacement, torso rotation/compression, hip counter-rotation, and weight transfer.
+- "Short-range/heavy counter" forbids silently converting the move into a long running step, leap, projectile pose, or generic dash.
+
+### Generated sheet composition
+- Unless requested otherwise: no prose labels, arrows, callouts, UI, scenery, or explanatory typography.
+- Keep candidate figures isolated with non-overlapping silhouettes and sufficient gutters for later extraction.
+- Keep character scale consistent across cells unless scale variation is itself requested.
+- Do not clip hair, limbs, weapon, trails, or other authored geometry. Increase canvas/cell room instead.
+- For pose mining, effects/debris are subordinate to readable body geometry and must not contaminate neighboring cells.
+
+### Failure memory and retry discipline
+- After a rejected generation, record the rejected properties mentally/in the active plan and preserve every accepted property on retry.
+- Never respond to a weapon-identity failure by changing pose strategy, or to a pose failure by redesigning the weapon.
+- Two failures of the same class require changing the generation strategy or constraints before retry, not merely rewording the same request.
+- Do not propose returning to a generation strategy already demonstrated to fail in the same campaign without new evidence that changes the failure condition.
+
+### Mechanical extraction boundary
+- Generated contact sheets are authored source for the poses generated on that sheet once Drew selects/accepts them; later screenshots, crops, stitched previews, and atlas derivatives are not replacement source authority.
+- Selection ("use poses 4 and 6") authorizes deterministic crop/stitch only. It does not authorize regeneration, rescaling, repainting, or cleanup unless separately requested.
+- Deterministic slice/stitch must preserve source pixels and scale. Any generative repair is a separate mutation requiring an explicit edit/generation request.
