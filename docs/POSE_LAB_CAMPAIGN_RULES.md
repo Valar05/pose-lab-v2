@@ -145,3 +145,18 @@ These are named failure classes. Treat recurrence as a guard failure, not a crea
 - Cleanup must distinguish phantom fragments from legitimate separated geometry; use explicit masks when needed.
 - Prefer inclusion over premature dedupe; exact duplicates may be removed, meaningful near-duplicates stay.
 - Static atlas review and animation review are separate acceptance gates.
+
+
+## Image Edit vs. Image Generation Lane (2026-09-25)
+When the user requests an edit/inpaint/retouch/paint operation on an existing image, the existing image is the authoritative base.
+
+- **EDIT / INPAINT means localized transformation.** Preserve the supplied image and all unmasked content. Regenerate or transform only the explicitly requested region.
+- **GENERATION means new composition.** It may create a new image from a description and does not preserve the supplied pixels/layout by default.
+- Never substitute a mechanical pixel-editing script, collage, crop/reassembly, or fresh generation when the user explicitly asked for an inpaint/edit unless they separately authorize that implementation.
+- Never reinterpret “in paint,” “inpainting,” “paint over,” “edit this image,” or “change just X” as a request to regenerate the whole image.
+- For a frame sheet, “edit only frame N” locks every other frame. The mask/write surface is limited to frame N and the named region inside it.
+- For localized edits, preserve composition, pose, camera, scale, and all non-target content unless the request explicitly changes one of those properties.
+- If the requested edit is safety-eligible, use the image-edit lane directly. Do not bounce through unrelated tools or create intermediate derivatives.
+- A failed generation/edit attempt must not silently fall back to a different implementation lane. Stop and report the exact blocking condition.
+- **Time-box rule:** localized edits should use the smallest viable tool path. Do not launch repository archaeology, atlas repacking, or mechanical reconstruction for a simple image edit.
+- **Source integrity:** the supplied original remains the source. Any generated edit is a derived review candidate until accepted; it must never overwrite or become the source for later mechanical extraction without explicit acceptance.
