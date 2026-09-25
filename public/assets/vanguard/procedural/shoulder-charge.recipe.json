@@ -170,7 +170,7 @@
         370
       ],
       "componentMaskThreshold": 10,
-      "componentMaskBridge": 12
+      "componentMaskBridge": 4
     }
   },
   "phases": [
