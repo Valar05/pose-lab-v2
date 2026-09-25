@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-shoulder-charge-procedural-v1",
   "subject": "vanguard",
-  "description": "Heavy counter shoulder charge · idle → authored atlas cell 89 → authored atlas cell 90 → recoil → idle",
+  "description": "Heavy counter shoulder charge · idle → authored atlas cell 88 → authored atlas cell 89 → recoil → idle",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -19,7 +19,7 @@
       92,
       226
     ],
-    "anchorMeaning": "attack-local ground target"
+    "anchorMeaning": "attack-local 2D IK target; exact planted-foot source-cell points"
   },
   "atlases": {
     "vanguard-canonical": {
@@ -41,35 +41,49 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
+      "anchorMode": "explicit-point",
       "registrationOffset": [
         0,
         0
+      ],
+      "anchorPoint": [
+        58,
+        96
       ]
     },
     "brace": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 89,
+      "cell": 88,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
+      "anchorMode": "explicit-point",
       "registrationOffset": [
         0,
         0
-      ]
+      ],
+      "anchorPoint": [
+        66,
+        91
+      ],
+      "isolateLargestComponent": true
     },
     "impact": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 90,
+      "cell": 89,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
+      "anchorMode": "explicit-point",
       "registrationOffset": [
         0,
         0
-      ]
+      ],
+      "anchorPoint": [
+        55,
+        89
+      ],
+      "isolateLargestComponent": true
     },
     "dummyFx": {
       "kind": "effect-atlas-cell",
@@ -99,14 +113,14 @@
       }
     },
     {
-      "id": "load",
+      "id": "compression",
       "source": "brace",
-      "durationMs": 150,
+      "durationMs": 145,
       "deform": {
-        "shearX": 0.18,
-        "scaleX": 0.95,
-        "scaleY": 1.05,
-        "shiftX": -8,
+        "shearX": 0.12,
+        "scaleX": 0.97,
+        "scaleY": 1.03,
+        "shiftX": 0,
         "shiftY": 0
       },
       "effect": {
@@ -119,13 +133,13 @@
     {
       "id": "drive",
       "source": "brace",
-      "durationMs": 75,
+      "durationMs": 80,
       "deform": {
-        "shearX": -0.36,
-        "scaleX": 1.1,
-        "scaleY": 0.94,
-        "shiftX": 22,
-        "shiftY": 1
+        "shearX": -0.34,
+        "scaleX": 1.045,
+        "scaleY": 0.96,
+        "shiftX": 0,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 0,
@@ -137,13 +151,13 @@
     {
       "id": "impact",
       "source": "impact",
-      "durationMs": 95,
+      "durationMs": 90,
       "deform": {
-        "shearX": -0.24,
-        "scaleX": 1.13,
-        "scaleY": 0.92,
-        "shiftX": 42,
-        "shiftY": 2
+        "shearX": -0.22,
+        "scaleX": 1.09,
+        "scaleY": 0.94,
+        "shiftX": 0,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 0,
@@ -155,13 +169,13 @@
     {
       "id": "crush-hold",
       "source": "impact",
-      "durationMs": 120,
+      "durationMs": 105,
       "deform": {
         "shearX": -0.1,
-        "scaleX": 1.07,
-        "scaleY": 0.97,
-        "shiftX": 36,
-        "shiftY": 1
+        "scaleX": 1.045,
+        "scaleY": 0.98,
+        "shiftX": 0,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 0,
@@ -175,10 +189,10 @@
       "source": "brace",
       "durationMs": 125,
       "deform": {
-        "shearX": 0.12,
-        "scaleX": 0.98,
-        "scaleY": 1.03,
-        "shiftX": 12,
+        "shearX": 0.1,
+        "scaleX": 0.985,
+        "scaleY": 1.02,
+        "shiftX": 0,
         "shiftY": 0
       },
       "effect": {
@@ -268,7 +282,7 @@
   },
   "motionAuthority": {
     "kind": "user-designated-canonical-atlas-poses",
-    "description": "User designates the last two sprites on the canonical 90-cell sheet as the shoulder-charge poses: cells 89 and 90. First and last frames are canonical idle cell 2."
+    "description": "User designates the last two non-empty sprites on the supplied canonical sheet as shoulder-charge poses: cells 88 and 89. Feet are explicit 2D IK anchors. Whole-sprite/root translation is zero; body-local shear/scale carries the charge. First and last frames are canonical idle cell 2."
   },
   "effectAtlases": {
     "attack5-spray": {
