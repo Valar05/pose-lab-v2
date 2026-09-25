@@ -90,8 +90,7 @@
       "atlas": "slash-canonical",
       "cell": 3,
       "role": "effect",
-      "trim": true,
-      "preserveCellBounds": true
+      "trim": true
     },
     "rise": {
       "kind": "atlas-cell",
