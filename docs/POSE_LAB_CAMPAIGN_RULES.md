@@ -452,14 +452,21 @@ Prefer the minimum interactive mutation surface that can complete the job.
 - Optimize away Drew's copy/paste burden, NOT the plan/seal/apply boundary.
 - Drew should approve/review consequential outcomes where required, not serve as shell transport.
 
-### Tool/actuator disappearance
+### Tool/actuator disappearance and transport degradation
 Phone Hands, browser actuators, or other execution capabilities are ephemeral unless the active campaign proves they are currently available.
 - Never assume an actuator persists because it existed earlier in the conversation.
-- Re-resolve the authorized execution lane at campaign start and before apply when required.
-- If the required actuator disappears, return a typed capability failure/continuation receipt.
+- Re-resolve the authorized execution/transport lane at campaign start and before apply when required.
+- Loss of Phone Hands does NOT by itself block a campaign when the exact same sealed campaign can be executed through the already-authorized Termux/manual-paste lane.
+- Treat that state as TRANSPORT_DEGRADED, not EXECUTION_BLOCKED.
+- Automatic transport: sealed campaign -> Phone Hands -> execution.
+- Degraded transport: sealed campaign -> Drew copies/pastes it unchanged into the authorized Termux lane -> execution.
+- Actually blocked: the required operation cannot be represented or executed through either authorized transport path, or manual transport would change the commissioned execution lane.
+- The campaign artifact MUST remain identical across automatic and degraded transport. Losing Phone Hands changes who carries the envelope, not what is inside it, the target runtime, mutation authority, locks, verification, or acceptance surface.
+- Manual copy/paste is a valid fallback transport, not a new architecture and not evidence that Drew owns debugging/reasoning responsibility.
+- When degraded transport is used, optimize for one complete self-contained campaign rather than a conversational sequence of shell fragments.
 - Do NOT silently switch to Work mode, a phone browser, Browser Nerve, local scratch, another repo, or a newly invented architecture.
-- Tool disappearance changes deployed capability, not the commissioned architecture.
-- A campaign package must remain useful when an actuator is temporarily absent: planning, state recovery, validation, and continuation evidence should still proceed where authorized.
+- Tool disappearance changes available transport/deployed capability, not the commissioned architecture.
+- A campaign package must remain useful when an actuator is temporarily absent: planning, state recovery, validation, manual transport, and continuation evidence should still proceed where authorized.
 
 ### Human handoff lesson
 The observed reliability benefit of script handoff does NOT depend on Drew reviewing the script line-by-line. The benefit is the requirement that the agent compress the intended operation into one coherent executable artifact before mutation.
