@@ -125,7 +125,7 @@
     {
       "id": "anticipation",
       "source": "idle",
-      "durationMs": 95,
+      "durationMs": 55,
       "deform": {
         "shearX": 0.08,
         "scaleX": 1,
@@ -136,9 +136,9 @@
     {
       "id": "low-chamber",
       "source": "chamber",
-      "durationMs": 150,
+      "durationMs": 190,
       "deform": {
-        "shearX": 0.1,
+        "shearX": -0.18,
         "scaleX": 1,
         "scaleY": 1,
         "shiftY": 0
