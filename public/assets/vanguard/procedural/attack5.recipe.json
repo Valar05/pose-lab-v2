@@ -41,15 +41,7 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "explicit-point",
-      "anchorPoint": [
-        58,
-        96
-      ],
-      "registrationOffset": [
-        0,
-        0
-      ]
+      "anchorMode": "ground-contact-center"
     },
     "coil": {
       "kind": "atlas-cell",
@@ -79,7 +71,7 @@
         83
       ],
       "registrationOffset": [
-        0,
+        -34,
         0
       ]
     },
@@ -93,10 +85,6 @@
       "anchorPoint": [
         72,
         94
-      ],
-      "registrationOffset": [
-        0,
-        0
       ]
     },
     "spray": {
