@@ -180,60 +180,42 @@ function buildSlash(){
  const sw=slash.naturalWidth||slash.width;
  const sh=slash.naturalHeight||slash.height;
  const c=document.createElement('canvas');
- c.width=sw;
- c.height=sh;
+ c.width=sw;c.height=sh;
  const x=c.getContext('2d',{willReadFrequently:true});
  x.drawImage(slash,0,0,sw,sh);
 
  const im=x.getImageData(0,0,c.width,c.height),d=im.data;
  let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
  for(let y=0;y<c.height;y++)for(let xx=0;xx<c.width;xx++){
-   const i=(y*c.width+xx)*4;
-   const vv=Math.max(d[i],d[i+1],d[i+2]);
-   if(vv>4){
-     minX=Math.min(minX,xx);
-     minY=Math.min(minY,y);
-     maxX=Math.max(maxX,xx);
-     maxY=Math.max(maxY,y);
-   }
+   const i=(y*c.width+xx)*4,vv=Math.max(d[i],d[i+1],d[i+2]);
+   if(vv>4){minX=Math.min(minX,xx);minY=Math.min(minY,y);maxX=Math.max(maxX,xx);maxY=Math.max(maxY,y);}
  }
  if(maxX<minX||maxY<minY)throw new Error('Empty slash atlas cell');
 
- const cropW=maxX-minX+1;
- const cropH=maxY-minY+1;
- const artW=Math.max(1,Number(recipe.effect.width||cropW));
- const artH=Math.max(1,Math.round(cropH*artW/cropW));
+ const source=recipe.sources?.[recipe.effect?.source]||{};
+ const preserveCellBounds=source.preserveCellBounds===true;
 
- const art=document.createElement('canvas');
- art.width=artW;
- art.height=artH;
- art.getContext('2d').drawImage(
-   c,minX,minY,cropW,cropH,
-   0,0,artW,artH
+ const cropX=preserveCellBounds?0:minX;
+ const cropY=preserveCellBounds?0:minY;
+ const cropW=preserveCellBounds?sw:(maxX-minX+1);
+ const cropH=preserveCellBounds?sh:(maxY-minY+1);
+
+ const crop=document.createElement('canvas');
+ crop.width=cropW;
+ crop.height=cropH;
+ crop.getContext('2d').drawImage(
+   c,cropX,cropY,cropW,cropH,0,0,cropW,cropH
  );
 
- // GLOBAL NO-CROP RULE:
- // Preserve the original art exactly, then add transparent space around it.
- // All coordinates are stored relative to the original art, so padding does
- // not move the effect, alter its split, or change any existing recipe tune.
- const pad=Math.max(64,Math.round(Math.max(artW,artH)*0.50));
- const padded=document.createElement('canvas');
- padded.width=artW+pad*2;
- padded.height=artH+pad*2;
- const pc=padded.getContext('2d');
- pc.drawImage(art,pad,pad);
+ const w=preserveCellBounds?sw:Math.max(1,Number(recipe.effect.width||cropW));
+ const h=preserveCellBounds?sh:Math.max(1,Math.round(cropH*w/cropW));
 
- slashMap=colorizeCanvas(padded);
+ const o=document.createElement('canvas');
+ o.width=w;
+ o.height=h;
+ o.getContext('2d').drawImage(crop,0,0,w,h);
 
- const pv=recipe.effect.revealPivot||[.5,.5];
- slashMap.__art={
-   x:pad,
-   y:pad,
-   width:artW,
-   height:artH,
-   pivotX:pad+artW*Number(pv[0]??.5),
-   pivotY:pad+artH*Number(pv[1]??.5)
- };
+ slashMap=colorizeCanvas(o);
 }
 function stageOffsetX(){
  const key=recipe.stage?.centerSource||'idle',it=body(key),[px]=recipe.canvas.anchor;
