@@ -164,7 +164,13 @@
       "cell": 10,
       "role": "effect",
       "trim": true,
-      "preserveCellBounds": false
+      "preserveCellBounds": false,
+      "componentMaskSeed": [
+        1270,
+        370
+      ],
+      "componentMaskThreshold": 10,
+      "componentMaskBridge": 12
     }
   },
   "phases": [
@@ -379,10 +385,10 @@
           190
         ],
         "10": [
-          1180,
-          55,
-          500,
-          390
+          0,
+          0,
+          1774,
+          887
         ]
       },
       "geometry": "irregular-explicit-rects"
