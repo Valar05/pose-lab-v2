@@ -84,3 +84,15 @@ npm run review:attacks
 
 The review URL commands print cloud URLs only. They do not wake a browser and do
 not claim visual acceptance.
+
+## Sprite/contact-sheet production learnings
+- Contact sheets are source corpora. Prefer inclusion and atlas growth when selection is uncertain.
+- Use the original authored sheet, not a screenshot or generated derivative.
+- Shrink the source before inference/measurement for the fast low-resolution loop.
+- Use one shared scale for a regular sheet; never independently normalize frames.
+- Preserve authored order and source-cell geometry.
+- Preserve the established body/ground anchor.
+- Grow cells or the atlas instead of clipping a useful pose.
+- Cleanup is conservative. Remove phantom fragments without deleting legitimate separated geometry.
+- Exact duplicates may be removed; near-duplicates stay unless redundancy is unambiguous.
+- Review both the atlas and the resulting animation.
