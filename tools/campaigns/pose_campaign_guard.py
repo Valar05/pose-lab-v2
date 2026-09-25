@@ -25,10 +25,14 @@ if r["motionAuthority"].get("kind")!=c["timingAuthority"]["kind"]: die("timing a
 if sum(int(p["durationMs"]) for p in r["phases"])!=c["timingAuthority"]["durationMs"]: die("duration changed")
 fx=r["sources"][r["effect"]["source"]]
 ea=c["effectAuthority"]
-if fx.get("kind")!="effect-atlas-cell": die("effect must be one explicit atlas cell")
-if fx.get("cell")!=ea["cell"]: die("effect cell changed outside contract")
-es=r["effectAtlases"][fx["atlas"]]
-if es.get("columns")!=ea["columns"] or es.get("rows")!=ea["rows"]: die("effect atlas grid changed")
+if ea["kind"]=="irregular-effect-rect":
+    if fx.get("kind")!="effect-atlas-cell": die("effect must select from canonical effect sheet")
+    if fx.get("atlas") not in r.get("effectAtlases",{}): die("effect atlas missing")
+    es=r["effectAtlases"][fx["atlas"]]
+    got=es.get("rects",{}).get(str(fx.get("cell")))
+    if got!=ea["rect"]: die(f"effect extraction rect changed: {got} != {ea['rect']}")
+else:
+    die("unsupported effect authority kind: "+str(ea.get("kind")))
 asset=ROOT/ea["atlasPath"]
 if hashlib.sha256(asset.read_bytes()).hexdigest()!=ea["atlasSha256"]: die("effect atlas bytes changed")
 changed=subprocess.run(["git","-C",str(ROOT),"diff","--name-only"],capture_output=True,text=True,check=True).stdout.splitlines()
@@ -39,4 +43,4 @@ print("POSE_CAMPAIGN_GUARD_OK")
 print("locked_files="+str(len(c["lockedFiles"])))
 print("attack5_cells=65,75,87")
 print("mutable_now="+",".join(c["mutableNow"]))
-print("effect_cell="+str(fx["cell"]))
+print("effect_rect="+str(ea["rect"]))
