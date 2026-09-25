@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-shoulder-charge-procedural-v1",
   "subject": "vanguard",
-  "description": "Heavy counter shoulder charge \u00b7 exact final two visible authored sprites from supplied Vanguard sheet: cells 94 \u2192 95 \u00b7 idle endpoints",
+  "description": "Vanguard Shoulder Charge \u00b7 idle \u2192 expanded-atlas cell 94 \u2192 cell 95 \u2192 idle",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -23,15 +23,81 @@
   },
   "atlases": {
     "vanguard-canonical": {
-      "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
+      "path": "assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
       "columns": 6,
       "rows": 16,
       "indexBase": 1,
       "mode": "blue-key",
       "size": [
         1037,
-        1536
-      ]
+        1645
+      ],
+      "rowBounds": {
+        "0": [
+          0,
+          102
+        ],
+        "1": [
+          102,
+          205
+        ],
+        "2": [
+          205,
+          307
+        ],
+        "3": [
+          307,
+          410
+        ],
+        "4": [
+          410,
+          512
+        ],
+        "5": [
+          512,
+          614
+        ],
+        "6": [
+          614,
+          717
+        ],
+        "7": [
+          717,
+          819
+        ],
+        "8": [
+          819,
+          922
+        ],
+        "9": [
+          922,
+          1024
+        ],
+        "10": [
+          1024,
+          1126
+        ],
+        "11": [
+          1126,
+          1229
+        ],
+        "12": [
+          1229,
+          1331
+        ],
+        "13": [
+          1331,
+          1434
+        ],
+        "14": [
+          1434,
+          1536
+        ],
+        "15": [
+          1536,
+          1645
+        ]
+      }
     }
   },
   "sources": {
@@ -42,13 +108,13 @@
       "role": "body",
       "trim": true,
       "anchorMode": "explicit-point",
+      "anchorPoint": [
+        97,
+        97
+      ],
       "registrationOffset": [
         0,
         0
-      ],
-      "anchorPoint": [
-        58,
-        96
       ]
     },
     "brace": {
@@ -57,14 +123,10 @@
       "cell": 94,
       "role": "body",
       "trim": true,
-      "anchorMode": "explicit-point",
+      "anchorMode": "ground-contact-center",
       "registrationOffset": [
         0,
         0
-      ],
-      "anchorPoint": [
-        66,
-        91
       ],
       "isolateLargestComponent": true
     },
@@ -74,14 +136,10 @@
       "cell": 95,
       "role": "body",
       "trim": true,
-      "anchorMode": "explicit-point",
+      "anchorMode": "ground-contact-center",
       "registrationOffset": [
         0,
         0
-      ],
-      "anchorPoint": [
-        55,
-        89
       ],
       "isolateLargestComponent": true
     },
@@ -97,11 +155,11 @@
     {
       "id": "idle",
       "source": "idle",
-      "durationMs": 60,
+      "durationMs": 70,
       "deform": {
-        "shearX": 0,
-        "scaleX": 1,
-        "scaleY": 1,
+        "shearX": 0.0,
+        "scaleX": 1.0,
+        "scaleY": 1.0,
         "shiftX": 0,
         "shiftY": 0
       },
@@ -113,13 +171,31 @@
       }
     },
     {
-      "id": "compression",
+      "id": "brace",
       "source": "brace",
       "durationMs": 145,
       "deform": {
-        "shearX": 0.12,
+        "shearX": 0.08,
         "scaleX": 0.97,
-        "scaleY": 1.03,
+        "scaleY": 1.035,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "coil",
+      "source": "brace",
+      "durationMs": 75,
+      "deform": {
+        "shearX": -0.16,
+        "scaleX": 1.015,
+        "scaleY": 0.985,
         "shiftX": 0,
         "shiftY": 0
       },
@@ -132,12 +208,12 @@
     },
     {
       "id": "drive",
-      "source": "brace",
-      "durationMs": 80,
+      "source": "impact",
+      "durationMs": 65,
       "deform": {
         "shearX": -0.34,
-        "scaleX": 1.045,
-        "scaleY": 0.96,
+        "scaleX": 1.075,
+        "scaleY": 0.945,
         "shiftX": 0,
         "shiftY": 0
       },
@@ -151,10 +227,10 @@
     {
       "id": "impact",
       "source": "impact",
-      "durationMs": 90,
+      "durationMs": 85,
       "deform": {
-        "shearX": -0.22,
-        "scaleX": 1.09,
+        "shearX": -0.2,
+        "scaleX": 1.11,
         "scaleY": 0.94,
         "shiftX": 0,
         "shiftY": 0
@@ -167,13 +243,13 @@
       }
     },
     {
-      "id": "crush-hold",
+      "id": "crush",
       "source": "impact",
-      "durationMs": 105,
+      "durationMs": 95,
       "deform": {
-        "shearX": -0.1,
+        "shearX": -0.08,
         "scaleX": 1.045,
-        "scaleY": 0.98,
+        "scaleY": 0.985,
         "shiftX": 0,
         "shiftY": 0
       },
@@ -189,7 +265,7 @@
       "source": "brace",
       "durationMs": 125,
       "deform": {
-        "shearX": 0.1,
+        "shearX": 0.08,
         "scaleX": 0.985,
         "scaleY": 1.02,
         "shiftX": 0,
@@ -205,11 +281,11 @@
     {
       "id": "idle-return",
       "source": "idle",
-      "durationMs": 95,
+      "durationMs": 100,
       "deform": {
-        "shearX": 0,
-        "scaleX": 1,
-        "scaleY": 1,
+        "shearX": 0.0,
+        "scaleX": 1.0,
+        "scaleY": 1.0,
         "shiftX": 0,
         "shiftY": 0
       },
@@ -281,8 +357,8 @@
     "mode": "native-pixel-scale-ground-anchor"
   },
   "motionAuthority": {
-    "kind": "user-designated-canonical-atlas-poses",
-    "description": "User-designated source authority is the supplied 6x16 Vanguard sheet. The final two visible sprites are cells 94 and 95; cell 96 is empty. Use those exact authored poses. Feet remain explicit 2D IK anchors. Whole-sprite/root translation is zero. Body-local shear/scale carries the charge. First and last phases use canonical idle."
+    "kind": "accepted-expanded-atlas-poses",
+    "description": "Canonical expanded Vanguard atlas comes directly from the working Butt Smash recipe. Bottom-row cells 91\u201393 are Butt Smash. User designates cells 94\u201395 as Shoulder Charge. Cell 96 is empty. Feet remain planted; whole-sprite/root translation is zero. Body-local shear and scale create the heavy counter drive. First and last phases are canonical idle."
   },
   "effectAtlases": {
     "attack5-spray": {
