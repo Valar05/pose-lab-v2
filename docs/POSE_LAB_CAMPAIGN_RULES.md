@@ -390,3 +390,12 @@ These rules govern generative pose mining before mechanical sprite extraction. T
 - Generated contact sheets are authored source for the poses generated on that sheet once Drew selects/accepts them; later screenshots, crops, stitched previews, and atlas derivatives are not replacement source authority.
 - Selection ("use poses 4 and 6") authorizes deterministic crop/stitch only. It does not authorize regeneration, rescaling, repainting, or cleanup unless separately requested.
 - Deterministic slice/stitch must preserve source pixels and scale. Any generative repair is a separate mutation requiring an explicit edit/generation request.
+
+
+### Browser-module syntax is a required transport gate
+- A static build reporting success does NOT prove browser JavaScript is syntactically valid.
+- Every refresh/promotion campaign that serves a directly loaded JavaScript module MUST run a syntax parser/check against that exact committed module before restart and again from the disposable served revision.
+- For the current Pose Lab runtime, `node --check src/procedural-motion-preview.js` (or an equivalent parser that understands the file) is mandatory before claiming the review surface can load.
+- Literal escape corruption such as the two-character sequence backslash+n in source code is a named failure class: ESCAPED-NEWLINE-SOURCE. Read-back must check for it after programmatic source patching.
+- BUILD_OK without MODULE_SYNTAX_OK is insufficient evidence and must fail closed before browser handoff.
+- If local repair produces no diff, do not commit/push/refresh and pretend the repair propagated. Verify the intended byte-level postcondition first; NO_DIFF_WITH_UNMET_POSTCONDITION is a failure.
