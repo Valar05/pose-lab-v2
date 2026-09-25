@@ -571,7 +571,7 @@ function installSlashControls(){
 }
 
 try{
- const recipePath=isAttack5
+ const recipePath=isButtSmash\n   ? './assets/vanguard/procedural/butt-smash.recipe.json'\n   : isAttack5
    ? './assets/vanguard/procedural/attack5.recipe.json'
    : isHorizontal
    ? './assets/vanguard/procedural/horizontal-strike.recipe.json'
