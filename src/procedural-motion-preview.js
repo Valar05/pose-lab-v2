@@ -2,7 +2,7 @@ import { createProceduralReviewShell } from './procedural-review-shell.js';
 
 const params=new URLSearchParams(location.search);
 const requested=params.get('procedural');
-const animation=requested==='vanguard-attack5'
+const animation=requested==='vanguard-butt-smash'\n  ? 'vanguard-butt-smash'\n  : requested==='vanguard-attack5'
   ? 'vanguard-attack5'
   : requested==='vanguard-undercut-strike'
   ? 'vanguard-undercut-strike'
