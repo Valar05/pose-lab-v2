@@ -36,3 +36,15 @@ preparation reports `conceptMaterialized: false`. Never substitute
 The schema, example batch, and machine-readable Command Center job contract live
 under `schemas/` and `refinery/`. Use `?view=2d&batch=URL_TO_STATE_JSON` to show
 batch/clip state and evidence links alongside direct PNG review.
+
+## Sprite extraction doctrine
+- Original authored images are the mechanical source.
+- Screenshots, generated derivatives, review GIFs, and packed atlases are review evidence only when originals exist.
+- For regular sheets, apply one shared scale factor to the entire sheet. Do not independently normalize each frame.
+- Shrink before inference/measurement to keep the fast low-resolution review loop.
+- 96px is a pixel-density convention, not a requirement that every crop be 96px tall.
+- Preserve authored order and source-cell geometry.
+- Grow the atlas when necessary. Never clip or shrink a useful pose to fit a cell.
+- Preserve the established body/ground anchor convention.
+- Cleanup must be conservative: phantom fragments can be removed, but legitimate separated weapon/anatomy geometry must survive.
+- Dedupe only after corpus capture and review. Exact duplicates are safe; meaningful near-duplicates stay.
