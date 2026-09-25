@@ -282,7 +282,7 @@
     "wideBlurPx": 6.8,
     "tightOpacity": 0.65,
     "wideOpacity": 0.5,
-    "revealMode": "none",
+    "revealMode": "radial",
     "transform": "none",
     "startClock": 9,
     "endClock": 3,
@@ -308,7 +308,8 @@
     "liveControls": true,
     "rotateZDeg": -4,
     "tiltXDeg": 8,
-    "yawYDeg": 6
+    "yawYDeg": 6,
+    "revealOriginBody": "commit"
   },
   "bodyScale": 1.5,
   "stage": {
