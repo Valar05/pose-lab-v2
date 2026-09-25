@@ -123,12 +123,16 @@
       "cell": 94,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
+      "anchorMode": "explicit-point",
       "registrationOffset": [
         0,
         0
       ],
-      "isolateLargestComponent": true
+      "isolateLargestComponent": true,
+      "anchorPoint": [
+        54,
+        103
+      ]
     },
     "impact": {
       "kind": "atlas-cell",
@@ -136,12 +140,16 @@
       "cell": 95,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
+      "anchorMode": "explicit-point",
       "registrationOffset": [
         0,
         0
       ],
-      "isolateLargestComponent": true
+      "isolateLargestComponent": true,
+      "anchorPoint": [
+        42,
+        103
+      ]
     },
     "dummyFx": {
       "kind": "effect-atlas-cell",
@@ -171,12 +179,12 @@
       }
     },
     {
-      "id": "brace",
+      "id": "anticipation",
       "source": "brace",
-      "durationMs": 145,
+      "durationMs": 165,
       "deform": {
-        "shearX": 0.08,
-        "scaleX": 0.97,
+        "shearX": 0.24,
+        "scaleX": 0.965,
         "scaleY": 1.035,
         "shiftX": 0,
         "shiftY": 0
@@ -189,31 +197,13 @@
       }
     },
     {
-      "id": "coil",
+      "id": "release",
       "source": "brace",
-      "durationMs": 75,
+      "durationMs": 55,
       "deform": {
-        "shearX": -0.16,
-        "scaleX": 1.015,
-        "scaleY": 0.985,
-        "shiftX": 0,
-        "shiftY": 0
-      },
-      "effect": {
-        "reveal": 0,
-        "core": 0,
-        "tightGlow": 0,
-        "wideGlow": 0
-      }
-    },
-    {
-      "id": "drive",
-      "source": "impact",
-      "durationMs": 65,
-      "deform": {
-        "shearX": -0.34,
-        "scaleX": 1.075,
-        "scaleY": 0.945,
+        "shearX": 0.06,
+        "scaleX": 1.01,
+        "scaleY": 0.99,
         "shiftX": 0,
         "shiftY": 0
       },
@@ -227,10 +217,10 @@
     {
       "id": "impact",
       "source": "impact",
-      "durationMs": 85,
+      "durationMs": 80,
       "deform": {
-        "shearX": -0.2,
-        "scaleX": 1.11,
+        "shearX": -0.34,
+        "scaleX": 1.105,
         "scaleY": 0.94,
         "shiftX": 0,
         "shiftY": 0
@@ -245,9 +235,9 @@
     {
       "id": "crush",
       "source": "impact",
-      "durationMs": 95,
+      "durationMs": 90,
       "deform": {
-        "shearX": -0.08,
+        "shearX": -0.12,
         "scaleX": 1.045,
         "scaleY": 0.985,
         "shiftX": 0,
@@ -261,27 +251,9 @@
       }
     },
     {
-      "id": "recoil",
-      "source": "brace",
-      "durationMs": 125,
-      "deform": {
-        "shearX": 0.08,
-        "scaleX": 0.985,
-        "scaleY": 1.02,
-        "shiftX": 0,
-        "shiftY": 0
-      },
-      "effect": {
-        "reveal": 0,
-        "core": 0,
-        "tightGlow": 0,
-        "wideGlow": 0
-      }
-    },
-    {
       "id": "idle-return",
       "source": "idle",
-      "durationMs": 100,
+      "durationMs": 150,
       "deform": {
         "shearX": 0.0,
         "scaleX": 1.0,
@@ -357,8 +329,8 @@
     "mode": "native-pixel-scale-ground-anchor"
   },
   "motionAuthority": {
-    "kind": "accepted-expanded-atlas-poses",
-    "description": "Canonical expanded Vanguard atlas comes directly from the working Butt Smash recipe. Bottom-row cells 91\u201393 are Butt Smash. User designates cells 94\u201395 as Shoulder Charge. Cell 96 is empty. Feet remain planted; whole-sprite/root translation is zero. Body-local shear and scale create the heavy counter drive. First and last phases are canonical idle."
+    "kind": "user-corrected-expanded-atlas-shoulder-charge",
+    "description": "Expanded atlas cells 94 and 95 only. Cell 94 occurs once as backward-loaded anticipation. Cell 95 is drive/contact. Recovery goes directly from 95 to canonical idle without replaying 94. The same physical rear foot is explicitly pinned in source-cell coordinates. Whole-sprite/root translation remains zero."
   },
   "effectAtlases": {
     "attack5-spray": {
