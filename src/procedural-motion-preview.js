@@ -11,12 +11,12 @@ const animation=requested==='vanguard-attack5'
     : requested==='vanguard-horizontal-strike'
       ? 'vanguard-horizontal-strike'
       : 'vanguard-overhand-strike';
-const isAttack5=animation==='vanguard-attack5';
+const isButtSmash=animation==='vanguard-butt-smash';\nconst isAttack5=animation==='vanguard-attack5';
 const isUndercut=animation==='vanguard-undercut-strike';
 const isAttack2=animation==='vanguard-attack2-uppercut';
 const isHorizontal=animation==='vanguard-horizontal-strike';
 const ui=createProceduralReviewShell({
-  title:isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
+  title:isButtSmash?'Vanguard Butt Smash':isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
   animation,
   accent:'#ffbd4a'
 });
