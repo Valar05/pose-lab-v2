@@ -34,10 +34,22 @@
       ],
       "sha256": "98f0920139a94fcc93074a765c721e7e1f4c083311c2c1cea9edaa8f2e087ed1",
       "rowBounds": {
-        "0": [0, 102],
-        "4": [402, 496],
-        "5": [493, 592],
-        "6": [600, 693]
+        "0": [
+          0,
+          102
+        ],
+        "4": [
+          402,
+          496
+        ],
+        "5": [
+          493,
+          592
+        ],
+        "6": [
+          600,
+          693
+        ]
       }
     }
   },
@@ -243,8 +255,8 @@
     "source": "slash-right",
     "width": 184,
     "position": [
-      78,
-      82
+      56,
+      122
     ],
     "pivot": [
       160,
@@ -300,8 +312,8 @@
     "wideBlurPx": 7.5,
     "tightOpacity": 0.65,
     "wideOpacity": 0.55,
-    "revealStartDeg": 135,
-    "revealSweepDeg": 180,
+    "revealStartDeg": 161,
+    "revealSweepDeg": 338,
     "revealCounterClockwise": false,
     "revealPivot": [
       0.5,
@@ -312,9 +324,10 @@
     "yawYDeg": 0,
     "scaleX": 1,
     "scaleY": 1,
-    "flipX": false,
-    "flipY": true,
-    "liveControls": true
+    "flipX": true,
+    "flipY": false,
+    "liveControls": true,
+    "depthSplit": 0.5
   },
   "stage": {
     "centerX": 215,

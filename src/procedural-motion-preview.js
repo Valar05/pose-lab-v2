@@ -108,7 +108,7 @@ function body(sourceId){
  trim.width=maxX-minX+1;trim.height=maxY-minY+1;
  trim.getContext('2d').drawImage(raw,minX,minY,trim.width,trim.height,0,0,trim.width,trim.height);
 
- let anchorX=Math.round(trim.width/2);
+ let anchorX=Math.round(trim.width/2),anchorY=trim.height-1;
  if(src.anchorMode==='rear-foot-left'){
    const td=trim.getContext('2d',{willReadFrequently:true}).getImageData(0,0,trim.width,trim.height).data;
    const band=Math.min(16,trim.height),y0=trim.height-band;let spans=[],spanStart=null;
@@ -119,14 +119,15 @@ function body(sourceId){
      if(!hit&&spanStart!==null){spans.push([spanStart,x-1]);spanStart=null;}
    }
    if(spanStart!==null)spans.push([spanStart,trim.width-1]);
-   const span=spans[0]||[0,trim.width-1];let sum=0,count=0;
+   const span=spans[0]||[0,trim.width-1];let sum=0,count=0,rearY=y0;
    for(let x=span[0];x<=span[1];x++)for(let y=y0;y<trim.height;y++){
-     if(td[(y*trim.width+x)*4+3]>8){sum+=x;count++;}
+     if(td[(y*trim.width+x)*4+3]>8){sum+=x;count++;rearY=Math.max(rearY,y);}
    }
    anchorX=count?Math.round(sum/count):span[0];
+   anchorY=count?rearY:trim.height-1;
  }
 
- const item={canvas:trim,anchor:[anchorX,trim.height-1],cell:src.cell};
+ const item={canvas:trim,anchor:[anchorX,anchorY],cell:src.cell};
  cache.set(sourceId,item);
  return item;
 }
