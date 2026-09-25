@@ -102,13 +102,7 @@
     "spray": {
       "kind": "effect-atlas-cell",
       "atlas": "attack5-spray",
-      "cell": 7,
-      "role": "effect",
-      "trim": true
-    },
-    "impact": {
-      "kind": "effect-image",
-      "path": "assets/vanguard/procedural/attack5-impact.png",
+      "cell": 9,
       "role": "effect",
       "trim": true
     }
@@ -242,7 +236,7 @@
     }
   ],
   "effect": {
-    "source": "impact",
+    "source": "spray",
     "width": 150,
     "position": [
       190,
