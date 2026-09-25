@@ -2,18 +2,21 @@ import { createProceduralReviewShell } from './procedural-review-shell.js';
 
 const params=new URLSearchParams(location.search);
 const requested=params.get('procedural');
-const animation=requested==='vanguard-undercut-strike'
+const animation=requested==='vanguard-attack5'
+  ? 'vanguard-attack5'
+  : requested==='vanguard-undercut-strike'
   ? 'vanguard-undercut-strike'
   : requested==='vanguard-attack2-uppercut'
     ? 'vanguard-attack2-uppercut'
     : requested==='vanguard-horizontal-strike'
       ? 'vanguard-horizontal-strike'
       : 'vanguard-overhand-strike';
+const isAttack5=animation==='vanguard-attack5';
 const isUndercut=animation==='vanguard-undercut-strike';
 const isAttack2=animation==='vanguard-attack2-uppercut';
 const isHorizontal=animation==='vanguard-horizontal-strike';
 const ui=createProceduralReviewShell({
-  title:isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
+  title:isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
   animation,
   accent:'#ffbd4a'
 });
@@ -561,7 +564,9 @@ function installSlashControls(){
 }
 
 try{
- const recipePath=isHorizontal
+ const recipePath=isAttack5
+   ? './assets/vanguard/procedural/attack5.recipe.json'
+   : isHorizontal
    ? './assets/vanguard/procedural/horizontal-strike.recipe.json'
    : isAttack2
      ? './assets/vanguard/procedural/attack2-uppercut.recipe.json'
