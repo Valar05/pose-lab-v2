@@ -281,7 +281,7 @@
     "wideBlurPx": 6.8,
     "tightOpacity": 0.65,
     "wideOpacity": 0.5,
-    "revealMode": "radial-sector",
+    "revealMode": "radial",
     "transform": "none",
     "startClock": 9,
     "endClock": 3,
