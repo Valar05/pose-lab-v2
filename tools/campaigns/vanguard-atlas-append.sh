@@ -2,7 +2,8 @@
 set -euo pipefail
 ROOT="/storage/emulated/0/Documents/GodotProjects/pose-lab-v2"
 ATLAS="$ROOT/public/assets/vanguard/procedural/vanguard-pose-atlas-90.png"
-DL="/storage/emulated/0/Download"\nINBOX="$ROOT/.atlas-inbox"
+DL="/storage/emulated/0/Download"
+INBOX="$ROOT/.atlas-inbox"
 OUT="$ROOT/public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 MANIFEST="$ROOT/public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.manifest.json"
 cd "$ROOT"
