@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-butt-smash-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Butt Smash · idle → accepted expanded-atlas cells 91 → 92 → 93 → idle",
+  "description": "Vanguard Butt Smash \u00b7 idle \u2192 accepted expanded-atlas cells 91 \u2192 92 \u2192 93 \u2192 idle",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -164,8 +164,8 @@
       "trim": true,
       "anchorMode": "explicit-point",
       "anchorPoint": [
-        58,
-        96
+        97,
+        97
       ],
       "registrationOffset": [
         0,
