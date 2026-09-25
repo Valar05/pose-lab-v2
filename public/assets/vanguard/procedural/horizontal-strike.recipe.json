@@ -41,15 +41,7 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "explicit-point",
-      "anchorPoint": [
-        56,
-        96
-      ],
-      "registrationOffset": [
-        0,
-        0
-      ]
+      "anchorMode": "ground-contact-center"
     },
     "chamber": {
       "kind": "atlas-cell",
@@ -57,16 +49,8 @@
       "cell": 80,
       "role": "body",
       "trim": true,
-      "anchorMode": "explicit-point",
-      "isolateLargestComponent": true,
-      "anchorPoint": [
-        59,
-        84
-      ],
-      "registrationOffset": [
-        0,
-        0
-      ]
+      "anchorMode": "ground-contact-center",
+      "isolateLargestComponent": true
     },
     "commit": {
       "kind": "atlas-cell",
@@ -74,16 +58,8 @@
       "cell": 62,
       "role": "body",
       "trim": true,
-      "anchorMode": "explicit-point",
-      "isolateLargestComponent": true,
-      "anchorPoint": [
-        52,
-        69
-      ],
-      "registrationOffset": [
-        0,
-        0
-      ]
+      "anchorMode": "ground-contact-center",
+      "isolateLargestComponent": true
     },
     "contact": {
       "kind": "atlas-cell",
@@ -91,21 +67,13 @@
       "cell": 61,
       "role": "body",
       "trim": true,
-      "anchorMode": "explicit-point",
-      "isolateLargestComponent": true,
-      "anchorPoint": [
-        54,
-        69
-      ],
-      "registrationOffset": [
-        0,
-        0
-      ]
+      "anchorMode": "ground-contact-center",
+      "isolateLargestComponent": true
     },
     "slash-right": {
       "kind": "effect-atlas-cell",
       "atlas": "slash-canonical",
-      "cell": 5,
+      "cell": 8,
       "role": "effect",
       "trim": true,
       "preserveCellBounds": true
