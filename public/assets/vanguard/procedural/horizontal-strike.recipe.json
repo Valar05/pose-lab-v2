@@ -303,7 +303,6 @@
     ],
     "scaleX": 1,
     "scaleY": 1,
-    "depthSplit": 0.5,
     "backSide": "left",
     "positionMode": "absolute",
     "liveControls": true,
