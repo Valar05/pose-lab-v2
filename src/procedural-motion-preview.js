@@ -149,10 +149,17 @@ function body(sourceId){
 function phaseAt(ms){let a=0;for(let i=0;i<phases.length;i++){const p=phases[i];if(ms<a+p.durationMs||i===phases.length-1)return{p,i,u:clamp((ms-a)/p.durationMs)};a+=p.durationMs}}
 function iv(i,u,key,name){const a=phases[i],b=phases[Math.min(phases.length-1,i+1)],fallback=key==='deform'?({shearX:0,scaleX:1,scaleY:1,shiftX:0,shiftY:0}[name]):0;return lerp(Number(a[key]?.[name]??fallback),Number(b[key]?.[name]??a[key]?.[name]??fallback),ease(u))}
 function effectCell(image,spec,cell){
- const idx=cell-(spec.indexBase||0),c=idx%spec.columns,r=Math.floor(idx/spec.columns);
  const iw=image.naturalWidth||image.width,ih=image.naturalHeight||image.height;
- const x0=Math.round(c*iw/spec.columns),x1=Math.round((c+1)*iw/spec.columns);
- const y0=Math.round(r*ih/spec.rows),y1=Math.round((r+1)*ih/spec.rows);
+ const explicit=spec.rects?.[String(cell)];
+ let x0,y0,x1,y1;
+ if(explicit){
+   x0=Math.round(Number(explicit[0]));y0=Math.round(Number(explicit[1]));
+   x1=Math.round(x0+Number(explicit[2]));y1=Math.round(y0+Number(explicit[3]));
+ }else{
+   const idx=cell-(spec.indexBase||0),c=idx%spec.columns,r=Math.floor(idx/spec.columns);
+   x0=Math.round(c*iw/spec.columns);x1=Math.round((c+1)*iw/spec.columns);
+   y0=Math.round(r*ih/spec.rows);y1=Math.round((r+1)*ih/spec.rows);
+ }
  const out=document.createElement('canvas');
  out.width=x1-x0;out.height=y1-y0;
  out.getContext('2d').drawImage(image,x0,y0,out.width,out.height,0,0,out.width,out.height);
