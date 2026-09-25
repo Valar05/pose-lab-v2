@@ -504,3 +504,14 @@ Every completed or blocked campaign should leave a compact durable receipt conta
 - unresolved typed blocker and exact continuation point if incomplete.
 
 The receipt is for the next fresh chat. It must not require access to the conversation that produced it.
+
+
+### Vanguard appended-sprite scale and color refinery — 2026-09-25
+- A visible mismatch between newly appended Vanguard poses and accepted canonical poses is a SOURCE-PREPARATION defect. Do not compensate with recipe `bodyScale`, renderer blur, CSS/canvas scaling, timing, deformation, or registration.
+- When Drew gives a relative size correction such as "15% shorter", apply that correction once to the shared source scale of the rejected authored batch. Preserve relative authored scale inside the batch. Never independently normalize frames.
+- Vanguard source preparation has two independent obligations: geometry/scale and the established red color/refinery treatment. Passing one does not imply the other.
+- "Actual red filter" means the exact established executable Vanguard color/refinery transform already used for the canonical source family. Do not approximate it by eye, invent a new tint, histogram-match, or substitute generic channel scaling.
+- Before processing new poses, recover and identify that executable transform from repository authority. If no unique executable authority exists, fail `MISSING_REFINERY_AUTHORITY` rather than inventing one.
+- Apply color/refinery treatment at source-preparation resolution before final atlas packing, in the same order as its canonical executable authority.
+- If a rejected append batch has not been visually accepted, only those rejected append cells are writable. Existing accepted/published cells, reserved cells, recipes, timing, effects, renderer behavior, and registration remain locked unless explicitly reopened.
+- Visual comparison must include at least one accepted canonical pose and one repaired new pose at the same review zoom. Static atlas correctness and animated runtime correctness remain separate human gates.
