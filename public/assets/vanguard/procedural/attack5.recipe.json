@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-attack5-procedural-v1",
   "subject": "vanguard",
-  "description": "Attack 5 · authored poses 68 → 75 → 87, timed from Vanguard 3D SwordAttack5",
+  "description": "Attack 5 · user-selected early pose → airborne drive → planted extension, SwordAttack5 timing authority",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -46,13 +46,13 @@
     "coil": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 68,
+      "cell": 80,
       "role": "body",
       "trim": true,
       "anchorMode": "explicit-point",
       "anchorPoint": [
-        95,
-        78
+        59,
+        84
       ]
     },
     "drive": {
@@ -65,6 +65,10 @@
       "anchorPoint": [
         41,
         83
+      ],
+      "registrationOffset": [
+        -34,
+        0
       ]
     },
     "finish": {
@@ -80,8 +84,9 @@
       ]
     },
     "spray": {
-      "kind": "effect-image",
-      "path": "assets/vanguard/procedural/attack5-spray-atlas.png",
+      "kind": "effect-atlas-cell",
+      "atlas": "attack5-spray",
+      "cell": 7,
       "role": "effect",
       "trim": true
     }
@@ -218,7 +223,7 @@
     "source": "spray",
     "width": 190,
     "position": [
-      140,
+      105,
       95
     ],
     "pivot": [
@@ -334,5 +339,18 @@
     ],
     "nativeTotalMs": 1000,
     "description": "SwordAttack5 is timing authority only. User-supplied 2D sequence is pose authority: canonical atlas cells 68 → 75 → 87."
+  },
+  "effectAtlases": {
+    "attack5-spray": {
+      "path": "assets/vanguard/procedural/attack5-spray-atlas.png",
+      "columns": 5,
+      "rows": 2,
+      "indexBase": 1,
+      "size": [
+        1774,
+        887
+      ],
+      "sha256": "80f6fbf3b6bdbf80fac0b35cf3986bfe9b4aec8b4dba4ea55cd4292905a76fb4"
+    }
   }
 }
