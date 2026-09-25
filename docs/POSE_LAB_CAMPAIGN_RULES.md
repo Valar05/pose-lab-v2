@@ -127,3 +127,10 @@ These are named failure classes. Treat recurrence as a guard failure, not a crea
 - Do not use base64 as a convenience transport for Pose Lab binary assets.
 - Do not transport an asset at all when evidence shows the canonical/live pipeline already contains it.
 - Filesystem/Git ingress is used only for genuinely new binary assets.
+
+## Execute discovered prerequisite fixes immediately
+- If execution reveals a stale guard, stale contract, stale verifier, or other repo-owned prerequisite that blocks the already-authorized requested work, FIX THAT PREREQUISITE IMMEDIATELY and continue the original work in the same campaign.
+- Do not stop merely to report that a prerequisite should be updated when the required update is within the existing authorization, mutation boundary, and safety constraints.
+- A discovered prerequisite repair does NOT require a new user prompt when it only reconciles repo enforcement/infrastructure with already-settled campaign rules and does not expand the requested creative mutation surface.
+- After repairing the prerequisite, rerun the guard/verifier and continue through the requested visible review boundary.
+- Stop only when the prerequisite repair would change locked creative content, expand authority, require unavailable evidence, or cross an explicitly forbidden boundary.
