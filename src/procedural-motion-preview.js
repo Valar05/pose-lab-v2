@@ -2,7 +2,7 @@ import { createProceduralReviewShell } from './procedural-review-shell.js';
 
 const params=new URLSearchParams(location.search);
 const requested=params.get('procedural');
-const animation=requested==='vanguard-butt-smash'
+const animation=requested==='vanguard-shoulder-charge'\n  ? 'vanguard-shoulder-charge'\n  : requested==='vanguard-butt-smash'
   ? 'vanguard-butt-smash'
   : requested==='vanguard-attack5'
   ? 'vanguard-attack5'
@@ -13,13 +13,13 @@ const animation=requested==='vanguard-butt-smash'
     : requested==='vanguard-horizontal-strike'
       ? 'vanguard-horizontal-strike'
       : 'vanguard-overhand-strike';
-const isButtSmash=animation==='vanguard-butt-smash';
+const isShoulderCharge=animation==='vanguard-shoulder-charge';\nconst isButtSmash=animation==='vanguard-butt-smash';
 const isAttack5=animation==='vanguard-attack5';
 const isUndercut=animation==='vanguard-undercut-strike';
 const isAttack2=animation==='vanguard-attack2-uppercut';
 const isHorizontal=animation==='vanguard-horizontal-strike';
 const ui=createProceduralReviewShell({
-  title:isButtSmash?'Vanguard Butt Smash':isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
+  title:isShoulderCharge?'Vanguard Shoulder Charge':isButtSmash?'Vanguard Butt Smash':isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
   animation,
   accent:'#ffbd4a'
 });
@@ -574,7 +574,7 @@ function installSlashControls(){
 }
 
 try{
- const recipePath=isButtSmash
+ const recipePath=isShoulderCharge\n   ? './assets/vanguard/procedural/shoulder-charge.recipe.json'\n   : isButtSmash
    ? './assets/vanguard/procedural/butt-smash.recipe.json'
    : isAttack5
    ? './assets/vanguard/procedural/attack5.recipe.json'
