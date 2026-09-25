@@ -41,7 +41,15 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left"
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        58,
+        96
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
     },
     "chamber": {
       "kind": "atlas-cell",
@@ -49,7 +57,15 @@
       "cell": 79,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left"
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        51,
+        89
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
     },
     "commit": {
       "kind": "atlas-cell",
@@ -57,7 +73,15 @@
       "cell": 77,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left"
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        49,
+        83
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
     },
     "preimpact": {
       "kind": "atlas-cell",
@@ -65,7 +89,15 @@
       "cell": 64,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left"
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        52,
+        72
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
     },
     "contact": {
       "kind": "atlas-cell",
@@ -73,7 +105,15 @@
       "cell": 68,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left"
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        63,
+        78
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
     },
     "slash-right": {
       "kind": "effect-atlas-cell",
@@ -91,7 +131,8 @@
       "deform": {
         "shearX": 0,
         "scaleX": 1,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftY": 0
       }
     },
     {
@@ -102,7 +143,7 @@
         "shearX": 0.1,
         "scaleX": 1,
         "scaleY": 0.97,
-        "shiftY": 1
+        "shiftY": 0
       }
     },
     {
@@ -113,7 +154,7 @@
         "shearX": 0.08,
         "scaleX": 1.01,
         "scaleY": 0.98,
-        "shiftY": 1
+        "shiftY": 0
       },
       "effect": {
         "reveal": 0.1,
@@ -129,7 +170,8 @@
       "deform": {
         "shearX": -0.1,
         "scaleX": 1.02,
-        "scaleY": 0.99
+        "scaleY": 0.99,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 0.48,
@@ -146,7 +188,7 @@
         "shearX": -0.24,
         "scaleX": 1.04,
         "scaleY": 1.01,
-        "shiftY": -1
+        "shiftY": 0
       },
       "effect": {
         "reveal": 0.84,
@@ -163,7 +205,7 @@
         "shearX": -0.34,
         "scaleX": 1.06,
         "scaleY": 1.02,
-        "shiftY": -2
+        "shiftY": 0
       },
       "effect": {
         "reveal": 1,
@@ -179,7 +221,8 @@
       "deform": {
         "shearX": -0.25,
         "scaleX": 1.05,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 1,
@@ -229,7 +272,8 @@
       "deform": {
         "shearX": 0,
         "scaleX": 1,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftY": 0
       }
     }
   ],
@@ -308,7 +352,8 @@
     "scaleY": 1,
     "flipX": false,
     "flipY": true,
-    "liveControls": true
+    "liveControls": true,
+    "revealMode": "radial"
   },
   "bodyScale": 1.5,
   "stage": {

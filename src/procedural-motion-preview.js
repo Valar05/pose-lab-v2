@@ -282,11 +282,18 @@ function drawSlash(e,layerName='front'){
  ctx.transform(1,0,pseudoShearX,pseudoScaleY,0,0);
 
  // Reveal in slash-local space, after placement transform.
- ctx.beginPath();
- ctx.moveTo(0,0);
- ctx.arc(0,0,radius,start,end,spec.revealCounterClockwise!==false);
- ctx.closePath();
- ctx.clip();
+ // radial = true expanding circular mask from the slash pivot.
+ if(spec.revealMode==='radial'){
+   ctx.beginPath();
+   ctx.arc(0,0,Math.max(0,radius*reveal),0,Math.PI*2);
+   ctx.clip();
+ }else{
+   ctx.beginPath();
+   ctx.moveTo(0,0);
+   ctx.arc(0,0,radius,start,end,spec.revealCounterClockwise!==false);
+   ctx.closePath();
+   ctx.clip();
+ }
 
  // Optional depth split. Without one, the front pass draws the whole slash.
  if(hasDepthSplit){
