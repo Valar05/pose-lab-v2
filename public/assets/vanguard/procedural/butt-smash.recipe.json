@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-butt-smash-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Butt Smash · accepted expanded-atlas cells 91 → 92 → 93",
+  "description": "Vanguard Butt Smash · idle → accepted expanded-atlas cells 91 → 92 → 93 → idle",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -155,9 +155,43 @@
       "cell": 9,
       "role": "effect",
       "trim": true
+    },
+    "idle": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 2,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        58,
+        96
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
     }
   },
   "phases": [
+    {
+      "id": "idle",
+      "source": "idle",
+      "durationMs": 70,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
     {
       "id": "windup",
       "source": "windup",
@@ -202,6 +236,24 @@
         "shearX": 0,
         "scaleX": 1.03,
         "scaleY": 0.98,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "idle-return",
+      "source": "idle",
+      "durationMs": 90,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
         "shiftX": 0,
         "shiftY": 0
       },
