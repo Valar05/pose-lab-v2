@@ -100,6 +100,12 @@ npm run build
 [ ! -f "$L/server.pid" ] || kill "$(cat "$L/server.pid")" 2>/dev/null || true
 python3 -m http.server 8766 --bind 127.0.0.1 --directory "$W/dist" >"$L/server.log" 2>&1 &
 PID=$!; echo "$PID" >"$L/server.pid"; sleep 2; kill -0 "$PID"
-URL="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-reload&rev=$REV&nocache=$(date +%s)"
-echo "REV=$REV"; echo "REFINERY=$REFINERY"; echo "REVIEW=$URL"; echo "HUMAN_VERDICT=PENDING"
-termux-open-url "$URL"
+STAMP=$(date +%s)
+RELOAD_URL="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-reload&rev=$REV&nocache=$STAMP"
+FIRE_URL="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STAMP"
+echo "REV=$REV"
+echo "REFINERY=$REFINERY"
+echo "RELOAD_REVIEW=$RELOAD_URL"
+echo "FIRE_REVIEW=$FIRE_URL"
+echo "HUMAN_VERDICT=PENDING"
+termux-open-url "$RELOAD_URL"
