@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-attack5-procedural-v1",
   "subject": "vanguard",
-  "description": "Attack 5 · SwordAttack5-timed overhead coil → airborne drive → planted extension",
+  "description": "Attack 5 · authored poses 68 → 75 → 87, timed from Vanguard 3D SwordAttack5",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -46,29 +46,38 @@
     "coil": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 55,
+      "cell": 68,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
-      "isolateLargestComponent": true
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        95,
+        78
+      ]
     },
     "drive": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 59,
+      "cell": 75,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
-      "isolateLargestComponent": true
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        41,
+        83
+      ]
     },
     "finish": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 54,
+      "cell": 87,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
-      "isolateLargestComponent": true
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        72,
+        94
+      ]
     },
     "spray": {
       "kind": "effect-image",
@@ -324,6 +333,6 @@
       17
     ],
     "nativeTotalMs": 1000,
-    "description": "Timing authority from recovered SwordAttack5; compressed to authored coil/drive/finish beats without changing total duration."
+    "description": "SwordAttack5 is timing authority only. User-supplied 2D sequence is pose authority: canonical atlas cells 68 → 75 → 87."
   }
 }
