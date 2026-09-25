@@ -19,7 +19,7 @@
       92,
       226
     ],
-    "anchorMeaning": "attack-local 2D IK target; explicit source-cell rear-foot contact points from canonical cells 2,20,32,21"
+    "anchorMeaning": "attack-local 2D IK target; exact rear-foot source-cell points"
   },
   "atlases": {
     "vanguard-canonical": {
@@ -43,8 +43,12 @@
       "trim": true,
       "anchorMode": "explicit-point",
       "anchorPoint": [
-        57,
-        89
+        58,
+        96
+      ],
+      "registrationOffset": [
+        0,
+        0
       ]
     },
     "chamber": {
@@ -58,6 +62,10 @@
       "anchorPoint": [
         50,
         91
+      ],
+      "registrationOffset": [
+        0,
+        0
       ]
     },
     "contact": {
@@ -71,6 +79,10 @@
       "anchorPoint": [
         45,
         86
+      ],
+      "registrationOffset": [
+        0,
+        0
       ]
     },
     "slash-right": {
@@ -78,7 +90,8 @@
       "atlas": "slash-canonical",
       "cell": 8,
       "role": "effect",
-      "trim": true
+      "trim": true,
+      "preserveCellBounds": true
     },
     "rise": {
       "kind": "atlas-cell",
@@ -91,6 +104,10 @@
       "anchorPoint": [
         67,
         82
+      ],
+      "registrationOffset": [
+        0,
+        0
       ]
     }
   },
@@ -102,7 +119,8 @@
       "deform": {
         "shearX": 0,
         "scaleX": 1,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftY": 0
       }
     },
     {
@@ -208,7 +226,8 @@
       "deform": {
         "shearX": 0,
         "scaleX": 1,
-        "scaleY": 1
+        "scaleY": 1,
+        "shiftY": 0
       },
       "effect": {
         "reveal": 0,
@@ -220,7 +239,7 @@
   ],
   "effect": {
     "source": "slash-right",
-    "width": 148,
+    "width": 192,
     "position": [
       46,
       132
@@ -286,6 +305,7 @@
       0.5,
       0.5
     ],
+    "revealMode": "none",
     "rotateZDeg": 0,
     "tiltXDeg": 0,
     "yawYDeg": 0,
@@ -303,7 +323,7 @@
   },
   "motionAuthority": {
     "kind": "approved-vanguard-atlas-poses",
-    "description": "20 low chamber → 32 rising drive → 21 high finish; slash grammar inherited from the prior undercut."
+    "description": "20 low chamber → 32 rising drive → 21 high finish; rear foot is literal 2D IK target."
   },
   "effectAtlases": {
     "slash-canonical": {
