@@ -67,7 +67,7 @@
       ],
       "anchorPoint": [
         58,
-        96
+        97
       ]
     },
     "chamber": {
@@ -83,7 +83,7 @@
       ],
       "anchorPoint": [
         64,
-        83
+        84
       ]
     },
     "commit": {
@@ -99,7 +99,7 @@
       ],
       "anchorPoint": [
         58,
-        83
+        86
       ]
     },
     "preimpact": {
@@ -115,7 +115,7 @@
       ],
       "anchorPoint": [
         60,
-        88
+        89
       ]
     },
     "contact": {
@@ -131,7 +131,7 @@
       ],
       "anchorPoint": [
         50,
-        88
+        89
       ]
     },
     "slash-right": {
