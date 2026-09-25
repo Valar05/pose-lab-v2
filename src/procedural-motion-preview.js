@@ -313,7 +313,7 @@ function drawSlash(e,layerName='front'){
    ctx.beginPath();
    ctx.arc(0,0,Math.max(0,radius*reveal),0,Math.PI*2);
    ctx.clip();
- }else{
+ }else if(spec.revealMode!=='none'){
    ctx.beginPath();
    ctx.moveTo(0,0);
    ctx.arc(0,0,radius,start,end,spec.revealCounterClockwise!==false);
