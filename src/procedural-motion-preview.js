@@ -170,228 +170,70 @@ function effectCell(image,spec,cell){
  out.width=x1-x0;out.height=y1-y0;
  out.getContext('2d').drawImage(image,x0,y0,out.width,out.height,0,0,out.width,out.height);
 
+
+
   /*
-   * Irregular effect isolation.
+   * Optional vector lasso for irregular effect sprites.
    *
-   * A rectangle only chooses the source container.
-   * Seeded luminous ownership chooses the actual sprite.
+   * Points are expressed in ORIGINAL ATLAS coordinates.
+   * Pixels outside the polygon become transparent.
    */
-  const maskSource=
+  const lassoSource=
     recipe?.sources?.[recipe?.effect?.source]||{};
 
-  if(Array.isArray(maskSource.componentMaskSeed)){
-    const mx=out.getContext(
+  if(
+    Array.isArray(lassoSource.effectLasso) &&
+    lassoSource.effectLasso.length>=3
+  ){
+    const lx=out.getContext(
       '2d',
       {willReadFrequently:true}
     );
 
-    const im=mx.getImageData(
+    const original=lx.getImageData(
       0,0,out.width,out.height
     );
 
-    const px=im.data;
-    const w=out.width;
-    const h=out.height;
-    const total=w*h;
-
-    const threshold=Math.max(
-      0,
-      Number(
-        maskSource.componentMaskThreshold ?? 10
-      )
-    );
-
-    const bridge=Math.max(
-      1,
-      Math.round(
-        Number(
-          maskSource.componentMaskBridge ?? 12
-        )
-      )
-    );
-
-    let sx=Math.round(
-      Number(maskSource.componentMaskSeed[0])-x0
-    );
-
-    let sy=Math.round(
-      Number(maskSource.componentMaskSeed[1])-y0
-    );
-
-    if(
-      sx<0 || sy<0 ||
-      sx>=w || sy>=h
-    ){
-      throw new Error(
-        'Effect mask seed outside source'
-      );
-    }
-
-    const lum=(i)=>{
-      const q=i*4;
-
-      return Math.max(
-        px[q],
-        px[q+1],
-        px[q+2]
-      );
-    };
-
-    const lit=(i)=>
-      lum(i)>threshold;
-
-    let seed=sy*w+sx;
-
     /*
-     * Snap to nearest luminous pixel.
+     * Canvas clip gives us a clean vector mask.
+     * Polygon coordinates are converted from atlas-space
+     * to this extracted cell's local coordinates.
      */
-    if(!lit(seed)){
-      let best=-1;
-      let bestD=Infinity;
+    const masked=document.createElement('canvas');
 
-      for(
-        let y=Math.max(0,sy-48);
-        y<=Math.min(h-1,sy+48);
-        y++
-      ){
-        for(
-          let x=Math.max(0,sx-48);
-          x<=Math.min(w-1,sx+48);
-          x++
-        ){
-          const q=y*w+x;
+    masked.width=out.width;
+    masked.height=out.height;
 
-          if(!lit(q)) continue;
+    const mc=masked.getContext('2d');
 
-          const dx=x-sx;
-          const dy=y-sy;
-          const dd=dx*dx+dy*dy;
+    mc.save();
+    mc.beginPath();
 
-          if(dd<bestD){
-            bestD=dd;
-            best=q;
-          }
+    lassoSource.effectLasso.forEach(
+      (pt,index)=>{
+        const px=Number(pt[0])-x0;
+        const py=Number(pt[1])-y0;
+
+        if(index===0){
+          mc.moveTo(px,py);
+        }else{
+          mc.lineTo(px,py);
         }
       }
-
-      if(best<0){
-        throw new Error(
-          'No luminous pixel near effect seed'
-        );
-      }
-
-      seed=best;
-    }
-
-    const owned=new Uint8Array(total);
-    const queued=new Uint8Array(total);
-
-    const queue=[seed];
-    queued[seed]=1;
-
-    /*
-     * Grow through nearby luminous pixels.
-     *
-     * bridge allows small dark gaps inside wispy art while
-     * distant neighboring effects remain disconnected.
-     */
-    for(let head=0;head<queue.length;head++){
-      const cur=queue[head];
-
-      if(!lit(cur)) continue;
-
-      owned[cur]=1;
-
-      const cx=cur%w;
-      const cy=Math.floor(cur/w);
-
-      for(
-        let yy=Math.max(0,cy-bridge);
-        yy<=Math.min(h-1,cy+bridge);
-        yy++
-      ){
-        for(
-          let xx=Math.max(0,cx-bridge);
-          xx<=Math.min(w-1,cx+bridge);
-          xx++
-        ){
-          const dx=xx-cx;
-          const dy=yy-cy;
-
-          if(
-            dx*dx+dy*dy >
-            bridge*bridge
-          ){
-            continue;
-          }
-
-          const ni=yy*w+xx;
-
-          if(
-            queued[ni] ||
-            !lit(ni)
-          ){
-            continue;
-          }
-
-          queued[ni]=1;
-          queue.push(ni);
-        }
-      }
-    }
-
-    /*
-     * Recover faint antialiased halo around the owned structure.
-     */
-    const halo=Math.max(
-      2,
-      Math.round(bridge/2)
     );
 
-    const keep=new Uint8Array(owned);
+    mc.closePath();
+    mc.clip();
 
-    for(let i=0;i<total;i++){
-      if(!owned[i]) continue;
+    mc.drawImage(out,0,0);
 
-      const cx=i%w;
-      const cy=Math.floor(i/w);
+    mc.restore();
 
-      for(
-        let yy=Math.max(0,cy-halo);
-        yy<=Math.min(h-1,cy+halo);
-        yy++
-      ){
-        for(
-          let xx=Math.max(0,cx-halo);
-          xx<=Math.min(w-1,cx+halo);
-          xx++
-        ){
-          const ni=yy*w+xx;
+    lx.clearRect(
+      0,0,out.width,out.height
+    );
 
-          if(lum(ni)>2){
-            keep[ni]=1;
-          }
-        }
-      }
-    }
-
-    let kept=0;
-
-    for(let i=0;i<total;i++){
-      if(keep[i]){
-        kept++;
-      }else{
-        px[i*4+3]=0;
-      }
-    }
-
-    if(kept<100){
-      throw new Error(
-        'Effect mask retained too few pixels'
-      );
-    }
-
-    mx.putImageData(im,0,0);
+    lx.drawImage(masked,0,0);
   }
 
  return out;
