@@ -399,3 +399,101 @@ These rules govern generative pose mining before mechanical sprite extraction. T
 - Literal escape corruption such as the two-character sequence backslash+n in source code is a named failure class: ESCAPED-NEWLINE-SOURCE. Read-back must check for it after programmatic source patching.
 - BUILD_OK without MODULE_SYNTAX_OK is insufficient evidence and must fail closed before browser handoff.
 - If local repair produces no diff, do not commit/push/refresh and pretend the repair propagated. Verify the intended byte-level postcondition first; NO_DIFF_WITH_UNMET_POSTCONDITION is a failure.
+
+
+## Campaign Drive / Fresh-Chat Execution Contract
+
+### Purpose
+Campaign Drive exists to make substantial Pose Lab work survive fresh chats, constrained/Instant reasoning, tool-session drift, and disappearing actuators without requiring Drew to reconstruct context or become the transport/debugging layer. A campaign package is an executable continuation boundary, not a prose recap.
+
+### Fresh-chat benchmark
+A fresh chat is the preferred hostile test of campaign durability. It should be able to enter with minimal instruction, read root `AGENTS.md`, recover this doctrine and the active campaign package, inspect current repository/runtime truth, and continue safely without conversational archaeology.
+
+Success means a fresh-chat executor can:
+1. discover the authorized Home Center/Organ execution lane;
+2. recover current HEAD, runtime revision, dirty-tree state, and relevant artifacts before mutation;
+3. distinguish read authority, planning authority, mutation authority, execution authority, and human visual acceptance;
+4. produce a complete sealed campaign before consequential execution;
+5. preserve unrelated dirty archaeology;
+6. survive an unavailable/disappearing actuator without substituting architecture;
+7. repair deterministic/recoverable prerequisites and continue;
+8. distinguish requested, authored, committed, pushed, deployed, served, mechanically verified, and visually accepted states;
+9. reach the commissioned acceptance surface rather than stopping at an intermediate success;
+10. emit a continuation receipt sufficient for another fresh chat.
+
+### Campaign package shape
+Every substantial campaign package should expose, in machine-readable or mechanically unambiguous form:
+- MISSION: exact commissioned outcome.
+- AUTHORITY: source artifacts, user designations, accepted hashes/frames/poses, and timing authority.
+- CURRENT STATE: relevant HEAD, deployed/served revision, known runtime topology, active artifacts.
+- LOCKS: accepted properties and files that may not change.
+- WRITABLE SURFACE: exact files/properties the campaign may mutate.
+- EXECUTION LANE: authorized repo/device/runtime path; forbidden substitutes.
+- SEALED PLAN: ordered deterministic operations bound to starting state.
+- FAILURE BRANCHES: known recoverable states and their deterministic repairs.
+- VERIFICATION: claim-scoped mechanical checks.
+- VISUAL GATE: exact human-visible review surface when applicable.
+- RECEIPT: state transitions and evidence sufficient for continuation.
+
+### Artificial handoff / commit barrier
+Direct actuator access MUST NOT imply incremental mutation authority.
+- For consequential code/artifact work, planning happens while mutation is unavailable or logically disabled.
+- Produce the complete executable campaign before gaining/using mutation execution.
+- Seal/freeze the campaign before apply. The executor may run it but may not opportunistically rewrite it while it is running.
+- If an unhandled consequential state appears, stop with evidence and return to planning. Produce a new sealed campaign rather than entering an interactive poke/fix loop.
+- Known recoverable branches already encoded in the campaign may self-repair and continue.
+- This preserves the useful pressure of a human script handoff without requiring Drew to manually inspect or transport the script.
+
+### Least interactivity
+Prefer the minimum interactive mutation surface that can complete the job.
+- More actuator capability is not automatically better.
+- Repeated tiny direct mutations encourage local hill-climbing and flailing.
+- Read/inspect access may be broad; write/execute authority should be campaign-scoped.
+- Optimize away Drew's copy/paste burden, NOT the plan/seal/apply boundary.
+- Drew should approve/review consequential outcomes where required, not serve as shell transport.
+
+### Tool/actuator disappearance
+Phone Hands, browser actuators, or other execution capabilities are ephemeral unless the active campaign proves they are currently available.
+- Never assume an actuator persists because it existed earlier in the conversation.
+- Re-resolve the authorized execution lane at campaign start and before apply when required.
+- If the required actuator disappears, return a typed capability failure/continuation receipt.
+- Do NOT silently switch to Work mode, a phone browser, Browser Nerve, local scratch, another repo, or a newly invented architecture.
+- Tool disappearance changes deployed capability, not the commissioned architecture.
+- A campaign package must remain useful when an actuator is temporarily absent: planning, state recovery, validation, and continuation evidence should still proceed where authorized.
+
+### Human handoff lesson
+The observed reliability benefit of script handoff does NOT depend on Drew reviewing the script line-by-line. The benefit is the requirement that the agent compress the intended operation into one coherent executable artifact before mutation.
+- Preserve that computational pressure when transport is automated.
+- A giant script that is self-contained, scoped, preflighted, and verifiable can be preferable to dozens of interactive mutations.
+- Script syntax correctness is necessary but secondary to process correctness. Campaign verification must prove the commissioned state transition, not merely that shell executed.
+
+### Instant-mode operating model
+Instant/constrained reasoning is a supported production mode when the campaign provides deterministic rails.
+- Never depend on the model remembering accumulated conversation constraints.
+- Root boot gate + campaign package + current repo evidence are the working memory.
+- Prefer deterministic scripts/guards to model improvisation.
+- Escalated reasoning may design or repair rails, but ordinary execution must not require it.
+- A campaign that fails solely because reasoning effort is lower is missing executable doctrine.
+
+### Campaign Drive acceptance test
+For a real campaign, test in a fresh chat without manually reteaching accumulated corrections. Give only enough information to identify the repo/campaign.
+- If the executor needs conversational coaching to recover a rule already known here, treat it as a Campaign Drive documentation/guard failure.
+- Improve the package/root boot gate, then retest fresh rather than teaching one chat a private workaround.
+- Use a real but bounded task, not a toy canary, so architecture substitution, dirty-state handling, acceptance boundaries, and actuator loss are observable.
+- Do not count success unless the requested artifact and requested evidence arrive through the authorized lane.
+
+### Continuation receipt
+Every completed or blocked campaign should leave a compact durable receipt containing:
+- campaign/package version or hash;
+- starting and ending HEAD/revision;
+- exact files/properties mutated;
+- input/output hashes where material;
+- dirty archaeology preserved;
+- execution lane actually used;
+- guards/checks run and their results;
+- deployed/served revision where applicable;
+- visual review URL/surface;
+- human verdict if supplied;
+- unresolved typed blocker and exact continuation point if incomplete.
+
+The receipt is for the next fresh chat. It must not require access to the conversation that produced it.
