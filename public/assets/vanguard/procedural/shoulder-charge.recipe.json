@@ -19,7 +19,7 @@
       92,
       226
     ],
-    "anchorMeaning": "attack-local 2D IK target; exact planted-foot source-cell points"
+    "anchorMeaning": "single rear-foot 2D IK target shared by idle, brace and impact"
   },
   "atlases": {
     "vanguard-canonical": {
@@ -109,8 +109,8 @@
       "trim": true,
       "anchorMode": "explicit-point",
       "anchorPoint": [
-        97,
-        97
+        56,
+        96
       ],
       "registrationOffset": [
         0,
@@ -330,7 +330,7 @@
   },
   "motionAuthority": {
     "kind": "user-corrected-expanded-atlas-shoulder-charge",
-    "description": "Expanded atlas cells 94 and 95 only. Cell 94 occurs once as backward-loaded anticipation. Cell 95 is drive/contact. Recovery goes directly from 95 to canonical idle without replaying 94. The same physical rear foot is explicitly pinned in source-cell coordinates. Whole-sprite/root translation remains zero."
+    "description": "Expanded atlas cells 94 and 95 only. Cell 94 occurs once as backward-loaded anticipation; cell 95 is drive/contact; recovery goes directly from 95 to canonical idle. The same physical rear foot is explicitly pinned in every source cell. Canonical idle cell 2 uses established rear-foot point [56,96]. Whole-sprite and phase translation remain zero."
   },
   "effectAtlases": {
     "attack5-spray": {
