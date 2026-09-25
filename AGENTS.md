@@ -21,3 +21,13 @@ Non-negotiable rules:
 
 The invocation phrase is **Pose is God**. The explicit skill invocation is
 `@pose-is-god`.
+
+## Sprite/contact-sheet guardrails
+- Original authored sheets are the mechanical extraction authority.
+- Never substitute screenshots, generated derivatives, review GIFs, or packed atlases when originals exist.
+- Shrink authored source before inference/measurement; do not independently normalize frames.
+- Preserve authored order, source-cell geometry, established scale, and body/ground anchor.
+- Grow atlas/cells instead of clipping or shrinking useful poses.
+- Cleanup must distinguish phantom fragments from legitimate separated geometry; use explicit masks when necessary.
+- Prefer inclusion over premature dedupe; exact duplicates may go, meaningful near-duplicates stay.
+- Static atlas structure and animation behavior require separate visual review.
