@@ -177,19 +177,63 @@ function buildSlash(){
    return c;
  }
 
- const sw=slash.naturalWidth||slash.width,sh=slash.naturalHeight||slash.height;
- const c=document.createElement('canvas');c.width=sw;c.height=sh;
- const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(slash,0,0,sw,sh);
- const im=x.getImageData(0,0,c.width,c.height),d=im.data;let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
+ const sw=slash.naturalWidth||slash.width;
+ const sh=slash.naturalHeight||slash.height;
+ const c=document.createElement('canvas');
+ c.width=sw;
+ c.height=sh;
+ const x=c.getContext('2d',{willReadFrequently:true});
+ x.drawImage(slash,0,0,sw,sh);
+
+ const im=x.getImageData(0,0,c.width,c.height),d=im.data;
+ let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
  for(let y=0;y<c.height;y++)for(let xx=0;xx<c.width;xx++){
-   const i=(y*c.width+xx)*4,vv=Math.max(d[i],d[i+1],d[i+2]);
-   if(vv>4){minX=Math.min(minX,xx);minY=Math.min(minY,y);maxX=Math.max(maxX,xx);maxY=Math.max(maxY,y);}
+   const i=(y*c.width+xx)*4;
+   const vv=Math.max(d[i],d[i+1],d[i+2]);
+   if(vv>4){
+     minX=Math.min(minX,xx);
+     minY=Math.min(minY,y);
+     maxX=Math.max(maxX,xx);
+     maxY=Math.max(maxY,y);
+   }
  }
- const crop=document.createElement('canvas');crop.width=maxX-minX+1;crop.height=maxY-minY+1;
- crop.getContext('2d').drawImage(c,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
- const w=recipe.effect.width,h=Math.max(1,Math.round(crop.height*w/crop.width)),o=document.createElement('canvas');o.width=w;o.height=h;
- o.getContext('2d').drawImage(crop,0,0,w,h);
- slashMap=colorizeCanvas(o);
+ if(maxX<minX||maxY<minY)throw new Error('Empty slash atlas cell');
+
+ const cropW=maxX-minX+1;
+ const cropH=maxY-minY+1;
+ const artW=Math.max(1,Number(recipe.effect.width||cropW));
+ const artH=Math.max(1,Math.round(cropH*artW/cropW));
+
+ const art=document.createElement('canvas');
+ art.width=artW;
+ art.height=artH;
+ art.getContext('2d').drawImage(
+   c,minX,minY,cropW,cropH,
+   0,0,artW,artH
+ );
+
+ // GLOBAL NO-CROP RULE:
+ // Preserve the original art exactly, then add transparent space around it.
+ // All coordinates are stored relative to the original art, so padding does
+ // not move the effect, alter its split, or change any existing recipe tune.
+ const pad=Math.max(64,Math.round(Math.max(artW,artH)*0.50));
+ const padded=document.createElement('canvas');
+ padded.width=artW+pad*2;
+ padded.height=artH+pad*2;
+ const pc=padded.getContext('2d');
+ pc.drawImage(art,pad,pad);
+
+ slashMap=colorizeCanvas(padded);
+
+ const pv=recipe.effect.revealPivot||[.5,.5];
+ slashMap.__art={
+   x:pad,
+   y:pad,
+   width:artW,
+   height:artH,
+   pivotX:pad+artW*Number(pv[0]??.5),
+   pivotY:pad+artH*Number(pv[1]??.5)
+ };
 }
 function stageOffsetX(){
  const key=recipe.stage?.centerSource||'idle',it=body(key),[px]=recipe.canvas.anchor;
@@ -222,9 +266,9 @@ function drawSlash(e,layerName='front'){
  if(reveal<=0)return;
 
  const split=hasDepthSplit?Math.max(.05,Math.min(.95,Number(spec.depthSplit))):.5;
- const pivot=spec.revealPivot||[.5,.5];
- const px=image.width*Number(pivot[0]??.5);
- const py=image.height*Number(pivot[1]??.5);
+ const art=image.__art||{x:0,y:0,width:image.width,height:image.height};
+ const px=Number(art.pivotX??(art.x+art.width*(spec.revealPivot?.[0]??.5)));
+ const py=Number(art.pivotY??(art.y+art.height*(spec.revealPivot?.[1]??.5)));
 
  const rotZ=Number(spec.rotateZDeg??0)*Math.PI/180;
  const tiltX=Number(spec.tiltXDeg??0)*Math.PI/180;
@@ -298,18 +342,18 @@ function drawSlash(e,layerName='front'){
  // Optional depth split. Without one, the front pass draws the whole slash.
  if(hasDepthSplit){
    ctx.beginPath();
-   const splitX=-px+image.width*split;
+   const splitX=-px+Number(art.x)+Number(art.width)*split;
    if(layerName==='back'){
      if(backIsLeft){
-       ctx.rect(-px-8,-py-8,image.width*split+16,image.height+16);
+       ctx.rect(-px+Number(art.x)-8,-py+Number(art.y)-8,Number(art.width)*split+16,Number(art.height)+16);
      }else{
-       ctx.rect(splitX-8,-py-8,image.width*(1-split)+16,image.height+16);
+       ctx.rect(splitX-8,-py+Number(art.y)-8,Number(art.width)*(1-split)+16,Number(art.height)+16);
      }
    }else{
      if(backIsLeft){
-       ctx.rect(splitX-8,-py-8,image.width*(1-split)+16,image.height+16);
+       ctx.rect(splitX-8,-py+Number(art.y)-8,Number(art.width)*(1-split)+16,Number(art.height)+16);
      }else{
-       ctx.rect(-px-8,-py-8,image.width*split+16,image.height+16);
+       ctx.rect(-px+Number(art.x)-8,-py+Number(art.y)-8,Number(art.width)*split+16,Number(art.height)+16);
      }
    }
    ctx.clip();
