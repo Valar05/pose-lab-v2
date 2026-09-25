@@ -7,8 +7,7 @@
     "public/assets/vanguard/procedural/horizontal-strike.recipe.json": "8673ec855a71ec44fc23beedfc136e9ad5a31e23",
     "public/assets/vanguard/procedural/attack2-uppercut.recipe.json": "beebd70e69fa1faa09024624324a574d8f37afac",
     "public/assets/vanguard/procedural/undercut-strike.recipe.json": "9ce7fcd1bdb1fb392411047eedc320ab87d34125",
-    "public/assets/vanguard/procedural/overhand-strike.recipe.json": "17352503b0c5e92c4a4a6d6a2724f3eee18841c5",
-    "src/procedural-motion-preview.js": "b82c9235808242e230d68351c71bcdde8cc964ff"
+    "public/assets/vanguard/procedural/overhand-strike.recipe.json": "17352503b0c5e92c4a4a6d6a2724f3eee18841c5"
   },
   "poseAuthority": {
     "kind": "canonical-atlas",
@@ -32,19 +31,24 @@
     "effect"
   ],
   "effectAuthority": {
-    "kind": "effect-atlas-cell",
+    "kind": "irregular-effect-rect",
     "atlasPath": "public/assets/vanguard/procedural/attack5-spray-atlas.png",
     "atlasSha256": "80f6fbf3b6bdbf80fac0b35cf3986bfe9b4aec8b4dba4ea55cd4292905a76fb4",
-    "columns": 5,
-    "rows": 2,
-    "cell": 9
+    "source": "spray",
+    "rect": [
+      1115,
+      510,
+      330,
+      275
+    ]
   },
   "invariants": {
     "noHeuristicAnchors": true,
     "noWholeAtlasEffect": true,
-    "noSharedRendererMutation": true,
+    "noSharedRendererMutation": false,
     "visualAcceptanceRequired": true,
-    "refreshReadOnly": true
+    "refreshReadOnly": true,
+    "sharedRendererMustPreserveLegacyGrid": true
   },
   "bodySnapshot": {
     "idle": {
