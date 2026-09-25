@@ -1,5 +1,18 @@
 # Pose Lab Agent Contract
 
+## STICKY BOOT GATE — READ BEFORE ANY POSE LAB WORK
+
+Any reference to this repository, Pose Lab, Vanguard/Fleshling sprite animation, a Pose Lab campaign, its server/runtime, its atlas/recipes, or a request to inspect/change/run/review anything here MUST begin by reading:
+
+1. `docs/POSE_LAB_CAMPAIGN_RULES.md`
+2. `docs/POSE_IS_GOD.md`
+3. the active campaign contract/manifest when one exists.
+
+This applies even to casual follow-ups, fresh chats, low-reasoning/Instant execution, debugging, status questions that may lead to action, and apparently trivial one-line fixes. Do not rely on conversation memory as a substitute. Do not mutate first and read later.
+
+Before consequential mutation, explicitly recover: current HEAD/runtime truth, dirty-tree state, source authority, accepted locks, exact writable surface, execution lane, expected evidence, and completion surface.
+
+
 For any pose, animation, retarget, sprite-motion, weapon, render, or review-link
 work, read and follow `docs/POSE_IS_GOD.md` before editing.
 
