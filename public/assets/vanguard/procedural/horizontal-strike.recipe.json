@@ -107,7 +107,8 @@
       "atlas": "slash-canonical",
       "cell": 2,
       "role": "effect",
-      "trim": true
+      "trim": true,
+      "preserveCellBounds": true
     }
   },
   "phases": [
