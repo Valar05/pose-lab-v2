@@ -60,10 +60,14 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
+      "anchorMode": "explicit-point",
       "registrationOffset": [
         0,
         0
+      ],
+      "anchorPoint": [
+        58,
+        96
       ]
     },
     "chamber": {
@@ -72,10 +76,14 @@
       "cell": 26,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
+      "anchorMode": "explicit-point",
       "registrationOffset": [
-        -5,
-        20
+        0,
+        0
+      ],
+      "anchorPoint": [
+        64,
+        83
       ]
     },
     "commit": {
@@ -84,10 +92,14 @@
       "cell": 40,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
+      "anchorMode": "explicit-point",
       "registrationOffset": [
-        1,
-        20
+        0,
+        0
+      ],
+      "anchorPoint": [
+        58,
+        83
       ]
     },
     "preimpact": {
@@ -96,10 +108,14 @@
       "cell": 32,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
+      "anchorMode": "explicit-point",
       "registrationOffset": [
-        -2,
-        12
+        0,
+        0
+      ],
+      "anchorPoint": [
+        60,
+        88
       ]
     },
     "contact": {
@@ -108,10 +124,14 @@
       "cell": 35,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center",
+      "anchorMode": "explicit-point",
       "registrationOffset": [
-        10,
-        12
+        0,
+        0
+      ],
+      "anchorPoint": [
+        50,
+        88
       ]
     },
     "slash-right": {

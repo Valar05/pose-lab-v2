@@ -79,6 +79,18 @@ function body(sourceId){
  rc.putImageData(im,0,0);
  if(maxX<minX)throw new Error('Empty atlas cell '+src.cell);
 
+ if(src.anchorMode==='explicit-point' && Array.isArray(src.anchorPoint)){
+   const item={
+     canvas:raw,
+     anchor:[Number(src.anchorPoint[0]),Number(src.anchorPoint[1])],
+     cell:src.cell,
+     cellGeometry:true,
+     bodyScale:1
+   };
+   cache.set(sourceId,item);
+   return item;
+ }
+
  // Horizontal Slash uses a common atlas-cell coordinate system.
  // Do NOT independently trim its authored poses or their apparent height/grounding drifts.
  if(src.anchorMode==='ground-contact-center'){
