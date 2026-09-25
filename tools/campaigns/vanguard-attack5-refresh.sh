@@ -17,12 +17,19 @@ rm -rf "$LIVE"; git -C "$ROOT" worktree prune; git -C "$ROOT" worktree add --det
 python3 "$LIVE/tools/campaigns/pose_campaign_guard.py"
 echo "=== BUILD ==="
 cd "$LIVE"; node scripts/build.mjs
-for f in motion.html src/procedural-motion-preview.js assets/vanguard/procedural/attack5.recipe.json assets/vanguard/procedural/attack5-spray-atlas.png; do
+for f in motion.html src/procedural-motion-preview.js; do
   [[ -s "$LIVE/dist/$f" ]] || { echo "STOP: built runtime missing $f"; exit 12; }
+done
+
+rm -f "$LIVE/assets"
+ln -s "$LIVE/public/assets" "$LIVE/assets"
+
+for f in public/assets/vanguard/procedural/attack5.recipe.json public/assets/vanguard/procedural/attack5-spray-atlas.png; do
+  [[ -s "$LIVE/$f" ]] || { echo "STOP: canonical runtime missing $f"; exit 12; }
 done
 echo "=== RESTART REVIEW SERVER ==="
 tmux kill-session -t "$SESSION" 2>/dev/null || true
-tmux new-session -d -s "$SESSION" "cd '$LIVE/dist' && exec python3 -m http.server '$PORT' --bind 127.0.0.1"
+tmux new-session -d -s "$SESSION" "cd '$LIVE' && exec python3 -m http.server '$PORT' --bind 127.0.0.1"
 BASE="http://127.0.0.1:$PORT"; REV="$(git -C "$LIVE" rev-parse --short HEAD)"; READY=0
 for _ in $(seq 1 40); do
  if curl -fsS "$BASE/motion.html?procedural=vanguard-attack5&rev=$REV" -o /dev/null 2>&1 &&
@@ -34,6 +41,9 @@ done
 [[ "$READY" -eq 1 ]] || { echo "STOP: exact Attack5 browser runtime failed"; tmux capture-pane -pt "$SESSION" || true; exit 20; }
 URL="$BASE/motion.html?procedural=vanguard-attack5&rev=$REV&nocache=$(date +%s)"
 echo "ATTACK5_CANONICAL_REFRESH_OK"
-echo "head=$HEAD"; echo "served_root=$LIVE/dist"; echo "url=$URL"
+echo "head=$HEAD"
+echo "served_root=$LIVE"
+echo "asset_bridge=$LIVE/assets -> $LIVE/public/assets"
+echo "url=$URL"
 echo "NOTE: transport/build/guard PASS is not visual acceptance."
 termux-open-url "$URL" 2>/dev/null || true
