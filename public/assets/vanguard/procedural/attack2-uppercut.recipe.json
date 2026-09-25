@@ -19,7 +19,7 @@
       92,
       226
     ],
-    "anchorMeaning": "approved attack-local rear-foot IK pin; rear-foot-left source anchors remain invariant"
+    "anchorMeaning": "attack-local 2D IK target; explicit source-cell rear-foot contact points from canonical cells 2,20,32,21"
   },
   "atlases": {
     "vanguard-canonical": {
@@ -41,7 +41,11 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left"
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        57,
+        89
+      ]
     },
     "chamber": {
       "kind": "atlas-cell",
@@ -49,8 +53,12 @@
       "cell": 20,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left",
-      "isolateLargestComponent": true
+      "anchorMode": "explicit-point",
+      "isolateLargestComponent": true,
+      "anchorPoint": [
+        50,
+        91
+      ]
     },
     "contact": {
       "kind": "atlas-cell",
@@ -58,8 +66,12 @@
       "cell": 21,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left",
-      "isolateLargestComponent": true
+      "anchorMode": "explicit-point",
+      "isolateLargestComponent": true,
+      "anchorPoint": [
+        45,
+        86
+      ]
     },
     "slash-right": {
       "kind": "effect-atlas-cell",
@@ -74,8 +86,12 @@
       "cell": 32,
       "role": "body",
       "trim": true,
-      "anchorMode": "rear-foot-left",
-      "isolateLargestComponent": true
+      "anchorMode": "explicit-point",
+      "isolateLargestComponent": true,
+      "anchorPoint": [
+        67,
+        82
+      ]
     }
   },
   "phases": [
