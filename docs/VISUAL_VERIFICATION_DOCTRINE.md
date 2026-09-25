@@ -166,3 +166,6 @@ browser in the cloud lane changes the review environment, slows the loop, and
 turns a visual acceptance run into environment bootstrap. If system Chrome is
 unavailable, the cloud lane is blocked and must be repaired without accepting
 local or telemetry evidence as a substitute.
+
+## Sprite atlas visual gate
+For 2D sprite/contact-sheet work, structural packing is not visual acceptance. The original authored sheet remains the source authority; generated or screenshot derivatives are review-only when originals exist. Review the packed atlas for clipping, scale drift, anchor drift, phantom fragments, and missing frames, then review the actual animation for cadence and continuity. If a pose is clipped, grow the atlas or cell rather than shrinking the pose. If dedupe is uncertain, keep the frame.
