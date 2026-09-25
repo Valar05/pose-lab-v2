@@ -239,8 +239,8 @@
     "source": "spray",
     "width": 150,
     "position": [
-      190,
-      100
+      178,
+      112
     ],
     "pivot": [
       0.5,
@@ -366,7 +366,16 @@
         1774,
         887
       ],
-      "sha256": "80f6fbf3b6bdbf80fac0b35cf3986bfe9b4aec8b4dba4ea55cd4292905a76fb4"
+      "sha256": "80f6fbf3b6bdbf80fac0b35cf3986bfe9b4aec8b4dba4ea55cd4292905a76fb4",
+      "rects": {
+        "9": [
+          1115,
+          510,
+          330,
+          275
+        ]
+      },
+      "geometry": "irregular-explicit-rects"
     }
   }
 }
