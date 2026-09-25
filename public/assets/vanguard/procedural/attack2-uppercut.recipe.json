@@ -114,7 +114,7 @@
     {
       "id": "idle",
       "source": "idle",
-      "durationMs": 40,
+      "durationMs": 25,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
@@ -125,7 +125,7 @@
     {
       "id": "anticipation",
       "source": "idle",
-      "durationMs": 40,
+      "durationMs": 25,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
@@ -136,9 +136,9 @@
     {
       "id": "low-chamber",
       "source": "chamber",
-      "durationMs": 245,
+      "durationMs": 275,
       "deform": {
-        "shearX": -0.32,
+        "shearX": 0.32,
         "scaleX": 1,
         "scaleY": 1,
         "shiftY": 0
@@ -297,8 +297,8 @@
     "wideBlurPx": 7.5,
     "tightOpacity": 0.65,
     "wideOpacity": 0.55,
-    "revealStartDeg": 180,
-    "revealSweepDeg": 120,
+    "revealStartDeg": 360,
+    "revealSweepDeg": 360,
     "revealCounterClockwise": false,
     "revealPivot": [
       0.5,
