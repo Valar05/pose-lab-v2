@@ -228,8 +228,8 @@
       25
     ],
     "pivot": [
-      160,
-      198
+      0.5,
+      0.5
     ],
     "featherDeg": 8,
     "alphaGain": 1.3,
@@ -292,7 +292,7 @@
     "revealStartDeg": 32,
     "projectionMode": "none",
     "flipX": false,
-    "flipY": true,
+    "flipY": false,
     "vanguardDepth": 0,
     "revealSweepDeg": 180,
     "revealCounterClockwise": true,
@@ -300,15 +300,15 @@
       0.5,
       0.5
     ],
-    "scaleX": -0.3,
+    "scaleX": 1,
     "scaleY": 1,
     "depthSplit": 0.5,
     "backSide": "left",
     "positionMode": "absolute",
     "liveControls": true,
-    "rotateZDeg": -92,
-    "tiltXDeg": -38,
-    "yawYDeg": -15
+    "rotateZDeg": 0,
+    "tiltXDeg": 0,
+    "yawYDeg": 0
   },
   "bodyScale": 1.5,
   "stage": {
