@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-shoulder-charge-procedural-v1",
   "subject": "vanguard",
-  "description": "Heavy counter shoulder charge · idle → authored atlas cell 88 → authored atlas cell 89 → recoil → idle",
+  "description": "Heavy counter shoulder charge \u00b7 exact final two visible authored sprites from supplied Vanguard sheet: cells 94 \u2192 95 \u00b7 idle endpoints",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -25,7 +25,7 @@
     "vanguard-canonical": {
       "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
       "columns": 6,
-      "rows": 15,
+      "rows": 16,
       "indexBase": 1,
       "mode": "blue-key",
       "size": [
@@ -54,7 +54,7 @@
     "brace": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 88,
+      "cell": 94,
       "role": "body",
       "trim": true,
       "anchorMode": "explicit-point",
@@ -71,7 +71,7 @@
     "impact": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 89,
+      "cell": 95,
       "role": "body",
       "trim": true,
       "anchorMode": "explicit-point",
@@ -282,7 +282,7 @@
   },
   "motionAuthority": {
     "kind": "user-designated-canonical-atlas-poses",
-    "description": "User designates the last two non-empty sprites on the supplied canonical sheet as shoulder-charge poses: cells 88 and 89. Feet are explicit 2D IK anchors. Whole-sprite/root translation is zero; body-local shear/scale carries the charge. First and last frames are canonical idle cell 2."
+    "description": "User-designated source authority is the supplied 6x16 Vanguard sheet. The final two visible sprites are cells 94 and 95; cell 96 is empty. Use those exact authored poses. Feet remain explicit 2D IK anchors. Whole-sprite/root translation is zero. Body-local shear/scale carries the charge. First and last phases use canonical idle."
   },
   "effectAtlases": {
     "attack5-spray": {
