@@ -2,7 +2,11 @@ import { createProceduralReviewShell } from './procedural-review-shell.js';
 
 const params=new URLSearchParams(location.search);
 const requested=params.get('procedural');
-const animation=requested==='vanguard-shoulder-charge'
+const animation=requested==='vanguard-shotgun-reload'
+  ? 'vanguard-shotgun-reload'
+  : requested==='vanguard-shotgun-fire'
+  ? 'vanguard-shotgun-fire'
+  : requested==='vanguard-shoulder-charge'
   ? 'vanguard-shoulder-charge'
   : requested==='vanguard-butt-smash'
   ? 'vanguard-butt-smash'
@@ -15,6 +19,8 @@ const animation=requested==='vanguard-shoulder-charge'
     : requested==='vanguard-horizontal-strike'
       ? 'vanguard-horizontal-strike'
       : 'vanguard-overhand-strike';
+const isShotgunReload=animation==='vanguard-shotgun-reload';
+const isShotgunFire=animation==='vanguard-shotgun-fire';
 const isShoulderCharge=animation==='vanguard-shoulder-charge';
 const isButtSmash=animation==='vanguard-butt-smash';
 const isAttack5=animation==='vanguard-attack5';
@@ -22,7 +28,7 @@ const isUndercut=animation==='vanguard-undercut-strike';
 const isAttack2=animation==='vanguard-attack2-uppercut';
 const isHorizontal=animation==='vanguard-horizontal-strike';
 const ui=createProceduralReviewShell({
-  title:isShoulderCharge?'Vanguard Shoulder Charge':isButtSmash?'Vanguard Butt Smash':isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
+  title:isShotgunReload?'Vanguard Shotgun Reload':isShotgunFire?'Vanguard Shotgun Fire':isShoulderCharge?'Vanguard Shoulder Charge':isButtSmash?'Vanguard Butt Smash':isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
   animation,
   accent:'#ffbd4a'
 });
@@ -644,7 +650,11 @@ function installSlashControls(){
 }
 
 try{
- const recipePath=isShoulderCharge
+ const recipePath=isShotgunReload
+   ? './assets/vanguard/procedural/shotgun-reload.recipe.json'
+   : isShotgunFire
+   ? './assets/vanguard/procedural/shotgun-fire.recipe.json'
+   : isShoulderCharge
    ? './assets/vanguard/procedural/shoulder-charge.recipe.json'
    : isButtSmash
    ? './assets/vanguard/procedural/butt-smash.recipe.json'
