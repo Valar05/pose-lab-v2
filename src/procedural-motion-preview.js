@@ -187,9 +187,11 @@ function stageOffsetX(){
 }
 function drawBody(id,d){
  const it=body(id),[px,py]=recipe.canvas.anchor;
+ const src=recipe.sources[id]||{};
+ const reg=src.registrationOffset||[0,0];
  ctx.save();
  ctx.translate(stageOffsetX(),0);
- ctx.translate(px,py);
+ ctx.translate(px+Number(reg[0]||0),py+Number(reg[1]||0));
  const bodyScale=Number(recipe.bodyScale??1);
  ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);
  ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);

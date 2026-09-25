@@ -60,7 +60,11 @@
       "cell": 2,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center"
+      "anchorMode": "ground-contact-center",
+      "registrationOffset": [
+        0,
+        0
+      ]
     },
     "chamber": {
       "kind": "atlas-cell",
@@ -68,7 +72,11 @@
       "cell": 26,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center"
+      "anchorMode": "ground-contact-center",
+      "registrationOffset": [
+        -11,
+        14
+      ]
     },
     "commit": {
       "kind": "atlas-cell",
@@ -76,7 +84,11 @@
       "cell": 40,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center"
+      "anchorMode": "ground-contact-center",
+      "registrationOffset": [
+        -7,
+        15
+      ]
     },
     "preimpact": {
       "kind": "atlas-cell",
@@ -84,7 +96,11 @@
       "cell": 32,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center"
+      "anchorMode": "ground-contact-center",
+      "registrationOffset": [
+        -9,
+        8
+      ]
     },
     "contact": {
       "kind": "atlas-cell",
@@ -92,7 +108,11 @@
       "cell": 35,
       "role": "body",
       "trim": true,
-      "anchorMode": "ground-contact-center"
+      "anchorMode": "ground-contact-center",
+      "registrationOffset": [
+        16,
+        2
+      ]
     },
     "slash-right": {
       "kind": "effect-atlas-cell",
