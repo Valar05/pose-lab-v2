@@ -178,3 +178,6 @@ Do not hand off when:
 - the review URL is mutable and not uniquely cache-busted.
 
 Do not promote when the human verdict is not explicitly `accepted`.
+
+## Sprite-sheet production lane
+When working with authored 2D sprite/contact sheets, the original authored sheet is the source authority. Shrink the source before inference/measurement, use one shared scale for a regular sheet, preserve source order and cell geometry, and never normalize each frame independently. Atlas cells are containers: grow the atlas instead of clipping or shrinking useful poses. Preserve the established body/ground anchor. Cleanup must distinguish phantom fragments from legitimate separated geometry; use explicit masks when needed. Prefer corpus inclusion over premature dedupe. Generated derivatives, screenshots, and review GIFs are not mechanical source when the original exists.
