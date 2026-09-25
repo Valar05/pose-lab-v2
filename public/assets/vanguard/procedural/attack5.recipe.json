@@ -111,7 +111,7 @@
     {
       "id": "idle",
       "source": "idle",
-      "durationMs": 50,
+      "durationMs": 33,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
@@ -129,7 +129,7 @@
     {
       "id": "coil",
       "source": "coil",
-      "durationMs": 167,
+      "durationMs": 109,
       "deform": {
         "shearX": 0.12,
         "scaleX": 1,
@@ -147,7 +147,7 @@
     {
       "id": "launch",
       "source": "drive",
-      "durationMs": 167,
+      "durationMs": 109,
       "deform": {
         "shearX": -0.28,
         "scaleX": 1.03,
@@ -165,7 +165,7 @@
     {
       "id": "contact",
       "source": "finish",
-      "durationMs": 167,
+      "durationMs": 109,
       "deform": {
         "shearX": -0.2,
         "scaleX": 1.02,
@@ -183,7 +183,7 @@
     {
       "id": "hold",
       "source": "finish",
-      "durationMs": 166,
+      "durationMs": 108,
       "deform": {
         "shearX": -0.1,
         "scaleX": 1,
@@ -201,7 +201,7 @@
     {
       "id": "recover",
       "source": "finish",
-      "durationMs": 166,
+      "durationMs": 108,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
@@ -219,7 +219,7 @@
     {
       "id": "return",
       "source": "idle",
-      "durationMs": 117,
+      "durationMs": 74,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
@@ -356,8 +356,8 @@
       66,
       17
     ],
-    "nativeTotalMs": 1000,
-    "description": "SwordAttack5 is timing authority only. User-supplied 2D sequence is pose authority: canonical atlas cells 68 → 75 → 87."
+    "nativeTotalMs": 650,
+    "description": "SwordAttack5 supplies relative cadence only; user classifies this move as an opening jab and sets authored total duration to 650ms."
   },
   "effectAtlases": {
     "attack5-spray": {
