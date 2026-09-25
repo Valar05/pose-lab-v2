@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-attack5-procedural-v1",
   "subject": "vanguard",
-  "description": "Attack 5 · user-selected early pose → airborne drive → planted extension, SwordAttack5 timing authority",
+  "description": "Attack 5 · exact authored poses 74 → 75 → 87, SwordAttack5 timing authority",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -46,13 +46,17 @@
     "coil": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 80,
+      "cell": 74,
       "role": "body",
       "trim": true,
       "anchorMode": "explicit-point",
       "anchorPoint": [
-        59,
-        84
+        45,
+        89
+      ],
+      "registrationOffset": [
+        0,
+        0
       ]
     },
     "drive": {
