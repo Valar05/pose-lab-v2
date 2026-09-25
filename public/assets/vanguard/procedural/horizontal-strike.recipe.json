@@ -306,9 +306,9 @@
     "backSide": "left",
     "positionMode": "absolute",
     "liveControls": true,
-    "rotateZDeg": -7,
-    "tiltXDeg": 10,
-    "yawYDeg": 12
+    "rotateZDeg": -4,
+    "tiltXDeg": 8,
+    "yawYDeg": 6
   },
   "bodyScale": 1.5,
   "stage": {
