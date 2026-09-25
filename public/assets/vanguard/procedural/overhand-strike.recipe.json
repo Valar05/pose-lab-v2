@@ -74,8 +74,8 @@
       "trim": true,
       "anchorMode": "ground-contact-center",
       "registrationOffset": [
-        -12,
-        25
+        -5,
+        20
       ]
     },
     "commit": {
@@ -86,8 +86,8 @@
       "trim": true,
       "anchorMode": "ground-contact-center",
       "registrationOffset": [
-        -9,
-        30
+        1,
+        20
       ]
     },
     "preimpact": {
@@ -98,8 +98,8 @@
       "trim": true,
       "anchorMode": "ground-contact-center",
       "registrationOffset": [
-        -8,
-        31
+        -2,
+        12
       ]
     },
     "contact": {
@@ -110,8 +110,8 @@
       "trim": true,
       "anchorMode": "ground-contact-center",
       "registrationOffset": [
-        -18,
-        2
+        10,
+        12
       ]
     },
     "slash-right": {
