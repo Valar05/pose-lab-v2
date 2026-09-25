@@ -29,6 +29,7 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
       <option value="vanguard-undercut-strike">Vanguard · Undercut Strike</option>
       <option value="vanguard-attack2-uppercut">Vanguard · Attack 2 Uppercut</option>
       <option value="vanguard-horizontal-strike">Vanguard · Horizontal Slash</option>
+      <option value="vanguard-attack5">Vanguard · Attack 5 Jab</option>
     </select>
     <span class="spacer"></span><button data-profiles>Profiles</button>
   </header>
