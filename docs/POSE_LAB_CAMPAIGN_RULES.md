@@ -160,3 +160,13 @@ When the user requests an edit/inpaint/retouch/paint operation on an existing im
 - A failed generation/edit attempt must not silently fall back to a different implementation lane. Stop and report the exact blocking condition.
 - **Time-box rule:** localized edits should use the smallest viable tool path. Do not launch repository archaeology, atlas repacking, or mechanical reconstruction for a simple image edit.
 - **Source integrity:** the supplied original remains the source. Any generated edit is a derived review candidate until accepted; it must never overwrite or become the source for later mechanical extraction without explicit acceptance.
+
+## Append-only canonical pose atlas
+- Published atlas cells are immutable. Never move, resize, repack, renumber, crop, or reprocess existing cells.
+- Canonical pose-atlas growth is append-only downward in complete six-cell rows.
+- Existing atlas width is invariant. Growth may increase height only.
+- Before writing an expanded atlas, preserve and verify the entire old pixel rectangle byte-for-byte at pixel level.
+- New poses receive monotonically increasing cell IDs. Empty tail slots remain reserved; never backfill holes above the append boundary.
+- Source preparation and atlas append are separate stages. Never regenerate an accepted pose merely to make it fit.
+- Every append campaign emits a manifest mapping new cell IDs to source names and source hashes.
+- An append script must fail closed if canonical dimensions, old-region pixels, source count, or expected starting cell differ from its declared contract.
