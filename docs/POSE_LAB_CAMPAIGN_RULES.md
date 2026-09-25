@@ -235,3 +235,110 @@ These rules are consequences of observed Vanguard atlas failures and are mandato
 - If one heuristic extraction visibly fails, do not replace it with a more destructive heuristic on the same derivative.
 - Return to original source authority, preserve accepted transforms, and use explicit measured geometry/masks.
 - Two consecutive visual failures of the same class require updating the campaign guard/doctrine before another attempt.
+
+
+## Instant Execution Doctrine — deterministic rails for constrained reasoning
+
+This section exists because a lower-reasoning execution mode can still invent locally plausible solutions while failing to re-check global campaign constraints. Correctness MUST NOT depend on model reasoning effort. The model may propose; deterministic campaign machinery decides whether a proposal is legal.
+
+### Interpretation cannot mutate directly
+- Model interpretation is never mutation authority by itself.
+- Every consequential mutation follows: REQUEST -> PLAN -> SEALED PLAN -> APPLY -> VERIFY -> RECEIPT.
+- A read-only planning/preflight phase resolves exact authority, input paths and hashes, HEAD, dirty state, writable paths/properties, locked properties, intended diff, expected outputs, and verification before mutation begins.
+- Do not discover source identity, cell identity, transform meaning, or writable scope halfway through apply.
+
+### Sealed mutation contract
+- Before apply, persist or print a machine-readable contract containing at minimum: normalized request, authority, input identities/hashes, starting HEAD/state hash, mutable paths, mutable properties, locked properties, expected outputs, and verification predicates.
+- Apply consumes that exact contract. It may not silently reinterpret the request.
+- If consequential information is absent from the contract, apply fails closed rather than inventing it.
+
+### Stale-plan rejection
+- Bind every plan to the relevant starting state: HEAD, required file hashes, accepted artifact hashes, and target dirty-state facts.
+- If bound state changes between plan and apply, reject with STALE_PLAN and recompute.
+- Historical passing evidence is archaeology, not proof for current HEAD.
+
+### Determinism and idempotence
+- Identical request + identical state MUST resolve the same authorities, inputs, writable surface, intended diff, and verification predicates.
+- Planning twice against identical state should produce equivalent normalized plans.
+- Applying an already-successful campaign again MUST be a no-op or reproduce identical bytes. Cumulative transforms are forbidden.
+- Important campaign tooling is not accepted until an immediate second apply returns NO_OP_ALREADY_APPLIED (or equivalent) and leaves hashes unchanged.
+- Never express an accepted absolute visual state as a relative repeated operation such as "30% smaller again." Seal the resulting artifact/hash or absolute transform.
+
+### Identity before mutation
+- "I think this is the sprite/cell/file" is not authority.
+- Consequential identity must come from explicit user designation, manifest/contract, accepted artifact/hash, or verified source mapping.
+- Human/source evidence outranks heuristic identity.
+- Wrong identity is repaired before placement, scale, timing, effects, or packing.
+
+### Typed uncertainty and failure
+- Unknown is a valid deterministic state, not an invitation to improvise.
+- Use narrow failure states where applicable, including UNKNOWN_SOURCE_IDENTITY, AMBIGUOUS_MASK, DIRTY_TARGET, STALE_PLAN, LOCK_VIOLATION, UNEXPECTED_DIFF, MISSING_AUTHORITY, and VISUAL_REVIEW_REQUIRED.
+- A failed verification does not authorize the same apply step to try a different heuristic or architecture.
+- Return to planning with preserved evidence.
+
+### Consequential ambiguity gate
+- Consequential ambiguity MUST collapse before apply.
+- Harmless ambiguity may remain unresolved.
+- If uncertainty can change which pixels/files/cells/properties are mutated, it is consequential and must be resolved by authority/evidence, not inference.
+
+### Already-true short circuit
+- Before mutation, evaluate whether the requested postcondition already holds.
+- If it does, return NO_OP_ALREADY_APPLIED with current evidence.
+- Do not rewrite registration, re-ingest artifacts, reapply transforms, append duplicates, or create redundant commits merely because a campaign was invoked.
+
+### Claim-scoped verification
+- Verification must prove the exact claim being made.
+- "Server works" requires the intended committed revision plus the required live endpoints.
+- "Atlas promoted" requires the committed artifact identity/hash and served artifact identity/hash where runtime delivery is part of the request.
+- "Sprite resized" requires before/after evidence for the explicitly identified sprite, not a different cell.
+- Build success, HTTP success, syntax success, guard success, and visual acceptance are distinct evidence classes and MUST NOT substitute for one another.
+
+### Current-state receipts
+- Final receipts bind at minimum: normalized request/plan identity, HEAD, relevant input hashes, output hashes, executed command/campaign identity, verification predicates, and verdict.
+- Do not reuse a prior receipt as current proof after relevant state changes.
+- Requested capability, intended capability, deployed capability, and verified capability remain distinct until receipts prove each transition.
+
+### Recoverable failures checkpoint and continue
+- Recoverable infrastructure/prerequisite failures preserve evidence and continuation state.
+- When repair is already authorized and deterministic, repair and continue rather than returning Drew to the prompt.
+- Drew is not the transport/debugging layer for predictable branches.
+- A known recoverable branch belongs in campaign code.
+
+### Evidence hierarchy
+When evidence conflicts, use this authority order for the property at issue:
+1. explicit current human acceptance/designation;
+2. accepted artifact/hash or sealed campaign contract;
+3. current repo doctrine/manifest;
+4. current runtime evidence from the intended revision;
+5. historical evidence;
+6. model interpretation/heuristics.
+Lower authority cannot silently override higher authority.
+
+### Narrow mutation after acceptance
+- Human acceptance immediately locks the accepted property.
+- Subsequent plans must mechanically carry locked values/hashes forward.
+- A correction narrows the writable surface; it does not reopen the whole artifact.
+- If preserving a locked property cannot be proven, do not apply.
+
+### Instant-mode behavioral bias
+When reasoning effort is constrained, bias toward:
+- READ over remember;
+- INSPECT over infer;
+- VERIFY over narrate;
+- EXISTING AUTHORITY over invention;
+- ABSOLUTE STATE over relative transforms;
+- NO-OP over redundant mutation;
+- TYPED FAILURE over improvisation;
+- ONE SEALED PLAN over conversational patch chains.
+
+### Required campaign acceptance battery
+For new or materially changed campaign machinery:
+1. PLAN twice against identical state; normalized plans must agree on authority, inputs/hashes, mutable surface, intended diff, and verification.
+2. APPLY only the sealed plan.
+3. VERIFY exact expected diff/output hashes and locked-state preservation.
+4. Expose the required visible review surface when visual acceptance is part of the task.
+5. REAPPLY immediately.
+6. Require NO_OP_ALREADY_APPLIED (or byte-identical equivalent).
+7. REVERIFY and require the same verdict/receipt predicates.
+
+A campaign that only works because the current model is clever enough to remember unwritten context is not production-ready.
