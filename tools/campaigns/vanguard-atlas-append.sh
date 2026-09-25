@@ -47,7 +47,7 @@ prepared=[]
 for name,im in raw:
  nw=max(1,round(im.width*scale)); nh=max(1,round(im.height*scale))
  im=im.resize((nw,nh),Image.Resampling.LANCZOS).filter(ImageFilter.GaussianBlur(.55))
- r,g,b,a=im.split(); r=ImageEnhance.Brightness(r).enhance(1.10); g=ImageEnhance.Brightness(g).enhance(.92); b=ImageEnhance.Brightness(b).enhance(.88)
+ r,g,b,a=im.split()\n r=ImageEnhance.Brightness(r).enhance(.82)\n g=ImageEnhance.Brightness(g).enhance(.68)\n b=ImageEnhance.Brightness(b).enhance(.64)
  prepared.append((name,Image.merge("RGBA",(r,g,b,a))))
 cols=6; start=91; cw=W/cols
 row_h=max(round(H/15),max(im.height+20 for _,im in prepared))
