@@ -136,7 +136,7 @@
     {
       "id": "low-chamber",
       "source": "chamber",
-      "durationMs": 275,
+      "durationMs": 190,
       "deform": {
         "shearX": 0.32,
         "scaleX": 1,
@@ -153,9 +153,9 @@
     {
       "id": "rising-drive",
       "source": "rise",
-      "durationMs": 155,
+      "durationMs": 125,
       "deform": {
-        "shearX": -0.18,
+        "shearX": -0.42,
         "scaleX": 1.02,
         "scaleY": 1,
         "shiftY": 0
@@ -170,9 +170,9 @@
     {
       "id": "high-contact",
       "source": "contact",
-      "durationMs": 180,
+      "durationMs": 150,
       "deform": {
-        "shearX": -0.3,
+        "shearX": -0.42,
         "scaleX": 1.04,
         "scaleY": 1.01,
         "shiftY": 0
@@ -187,9 +187,9 @@
     {
       "id": "high-follow-through",
       "source": "contact",
-      "durationMs": 120,
+      "durationMs": 105,
       "deform": {
-        "shearX": -0.2,
+        "shearX": -0.28,
         "scaleX": 1.03,
         "scaleY": 1,
         "shiftY": 0
@@ -204,9 +204,9 @@
     {
       "id": "recoil",
       "source": "contact",
-      "durationMs": 90,
+      "durationMs": 80,
       "deform": {
-        "shearX": -0.08,
+        "shearX": -0.12,
         "scaleX": 1,
         "scaleY": 1,
         "shiftY": 0
@@ -221,7 +221,7 @@
     {
       "id": "idle-return",
       "source": "idle",
-      "durationMs": 60,
+      "durationMs": 55,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
