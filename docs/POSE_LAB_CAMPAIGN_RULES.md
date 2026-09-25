@@ -170,3 +170,65 @@ When the user requests an edit/inpaint/retouch/paint operation on an existing im
 - Source preparation and atlas append are separate stages. Never regenerate an accepted pose merely to make it fit.
 - Every append campaign emits a manifest mapping new cell IDs to source names and source hashes.
 - An append script must fail closed if canonical dimensions, old-region pixels, source count, or expected starting cell differ from its declared contract.
+
+
+## Production failures learned 2026-09-25 — mandatory guards
+
+These rules are consequences of observed Vanguard atlas failures and are mandatory, not suggestions.
+
+### Campaign execution must carry through
+- A known recoverable error path is a branch to repair-and-continue, not a reason to stop and hand Drew another debugging turn.
+- Before handing off any shell campaign, preflight embedded Python/shell syntax and assert the exact expected tokens/contract. Never knowingly hand off an error message as a possible normal branch.
+- Never put an interactive pager in a one-run campaign. Set PAGER/GIT_PAGER or use non-paging commands.
+- If a dirty tracked file blocks canonical sync, preserve its bytes and diff first, reconcile only the known campaign-owned file, and leave all unrelated dirty archaeology untouched.
+- Never use stash/reset/clean as a convenience broom.
+- After every Git write, reread the committed file and verify the intended bytes actually landed. A commit SHA alone does not prove content correctness.
+- Do not stop after diagnosing a repo-owned prerequisite that is already authorized to repair. Fix it and continue to the visible review boundary.
+
+### Source identity and ingress
+- When exact source files have already been identified by path/hash, pin those exact files. Never fall back to "newest two PNGs" or other filesystem roulette.
+- Existing Downloads/Pictures sources do not need retransmission through chat, base64, or another transport.
+- Never confuse chat review images with the already-present original filesystem sources.
+
+### Sprite extraction
+- A multi-pose source is NOT automatically a regular grid. Count, separators, and overlap must be proven from the authored source.
+- Never infer pose count from filename, equal thirds/halves, connected-component count, or "widest regions" when human/source evidence provides the authored count.
+- Equal-width partitions may be indexing hints only. They are not crop boundaries when silhouettes, hair, weapons, trails, debris, or effects cross them.
+- Overlapping authored poses require explicit masks/lassos or another source-faithful separation. Do not use nearest-center pixel ownership.
+- Never keep only the largest/central connected component. Legitimate limbs, weapons, hair, effects, feet, and debris can be disconnected at sprite resolution.
+- Never delete pixels from a contaminated packed atlas when the original authored source exists. Rebuild the rejected new cells from originals.
+- Cleanup is subtraction-only on explicitly identified contamination. If ownership is ambiguous, preserve pixels and request/derive an explicit mask rather than amputating the pose.
+
+### Scale and color calibration
+- 96px is a density convention, NEVER a target crop height.
+- Do not invent target sprite heights or RGB multipliers when an accepted atlas/source pair exists.
+- Measure the accepted canonical atlas before scaling new sprites. Record the measurement population, statistic, and resulting transform.
+- For a regular authored batch, preserve one shared source scale unless the source itself contains intentionally different scale classes.
+- Do not normalize each new pose independently to a median bounding-box height. Relative authored scale is locked unless explicitly rejected.
+- When Drew accepts color but rejects crop/scale, color becomes locked. Subsequent fixes may not retint.
+- When Drew accepts scale but rejects another property, scale becomes locked.
+- Reuse the exact accepted color/refinery transform for artwork from the same source family whenever available. Persist that transform as executable authority, not prose only.
+
+### Atlas packing
+- Existing published cells are immutable. Verify the old pixel rectangle is pixel-identical before review.
+- New append cells must be roomy enough for complete prepared silhouettes. Grow append geometry rather than clipping.
+- Never shrink a useful pose merely because a cell is too small.
+- Ground/baseline placement must be measured against the established atlas convention, not eyeballed.
+- New cell IDs and source hashes must be manifested.
+
+### Visual review surface
+- Isolated new-sprite strips are supplemental only. They cannot establish relative scale, tint, density, grounding, or packing acceptance.
+- Every atlas append review MUST expose the full expanded atlas with existing accepted cells visible beside the new cells.
+- Review must make new cell IDs identifiable without hiding the surrounding canonical comparison.
+- Never call build, hash, manifest, syntax, HTTP, or guard success visual acceptance.
+
+### Narrow writable surface
+- "Good enough" or "good" locks that named visual property immediately.
+- A rejected property narrows the next mutation to that property only.
+- Never fix crop by changing color, fix scale by changing extraction, or fix one appended cell by rewriting the other accepted appended cells.
+- Before every retry, explicitly preserve all accepted properties mechanically, not by intention.
+
+### No heuristic escalation after failure
+- If one heuristic extraction visibly fails, do not replace it with a more destructive heuristic on the same derivative.
+- Return to original source authority, preserve accepted transforms, and use explicit measured geometry/masks.
+- Two consecutive visual failures of the same class require updating the campaign guard/doctrine before another attempt.
