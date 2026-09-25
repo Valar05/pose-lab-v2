@@ -23,37 +23,33 @@ from pathlib import Path
 import sys
 out=Path(sys.argv[3])
 for si,fn in enumerate(sys.argv[1:3],1):
- im=Image.open(fn).convert("RGB"); w,h=im.size
- # These authored sheets are horizontal two-pose compositions. Split at the
- # strongest sustained black valley near the center, then tight-crop each half.
- gray=im.convert("L")
- occ=[]
- for x in range(w):
-  occ.append(sum(1 for y in range(h) if gray.getpixel((x,y))>=24))
- lo=max(1,int(w*.35)); hi=min(w-1,int(w*.65)); radius=max(3,w//100)
- best=None
- for x in range(lo,hi):
-  score=sum(occ[max(0,x-radius):min(w,x+radius+1)])
-  if best is None or score<best[0]: best=(score,x)
- split=best[1]
- if not (w*.35<=split<=w*.65): raise SystemExit(f"STOP: unsafe split for {fn}: {split}/{w}")
- for pi,(xa,xb) in enumerate(((0,split),(split,w)),1):
-  # tight bounds of meaningful non-black pixels inside this authored half
-  pts=[]
-  for y in range(h):
-   for x in range(xa,xb):
-    if max(im.getpixel((x,y)))>=24: pts.append((x,y))
-  if not pts: raise SystemExit(f"STOP: empty pose half {si}/{pi}")
-  xs=[p[0] for p in pts]; ys=[p[1] for p in pts]
-  pad=max(6,round(min(w,h)*.008))
-  x0=max(xa,min(xs)-pad); x1=min(xb,max(xs)+pad+1)
-  y0=max(0,min(ys)-pad); y1=min(h,max(ys)+pad+1)
-  crop=im.crop((x0,y0,x1,y1))
-  crop.save(out/f"pose-{si:02d}-{pi:02d}.png")
-  print(f"segmented=source{si}/pose{pi} split={split}/{w} rect={x0},{y0},{x1-x0},{y1-y0}")
+ im=Image.open(fn).convert("RGB"); w,h=im.size; gray=im.convert("L")
+ occ=[sum(1 for y in range(h) if gray.getpixel((x,y))>=24) for x in range(w)]
+ # Discover every sustained low-occupancy valley. No assumed pose count.
+ low=max(2,round(h*.012)); min_gap=max(8,round(w*.012)); min_pose=max(40,round(w*.12))
+ valleys=[]; st=None
+ for x,n in enumerate(occ+[h]):
+  if n<=low and st is None: st=x
+  elif n>low and st is not None:
+   if x-st>=min_gap: valleys.append((st,x))
+   st=None
+ cuts=[0]
+ for va,vb in valleys:
+  c=(va+vb)//2
+  if c-cuts[-1]>=min_pose and w-c>=min_pose: cuts.append(c)
+ cuts.append(w)
+ regions=[(cuts[i],cuts[i+1]) for i in range(len(cuts)-1) if cuts[i+1]-cuts[i]>=min_pose]
+ if not regions: raise SystemExit(f"STOP: no pose regions discovered in {fn}")
+ print(f"source_{si}_pose_count={len(regions)}")
+ for pi,(xa,xb) in enumerate(regions,1):
+  pts=[(x,y) for y in range(h) for x in range(xa,xb) if max(im.getpixel((x,y)))>=24]
+  if not pts: continue
+  xs=[p[0] for p in pts]; ys=[p[1] for p in pts]; pad=max(6,round(min(w,h)*.008))
+  x0=max(xa,min(xs)-pad); x1=min(xb,max(xs)+pad+1); y0=max(0,min(ys)-pad); y1=min(h,max(ys)+pad+1)
+  im.crop((x0,y0,x1,y1)).save(out/f"pose-{si:02d}-{pi:02d}.png")
+  print(f"segmented=source{si}/pose{pi} rect={x0},{y0},{x1-x0},{y1-y0}")
 PYSEG
 mapfile -t SRC < <(find "$INBOX" -maxdepth 1 -type f -name 'pose-*.png' | sort)
-[[ "${#SRC[@]}" -eq 4 ]] || { echo "STOP: expected four individual pose crops, got ${#SRC[@]}"; exit 4; }
 python3 - "$ATLAS" "$OUT" "$MANIFEST" "${SRC[@]}" <<'PY'
 from PIL import Image,ImageFilter,ImageEnhance
 from pathlib import Path
