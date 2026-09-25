@@ -1,0 +1,347 @@
+{
+  "schema": "pose-lab-v2-procedural-motion-recipe-v1",
+  "id": "vanguard-horizontal-strike-procedural-v1",
+  "subject": "vanguard",
+  "description": "Vanguard Horizontal Strike \u00b7 approved live-tuned orientation and effect controls",
+  "rootMotion": false,
+  "canvas": {
+    "size": [
+      430,
+      260
+    ],
+    "background": [
+      0,
+      0,
+      0,
+      255
+    ],
+    "anchor": [
+      215,
+      226
+    ],
+    "anchorMeaning": "fixed Vanguard ground-contact anchor, native atlas pixel scale"
+  },
+  "atlases": {
+    "vanguard-canonical": {
+      "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
+      "columns": 6,
+      "rows": 15,
+      "indexBase": 1,
+      "mode": "blue-key",
+      "size": [
+        1037,
+        1536
+      ]
+    }
+  },
+  "sources": {
+    "idle": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 2,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "explicit-point",
+      "anchorPoint": [
+        56,
+        96
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
+    },
+    "chamber": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 80,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "explicit-point",
+      "isolateLargestComponent": true,
+      "anchorPoint": [
+        59,
+        84
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
+    },
+    "commit": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 62,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "explicit-point",
+      "isolateLargestComponent": true,
+      "anchorPoint": [
+        52,
+        69
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
+    },
+    "contact": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 61,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "explicit-point",
+      "isolateLargestComponent": true,
+      "anchorPoint": [
+        54,
+        69
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
+    },
+    "slash-right": {
+      "kind": "effect-atlas-cell",
+      "atlas": "slash-canonical",
+      "cell": 5,
+      "role": "effect",
+      "trim": true,
+      "preserveCellBounds": true
+    }
+  },
+  "phases": [
+    {
+      "id": "idle",
+      "source": "idle",
+      "durationMs": 65,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "chamber",
+      "source": "chamber",
+      "durationMs": 125,
+      "deform": {
+        "shearX": -0.12,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "stab-contact",
+      "source": "commit",
+      "durationMs": 130,
+      "deform": {
+        "shearX": 0.14,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0.46,
+        "core": 0.94,
+        "tightGlow": 0.82,
+        "wideGlow": 0.42
+      }
+    },
+    {
+      "id": "recover-high",
+      "source": "contact",
+      "durationMs": 155,
+      "deform": {
+        "shearX": 0.04,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 1,
+        "core": 0.56,
+        "tightGlow": 0.48,
+        "wideGlow": 0.28
+      }
+    },
+    {
+      "id": "settle",
+      "source": "contact",
+      "durationMs": 85,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "idle-return",
+      "source": "idle",
+      "durationMs": 90,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    }
+  ],
+  "effect": {
+    "source": "slash-right",
+    "width": 168,
+    "position": [
+      165,
+      74
+    ],
+    "pivot": [
+      0.5,
+      0.5
+    ],
+    "featherDeg": 8,
+    "alphaGain": 1.3,
+    "gradientStops": [
+      {
+        "at": 0,
+        "rgb": [
+          110,
+          20,
+          0
+        ]
+      },
+      {
+        "at": 0.18,
+        "rgb": [
+          255,
+          105,
+          0
+        ]
+      },
+      {
+        "at": 0.55,
+        "rgb": [
+          255,
+          20,
+          8
+        ]
+      },
+      {
+        "at": 1,
+        "rgb": [
+          255,
+          245,
+          120
+        ]
+      }
+    ],
+    "tightGlowRgb": [
+      255,
+      180,
+      28
+    ],
+    "wideGlowRgb": [
+      255,
+      42,
+      0
+    ],
+    "tightBlurPx": 2.2,
+    "wideBlurPx": 6.8,
+    "tightOpacity": 0.65,
+    "wideOpacity": 0.5,
+    "revealMode": "none",
+    "transform": "none",
+    "startClock": 9,
+    "endClock": 3,
+    "pitchScaleY": 1,
+    "yawShearX": 0,
+    "nearSide": "right",
+    "farSide": "left",
+    "revealStartDeg": 32,
+    "projectionMode": "none",
+    "flipX": false,
+    "flipY": false,
+    "vanguardDepth": 0,
+    "revealSweepDeg": 180,
+    "revealCounterClockwise": true,
+    "revealPivot": [
+      0.5,
+      0.5
+    ],
+    "scaleX": 1,
+    "scaleY": 1.3,
+    "backSide": "left",
+    "positionMode": "absolute",
+    "liveControls": true,
+    "rotateZDeg": -7,
+    "tiltXDeg": 8,
+<<<<<<< HEAD
+    "yawYDeg": 6,
+    "revealOriginBody": "commit",
+    "depthSplit": 0
+=======
+    "yawYDeg": 6
+>>>>>>> parent of 16ed1eb (Center horizontal radial reveal on Vanguard head)
+  },
+  "bodyScale": 1.5,
+  "stage": {
+    "centerX": 215,
+    "centerSource": "idle",
+    "mode": "native-pixel-scale-ground-anchor"
+  },
+  "motionAuthority": {
+    "kind": "native-vanguard-clip",
+    "clip": "SwordAttack3",
+    "description": "80 chamber \u2192 62 stab/contact \u2192 61 overhead recovery; slash transform reset to neutral baseline"
+  },
+  "effectAtlases": {
+    "slash-canonical": {
+      "path": "assets/vanguard/procedural/diorama-slash-atlas.png",
+      "columns": 4,
+      "rows": 2,
+      "indexBase": 1,
+      "size": [
+        768,
+        384
+      ],
+      "sha256": "e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"
+    }
+  },
+  "locomotion": {
+    "footPinning": true,
+    "rootMotion": false
+  }
+}
