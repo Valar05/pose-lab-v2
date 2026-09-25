@@ -369,10 +369,10 @@
       "sha256": "80f6fbf3b6bdbf80fac0b35cf3986bfe9b4aec8b4dba4ea55cd4292905a76fb4",
       "rects": {
         "9": [
-          1115,
-          510,
-          330,
-          275
+          1255,
+          600,
+          165,
+          150
         ]
       },
       "geometry": "irregular-explicit-rects"
