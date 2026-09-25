@@ -180,16 +180,37 @@ function buildSlash(){
  const sw=slash.naturalWidth||slash.width,sh=slash.naturalHeight||slash.height;
  const c=document.createElement('canvas');c.width=sw;c.height=sh;
  const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(slash,0,0,sw,sh);
- const im=x.getImageData(0,0,c.width,c.height),d=im.data;let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
+ const im=x.getImageData(0,0,c.width,c.height),d=im.data;
+ let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
  for(let y=0;y<c.height;y++)for(let xx=0;xx<c.width;xx++){
    const i=(y*c.width+xx)*4,vv=Math.max(d[i],d[i+1],d[i+2]);
    if(vv>4){minX=Math.min(minX,xx);minY=Math.min(minY,y);maxX=Math.max(maxX,xx);maxY=Math.max(maxY,y);}
  }
- const crop=document.createElement('canvas');crop.width=maxX-minX+1;crop.height=maxY-minY+1;
- crop.getContext('2d').drawImage(c,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
- const w=recipe.effect.width,h=Math.max(1,Math.round(crop.height*w/crop.width)),o=document.createElement('canvas');o.width=w;o.height=h;
- o.getContext('2d').drawImage(crop,0,0,w,h);
- slashMap=colorizeCanvas(o);
+ if(maxX<minX||maxY<minY){throw new Error('Empty slash atlas cell');}
+
+ const cropW=maxX-minX+1;
+ const cropH=maxY-minY+1;
+
+ // Preserve the authored visible art size exactly, but give every effect
+ // transparent breathing room so reveal/depth transforms cannot hard-crop it.
+ const artW=Math.max(1,Number(recipe.effect.width||cropW));
+ const artH=Math.max(1,Math.round(cropH*artW/cropW));
+ const pad=Math.max(48,Math.round(Math.max(artW,artH)*0.35));
+
+ const art=document.createElement('canvas');
+ art.width=artW;
+ art.height=artH;
+ art.getContext('2d').drawImage(
+   c,minX,minY,cropW,cropH,
+   0,0,artW,artH
+ );
+
+ const padded=document.createElement('canvas');
+ padded.width=artW+pad*2;
+ padded.height=artH+pad*2;
+ padded.getContext('2d').drawImage(art,pad,pad);
+
+ slashMap=colorizeCanvas(padded);
 }
 function stageOffsetX(){
  const key=recipe.stage?.centerSource||'idle',it=body(key),[px]=recipe.canvas.anchor;
