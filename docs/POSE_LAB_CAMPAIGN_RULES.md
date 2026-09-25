@@ -62,3 +62,36 @@ These rules are mandatory for Vanguard procedural sprite campaigns. They exist b
 - No "helpful" adjacent cleanup.
 - No global rewrites for local defects.
 - When evidence is insufficient, stop at the exact missing fact instead of improvising.
+
+
+## Regression taxonomy learned from production
+These are named failure classes. Treat recurrence as a guard failure, not a creative decision.
+- WRONG-CELL: guessed or substituted atlas cell. Fix identity before placement.
+- WRONG-FOOT: anchored a proxy, different foot, or unmeasured point.
+- GLOBAL-REPINS-LOCAL: changed multiple accepted sources to repair one bad frame.
+- AUTHORITY-BLEED: used 3D timing authority to choose 2D poses, or visual reference to rewrite timing.
+- ATLAS-AS-EFFECT: rendered a whole sheet when one effect/cell was requested.
+- ASSET-ROULETTE: selected Pictures/Downloads input by newest, dimensions, filename, or resemblance instead of explicit provenance.
+- STALE-VERIFIER: refresh script asserted an obsolete recipe schema.
+- SERVER-ROOT-MISMATCH: runtime served a root inconsistent with browser asset paths.
+- TRANSPORT-AS-ACCEPTANCE: build/HTTP/config PASS reported as visual success.
+- LOCK-ERASURE: a later fix changed a property already declared good/final.
+- HISTORY-WHOLESALE: restored a whole historical recipe when only one property needed recovery.
+- COMPENSATION-STACK: registrationOffset/shift/shear added on top of a bad anchor instead of fixing the source assumption.
+- SHARED-FIX-LOCAL-BUG: edited shared renderer for one animation without explicit authorization.
+- REFRESH-AUTHORS: refresh script mutates source. Forbidden.
+- LOCAL-PROOF: local scratch/worktree state presented as completion. Forbidden.
+
+## Required mutation protocol
+1. Read campaign contract and this doctrine.
+2. Print current mutable surface.
+3. Verify all locked blob hashes before editing.
+4. Identify exact requested property and authority.
+5. Make the smallest source mutation possible.
+6. Run guard before commit/push where the execution lane permits.
+7. Reject any diff outside the mutable surface.
+8. Pull canonical main into disposable worktree.
+9. Run guard again from that exact revision.
+10. Build and verify exact browser dependencies.
+11. Open visible review.
+12. Record human verdict. Only that verdict may expand/narrow locks.
