@@ -1,0 +1,30 @@
+{
+  "schema": "vanguard-atlas-accepted-ingest-v2",
+  "acceptedBy": "Drew",
+  "verdict": "good enough",
+  "sourceFilename": "vanguard_atlas_shoulders_midpoint.png",
+  "sourceSha256": "ba84aabf7e19789b649ab33be8847508a251aa81d4c490042a87e3b1f28eae63",
+  "sourceSize": [
+    968,
+    1536
+  ],
+  "normalization": {
+    "kind": "uniform-whole-image-resize",
+    "targetWidth": 1037,
+    "scale": 1.0712809917355373,
+    "outputSize": [
+      1037,
+      1645
+    ],
+    "filter": "LANCZOS"
+  },
+  "destinationSha256": "eff7a422337e8be556b59441e41b27c37d256744b73fb1beb6d4c58513ed3d55",
+  "newCells": [
+    91,
+    92,
+    93,
+    94,
+    95
+  ],
+  "note": "The accepted full atlas is sole authority for today's newly authored frames. Whole-image width normalization is explicitly authorized; no frame reconstruction, crop, tint, or repack."
+}
