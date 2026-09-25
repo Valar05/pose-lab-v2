@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-horizontal-strike-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Horizontal Strike · approved live-tuned orientation and effect controls",
+  "description": "Vanguard Horizontal Strike \u00b7 approved live-tuned orientation and effect controls",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -319,7 +319,7 @@
   "motionAuthority": {
     "kind": "native-vanguard-clip",
     "clip": "SwordAttack3",
-    "description": "80 chamber → 62 stab/contact → 61 overhead recovery; slash transform reset to neutral baseline"
+    "description": "80 chamber \u2192 62 stab/contact \u2192 61 overhead recovery; slash transform reset to neutral baseline"
   },
   "effectAtlases": {
     "slash-canonical": {
@@ -331,7 +331,7 @@
         768,
         384
       ],
-      "sha256": "94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70"
+      "sha256": "8f82d658901e58d05a6510a29eadb0a4da21d812a8884a92c88f9d021781f0bd"
     }
   }
 }
