@@ -23,6 +23,13 @@ Pin the exact requested foot. Do not substitute pelvis, centroid, ground center,
 9. Preserve authored pose, timing, shear, scale, slash/effect controls, and intentional motion unless explicitly asked to change them.
 10. Verify the literal acceptance criterion on the rendered animation, not on an abstract proxy.
 
+
+## Acceptance threshold
+- Vertical planted-foot drift: effectively 0 px.
+- Horizontal planted-foot drift: target <= 2 px total across the authored cycle.
+- If residual horizontal drift cannot be eliminated without damaging the pose, bias it forward in facing direction. Never accept backward slide merely because it is small.
+- Do not call a pass complete from source coordinates alone; verify the rendered review.
+
 ## Anti-smart-dumb guardrail
 Exact object. Exact coordinate space. Exact subtraction. Exact verification. No proxy objective.
 
