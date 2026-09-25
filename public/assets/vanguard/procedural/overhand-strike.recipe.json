@@ -78,7 +78,7 @@
       "trim": true,
       "anchorMode": "explicit-point",
       "registrationOffset": [
-        2,
+        0,
         0
       ],
       "anchorPoint": [
@@ -94,7 +94,7 @@
       "trim": true,
       "anchorMode": "explicit-point",
       "registrationOffset": [
-        14,
+        1,
         0
       ],
       "anchorPoint": [
@@ -110,7 +110,7 @@
       "trim": true,
       "anchorMode": "explicit-point",
       "registrationOffset": [
-        24,
+        2,
         0
       ],
       "anchorPoint": [
@@ -126,7 +126,7 @@
       "trim": true,
       "anchorMode": "explicit-point",
       "registrationOffset": [
-        34,
+        2,
         0
       ],
       "anchorPoint": [
