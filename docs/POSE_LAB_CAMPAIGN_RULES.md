@@ -181,6 +181,9 @@ These rules are consequences of observed Vanguard atlas failures and are mandato
 - Before handing off any shell campaign, preflight embedded Python/shell syntax and assert the exact expected tokens/contract. Never knowingly hand off an error message as a possible normal branch.
 - Never put an interactive pager in a one-run campaign. Set PAGER/GIT_PAGER or use non-paging commands.
 - If a dirty tracked file blocks canonical sync, preserve its bytes and diff first, reconcile only the known campaign-owned file, and leave all unrelated dirty archaeology untouched.
+- Every phone-side campaign handoff MUST assume the worktree may already be dirty. Dirty-tree reconciliation is a required preflight, not an exceptional recovery step.
+- Before any fetch/merge/pull that could overwrite a campaign-owned tracked file: inspect status; archive that exact file plus its diff; if and only if its provenance is the immediately preceding campaign-generated mutation, restore ONLY that file to HEAD; then fast-forward. Never ask Drew to discover this collision by running the script.
+- A handoff that begins with `git merge --ff-only origin/main` without dirty-tree preflight is invalid.
 - Never use stash/reset/clean as a convenience broom.
 - After every Git write, reread the committed file and verify the intended bytes actually landed. A commit SHA alone does not prove content correctness.
 - Do not stop after diagnosing a repo-owned prerequisite that is already authorized to repair. Fix it and continue to the visible review boundary.
