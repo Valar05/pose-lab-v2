@@ -1,0 +1,329 @@
+{
+  "schema": "pose-lab-v2-procedural-motion-recipe-v1",
+  "id": "vanguard-attack5-procedural-v1",
+  "subject": "vanguard",
+  "description": "Attack 5 · SwordAttack5-timed overhead coil → airborne drive → planted extension",
+  "rootMotion": false,
+  "canvas": {
+    "size": [
+      430,
+      260
+    ],
+    "background": [
+      0,
+      0,
+      0,
+      255
+    ],
+    "anchor": [
+      92,
+      226
+    ],
+    "anchorMeaning": "attack-local ground target"
+  },
+  "atlases": {
+    "vanguard-canonical": {
+      "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
+      "columns": 6,
+      "rows": 15,
+      "indexBase": 1,
+      "mode": "blue-key",
+      "size": [
+        1037,
+        1536
+      ]
+    }
+  },
+  "sources": {
+    "idle": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 2,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "ground-contact-center"
+    },
+    "coil": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 55,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "ground-contact-center",
+      "isolateLargestComponent": true
+    },
+    "drive": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 59,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "ground-contact-center",
+      "isolateLargestComponent": true
+    },
+    "finish": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 54,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "ground-contact-center",
+      "isolateLargestComponent": true
+    },
+    "spray": {
+      "kind": "effect-image",
+      "path": "assets/vanguard/procedural/attack5-spray-atlas.png",
+      "role": "effect",
+      "trim": true
+    }
+  },
+  "phases": [
+    {
+      "id": "idle",
+      "source": "idle",
+      "durationMs": 50,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "coil",
+      "source": "coil",
+      "durationMs": 167,
+      "deform": {
+        "shearX": 0.12,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0.12,
+        "core": 0.18,
+        "tightGlow": 0.12,
+        "wideGlow": 0.05
+      }
+    },
+    {
+      "id": "launch",
+      "source": "drive",
+      "durationMs": 167,
+      "deform": {
+        "shearX": -0.28,
+        "scaleX": 1.03,
+        "scaleY": 0.98,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0.8,
+        "core": 1,
+        "tightGlow": 0.9,
+        "wideGlow": 0.55
+      }
+    },
+    {
+      "id": "contact",
+      "source": "finish",
+      "durationMs": 167,
+      "deform": {
+        "shearX": -0.2,
+        "scaleX": 1.02,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 1,
+        "core": 1,
+        "tightGlow": 1,
+        "wideGlow": 0.7
+      }
+    },
+    {
+      "id": "hold",
+      "source": "finish",
+      "durationMs": 166,
+      "deform": {
+        "shearX": -0.1,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 1,
+        "core": 0.5,
+        "tightGlow": 0.45,
+        "wideGlow": 0.3
+      }
+    },
+    {
+      "id": "recover",
+      "source": "finish",
+      "durationMs": 166,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0.25,
+        "core": 0.12,
+        "tightGlow": 0.1,
+        "wideGlow": 0.08
+      }
+    },
+    {
+      "id": "return",
+      "source": "idle",
+      "durationMs": 117,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    }
+  ],
+  "effect": {
+    "source": "spray",
+    "width": 190,
+    "position": [
+      140,
+      95
+    ],
+    "pivot": [
+      0.5,
+      0.5
+    ],
+    "alphaGain": 1.25,
+    "gradientStops": [
+      {
+        "at": 0,
+        "rgb": [
+          110,
+          20,
+          0
+        ]
+      },
+      {
+        "at": 0.18,
+        "rgb": [
+          255,
+          105,
+          0
+        ]
+      },
+      {
+        "at": 0.55,
+        "rgb": [
+          255,
+          20,
+          8
+        ]
+      },
+      {
+        "at": 1,
+        "rgb": [
+          255,
+          245,
+          120
+        ]
+      }
+    ],
+    "tightGlowRgb": [
+      255,
+      180,
+      28
+    ],
+    "wideGlowRgb": [
+      255,
+      42,
+      0
+    ],
+    "tightBlurPx": 2.2,
+    "wideBlurPx": 6.8,
+    "tightOpacity": 0.65,
+    "wideOpacity": 0.5,
+    "revealMode": "none",
+    "rotateZDeg": 0,
+    "tiltXDeg": 0,
+    "yawYDeg": 0,
+    "scaleX": 0.45,
+    "scaleY": 0.45,
+    "flipX": false,
+    "flipY": false,
+    "liveControls": true
+  },
+  "bodyScale": 1.5,
+  "stage": {
+    "centerX": 215,
+    "centerSource": "idle",
+    "mode": "native-pixel-scale-ground-anchor"
+  },
+  "motionAuthority": {
+    "kind": "Vanguard-3D-SwordAttack5",
+    "nativeFrames": [
+      0,
+      3,
+      5,
+      8,
+      10,
+      13,
+      16,
+      18,
+      20,
+      22,
+      24,
+      29,
+      39,
+      43,
+      47,
+      51,
+      55,
+      59
+    ],
+    "nativeCadenceMs": [
+      50,
+      33,
+      50,
+      34,
+      50,
+      50,
+      33,
+      33,
+      34,
+      33,
+      83,
+      167,
+      67,
+      66,
+      67,
+      67,
+      66,
+      17
+    ],
+    "nativeTotalMs": 1000,
+    "description": "Timing authority from recovered SwordAttack5; compressed to authored coil/drive/finish beats without changing total duration."
+  }
+}
