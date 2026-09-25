@@ -114,7 +114,7 @@
     {
       "id": "idle",
       "source": "idle",
-      "durationMs": 80,
+      "durationMs": 40,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
@@ -125,20 +125,20 @@
     {
       "id": "anticipation",
       "source": "idle",
-      "durationMs": 55,
+      "durationMs": 40,
       "deform": {
-        "shearX": 0.08,
+        "shearX": 0,
         "scaleX": 1,
-        "scaleY": 0.985,
+        "scaleY": 1,
         "shiftY": 0
       }
     },
     {
       "id": "low-chamber",
       "source": "chamber",
-      "durationMs": 190,
+      "durationMs": 245,
       "deform": {
-        "shearX": -0.18,
+        "shearX": -0.32,
         "scaleX": 1,
         "scaleY": 1,
         "shiftY": 0
