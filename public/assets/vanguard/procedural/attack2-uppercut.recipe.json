@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-procedural-motion-recipe-v1",
   "id": "vanguard-attack2-uppercut-procedural-v1",
   "subject": "vanguard",
-  "description": "Vanguard Attack 2 Uppercut · drawn-out three-pose sequence 20 → 32 → 21",
+  "description": "Vanguard Attack 2 Uppercut \u00b7 drawn-out three-pose sequence 20 \u2192 32 \u2192 21",
   "rootMotion": false,
   "canvas": {
     "size": [
@@ -25,13 +25,83 @@
     "vanguard-canonical": {
       "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
       "columns": 6,
-      "rows": 15,
+      "rows": 17,
       "indexBase": 1,
       "mode": "blue-key",
       "size": [
         1037,
-        1536
-      ]
+        1728
+      ],
+      "rowBounds": {
+        "0": [
+          0,
+          102
+        ],
+        "1": [
+          102,
+          205
+        ],
+        "2": [
+          205,
+          307
+        ],
+        "3": [
+          307,
+          410
+        ],
+        "4": [
+          410,
+          512
+        ],
+        "5": [
+          512,
+          614
+        ],
+        "6": [
+          614,
+          717
+        ],
+        "7": [
+          717,
+          819
+        ],
+        "8": [
+          819,
+          922
+        ],
+        "9": [
+          922,
+          1024
+        ],
+        "10": [
+          1024,
+          1126
+        ],
+        "11": [
+          1126,
+          1229
+        ],
+        "12": [
+          1229,
+          1331
+        ],
+        "13": [
+          1331,
+          1434
+        ],
+        "14": [
+          1434,
+          1536
+        ],
+        "15": [
+          1536,
+          1632
+        ],
+        "16": [
+          1632,
+          1728
+        ]
+      }
     }
   },
   "sources": {
@@ -324,7 +394,7 @@
   },
   "motionAuthority": {
     "kind": "approved-vanguard-atlas-poses",
-    "description": "20 low chamber → 32 rising drive → 21 high finish; rear foot is literal 2D IK target."
+    "description": "20 low chamber \u2192 32 rising drive \u2192 21 high finish; rear foot is literal 2D IK target."
   },
   "effectAtlases": {
     "slash-canonical": {
