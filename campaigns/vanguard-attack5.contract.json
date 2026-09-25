@@ -1,0 +1,95 @@
+{
+  "schema": "pose-lab-campaign-contract-v1",
+  "campaign": "vanguard-attack5",
+  "status": "IN_REVIEW",
+  "rules": "docs/POSE_LAB_CAMPAIGN_RULES.md",
+  "lockedFiles": {
+    "public/assets/vanguard/procedural/horizontal-strike.recipe.json": "8673ec855a71ec44fc23beedfc136e9ad5a31e23",
+    "public/assets/vanguard/procedural/attack2-uppercut.recipe.json": "beebd70e69fa1faa09024624324a574d8f37afac",
+    "public/assets/vanguard/procedural/undercut-strike.recipe.json": "9ce7fcd1bdb1fb392411047eedc320ab87d34125",
+    "public/assets/vanguard/procedural/overhand-strike.recipe.json": "17352503b0c5e92c4a4a6d6a2724f3eee18841c5",
+    "src/procedural-motion-preview.js": "b82c9235808242e230d68351c71bcdde8cc964ff"
+  },
+  "poseAuthority": {
+    "kind": "canonical-atlas",
+    "path": "public/assets/vanguard/procedural/vanguard-pose-atlas-90.png",
+    "cells": {
+      "coil": 65,
+      "drive": 75,
+      "finish": 87
+    }
+  },
+  "timingAuthority": {
+    "kind": "Vanguard-3D-SwordAttack5",
+    "durationMs": 1000
+  },
+  "accepted": {
+    "bodyCells": true,
+    "timingAuthority": true,
+    "bodyRegistration": true
+  },
+  "mutableNow": [
+    "effect"
+  ],
+  "effectAuthority": {
+    "kind": "effect-atlas-cell",
+    "atlasPath": "public/assets/vanguard/procedural/attack5-spray-atlas.png",
+    "atlasSha256": "80f6fbf3b6bdbf80fac0b35cf3986bfe9b4aec8b4dba4ea55cd4292905a76fb4",
+    "columns": 5,
+    "rows": 2,
+    "cell": 9
+  },
+  "invariants": {
+    "noHeuristicAnchors": true,
+    "noWholeAtlasEffect": true,
+    "noSharedRendererMutation": true,
+    "visualAcceptanceRequired": true,
+    "refreshReadOnly": true
+  },
+  "bodySnapshot": {
+    "idle": {
+      "cell": 2,
+      "anchorPoint": [
+        58,
+        96
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
+    },
+    "coil": {
+      "cell": 65,
+      "anchorPoint": [
+        52,
+        72
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
+    },
+    "drive": {
+      "cell": 75,
+      "anchorPoint": [
+        41,
+        83
+      ],
+      "registrationOffset": [
+        0,
+        0
+      ]
+    },
+    "finish": {
+      "cell": 87,
+      "anchorPoint": [
+        72,
+        94
+      ],
+      "registrationOffset": [
+        34,
+        0
+      ]
+    }
+  }
+}
