@@ -95,3 +95,35 @@ These are named failure classes. Treat recurrence as a guard failure, not a crea
 10. Build and verify exact browser dependencies.
 11. Open visible review.
 12. Record human verdict. Only that verdict may expand/narrow locks.
+
+## Evidence-first execution and anti-improvisation
+- Before every mutation, reread this doctrine and the active campaign contract. Do not rely on conversational recollection.
+- User-visible evidence outranks assumptions. If a screenshot proves an asset is already loaded/rendering, transport, ingress, Git ownership, and HTTP availability are CLOSED unless contrary evidence appears.
+- Diagnose the smallest remaining defect from observed evidence. Never reopen solved pipeline stages.
+- Do not propose or execute asset transport when the asset is already present in the canonical/live pipeline.
+- Do not create a new representation merely because the current representation is inconvenient. Preserve the user's requested source and execution lane.
+- A successful prior visual property remains accepted unless Drew explicitly rejects that property. Preserve it mechanically.
+- Every mutation must state internally: requested defect, writable property set, forbidden property set, authority, and acceptance evidence. If these cannot be named, do not mutate.
+- Never turn a diagnosis into a new architecture. Fix the named defect in the existing architecture.
+
+## Atlas geometry
+- Never assume an image is a regular atlas because it contains multiple effects.
+- Grid metadata (columns/rows/indexBase) is allowed only when equal cell geometry is proven by the source artifact or authoritative metadata.
+- Irregularly arranged artwork MUST use measured source rectangles / irregular-cell bounds.
+- If a screenshot shows fragments of neighboring effects, treat that as evidence of a bad extraction rectangle/grid, not evidence that the source asset is wrong.
+- Never solve bad atlas extraction by re-importing, regenerating, copying, or transporting an asset that is already present.
+- An exact effect selection requires: canonical source asset + measured source rectangle (or proven regular cell) + explicit pivot/placement.
+- Effect extraction geometry and effect placement are separate. Fix extraction before tuning position/scale/rotation.
+
+## Script and campaign compliance
+- Any script handed to Drew must itself follow the active campaign doctrine. A script that bypasses the guard or reintroduces a rejected runtime topology is invalid even if its individual shell commands work.
+- Before handing off a script, compare it against the complete constraint ledger: source authority, locks, mutation surface, runtime root, asset paths, verifier schema, and acceptance boundary.
+- Canonical refresh scripts MUST call the campaign guard and MUST use the already-proven runtime topology for that surface.
+- A newly written guard/refresh system is not exempt from prior doctrine. New infrastructure inherits every settled constraint.
+- When a guard catches structural state but misses the observed failure class, update the guard/rules before further creative mutation when feasible.
+- Never claim a rule is encoded in the repo unless the corresponding Git write succeeded and a commit SHA is available.
+
+## Binary asset handling
+- Do not use base64 as a convenience transport for Pose Lab binary assets.
+- Do not transport an asset at all when evidence shows the canonical/live pipeline already contains it.
+- Filesystem/Git ingress is used only for genuinely new binary assets.
