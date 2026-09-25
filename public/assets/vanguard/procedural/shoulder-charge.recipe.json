@@ -339,7 +339,7 @@
     "source": "shoulderWake",
     "width": 150,
     "position": [
-      175,
+      89,
       88
     ],
     "pivot": [
@@ -399,8 +399,8 @@
     "rotateZDeg": 0,
     "tiltXDeg": 0,
     "yawYDeg": 0,
-    "scaleX": 0.72,
-    "scaleY": 0.72,
+    "scaleX": 1.4,
+    "scaleY": 0.85,
     "flipX": false,
     "flipY": false,
     "liveControls": false,
