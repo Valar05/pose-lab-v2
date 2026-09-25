@@ -241,7 +241,7 @@
     "width": 192,
     "position": [
       46,
-      132
+      39
     ],
     "pivot": [
       160,
@@ -304,15 +304,17 @@
       0.5,
       0.5
     ],
-    "revealMode": "none",
-    "rotateZDeg": 0,
+    "revealMode": "radial",
+    "rotateZDeg": -75,
     "tiltXDeg": 0,
     "yawYDeg": 0,
-    "scaleX": 1,
-    "scaleY": 1,
+    "scaleX": 0.75,
+    "scaleY": 0.75,
     "flipX": false,
     "flipY": true,
-    "liveControls": true
+    "liveControls": true,
+    "depthSplit": 0,
+    "revealOriginBody": "rise"
   },
   "bodyScale": 1.5,
   "stage": {
