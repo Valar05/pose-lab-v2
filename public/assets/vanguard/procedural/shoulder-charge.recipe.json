@@ -1,0 +1,294 @@
+{
+  "schema": "pose-lab-v2-procedural-motion-recipe-v1",
+  "id": "vanguard-shoulder-charge-procedural-v1",
+  "subject": "vanguard",
+  "description": "Heavy counter shoulder charge · idle → authored atlas cell 89 → authored atlas cell 90 → recoil → idle",
+  "rootMotion": false,
+  "canvas": {
+    "size": [
+      430,
+      260
+    ],
+    "background": [
+      0,
+      0,
+      0,
+      255
+    ],
+    "anchor": [
+      92,
+      226
+    ],
+    "anchorMeaning": "attack-local ground target"
+  },
+  "atlases": {
+    "vanguard-canonical": {
+      "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
+      "columns": 6,
+      "rows": 15,
+      "indexBase": 1,
+      "mode": "blue-key",
+      "size": [
+        1037,
+        1536
+      ]
+    }
+  },
+  "sources": {
+    "idle": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 2,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "ground-contact-center",
+      "registrationOffset": [
+        0,
+        0
+      ]
+    },
+    "brace": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 89,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "ground-contact-center",
+      "registrationOffset": [
+        0,
+        0
+      ]
+    },
+    "impact": {
+      "kind": "atlas-cell",
+      "atlas": "vanguard-canonical",
+      "cell": 90,
+      "role": "body",
+      "trim": true,
+      "anchorMode": "ground-contact-center",
+      "registrationOffset": [
+        0,
+        0
+      ]
+    },
+    "dummyFx": {
+      "kind": "effect-atlas-cell",
+      "atlas": "attack5-spray",
+      "cell": 9,
+      "role": "effect",
+      "trim": true
+    }
+  },
+  "phases": [
+    {
+      "id": "idle",
+      "source": "idle",
+      "durationMs": 60,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "load",
+      "source": "brace",
+      "durationMs": 150,
+      "deform": {
+        "shearX": 0.18,
+        "scaleX": 0.95,
+        "scaleY": 1.05,
+        "shiftX": -8,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "drive",
+      "source": "brace",
+      "durationMs": 75,
+      "deform": {
+        "shearX": -0.36,
+        "scaleX": 1.1,
+        "scaleY": 0.94,
+        "shiftX": 22,
+        "shiftY": 1
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "impact",
+      "source": "impact",
+      "durationMs": 95,
+      "deform": {
+        "shearX": -0.24,
+        "scaleX": 1.13,
+        "scaleY": 0.92,
+        "shiftX": 42,
+        "shiftY": 2
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "crush-hold",
+      "source": "impact",
+      "durationMs": 120,
+      "deform": {
+        "shearX": -0.1,
+        "scaleX": 1.07,
+        "scaleY": 0.97,
+        "shiftX": 36,
+        "shiftY": 1
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "recoil",
+      "source": "brace",
+      "durationMs": 125,
+      "deform": {
+        "shearX": 0.12,
+        "scaleX": 0.98,
+        "scaleY": 1.03,
+        "shiftX": 12,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "idle-return",
+      "source": "idle",
+      "durationMs": 95,
+      "deform": {
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    }
+  ],
+  "effect": {
+    "source": "dummyFx",
+    "width": 1,
+    "position": [
+      0,
+      0
+    ],
+    "alphaGain": 0,
+    "gradientStops": [
+      {
+        "at": 0,
+        "rgb": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "at": 1,
+        "rgb": [
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "tightGlowRgb": [
+      0,
+      0,
+      0
+    ],
+    "wideGlowRgb": [
+      0,
+      0,
+      0
+    ],
+    "tightBlurPx": 0,
+    "wideBlurPx": 0,
+    "tightOpacity": 0,
+    "wideOpacity": 0,
+    "revealMode": "none",
+    "rotateZDeg": 0,
+    "tiltXDeg": 0,
+    "yawYDeg": 0,
+    "scaleX": 1,
+    "scaleY": 1,
+    "flipX": false,
+    "flipY": false,
+    "liveControls": false,
+    "depthSplit": 0,
+    "revealStartDeg": 0,
+    "revealSweepDeg": 1
+  },
+  "bodyScale": 1.5,
+  "stage": {
+    "centerX": 215,
+    "centerSource": "idle",
+    "mode": "native-pixel-scale-ground-anchor"
+  },
+  "motionAuthority": {
+    "kind": "user-designated-canonical-atlas-poses",
+    "description": "User designates the last two sprites on the canonical 90-cell sheet as the shoulder-charge poses: cells 89 and 90. First and last frames are canonical idle cell 2."
+  },
+  "effectAtlases": {
+    "attack5-spray": {
+      "path": "assets/vanguard/procedural/attack5-spray-atlas.png",
+      "columns": 5,
+      "rows": 2,
+      "indexBase": 1,
+      "size": [
+        1774,
+        887
+      ],
+      "rects": {
+        "9": [
+          1255,
+          600,
+          165,
+          190
+        ]
+      },
+      "geometry": "irregular-explicit-rects"
+    }
+  }
+}
