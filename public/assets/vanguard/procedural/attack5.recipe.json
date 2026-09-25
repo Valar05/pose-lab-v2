@@ -239,8 +239,8 @@
     "source": "spray",
     "width": 150,
     "position": [
-      178,
-      112
+      152,
+      83
     ],
     "pivot": [
       0.5,
@@ -296,14 +296,17 @@
     "tightOpacity": 0.65,
     "wideOpacity": 0.5,
     "revealMode": "none",
-    "rotateZDeg": 0,
+    "rotateZDeg": -17,
     "tiltXDeg": 0,
     "yawYDeg": 0,
     "scaleX": 0.65,
     "scaleY": 0.65,
     "flipX": false,
     "flipY": false,
-    "liveControls": true
+    "liveControls": true,
+    "depthSplit": 0,
+    "revealStartDeg": 62,
+    "revealSweepDeg": 130
   },
   "bodyScale": 1.5,
   "stage": {
