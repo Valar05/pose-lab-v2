@@ -578,9 +578,57 @@ function loop(now){let ms=offset;if(playing)ms=(offset+(now-start))%total;render
 play.onclick=()=>{if(playing){offset=(offset+(performance.now()-start))%total;playing=false;play.textContent='▶'}else{start=performance.now();playing=true;play.textContent='❚❚'}};
 restart.onclick=()=>{offset=0;start=performance.now();render(0)};scrub.oninput=()=>{offset=Number(scrub.value)*total;start=performance.now();render(offset)};
 
+function installShotgunBlastMoveScaleControls(side){
+ const box=document.createElement('details');
+ box.open=true;
+ box.setAttribute('data-slash-controls','');
+ box.innerHTML=
+   '<summary style="font-size:15px;margin-bottom:10px">Shotgun Blast Controls</summary>'+
+   '<div style="display:grid;grid-template-columns:92px 1fr 54px;gap:7px 8px;align-items:center;font-size:12px">'+
+   '<label>X</label><input data-hc="x" type="range" min="-250" max="450" step="1"><output data-out="x"></output>'+
+   '<label>Y</label><input data-hc="y" type="range" min="-250" max="450" step="1"><output data-out="y"></output>'+
+   '<label>Scale X</label><input data-hc="sx" type="range" min="-3" max="3" step=".05"><output data-out="sx"></output>'+
+   '<label>Scale Y</label><input data-hc="sy" type="range" min="-3" max="3" step=".05"><output data-out="sy"></output>'+
+   '</div>'+
+   '<div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">'+
+   '<button data-hc-reset>Reset move/scale</button><button data-hc-copy>Copy values</button></div>';
+ side.insertBefore(box,side.querySelector('details'));
+ const fx=recipe.effect;
+ const defaults={position:[...(fx.position||[0,0])],scaleX:Number(fx.scaleX??1),scaleY:Number(fx.scaleY??1)};
+ const controls={
+   x:box.querySelector('[data-hc="x"]'),y:box.querySelector('[data-hc="y"]'),
+   sx:box.querySelector('[data-hc="sx"]'),sy:box.querySelector('[data-hc="sy"]')
+ };
+ function refresh(){for(const k of ['x','y','sx','sy'])box.querySelector('[data-out="'+k+'"]').textContent=controls[k].value}
+ function setValues(){
+   controls.x.value=fx.position?.[0]??0;controls.y.value=fx.position?.[1]??0;
+   controls.sx.value=Number(fx.scaleX??1);controls.sy.value=Number(fx.scaleY??1);refresh();
+ }
+ function apply(){
+   fx.position=[Number(controls.x.value),Number(controls.y.value)];
+   const sx=Number(controls.sx.value),sy=Number(controls.sy.value);
+   fx.scaleX=Math.abs(sx)<.01?.01:sx;fx.scaleY=Math.abs(sy)<.01?.01:sy;
+   refresh();render(offset);
+ }
+ Object.values(controls).forEach(el=>{el.oninput=apply;el.onchange=apply});
+ box.querySelector('[data-hc-reset]').onclick=()=>{
+   fx.position=[...defaults.position];fx.scaleX=defaults.scaleX;fx.scaleY=defaults.scaleY;setValues();render(offset);
+ };
+ box.querySelector('[data-hc-copy]').onclick=async()=>{
+   const text=JSON.stringify({position:fx.position,scaleX:fx.scaleX,scaleY:fx.scaleY},null,2);
+   try{await navigator.clipboard.writeText(text)}catch{} console.log('SHOTGUN_BLAST_VALUES',text);
+ };
+ setValues();
+ window.__slashControls={box,controls};
+}
+
 function installSlashControls(){
  const side=document.querySelector('.side');
  if(!side||side.querySelector('[data-slash-controls]'))return;
+ if(recipe.id==='vanguard-shotgun-fire-procedural-v1'&&recipe.effect?.controlProfile==='move-scale-only'){
+   installShotgunBlastMoveScaleControls(side);
+   return;
+ }
 
  const box=document.createElement('details');
  box.open=true;
