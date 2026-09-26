@@ -32,6 +32,8 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
       <option value="vanguard-shoulder-charge">Vanguard · Shoulder Charge</option>
       <option value="vanguard-butt-smash">Vanguard · Butt Smash</option>
       <option value="vanguard-attack5">Vanguard · Attack 5 Jab</option>
+      <option value="vanguard-shotgun-reload">Vanguard · Shotgun Reload</option>
+      <option value="vanguard-shotgun-fire">Vanguard · Shotgun Fire</option>
     </select>
     <span class="spacer"></span><button data-profiles>Profiles</button>
   </header>
@@ -56,7 +58,10 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
   select.onchange=()=>{
     const p=new URLSearchParams(location.search);
     const rev=p.get('rev');
-    location.href='./motion.html?procedural='+encodeURIComponent(select.value)+(rev?'&rev='+encodeURIComponent(rev):'');
+    const nocache=p.get('nocache');
+    location.href='./motion.html?procedural='+encodeURIComponent(select.value)
+      +(rev?'&rev='+encodeURIComponent(rev):'')
+      +(nocache?'&nocache='+encodeURIComponent(nocache):'');
   };
   q('[data-profiles]').onclick=()=>location.href='./motion.html';
 
