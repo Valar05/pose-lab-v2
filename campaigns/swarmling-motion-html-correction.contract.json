@@ -1,0 +1,46 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v1",
+  "id": "swarmling-motion-html-correction-v1",
+  "status": "sealed-before-apply",
+  "mission": "Move the new 2D Swarmling review into motion.html beside Vanguard procedural animations, with a character selector that filters each character's animation list; remove the mistaken character selector from the legacy ?view=2d reviewer; preserve all accepted pixels, scale, timing, Vanguard animations, and old Blender-derived Swarmling/Fleshling assets.",
+  "packageParentRevision": "e0b6f2bde0a8c1898bb42a0f5aa250b503f1a46c",
+  "authority": {
+    "runManifest": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+    "runCells": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "durationMsPerFrame": 80,
+    "scale": "already accepted; no resize"
+  },
+  "locks": [
+    "public/assets/vanguard/fleshpunk/characters/swarmling/** pixels/timing",
+    "public/assets/vanguard/procedural/**",
+    "authoring/swarmling/**",
+    "public/assets/swarmling/fleshpunk/**",
+    "all existing Vanguard animation behavior"
+  ],
+  "writableSurface": [
+    "motion.html router only",
+    "src/procedural-review-shell.js character/animation selector UI only",
+    "src/procedural-swarmling-preview.js new",
+    "src/sprite-viewer.js revert mistaken character-selector additions only",
+    "tools/test_sprite_review_surface.mjs remove mistaken selector/new-lane assertions only",
+    "campaigns/swarmling-motion-html-correction.receipt.json"
+  ],
+  "executionLane": "repo-owned sealed shell campaign, disposable worktree, exact-revision build/serve, motion.html visible review",
+  "forbidden": [
+    "image generation",
+    "resizing Swarmling",
+    "changing Vanguard recipes",
+    "changing old 3D Swarmling/Fleshling lineage",
+    "new browser architecture",
+    "stash/reset/clean primary worktree"
+  ],
+  "visualGate": "motion.html?procedural=swarmling-run&rev=<exact-final-revision>&nocache=<timestamp>",
+  "humanVerdict": "pending"
+}
