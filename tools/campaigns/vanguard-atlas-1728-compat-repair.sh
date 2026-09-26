@@ -6,32 +6,46 @@ P="$HOME/storage/documents/GodotProjects/pose-lab-v2"
 L="$HOME/.local/state/pose-lab-v2-vanguard-live"
 W="$L/worktree"
 
-ATLAS_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-90.png"
-RUN_REL="src/procedural-run-preview.js"
-ATLAS="$P/$ATLAS_REL"
-RUN="$P/$RUN_REL"
+A_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+R_REL="public/assets/vanguard/procedural/shotgun-reload.recipe.json"
+F_REL="public/assets/vanguard/procedural/shotgun-fire.recipe.json"
+M_REL="public/assets/vanguard/procedural/vanguard-shotgun-atlas-append.manifest.json"
+REF_REL="public/assets/vanguard/procedural/butt-smash.recipe.json"
+
+A="$P/$A_REL"
+R="$P/$R_REL"
+F="$P/$F_REL"
+M="$P/$M_REL"
+REF="$P/$REF_REL"
+
+RELOAD="/storage/emulated/0/Download/vanguard-shotgun-reload-source-original.jpg"
+FIRE="/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856 (1).png"
+CAL="/storage/emulated/0/Download/vanguard-pose-atlas-reload-calibrated-15pct-smaller.png"
 
 cd "$P"
-
-cat AGENTS.md docs/POSE_LAB_CAMPAIGN_RULES.md docs/POSE_IS_GOD.md >/dev/null
+cat AGENTS.md docs/POSE_LAB_CAMPAIGN_RULES.md docs/POSE_IS_GOD.md docs/VANGUARD_ATLAS_AUTHORITY.md "$REF_REL" >/dev/null
 
 echo "============================================================"
-echo " VANGUARD ATLAS 1728 REBUILD + LEGACY COMPAT"
+echo " VANGUARD SHOTGUN: APPEND TO CANONICAL EXPANDED ATLAS"
 echo "============================================================"
-echo "MISSION=replace accidental 4168px atlas with one 1037x1728 canonical atlas; preserve cells 1-90; restore reload from calibration; build fire from exact authored source; repair idle/run legacy view"
-echo "SOURCE_AUTHORITY=decoded-pixel identity of authored sheets + calibrated reload atlas"
-echo "WRITABLE=$ATLAS_REL rows 15-16 plus removal of proven campaign-owned tail; $RUN_REL legacy atlas-view compatibility only"
-echo "LOCKED=cells 1-90; all recipes; timing; effects; pose identities; registration"
+echo "AUTHORITY=$A_REL (NOT historical vanguard-pose-atlas-90.png)"
+echo "MISSION=append one six-cell row only: reload 97-99 + fire 100-102"
+echo "WRITABLE=$A_REL,$R_REL,$F_REL,$M_REL"
+echo "LOCKED=all existing atlas pixels through y=1645; Butt Smash 91-93; Shoulder Charge 94-95; all shotgun timing/effects/registration"
 
-mkdir -p "$L/atlas-1728-rebuild"
+mkdir -p "$L/shotgun-expanded-append"
 
 echo
 echo "=== DIRTY PREFLIGHT ==="
 git status --short
-for F in "$ATLAS_REL" "$RUN_REL"; do
-  if ! git diff --quiet HEAD -- "$F"; then
-    git diff -- "$F" > "$L/atlas-1728-rebuild/$(basename "$F").preflight.diff"
-    echo "STOP: target already dirty; archived exact diff: $F"
+for X in "$A_REL" "$R_REL" "$F_REL" "$M_REL"; do
+  S="$(git status --porcelain --untracked-files=all -- "$X")"
+  if [ -n "$S" ]; then
+    printf '%s\n' "$S" > "$L/shotgun-expanded-append/$(basename "$X").preflight-status.txt"
+    if git ls-files --error-unmatch "$X" >/dev/null 2>&1; then
+      git diff -- "$X" > "$L/shotgun-expanded-append/$(basename "$X").preflight.diff"
+    fi
+    echo "STOP: campaign target already dirty: $X"
     exit 1
   fi
 done
@@ -43,219 +57,78 @@ git fetch origin main
 START="$(git rev-parse HEAD)"
 echo "START_HEAD=$START"
 
-# Preserve recipe locks before any mutation.
-LOCK_FILE="$L/atlas-1728-rebuild/recipe-locks.sha256"
-sha256sum \
-  public/assets/vanguard/procedural/idle.recipe.json \
-  public/assets/vanguard/procedural/run.recipe.json \
-  public/assets/vanguard/procedural/shotgun-reload.recipe.json \
-  public/assets/vanguard/procedural/shotgun-fire.recipe.json \
-  > "$LOCK_FILE"
+echo
+echo "=== VERIFY CANONICAL EXPANDED ATLAS ==="
+python3 - "$A" public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.manifest.json <<'PY'
+from PIL import Image
+from pathlib import Path
+import hashlib,json,sys
+a=Path(sys.argv[1]); m=Path(sys.argv[2])
+im=Image.open(a).convert("RGB")
+assert im.size==(1037,1645), f"STOP: canonical expanded atlas geometry changed: {im.size}"
+meta=json.loads(m.read_text())
+got=hashlib.sha256(a.read_bytes()).hexdigest()
+want=meta["destinationSha256"]
+assert got==want, f"STOP: canonical expanded atlas hash changed: {got} != {want}"
+print("EXPANDED_ATLAS_SIZE=1037x1645")
+print("EXPANDED_ATLAS_SHA256="+got)
+print("EXISTING_CELL_OWNERSHIP=91-93 Butt Smash; 94-95 Shoulder Charge; 96 empty")
+PY
+
+cp "$A" "$L/shotgun-expanded-append/base-1645.png"
 
 echo
-echo "=== PRESERVE CURRENT CANONICAL PREFIX 1-90 ==="
-python3 - "$ATLAS" <<\'PY\'
+echo "=== VERIFY PINNED SOURCES ==="
+python3 - "$RELOAD" "$FIRE" "$CAL" <<'PY'
 from PIL import Image
 import hashlib,sys
-im=Image.open(sys.argv[1]).convert("RGB")
-assert im.size==(1037,4168), f"STOP: expected current campaign atlas 1037x4168, got {im.size}"
-prefix=im.crop((0,0,1037,1536))
-print("CURRENT_PREFIX_SIZE=1037x1536")
-print("CURRENT_PREFIX_PIXEL_SHA256="+hashlib.sha256(prefix.tobytes()).hexdigest())
-print("CURRENT_PREFIX_AUTHORITY=preserve-exactly")
-PY
-echo
-echo "=== RESOLVE SOURCE ART BY DECODED PIXEL SHA ==="
-mapfile -d '' SRC < <(python3 - <<'PY'
-from PIL import Image
-from pathlib import Path
-import fnmatch, hashlib, os, sys
-
-targets=[
- {
-  "label":"reload","size":(1536,512),
-  "pixel_sha":"c32f1590a435aea696de34ebe5f4a89c9039d1bc7fac368a8c77ac180bf177e6",
-  "byte_sizes":{184990},
-  "patterns":["vanguard-shotgun-reload-source-original*","920832*"],
-  "preferred":[Path("/storage/emulated/0/Download/vanguard-shotgun-reload-source-original.jpg")],
- },
- {
-  "label":"fire","size":(1536,512),
-  "pixel_sha":"0acca93d08ed0b14f2bbcc9d308593f61297a5cb427e78a9a38935a6b5c903e6",
-  "byte_sizes":{176696},
-  "patterns":["*be1481f5a3f60d247fb48856*","vanguard-shotgun-fire-source-original*"],
-  "preferred":[
-    Path("/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856.png"),
-    Path("/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856 (1).png"),
-    Path("/storage/emulated/0/Download/vanguard-shotgun-fire-source-original.png"),
-    Path("/storage/emulated/0/Download/vanguard-shotgun-fire-source-original-1.png"),
-    Path("/storage/emulated/0/Pictures/file_00000000be1481f5a3f60d247fb48856.png"),
-  ],
-  "dhash_whole":"410ccb0ccb1cc659c718c718d35cd248c618cf2cc32ca698a492249624d634d2",
-  "dhash_frames":[
-    "06000e0039207c007a007a107a5c59707d303c84ba4072c060c8cae0c2f2c030",
-    "03000e0019003d2079007a183b4c1d3859907a849c683160e0e08530c0686068",
-    "030007001c903e003d003d083d2c16382d982c822e601cc8f0e44160f0503058",
-  ],
- },
- {
-  "label":"cal","size":(1037,1632),
-  "pixel_sha":"db8bdbc7c8a3411b10ff5d29b40200884ca41d26db450b0392dc5a672b469a72",
-  "byte_sizes":{909304},
-  "patterns":["vanguard-pose-atlas-reload-calibrated-15pct-smaller*"],
-  "preferred":[Path("/storage/emulated/0/Download/vanguard-pose-atlas-reload-calibrated-15pct-smaller.png")],
- },
+spec=[
+ ("reload",sys.argv[1],(1536,512),"c32f1590a435aea696de34ebe5f4a89c9039d1bc7fac368a8c77ac180bf177e6"),
+ ("fire",sys.argv[2],(2172,724),"01424c34c4b0d9bd8b7216c566b4de2be3b967d1b776d2c39ecddccc459c91b0"),
+ ("cal",sys.argv[3],(1037,1632),"db8bdbc7c8a3411b10ff5d29b40200884ca41d26db450b0392dc5a672b469a72"),
 ]
-
-roots=[Path("/storage/emulated/0/Download"),Path("/storage/emulated/0/Pictures")]
-
-def dhash_hex(im, hash_size=16):
-    g=im.convert("L").resize((hash_size+1,hash_size),Image.Resampling.LANCZOS)
-    px=list(g.getdata())
-    w=hash_size+1
-    value=0
-    for y in range(hash_size):
-        row=y*w
-        for x in range(hash_size):
-            value=(value<<1) | int(px[row+x+1] > px[row+x])
-    return f"{value:0{hash_size*hash_size//4}x}"
-
-def hdist(a,b):
-    return (int(a,16)^int(b,16)).bit_count()
-
-def visual_signature(im):
-    whole=dhash_hex(im)
-    frames=[dhash_hex(im.crop((i*512,0,(i+1)*512,512))) for i in range(3)] if im.size==(1536,512) else []
-    return whole,frames
-
-def pixsig(p):
-    try:
-        im=Image.open(p).convert("RGB")
-        return im, hashlib.sha256(im.tobytes()).hexdigest()
-    except Exception as e:
-        print(f"SKIP unreadable={p} err={e}",file=sys.stderr)
-        return None,None
-
-def bounded_candidates(t):
-    seen=set()
-    for p in t["preferred"]:
-        if p not in seen:
-            seen.add(p)
-            yield p
-
-    # Metadata-only walk. Decode only candidates matching known basename patterns
-    # or known encoded byte sizes. Final authority remains exact decoded pixel SHA.
-    for root in roots:
-        if not root.exists(): continue
-        for dirpath,dirs,files in os.walk(root):
-            rel=Path(dirpath).relative_to(root)
-            if len(rel.parts)>=4:
-                dirs[:]=[]
-            for name in files:
-                low=name.lower()
-                if not low.endswith((".png",".jpg",".jpeg")):
-                    continue
-                p=Path(dirpath)/name
-                if p in seen:
-                    continue
-                try:
-                    size=p.stat().st_size
-                except OSError:
-                    continue
-                name_hit=any(fnmatch.fnmatch(name,pat) for pat in t["patterns"])
-                size_hit=size in t["byte_sizes"]
-                if not (name_hit or size_hit):
-                    continue
-                seen.add(p)
-                yield p
-
-resolved=[]
-for t in targets:
-    tested=[]
-    exact=[]
-    perceptual=[]
-    for p in bounded_candidates(t):
-        if not p.is_file():
-            continue
-        tested.append(str(p))
-        print(f"CANDIDATE {t['label']}={p}",file=sys.stderr,flush=True)
-        im,got_sha=pixsig(p)
-        if im is None:
-            continue
-        got_size=im.size
-        print(f"  size={got_size[0]}x{got_size[1]} pixel_sha={got_sha}",file=sys.stderr,flush=True)
-        if got_size==t["size"] and got_sha==t["pixel_sha"]:
-            exact.append(p)
-            print(f"  EXACT_PIXEL_MATCH",file=sys.stderr,flush=True)
-            continue
-        if t["label"]=="fire":
-            # Accept only the authored 3-panel horizontal topology. Transport may
-            # have uniformly resized the carrier, e.g. 1536x512 -> 2172x724.
-            if got_size[0]==got_size[1]*3 and got_size[1]>=512:
-                norm=im.resize(t["size"],Image.Resampling.LANCZOS)
-                whole,frames=visual_signature(norm)
-                dw=hdist(whole,t["dhash_whole"])
-                dfs=[hdist(a,b) for a,b in zip(frames,t["dhash_frames"])]
-                print(f"  NORMALIZED_VISUAL_FINGERPRINT from={got_size[0]}x{got_size[1]} whole={dw} frames={dfs}",file=sys.stderr,flush=True)
-                if dw<=8 and all(d<=6 for d in dfs):
-                    perceptual.append((p,dw,dfs,got_sha,got_size))
-    if len(exact)>=1:
-        found=exact[0]
-        mode="exact-pixel-sha"
-        if len(exact)>1:
-            print(f"DUPLICATE_EXACT_CARRIERS {t['label']}={exact}; selected={found}",file=sys.stderr,flush=True)
-    elif t["label"]=="fire" and len(perceptual)>=1:
-        carrier_shas={x[3] for x in perceptual}
-        if len(perceptual)>1 and len(carrier_shas)>1:
-            print(f"STOP: ambiguous perceptual matches for fire: {perceptual}",file=sys.stderr)
-            sys.exit(43)
-        found=perceptual[0][0]
-        mode=f"bounded-perceptual whole={perceptual[0][1]} frames={perceptual[0][2]} carrier={perceptual[0][4]}"
-        if len(perceptual)>1:
-            print(f"DUPLICATE_PERCEPTUAL_CARRIERS fire={[x[0] for x in perceptual]}; selected={found}",file=sys.stderr,flush=True)
-    else:
-        print(
-          f"STOP: source identity not recovered for {t['label']} "
-          f"size={t['size']} pixel_sha={t['pixel_sha']} tested={len(tested)}",
-          file=sys.stderr
-        )
-        for p in tested[:20]:
-            print(f"  tested={p}",file=sys.stderr)
-        sys.exit(41)
-    print(f"RESOLVED {t['label']}={found} mode={mode}",file=sys.stderr,flush=True)
-    resolved.append(found)
-
-for p in resolved:
-    sys.stdout.buffer.write(str(p).encode()+b"\0")
+for label,path,size,want in spec:
+    im=Image.open(path).convert("RGB")
+    got=hashlib.sha256(im.tobytes()).hexdigest()
+    assert im.size==size, f"STOP: {label} dimensions {im.size} != {size}"
+    assert got==want, f"STOP: {label} pixel SHA mismatch {got}"
+    print(f"SOURCE_{label.upper()}={path}")
+    print(f"SOURCE_{label.upper()}_PIXEL_SHA256={got}")
 PY
-)
 
-[ "${#SRC[@]}" -eq 3 ] || { echo "STOP: source resolver returned ${#SRC[@]} paths"; exit 1; }
-RELOAD="${SRC[0]}"
-FIRE="${SRC[1]}"
-CAL="${SRC[2]}"
-echo "RESOLVED_RELOAD=$RELOAD"
-echo "RESOLVED_FIRE=$FIRE"
-echo "RESOLVED_CAL=$CAL"
 echo
-echo "=== REBUILD EXACT 1037x1728 ATLAS ==="
-cp "$ATLAS" "$L/atlas-1728-rebuild/before-4168.png"
-
-python3 - "$ATLAS" "$RELOAD" "$FIRE" "$CAL" "$L/atlas-1728-rebuild/final-1728.png" <<'PY'
-from PIL import Image, ImageEnhance
+echo "=== APPEND ONE ROW: 97-102 ==="
+python3 - "$A" "$RELOAD" "$FIRE" "$CAL" "$M" <<'PY'
+from PIL import Image,ImageEnhance
 from pathlib import Path
-import hashlib, statistics, sys
+import copy,hashlib,json,statistics,sys
 
-atlas_p,reload_p,fire_p,cal_p,out_copy=map(Path,sys.argv[1:])
-atlas=Image.open(atlas_p).convert("RGB")
+a_p,reload_p,fire_p,cal_p,manifest_p=map(Path,sys.argv[1:])
+base=Image.open(a_p).convert("RGB")
 reload=Image.open(reload_p).convert("RGB")
 fire=Image.open(fire_p).convert("RGB")
 cal=Image.open(cal_p).convert("RGB")
 
-assert atlas.size==(1037,4168), f"STOP: expected proven accidental atlas 1037x4168, got {atlas.size}"
+assert base.size==(1037,1645)
 assert reload.size==(1536,512)
-assert fire.width==fire.height*3 and fire.height>=512, f"STOP: fire carrier must preserve exact 3-panel topology, got {fire.size}"
+assert fire.size==(2172,724)
 assert cal.size==(1037,1632)
+
+base_file_sha=hashlib.sha256(a_p.read_bytes()).hexdigest()
+base_pixels=base.tobytes()
+W=1037
+Y0=1645
+Y1=1754
+ROW_H=Y1-Y0
+
+def col_rect(col,y0=Y0,y1=Y1):
+    x0=round(col*W/6); x1=round((col+1)*W/6)
+    return x0,y0,x1,y1
+
+def old_cal_cell(cell):
+    col=(cell-1)%6
+    x0=round(col*W/6); x1=round((col+1)*W/6)
+    return cal.crop((x0,1536,x1,1632))
 
 def bbox(im,t=18):
     px=im.load(); xs=[]; ys=[]
@@ -266,65 +139,37 @@ def bbox(im,t=18):
     assert xs
     return min(xs),min(ys),max(xs)+1,max(ys)+1
 
-def source_frames(im):
-    # Human/source evidence establishes exactly three authored square panels.
-    # Carrier may be a uniform transport resize, so panel width is image height.
-    panel=im.height
-    assert im.width==panel*3
-    return [im.crop((i*panel,0,(i+1)*panel,panel)) for i in range(3)]
+def three_square_frames(im):
+    p=im.height
+    assert im.width==p*3
+    return [im.crop((i*p,0,(i+1)*p,p)) for i in range(3)]
 
-def cell_rect(cell,y0=1536,row_h=96):
-    i=cell-1; row=i//6; col=i%6
-    assert row in (15,16)
-    x0=round(col*1037/6); x1=round((col+1)*1037/6)
-    yy0=y0+(row-15)*row_h
-    return x0,yy0,x1,yy0+row_h
+out=Image.new("RGB",(W,Y1),(0,0,0))
+out.paste(base,(0,0))
 
-# Current Git-owned atlas prefix is the authority for already-working cells 1-90.
-# Preserve it pixel-for-pixel. Calibration authorizes only appended reload cells 91-93.
-current_prefix=atlas.crop((0,0,1037,1536))
-out=Image.new("RGB",(1037,1728),(0,0,0))
-out.paste(current_prefix,(0,0))
-print("CELLS_1_90_SOURCE=CURRENT_GIT_PREFIX")
-print("CELLS_1_90_ACTION=PRESERVE_EXACTLY")
+# Reload candidate already carries the requested calibration. Move those three
+# cell images intact into the new canonical row as 97,98,99.
+reload_cells=[old_cal_cell(c) for c in (91,92,93)]
+for cell,sprite in zip((97,98,99),reload_cells):
+    col=(cell-1)%6
+    x0,y0,x1,y1=col_rect(col)
+    assert sprite.width==(x1-x0)
+    assert sprite.height<=ROW_H
+    out.paste(sprite,(x0,y1-sprite.height))
 
-# Calibration already contains Drew's requested 15%-smaller correction.
-# Do NOT apply 15% again. Copy reload cells 91-93 exactly.
-
-reload_cells=[]
-for c in (91,92,93):
-    x0,y0,x1,y1=cell_rect(c)
-    src=cal.crop((x0,1536,x1,1632))
-    assert max(ch[1] for ch in src.getextrema())>18, f"STOP: calibration reload cell {c} empty"
-    out.paste(src,(x0,y0))
-    reload_cells.append(src)
-
-# Reserved slots in calibration row must be empty.
-for c in (94,95,96):
-    x0,_,x1,_=cell_rect(c)
-    src=cal.crop((x0,1536,x1,1632))
-    assert max(ch[1] for ch in src.getextrema())<=18, f"STOP: calibration reserved cell {c} populated"
-
-# Derive one mechanical scale from original reload source -> final calibrated
-# reload cells. Use the median height ratio and apply it unchanged to all fire frames.
-reload_src_frames=source_frames(reload)
+# One shared scale, inferred from authored reload -> calibrated reload,
+# then compensated once for the 724px fire carrier. No normalize-resize chain.
 ratios=[]
-for frame,cell in zip(reload_src_frames,reload_cells):
-    sb=bbox(frame); cb=bbox(cell)
-    sh=sb[3]-sb[1]; ch=cb[3]-cb[1]
-    ratios.append(ch/sh)
-
-scale=statistics.median(ratios)
-assert max(ratios)-min(ratios)<0.04, f"STOP: calibration scale inconsistent across reload frames: {ratios}"
-print("RELOAD_CALIBRATION_RATIOS=",",".join(f"{x:.6f}" for x in ratios))
-fire_scale=scale*(512/fire.height)
-print("SHARED_FIRE_SCALE_AT_512=",f"{scale:.8f}")
-print("FIRE_CARRIER_SIZE=",f"{fire.width}x{fire.height}")
-print("FIRE_TRANSPORT_COMPENSATION=",f"{512/fire.height:.8f}")
-print("FIRE_EFFECTIVE_SCALE=",f"{fire_scale:.8f}")
+for src,calcell in zip(three_square_frames(reload),reload_cells):
+    sb=bbox(src); cb=bbox(calcell)
+    ratios.append((cb[3]-cb[1])/(sb[3]-sb[1]))
+scale512=statistics.median(ratios)
+assert max(ratios)-min(ratios)<0.04, f"STOP: reload calibration scale inconsistent: {ratios}"
+fire_scale=scale512*(512/fire.height)
+print("RELOAD_CALIBRATION_RATIOS="+",".join(f"{x:.6f}" for x in ratios))
+print(f"FIRE_EFFECTIVE_SCALE={fire_scale:.8f}")
 
 def mild_red(im):
-    # User-authorized GUESS_V2 candidate. Human review remains mandatory.
     r,g,b=im.split()
     r=r.point(lambda v:min(255,round(v*1.02)))
     g=g.point(lambda v:min(255,round(v*0.97)))
@@ -332,125 +177,168 @@ def mild_red(im):
     im=Image.merge("RGB",(r,g,b))
     im=ImageEnhance.Contrast(im).enhance(1.05)
     im=ImageEnhance.Color(im).enhance(1.03)
-    im=ImageEnhance.Brightness(im).enhance(0.98)
-    return im
+    return ImageEnhance.Brightness(im).enhance(0.98)
 
-fire_frames=source_frames(fire)
-prepared=[]
-for i,frame in enumerate(fire_frames,1):
+fire_prepared=[]
+for i,frame in enumerate(three_square_frames(fire),1):
     b=bbox(frame)
-    subject=frame.crop(b)
-    subject=mild_red(subject)
+    subject=mild_red(frame.crop(b))
     nw=max(1,round(subject.width*fire_scale))
     nh=max(1,round(subject.height*fire_scale))
     subject=subject.resize((nw,nh),Image.Resampling.LANCZOS)
-    prepared.append(subject)
+    fire_prepared.append(subject)
     print(f"FIRE_PREP_{i}={nw}x{nh}")
 
-for c,sprite in zip((97,98,99),prepared):
-    x0,y0,x1,y1=cell_rect(c)
+for cell,sprite in zip((100,101,102),fire_prepared):
+    col=(cell-1)%6
+    x0,y0,x1,y1=col_rect(col)
     sw,sh=x1-x0,y1-y0
-    assert sprite.width<=sw, f"STOP: fire cell {c} too wide {sprite.width}>{sw}"
-    assert sprite.height<=sh-5, f"STOP: fire cell {c} too tall {sprite.height}>{sh-5}"
+    assert sprite.width<=sw, f"STOP: cell {cell} too wide {sprite.width}>{sw}"
+    assert sprite.height<=sh-5, f"STOP: cell {cell} too tall {sprite.height}>{sh-5}"
     x=x0+(sw-sprite.width)//2
     y=y1-5-sprite.height
     out.paste(sprite,(x,y))
 
-for c in (94,95,96,100,101,102):
-    r=cell_rect(c)
-    assert max(ch[1] for ch in out.crop(r).getextrema())<=18, f"STOP: reserved cell {c} populated"
+assert out.crop((0,0,W,Y0)).tobytes()==base_pixels
+out.save(a_p)
+final_sha=hashlib.sha256(a_p.read_bytes()).hexdigest()
 
-# Final hard proofs.
-assert out.size==(1037,1728)
-assert out.crop((0,0,1037,1536)).tobytes()==current_prefix.tobytes()
-for c in (91,92,93):
-    x0,y0,x1,y1=cell_rect(c)
-    assert out.crop((x0,y0,x1,y1)).tobytes()==cal.crop((x0,1536,x1,1632)).tobytes()
-
-out.save(atlas_p)
-out.save(out_copy)
-print("BAD_ATLAS_SIZE=1037x4168")
-print("FINAL_ATLAS_SIZE=1037x1728")
-print("CELLS_1_90=CURRENT_GIT_PREFIX_PIXEL_IDENTICAL")
-print("RELOAD_91_93=CALIBRATION_EXACT")
-print("FIRE_97_99=AUTHORED_SOURCE_GUESS_V2_CANDIDATE")
-print("FINAL_SHA256="+hashlib.sha256(atlas_p.read_bytes()).hexdigest())
+manifest={
+ "schema":"vanguard-shotgun-expanded-atlas-append-candidate-v1",
+ "status":"quarantined",
+ "humanVerdict":"pending",
+ "baseAtlas":{
+   "path":"assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
+   "size":[1037,1645],
+   "sha256":base_file_sha,
+   "preservedPixelRect":[0,0,1037,1645]
+ },
+ "result":{
+   "size":[1037,1754],
+   "sha256":final_sha,
+   "rowBounds":{"16":[1645,1754]}
+ },
+ "newCells":{
+   "97":"shotgun reload open",
+   "98":"shotgun reload insert",
+   "99":"shotgun reload close",
+   "100":"shotgun fire brace",
+   "101":"shotgun fire drive",
+   "102":"shotgun fire recoil"
+ },
+ "sources":{
+   "reload":{"path":str(reload_p),"pixelSha256":hashlib.sha256(reload.tobytes()).hexdigest()},
+   "fire":{"path":str(fire_p),"pixelSha256":hashlib.sha256(fire.tobytes()).hexdigest()},
+   "reloadCalibration":{"path":str(cal_p),"pixelSha256":hashlib.sha256(cal.tobytes()).hexdigest()}
+ }
+}
+manifest_p.write_text(json.dumps(manifest,indent=2)+"\n")
+print("OLD_ATLAS_PIXELS_0_1645=PRESERVED_EXACTLY")
+print("FINAL_ATLAS_SIZE=1037x1754")
+print("NEW_CELLS=97,98,99,100,101,102")
+print("FINAL_ATLAS_SHA256="+final_sha)
 PY
 
 echo
-echo "=== PATCH LEGACY IDLE/RUN VIEW WITHOUT REWRITING RECIPES ==="
-python3 - "$RUN" <<'PY'
+echo "=== REPOINT ONLY THE TWO SHOTGUN RECIPES ==="
+python3 - "$R" "$F" "$REF" <<'PY'
 from pathlib import Path
-import sys
-p=Path(sys.argv[1]); s=p.read_text()
+import copy,json,sys
+rp,fp,refp=map(Path,sys.argv[1:])
+r=json.loads(rp.read_text())
+f=json.loads(fp.read_text())
+ref=json.loads(refp.read_text())
+r0=copy.deepcopy(r); f0=copy.deepcopy(f)
 
-old_rect=""" const explicit=a.rowBounds?.[String(r)];
- const y0=explicit?Number(explicit[0]):Math.round(r*atlas.naturalHeight/a.rows);
- const y1=explicit?Number(explicit[1]):Math.round((r+1)*atlas.naturalHeight/a.rows);"""
-new_rect=""" const explicit=a.rowBounds?.[String(r)];
- const viewHeight=Number(a.size?.[1]??atlas.naturalHeight);
- const y0=explicit?Number(explicit[0]):Math.round(r*viewHeight/a.rows);
- const y1=explicit?Number(explicit[1]):Math.round((r+1)*viewHeight/a.rows);"""
+atlas=copy.deepcopy(ref["atlases"]["vanguard-canonical"])
+assert atlas["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+assert atlas["size"]==[1037,1645]
+assert atlas["rows"]==16
+assert atlas["rowBounds"]["15"]==[1536,1645]
+atlas["rows"]=17
+atlas["size"]=[1037,1754]
+atlas["rowBounds"]["16"]=[1645,1754]
 
-old_guard=""" if(atlas.naturalWidth!==recipe.atlas.size[0]||atlas.naturalHeight!==recipe.atlas.size[1])throw new Error(`Wrong Vanguard atlas dimensions: expected ${recipe.atlas.size.join('x')}, got ${atlas.naturalWidth}x${atlas.naturalHeight}`);"""
-new_guard=""" const declaredAtlasWidth=Number(recipe.atlas.size[0]),declaredAtlasHeight=Number(recipe.atlas.size[1]);
- if(atlas.naturalWidth!==declaredAtlasWidth||atlas.naturalHeight<declaredAtlasHeight)throw new Error(`Wrong Vanguard atlas dimensions: expected width ${declaredAtlasWidth} and height >= ${declaredAtlasHeight}, got ${atlas.naturalWidth}x${atlas.naturalHeight}`);"""
+r["atlases"]["vanguard-canonical"]=copy.deepcopy(atlas)
+f["atlases"]["vanguard-canonical"]=copy.deepcopy(atlas)
 
-assert old_rect in s, "STOP: legacy rectFor insertion point changed"
-assert old_guard in s, "STOP: legacy dimension guard changed"
-s=s.replace(old_rect,new_rect,1).replace(old_guard,new_guard,1)
-p.write_text(s)
-print("LEGACY_VIEW_HEIGHT=recipe.atlas.size[1]")
-print("LEGACY_PHYSICAL_HEIGHT_RULE=>=declared")
+r["sources"]["open"]["cell"]=97
+r["sources"]["shell"]["cell"]=98
+r["sources"]["close"]["cell"]=99
+r["description"]="Shotgun reload review · expanded-atlas 97→98→99→idle"
+r["motionAuthority"]["description"]="Expanded canonical atlas cells 97,98,99 are shotgun reload pose authority; no visible effect; no guessed foot point."
+
+f["sources"]["brace"]["cell"]=100
+f["sources"]["drive"]["cell"]=101
+f["sources"]["recoil"]["cell"]=102
+f["description"]="Shotgun fire review · expanded-atlas 100→101→102 + dedicated muzzle"
+f["motionAuthority"]["description"]="Expanded canonical atlas cells 100,101,102 are shotgun fire pose authority; dedicated exact muzzle; no root motion; pin/effect placement review-gated."
+
+# Hard-lock everything unrelated to atlas selection / pose cell identity.
+for before,after,label in ((r0,r,"reload"),(f0,f,"fire")):
+    for key in ("rootMotion","canvas","bodyScale","stage","phases","effect"):
+        assert after[key]==before[key], f"STOP: {label} locked field changed: {key}"
+    assert after["sources"]["idle"]==before["sources"]["idle"]
+    assert after["sources"]["muzzle"]==before["sources"]["muzzle"]
+
+rp.write_text(json.dumps(r,indent=2)+"\n")
+fp.write_text(json.dumps(f,indent=2)+"\n")
+print("SHOTGUN_RELOAD_CELLS=97,98,99")
+print("SHOTGUN_FIRE_CELLS=100,101,102")
+print("SHOTGUN_TIMING_EFFECTS_REGISTRATION=UNCHANGED")
 PY
 
-node --check "$RUN"
-
 echo
-echo "=== DIFF + LOCK GUARD ==="
-mapfile -t CHANGED < <(git diff --name-only)
-printf 'changed=%s\n' "${CHANGED[@]}"
-for F in "${CHANGED[@]}"; do
-  case "$F" in
-    "$ATLAS_REL"|"$RUN_REL") ;;
-    *) echo "STOP: UNAUTHORIZED_DIFF $F"; exit 1 ;;
+echo "=== DIFF GUARD ==="
+mapfile -t TRACKED < <(git diff --name-only)
+printf 'tracked=%s\n' "${TRACKED[@]}"
+for X in "${TRACKED[@]}"; do
+  case "$X" in
+    "$A_REL"|"$R_REL"|"$F_REL") ;;
+    *) echo "STOP: UNAUTHORIZED_TRACKED_DIFF $X"; exit 1 ;;
   esac
 done
-[ "${#CHANGED[@]}" -eq 2 ] || { echo "STOP: expected exactly atlas + legacy reader changes"; exit 1; }
+[ "${#TRACKED[@]}" -eq 3 ] || { echo "STOP: expected exactly atlas + two recipe tracked changes"; exit 1; }
+[ -f "$M" ] || { echo "STOP: candidate manifest missing"; exit 1; }
 
-sha256sum -c "$LOCK_FILE"
-
-python3 - "$ATLAS" "$L/atlas-1728-rebuild/final-1728.png" <<'PY'
+python3 - "$A" "$L/shotgun-expanded-append/base-1645.png" <<'PY'
 from PIL import Image
 import sys
 a=Image.open(sys.argv[1]).convert("RGB")
 b=Image.open(sys.argv[2]).convert("RGB")
-assert a.size==b.size==(1037,1728)
-assert a.tobytes()==b.tobytes()
-print("PRECOMMIT_ATLAS_READBACK=PASS")
+assert a.size==(1037,1754)
+assert b.size==(1037,1645)
+assert a.crop((0,0,1037,1645)).tobytes()==b.tobytes()
+print("PRECOMMIT_EXISTING_ATLAS_PIXELS=PRESERVED")
 PY
 
 echo
 echo "=== COMMIT + PUSH ==="
-git add "$ATLAS_REL" "$RUN_REL"
-git commit -m "Restore canonical Vanguard atlas and preserve legacy views"
+git add "$A_REL" "$R_REL" "$F_REL" "$M_REL"
+git commit -m "Append Vanguard shotgun poses to canonical expanded atlas"
 git push origin main
 REV="$(git rev-parse HEAD)"
 echo "REV=$REV"
 
 echo
 echo "=== COMMITTED READBACK ==="
-git show "$REV:$ATLAS_REL" > "$L/atlas-1728-rebuild/committed-atlas.png"
-cmp -s "$ATLAS" "$L/atlas-1728-rebuild/committed-atlas.png"
-git show "$REV:$RUN_REL" > "$L/atlas-1728-rebuild/committed-run-preview.js"
-grep -Fq 'const viewHeight=Number(a.size?.[1]??atlas.naturalHeight);' "$L/atlas-1728-rebuild/committed-run-preview.js"
-grep -Fq 'atlas.naturalHeight<declaredAtlasHeight' "$L/atlas-1728-rebuild/committed-run-preview.js"
-
-python3 - "$L/atlas-1728-rebuild/committed-atlas.png" <<'PY'
+git show "$REV:$A_REL" > "$L/shotgun-expanded-append/committed-atlas.png"
+git show "$REV:$R_REL" > "$L/shotgun-expanded-append/committed-reload.json"
+git show "$REV:$F_REL" > "$L/shotgun-expanded-append/committed-fire.json"
+git show "$REV:$M_REL" > "$L/shotgun-expanded-append/committed-manifest.json"
+python3 - "$L/shotgun-expanded-append/committed-atlas.png" "$L/shotgun-expanded-append/base-1645.png" "$L/shotgun-expanded-append/committed-reload.json" "$L/shotgun-expanded-append/committed-fire.json" <<'PY'
 from PIL import Image
-import sys
-assert Image.open(sys.argv[1]).size==(1037,1728)
-print("COMMITTED_ATLAS_SIZE=1037x1728")
+import json,sys
+a=Image.open(sys.argv[1]).convert("RGB")
+b=Image.open(sys.argv[2]).convert("RGB")
+assert a.size==(1037,1754)
+assert a.crop((0,0,1037,1645)).tobytes()==b.tobytes()
+r=json.load(open(sys.argv[3])); f=json.load(open(sys.argv[4]))
+assert r["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+assert f["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+assert [r["sources"][x]["cell"] for x in ("open","shell","close")]==[97,98,99]
+assert [f["sources"][x]["cell"] for x in ("brace","drive","recoil")]==[100,101,102]
+print("COMMITTED_READBACK=PASS")
 PY
 
 echo
@@ -459,7 +347,6 @@ git worktree remove --force "$W" 2>/dev/null || true
 rm -rf "$W"
 git worktree add --detach "$W" "$REV"
 cd "$W"
-node --check src/procedural-run-preview.js
 node --check src/procedural-motion-preview.js
 npm run build
 
@@ -473,30 +360,33 @@ sleep 2
 kill -0 "$PID" || { cat "$L/server.log"; exit 1; }
 
 for U in \
-  assets/vanguard/procedural/vanguard-pose-atlas-90.png \
-  assets/vanguard/procedural/idle.recipe.json \
-  assets/vanguard/procedural/run.recipe.json \
+  assets/vanguard/procedural/vanguard-pose-atlas-expanded.png \
   assets/vanguard/procedural/shotgun-reload.recipe.json \
-  assets/vanguard/procedural/shotgun-fire.recipe.json; do
+  assets/vanguard/procedural/shotgun-fire.recipe.json \
+  assets/vanguard/procedural/butt-smash.recipe.json \
+  assets/vanguard/procedural/shoulder-charge.recipe.json; do
   curl -fsS "http://127.0.0.1:8766/$U" >/dev/null
 done
 
 STAMP="$(date +%s)"
-IDLE="http://127.0.0.1:8766/motion.html?procedural=vanguard-idle&rev=$REV&nocache=$STAMP"
-RUNURL="http://127.0.0.1:8766/motion.html?procedural=vanguard-run&rev=$REV&nocache=$STAMP"
-RELOADURL="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-reload&rev=$REV&nocache=$STAMP"
-FIREURL="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STAMP"
+RU="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-reload&rev=$REV&nocache=$STAMP"
+FU="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STAMP"
+BU="http://127.0.0.1:8766/motion.html?procedural=vanguard-butt-smash&rev=$REV&nocache=$STAMP"
+SU="http://127.0.0.1:8766/motion.html?procedural=vanguard-shoulder-charge&rev=$REV&nocache=$STAMP"
 
 echo
 echo "============================================================"
-echo " VANGUARD ATLAS REBUILD DEPLOYED"
+echo " SHOTGUN APPENDED TO CANONICAL EXPANDED ATLAS"
 echo "============================================================"
 echo "REV=$REV"
-echo "ATLAS=1037x1728"
-echo "IDLE_REVIEW=$IDLE"
-echo "RUN_REVIEW=$RUNURL"
-echo "RELOAD_REVIEW=$RELOADURL"
-echo "FIRE_REVIEW=$FIREURL"
+echo "ATLAS=assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+echo "ATLAS_SIZE=1037x1754"
+echo "RELOAD_CELLS=97,98,99"
+echo "FIRE_CELLS=100,101,102"
+echo "RELOAD_REVIEW=$RU"
+echo "FIRE_REVIEW=$FU"
+echo "BUTT_SMASH_REGRESSION=$BU"
+echo "SHOULDER_CHARGE_REGRESSION=$SU"
 echo "HUMAN_VERDICT=PENDING"
 
-termux-open-url "$IDLE"
+termux-open-url "$RU"
