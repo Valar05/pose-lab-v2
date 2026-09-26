@@ -32,6 +32,9 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
       <option value="vanguard-shoulder-charge">Vanguard · Shoulder Charge</option>
       <option value="vanguard-butt-smash">Vanguard · Butt Smash</option>
       <option value="vanguard-attack5">Vanguard · Attack 5 Jab</option>
+      <option value="vanguard-jump">Vanguard · Jump</option>
+      <option value="vanguard-midair">Vanguard · Mid-Air</option>
+      <option value="vanguard-land">Vanguard · Land</option>
       <option value="vanguard-shotgun-reload">Vanguard · Shotgun Reload</option>
       <option value="vanguard-shotgun-fire">Vanguard · Shotgun Fire</option>
     </select>

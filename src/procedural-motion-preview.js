@@ -2,7 +2,13 @@ import { createProceduralReviewShell } from './procedural-review-shell.js';
 
 const params=new URLSearchParams(location.search);
 const requested=params.get('procedural');
-const animation=requested==='vanguard-shotgun-reload'
+const animation=requested==='vanguard-jump'
+  ? 'vanguard-jump'
+  : requested==='vanguard-midair'
+  ? 'vanguard-midair'
+  : requested==='vanguard-land'
+  ? 'vanguard-land'
+  : requested==='vanguard-shotgun-reload'
   ? 'vanguard-shotgun-reload'
   : requested==='vanguard-shotgun-fire'
   ? 'vanguard-shotgun-fire'
@@ -19,6 +25,9 @@ const animation=requested==='vanguard-shotgun-reload'
     : requested==='vanguard-horizontal-strike'
       ? 'vanguard-horizontal-strike'
       : 'vanguard-overhand-strike';
+const isJump=animation==='vanguard-jump';
+const isMidair=animation==='vanguard-midair';
+const isLand=animation==='vanguard-land';
 const isShotgunReload=animation==='vanguard-shotgun-reload';
 const isShotgunFire=animation==='vanguard-shotgun-fire';
 const isShoulderCharge=animation==='vanguard-shoulder-charge';
@@ -28,7 +37,7 @@ const isUndercut=animation==='vanguard-undercut-strike';
 const isAttack2=animation==='vanguard-attack2-uppercut';
 const isHorizontal=animation==='vanguard-horizontal-strike';
 const ui=createProceduralReviewShell({
-  title:isShotgunReload?'Vanguard Shotgun Reload':isShotgunFire?'Vanguard Shotgun Fire':isShoulderCharge?'Vanguard Shoulder Charge':isButtSmash?'Vanguard Butt Smash':isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
+  title:isJump?'Vanguard Jump':isMidair?'Vanguard Mid-Air':isLand?'Vanguard Land':isShotgunReload?'Vanguard Shotgun Reload':isShotgunFire?'Vanguard Shotgun Fire':isShoulderCharge?'Vanguard Shoulder Charge':isButtSmash?'Vanguard Butt Smash':isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
   animation,
   accent:'#ffbd4a'
 });
@@ -625,6 +634,7 @@ function installShotgunBlastMoveScaleControls(side){
 function installSlashControls(){
  const side=document.querySelector('.side');
  if(!side||side.querySelector('[data-slash-controls]'))return;
+ if(recipe.effect?.liveControls===false)return;
  if(recipe.id==='vanguard-shotgun-fire-procedural-v1'&&recipe.effect?.controlProfile==='move-scale-only'){
    installShotgunBlastMoveScaleControls(side);
    return;
@@ -739,7 +749,13 @@ function installSlashControls(){
 }
 
 try{
- const recipePath=isShotgunReload
+ const recipePath=isJump
+   ? './assets/vanguard/procedural/jump.recipe.json'
+   : isMidair
+   ? './assets/vanguard/procedural/midair.recipe.json'
+   : isLand
+   ? './assets/vanguard/procedural/land.recipe.json'
+   : isShotgunReload
    ? './assets/vanguard/procedural/shotgun-reload.recipe.json'
    : isShotgunFire
    ? './assets/vanguard/procedural/shotgun-fire.recipe.json'
