@@ -21,7 +21,7 @@
     <script type="module">
       const params = new URLSearchParams(location.search);
       const procedural = params.get('procedural');
-      const modulePath = procedural === 'swarmling-run'
+      const modulePath = procedural?.startsWith('swarmling-')
         ? './src/procedural-swarmling-preview.js'
         : (procedural === 'vanguard-run' || procedural === 'vanguard-idle')
           ? './src/procedural-run-preview.js'
