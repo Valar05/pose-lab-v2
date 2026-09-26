@@ -116,9 +116,11 @@ npm run build
 
 echo
 echo "=== VERIFY BUILT DEPENDENCIES ==="
-test -f "$W/dist/$RELOAD_REL"
-test -f "$W/dist/$FIRE_REL"
-test -f "$W/dist/$ATLAS_REL"
+test -f "$W/dist/assets/vanguard/procedural/shotgun-reload.recipe.json"
+test -f "$W/dist/assets/vanguard/procedural/shotgun-fire.recipe.json"
+test -f "$W/dist/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+test -f "$W/dist/src/procedural-review-shell.js"
+test -f "$W/dist/src/procedural-motion-preview.js"
 echo "BUILD_DEPENDENCIES=PASS"
 
 echo
