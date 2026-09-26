@@ -1,0 +1,25 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-vanguard-side-2d-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "1b7da7e2c92236baf8ed933d9ca0670999840bb3",
+  "implementationRevision": "b00aa52a45d64c886787576459df0fee81bbc61b",
+  "sourceByteSha256": "2a9ee9cc38a4b695d9a561bdce08eab71671de261fcae9e07b1f6a44f55f6f91",
+  "run": {
+    "sourceCells": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "durationMsPerFrame": 80
+  },
+  "preserved": [
+    "authoring/swarmling/**",
+    "public/assets/swarmling/fleshpunk/**",
+    "public/assets/vanguard/fleshpunk/animations.json"
+  ],
+  "humanVerdict": "pending"
+}
