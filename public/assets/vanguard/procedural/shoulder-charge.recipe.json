@@ -25,12 +25,12 @@
     "vanguard-canonical": {
       "path": "assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
       "columns": 6,
-      "rows": 16,
+      "rows": 17,
       "indexBase": 1,
       "mode": "blue-key",
       "size": [
         1037,
-        1645
+        1754
       ],
       "rowBounds": {
         "0": [
@@ -96,6 +96,10 @@
         "15": [
           1536,
           1645
+        ],
+        "16": [
+          1645,
+          1754
         ]
       }
     }

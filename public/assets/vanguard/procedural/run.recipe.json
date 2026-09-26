@@ -18,19 +18,83 @@
     "anchorMeaning": "canonical Vanguard bottom-center review anchor"
   },
   "atlas": {
-    "file": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
+    "file": "assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
     "columns": 6,
-    "rows": 15,
+    "rows": 17,
     "indexBase": 1,
     "size": [
       1037,
-      1536
+      1754
     ],
-    "sha256": "98f0920139a94fcc93074a765c721e7e1f4c083311c2c1cea9edaa8f2e087ed1",
+    "sha256": "d01cf5beb73dc7a6b6fccca8aa1d2745014f64b4ad6a284cab2e1d35c8eeedbd",
     "rowBounds": {
+      "0": [
+        0,
+        102
+      ],
+      "1": [
+        102,
+        205
+      ],
+      "2": [
+        205,
+        307
+      ],
+      "3": [
+        307,
+        410
+      ],
+      "4": [
+        410,
+        512
+      ],
+      "5": [
+        512,
+        614
+      ],
+      "6": [
+        614,
+        717
+      ],
+      "7": [
+        717,
+        819
+      ],
       "8": [
-        790,
-        890
+        819,
+        922
+      ],
+      "9": [
+        922,
+        1024
+      ],
+      "10": [
+        1024,
+        1126
+      ],
+      "11": [
+        1126,
+        1229
+      ],
+      "12": [
+        1229,
+        1331
+      ],
+      "13": [
+        1331,
+        1434
+      ],
+      "14": [
+        1434,
+        1536
+      ],
+      "15": [
+        1536,
+        1645
+      ],
+      "16": [
+        1645,
+        1754
       ]
     }
   },
