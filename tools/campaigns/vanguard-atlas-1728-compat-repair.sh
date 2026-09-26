@@ -76,6 +76,14 @@ targets=[
     Path("/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856.png"),
     Path("/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856 (1).png"),
     Path("/storage/emulated/0/Download/vanguard-shotgun-fire-source-original.png"),
+    Path("/storage/emulated/0/Download/vanguard-shotgun-fire-source-original-1.png"),
+    Path("/storage/emulated/0/Pictures/file_00000000be1481f5a3f60d247fb48856.png"),
+  ],
+  "dhash_whole":"410ccb0ccb1cc659c718c718d35cd248c618cf2cc32ca698a492249624d634d2",
+  "dhash_frames":[
+    "06000e0039207c007a007a107a5c59707d303c84ba4072c060c8cae0c2f2c030",
+    "03000e0019003d2079007a183b4c1d3859907a849c683160e0e08530c0686068",
+    "030007001c903e003d003d083d2c16382d982c822e601cc8f0e44160f0503058",
   ],
  },
  {
@@ -89,10 +97,29 @@ targets=[
 
 roots=[Path("/storage/emulated/0/Download"),Path("/storage/emulated/0/Pictures")]
 
+def dhash_hex(im, hash_size=16):
+    g=im.convert("L").resize((hash_size+1,hash_size),Image.Resampling.LANCZOS)
+    px=list(g.getdata())
+    w=hash_size+1
+    value=0
+    for y in range(hash_size):
+        row=y*w
+        for x in range(hash_size):
+            value=(value<<1) | int(px[row+x+1] > px[row+x])
+    return f"{value:0{hash_size*hash_size//4}x}"
+
+def hdist(a,b):
+    return (int(a,16)^int(b,16)).bit_count()
+
+def visual_signature(im):
+    whole=dhash_hex(im)
+    frames=[dhash_hex(im.crop((i*512,0,(i+1)*512,512))) for i in range(3)] if im.size==(1536,512) else []
+    return whole,frames
+
 def pixsig(p):
     try:
         im=Image.open(p).convert("RGB")
-        return im.size, hashlib.sha256(im.tobytes()).hexdigest()
+        return im, hashlib.sha256(im.tobytes()).hexdigest()
     except Exception as e:
         print(f"SKIP unreadable={p} err={e}",file=sys.stderr)
         return None,None
@@ -133,26 +160,51 @@ def bounded_candidates(t):
 resolved=[]
 for t in targets:
     tested=[]
-    found=None
+    exact=[]
+    perceptual=[]
     for p in bounded_candidates(t):
         if not p.is_file():
             continue
         tested.append(str(p))
         print(f"CANDIDATE {t['label']}={p}",file=sys.stderr,flush=True)
-        got_size,got_sha=pixsig(p)
+        im,got_sha=pixsig(p)
+        if im is None:
+            continue
+        got_size=im.size
+        print(f"  size={got_size[0]}x{got_size[1]} pixel_sha={got_sha}",file=sys.stderr,flush=True)
         if got_size==t["size"] and got_sha==t["pixel_sha"]:
-            found=p
-            print(f"RESOLVED {t['label']}={p}",file=sys.stderr,flush=True)
-            break
-    if found is None:
+            exact.append(p)
+            print(f"  EXACT_PIXEL_MATCH",file=sys.stderr,flush=True)
+            continue
+        if t["label"]=="fire" and got_size==t["size"]:
+            whole,frames=visual_signature(im)
+            dw=hdist(whole,t["dhash_whole"])
+            dfs=[hdist(a,b) for a,b in zip(frames,t["dhash_frames"])]
+            print(f"  VISUAL_FINGERPRINT whole={dw} frames={dfs}",file=sys.stderr,flush=True)
+            if dw<=8 and all(d<=6 for d in dfs):
+                perceptual.append((p,dw,dfs))
+    if len(exact)==1:
+        found=exact[0]
+        mode="exact-pixel-sha"
+    elif len(exact)>1:
+        print(f"STOP: ambiguous exact matches for {t['label']}: {exact}",file=sys.stderr)
+        sys.exit(42)
+    elif t["label"]=="fire" and len(perceptual)==1:
+        found=perceptual[0][0]
+        mode=f"bounded-perceptual whole={perceptual[0][1]} frames={perceptual[0][2]}"
+    elif t["label"]=="fire" and len(perceptual)>1:
+        print(f"STOP: ambiguous perceptual matches for fire: {perceptual}",file=sys.stderr)
+        sys.exit(43)
+    else:
         print(
-          f"STOP: exact decoded-pixel source not found for {t['label']} "
+          f"STOP: source identity not recovered for {t['label']} "
           f"size={t['size']} pixel_sha={t['pixel_sha']} tested={len(tested)}",
           file=sys.stderr
         )
         for p in tested[:20]:
             print(f"  tested={p}",file=sys.stderr)
         sys.exit(41)
+    print(f"RESOLVED {t['label']}={found} mode={mode}",file=sys.stderr,flush=True)
     resolved.append(found)
 
 for p in resolved:
