@@ -77,12 +77,32 @@ def frames(path):
  w=im.width//3
  return [im.crop((i*w,0,(i+1)*w,im.height)) for i in range(3)]
 def nonblack_bbox(im,t=18):
- px=im.load(); xs=[]; ys=[]
- for y in range(im.height):
-  for x in range(im.width):
-   if max(px[x,y])>t: xs.append(x);ys.append(y)
- assert xs
- return min(xs),min(ys),max(xs)+1,max(ys)+1
+ # Foreground must be a connected subject region, not every nonblack pixel in
+ # the authored panel. This rejects long JPEG/PNG background seams/noise.
+ import numpy as np
+ from collections import deque
+ ar=np.asarray(im)
+ mask=ar.max(axis=2)>t
+ H,W=mask.shape
+ seen=np.zeros((H,W),dtype=bool)
+ comps=[]
+ for y in range(H):
+  for x in range(W):
+   if not mask[y,x] or seen[y,x]: continue
+   q=[(x,y)]; seen[y,x]=1; pts=[]
+   while q:
+    xx,yy=q.pop(); pts.append((xx,yy))
+    for nx,ny in ((xx-1,yy),(xx+1,yy),(xx,yy-1),(xx,yy+1)):
+     if 0<=nx<W and 0<=ny<H and mask[ny,nx] and not seen[ny,nx]:
+      seen[ny,nx]=1; q.append((nx,ny))
+   comps.append(pts)
+ assert comps
+ pts=max(comps,key=len)
+ xs=[p[0] for p in pts]; ys=[p[1] for p in pts]
+ box=(min(xs),min(ys),max(xs)+1,max(ys)+1)
+ # A Vanguard frame should not consume nearly the full authored panel height.
+ assert box[3]-box[1] < int(H*0.70), f"STOP: foreground isolation suspicious {box} panel={W}x{H}"
+ return box
 items=list(zip((91,92,93),frames(rp)))+list(zip((97,98,99),frames(fp)))
 measured=[]
 for c,im in items:
