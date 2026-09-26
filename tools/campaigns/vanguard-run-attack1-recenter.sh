@@ -22,10 +22,9 @@ echo "============================================================"
 echo " VANGUARD ATTACK 1 OPAQUE-BACKGROUND FIX"
 echo "============================================================"
 echo "HUMAN_VERDICT=Run fixed; locked"
-echo "MISSION=remove the opaque black source-cell rectangle that is visually clipping Attack 1"
-echo "WHY=explicit-point body sources return the raw cell canvas; black atlas background remains opaque and masks the back slash"
-echo "WRITABLE=$ATTACK1_REL source-local backgroundKey flags; $RENDERER_REL behavior gated by those flags only"
-echo "LOCKED=$RUN_REL entire file; atlas bytes; Attack1 cells/timing/effects/registration/deformation/anchors/centerX; every other recipe"
+echo "MISSION=opt Attack 1 body cells into canonical black-border keying"
+echo "WRITABLE=$ATTACK1_REL source-local backgroundKey flags only"
+echo "LOCKED=$RUN_REL entire file; renderer behavior for all non-opted-in sources; atlas bytes; Attack1 cells/timing/effects/registration/deformation/anchors/centerX"
 
 mkdir -p "$L/run-attack1-recenter"
 
@@ -33,9 +32,6 @@ echo
 echo "=== DIRTY PREFLIGHT ==="
 git status --short
 
-# The immediately preceding campaign can fail after authoring Attack1 but before
-# patching/committing the renderer. Reconcile ONLY that known campaign-owned
-# partial mutation, archive it first, and leave all unrelated archaeology alone.
 if ! git diff --quiet HEAD -- "$ATTACK1_REL"; then
   git diff -- "$ATTACK1_REL" > "$L/run-attack1-recenter/attack1.failed-prior-campaign.diff"
   git show "HEAD:$ATTACK1_REL" > "$L/run-attack1-recenter/attack1-head-before-recovery.json"
@@ -59,13 +55,12 @@ assert normalize(work)==normalize(head), "STOP: Attack1 has unrelated dirty edit
 print("RECOVERABLE_PRIOR_CAMPAIGN_DIRTY=YES")
 PY
   git restore --source=HEAD -- "$ATTACK1_REL"
-  echo "RECOVERED_PRIOR_CAMPAIGN_PARTIAL=$ATTACK1_REL"
 fi
 
 for F in "$RUN_REL" "$RENDERER_REL"; do
   if ! git diff --quiet HEAD -- "$F"; then
     git diff -- "$F" > "$L/run-attack1-recenter/$(basename "$F").preflight.diff"
-    echo "STOP: unrelated target already dirty; archived diff: $F"
+    echo "STOP: locked/prerequisite file already dirty: $F"
     exit 1
   fi
 done
@@ -78,11 +73,18 @@ START="$(git rev-parse HEAD)"
 echo "START_HEAD=$START"
 
 RUN_SHA="$(sha256sum "$RUN" | awk '{print $1}')"
+RENDERER_SHA="$(sha256sum "$RENDERER" | awk '{print $1}')"
+
+grep -Fq "if(src.backgroundKey==='black-border')" "$RENDERER" || {
+  echo "STOP: canonical renderer prerequisite missing after sync"
+  exit 1
+}
+echo "RENDERER_BLACK_BORDER_SUPPORT=CONFIRMED"
+
 cp "$ATTACK1" "$L/run-attack1-recenter/attack1-before.json"
-cp "$RENDERER" "$L/run-attack1-recenter/renderer-before.js"
 
 echo
-echo "=== PATCH ATTACK 1 SOURCE-LOCAL BACKGROUND KEY ==="
+echo "=== OPT ATTACK 1 INTO BLACK-BORDER KEYING ONLY ==="
 python3 - "$ATTACK1" <<'PY'
 from pathlib import Path
 import copy,json,sys
@@ -95,15 +97,10 @@ assert after["id"]=="vanguard-overhand-strike-procedural-proof-v4"
 assert after["stage"]["centerX"]==220
 assert after["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 
-# Revert the prior unaccepted row-window experiment. The visual defect persisted,
-# so crop-window surgery is not the authority for this fix.
 rb=after["atlases"]["vanguard-canonical"]["rowBounds"]
 rb["5"]=[512,614]
 rb["6"]=[614,717]
 
-# Every Attack 1 body source uses explicit-point anchoring. Preserve those exact
-# coordinates, but make the opaque black atlas background transparent by flood
-# filling only border-connected near-black pixels in the renderer.
 for key in ("idle","chamber","commit","preimpact","contact"):
     src=after["sources"][key]
     assert src["kind"]=="atlas-cell"
@@ -112,125 +109,68 @@ for key in ("idle","chamber","commit","preimpact","contact"):
     src["backgroundKeyThreshold"]=18
     src.pop("isolateLargestComponent",None)
 
-def scrub(o):
+def normalize(o):
     x=copy.deepcopy(o)
-    x["atlases"]["vanguard-canonical"]["rowBounds"]["5"]="__ROW5__"
-    x["atlases"]["vanguard-canonical"]["rowBounds"]["6"]="__ROW6__"
+    rb=x["atlases"]["vanguard-canonical"]["rowBounds"]
+    rb["5"]="__ROW5__"; rb["6"]="__ROW6__"
     for key in ("idle","chamber","commit","preimpact","contact"):
-        s=x["sources"][key]
-        s["backgroundKey"]="__KEY__"
-        s["backgroundKeyThreshold"]="__THRESH__"
-        s.pop("isolateLargestComponent",None)
+        src=x["sources"][key]
+        src["backgroundKey"]="__KEY__"
+        src["backgroundKeyThreshold"]="__THRESH__"
+        src.pop("isolateLargestComponent",None)
     return x
 
 before_cmp=copy.deepcopy(before)
 before_cmp["atlases"]["vanguard-canonical"]["rowBounds"]["5"]="__ROW5__"
 before_cmp["atlases"]["vanguard-canonical"]["rowBounds"]["6"]="__ROW6__"
 for key in ("idle","chamber","commit","preimpact","contact"):
-    s=before_cmp["sources"][key]
-    s["backgroundKey"]="__KEY__"
-    s["backgroundKeyThreshold"]="__THRESH__"
-    s.pop("isolateLargestComponent",None)
+    src=before_cmp["sources"][key]
+    src["backgroundKey"]="__KEY__"
+    src["backgroundKeyThreshold"]="__THRESH__"
+    src.pop("isolateLargestComponent",None)
 
-assert scrub(after)==before_cmp, "STOP: Attack 1 mutation escaped source-local background-key surface"
+assert normalize(after)==before_cmp, "STOP: Attack1 mutation escaped authorized source-local surface"
 
 p.write_text(json.dumps(after,indent=2)+"\n")
 
-print("ATTACK1_ROW5=RESTORED_512..614")
-print("ATTACK1_ROW6=RESTORED_614..717")
+print("ATTACK1_ROW5=512..614")
+print("ATTACK1_ROW6=614..717")
 print("ATTACK1_BODY_BACKGROUND_KEY=black-border")
 print("ATTACK1_BODY_BACKGROUND_THRESHOLD=18")
+print("RUN=LOCKED")
 print("CENTER_X=UNCHANGED_220")
-print("ANCHOR_POINTS=UNCHANGED")
 print("CELLS=UNCHANGED")
 print("TIMING=UNCHANGED")
 print("EFFECTS=UNCHANGED")
 print("REGISTRATION=UNCHANGED")
+print("ANCHORS=UNCHANGED")
 PY
-
-echo
-echo "=== PATCH RENDERER, DEFAULT-OFF SOURCE-LOCAL BEHAVIOR ==="
-python3 - "$RENDERER" <<'PY'
-from pathlib import Path
-import sys
-
-p=Path(sys.argv[1])
-s=p.read_text()
-
-anchor="  if(src.isolateLargestComponent){"
-assert s.count(anchor)==1, f"STOP: expected one renderer isolation anchor, found {s.count(anchor)}"
-
-feature="""  // Optional source-local cleanup for opaque-black sprite sheets.
-  // Default is OFF, so every existing locked animation is behavior-identical.
-  if(src.backgroundKey==='black-border'){
-    const threshold=Number(src.backgroundKeyThreshold??18);
-    const seen=new Uint8Array(sw*sh),stack=[];
-    const isBg=(x,y)=>{
-      const i=(y*sw+x)*4;
-      return d[i+3]>8 && Math.max(d[i],d[i+1],d[i+2])<=threshold;
-    };
-    const push=(x,y)=>{
-      const i=y*sw+x;
-      if(seen[i]||!isBg(x,y))return;
-      seen[i]=1;stack.push([x,y]);
-    };
-    for(let x=0;x<sw;x++){push(x,0);push(x,sh-1);}
-    for(let y=0;y<sh;y++){push(0,y);push(sw-1,y);}
-    while(stack.length){
-      const [x,y]=stack.pop(),di=(y*sw+x)*4;
-      d[di+3]=0;
-      if(x>0)push(x-1,y);
-      if(x+1<sw)push(x+1,y);
-      if(y>0)push(x,y-1);
-      if(y+1<sh)push(x,y+1);
-    }
-
-    // Bounds were measured before black-border keying. Recompute them from the
-    // post-key alpha so any later cleanup/trim sees the actual sprite only.
-    minX=sw;minY=sh;maxX=-1;maxY=-1;
-    for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
-      const i=(y*sw+x)*4;
-      if(d[i+3]>8){
-        minX=Math.min(minX,x);minY=Math.min(minY,y);
-        maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
-      }
-    }
-  }
-
-"""
-
-assert "src.backgroundKey==='black-border'" not in s, "STOP: renderer background-key support already present unexpectedly"
-s=s.replace(anchor,feature+anchor,1)
-p.write_text(s)
-print("RENDERER_BACKGROUND_KEY_SUPPORT=INSTALLED")
-print("DEFAULT_BEHAVIOR=UNCHANGED")
-PY
-node --check "$RENDERER"
 
 echo
 echo "=== DIFF GUARD ==="
 mapfile -t CHANGED < <(git diff --name-only)
 printf 'changed=%s\n' "${CHANGED[@]}"
-[ "${#CHANGED[@]}" -eq 2 ] || {
-  echo "STOP: expected exactly Attack 1 recipe + renderer"
+[ "${#CHANGED[@]}" -eq 1 ] || {
+  echo "STOP: expected exactly one changed file"
   exit 1
 }
-for F in "${CHANGED[@]}"; do
-  case "$F" in
-    "$ATTACK1_REL"|"$RENDERER_REL") ;;
-    *) echo "STOP: unauthorized diff $F"; exit 1 ;;
-  esac
-done
-
+[ "${CHANGED[0]}" = "$ATTACK1_REL" ] || {
+  echo "STOP: unauthorized diff ${CHANGED[0]}"
+  exit 1
+}
 [ "$(sha256sum "$RUN" | awk '{print $1}')" = "$RUN_SHA" ] || {
   echo "STOP: accepted Run changed"
+  exit 1
+}
+[ "$(sha256sum "$RENDERER" | awk '{print $1}')" = "$RENDERER_SHA" ] || {
+  echo "STOP: canonical renderer changed locally"
   exit 1
 }
 
 echo
 echo "=== COMMIT + PUSH ==="
-git add "$ATTACK1_REL" "$RENDERER_REL"
-git commit -m "Fix opaque crop box in Vanguard attack one"
+git add "$ATTACK1_REL"
+git commit -m "Enable black-border keying for Vanguard attack one"
 git push origin main
 REV="$(git rev-parse HEAD)"
 echo "REV=$REV"
@@ -238,23 +178,18 @@ echo "REV=$REV"
 echo
 echo "=== COMMITTED READBACK ==="
 git show "$REV:$ATTACK1_REL" > "$L/run-attack1-recenter/attack1-committed.json"
-git show "$REV:$RENDERER_REL" > "$L/run-attack1-recenter/renderer-committed.js"
-
 python3 - "$L/run-attack1-recenter/attack1-committed.json" <<'PY'
 import json,sys
 a=json.load(open(sys.argv[1]))
+assert a["stage"]["centerX"]==220
 assert a["atlases"]["vanguard-canonical"]["rowBounds"]["5"]==[512,614]
 assert a["atlases"]["vanguard-canonical"]["rowBounds"]["6"]==[614,717]
-assert a["stage"]["centerX"]==220
 for key in ("idle","chamber","commit","preimpact","contact"):
     assert a["sources"][key]["backgroundKey"]=="black-border"
     assert a["sources"][key]["backgroundKeyThreshold"]==18
-print("ATTACK1_COMMITTED_READBACK=PASS")
+    assert "isolateLargestComponent" not in a["sources"][key]
+print("COMMITTED_READBACK=PASS")
 PY
-
-grep -Fq "if(src.backgroundKey==='black-border')" "$L/run-attack1-recenter/renderer-committed.js"
-grep -Fq "Default is OFF" "$L/run-attack1-recenter/renderer-committed.js"
-echo "RENDERER_COMMITTED_READBACK=PASS"
 
 echo
 echo "=== EXACT-REVISION BUILD ==="
@@ -263,6 +198,7 @@ rm -rf "$W"
 git worktree add --detach "$W" "$REV"
 cd "$W"
 
+grep -Fq "if(src.backgroundKey==='black-border')" src/procedural-motion-preview.js
 node --check src/procedural-motion-preview.js
 npm run build
 
