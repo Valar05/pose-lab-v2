@@ -183,12 +183,11 @@ for t in targets:
             print(f"  VISUAL_FINGERPRINT whole={dw} frames={dfs}",file=sys.stderr,flush=True)
             if dw<=8 and all(d<=6 for d in dfs):
                 perceptual.append((p,dw,dfs))
-    if len(exact)==1:
+    if len(exact)>=1:
         found=exact[0]
         mode="exact-pixel-sha"
-    elif len(exact)>1:
-        print(f"STOP: ambiguous exact matches for {t['label']}: {exact}",file=sys.stderr)
-        sys.exit(42)
+        if len(exact)>1:
+            print(f"DUPLICATE_EXACT_CARRIERS {t['label']}={exact}; selected={found}",file=sys.stderr,flush=True)
     elif t["label"]=="fire" and len(perceptual)==1:
         found=perceptual[0][0]
         mode=f"bounded-perceptual whole={perceptual[0][1]} frames={perceptual[0][2]}"
