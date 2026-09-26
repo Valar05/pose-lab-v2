@@ -46,10 +46,22 @@ function render(ms){
   const b=visibleBounds(image);
   const presentationScale=1.5;
   const anchorX=220,anchorY=226;
+
+  // Fixed source-space anchors preserve the approved side-by-side scale
+  // while keeping each authored run frame on one shared ground/contact point.
+  const frameAnchors=[
+    {x:128,y:249},
+    {x:128,y:249},
+    {x:128,y:249},
+    {x:128,y:250},
+    {x:128,y:249},
+    {x:128,y:250}
+  ];
+  const srcAnchor=frameAnchors[index]||frameAnchors[0];
   const drawW=Math.round(b.w*presentationScale);
   const drawH=Math.round(b.h*presentationScale);
-  const x=Math.round(anchorX-drawW/2);
-  const y=Math.round(anchorY-drawH);
+  const x=Math.round(anchorX-(srcAnchor.x-b.x)*presentationScale);
+  const y=Math.round(anchorY-(srcAnchor.y-b.y)*presentationScale);
   ctx.drawImage(image,b.x,b.y,b.w,b.h,x,y,drawW,drawH);
   phase.textContent='run-'+String(index+1);
   time.textContent=Math.round(ms)+' / '+total+' ms';
