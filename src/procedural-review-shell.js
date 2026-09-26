@@ -1,4 +1,17 @@
-export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
+const CHARACTER_ANIMATIONS = Object.freeze({
+  vanguard: [
+    ['vanguard-idle','Idle'],['vanguard-run','Run'],['vanguard-overhand-strike','Overhand Strike'],
+    ['vanguard-undercut-strike','Undercut Strike'],['vanguard-attack2-uppercut','Attack 2 Uppercut'],
+    ['vanguard-horizontal-strike','Horizontal Slash'],['vanguard-shoulder-charge','Shoulder Charge'],
+    ['vanguard-butt-smash','Butt Smash'],['vanguard-attack5','Attack 5 Jab'],['vanguard-jump','Jump'],
+    ['vanguard-midair','Mid-Air'],['vanguard-land','Land'],['vanguard-shotgun-reload','Shotgun Reload'],
+    ['vanguard-shotgun-fire','Shotgun Fire']
+  ],
+  swarmling: [['swarmling-run','Run']]
+});
+const DEFAULT_ANIMATION = Object.freeze({vanguard:'vanguard-idle',swarmling:'swarmling-run'});
+
+export function createProceduralReviewShell({title,animation,accent='#59d5e8',character=null}){
   const app=document.querySelector('#app');
   app.innerHTML=`
   <style>
@@ -22,22 +35,8 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
   @media(max-width:820px){html,body,#app{min-height:100%;height:auto;overflow-y:auto;-webkit-overflow-scrolling:touch}.layout{display:block;min-height:auto}.stagewrap{min-height:auto}.side{border-left:0;border-top:1px solid var(--line);min-height:auto;overflow:visible;padding-bottom:32dvh}.viewport{height:56dvh;min-height:360px}.transport{grid-template-columns:auto auto minmax(100px,1fr)}.transport .time{grid-column:1/-1}.anim-select{min-width:0;flex:1}}
   </style>
   <header class="top"><strong>Pose Lab V2 · Procedural</strong><span class="pill">LIVE</span>
-    <select class="anim-select" data-animation>
-      <option value="vanguard-idle">Vanguard · Idle</option>
-      <option value="vanguard-run">Vanguard · Run</option>
-      <option value="vanguard-overhand-strike">Vanguard · Overhand Strike</option>
-      <option value="vanguard-undercut-strike">Vanguard · Undercut Strike</option>
-      <option value="vanguard-attack2-uppercut">Vanguard · Attack 2 Uppercut</option>
-      <option value="vanguard-horizontal-strike">Vanguard · Horizontal Slash</option>
-      <option value="vanguard-shoulder-charge">Vanguard · Shoulder Charge</option>
-      <option value="vanguard-butt-smash">Vanguard · Butt Smash</option>
-      <option value="vanguard-attack5">Vanguard · Attack 5 Jab</option>
-      <option value="vanguard-jump">Vanguard · Jump</option>
-      <option value="vanguard-midair">Vanguard · Mid-Air</option>
-      <option value="vanguard-land">Vanguard · Land</option>
-      <option value="vanguard-shotgun-reload">Vanguard · Shotgun Reload</option>
-      <option value="vanguard-shotgun-fire">Vanguard · Shotgun Fire</option>
-    </select>
+    <select class="anim-select" data-character aria-label="Character"></select>
+    <select class="anim-select" data-animation aria-label="Animation"></select>
     <span class="spacer"></span><button data-profiles>Profiles</button>
   </header>
   <div class="layout">
@@ -50,22 +49,30 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8'}){
       <div class="transport"><button data-play>❚❚</button><button data-restart>↺</button><input data-scrub type="range" min="0" max="1" step=".001" value="0"><span class="time" data-time></span></div>
     </section>
     <aside class="side"><div class="meta">Animation</div><div style="font-weight:850" data-title>${title}</div><div class="phase" data-phase></div><div class="kv" data-kv></div>
-      <div class="meta">Vanguard uses one canonical review position across animations. Drag the stage to pan when zoomed.</div>
+      <div class="meta">Character-specific animation lists share one procedural review surface. Drag the stage to pan when zoomed.</div>
       <details><summary>Recipe</summary><pre data-recipe></pre></details>
     </aside>
   </div>`;
 
   const q=s=>app.querySelector(s), canvas=q('[data-canvas]'), viewport=q('[data-viewport]'), holder=q('[data-holder]');
-  const zoomInput=q('[data-zoom]'), zoomReadout=q('[data-zoom-readout]'), select=q('[data-animation]');
+  const zoomInput=q('[data-zoom]'), zoomReadout=q('[data-zoom-readout]'), select=q('[data-animation]'), characterSelect=q('[data-character]');
+  const activeCharacter=character || (String(animation).startsWith('swarmling-')?'swarmling':'vanguard');
+  for(const id of Object.keys(CHARACTER_ANIMATIONS)){
+    const o=document.createElement('option');o.value=id;o.textContent=id==='vanguard'?'Vanguard':'Swarmling';characterSelect.append(o);
+  }
+  characterSelect.value=activeCharacter;
+  for(const [id,label] of CHARACTER_ANIMATIONS[activeCharacter]){
+    const o=document.createElement('option');o.value=id;o.textContent=label;select.append(o);
+  }
   select.value=animation;
-  select.onchange=()=>{
-    const p=new URLSearchParams(location.search);
-    const rev=p.get('rev');
-    const nocache=p.get('nocache');
-    location.href='./motion.html?procedural='+encodeURIComponent(select.value)
+  const go=(next)=>{
+    const p=new URLSearchParams(location.search),rev=p.get('rev'),nocache=p.get('nocache');
+    location.href='./motion.html?procedural='+encodeURIComponent(next)
       +(rev?'&rev='+encodeURIComponent(rev):'')
       +(nocache?'&nocache='+encodeURIComponent(nocache):'');
   };
+  characterSelect.onchange=()=>go(DEFAULT_ANIMATION[characterSelect.value]);
+  select.onchange=()=>go(select.value);
   q('[data-profiles]').onclick=()=>location.href='./motion.html';
 
   let zoom=1,panX=0,panY=0,drag=false,sx=0,sy=0,px=0,py=0;

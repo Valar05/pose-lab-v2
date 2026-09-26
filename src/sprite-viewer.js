@@ -1,24 +1,7 @@
 import { MAX_PLAYBACK_SPEED, MIN_PLAYBACK_SPEED, PLAYBACK_SPEED_STEP, formatPlaybackSpeed, readPlaybackSpeed, writePlaybackSpeed } from './playback-preferences.js';
 const URL_PARAMS = new URLSearchParams(window.location.search);
-const CHARACTER_MANIFESTS = Object.freeze({
-  vanguard: { label: 'Vanguard', manifest: './assets/vanguard/fleshpunk/animations.json' },
-  swarmling: { label: 'Swarmling', manifest: './assets/vanguard/fleshpunk/characters/swarmling/animations.json' },
-});
-const DEFAULT_CHARACTER = 'vanguard';
-const explicitManifest = URL_PARAMS.get('manifest');
-const requestedCharacter = URL_PARAMS.get('character');
-
-function characterForManifest(manifestValue) {
-  if (!manifestValue) return null;
-  const requestedPath = new URL(manifestValue, window.location.href).pathname;
-  return Object.entries(CHARACTER_MANIFESTS)
-    .find(([, entry]) => new URL(entry.manifest, window.location.href).pathname === requestedPath)?.[0] || null;
-}
-
-const activeCharacterId = CHARACTER_MANIFESTS[requestedCharacter]
-  ? requestedCharacter
-  : characterForManifest(explicitManifest) || DEFAULT_CHARACTER;
-const manifestUrl = new URL(explicitManifest || CHARACTER_MANIFESTS[activeCharacterId].manifest, window.location.href);
+const DEFAULT_MANIFEST = './assets/vanguard/fleshpunk/animations.json';
+const manifestUrl = new URL(URL_PARAMS.get('manifest') || DEFAULT_MANIFEST, window.location.href);
 const app = document.querySelector('#app');
 const initialPlaybackSpeed = readPlaybackSpeed();
 
@@ -64,12 +47,6 @@ app.innerHTML = `
             <p class="sprite-eyebrow">Animation</p>
             <h2 data-animation-title>Loading…</h2>
           </div>
-          <label class="sprite-character-picker">
-            <span>Character</span>
-            <select data-character-picker aria-label="Character">
-              ${Object.entries(CHARACTER_MANIFESTS).map(([id, entry]) => `<option value="${id}">${entry.label}</option>`).join('')}
-            </select>
-          </label>
           <a data-contact-sheet target="_blank" rel="noreferrer">Open contact sheet</a>
         </div>
 
@@ -144,9 +121,7 @@ const deltaContext = deltaCanvas.getContext('2d', { willReadFrequently: true });
 const groundGuide = app.querySelector('[data-ground-guide]');
 const animationTitle = app.querySelector('[data-animation-title]');
 const animationPicker = app.querySelector('[data-animation-picker]');
-const characterPicker = app.querySelector('[data-character-picker]');
 const contactSheetLink = app.querySelector('[data-contact-sheet]');
-characterPicker.value = activeCharacterId;
 const playButton = app.querySelector('[data-play]');
 const previousButton = app.querySelector('[data-previous]');
 const nextButton = app.querySelector('[data-next]');
@@ -532,7 +507,6 @@ function setAnimation(id, { speak = false } = {}) {
   if (!manualZoom) fitStage();
   const nextUrl = new URL(window.location.href);
   nextUrl.searchParams.set('view', '2d');
-  nextUrl.searchParams.set('character', activeCharacterId);
   nextUrl.searchParams.set('animation', animation.id);
   history.replaceState(null, '', nextUrl);
   if (wasPlaying) play();
@@ -580,7 +554,6 @@ async function boot() {
     document.title = `${manifest.character} · 2D Review`;
     document.body.dataset.reviewReady = '1';
     document.body.dataset.reviewMode = '2d';
-    document.body.dataset.reviewCharacter = activeCharacterId;
   } catch (error) {
     document.body.dataset.bootFailed = '1';
     app.innerHTML = `
@@ -593,18 +566,6 @@ async function boot() {
   }
 }
 
-characterPicker.addEventListener('change', () => {
-  const characterId = characterPicker.value;
-  const selected = CHARACTER_MANIFESTS[characterId];
-  if (!selected || characterId === activeCharacterId) return;
-  const nextUrl = new URL(window.location.href);
-  nextUrl.searchParams.set('view', '2d');
-  nextUrl.searchParams.set('character', characterId);
-  nextUrl.searchParams.set('manifest', selected.manifest);
-  nextUrl.searchParams.delete('animation');
-  nextUrl.searchParams.delete('batch');
-  window.location.href = nextUrl.toString();
-});
 
 playButton.addEventListener('click', () => {
   if (playing) pause({ speak: true });

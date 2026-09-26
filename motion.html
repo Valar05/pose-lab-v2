@@ -21,11 +21,13 @@
     <script type="module">
       const params = new URLSearchParams(location.search);
       const procedural = params.get('procedural');
-      const modulePath = (procedural === 'vanguard-run' || procedural === 'vanguard-idle')
-        ? './src/procedural-run-preview.js'
-        : procedural
-          ? './src/procedural-motion-preview.js'
-          : './src/motion-profile-editor.js';
+      const modulePath = procedural === 'swarmling-run'
+        ? './src/procedural-swarmling-preview.js'
+        : (procedural === 'vanguard-run' || procedural === 'vanguard-idle')
+          ? './src/procedural-run-preview.js'
+          : procedural
+            ? './src/procedural-motion-preview.js'
+            : './src/motion-profile-editor.js';
       const rev = params.get('rev');
       const importPath = rev ? modulePath + '?rev=' + encodeURIComponent(rev) : modulePath;
       import(importPath).catch((error) => {
