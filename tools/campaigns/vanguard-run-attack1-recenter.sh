@@ -8,27 +8,24 @@ W="$L/worktree"
 
 RUN_REL="public/assets/vanguard/procedural/run.recipe.json"
 ATTACK1_REL="public/assets/vanguard/procedural/overhand-strike.recipe.json"
+ATLAS_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+
 RUN="$P/$RUN_REL"
 ATTACK1="$P/$ATTACK1_REL"
-
-# Visual recenter only, derived from Drew's 2026-09-25 review recording.
-# Positive X = screen-right. Negative X = screen-left.
-RUN_DX=3
-ATTACK1_DX=-20
+ATLAS="$P/$ATLAS_REL"
 
 cd "$P"
 
 cat   AGENTS.md   docs/POSE_LAB_CAMPAIGN_RULES.md   docs/POSE_IS_GOD.md   docs/VANGUARD_ATLAS_AUTHORITY.md   >/dev/null
 
 echo "============================================================"
-echo " VANGUARD RUN + ATTACK 1 RECENTER"
+echo " VANGUARD RUN + ATTACK 1 TRUE RECENTER"
 echo "============================================================"
-echo "MISSION=fix forward by recentering Run and Attack 1 only"
-echo "ATTACK1=Vanguard Overhand Strike (first golden procedural Vanguard attack)"
-echo "WRITABLE=$RUN_REL canvas.anchor[0] only; $ATTACK1_REL stage.centerX only"
-echo "RUN_DX=$RUN_DX"
-echo "ATTACK1_DX=$ATTACK1_DX"
-echo "LOCKED=one canonical atlas; atlas pixels; cells; timing; effects; registration; deformation; Y placement; every other recipe"
+echo "MISSION=recenter in the coordinate system the renderers actually use"
+echo "RUN=trimmed sprite center -> canvas X 215; remove per-cell horizontal offsets"
+echo "ATTACK1=derive stage.centerX from canonical atlas cell-2 visible foreground center"
+echo "WRITABLE=$RUN_REL horizontal center/offsetX only; $ATTACK1_REL stage.centerX only"
+echo "LOCKED=atlas bytes; pose cells; Y; timing; effects; deformation; scales; anchor points; every other recipe"
 
 mkdir -p "$L/run-attack1-recenter"
 
@@ -51,88 +48,119 @@ START="$(git rev-parse HEAD)"
 echo "START_HEAD=$START"
 
 echo
-echo "=== VERIFY TARGET IDENTITY + ONE-ATLAS CONTRACT ==="
-python3 - "$RUN" "$ATTACK1" <<'PY'
-from pathlib import Path
-import json,sys
-
-run=json.loads(Path(sys.argv[1]).read_text())
-atk=json.loads(Path(sys.argv[2]).read_text())
-
-assert run["id"]=="vanguard-sixframe-run-procedural-v1", f"STOP: unexpected run id {run.get('id')}"
-assert atk["id"]=="vanguard-overhand-strike-procedural-proof-v4", f"STOP: Attack 1 identity changed: {atk.get('id')}"
-
-assert run["atlas"]["file"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
-assert atk["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
-
-assert run["atlas"]["size"]==[1037,1754]
-assert atk["atlases"]["vanguard-canonical"]["size"]==[1037,1754]
-
-print("RUN_ID=CONFIRMED")
-print("ATTACK1_ID=VANGUARD_OVERHAND_STRIKE_CONFIRMED")
-print("ONE_ATLAS=CONFIRMED")
-PY
+echo "=== SNAPSHOT LOCKED INPUTS ==="
+ATLAS_SHA="$(sha256sum "$ATLAS" | awk '{print $1}')"
+cp "$RUN" "$L/run-attack1-recenter/run-before.json"
+cp "$ATTACK1" "$L/run-attack1-recenter/attack1-before.json"
+echo "ATLAS_SHA256=$ATLAS_SHA"
 
 echo
-echo "=== APPLY HORIZONTAL RECENTER ONLY ==="
-python3 - "$RUN" "$ATTACK1" "$RUN_DX" "$ATTACK1_DX" "$L/run-attack1-recenter" <<'PY'
+echo "=== RECENTER FROM RENDERER GEOMETRY ==="
+python3 - "$RUN" "$ATTACK1" "$ATLAS" <<'PY'
+from PIL import Image
 from pathlib import Path
-import copy,hashlib,json,sys
+import copy,json,math,sys
 
-run_p=Path(sys.argv[1])
-atk_p=Path(sys.argv[2])
-run_dx=int(sys.argv[3])
-atk_dx=int(sys.argv[4])
-receipt_dir=Path(sys.argv[5])
-
+run_p,atk_p,atlas_p=map(Path,sys.argv[1:])
 run=json.loads(run_p.read_text())
 atk=json.loads(atk_p.read_text())
 run_before=copy.deepcopy(run)
 atk_before=copy.deepcopy(atk)
 
-receipt_dir.mkdir(parents=True,exist_ok=True)
-(receipt_dir/"run-before.json").write_text(json.dumps(run_before,indent=2)+"\n")
-(receipt_dir/"attack1-before.json").write_text(json.dumps(atk_before,indent=2)+"\n")
+assert run["id"]=="vanguard-sixframe-run-procedural-v1"
+assert atk["id"]=="vanguard-overhand-strike-procedural-proof-v4"
+assert run["atlas"]["file"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+assert atk["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 
-run_old=int(run["canvas"]["anchor"][0])
-atk_old=int(atk["stage"]["centerX"])
+# RUN renderer contract:
+# it trims each atlas cell to its occupied sprite, anchors that trimmed image at
+# its horizontal midpoint, then applies canvas.anchor.x + per-cell offsetX.
+# Therefore true horizontal recenter is exact and simple.
+run_old_anchor=run["canvas"]["anchor"][0]
+run["canvas"]["anchor"][0]=215
+run_old_offsets={}
+for cell in ("49","50","51","52","53","54"):
+    reg=run["registration"]["byCell"][cell]
+    run_old_offsets[cell]=reg["offsetX"]
+    reg["offsetX"]=0
 
-run["canvas"]["anchor"][0]=run_old+run_dx
-atk["stage"]["centerX"]=atk_old+atk_dx
+# ATTACK 1 renderer contract:
+# stageOffsetX centers the full source cell, not the visible foreground.
+# Measure visible cell-2 foreground using the exact renderer blue-key rule, then
+# compensate stage.centerX so the visible idle sprite center lands on X=215.
+spec=atk["atlases"]["vanguard-canonical"]
+src=atk["sources"]["idle"]
+assert src["cell"]==2
+assert src["atlas"]=="vanguard-canonical"
+im=Image.open(atlas_p).convert("RGBA")
+assert list(im.size)==spec["size"]
 
+idx=src["cell"]-int(spec.get("indexBase",1))
+col=idx%int(spec["columns"])
+row=idx//int(spec["columns"])
+x0=round(col*im.width/int(spec["columns"]))
+x1=round((col+1)*im.width/int(spec["columns"]))
+rb=spec.get("rowBounds",{})
+if str(row) in rb:
+    y0,y1=map(int,rb[str(row)])
+else:
+    y0=round(row*im.height/int(spec["rows"]))
+    y1=round((row+1)*im.height/int(spec["rows"]))
+
+cell=im.crop((x0,y0,x1,y1))
+px=cell.load()
+xs=[];ys=[]
+for y in range(cell.height):
+    for x in range(cell.width):
+        R,G,B,A=px[x,y]
+        if B>110 and B>R+35 and B>G+35:
+            continue
+        if A>8:
+            xs.append(x);ys.append(y)
+
+assert xs, "STOP: Attack 1 idle cell foreground empty after blue key"
+minx,maxx=min(xs),max(xs)
+bbox_center=(minx+maxx)/2
+cell_center=cell.width/2
+body_scale=float(atk.get("bodyScale",1))
+idle_reg=float(src.get("registrationOffset",[0,0])[0] or 0)
+visual_delta=idle_reg+(bbox_center-cell_center)*body_scale
+
+atk_old_center=int(atk["stage"]["centerX"])
+atk_new_center=round(215-visual_delta)
+atk["stage"]["centerX"]=atk_new_center
+
+# Fail closed: only approved horizontal-centering properties may differ.
 def scrub_run(o):
     x=copy.deepcopy(o)
-    x["canvas"]["anchor"][0]="__HORIZONTAL_CENTER__"
+    x["canvas"]["anchor"][0]="__CENTER_X__"
+    for c in ("49","50","51","52","53","54"):
+        x["registration"]["byCell"][c]["offsetX"]="__CENTER_X__"
     return x
 
 def scrub_atk(o):
     x=copy.deepcopy(o)
-    x["stage"]["centerX"]="__HORIZONTAL_CENTER__"
+    x["stage"]["centerX"]="__CENTER_X__"
     return x
 
-assert scrub_run(run_before)==scrub_run(run), "STOP: Run mutation escaped canvas.anchor[0]"
-assert scrub_atk(atk_before)==scrub_atk(atk), "STOP: Attack 1 mutation escaped stage.centerX"
-
-# Explicit locks called out because these are the failure-prone properties.
-assert run["poses"]==run_before["poses"]
-assert run["registration"]==run_before["registration"]
-assert run["cycleMs"]==run_before["cycleMs"]
-assert run["blendWindow"]==run_before["blendWindow"]
-assert run["bodyScale"]==run_before["bodyScale"]
-
-for key in ("sources","phases","effect","bodyScale","rootMotion","atlases"):
-    assert atk[key]==atk_before[key], f"STOP: Attack 1 locked property changed: {key}"
+assert scrub_run(run)==scrub_run(run_before), "STOP: Run mutation escaped horizontal recenter surface"
+assert scrub_atk(atk)==scrub_atk(atk_before), "STOP: Attack 1 mutation escaped stage.centerX"
 
 run_p.write_text(json.dumps(run,indent=2)+"\n")
 atk_p.write_text(json.dumps(atk,indent=2)+"\n")
 
-print(f"RUN_CENTER_X={run_old}->{run['canvas']['anchor'][0]}")
-print(f"ATTACK1_CENTER_X={atk_old}->{atk['stage']['centerX']}")
-print("Y_PLACEMENT=UNCHANGED")
+print(f"RUN_CANVAS_CENTER_X={run_old_anchor}->215")
+print("RUN_OFFSET_X_BEFORE="+json.dumps(run_old_offsets,sort_keys=True))
+print("RUN_OFFSET_X_AFTER=all-zero")
+print(f"ATTACK1_IDLE_CELL_WIDTH={cell.width}")
+print(f"ATTACK1_IDLE_FOREGROUND_BBOX_X={minx}..{maxx}")
+print(f"ATTACK1_IDLE_VISIBLE_DELTA_FROM_CELL_CENTER={visual_delta:.3f}px")
+print(f"ATTACK1_STAGE_CENTER_X={atk_old_center}->{atk_new_center}")
+print("TARGET_VISIBLE_CENTER_X=215")
+print("Y=UNCHANGED")
 print("TIMING=UNCHANGED")
 print("EFFECTS=UNCHANGED")
-print("REGISTRATION=UNCHANGED")
-print("POSE_CELLS=UNCHANGED")
+print("POSES=UNCHANGED")
 PY
 
 echo
@@ -150,10 +178,15 @@ for F in "${CHANGED[@]}"; do
   esac
 done
 
+[ "$(sha256sum "$ATLAS" | awk '{print $1}')" = "$ATLAS_SHA" ] || {
+  echo "STOP: canonical atlas changed"
+  exit 1
+}
+
 echo
 echo "=== COMMIT + PUSH ==="
 git add "$RUN_REL" "$ATTACK1_REL"
-git commit -m "Recenter Vanguard run and attack one"
+git commit -m "Truly recenter Vanguard run and attack one"
 git push origin main
 REV="$(git rev-parse HEAD)"
 echo "REV=$REV"
@@ -163,25 +196,29 @@ echo "=== COMMITTED READBACK ==="
 git show "$REV:$RUN_REL" > "$L/run-attack1-recenter/run-committed.json"
 git show "$REV:$ATTACK1_REL" > "$L/run-attack1-recenter/attack1-committed.json"
 
-python3 -   "$L/run-attack1-recenter/run-before.json"   "$L/run-attack1-recenter/attack1-before.json"   "$L/run-attack1-recenter/run-committed.json"   "$L/run-attack1-recenter/attack1-committed.json"   "$RUN_DX" "$ATTACK1_DX" <<'PY'
+python3 -   "$L/run-attack1-recenter/run-before.json"   "$L/run-attack1-recenter/attack1-before.json"   "$L/run-attack1-recenter/run-committed.json"   "$L/run-attack1-recenter/attack1-committed.json" <<'PY'
 import copy,json,sys
 rb=json.load(open(sys.argv[1]))
 ab=json.load(open(sys.argv[2]))
 r=json.load(open(sys.argv[3]))
 a=json.load(open(sys.argv[4]))
-rdx=int(sys.argv[5]); adx=int(sys.argv[6])
 
-assert r["canvas"]["anchor"][0]==rb["canvas"]["anchor"][0]+rdx
-assert a["stage"]["centerX"]==ab["stage"]["centerX"]+adx
+assert r["canvas"]["anchor"][0]==215
+assert all(r["registration"]["byCell"][c]["offsetX"]==0 for c in ("49","50","51","52","53","54"))
 
-rr=copy.deepcopy(r); rr["canvas"]["anchor"][0]=rb["canvas"]["anchor"][0]
-aa=copy.deepcopy(a); aa["stage"]["centerX"]=ab["stage"]["centerX"]
+def scrub_run(o):
+    x=copy.deepcopy(o)
+    x["canvas"]["anchor"][0]="__CENTER_X__"
+    for c in ("49","50","51","52","53","54"):
+        x["registration"]["byCell"][c]["offsetX"]="__CENTER_X__"
+    return x
+def scrub_atk(o):
+    x=copy.deepcopy(o);x["stage"]["centerX"]="__CENTER_X__";return x
 
-assert rr==rb, "STOP: committed Run changed outside horizontal center"
-assert aa==ab, "STOP: committed Attack 1 changed outside horizontal center"
-
+assert scrub_run(r)==scrub_run(rb)
+assert scrub_atk(a)==scrub_atk(ab)
 print("COMMITTED_READBACK=PASS")
-print("AUTHORIZED_MUTATION=2_HORIZONTAL_CENTER_SCALARS_ONLY")
+print("AUTHORIZED_SURFACE=HORIZONTAL_CENTERING_ONLY")
 PY
 
 echo
@@ -214,7 +251,7 @@ ATTACK1_URL="http://127.0.0.1:8766/motion.html?procedural=vanguard-overhand-stri
 
 echo
 echo "============================================================"
-echo " RUN + ATTACK 1 RECENTER DEPLOYED"
+echo " RUN + ATTACK 1 TRUE RECENTER DEPLOYED"
 echo "============================================================"
 echo "REV=$REV"
 echo "RUN_REVIEW=$RUN_URL"
