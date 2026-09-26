@@ -197,10 +197,10 @@ PY
 echo
 echo "=== DIFF GUARD ==="
 mapfile -t CHANGED < <(git diff --name-only)
-printf 'changed=%s\n' "\${CHANGED[@]}"
-[ "\${#CHANGED[@]}" -eq 2 ] || { echo "STOP: expected fire recipe + renderer only"; exit 1; }
-printf '%s\n' "\${CHANGED[@]}" | grep -Fxq "$FIRE_REL"
-printf '%s\n' "\${CHANGED[@]}" | grep -Fxq "$RENDERER_REL"
+printf 'changed=%s\n' "${CHANGED[@]}"
+[ "${#CHANGED[@]}" -eq 2 ] || { echo "STOP: expected fire recipe + renderer only"; exit 1; }
+printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$FIRE_REL"
+printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$RENDERER_REL"
 
 [ "$(sha256sum "$SHELL_REL"|awk '{print $1}')" = "$SHELL_SHA" ] || { echo "STOP: shell changed"; exit 1; }
 [ "$(sha256sum "$RELOAD_REL"|awk '{print $1}')" = "$RELOAD_SHA" ] || { echo "STOP: reload changed"; exit 1; }
