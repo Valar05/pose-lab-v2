@@ -10,11 +10,11 @@ ATLAS_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-90.png"
 ATLAS="$P/$ATLAS_REL"
 
 RELOAD="/storage/emulated/0/Download/vanguard-shotgun-reload-source-original.jpg"
-FIRE="/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856 (1).png"
+FIRE="/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856.png"
 CAL="/storage/emulated/0/Download/vanguard-pose-atlas-reload-calibrated-15pct-smaller.png"
 
 RH="b9f877a233d080792da17c32a4072ddce564d8dd795cbb4368aaeb7f4bdbdc5b"
-FH="7b9dfc774870b8fbbdcc4d821a03c2fa9e820d4caec05b8220f668ad00bae9b6"
+FH="ef055143656bcace7a688c7c6f484c828718edb93814a8d75d542be8a968c438"
 CH="005c0b0f199a72f93735f9072b8b34ba313bf600294c03a21ea81d266e2fe015"
 
 cd "$P"
