@@ -57,19 +57,34 @@ echo "=== RESOLVE SOURCE ART BY DECODED PIXEL SHA ==="
 mapfile -d '' SRC < <(python3 - <<'PY'
 from PIL import Image
 from pathlib import Path
-import hashlib, os, sys
+import fnmatch, hashlib, os, sys
 
 targets=[
- ("reload",(1536,512),"c32f1590a435aea696de34ebe5f4a89c9039d1bc7fac368a8c77ac180bf177e6",[
-   Path("/storage/emulated/0/Download/vanguard-shotgun-reload-source-original.jpg")
- ]),
- ("fire",(1536,512),"0acca93d08ed0b14f2bbcc9d308593f61297a5cb427e78a9a38935a6b5c903e6",[
-   Path("/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856 (1).png"),
-   Path("/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856.png")
- ]),
- ("cal",(1037,1632),"db8bdbc7c8a3411b10ff5d29b40200884ca41d26db450b0392dc5a672b469a72",[
-   Path("/storage/emulated/0/Download/vanguard-pose-atlas-reload-calibrated-15pct-smaller.png")
- ]),
+ {
+  "label":"reload","size":(1536,512),
+  "pixel_sha":"c32f1590a435aea696de34ebe5f4a89c9039d1bc7fac368a8c77ac180bf177e6",
+  "byte_sizes":{184990},
+  "patterns":["vanguard-shotgun-reload-source-original*","920832*"],
+  "preferred":[Path("/storage/emulated/0/Download/vanguard-shotgun-reload-source-original.jpg")],
+ },
+ {
+  "label":"fire","size":(1536,512),
+  "pixel_sha":"0acca93d08ed0b14f2bbcc9d308593f61297a5cb427e78a9a38935a6b5c903e6",
+  "byte_sizes":{176696},
+  "patterns":["*be1481f5a3f60d247fb48856*","vanguard-shotgun-fire-source-original*"],
+  "preferred":[
+    Path("/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856.png"),
+    Path("/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856 (1).png"),
+    Path("/storage/emulated/0/Download/vanguard-shotgun-fire-source-original.png"),
+  ],
+ },
+ {
+  "label":"cal","size":(1037,1632),
+  "pixel_sha":"db8bdbc7c8a3411b10ff5d29b40200884ca41d26db450b0392dc5a672b469a72",
+  "byte_sizes":{909304},
+  "patterns":["vanguard-pose-atlas-reload-calibrated-15pct-smaller*"],
+  "preferred":[Path("/storage/emulated/0/Download/vanguard-pose-atlas-reload-calibrated-15pct-smaller.png")],
+ },
 ]
 
 roots=[Path("/storage/emulated/0/Download"),Path("/storage/emulated/0/Pictures")]
@@ -78,14 +93,19 @@ def pixsig(p):
     try:
         im=Image.open(p).convert("RGB")
         return im.size, hashlib.sha256(im.tobytes()).hexdigest()
-    except Exception:
+    except Exception as e:
+        print(f"SKIP unreadable={p} err={e}",file=sys.stderr)
         return None,None
 
-def candidates(preferred):
+def bounded_candidates(t):
     seen=set()
-    for p in preferred:
+    for p in t["preferred"]:
         if p not in seen:
-            seen.add(p); yield p
+            seen.add(p)
+            yield p
+
+    # Metadata-only walk. Decode only candidates matching known basename patterns
+    # or known encoded byte sizes. Final authority remains exact decoded pixel SHA.
     for root in roots:
         if not root.exists(): continue
         for dirpath,dirs,files in os.walk(root):
@@ -93,21 +113,45 @@ def candidates(preferred):
             if len(rel.parts)>=4:
                 dirs[:]=[]
             for name in files:
-                if not name.lower().endswith((".png",".jpg",".jpeg")): continue
+                low=name.lower()
+                if not low.endswith((".png",".jpg",".jpeg")):
+                    continue
                 p=Path(dirpath)/name
-                if p in seen: continue
-                seen.add(p); yield p
+                if p in seen:
+                    continue
+                try:
+                    size=p.stat().st_size
+                except OSError:
+                    continue
+                name_hit=any(fnmatch.fnmatch(name,pat) for pat in t["patterns"])
+                size_hit=size in t["byte_sizes"]
+                if not (name_hit or size_hit):
+                    continue
+                seen.add(p)
+                yield p
 
 resolved=[]
-for label,size,want,preferred in targets:
+for t in targets:
+    tested=[]
     found=None
-    for p in candidates(preferred):
-        got_size,got=pixsig(p)
-        if got_size==size and got==want:
+    for p in bounded_candidates(t):
+        if not p.is_file():
+            continue
+        tested.append(str(p))
+        print(f"CANDIDATE {t['label']}={p}",file=sys.stderr,flush=True)
+        got_size,got_sha=pixsig(p)
+        if got_size==t["size"] and got_sha==t["pixel_sha"]:
             found=p
+            print(f"RESOLVED {t['label']}={p}",file=sys.stderr,flush=True)
             break
     if found is None:
-        print(f"STOP: exact decoded-pixel source not found for {label} size={size} pixel_sha={want}",file=sys.stderr)
+        print(
+          f"STOP: exact decoded-pixel source not found for {t['label']} "
+          f"size={t['size']} pixel_sha={t['pixel_sha']} tested={len(tested)}",
+          file=sys.stderr
+        )
+        for p in tested[:20]:
+            print(f"  tested={p}",file=sys.stderr)
         sys.exit(41)
     resolved.append(found)
 
@@ -123,7 +167,6 @@ CAL="${SRC[2]}"
 echo "RESOLVED_RELOAD=$RELOAD"
 echo "RESOLVED_FIRE=$FIRE"
 echo "RESOLVED_CAL=$CAL"
-
 echo
 echo "=== REBUILD EXACT 1037x1728 ATLAS ==="
 cp "$ATLAS" "$L/atlas-1728-rebuild/before-4168.png"
