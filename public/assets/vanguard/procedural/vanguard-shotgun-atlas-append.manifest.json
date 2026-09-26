@@ -21,7 +21,7 @@
       1037,
       1754
     ],
-    "sha256": "d01cf5beb73dc7a6b6fccca8aa1d2745014f64b4ad6a284cab2e1d35c8eeedbd",
+    "sha256": "bdd8206dc1f7d7dcc2e45938f7925c1f3a9b853e3a70d390640bf13276a07f02",
     "rowBounds": {
       "16": [
         1645,
@@ -50,5 +50,62 @@
       "path": "/storage/emulated/0/Download/vanguard-pose-atlas-reload-calibrated-15pct-smaller.png",
       "pixelSha256": "db8bdbc7c8a3411b10ff5d29b40200884ca41d26db450b0392dc5a672b469a72"
     }
+  },
+  "refinement": {
+    "kind": "shotgun-size-red-v3",
+    "humanVerdict": "pending",
+    "relativeScaleFromPreviousCandidate": 0.9,
+    "targetForegroundHeight": 67,
+    "sharedScaleFromAuthoredSources": {
+      "reload": 0.14135021097046413,
+      "fire": 0.10307692307692308
+    },
+    "color": {
+      "rMultiplier": 1.07,
+      "gMultiplier": 0.91,
+      "bMultiplier": 0.88,
+      "saturation": 1.1,
+      "contrast": 1.05,
+      "brightness": 0.98
+    },
+    "placements": {
+      "97": [
+        57,
+        1682,
+        59,
+        67
+      ],
+      "98": [
+        230,
+        1682,
+        59,
+        67
+      ],
+      "99": [
+        402,
+        1682,
+        59,
+        67
+      ],
+      "100": [
+        572,
+        1683,
+        64,
+        66
+      ],
+      "101": [
+        744,
+        1682,
+        66,
+        67
+      ],
+      "102": [
+        919,
+        1682,
+        63,
+        67
+      ]
+    },
+    "horizontalPlacement": "restored stage.centerX 215 in reload/fire recipes"
   }
 }
