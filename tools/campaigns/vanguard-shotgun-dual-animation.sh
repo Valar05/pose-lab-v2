@@ -28,12 +28,12 @@ cat \
 echo "============================================================"
 echo " VANGUARD SHOTGUN RIGHT-NUDGE CAMPAIGN"
 echo "============================================================"
-echo "MISSION=nudge Reload and Shotgun Fire 6px right as whole composites"
+echo "MISSION=nudge Reload and Shotgun Fire 25px right as whole composites"
 echo "PRIMARY_WORKTREE=READ_ONLY"
 echo "WRITABLE=$RELOAD_REL stage.centerX only"
 echo "WRITABLE+=$FIRE_REL stage.centerX only"
 echo "LOCKED=atlas pixels; source cells 97-102; effect bytes/placement; timing; deformation; renderer; dropdown; every other recipe"
-echo "TARGET_CENTER_X=221"
+echo "TARGET_CENTER_X=240"
 
 echo
 echo "=== DIRTY / DIVERGENCE PREFLIGHT ==="
@@ -91,7 +91,7 @@ canon="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 for name,d in (("reload",reload),("fire",fire)):
     assert d["atlases"]["vanguard-canonical"]["path"]==canon
     assert d["stage"]["centerSource"]=="idle"
-    assert d["stage"]["centerX"]==215, f"STOP: {name} stage.centerX changed: {d['stage']['centerX']}"
+    assert d["stage"]["centerX"]==221, f"STOP: {name} stage.centerX changed: {d['stage']['centerX']}"
 
 assert [reload["sources"][k]["cell"] for k in ("open","shell","close")]==[97,98,99]
 assert [fire["sources"][k]["cell"] for k in ("brace","drive","recoil")]==[100,101,102]
@@ -103,8 +103,8 @@ assert manifest["newCells"]["100"]=="shotgun fire brace"
 reload_before=copy.deepcopy(reload)
 fire_before=copy.deepcopy(fire)
 
-reload["stage"]["centerX"]=221
-fire["stage"]["centerX"]=221
+reload["stage"]["centerX"]=240
+fire["stage"]["centerX"]=240
 
 def normalized(d):
     x=copy.deepcopy(d)
@@ -117,9 +117,9 @@ assert normalized(fire)==normalized(fire_before), "STOP: fire mutation escaped s
 rp.write_text(json.dumps(reload,indent=2)+"\n")
 fp.write_text(json.dumps(fire,indent=2)+"\n")
 
-print("RELOAD_CENTER_X=215->221")
-print("FIRE_CENTER_X=215->221")
-print("NUDGE=+6px")
+print("RELOAD_CENTER_X=221->240")
+print("FIRE_CENTER_X=221->240")
+print("NUDGE=+19px_FROM_CURRENT; +25px_FROM_ORIGINAL")
 print("CELLS_97_102=UNCHANGED")
 print("EFFECT=UNCHANGED")
 print("TIMING=UNCHANGED")
@@ -164,8 +164,8 @@ python3 - "$L/reload-committed.json" "$L/fire-committed.json" <<'PY'
 import json,sys
 r=json.load(open(sys.argv[1]))
 f=json.load(open(sys.argv[2]))
-assert r["stage"]["centerX"]==221
-assert f["stage"]["centerX"]==221
+assert r["stage"]["centerX"]==240
+assert f["stage"]["centerX"]==240
 assert [r["sources"][k]["cell"] for k in ("open","shell","close")]==[97,98,99]
 assert [f["sources"][k]["cell"] for k in ("brace","drive","recoil")]==[100,101,102]
 print("COMMITTED_READBACK=PASS")
