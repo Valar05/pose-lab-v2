@@ -527,6 +527,7 @@ The receipt is for the next fresh chat. It must not require access to the conver
 
 ### Transport-stable raster identity and baked calibration — 2026-09-25
 - When a user-authored raster source has been re-encoded by phone/chat transport but its decoded RGB pixels are identical, exact dimensions + SHA-256 of decoded RGB pixels may serve as mechanical source identity. Never accept filename, timestamp, byte count, or dimensions alone.
+- Source resolution by decoded-pixel identity must use a bounded candidate set derived from known paths/basenames/patterns and optional byte-size prefilters, then verify the authoritative pixel SHA. Never decode/hash the user's entire Downloads/Pictures image corpus in a campaign.
 - Byte SHA remains the authority when exact encoded bytes matter (for example an accepted runtime effect). Pixel SHA is only for source-art identity across lossless/re-encoded containers.
 - Once exact source identity is established, do not use connected-component selection to discard legitimate separated geometry such as hair, weapon tips, shells, or detached silhouette details. Use the full foreground bbox inside the proven authored frame partition.
 - A named calibration artifact that already encodes a requested relative correction (for example `*-15pct-smaller`) is the post-correction authority. Never apply the same percentage a second time.
