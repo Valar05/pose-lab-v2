@@ -69,7 +69,7 @@ assert atk["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural
 
 norm=manifest["normalization"]
 assert norm["kind"]=="uniform-whole-image-resize"
-assert norm["sourceSize"]==[968,1536]
+assert manifest["sourceSize"]==[968,1536]
 assert norm["outputSize"]==[1037,1645]
 scale=float(norm["scale"])
 assert abs(scale-(1037/968))<1e-12
