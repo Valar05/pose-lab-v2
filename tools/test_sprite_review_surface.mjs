@@ -90,7 +90,7 @@ assert(viewer.includes('buildDeltaImage') && viewer.includes("stack.classList.to
 assert(!css.includes('sprite-onion-previous {\n  transform:') && !css.includes('sprite-onion-next {\n  transform:'), '2D inspection must not invent frame motion');
 assert(viewer.includes("document.body.dataset.reviewReady = '1'"), '2D review must expose a visual-capture readiness signal');
 assert(viewer.includes('const CHARACTER_MANIFESTS = Object.freeze({'), '2D review must keep a dedicated character registry');
-assert(viewer.includes("swarmling: { label: 'Swarmling', manifest: './assets/swarmling/fleshpunk/animations.json' }"), 'Swarmling must have its own manifest namespace');
+assert(viewer.includes("swarmling: { label: 'Swarmling', manifest: './assets/vanguard/fleshpunk/characters/swarmling/animations.json' }"), 'Swarmling must live in the Vanguard-side 2D sprite namespace');
 assert(viewer.includes('data-character-picker'), '2D review must expose a separate character selector');
 assert(viewer.includes("nextUrl.searchParams.delete('animation')"), 'character changes must not carry an animation id across characters');
 assert(viewer.includes("nextUrl.searchParams.delete('batch')"), 'character changes must not leak Vanguard batch state into another character');
@@ -133,6 +133,30 @@ if (fs.existsSync(path.join(root, swarmlingManifestPath))) {
     const size = pngSize(bytes);
     assert(size.width === 512 && size.height === 512, `Swarmling Idle frame ${index} changed dimensions`);
     assert(sha256(bytes) === frame.sha256, `Swarmling Idle frame ${index} changed approved bytes`);
+  }
+}
+
+
+const spriteSwarmlingPath = 'public/assets/vanguard/fleshpunk/characters/swarmling/animations.json';
+assert(fs.existsSync(path.join(root, spriteSwarmlingPath)), 'Vanguard-side Swarmling manifest is missing');
+if (fs.existsSync(path.join(root, spriteSwarmlingPath))) {
+  const s = JSON.parse(read(spriteSwarmlingPath).toString('utf8'));
+  const base = 'public/assets/vanguard/fleshpunk/characters/swarmling';
+  assert(s.character === 'Swarmling', 'sprite character name changed');
+  assert(s.lineage === 'vanguard-side-2d-sprite', 'sprite Swarmling lineage changed');
+  assert(s.defaultAnimation === 'run', 'Run must be default');
+  assert(s.frameSpace?.width === 256 && s.frameSpace?.height === 256, 'accepted cell geometry changed');
+  assert(s.authority?.sourceByteSha256 === '2a9ee9cc38a4b695d9a561bdce08eab71671de261fcae9e07b1f6a44f55f6f91', 'accepted source changed');
+  const run = s.animations?.[0];
+  assert(run?.id === 'run' && run.frames?.length === 6, 'Run must contain six frames');
+  assert(run.frames.every((f,i) => f.sourceCell === i+1 && f.durationMs === 80), 'Run order/timing changed');
+  for (const [i,f] of run.frames.entries()) {
+    const rel=path.join(base,f.src);
+    assert(fs.existsSync(path.join(root,rel)), `sprite Swarmling frame ${i} missing`);
+    if (!fs.existsSync(path.join(root,rel))) continue;
+    const bytes=read(rel), size=pngSize(bytes);
+    assert(size.width === 256 && size.height === 256, `sprite Swarmling frame ${i} geometry changed`);
+    assert(sha256(bytes) === f.sha256, `sprite Swarmling frame ${i} bytes changed`);
   }
 }
 

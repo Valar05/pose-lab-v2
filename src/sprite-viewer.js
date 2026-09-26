@@ -2,7 +2,7 @@ import { MAX_PLAYBACK_SPEED, MIN_PLAYBACK_SPEED, PLAYBACK_SPEED_STEP, formatPlay
 const URL_PARAMS = new URLSearchParams(window.location.search);
 const CHARACTER_MANIFESTS = Object.freeze({
   vanguard: { label: 'Vanguard', manifest: './assets/vanguard/fleshpunk/animations.json' },
-  swarmling: { label: 'Swarmling', manifest: './assets/swarmling/fleshpunk/animations.json' },
+  swarmling: { label: 'Swarmling', manifest: './assets/vanguard/fleshpunk/characters/swarmling/animations.json' },
 });
 const DEFAULT_CHARACTER = 'vanguard';
 const explicitManifest = URL_PARAMS.get('manifest');

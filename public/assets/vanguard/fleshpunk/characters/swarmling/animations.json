@@ -1,0 +1,81 @@
+{
+  "schema": "pose-lab-v2-2d-animation-set-v1",
+  "status": "quarantined",
+  "character": "Swarmling",
+  "lineage": "vanguard-side-2d-sprite",
+  "defaultAnimation": "run",
+  "frameSpace": {
+    "width": 256,
+    "height": 256,
+    "colorMode": "RGBA",
+    "background": "transparent",
+    "facing": "source-authored",
+    "camera": "fixed"
+  },
+  "authority": {
+    "source": "source/swarmling-approved-atlas.png",
+    "sourceByteSha256": "2a9ee9cc38a4b695d9a561bdce08eab71671de261fcae9e07b1f6a44f55f6f91",
+    "sourceRgbaPixelSha256": "d69d58e50ff26345a45230ea85f1e5d7eaad1d843c8a1774d8c92845f8f599ad",
+    "sourceLayout": {
+      "columns": 6,
+      "rows": 4,
+      "cellWidth": 256,
+      "cellHeight": 256
+    },
+    "scale": "already accepted; no additional resize",
+    "excludedLineage": "authoring/swarmling/** and public/assets/swarmling/fleshpunk/**"
+  },
+  "animations": [
+    {
+      "id": "run",
+      "label": "Run",
+      "loop": true,
+      "contactSheet": "run/contact-sheet.png",
+      "groundGuideY": 255,
+      "contract": [
+        "cells 1-6",
+        "80ms each",
+        "no resize",
+        "no generated in-betweens"
+      ],
+      "frames": [
+        {
+          "src": "run/frames/run_0000.png",
+          "durationMs": 80,
+          "sourceCell": 1,
+          "sha256": "193b2aa957d6784e7608f2f309201646bd993a51fdc8847d5ec5d8bfcf8bb9a9"
+        },
+        {
+          "src": "run/frames/run_0001.png",
+          "durationMs": 80,
+          "sourceCell": 2,
+          "sha256": "d05ac68a93db825724d0c0534b859ea8fa2f0bf77c805d097855fde9fc19aa79"
+        },
+        {
+          "src": "run/frames/run_0002.png",
+          "durationMs": 80,
+          "sourceCell": 3,
+          "sha256": "c341a92d228ef3dc48322993ce9136835cff63cdeb42d391c0cc60b53d7273dd"
+        },
+        {
+          "src": "run/frames/run_0003.png",
+          "durationMs": 80,
+          "sourceCell": 4,
+          "sha256": "a15a31627e6edfd0faad0921575b18cbf076063d74e3d88af049f70502c19f87"
+        },
+        {
+          "src": "run/frames/run_0004.png",
+          "durationMs": 80,
+          "sourceCell": 5,
+          "sha256": "636b4f8bd363d39db6781953e78964d7ca3d02ebd2072b3df4d1c691856c9d7d"
+        },
+        {
+          "src": "run/frames/run_0005.png",
+          "durationMs": 80,
+          "sourceCell": 6,
+          "sha256": "71d1bd900b8d88ef0ee1b6944c208f95d1be1417d411b24adf67710cb0d3c9ec"
+        }
+      ]
+    }
+  ]
+}
