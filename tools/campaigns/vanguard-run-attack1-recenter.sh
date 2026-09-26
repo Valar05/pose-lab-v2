@@ -32,10 +32,39 @@ mkdir -p "$L/run-attack1-recenter"
 echo
 echo "=== DIRTY PREFLIGHT ==="
 git status --short
-for F in "$RUN_REL" "$ATTACK1_REL" "$RENDERER_REL"; do
+
+# The immediately preceding campaign can fail after authoring Attack1 but before
+# patching/committing the renderer. Reconcile ONLY that known campaign-owned
+# partial mutation, archive it first, and leave all unrelated archaeology alone.
+if ! git diff --quiet HEAD -- "$ATTACK1_REL"; then
+  git diff -- "$ATTACK1_REL" > "$L/run-attack1-recenter/attack1.failed-prior-campaign.diff"
+  python3 - "$ATTACK1" < <(git show "HEAD:$ATTACK1_REL") <<'PY'
+import copy,json,sys
+work=json.loads(open(sys.argv[1]).read())
+head=json.load(sys.stdin)
+
+def normalize(o):
+    x=copy.deepcopy(o)
+    rb=x["atlases"]["vanguard-canonical"]["rowBounds"]
+    rb["5"]="__CAMPAIGN__"; rb["6"]="__CAMPAIGN__"
+    for key in ("idle","chamber","commit","preimpact","contact"):
+        src=x["sources"][key]
+        src.pop("backgroundKey",None)
+        src.pop("backgroundKeyThreshold",None)
+        src.pop("isolateLargestComponent",None)
+    return x
+
+assert normalize(work)==normalize(head), "STOP: Attack1 has unrelated dirty edits; archived diff only"
+print("RECOVERABLE_PRIOR_CAMPAIGN_DIRTY=YES")
+PY
+  git restore --source=HEAD -- "$ATTACK1_REL"
+  echo "RECOVERED_PRIOR_CAMPAIGN_PARTIAL=$ATTACK1_REL"
+fi
+
+for F in "$RUN_REL" "$RENDERER_REL"; do
   if ! git diff --quiet HEAD -- "$F"; then
     git diff -- "$F" > "$L/run-attack1-recenter/$(basename "$F").preflight.diff"
-    echo "STOP: target already dirty; archived diff: $F"
+    echo "STOP: unrelated target already dirty; archived diff: $F"
     exit 1
   fi
 done
@@ -127,25 +156,10 @@ import sys
 p=Path(sys.argv[1])
 s=p.read_text()
 
-old="""  const im=rc.getImageData(0,0,sw,sh),d=im.data;
-  let minX=sw,minY=sh,maxX=-1,maxY=-1;
-  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
-    const i=(y*sw+x)*4,R=d[i],G=d[i+1],B=d[i+2];
-    if(B>110&&B>R+35&&B>G+35){d[i]=0;d[i+1]=0;d[i+2]=0;d[i+3]=0;}
-    if(d[i+3]>8){
-      minX=Math.min(minX,x);minY=Math.min(minY,y);
-      maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
-    }
-  }
-  if(src.isolateLargestComponent){"""
+anchor="  if(src.isolateLargestComponent){"
+assert s.count(anchor)==1, f"STOP: expected one renderer isolation anchor, found {s.count(anchor)}"
 
-new="""  const im=rc.getImageData(0,0,sw,sh),d=im.data;
-  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
-    const i=(y*sw+x)*4,R=d[i],G=d[i+1],B=d[i+2];
-    if(B>110&&B>R+35&&B>G+35){d[i]=0;d[i+1]=0;d[i+2]=0;d[i+3]=0;}
-  }
-
-  // Optional source-local cleanup for opaque-black sprite sheets.
+feature="""  // Optional source-local cleanup for opaque-black sprite sheets.
   // Default is OFF, so every existing locked animation is behavior-identical.
   if(src.backgroundKey==='black-border'){
     const threshold=Number(src.backgroundKeyThreshold??18);
@@ -169,25 +183,27 @@ new="""  const im=rc.getImageData(0,0,sw,sh),d=im.data;
       if(y>0)push(x,y-1);
       if(y+1<sh)push(x,y+1);
     }
-  }
 
-  let minX=sw,minY=sh,maxX=-1,maxY=-1;
-  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
-    const i=(y*sw+x)*4;
-    if(d[i+3]>8){
-      minX=Math.min(minX,x);minY=Math.min(minY,y);
-      maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
+    // Bounds were measured before black-border keying. Recompute them from the
+    // post-key alpha so any later cleanup/trim sees the actual sprite only.
+    minX=sw;minY=sh;maxX=-1;maxY=-1;
+    for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+      const i=(y*sw+x)*4;
+      if(d[i+3]>8){
+        minX=Math.min(minX,x);minY=Math.min(minY,y);
+        maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
+      }
     }
   }
-  if(src.isolateLargestComponent){"""
 
-assert old in s, "STOP: renderer body-key block changed; refusing blind patch"
-s=s.replace(old,new,1)
+"""
+
+assert "src.backgroundKey==='black-border'" not in s, "STOP: renderer background-key support already present unexpectedly"
+s=s.replace(anchor,feature+anchor,1)
 p.write_text(s)
 print("RENDERER_BACKGROUND_KEY_SUPPORT=INSTALLED")
 print("DEFAULT_BEHAVIOR=UNCHANGED")
 PY
-
 node --check "$RENDERER"
 
 echo
