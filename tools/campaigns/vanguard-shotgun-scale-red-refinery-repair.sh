@@ -197,22 +197,35 @@ print("TARGET_HEIGHT_90PCT=",target_h)
 
 def split3(path):
     im=Image.open(path).convert("RGB")
-    assert im.size==(1536,512), f"STOP: authored sheet geometry changed: {path} {im.size}"
+    w,h=im.size
+    assert w%3==0, f"STOP: authored sheet is not three equal horizontal panels: {path} {im.size}"
+    panel=w//3
+    # Manifest-pinned fire carrier may be a uniform transport resize
+    # (observed 2172x724 = 3 x 724). Preserve authored layout and use
+    # one shared scale per sheet rather than forcing it back to 1536x512.
+    assert panel==h, f"STOP: authored 3-panel layout/aspect changed: {path} {im.size}"
     out=[]
     for i in range(3):
-        frame=im.crop((i*512,0,(i+1)*512,512))
+        frame=im.crop((i*panel,0,(i+1)*panel,h))
         out.append(frame.crop(bbox_nonblack(frame)))
+    print(f"SOURCE_GEOMETRY {path}={w}x{h} PANEL={panel}x{h}")
     return out
 
 reload_frames=split3(reload_src)
 fire_frames=split3(fire_src)
 
-# One shared scale across all six because both authored sheets share exact source geometry.
-source_heights=[f.height for f in reload_frames+fire_frames]
-source_median=sorted(source_heights)[len(source_heights)//2]
-scale=target_h/source_median
-print("SOURCE_HEIGHTS=",source_heights)
-print("SHARED_SCALE=",f"{scale:.8f}")
+# Each manifest-pinned authored sheet may be a different uniform carrier size.
+# Preserve within-sheet scale with ONE shared scale per 3-frame sheet.
+def sheet_scale(frames,label):
+    heights=[f.height for f in frames]
+    med=sorted(heights)[1]
+    scale=target_h/med
+    print(f"{label}_SOURCE_HEIGHTS=",heights)
+    print(f"{label}_SHARED_SCALE=",f"{scale:.8f}")
+    return scale
+
+reload_scale=sheet_scale(reload_frames,"RELOAD")
+fire_scale=sheet_scale(fire_frames,"FIRE")
 
 def red_v3(im):
     # Stronger than rejected V2, still conservative.
@@ -227,7 +240,7 @@ def red_v3(im):
     return im
 
 prepared=[]
-for label,frames in (("reload",reload_frames),("fire",fire_frames)):
+for label,frames,scale in (("reload",reload_frames,reload_scale),("fire",fire_frames,fire_scale)):
     for idx,frame in enumerate(frames,1):
         frame=red_v3(frame)
         nw=max(1,round(frame.width*scale))
@@ -276,7 +289,10 @@ manifest["refinement"]={
     "humanVerdict":"pending",
     "relativeScaleFromPreviousCandidate":0.90,
     "targetForegroundHeight":target_h,
-    "sharedScaleFromAuthoredSources":scale,
+    "sharedScaleFromAuthoredSources":{
+        "reload":reload_scale,
+        "fire":fire_scale
+    },
     "color":{
         "rMultiplier":1.07,
         "gMultiplier":0.91,
