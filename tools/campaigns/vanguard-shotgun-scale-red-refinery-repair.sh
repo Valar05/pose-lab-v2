@@ -193,4 +193,33 @@ echo "RELOAD_REVIEW=$RU"
 echo "FIRE_REVIEW=$FU"
 echo "HUMAN_VERDICT=PENDING"
 
-termux-open-url "$RU"
+echo
+echo "=== OPEN REVIEW ==="
+OPENED=0
+
+if command -v termux-open-url >/dev/null 2>&1; then
+  if termux-open-url "$RU" >/dev/null 2>&1; then
+    OPENED=1
+    echo "BROWSER_OPEN=termux-open-url"
+  fi
+fi
+
+if [ "$OPENED" -eq 0 ] && command -v am >/dev/null 2>&1; then
+  if am start -a android.intent.action.VIEW -d "$RU" >/dev/null 2>&1; then
+    OPENED=1
+    echo "BROWSER_OPEN=am"
+  fi
+fi
+
+if [ "$OPENED" -eq 0 ] && command -v cmd >/dev/null 2>&1; then
+  if cmd activity start-activity -a android.intent.action.VIEW -d "$RU" >/dev/null 2>&1; then
+    OPENED=1
+    echo "BROWSER_OPEN=cmd-activity"
+  fi
+fi
+
+[ "$OPENED" -eq 1 ] || {
+  echo "STOP: exact review is ready but Android browser launch failed"
+  echo "OPEN_THIS_URL=$RU"
+  exit 1
+}
