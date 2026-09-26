@@ -77,17 +77,15 @@ npm run build
 
 echo
 echo "=== SERVE EXACT REVISION ==="
-PORT=8766
-BASE="http://127.0.0.1:$PORT"
 
 probe_exact_server() {
-  local tmp
-  tmp="$L/probe.$$"
-  if ! curl -fsS "$BASE/assets/vanguard/procedural/overhand-strike.recipe.json" > "$tmp.recipe" 2>/dev/null; then
+  local base="$1" tmp
+  tmp="$L/probe.$"
+  if ! curl -fsS "$base/assets/vanguard/procedural/overhand-strike.recipe.json" > "$tmp.recipe" 2>/dev/null; then
     rm -f "$tmp.recipe" "$tmp.renderer"
     return 1
   fi
-  if ! curl -fsS "$BASE/src/procedural-motion-preview.js" > "$tmp.renderer" 2>/dev/null; then
+  if ! curl -fsS "$base/src/procedural-motion-preview.js" > "$tmp.renderer" 2>/dev/null; then
     rm -f "$tmp.recipe" "$tmp.renderer"
     return 1
   fi
@@ -100,37 +98,37 @@ probe_exact_server() {
   [ "$served_recipe" = "$built_recipe" ] && [ "$served_renderer" = "$built_renderer" ]
 }
 
-if probe_exact_server; then
-  echo "SERVER=REUSED_EXISTING_EXACT_BYTES"
-else
-  if [ -f "$L/server.pid" ]; then
-    OLD_PID="$(cat "$L/server.pid" 2>/dev/null || true)"
-    if [ -n "$OLD_PID" ] && kill -0 "$OLD_PID" 2>/dev/null; then
-      kill "$OLD_PID" 2>/dev/null || true
-      sleep 1
-    fi
+BASE=""
+for PORT in 8766 8767 8768 8769 8770 8771 8772 8773 8774 8775; do
+  CANDIDATE="http://127.0.0.1:$PORT"
+
+  if probe_exact_server "$CANDIDATE"; then
+    BASE="$CANDIDATE"
+    echo "SERVER=REUSED_EXISTING_EXACT_BYTES PORT=$PORT"
+    break
   fi
 
-  python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$W/dist" >"$L/server.log" 2>&1 &
+  LOG="$L/server-$PORT.log"
+  python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$W/dist" >"$LOG" 2>&1 &
   PID=$!
-  echo "$PID" > "$L/server.pid"
-  sleep 2
+  sleep 1
 
-  if ! kill -0 "$PID" 2>/dev/null; then
-    if probe_exact_server; then
-      echo "SERVER=EXISTING_PROCESS_WON_RACE_BUT_SERVES_EXACT_BYTES"
-    else
-      cat "$L/server.log"
-      echo "STOP: port $PORT is occupied by a server that does not serve this exact revision"
-      exit 1
-    fi
-  else
-    echo "SERVER=STARTED_PID_$PID"
+  if kill -0 "$PID" 2>/dev/null; then
+    echo "$PID" > "$L/server.pid"
+    echo "$PORT" > "$L/server.port"
+    BASE="$CANDIDATE"
+    echo "SERVER=STARTED_PID_$PID PORT=$PORT"
+    break
   fi
-fi
+done
 
-probe_exact_server || {
-  echo "STOP: runtime bytes do not match exact built revision"
+[ -n "$BASE" ] || {
+  echo "STOP: no review port available in 8766..8775"
+  exit 1
+}
+
+probe_exact_server "$BASE" || {
+  echo "STOP: selected runtime does not serve exact built revision"
   exit 1
 }
 
