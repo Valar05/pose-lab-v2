@@ -41,7 +41,14 @@ const loadImage=src=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i
 function rect(spec,cell){const idx=cell-(spec.indexBase||0),c=idx%spec.columns,r=Math.floor(idx/spec.columns);const x0=Math.round(c*atlas.naturalWidth/spec.columns),x1=Math.round((c+1)*atlas.naturalWidth/spec.columns),explicit=spec.rowBounds?.[String(r)],y0=explicit?Number(explicit[0]):Math.round(r*atlas.naturalHeight/spec.rows),y1=explicit?Number(explicit[1]):Math.round((r+1)*atlas.naturalHeight/spec.rows);return[x0,y0,x1-x0,y1-y0]}
 function body(sourceId){
  if(cache.has(sourceId))return cache.get(sourceId);
- const src=recipe.sources[sourceId],spec=recipe.atlases[src.atlas],[sx,sy,sw,sh]=rect(spec,src.cell);
+ const src=recipe.sources[sourceId],spec=recipe.atlases[src.atlas];
+ let [sx,sy,sw,sh]=rect(spec,src.cell);
+ if(Array.isArray(src.sourceRect)&&src.sourceRect.length===4){
+  const [rx,ry,rw,rh]=src.sourceRect.map(Number);
+  if(![rx,ry,rw,rh].every(Number.isFinite)||rw<=0||rh<=0)throw new Error('Invalid sourceRect for '+sourceId);
+  if(rx<0||ry<0||rx+rw>sw||ry+rh>sh)throw new Error('sourceRect escapes atlas cell for '+sourceId);
+  sx+=rx;sy+=ry;sw=rw;sh=rh;
+ }
 
  const raw=document.createElement('canvas');
  raw.width=sw;raw.height=sh;
