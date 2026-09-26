@@ -523,3 +523,10 @@ The receipt is for the next fresh chat. It must not require access to the conver
 - Legacy recipes may intentionally describe only the original atlas prefix (for example 1037x1536 / 15 rows) while the physical canonical atlas is taller. Their sampler must use the recipe-declared atlas height for row geometry and may accept a physical atlas whose width matches exactly and whose height is greater than or equal to the declared height.
 - A legacy compatibility change is valid only when behavior is identical when physical and declared atlas sizes are equal. Do not rewrite accepted idle/run pose recipes merely to accommodate append-only atlas growth.
 - Physical atlas height, recipe view height, and row sampling geometry are separate contracts. Never derive legacy row height from the physical expanded atlas height.
+
+
+### Transport-stable raster identity and baked calibration — 2026-09-25
+- When a user-authored raster source has been re-encoded by phone/chat transport but its decoded RGB pixels are identical, exact dimensions + SHA-256 of decoded RGB pixels may serve as mechanical source identity. Never accept filename, timestamp, byte count, or dimensions alone.
+- Byte SHA remains the authority when exact encoded bytes matter (for example an accepted runtime effect). Pixel SHA is only for source-art identity across lossless/re-encoded containers.
+- Once exact source identity is established, do not use connected-component selection to discard legitimate separated geometry such as hair, weapon tips, shells, or detached silhouette details. Use the full foreground bbox inside the proven authored frame partition.
+- A named calibration artifact that already encodes a requested relative correction (for example `*-15pct-smaller`) is the post-correction authority. Never apply the same percentage a second time.
