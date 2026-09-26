@@ -45,12 +45,44 @@ echo "START_HEAD=$START"
 
 # Preserve recipe locks before any mutation.
 LOCK_FILE="$L/atlas-1728-rebuild/recipe-locks.sha256"
+BASE90="$L/atlas-1728-rebuild/canonical-90-pose-atlas.png"
 sha256sum \
   public/assets/vanguard/procedural/idle.recipe.json \
   public/assets/vanguard/procedural/run.recipe.json \
   public/assets/vanguard/procedural/shotgun-reload.recipe.json \
   public/assets/vanguard/procedural/shotgun-fire.recipe.json \
   > "$LOCK_FILE"
+
+echo
+echo "=== RECOVER LOCKED CANONICAL CELLS 1-90 FROM RECIPE HASH + GIT ==="
+WANT90="$(python3 - <<'PY'
+import json
+with open("public/assets/vanguard/procedural/idle.recipe.json","r",encoding="utf-8") as f:
+    print(json.load(f)["atlas"]["sha256"])
+PY
+)"
+rm -f "$BASE90" "$BASE90.candidate"
+FOUND90=""
+while IFS= read -r REV90; do
+  git show "$REV90:$ATLAS_REL" > "$BASE90.candidate" 2>/dev/null || continue
+  GOT90="$(sha256sum "$BASE90.candidate" | awk '{print $1}')"
+  if [ "$GOT90" = "$WANT90" ]; then
+    mv "$BASE90.candidate" "$BASE90"
+    FOUND90="$REV90"
+    break
+  fi
+done < <(git rev-list --all -- "$ATLAS_REL")
+rm -f "$BASE90.candidate"
+[ -n "$FOUND90" ] || { echo "STOP: canonical 90-pose atlas SHA not found in Git history: $WANT90"; exit 1; }
+python3 - "$BASE90" <<'PY'
+from PIL import Image
+import sys
+im=Image.open(sys.argv[1]).convert("RGB")
+assert im.size==(1037,1536), f"STOP: locked canonical atlas has wrong dimensions {im.size}"
+print("LOCKED_CANONICAL_90_SIZE=1037x1536")
+PY
+echo "LOCKED_CANONICAL_90_SHA256=$WANT90"
+echo "LOCKED_CANONICAL_90_REV=$FOUND90"
 
 echo
 echo "=== RESOLVE SOURCE ART BY DECODED PIXEL SHA ==="
@@ -229,21 +261,23 @@ echo
 echo "=== REBUILD EXACT 1037x1728 ATLAS ==="
 cp "$ATLAS" "$L/atlas-1728-rebuild/before-4168.png"
 
-python3 - "$ATLAS" "$RELOAD" "$FIRE" "$CAL" "$L/atlas-1728-rebuild/final-1728.png" <<'PY'
+python3 - "$ATLAS" "$RELOAD" "$FIRE" "$CAL" "$BASE90" "$L/atlas-1728-rebuild/final-1728.png" <<'PY'
 from PIL import Image, ImageEnhance
 from pathlib import Path
 import hashlib, statistics, sys
 
-atlas_p,reload_p,fire_p,cal_p,out_copy=map(Path,sys.argv[1:])
+atlas_p,reload_p,fire_p,cal_p,base90_p,out_copy=map(Path,sys.argv[1:])
 atlas=Image.open(atlas_p).convert("RGB")
 reload=Image.open(reload_p).convert("RGB")
 fire=Image.open(fire_p).convert("RGB")
 cal=Image.open(cal_p).convert("RGB")
+base90=Image.open(base90_p).convert("RGB")
 
 assert atlas.size==(1037,4168), f"STOP: expected proven accidental atlas 1037x4168, got {atlas.size}"
 assert reload.size==(1536,512)
 assert fire.width==fire.height*3 and fire.height>=512, f"STOP: fire carrier must preserve exact 3-panel topology, got {fire.size}"
 assert cal.size==(1037,1632)
+assert base90.size==(1037,1536)
 
 def bbox(im,t=18):
     px=im.load(); xs=[]; ys=[]
@@ -268,15 +302,20 @@ def cell_rect(cell,y0=1536,row_h=96):
     yy0=y0+(row-15)*row_h
     return x0,yy0,x1,yy0+row_h
 
-# Prove cells 1-90 survived the accidental-growth campaigns unchanged by
-# comparing current canonical prefix against the known calibration artifact.
-assert atlas.crop((0,0,1037,1536)).tobytes()==cal.crop((0,0,1037,1536)).tobytes(), \
-    "STOP: cells 1-90 no longer match calibration authority"
+# Locked idle/run recipes carry the exact SHA of the published 90-pose atlas.
+# That historical file is the authority for cells 1-90. The calibration artifact
+# authorizes only appended reload cells 91-93.
+current_prefix=atlas.crop((0,0,1037,1536))
+if current_prefix.tobytes()==base90.tobytes():
+    print("CELLS_1_90_CURRENT=LOCKED_CANONICAL_EXACT")
+else:
+    print("CELLS_1_90_CURRENT=DRIFTED_FROM_LOCKED_CANONICAL")
+    print("CELLS_1_90_ACTION=RESTORE_FROM_RECIPE_HASHED_GIT_AUTHORITY")
 
 # Calibration already contains Drew's requested 15%-smaller correction.
 # Do NOT apply 15% again. Copy reload cells 91-93 exactly.
 out=Image.new("RGB",(1037,1728),(0,0,0))
-out.paste(atlas.crop((0,0,1037,1536)),(0,0))
+out.paste(base90,(0,0))
 
 reload_cells=[]
 for c in (91,92,93):
@@ -349,7 +388,7 @@ for c in (94,95,96,100,101,102):
 
 # Final hard proofs.
 assert out.size==(1037,1728)
-assert out.crop((0,0,1037,1536)).tobytes()==atlas.crop((0,0,1037,1536)).tobytes()
+assert out.crop((0,0,1037,1536)).tobytes()==base90.tobytes()
 for c in (91,92,93):
     x0,y0,x1,y1=cell_rect(c)
     assert out.crop((x0,y0,x1,y1)).tobytes()==cal.crop((x0,1536,x1,1632)).tobytes()
@@ -358,7 +397,7 @@ out.save(atlas_p)
 out.save(out_copy)
 print("BAD_ATLAS_SIZE=1037x4168")
 print("FINAL_ATLAS_SIZE=1037x1728")
-print("CELLS_1_90=PIXEL_IDENTICAL")
+print("CELLS_1_90=LOCKED_RECIPE_HASHED_GIT_AUTHORITY")
 print("RELOAD_91_93=CALIBRATION_EXACT")
 print("FIRE_97_99=AUTHORED_SOURCE_GUESS_V2_CANDIDATE")
 print("FINAL_SHA256="+hashlib.sha256(atlas_p.read_bytes()).hexdigest())
