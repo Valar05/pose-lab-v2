@@ -162,6 +162,7 @@ When the user requests an edit/inpaint/retouch/paint operation on an existing im
 - **Source integrity:** the supplied original remains the source. Any generated edit is a derived review candidate until accepted; it must never overwrite or become the source for later mechanical extraction without explicit acceptance.
 
 ## Append-only canonical pose atlas
+- Before any Vanguard atlas selection, append, repair, or recipe atlas mutation, read `docs/VANGUARD_ATLAS_AUTHORITY.md` and the proven reference recipe it names. The expanded canonical gameplay atlas outranks historical `vanguard-pose-atlas-90.png`; never rebuild or extend the historical atlas for new attacks.
 - Published atlas cells are immutable. Never move, resize, repack, renumber, crop, or reprocess existing cells.
 - Canonical pose-atlas growth is append-only downward in complete six-cell rows.
 - Existing atlas width is invariant. Growth may increase height only.
