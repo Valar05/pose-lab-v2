@@ -39,13 +39,53 @@ git fetch origin main
 START="$(git rev-parse HEAD)"
 echo "START_HEAD=$START"
 
-for spec in "$RELOAD:$RH" "$FIRE:$FH" "$CAL:$CH"; do
-  f="${spec%:*}"
-  h="${spec##*:}"
-  test -f "$f" || { echo "STOP: missing source $f"; exit 1; }
-  got="$(sha256sum "$f" | awk '{print $1}')"
-  [ "$got" = "$h" ] || { echo "STOP: source hash mismatch $f"; echo "got=$got"; echo "want=$h"; exit 1; }
-done
+resolve_exact_sha() {
+  local preferred="$1"
+  local want="$2"
+
+  if [ -f "$preferred" ]; then
+    local got
+    got="$(sha256sum "$preferred" | awk '{print $1}')"
+    if [ "$got" = "$want" ]; then
+      printf '%s\n' "$preferred"
+      return 0
+    fi
+  fi
+
+  local found=""
+  local f got
+  while IFS= read -r -d '' f; do
+    got="$(sha256sum "$f" 2>/dev/null | awk '{print $1}')"
+    [ "$got" = "$want" ] || continue
+    found="$f"
+    break
+  done < <(
+    find /storage/emulated/0/Download /storage/emulated/0/Pictures \
+      -maxdepth 4 -type f \
+      \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) \
+      -print0 2>/dev/null
+  )
+
+  [ -n "$found" ] || return 1
+  printf '%s\n' "$found"
+}
+
+RELOAD="$(resolve_exact_sha "$RELOAD" "$RH")" || {
+  echo "STOP: exact reload source SHA-256 not found on device: $RH"
+  exit 1
+}
+FIRE="$(resolve_exact_sha "$FIRE" "$FH")" || {
+  echo "STOP: exact fire source SHA-256 not found on device: $FH"
+  exit 1
+}
+CAL="$(resolve_exact_sha "$CAL" "$CH")" || {
+  echo "STOP: exact calibration SHA-256 not found on device: $CH"
+  exit 1
+}
+
+echo "RESOLVED_RELOAD=$RELOAD"
+echo "RESOLVED_FIRE=$FIRE"
+echo "RESOLVED_CAL=$CAL"
 
 mkdir -p "$L/shotgun-red-repair"
 cp "$ATLAS" "$L/shotgun-red-repair/before.png"
