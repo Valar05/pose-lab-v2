@@ -12,10 +12,30 @@ ctx.imageSmoothingEnabled=true;
 const play=q('[data-play]'),restart=q('[data-restart]'),scrub=q('[data-scrub]');
 const phase=q('[data-phase]'),time=q('[data-time]'),kv=q('[data-kv]');
 let manifest,run,images=[],playing=true,start=performance.now(),offset=0,total=480;
+const boundsCache=new WeakMap();
 
 const loadImage=src=>new Promise((ok,no)=>{
   const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('Could not load '+src));i.src=src;
 });
+function visibleBounds(image){
+  if(boundsCache.has(image))return boundsCache.get(image);
+  const c=document.createElement('canvas');
+  c.width=image.naturalWidth;c.height=image.naturalHeight;
+  const x=c.getContext('2d',{willReadFrequently:true});
+  x.drawImage(image,0,0);
+  const d=x.getImageData(0,0,c.width,c.height).data;
+  let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
+  for(let yy=0;yy<c.height;yy++)for(let xx=0;xx<c.width;xx++){
+    if(d[(yy*c.width+xx)*4+3]>8){
+      minX=Math.min(minX,xx);minY=Math.min(minY,yy);
+      maxX=Math.max(maxX,xx);maxY=Math.max(maxY,yy);
+    }
+  }
+  if(maxX<minX)throw new Error('Empty Swarmling frame');
+  const b={x:minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
+  boundsCache.set(image,b);
+  return b;
+}
 
 function render(ms){
   ms=((ms%total)+total)%total;
@@ -23,12 +43,14 @@ function render(ms){
   ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
   const image=images[index];
+  const b=visibleBounds(image);
   const presentationScale=1.5;
-  const drawW=Math.round(image.naturalWidth*presentationScale);
-  const drawH=Math.round(image.naturalHeight*presentationScale);
-  const x=Math.round((canvas.width-drawW)/2);
-  const y=Math.round((canvas.height-drawH)/2);
-  ctx.drawImage(image,0,0,image.naturalWidth,image.naturalHeight,x,y,drawW,drawH);
+  const anchorX=220,anchorY=226;
+  const drawW=Math.round(b.w*presentationScale);
+  const drawH=Math.round(b.h*presentationScale);
+  const x=Math.round(anchorX-drawW/2);
+  const y=Math.round(anchorY-drawH);
+  ctx.drawImage(image,b.x,b.y,b.w,b.h,x,y,drawW,drawH);
   phase.textContent='run-'+String(index+1);
   time.textContent=Math.round(ms)+' / '+total+' ms';
   scrub.value=String(ms/total);
