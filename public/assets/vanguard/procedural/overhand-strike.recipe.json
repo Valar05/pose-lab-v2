@@ -35,7 +35,7 @@
       "rowBounds": {
         "0": [
           0,
-          109
+          102
         ],
         "1": [
           102,
@@ -50,16 +50,16 @@
           410
         ],
         "4": [
-          439,
-          548
+          410,
+          512
         ],
         "5": [
-          548,
-          658
+          512,
+          614
         ],
         "6": [
-          658,
-          768
+          614,
+          717
         ],
         "7": [
           717,
@@ -421,7 +421,7 @@
     "depthSplit": 0.5
   },
   "stage": {
-    "centerX": 215,
+    "centerX": 220,
     "centerSource": "idle",
     "mode": "translate-composite-after-local-authoring"
   },
