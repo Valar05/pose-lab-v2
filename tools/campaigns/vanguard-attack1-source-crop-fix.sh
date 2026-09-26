@@ -115,7 +115,6 @@ for key,row in cell_rows.items():
 # No phase-level shift compensation may remain while pinning.
 for phase in after["phases"]:
     d=phase.get("deform",{})
-    assert NumberZero := True
     assert float(d.get("shiftX",0) or 0)==0.0, f"STOP: {phase['id']} has shiftX compensation"
     assert float(d.get("shiftY",0) or 0)==0.0, f"STOP: {phase['id']} has shiftY compensation"
 
