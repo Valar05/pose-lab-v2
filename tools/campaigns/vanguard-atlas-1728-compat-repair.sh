@@ -176,24 +176,31 @@ for t in targets:
             exact.append(p)
             print(f"  EXACT_PIXEL_MATCH",file=sys.stderr,flush=True)
             continue
-        if t["label"]=="fire" and got_size==t["size"]:
-            whole,frames=visual_signature(im)
-            dw=hdist(whole,t["dhash_whole"])
-            dfs=[hdist(a,b) for a,b in zip(frames,t["dhash_frames"])]
-            print(f"  VISUAL_FINGERPRINT whole={dw} frames={dfs}",file=sys.stderr,flush=True)
-            if dw<=8 and all(d<=6 for d in dfs):
-                perceptual.append((p,dw,dfs))
+        if t["label"]=="fire":
+            # Accept only the authored 3-panel horizontal topology. Transport may
+            # have uniformly resized the carrier, e.g. 1536x512 -> 2172x724.
+            if got_size[0]==got_size[1]*3 and got_size[1]>=512:
+                norm=im.resize(t["size"],Image.Resampling.LANCZOS)
+                whole,frames=visual_signature(norm)
+                dw=hdist(whole,t["dhash_whole"])
+                dfs=[hdist(a,b) for a,b in zip(frames,t["dhash_frames"])]
+                print(f"  NORMALIZED_VISUAL_FINGERPRINT from={got_size[0]}x{got_size[1]} whole={dw} frames={dfs}",file=sys.stderr,flush=True)
+                if dw<=8 and all(d<=6 for d in dfs):
+                    perceptual.append((p,dw,dfs,got_sha,got_size))
     if len(exact)>=1:
         found=exact[0]
         mode="exact-pixel-sha"
         if len(exact)>1:
             print(f"DUPLICATE_EXACT_CARRIERS {t['label']}={exact}; selected={found}",file=sys.stderr,flush=True)
-    elif t["label"]=="fire" and len(perceptual)==1:
+    elif t["label"]=="fire" and len(perceptual)>=1:
+        carrier_shas={x[3] for x in perceptual}
+        if len(perceptual)>1 and len(carrier_shas)>1:
+            print(f"STOP: ambiguous perceptual matches for fire: {perceptual}",file=sys.stderr)
+            sys.exit(43)
         found=perceptual[0][0]
-        mode=f"bounded-perceptual whole={perceptual[0][1]} frames={perceptual[0][2]}"
-    elif t["label"]=="fire" and len(perceptual)>1:
-        print(f"STOP: ambiguous perceptual matches for fire: {perceptual}",file=sys.stderr)
-        sys.exit(43)
+        mode=f"bounded-perceptual whole={perceptual[0][1]} frames={perceptual[0][2]} carrier={perceptual[0][4]}"
+        if len(perceptual)>1:
+            print(f"DUPLICATE_PERCEPTUAL_CARRIERS fire={[x[0] for x in perceptual]}; selected={found}",file=sys.stderr,flush=True)
     else:
         print(
           f"STOP: source identity not recovered for {t['label']} "
@@ -235,7 +242,7 @@ cal=Image.open(cal_p).convert("RGB")
 
 assert atlas.size==(1037,4168), f"STOP: expected proven accidental atlas 1037x4168, got {atlas.size}"
 assert reload.size==(1536,512)
-assert fire.size==(1536,512)
+assert fire.width==fire.height*3 and fire.height>=512, f"STOP: fire carrier must preserve exact 3-panel topology, got {fire.size}"
 assert cal.size==(1037,1632)
 
 def bbox(im,t=18):
@@ -248,8 +255,11 @@ def bbox(im,t=18):
     return min(xs),min(ys),max(xs)+1,max(ys)+1
 
 def source_frames(im):
-    # Human/source evidence establishes exactly three authored horizontal panels.
-    return [im.crop((i*512,0,(i+1)*512,512)) for i in range(3)]
+    # Human/source evidence establishes exactly three authored square panels.
+    # Carrier may be a uniform transport resize, so panel width is image height.
+    panel=im.height
+    assert im.width==panel*3
+    return [im.crop((i*panel,0,(i+1)*panel,panel)) for i in range(3)]
 
 def cell_rect(cell,y0=1536,row_h=96):
     i=cell-1; row=i//6; col=i%6
@@ -294,7 +304,11 @@ for frame,cell in zip(reload_src_frames,reload_cells):
 scale=statistics.median(ratios)
 assert max(ratios)-min(ratios)<0.04, f"STOP: calibration scale inconsistent across reload frames: {ratios}"
 print("RELOAD_CALIBRATION_RATIOS=",",".join(f"{x:.6f}" for x in ratios))
-print("SHARED_FIRE_SCALE=",f"{scale:.8f}")
+fire_scale=scale*(512/fire.height)
+print("SHARED_FIRE_SCALE_AT_512=",f"{scale:.8f}")
+print("FIRE_CARRIER_SIZE=",f"{fire.width}x{fire.height}")
+print("FIRE_TRANSPORT_COMPENSATION=",f"{512/fire.height:.8f}")
+print("FIRE_EFFECTIVE_SCALE=",f"{fire_scale:.8f}")
 
 def mild_red(im):
     # User-authorized GUESS_V2 candidate. Human review remains mandatory.
@@ -314,8 +328,8 @@ for i,frame in enumerate(fire_frames,1):
     b=bbox(frame)
     subject=frame.crop(b)
     subject=mild_red(subject)
-    nw=max(1,round(subject.width*scale))
-    nh=max(1,round(subject.height*scale))
+    nw=max(1,round(subject.width*fire_scale))
+    nh=max(1,round(subject.height*fire_scale))
     subject=subject.resize((nw,nh),Image.Resampling.LANCZOS)
     prepared.append(subject)
     print(f"FIRE_PREP_{i}={nw}x{nh}")
