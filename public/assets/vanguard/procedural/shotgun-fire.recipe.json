@@ -104,7 +104,7 @@
   },
   "bodyScale": 1.5,
   "stage": {
-    "centerX": 215,
+    "centerX": 221,
     "centerSource": "idle",
     "mode": "native-pixel-scale-ground-anchor"
   },
