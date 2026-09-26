@@ -129,10 +129,10 @@ PY
 echo
 echo "=== DIFF GUARD ==="
 mapfile -t CHANGED < <(git diff --name-only)
-printf 'changed=%s\n' "\${CHANGED[@]}"
-[ "\${#CHANGED[@]}" -eq 2 ] || { echo "STOP: expected exactly two changed files"; exit 1; }
-printf '%s\n' "\${CHANGED[@]}" | grep -Fxq "$RELOAD_REL"
-printf '%s\n' "\${CHANGED[@]}" | grep -Fxq "$FIRE_REL"
+printf 'changed=%s\n' "${CHANGED[@]}"
+[ "${#CHANGED[@]}" -eq 2 ] || { echo "STOP: expected exactly two changed files"; exit 1; }
+printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$RELOAD_REL"
+printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$FIRE_REL"
 
 [ "$(sha256sum "$SHELL_REL" | awk '{print $1}')" = "$SHELL_SHA" ] || { echo "STOP: dropdown shell changed"; exit 1; }
 [ "$(sha256sum "$RENDERER_REL" | awk '{print $1}')" = "$RENDERER_SHA" ] || { echo "STOP: renderer changed"; exit 1; }
