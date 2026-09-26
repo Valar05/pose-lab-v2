@@ -8,7 +8,6 @@ W="$L/worktree"
 
 RUN_REL="public/assets/vanguard/procedural/run.recipe.json"
 ATTACK1_REL="public/assets/vanguard/procedural/overhand-strike.recipe.json"
-
 RUN="$P/$RUN_REL"
 ATTACK1="$P/$ATTACK1_REL"
 
@@ -17,11 +16,12 @@ cd "$P"
 cat   AGENTS.md   docs/POSE_LAB_CAMPAIGN_RULES.md   docs/POSE_IS_GOD.md   docs/VANGUARD_ATLAS_AUTHORITY.md   >/dev/null
 
 echo "============================================================"
-echo " VANGUARD RUN + ATTACK 1 RECENTER — REJECTED CROP REVERT"
+echo " VANGUARD ATTACK 1 CROP CLEANUP"
 echo "============================================================"
-echo "MISSION=undo the rejected row-window experiment; keep only the measured +5px right recenter"
-echo "WRITABLE=$RUN_REL rowBounds[8] + canvas.anchor[0]; $ATTACK1_REL used rowBounds + stage.centerX"
-echo "LOCKED=atlas bytes; cells; timing; effects; registration; deformation; Y placement; every other recipe"
+echo "HUMAN_VERDICT=Run fixed; lock it"
+echo "MISSION=remove detached neighboring-row fragments from Attack 1 body sources only"
+echo "WRITABLE=$ATTACK1_REL sources.chamber/preimpact/contact isolateLargestComponent only"
+echo "LOCKED=$RUN_REL entire file; atlas bytes; rowBounds; centerX; cells; timing; effects; registration; deformation; anchors; every other recipe"
 
 mkdir -p "$L/run-attack1-recenter"
 
@@ -43,128 +43,111 @@ git fetch origin main
 START="$(git rev-parse HEAD)"
 echo "START_HEAD=$START"
 
-cp "$RUN" "$L/run-attack1-recenter/run-before.json"
+RUN_SHA="$(sha256sum "$RUN" | awk '{print $1}')"
 cp "$ATTACK1" "$L/run-attack1-recenter/attack1-before.json"
 
 echo
-echo "=== RESTORE GOOD SAMPLING + APPLY ONLY +5PX RIGHT ==="
-python3 - "$RUN" "$ATTACK1" <<'PY'
+echo "=== APPLY ATTACK 1 FRAGMENT ISOLATION ONLY ==="
+python3 - "$ATTACK1" <<'PY'
 from pathlib import Path
 import copy,json,sys
 
-run_p,atk_p=map(Path,sys.argv[1:])
-run=json.loads(run_p.read_text())
-atk=json.loads(atk_p.read_text())
-rb=copy.deepcopy(run)
-ab=copy.deepcopy(atk)
+p=Path(sys.argv[1])
+before=json.loads(p.read_text())
+after=copy.deepcopy(before)
 
-assert run["id"]=="vanguard-sixframe-run-procedural-v1"
-assert atk["id"]=="vanguard-overhand-strike-procedural-proof-v4"
-assert run["atlas"]["file"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
-assert atk["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+assert after["id"]=="vanguard-overhand-strike-procedural-proof-v4"
+assert after["stage"]["centerX"]==220
+assert after["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 
-# Human verdict: the scaled row-window experiment changed the animation for the worse.
-# Restore the exact pre-experiment sampling windows.
-run["atlas"]["rowBounds"]["8"]=[790,890]
+# Video review shows detached neighboring-row fragments during Attack 1.
+# These three source cells are the affected crops. Use the renderer's existing
+# source-local component isolation, already supported before explicit-point anchoring.
+for key,cell in (("chamber",26),("preimpact",32),("contact",35)):
+    src=after["sources"][key]
+    assert src["cell"]==cell
+    assert src["kind"]=="atlas-cell"
+    assert src["anchorMode"]=="explicit-point"
+    src["isolateLargestComponent"]=True
 
-atk_rows={
-    "0":[0,102],
-    "4":[410,512],
-    "5":[512,614],
-    "6":[614,717],
-}
-for k,v in atk_rows.items():
-    atk["atlases"]["vanguard-canonical"]["rowBounds"][k]=v
-
-# The pre-experiment review was only about ~5 px left of stage center.
-# Keep the small measured rightward recenter, and nothing else.
-run["canvas"]["anchor"][0]=220
-atk["stage"]["centerX"]=220
-
-# Preserve Run's accepted intra-cycle horizontal registration exactly.
-accepted_offsets=[-3,0,3,-3,0,3]
-assert [run["registration"]["byCell"][str(c)]["offsetX"] for c in range(49,55)]==accepted_offsets
-
-def scrub_run(o):
+def scrub(o):
     x=copy.deepcopy(o)
-    x["atlas"]["rowBounds"]["8"]="__AUTHORIZED__"
-    x["canvas"]["anchor"][0]="__AUTHORIZED__"
+    for key in ("chamber","preimpact","contact"):
+        x["sources"][key]["isolateLargestComponent"]="__AUTHORIZED__"
     return x
 
-def scrub_atk(o):
-    x=copy.deepcopy(o)
-    for k in ("0","4","5","6"):
-        x["atlases"]["vanguard-canonical"]["rowBounds"][k]="__AUTHORIZED__"
-    x["stage"]["centerX"]="__AUTHORIZED__"
-    return x
+# Normalize absent-before keys for strict comparison.
+before_cmp=copy.deepcopy(before)
+for key in ("chamber","preimpact","contact"):
+    before_cmp["sources"][key]["isolateLargestComponent"]="__AUTHORIZED__"
 
-assert scrub_run(run)==scrub_run(rb), "STOP: Run mutation escaped authorized surface"
-assert scrub_atk(atk)==scrub_atk(ab), "STOP: Attack 1 mutation escaped authorized surface"
+assert scrub(after)==before_cmp, "STOP: Attack 1 mutation escaped authorized source-local cleanup"
 
-run_p.write_text(json.dumps(run,indent=2)+"\n")
-atk_p.write_text(json.dumps(atk,indent=2)+"\n")
+p.write_text(json.dumps(after,indent=2)+"\n")
 
-print(f"RUN_ROW8={rb['atlas']['rowBounds']['8']}->[790, 890]")
-print(f"RUN_CENTER_X={rb['canvas']['anchor'][0]}->220")
-for k in ("0","4","5","6"):
-    print(f"ATTACK1_ROW{k}={ab['atlases']['vanguard-canonical']['rowBounds'][k]}->{atk_rows[k]}")
-print(f"ATTACK1_CENTER_X={ab['stage']['centerX']}->220")
-print("REJECTED_ROW_SCALING=REVERTED")
-print("POSE_CELLS=UNCHANGED")
+print("ATTACK1_CHAMBER_26=isolateLargestComponent:true")
+print("ATTACK1_PREIMPACT_32=isolateLargestComponent:true")
+print("ATTACK1_CONTACT_35=isolateLargestComponent:true")
+print("RUN=LOCKED_UNCHANGED")
+print("ROW_BOUNDS=UNCHANGED")
+print("CENTER_X=UNCHANGED")
 print("TIMING=UNCHANGED")
 print("EFFECTS=UNCHANGED")
 print("REGISTRATION=UNCHANGED")
-print("ATLAS_BYTES=UNCHANGED")
+print("ANCHOR_POINTS=UNCHANGED")
 PY
 
 echo
 echo "=== DIFF GUARD ==="
 mapfile -t CHANGED < <(git diff --name-only)
 printf 'changed=%s\n' "${CHANGED[@]}"
-[ "${#CHANGED[@]}" -eq 2 ] || {
-  echo "STOP: expected exactly Run + Attack 1 recipe diffs"
+[ "${#CHANGED[@]}" -eq 1 ] || {
+  echo "STOP: expected exactly one changed file"
   exit 1
 }
-for F in "${CHANGED[@]}"; do
-  case "$F" in
-    "$RUN_REL"|"$ATTACK1_REL") ;;
-    *) echo "STOP: unauthorized diff $F"; exit 1 ;;
-  esac
-done
+[ "${CHANGED[0]}" = "$ATTACK1_REL" ] || {
+  echo "STOP: unauthorized diff ${CHANGED[0]}"
+  exit 1
+}
+
+[ "$(sha256sum "$RUN" | awk '{print $1}')" = "$RUN_SHA" ] || {
+  echo "STOP: Run changed after human acceptance"
+  exit 1
+}
 
 echo
 echo "=== COMMIT + PUSH ==="
-git add "$RUN_REL" "$ATTACK1_REL"
-git commit -m "Revert rejected Vanguard crop change and recenter"
+git add "$ATTACK1_REL"
+git commit -m "Clean detached fragments from Vanguard attack one"
 git push origin main
 REV="$(git rev-parse HEAD)"
 echo "REV=$REV"
 
 echo
 echo "=== COMMITTED READBACK ==="
-git show "$REV:$RUN_REL" > "$L/run-attack1-recenter/run-committed.json"
 git show "$REV:$ATTACK1_REL" > "$L/run-attack1-recenter/attack1-committed.json"
 
-python3 - "$L/run-attack1-recenter/run-committed.json" "$L/run-attack1-recenter/attack1-committed.json" <<'PY'
-import json,sys
-r=json.load(open(sys.argv[1]))
+python3 - "$L/run-attack1-recenter/attack1-before.json" "$L/run-attack1-recenter/attack1-committed.json" <<'PY'
+import copy,json,sys
+b=json.load(open(sys.argv[1]))
 a=json.load(open(sys.argv[2]))
 
-assert r["atlas"]["rowBounds"]["8"]==[790,890]
-assert r["canvas"]["anchor"][0]==220
-assert [r["registration"]["byCell"][str(c)]["offsetX"] for c in range(49,55)]==[-3,0,3,-3,0,3]
+for key in ("chamber","preimpact","contact"):
+    assert a["sources"][key]["isolateLargestComponent"] is True
 
-rb=a["atlases"]["vanguard-canonical"]["rowBounds"]
-assert rb["0"]==[0,102]
-assert rb["4"]==[410,512]
-assert rb["5"]==[512,614]
-assert rb["6"]==[614,717]
-assert a["stage"]["centerX"]==220
+def scrub(o):
+    x=copy.deepcopy(o)
+    for key in ("chamber","preimpact","contact"):
+        x["sources"][key]["isolateLargestComponent"]="__AUTHORIZED__"
+    return x
 
+bb=copy.deepcopy(b)
+for key in ("chamber","preimpact","contact"):
+    bb["sources"][key]["isolateLargestComponent"]="__AUTHORIZED__"
+
+assert scrub(a)==bb
 print("COMMITTED_READBACK=PASS")
-print("RUN_ROW8=790..890")
-print("RUN_CENTER_X=220")
-print("ATTACK1_CENTER_X=220")
+print("AUTHORIZED_MUTATION=3_SOURCE_LOCAL_COMPONENT_FLAGS")
 PY
 
 echo
@@ -174,7 +157,6 @@ rm -rf "$W"
 git worktree add --detach "$W" "$REV"
 cd "$W"
 
-node --check src/procedural-run-preview.js
 node --check src/procedural-motion-preview.js
 npm run build
 
@@ -187,21 +169,20 @@ echo "$PID" > "$L/server.pid"
 sleep 2
 kill -0 "$PID" || { cat "$L/server.log"; exit 1; }
 
-for U in   assets/vanguard/procedural/vanguard-pose-atlas-expanded.png   assets/vanguard/procedural/run.recipe.json   assets/vanguard/procedural/overhand-strike.recipe.json; do
+for U in   assets/vanguard/procedural/vanguard-pose-atlas-expanded.png   assets/vanguard/procedural/overhand-strike.recipe.json; do
   curl -fsS "http://127.0.0.1:8766/$U" >/dev/null
 done
 
 STAMP="$(date +%s)"
-RUN_URL="http://127.0.0.1:8766/motion.html?procedural=vanguard-run&rev=$REV&nocache=$STAMP"
-ATTACK1_URL="http://127.0.0.1:8766/motion.html?procedural=vanguard-overhand-strike&rev=$REV&nocache=$STAMP"
+URL="http://127.0.0.1:8766/motion.html?procedural=vanguard-overhand-strike&rev=$REV&nocache=$STAMP"
 
 echo
 echo "============================================================"
-echo " RUN + ATTACK 1 RECENTER DEPLOYED"
+echo " ATTACK 1 CROP CLEANUP DEPLOYED"
 echo "============================================================"
 echo "REV=$REV"
-echo "RUN_REVIEW=$RUN_URL"
-echo "ATTACK1_REVIEW=$ATTACK1_URL"
+echo "RUN=LOCKED_ACCEPTED"
+echo "ATTACK1_REVIEW=$URL"
 echo "HUMAN_VERDICT=PENDING"
 
-termux-open-url "$RUN_URL"
+termux-open-url "$URL"
