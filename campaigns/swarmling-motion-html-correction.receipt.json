@@ -1,0 +1,15 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-motion-html-correction-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "847c0e59e48de8a6f94c4a1aff67bd3702095b75",
+  "implementationRevision": "0e60a87a7709f757d8aba2da09af7c4a9ebd5b3c",
+  "surface": "motion.html",
+  "route": "procedural=swarmling-run",
+  "preserved": [
+    "accepted Swarmling run pixels/timing",
+    "Vanguard procedural behavior",
+    "old 3D-derived Swarmling/Fleshling lineage"
+  ],
+  "humanVerdict": "pending"
+}
