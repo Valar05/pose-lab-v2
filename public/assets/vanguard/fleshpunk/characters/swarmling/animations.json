@@ -23,7 +23,28 @@
       "cellHeight": 256
     },
     "scale": "already accepted; no additional resize",
-    "excludedLineage": "authoring/swarmling/** and public/assets/swarmling/fleshpunk/**"
+    "excludedLineage": "authoring/swarmling/** and public/assets/swarmling/fleshpunk/**",
+    "timingAuthority": {
+      "repository": "Valar05/gravity-fist",
+      "revision": "e89c2adf671b06af4ce6a6c1d3f0118e68a6c274",
+      "file": "security_titan.json",
+      "role": "stopwatch only; no pose/root-motion authority",
+      "SecurityTitan": {
+        "Jab": {
+          "activeAtMs": 550,
+          "activeDurationMs": 50,
+          "attackEndMs": 1000,
+          "cooldownMs": 900
+        },
+        "Cross": {
+          "activeAtMs": 350,
+          "activeDurationMs": 50,
+          "attackEndMs": 1000,
+          "cooldownMs": 1050
+        }
+      }
+    },
+    "rootMotion": "OFF; all movement is authored later in engine. Pose Lab fixes one explicit planted-foot source anchor to the canonical stage anchor."
   },
   "animations": [
     {
@@ -74,6 +95,147 @@
           "durationMs": 80,
           "sourceCell": 6,
           "sha256": "71d1bd900b8d88ef0ee1b6944c208f95d1be1417d411b24adf67710cb0d3c9ec"
+        }
+      ]
+    },
+    {
+      "id": "jab",
+      "label": "Needle Jab",
+      "loop": true,
+      "rootMotion": false,
+      "stageAnchor": [
+        220,
+        226
+      ],
+      "timingAuthority": "SecurityTitan Cross stopwatch",
+      "combatTiming": {
+        "activeAtMs": 350,
+        "activeDurationMs": 50,
+        "attackEndMs": 1000,
+        "cooldownMs": 1050
+      },
+      "contract": [
+        "2 authored source poses",
+        "rear foot explicit and planted",
+        "no root motion",
+        "no generated in-betweens",
+        "timing authority only from SecurityTitan Cross"
+      ],
+      "frames": [
+        {
+          "sourceCell": 8,
+          "phase": "windup",
+          "durationMs": 350,
+          "anchorPoint": [
+            118,
+            250
+          ]
+        },
+        {
+          "sourceCell": 13,
+          "phase": "strike-recovery-hold",
+          "durationMs": 650,
+          "anchorPoint": [
+            112,
+            250
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rake",
+      "label": "Low Rake",
+      "loop": true,
+      "rootMotion": false,
+      "stageAnchor": [
+        220,
+        226
+      ],
+      "timingAuthority": "SecurityTitan Jab stopwatch",
+      "combatTiming": {
+        "activeAtMs": 550,
+        "activeDurationMs": 50,
+        "attackEndMs": 1000,
+        "cooldownMs": 900
+      },
+      "contract": [
+        "2 authored source poses",
+        "rear foot explicit and planted",
+        "no root motion",
+        "no generated in-betweens",
+        "timing authority only from SecurityTitan Jab"
+      ],
+      "frames": [
+        {
+          "sourceCell": 14,
+          "phase": "coil",
+          "durationMs": 550,
+          "anchorPoint": [
+            116,
+            250
+          ]
+        },
+        {
+          "sourceCell": 15,
+          "phase": "rake-recovery-hold",
+          "durationMs": 450,
+          "anchorPoint": [
+            116,
+            250
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scythe-bloom",
+      "label": "Scythe Bloom",
+      "loop": true,
+      "rootMotion": false,
+      "stageAnchor": [
+        220,
+        226
+      ],
+      "timingAuthority": "SecurityTitan Cross stopwatch with a three-pose visual split",
+      "combatTiming": {
+        "activeAtMs": 350,
+        "activeDurationMs": 50,
+        "attackEndMs": 1000,
+        "cooldownMs": 1050
+      },
+      "contract": [
+        "3 authored source poses",
+        "rear foot explicit and planted",
+        "no root motion",
+        "special attack gets a distinct follow-through pose",
+        "timing remains bounded by SecurityTitan Cross"
+      ],
+      "frames": [
+        {
+          "sourceCell": 11,
+          "phase": "coil",
+          "durationMs": 350,
+          "anchorPoint": [
+            118,
+            250
+          ]
+        },
+        {
+          "sourceCell": 15,
+          "phase": "bloom-impact",
+          "durationMs": 100,
+          "anchorPoint": [
+            116,
+            250
+          ]
+        },
+        {
+          "sourceCell": 16,
+          "phase": "follow-through",
+          "durationMs": 550,
+          "anchorPoint": [
+            116,
+            250
+          ]
         }
       ]
     }
