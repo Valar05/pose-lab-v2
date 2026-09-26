@@ -21,7 +21,7 @@
       1037,
       1754
     ],
-    "sha256": "b184bd08498fca702bdbc82b8bdd22a4e9bbc8dd0ec152c88d33f15fbdebb5d7",
+    "sha256": "54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587",
     "rowBounds": {
       "16": [
         1645,
@@ -52,7 +52,7 @@
     }
   },
   "refinement": {
-    "kind": "shotgun-color-only-v5",
+    "kind": "shotgun-color-only-v6",
     "humanVerdict": "pending",
     "relativeScaleFromPreviousCandidate": 0.9,
     "targetForegroundHeight": 67,
@@ -128,17 +128,17 @@
           67
         ],
         "rgbBefore": [
-          108.708,
-          48.17,
-          43.887
-        ],
-        "rgbAfter": [
           107.643,
           51.064,
           47.406
         ],
-        "edgeBefore": 49.4075,
-        "edgeAfter": 50.71161
+        "rgbAfter": [
+          107.643,
+          57.198,
+          55.95
+        ],
+        "edgeBefore": 50.71161,
+        "edgeAfter": 53.55297
       },
       "98": {
         "bbox": [
@@ -152,17 +152,17 @@
           67
         ],
         "rgbBefore": [
-          107.954,
-          47.85,
-          43.58
-        ],
-        "rgbAfter": [
           106.9,
           50.716,
           47.069
         ],
-        "edgeBefore": 49.56144,
-        "edgeAfter": 50.8437
+        "rgbAfter": [
+          106.9,
+          56.812,
+          55.553
+        ],
+        "edgeBefore": 50.8437,
+        "edgeAfter": 53.65039
       },
       "99": {
         "bbox": [
@@ -176,17 +176,17 @@
           67
         ],
         "rgbBefore": [
-          109.796,
-          48.757,
-          44.379
-        ],
-        "rgbAfter": [
           108.713,
           51.689,
           47.933
         ],
-        "edgeBefore": 50.10966,
-        "edgeAfter": 51.36916
+        "rgbAfter": [
+          108.713,
+          57.91,
+          56.572
+        ],
+        "edgeBefore": 51.36916,
+        "edgeAfter": 54.26656
       },
       "100": {
         "bbox": [
@@ -200,17 +200,17 @@
           66
         ],
         "rgbBefore": [
-          107.416,
-          47.455,
-          42.997
-        ],
-        "rgbAfter": [
           106.351,
           50.297,
           46.427
         ],
-        "edgeBefore": 50.3574,
-        "edgeAfter": 51.71075
+        "rgbAfter": [
+          106.262,
+          56.315,
+          54.77
+        ],
+        "edgeBefore": 51.71075,
+        "edgeAfter": 54.69541
       },
       "101": {
         "bbox": [
@@ -224,17 +224,17 @@
           67
         ],
         "rgbBefore": [
-          106.978,
-          47.035,
-          42.644
-        ],
-        "rgbAfter": [
           105.919,
           49.85,
           46.053
         ],
-        "edgeBefore": 50.03554,
-        "edgeAfter": 51.31682
+        "rgbAfter": [
+          105.919,
+          55.856,
+          54.351
+        ],
+        "edgeBefore": 51.31682,
+        "edgeAfter": 54.2958
       },
       "102": {
         "bbox": [
@@ -248,17 +248,17 @@
           67
         ],
         "rgbBefore": [
-          106.886,
-          46.853,
-          42.489
-        ],
-        "rgbAfter": [
           105.837,
           49.657,
           45.895
         ],
-        "edgeBefore": 49.58783,
-        "edgeAfter": 50.80912
+        "rgbAfter": [
+          105.745,
+          55.596,
+          54.131
+        ],
+        "edgeBefore": 50.80912,
+        "edgeAfter": 53.74123
       }
     },
     "acceptedLocks": {
@@ -266,10 +266,10 @@
       "fuzziness": "locked from human feedback"
     },
     "colorDelta": {
-      "rMultiplier": 0.99,
-      "gMultiplier": 1.06,
-      "bMultiplier": 1.08,
-      "reason": "human feedback: current candidate a little too red"
+      "rMultiplier": 1.0,
+      "gMultiplier": 1.12,
+      "bMultiplier": 1.18,
+      "reason": "human feedback: v5 still visibly too red; increase green/blue while preserving red, size, and softness"
     }
   }
 }
