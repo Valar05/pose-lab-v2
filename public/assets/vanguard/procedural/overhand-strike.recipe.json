@@ -55,10 +55,10 @@
         ],
         "5": [
           512,
-          600
+          614
         ],
         "6": [
-          608,
+          614,
           717
         ],
         "7": [
@@ -119,7 +119,9 @@
       "anchorPoint": [
         58,
         97
-      ]
+      ],
+      "backgroundKey": "black-border",
+      "backgroundKeyThreshold": 18
     },
     "chamber": {
       "kind": "atlas-cell",
@@ -135,7 +137,9 @@
       "anchorPoint": [
         64,
         84
-      ]
+      ],
+      "backgroundKey": "black-border",
+      "backgroundKeyThreshold": 18
     },
     "commit": {
       "kind": "atlas-cell",
@@ -151,7 +155,9 @@
       "anchorPoint": [
         58,
         86
-      ]
+      ],
+      "backgroundKey": "black-border",
+      "backgroundKeyThreshold": 18
     },
     "preimpact": {
       "kind": "atlas-cell",
@@ -167,7 +173,9 @@
       "anchorPoint": [
         60,
         89
-      ]
+      ],
+      "backgroundKey": "black-border",
+      "backgroundKeyThreshold": 18
     },
     "contact": {
       "kind": "atlas-cell",
@@ -183,7 +191,9 @@
       "anchorPoint": [
         46,
         89
-      ]
+      ],
+      "backgroundKey": "black-border",
+      "backgroundKeyThreshold": 18
     },
     "slash-right": {
       "kind": "effect-atlas-cell",
