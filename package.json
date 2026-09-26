@@ -95,6 +95,7 @@
     "motion:render": "python3 tools/render_motion_recipe.py",
     "motion:validate": "python3 tools/render_motion_recipe.py --validate-only",
     "animation:update": "python3 tools/animation_update.py",
-    "animation:insert": "python3 tools/animation_insert.py"
+    "animation:insert": "python3 tools/animation_insert.py",
+    "test:2d": "node tools/test_sprite_review_surface.mjs"
   }
 }
