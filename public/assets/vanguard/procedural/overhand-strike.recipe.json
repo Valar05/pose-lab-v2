@@ -134,7 +134,7 @@
       ],
       "anchorPoint": [
         64,
-        93
+        84
       ]
     },
     "commit": {
@@ -145,12 +145,12 @@
       "trim": true,
       "anchorMode": "explicit-point",
       "registrationOffset": [
-        1,
+        0,
         0
       ],
       "anchorPoint": [
         58,
-        104
+        86
       ]
     },
     "preimpact": {
@@ -161,12 +161,12 @@
       "trim": true,
       "anchorMode": "explicit-point",
       "registrationOffset": [
-        2,
+        0,
         0
       ],
       "anchorPoint": [
         60,
-        106
+        89
       ]
     },
     "contact": {
@@ -177,12 +177,12 @@
       "trim": true,
       "anchorMode": "explicit-point",
       "registrationOffset": [
-        2,
+        0,
         0
       ],
       "anchorPoint": [
         46,
-        106
+        89
       ]
     },
     "slash-right": {
