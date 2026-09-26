@@ -58,6 +58,40 @@ function body(sourceId){
      maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
    }
  }
+ // Optional source-local cleanup for opaque-black sprite sheets.
+ // Default is OFF, so every existing locked animation is behavior-identical.
+ if(src.backgroundKey==='black-border'){
+  const threshold=Number(src.backgroundKeyThreshold??18);
+  const seen=new Uint8Array(sw*sh),stack=[];
+  const isBg=(x,y)=>{
+   const i=(y*sw+x)*4;
+   return d[i+3]>8 && Math.max(d[i],d[i+1],d[i+2])<=threshold;
+  };
+  const push=(x,y)=>{
+   const i=y*sw+x;
+   if(seen[i]||!isBg(x,y))return;
+   seen[i]=1;stack.push([x,y]);
+  };
+  for(let x=0;x<sw;x++){push(x,0);push(x,sh-1);}
+  for(let y=0;y<sh;y++){push(0,y);push(sw-1,y);}
+  while(stack.length){
+   const [x,y]=stack.pop(),di=(y*sw+x)*4;
+   d[di+3]=0;
+   if(x>0)push(x-1,y);
+   if(x+1<sw)push(x+1,y);
+   if(y>0)push(x,y-1);
+   if(y+1<sh)push(x,y+1);
+  }
+  minX=sw;minY=sh;maxX=-1;maxY=-1;
+  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+   const i=(y*sw+x)*4;
+   if(d[i+3]>8){
+    minX=Math.min(minX,x);minY=Math.min(minY,y);
+    maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
+   }
+  }
+ }
+
  if(src.isolateLargestComponent){
    const seen=new Uint8Array(sw*sh),components=[];
    const neighbors=[[1,0],[-1,0],[0,1],[0,-1]];
