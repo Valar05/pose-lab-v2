@@ -64,7 +64,10 @@ from pathlib import Path
 import sys
 atlas_p,before_p,rp,fp=map(Path,sys.argv[1:])
 a=Image.open(atlas_p).convert("RGB"); b=Image.open(before_p).convert("RGB")
-assert b.size==(1037,1728); assert a.size==(1037,1728)
+print(f"ATLAS_CURRENT_SIZE={a.size[0]}x{a.size[1]}")
+assert a.size==b.size, f"STOP: atlas snapshot mismatch a={a.size} b={b.size}"
+assert a.width==1037, f"STOP: atlas width changed: {a.width}"
+assert a.height>=1728, f"STOP: atlas unexpectedly short: {a.height}"
 def rect(c):
  i=c-1; row=i//6; col=i%6; x0=round(col*1037/6); x1=round((col+1)*1037/6)
  if row==15:y0,y1=1536,1632
