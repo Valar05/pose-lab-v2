@@ -21,14 +21,14 @@
   },
   "atlases": {
     "vanguard-canonical": {
-      "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
+      "path": "assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
       "columns": 6,
       "rows": 17,
       "indexBase": 1,
       "mode": "blue-key",
       "size": [
         1037,
-        1728
+        1754
       ],
       "rowBounds": {
         "0": [
@@ -93,11 +93,11 @@
         ],
         "15": [
           1536,
-          1632
+          1645
         ],
         "16": [
-          1632,
-          1728
+          1645,
+          1754
         ]
       }
     }
@@ -109,7 +109,7 @@
     "mode": "native-pixel-scale-ground-anchor"
   },
   "id": "vanguard-shotgun-fire-procedural-v1",
-  "description": "Shotgun fire review \u00b7 97\u219298\u219299 + dedicated muzzle",
+  "description": "Shotgun fire review \u00b7 expanded-atlas 100\u2192101\u2192102 + dedicated muzzle",
   "sources": {
     "idle": {
       "kind": "atlas-cell",
@@ -125,7 +125,7 @@
     "brace": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 97,
+      "cell": 100,
       "role": "body",
       "trim": false,
       "registrationOffset": [
@@ -136,7 +136,7 @@
     "drive": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 98,
+      "cell": 101,
       "role": "body",
       "trim": false,
       "registrationOffset": [
@@ -147,7 +147,7 @@
     "recoil": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 99,
+      "cell": 102,
       "role": "body",
       "trim": false,
       "registrationOffset": [
@@ -330,6 +330,6 @@
   },
   "motionAuthority": {
     "kind": "user-authored-shotgun-fire",
-    "description": "97,98,99 are pose authority; dedicated exact muzzle; no root motion; pin/effect placement review-gated."
+    "description": "Expanded canonical atlas cells 100,101,102 are shotgun fire pose authority; dedicated exact muzzle; no root motion; pin/effect placement review-gated."
   }
 }

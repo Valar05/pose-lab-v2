@@ -1,0 +1,54 @@
+{
+  "schema": "vanguard-shotgun-expanded-atlas-append-candidate-v1",
+  "status": "quarantined",
+  "humanVerdict": "pending",
+  "baseAtlas": {
+    "path": "assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
+    "size": [
+      1037,
+      1645
+    ],
+    "sha256": "eff7a422337e8be556b59441e41b27c37d256744b73fb1beb6d4c58513ed3d55",
+    "preservedPixelRect": [
+      0,
+      0,
+      1037,
+      1645
+    ]
+  },
+  "result": {
+    "size": [
+      1037,
+      1754
+    ],
+    "sha256": "d01cf5beb73dc7a6b6fccca8aa1d2745014f64b4ad6a284cab2e1d35c8eeedbd",
+    "rowBounds": {
+      "16": [
+        1645,
+        1754
+      ]
+    }
+  },
+  "newCells": {
+    "97": "shotgun reload open",
+    "98": "shotgun reload insert",
+    "99": "shotgun reload close",
+    "100": "shotgun fire brace",
+    "101": "shotgun fire drive",
+    "102": "shotgun fire recoil"
+  },
+  "sources": {
+    "reload": {
+      "path": "/storage/emulated/0/Download/vanguard-shotgun-reload-source-original.jpg",
+      "pixelSha256": "c32f1590a435aea696de34ebe5f4a89c9039d1bc7fac368a8c77ac180bf177e6"
+    },
+    "fire": {
+      "path": "/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856 (1).png",
+      "pixelSha256": "01424c34c4b0d9bd8b7216c566b4de2be3b967d1b776d2c39ecddccc459c91b0"
+    },
+    "reloadCalibration": {
+      "path": "/storage/emulated/0/Download/vanguard-pose-atlas-reload-calibrated-15pct-smaller.png",
+      "pixelSha256": "db8bdbc7c8a3411b10ff5d29b40200884ca41d26db450b0392dc5a672b469a72"
+    }
+  }
+}

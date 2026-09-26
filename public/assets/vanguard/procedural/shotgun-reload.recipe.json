@@ -21,14 +21,14 @@
   },
   "atlases": {
     "vanguard-canonical": {
-      "path": "assets/vanguard/procedural/vanguard-pose-atlas-90.png",
+      "path": "assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
       "columns": 6,
       "rows": 17,
       "indexBase": 1,
       "mode": "blue-key",
       "size": [
         1037,
-        1728
+        1754
       ],
       "rowBounds": {
         "0": [
@@ -93,11 +93,11 @@
         ],
         "15": [
           1536,
-          1632
+          1645
         ],
         "16": [
-          1632,
-          1728
+          1645,
+          1754
         ]
       }
     }
@@ -109,7 +109,7 @@
     "mode": "native-pixel-scale-ground-anchor"
   },
   "id": "vanguard-shotgun-reload-procedural-v1",
-  "description": "Shotgun reload review \u00b7 91\u219292\u219293\u2192idle",
+  "description": "Shotgun reload review \u00b7 expanded-atlas 97\u219298\u219299\u2192idle",
   "sources": {
     "idle": {
       "kind": "atlas-cell",
@@ -125,7 +125,7 @@
     "open": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 91,
+      "cell": 97,
       "role": "body",
       "trim": false,
       "registrationOffset": [
@@ -136,7 +136,7 @@
     "shell": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 92,
+      "cell": 98,
       "role": "body",
       "trim": false,
       "registrationOffset": [
@@ -147,7 +147,7 @@
     "close": {
       "kind": "atlas-cell",
       "atlas": "vanguard-canonical",
-      "cell": 93,
+      "cell": 99,
       "role": "body",
       "trim": false,
       "registrationOffset": [
@@ -330,6 +330,6 @@
   },
   "motionAuthority": {
     "kind": "user-authored-reload",
-    "description": "91,92,93 are pose authority; no visible effect; no guessed foot point."
+    "description": "Expanded canonical atlas cells 97,98,99 are shotgun reload pose authority; no visible effect; no guessed foot point."
   }
 }
