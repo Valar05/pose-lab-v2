@@ -1,0 +1,30 @@
+{
+  "schema": "embodied-kinesis-canary-v1",
+  "stage": "baseline",
+  "action": "FistAttack1",
+  "source": {
+    "repository": "Valar05/pose-lab",
+    "path": "assets/models/FPSPlayer.glb",
+    "clip": "FistAttack1",
+    "camera": "Camera",
+    "fov": 112
+  },
+  "target": {
+    "repository": "Valar05/pose-lab-v2",
+    "path": "public/assets/meshy/meshy_apose_walking_with_skin.glb",
+    "rig": "Meshy",
+    "viewer": "Pose Lab V2 3D editor",
+    "cameraMode": "firstPerson"
+  },
+  "candidate": "fist-attack1-candidate-1",
+  "requiredPhases": ["start", "windup", "contact", "followThrough", "recoil", "end"],
+  "acceptance": {
+    "maxJointError": 0.002,
+    "requireTrueFpv": true,
+    "requireEntryExit": true,
+    "requireVisualEvidence": true,
+    "requireRegnetPass": true,
+    "requirePenelopeNoHighSeverity": true,
+    "requireVenicePresentable": true
+  }
+}
