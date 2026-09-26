@@ -3,14 +3,14 @@ set -euo pipefail
 export GIT_PAGER=cat PAGER=cat
 
 P="$HOME/storage/documents/GodotProjects/pose-lab-v2"
-L="$HOME/.local/state/pose-lab-v2-vanguard-shotgun-color-softness"
+L="$HOME/.local/state/pose-lab-v2-vanguard-shotgun-color-v5"
 A="$L/authoring"
 W="$L/review"
 
 ATLAS_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+MANIFEST_REL="public/assets/vanguard/procedural/vanguard-shotgun-atlas-append.manifest.json"
 RELOAD_REL="public/assets/vanguard/procedural/shotgun-reload.recipe.json"
 FIRE_REL="public/assets/vanguard/procedural/shotgun-fire.recipe.json"
-MANIFEST_REL="public/assets/vanguard/procedural/vanguard-shotgun-atlas-append.manifest.json"
 EFFECT_REL="public/assets/vanguard/procedural/vanguard-shotgun-fire-effect.png"
 RENDERER_REL="src/procedural-motion-preview.js"
 SHELL_REL="src/procedural-review-shell.js"
@@ -26,14 +26,14 @@ cat \
   >/dev/null
 
 echo "============================================================"
-echo " VANGUARD SHOTGUN COLOR + SOFTNESS CAMPAIGN"
+echo " VANGUARD SHOTGUN COLOR-ONLY V5"
 echo "============================================================"
-echo "MISSION=preserve current shotgun height/placement; match canonical Vanguard red + softness"
+echo "MISSION=reduce redness slightly while preserving accepted size and fuzziness exactly"
 echo "PRIMARY_WORKTREE=READ_ONLY"
-echo "APPEARANCE_AUTHORITY=canonical atlas cell 2"
-echo "WRITABLE=$ATLAS_REL cells 97-102 pixels only"
-echo "WRITABLE+=$MANIFEST_REL refinement metadata/result sha only"
-echo "LOCKED=cell geometry/placement; recipes; centerX; timing; effects; registration; renderer; dropdown; cells 1-96"
+echo "WRITABLE=$ATLAS_REL pixels inside existing foreground bboxes for cells 97-102 only"
+echo "WRITABLE+=$MANIFEST_REL result sha + color-only refinement metadata"
+echo "LOCKED=size; bbox; placement; fuzziness/softness; recipes; centerX; timing; effects; registration; renderer; dropdown; cells 1-96"
+echo "COLOR_DELTA=R*0.99 G*1.06 B*1.08"
 
 echo
 echo "=== DIRTY / DIVERGENCE PREFLIGHT ==="
@@ -62,7 +62,7 @@ rm -rf "$A"
 git worktree add --detach "$A" "$ORIGIN_HEAD"
 cd "$A"
 
-for F in "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL" "$EFFECT_REL" "$RENDERER_REL" "$SHELL_REL"; do
+for F in "$ATLAS_REL" "$MANIFEST_REL" "$RELOAD_REL" "$FIRE_REL" "$EFFECT_REL" "$RENDERER_REL" "$SHELL_REL"; do
   test -e "$F" || { echo "STOP: missing $F"; exit 1; }
 done
 
@@ -76,27 +76,28 @@ cp "$ATLAS_REL" "$L/atlas-before.png"
 cp "$MANIFEST_REL" "$L/manifest-before.json"
 
 echo
-echo "=== APPLY COLOR + SOFTNESS ONLY ==="
-python3 - "$ATLAS_REL" "$RELOAD_REL" "$MANIFEST_REL" <<'PY'
-from PIL import Image, ImageFilter, ImageStat, ImageEnhance
+echo "=== APPLY COLOR ONLY ==="
+python3 - "$ATLAS_REL" "$MANIFEST_REL" "$RELOAD_REL" <<'PY'
+from PIL import Image, ImageStat, ImageFilter
 from pathlib import Path
 import hashlib,json,sys
 
-atlas_p,recipe_p,manifest_p=map(Path,sys.argv[1:])
+atlas_p,manifest_p,recipe_p=map(Path,sys.argv[1:])
 atlas=Image.open(atlas_p).convert("RGB")
 before=atlas.copy()
-recipe=json.loads(recipe_p.read_text())
 manifest=json.loads(manifest_p.read_text())
+recipe=json.loads(recipe_p.read_text())
 
 assert atlas.size==(1037,1754)
-assert recipe["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+assert manifest.get("refinement",{}).get("kind")=="shotgun-color-softness-v4"
+assert manifest["refinement"]["geometryPolicy"]=="preserve exact current bbox/size/placement for cells 97-102"
 assert recipe["atlases"]["vanguard-canonical"]["rowBounds"]["16"]==[1645,1754]
-assert manifest.get("refinement",{}).get("targetForegroundHeight")==67
 
 cols=recipe["atlases"]["vanguard-canonical"]["columns"]
 row_bounds={int(k):v for k,v in recipe["atlases"]["vanguard-canonical"]["rowBounds"].items()}
 W=atlas.width
 THRESH=18
+GAINS=(0.99,1.06,1.08)
 
 def cell_rect(cell):
     idx=cell-1
@@ -105,7 +106,7 @@ def cell_rect(cell):
     y0,y1=row_bounds[row]
     x0=round(col*W/cols)
     x1=round((col+1)*W/cols)
-    return (x0,y0,x1,y1)
+    return x0,y0,x1,y1
 
 def bbox_nonblack(im):
     px=im.load()
@@ -125,85 +126,55 @@ def stats(im):
         for x in range(im.width):
             if max(px[x,y])>THRESH:
                 mp[x,y]=255
-    st=ImageStat.Stat(im,mask=mask)
+    rgb=ImageStat.Stat(im,mask=mask).mean[:3]
     edge=ImageStat.Stat(im.convert("L").filter(ImageFilter.FIND_EDGES),mask=mask).mean[0]
-    return [max(1.0,v) for v in st.mean[:3]], float(edge)
+    return [round(v,3) for v in rgb], round(float(edge),5)
 
-ref_cell=before.crop(cell_rect(2))
-ref_bbox=bbox_nonblack(ref_cell)
-ref=ref_cell.crop(ref_bbox)
-ref_rgb,ref_edge=stats(ref)
-print("REFERENCE_CELL=2")
-print("REFERENCE_RGB=",[round(v,2) for v in ref_rgb])
-print("REFERENCE_EDGE=",round(ref_edge,3))
-
-report={}
 out=before.copy()
+report={}
 
 for cell in range(97,103):
     rect=cell_rect(cell)
     slot=before.crop(rect)
     bb=bbox_nonblack(slot)
     crop=slot.crop(bb)
-    old_size=crop.size
     rgb0,edge0=stats(crop)
 
-    # Match canonical color ratios conservatively, with an explicit red bias.
-    gains=[]
-    for i in range(3):
-        raw=ref_rgb[i]/rgb0[i]
-        blended=1.0 + 0.70*(raw-1.0)
-        gains.append(max(0.78,min(1.30,blended)))
-    gains[0]=min(1.34,gains[0]*1.06)
-    gains[1]=max(0.74,gains[1]*0.96)
-    gains[2]=max(0.72,gains[2]*0.93)
-
     r,g,b=crop.split()
-    r=r.point(lambda v:min(255,round(v*gains[0])))
-    g=g.point(lambda v:min(255,round(v*gains[1])))
-    b=b.point(lambda v:min(255,round(v*gains[2])))
+    r=r.point(lambda v:min(255,round(v*GAINS[0])))
+    g=g.point(lambda v:min(255,round(v*GAINS[1])))
+    b=b.point(lambda v:min(255,round(v*GAINS[2])))
     tuned=Image.merge("RGB",(r,g,b))
-    tuned=ImageEnhance.Color(tuned).enhance(1.06)
 
-    # Choose the closest softness candidate to canonical cell 2.
-    candidates=[("none",tuned)]
-    for radius in (0.25,0.40,0.55,0.70,0.90):
-        candidates.append((f"blur-{radius}",tuned.filter(ImageFilter.GaussianBlur(radius))))
-    candidates.append(("sharpen",tuned.filter(ImageFilter.UnsharpMask(radius=1,percent=80,threshold=2))))
+    # No resample, no blur, no sharpen. Fuzziness and size remain mechanically locked.
+    assert tuned.size==crop.size
 
-    scored=[]
-    for name,img in candidates:
-        _,e=stats(img)
-        scored.append((abs(e-ref_edge),name,img,e))
-    _,mode,tuned,edge1=min(scored,key=lambda x:x[0])
-
-    assert tuned.size==old_size
-
-    x0,y0,x1,y1=rect
-    l,t,rgt,bot=bb
     newslot=slot.copy()
     newslot.paste((0,0,0),bb)
-    newslot.paste(tuned,(l,t))
+    newslot.paste(tuned,(bb[0],bb[1]))
+
+    # Foreground geometry must remain byte-position identical.
+    assert bbox_nonblack(newslot)==bb, f"STOP: cell {cell} bbox changed"
+
+    rgb1,edge1=stats(tuned)
+
+    # Edge metric should remain effectively unchanged because there is no blur/sharpen/resample.
+    assert abs(edge1-edge0) <= 2.0, f"STOP: cell {cell} softness drift {edge0}->{edge1}"
+
+    x0,y0,x1,y1=rect
     out.paste(newslot,(x0,y0))
 
-    # Geometry is locked exactly.
-    newbb=bbox_nonblack(newslot)
-    assert newbb==bb, f"STOP: cell {cell} bbox changed {bb}->{newbb}"
-
-    rgb1,_=stats(tuned)
     report[str(cell)]={
-        "bbox":[l,t,rgt,bot],
-        "size":[old_size[0],old_size[1]],
-        "rgbBefore":[round(v,3) for v in rgb0],
-        "rgbAfter":[round(v,3) for v in rgb1],
-        "channelGains":[round(v,5) for v in gains],
-        "edgeBefore":round(edge0,5),
-        "edgeAfter":round(edge1,5),
-        "softnessMode":mode
+        "bbox":list(bb),
+        "size":[crop.width,crop.height],
+        "rgbBefore":rgb0,
+        "rgbAfter":rgb1,
+        "edgeBefore":edge0,
+        "edgeAfter":edge1
     }
-    print(f"CELL_{cell}=size:{old_size[0]}x{old_size[1]} bbox:{bb} softness:{mode} edge:{edge0:.3f}->{edge1:.3f}")
+    print(f"CELL_{cell}=bbox:{bb} size:{crop.width}x{crop.height} rgb:{rgb0}->{rgb1} edge:{edge0}->{edge1}")
 
-# Everything above the quarantined shotgun row is immutable.
+# All non-shotgun rows remain pixel-identical.
 assert out.crop((0,0,1037,1645)).tobytes()==before.crop((0,0,1037,1645)).tobytes()
 
 out.save(atlas_p)
@@ -211,27 +182,34 @@ out.save(atlas_p)
 new_sha=hashlib.sha256(atlas_p.read_bytes()).hexdigest()
 manifest["result"]["sha256"]=new_sha
 manifest["refinement"]={
-    **manifest.get("refinement",{}),
-    "kind":"shotgun-color-softness-v4",
+    **manifest["refinement"],
+    "kind":"shotgun-color-only-v5",
     "humanVerdict":"pending",
-    "appearanceAuthority":"canonical atlas cell 2",
-    "geometryPolicy":"preserve exact current bbox/size/placement for cells 97-102",
-    "referenceRgb":[round(v,3) for v in ref_rgb],
-    "referenceEdge":round(ref_edge,5),
+    "acceptedLocks":{
+        "size":"locked from human feedback",
+        "fuzziness":"locked from human feedback"
+    },
+    "colorDelta":{
+        "rMultiplier":GAINS[0],
+        "gMultiplier":GAINS[1],
+        "bMultiplier":GAINS[2],
+        "reason":"human feedback: current candidate a little too red"
+    },
     "cells":report
 }
 manifest_p.write_text(json.dumps(manifest,indent=2)+"\n")
 
+print("COLOR_ONLY_V5=APPLIED")
+print("SIZE=UNCHANGED")
+print("FUZZINESS=UNCHANGED")
 print("ATLAS_SHA256=",new_sha)
-print("GEOMETRY_PRESERVED=YES")
-print("COLOR_SOFTNESS_V4=APPLIED")
 PY
 
 echo
 echo "=== DIFF GUARD ==="
 mapfile -t CHANGED < <(git diff --name-only)
 printf 'changed=%s\n' "${CHANGED[@]}"
-[ "${#CHANGED[@]}" -eq 2 ] || { echo "STOP: expected exactly atlas + manifest"; exit 1; }
+[ "${#CHANGED[@]}" -eq 2 ] || { echo "STOP: expected atlas + manifest only"; exit 1; }
 printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$ATLAS_REL"
 printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$MANIFEST_REL"
 
@@ -244,7 +222,7 @@ printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$MANIFEST_REL"
 echo
 echo "=== COMMIT + PUSH ==="
 git add "$ATLAS_REL" "$MANIFEST_REL"
-git commit -m "Match Vanguard shotgun color and softness"
+git commit -m "Reduce Vanguard shotgun redness"
 REV="$(git rev-parse HEAD)"
 
 git fetch origin main
@@ -259,13 +237,14 @@ echo
 echo "=== COMMITTED READBACK ==="
 git show "$REV:$MANIFEST_REL" > "$L/manifest-committed.json"
 git show "$REV:$ATLAS_REL" > "$L/atlas-committed.png"
+
 python3 - "$L/manifest-committed.json" "$L/atlas-committed.png" <<'PY'
 import hashlib,json,sys
 m=json.load(open(sys.argv[1]))
-assert m["refinement"]["kind"]=="shotgun-color-softness-v4"
+assert m["refinement"]["kind"]=="shotgun-color-only-v5"
+assert m["refinement"]["acceptedLocks"]["size"]=="locked from human feedback"
+assert m["refinement"]["acceptedLocks"]["fuzziness"]=="locked from human feedback"
 assert m["result"]["sha256"]==hashlib.sha256(open(sys.argv[2],"rb").read()).hexdigest()
-for c in map(str,range(97,103)):
-    assert c in m["refinement"]["cells"]
 print("COMMITTED_READBACK=PASS")
 PY
 
@@ -330,7 +309,7 @@ FU="$BASE_URL/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STA
 
 echo
 echo "============================================================"
-echo " SHOTGUN COLOR + SOFTNESS REVIEW READY"
+echo " SHOTGUN COLOR-ONLY V5 REVIEW READY"
 echo "============================================================"
 echo "REV=$REV"
 echo "RELOAD_REVIEW=$RU"
