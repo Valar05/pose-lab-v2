@@ -5,7 +5,7 @@ export PAGER=cat GIT_PAGER=cat
 ROOT="/storage/emulated/0/Documents/GodotProjects/pose-lab-v2"
 EXPECTED_BYTES="2a9ee9cc38a4b695d9a561bdce08eab71671de261fcae9e07b1f6a44f55f6f91"
 EXPECTED_RGBA="d69d58e50ff26345a45230ea85f1e5d7eaad1d843c8a1774d8c92845f8f599ad"
-PACKAGE_PARENT="b0262b421768477e17bdc546997e94509b413823"
+PACKAGE_PARENT="912c5c48c7cf0a9ce4eb8d56f0b9ea92a5f35cb8"
 CAMPAIGN="tools/campaigns/swarmling-vanguard-side-2d.sh"
 CONTRACT="campaigns/swarmling-vanguard-side-2d.contract.json"
 RECEIPT="campaigns/swarmling-vanguard-side-2d.receipt.json"
