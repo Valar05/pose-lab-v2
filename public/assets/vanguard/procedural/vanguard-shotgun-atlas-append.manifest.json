@@ -21,7 +21,7 @@
       1037,
       1754
     ],
-    "sha256": "5641f1e27d1caf50c29bd0526eca1ebb3def9200126c8ea7830036a640be5816",
+    "sha256": "b184bd08498fca702bdbc82b8bdd22a4e9bbc8dd0ec152c88d33f15fbdebb5d7",
     "rowBounds": {
       "16": [
         1645,
@@ -52,7 +52,7 @@
     }
   },
   "refinement": {
-    "kind": "shotgun-color-softness-v4",
+    "kind": "shotgun-color-only-v5",
     "humanVerdict": "pending",
     "relativeScaleFromPreviousCandidate": 0.9,
     "targetForegroundHeight": 67,
@@ -128,23 +128,17 @@
           67
         ],
         "rgbBefore": [
-          119.23,
-          57.489,
-          48.23
-        ],
-        "rgbAfter": [
           108.708,
           48.17,
           43.887
         ],
-        "channelGains": [
-          0.99017,
-          0.95652,
-          1.04783
+        "rgbAfter": [
+          107.643,
+          51.064,
+          47.406
         ],
-        "edgeBefore": 83.81773,
-        "edgeAfter": 49.4075,
-        "softnessMode": "blur-0.7"
+        "edgeBefore": 49.4075,
+        "edgeAfter": 50.71161
       },
       "98": {
         "bbox": [
@@ -158,23 +152,17 @@
           67
         ],
         "rgbBefore": [
-          119.003,
-          57.425,
-          48.091
-        ],
-        "rgbAfter": [
           107.954,
           47.85,
           43.58
         ],
-        "channelGains": [
-          0.99145,
-          0.95727,
-          1.05005
+        "rgbAfter": [
+          106.9,
+          50.716,
+          47.069
         ],
-        "edgeBefore": 84.40604,
-        "edgeAfter": 49.56144,
-        "softnessMode": "blur-0.7"
+        "edgeBefore": 49.56144,
+        "edgeAfter": 50.8437
       },
       "99": {
         "bbox": [
@@ -188,23 +176,17 @@
           67
         ],
         "rgbBefore": [
-          120.511,
-          58.613,
-          49.12
-        ],
-        "rgbAfter": [
           109.796,
           48.757,
           44.379
         ],
-        "channelGains": [
-          0.98302,
-          0.94371,
-          1.03389
+        "rgbAfter": [
+          108.713,
+          51.689,
+          47.933
         ],
-        "edgeBefore": 84.7847,
-        "edgeAfter": 50.10966,
-        "softnessMode": "blur-0.7"
+        "edgeBefore": 50.10966,
+        "edgeAfter": 51.36916
       },
       "100": {
         "bbox": [
@@ -218,23 +200,17 @@
           66
         ],
         "rgbBefore": [
-          117.18,
-          54.973,
-          45.055
-        ],
-        "rgbAfter": [
           107.416,
           47.455,
           42.997
         ],
-        "channelGains": [
-          1.00192,
-          0.98713,
-          1.102
+        "rgbAfter": [
+          106.351,
+          50.297,
+          46.427
         ],
-        "edgeBefore": 84.81159,
-        "edgeAfter": 50.3574,
-        "softnessMode": "blur-0.7"
+        "edgeBefore": 50.3574,
+        "edgeAfter": 51.71075
       },
       "101": {
         "bbox": [
@@ -248,23 +224,17 @@
           67
         ],
         "rgbBefore": [
-          119.115,
-          55.88,
-          45.88
-        ],
-        "rgbAfter": [
           106.978,
           47.035,
           42.644
         ],
-        "channelGains": [
-          0.99082,
-          0.97577,
-          1.08721
+        "rgbAfter": [
+          105.919,
+          49.85,
+          46.053
         ],
-        "edgeBefore": 86.49553,
-        "edgeAfter": 50.03554,
-        "softnessMode": "blur-0.7"
+        "edgeBefore": 50.03554,
+        "edgeAfter": 51.31682
       },
       "102": {
         "bbox": [
@@ -278,24 +248,28 @@
           67
         ],
         "rgbBefore": [
-          118.205,
-          54.745,
-          45.094
-        ],
-        "rgbAfter": [
           106.886,
           46.853,
           42.489
         ],
-        "channelGains": [
-          0.99599,
-          0.99003,
-          1.10129
+        "rgbAfter": [
+          105.837,
+          49.657,
+          45.895
         ],
-        "edgeBefore": 84.60679,
-        "edgeAfter": 49.58783,
-        "softnessMode": "blur-0.7"
+        "edgeBefore": 49.58783,
+        "edgeAfter": 50.80912
       }
+    },
+    "acceptedLocks": {
+      "size": "locked from human feedback",
+      "fuzziness": "locked from human feedback"
+    },
+    "colorDelta": {
+      "rMultiplier": 0.99,
+      "gMultiplier": 1.06,
+      "bMultiplier": 1.08,
+      "reason": "human feedback: current candidate a little too red"
     }
   }
 }
