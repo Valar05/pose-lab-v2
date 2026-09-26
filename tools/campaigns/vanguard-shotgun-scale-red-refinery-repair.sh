@@ -46,8 +46,14 @@ def prep(src,dst):
  im=ImageEnhance.Color(im).enhance(1.10)
  im=ImageEnhance.Brightness(im).enhance(0.90)
  # Shared relative size correction. Preserve authored 3-wide geometry.
- im=im.resize((round(im.width*0.85),round(im.height*0.85)),Image.Resampling.LANCZOS)
- im.save(dst)
+ fw=im.width//3
+ assert fw*3==im.width
+ nw=max(1,round(fw*0.85)); nh=max(1,round(im.height*0.85))
+ out=Image.new("RGB",(nw*3,nh),(0,0,0))
+ for i in range(3):
+  panel=im.crop((i*fw,0,(i+1)*fw,im.height)).resize((nw,nh),Image.Resampling.LANCZOS)
+  out.paste(panel,(i*nw,0))
+ out.save(dst)
 for a,b in ((sys.argv[1],sys.argv[2]),(sys.argv[3],sys.argv[4])): prep(a,b)
 print("REFINERY_CANDIDATE=GUESS_V1")
 print("SHARED_SCALE_MULTIPLIER=0.85")
