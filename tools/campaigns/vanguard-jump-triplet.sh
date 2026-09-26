@@ -185,9 +185,9 @@ mid.update({
     "muzzle":muzzle,
   },
   "phases":[
-    {"id":"air-a","source":"pose","durationMs":45,"deform":deform(-0.015,1.00,1.00),"effect":fx0()},
-    {"id":"air-b","source":"pose","durationMs":45,"deform":deform(0.015,1.015,0.99),"effect":fx0()},
-    {"id":"air-c","source":"pose","durationMs":45,"deform":deform(0,1.00,1.00),"effect":fx0()},
+    {"id":"air-a","source":"pose","durationMs":90,"deform":deform(-0.015,1.00,1.00),"effect":fx0()},
+    {"id":"air-b","source":"pose","durationMs":90,"deform":deform(0.015,1.015,0.99),"effect":fx0()},
+    {"id":"air-c","source":"pose","durationMs":90,"deform":deform(0,1.00,1.00),"effect":fx0()},
   ],
   "motionAuthority":{
     "kind":"canonical-atlas-jump-triplet",
@@ -204,7 +204,7 @@ land.update({
     "muzzle":muzzle,
   },
   "phases":[
-    {"id":"impact","source":"pose","durationMs":55,"deform":deform(0.04,1.04,0.94),"effect":fx0()},
+    {"id":"impact","source":"pose","durationMs":55,"deform":deform(0.04,1.06,0.92),"effect":fx0()},
     {"id":"settle","source":"pose","durationMs":65,"deform":deform(-0.02,0.99,1.02),"effect":fx0()},
     {"id":"ready","source":"pose","durationMs":30,"deform":deform(0,1.00,1.00),"effect":fx0()},
   ],
@@ -356,7 +356,7 @@ assert sum(p["durationMs"] for p in j["phases"])==160
 assert m["id"]=="vanguard-midair-procedural-v1"
 assert m["sources"]["pose"]["cell"]==17
 assert {p["source"] for p in m["phases"]}=={"pose"}
-assert sum(p["durationMs"] for p in m["phases"])==135
+assert sum(p["durationMs"] for p in m["phases"])==270
 
 assert l["id"]=="vanguard-land-procedural-v1"
 assert l["sources"]["pose"]["cell"]==18
@@ -398,7 +398,10 @@ r=open(sys.argv[4]).read()
 s=open(sys.argv[5]).read()
 assert [j["sources"]["pose"]["cell"],j["sources"]["launch"]["cell"]]==[15,16]
 assert m["sources"]["pose"]["cell"]==17
+assert [p["durationMs"] for p in m["phases"]]==[90,90,90]
 assert l["sources"]["pose"]["cell"]==18
+assert l["phases"][0]["deform"]["scaleX"]==1.06
+assert l["phases"][0]["deform"]["scaleY"]==0.92
 for x in ("vanguard-jump","vanguard-midair","vanguard-land"):
     assert x in r and x in s
 print("COMMITTED_READBACK=PASS")
@@ -469,7 +472,7 @@ echo "MIDAIR_REVIEW=$MU"
 echo "LAND_REVIEW=$LU"
 echo "SOURCE_CELLS=15,16,17,18"
 echo "JUMP_MS=160"
-echo "MIDAIR_MS=135"
+echo "MIDAIR_MS=270"
 echo "LAND_MS=150"
 echo "ROOT_MOTION=OFF"
 echo "HORIZONTAL_SHIFT=0"
