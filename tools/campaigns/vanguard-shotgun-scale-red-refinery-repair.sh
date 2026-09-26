@@ -24,7 +24,7 @@ test -f "$RELOAD" && test "$(sha256sum "$RELOAD"|awk '{print $1}')" = "$RH" || {
 test -f "$FIRE" && test "$(sha256sum "$FIRE"|awk '{print $1}')" = "$FH" || { echo "STOP: fire source authority mismatch"; exit 1; }
 # User explicitly authorized a guessed visual refinery candidate.
 # This is NOT canonical refinery authority and remains human-review quarantined.
-REFINERY="GUESS_V1:red*1.08 green*0.82 blue*0.78 contrast1.12 saturation1.10 brightness0.90"
+REFINERY="GUESS_V2:red*1.02 green*0.97 blue*0.95 contrast1.05 saturation1.03 brightness0.98"
 echo "REFINERY_CANDIDATE=$REFINERY"
 mkdir -p "$L/shotgun-red-repair"
 cp "$A" "$L/shotgun-red-repair/before.png"
@@ -38,13 +38,13 @@ def prep(src,dst):
  im=Image.open(src).convert("RGB")
  # One visual candidate transform for every pixel/frame in both batches.
  r,g,b=im.split()
- r=r.point(lambda v:min(255,round(v*1.08)))
- g=g.point(lambda v:min(255,round(v*0.82)))
- b=b.point(lambda v:min(255,round(v*0.78)))
+ r=r.point(lambda v:min(255,round(v*1.02)))
+ g=g.point(lambda v:min(255,round(v*0.97)))
+ b=b.point(lambda v:min(255,round(v*0.95)))
  im=Image.merge("RGB",(r,g,b))
- im=ImageEnhance.Contrast(im).enhance(1.12)
- im=ImageEnhance.Color(im).enhance(1.10)
- im=ImageEnhance.Brightness(im).enhance(0.90)
+ im=ImageEnhance.Contrast(im).enhance(1.05)
+ im=ImageEnhance.Color(im).enhance(1.03)
+ im=ImageEnhance.Brightness(im).enhance(0.98)
  # Shared relative size correction. Preserve authored 3-wide geometry.
  fw=im.width//3
  assert fw*3==im.width
@@ -55,7 +55,7 @@ def prep(src,dst):
   out.paste(panel,(i*nw,0))
  out.save(dst)
 for a,b in ((sys.argv[1],sys.argv[2]),(sys.argv[3],sys.argv[4])): prep(a,b)
-print("REFINERY_CANDIDATE=GUESS_V1")
+print("REFINERY_CANDIDATE=GUESS_V2")
 print("SHARED_SCALE_MULTIPLIER=0.85")
 PY
 python3 - "$A" "$L/shotgun-red-repair/before.png" "$L/shotgun-red-repair/reload-prepared.png" "$L/shotgun-red-repair/fire-prepared.png" <<'PY'
@@ -64,7 +64,7 @@ from pathlib import Path
 import sys
 atlas_p,before_p,rp,fp=map(Path,sys.argv[1:])
 a=Image.open(atlas_p).convert("RGB"); b=Image.open(before_p).convert("RGB")
-assert a.size==b.size==(1037,1728)
+assert b.size==(1037,1728); assert a.size==(1037,1728)
 def rect(c):
  i=c-1; row=i//6; col=i%6; x0=round(col*1037/6); x1=round((col+1)*1037/6)
  if row==15:y0,y1=1536,1632
@@ -89,15 +89,25 @@ for c,im in items:
  box=nonblack_bbox(im); sprite=im.crop(box); x0,y0,x1,y1=rect(c)
  measured.append((c,sprite,x1-x0,y1-y0))
  print(f"CELL {c}: sprite={sprite.width}x{sprite.height} slot={x1-x0}x{y1-y0}")
-# One shared additional fit scale across the entire six-frame batch.
-fit=min(1.0,min(min(sw/s.width,sh/s.height) for _,s,sw,sh in measured))
-print(f"SHARED_FIT_SCALE={fit:.6f}")
-for c,s,sw,sh in measured:
- if fit<1.0:
-  s=s.resize((max(1,int(s.width*fit)),max(1,int(s.height*fit))),Image.Resampling.LANCZOS)
- x0,y0,x1,y1=rect(c)
+# Never shrink useful poses again to satisfy the old 96px append row.
+# Preserve requested 0.85 preparation scale and grow ONLY the two rejected
+# append rows. Existing 0..1536 pixels remain byte-identical.
+need=max(s.height+10 for _,s,_,_ in measured)
+row_h=max(96,need)
+print(f"APPEND_ROW_HEIGHT={row_h}")
+old=a
+grown=Image.new("RGB",(1037,1536+row_h*2),(0,0,0))
+grown.paste(old.crop((0,0,1037,1536)),(0,0))
+a=grown
+def grown_rect(c):
+ i=c-1; row=i//6; col=i%6
+ x0=round(col*1037/6); x1=round((col+1)*1037/6)
+ assert row in (15,16)
+ y0=1536+(row-15)*row_h; y1=y0+row_h
+ return x0,y0,x1,y1
+for c,s,_,_ in measured:
+ x0,y0,x1,y1=grown_rect(c); sw=x1-x0; sh=y1-y0
  assert s.width<=sw and s.height<=sh
- a.paste((0,0,0),(x0,y0,x1,y1))
  a.paste(s,(x0+(sw-s.width)//2,y1-5-s.height))
 # Immutable old published rectangle and reserved slots.
 assert a.crop((0,0,1037,1536)).tobytes()==b.crop((0,0,1037,1536)).tobytes()
