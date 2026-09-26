@@ -38,10 +38,11 @@ git status --short
 # partial mutation, archive it first, and leave all unrelated archaeology alone.
 if ! git diff --quiet HEAD -- "$ATTACK1_REL"; then
   git diff -- "$ATTACK1_REL" > "$L/run-attack1-recenter/attack1.failed-prior-campaign.diff"
-  python3 - "$ATTACK1" < <(git show "HEAD:$ATTACK1_REL") <<'PY'
+  git show "HEAD:$ATTACK1_REL" > "$L/run-attack1-recenter/attack1-head-before-recovery.json"
+  python3 - "$ATTACK1" "$L/run-attack1-recenter/attack1-head-before-recovery.json" <<'PY'
 import copy,json,sys
-work=json.loads(open(sys.argv[1]).read())
-head=json.load(sys.stdin)
+work=json.load(open(sys.argv[1]))
+head=json.load(open(sys.argv[2]))
 
 def normalize(o):
     x=copy.deepcopy(o)
