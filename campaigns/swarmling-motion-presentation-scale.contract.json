@@ -1,0 +1,24 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v1",
+  "id": "swarmling-motion-presentation-scale-v1",
+  "status": "sealed-before-apply",
+  "mission": "Apply the same 1.5x motion-surface presentation scale used by Vanguard to Swarmling in motion.html, without changing Swarmling source pixels, accepted source scale, run timing, or Vanguard content.",
+  "packageParentRevision": "11d2f24926fddbb05a1f13e37fd38db7f73f53d8",
+  "authority": {
+    "presentationScale": 1.5,
+    "source": "public/assets/vanguard/fleshpunk/characters/swarmling/**"
+  },
+  "locks": [
+    "all Swarmling source pixels",
+    "accepted Swarmling source scale/fuzziness",
+    "Swarmling run cells 1-6 and 80ms cadence",
+    "all Vanguard assets and behavior",
+    "old Blender-derived Swarmling/Fleshling lineage"
+  ],
+  "writableSurface": [
+    "src/procedural-swarmling-preview.js presentation draw scale only",
+    "campaigns/swarmling-motion-presentation-scale.receipt.json"
+  ],
+  "visualGate": "motion.html?procedural=swarmling-run&rev=<exact-final-revision>&nocache=<timestamp>",
+  "humanVerdict": "pending"
+}
