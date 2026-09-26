@@ -105,14 +105,21 @@ def grown_rect(c):
  assert row in (15,16)
  y0=1536+(row-15)*row_h; y1=y0+row_h
  return x0,y0,x1,y1
-for c,s,_,_ in measured:
- x0,y0,x1,y1=grown_rect(c); sw=x1-x0; sh=y1-y0
- assert s.width<=sw and s.height<=sh
- a.paste(s,(x0+(sw-s.width)//2,y1-5-s.height))
+for cells in ((91,92,93),(97,98,99)):
+ group=[x for x in measured if x[0] in cells]
+ width_scale=min(1.0,min(sw/sprite.width for _,sprite,sw,_ in group))
+ print(f"FAMILY {cells[0]}-{cells[-1]} WIDTH_SCALE={width_scale:.6f}")
+ for c,s,_,_ in group:
+  if width_scale<1.0:
+   s=s.resize((max(1,int(s.width*width_scale)),max(1,int(s.height*width_scale))),Image.Resampling.LANCZOS)
+  x0,y0,x1,y1=grown_rect(c); sw=x1-x0; sh=y1-y0
+  assert s.width<=sw and s.height<=sh
+  a.paste(s,(x0+(sw-s.width)//2,y1-5-s.height))
 # Immutable old published rectangle and reserved slots.
 assert a.crop((0,0,1037,1536)).tobytes()==b.crop((0,0,1037,1536)).tobytes()
 for c in (94,95,96,100,101,102):
- r=rect(c); assert a.crop(r).tobytes()==b.crop(r).tobytes(),f"reserved cell {c} changed"
+ r=grown_rect(c)
+ assert max(ch[1] for ch in a.crop(r).getextrema())==0,f"reserved cell {c} populated"
 a.save(atlas_p)
 print("ATLAS_REPAIR=BUILT")
 PY
