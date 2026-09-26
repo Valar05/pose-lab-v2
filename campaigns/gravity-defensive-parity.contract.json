@@ -1,0 +1,117 @@
+{
+  "schema": "pose-lab-v2-combat-parity-contract-v1",
+  "id": "gravity-directional-parry-counter-parity-v0",
+  "status": "SEALED_BEFORE_APPLY",
+  "mission": "Prove one defensive Gravity Fist semantic across the Vanguard adapter boundary: a live directional block denies a facing hit for its full block duration, while only a facing hit inside the early counter window transitions immediately into the donor counter and global offense lockout.",
+  "sealedAtUtc": "2026-09-26T16:00:00Z",
+  "donorAuthority": {
+    "repository": "Valar05/gravity-fist",
+    "revision": "e89c2adf671b06af4ce6a6c1d3f0118e68a6c274",
+    "files": [
+      {
+        "path": "scripts/player.gd",
+        "gitBlob": "47088e150126f99a59fd25cfc6e417d374ad2d80",
+        "sha256": "851aab158c7b5ccedecd6193e5bf11d5fd75e7337d5f5911e8c489b46a16a262"
+      },
+      {
+        "path": "scenes/ai_controller.gd",
+        "gitBlob": "6f1fb8f0db6ea6a7d198c7f284748fee3db59f3f",
+        "sha256": "164c9ab759ad1b45a010dd14c7aa5ed22a0a0373435d3b221839e89357b28a86"
+      },
+      {
+        "path": "scenes/ai_conductor.gd",
+        "gitBlob": "2362fe7ecc15c40ea2baa1f2065cfa82a5d77fd1",
+        "sha256": "52da190f771bdb7a64eae4035b2142480d041d13514a09e190adbd1327cb9879"
+      },
+      {
+        "path": "player_attacks.json",
+        "gitBlob": "54c4b02bc454b86a2c01c7237000befaf03d434d",
+        "sha256": "0f1ef578b2d536c2b4ea597a5554ee863d5dd0590b203fbd39265cd3ae7373e5"
+      }
+    ],
+    "evidence": [
+      "scripts/player.gd:10-14 defines 1.0 s block, 0.5 s counter window, Headbutt counter, and 3.0 s parry offense lockout",
+      "scripts/player.gd:428-435 dispatches a horizontal swipe directly to block when stomp and Superman Punch do not take authority",
+      "scripts/player.gd:713-745 rejects block-cancelling Headbutt, preserves the standard-chain index, cancels the prior state, faces the swipe direction, and enters Block",
+      "scripts/player.gd:1221-1232 consumes Headbutt, locks conductor offense, ends Block without locomotion, restores the chain index, and starts the counter",
+      "scripts/player.gd:1253-1267 requires active block and a facing attacker; <= counter window attempts the counter; every facing hit during Block returns blocked",
+      "scripts/player.gd:1296-1337 handles the block swipe immediately and defines no block-input buffer",
+      "scripts/player.gd:1479-1488 expires Block at block_duration while keeping movement stopped",
+      "scenes/ai_controller.gd:1155-1171 and 1628-1635 consume a blocked hit, deny damage, stun the attacker, revoke permission, reset its chain, and finish its attack",
+      "scenes/ai_conductor.gd:767-770 clears attack ownership and applies the parry-wide offense lockout",
+      "player_attacks.json:2-10 defines Headbutt with attack_end 0.66 s"
+    ]
+  },
+  "semanticInvariant": {
+    "name": "directional-block-early-counter-upgrade",
+    "executable": "A live directional block lasts 1000 ms. A hit from the faced side while Block is active is denied. If block elapsed is <=500 ms, the same hit ends Block immediately, restores the preserved standard-chain index, starts Headbutt once, stuns/interrupts the attacker, and locks global enemy offense for 3000 ms. If elapsed is >500 ms, the hit remains an ordinary block: no counter and no global parry lockout. A rear hit or a hit after Block expires is not denied.",
+    "inputRule": "Block is invoked live by the recognized horizontal swipe; it is not queued. Headbutt cannot be cancelled into another block.",
+    "catalogPrecondition": "The pinned donor catalog contains Headbutt. The proof does not generalize the donor fallback behavior when the named counter is absent.",
+    "excluded": [
+      "new defensive mechanics",
+      "balance tuning",
+      "damage amounts",
+      "heal-on-parry upgrades",
+      "hitbox geometry",
+      "input gesture recognition in the target",
+      "animation acceptance",
+      "VFX acceptance",
+      "combat feel"
+    ]
+  },
+  "targetBoundary": {
+    "repositoryRevision": "349c5b2c4c249bf9e3d041548c74cc8d75b66453",
+    "adapter": "src/combat/gravity-defensive-parity-adapter.js",
+    "presentationFixture": {
+      "path": "public/assets/vanguard/procedural/shoulder-charge.recipe.json",
+      "role": "Read-only target counter-presentation fixture; its 610 ms visual duration is not combat authority and no claim is made that it is a Headbutt.",
+      "gitBlob": "6f44aad42f96b39187b4ce90d9cae52d06f04e9d",
+      "sha256": "4b07e1b35cbf52cd034f7431a425c8f09e89880546464151a8a001f7801d0a7a",
+      "presentationDurationMs": 610
+    },
+    "authorityRule": "The adapter owns defensive state and hit resolution. Existing recipes, atlas pixels, runtime rendering, VFX, and feel remain separate locked presentation concerns."
+  },
+  "writableSurface": [
+    "campaigns/gravity-defensive-parity.contract.json",
+    "src/combat/gravity-defensive-parity-adapter.js",
+    "tools/test_gravity_defensive_parity.mjs",
+    "docs/GRAVITY_FIST_DEFENSIVE_PARITY_PROOF.md"
+  ],
+  "lockedSurface": [
+    {
+      "path": "public/assets/vanguard/procedural/shoulder-charge.recipe.json",
+      "sha256": "4b07e1b35cbf52cd034f7431a425c8f09e89880546464151a8a001f7801d0a7a"
+    },
+    {
+      "path": "public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
+      "sha256": "54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587"
+    },
+    {
+      "path": "src/procedural-motion-preview.js",
+      "sha256": "11a91404db5eb2f0138c8c030e3a97b1c49aa2b02a82b3779288973871d2d699"
+    },
+    {
+      "path": "src/procedural-review-shell.js",
+      "sha256": "859618888fd3943c61f24b0cd13283593f4208f5d88dc46dda988d6fddf0a0ef"
+    },
+    {
+      "path": "src/combat/gravity-buffered-chain-adapter.js",
+      "sha256": "ce28cef0ec45ae129dd66aa26456f2d4cff2c5669db130e604575def2474c27d"
+    }
+  ],
+  "requiredEvidence": [
+    "all donor source and attack-catalog hashes match",
+    "all target locked hashes match",
+    "a facing hit at exactly 500 ms blocks damage and starts exactly one counter",
+    "a facing hit at 501 ms blocks damage but starts no counter and applies no global parry lockout",
+    "a rear hit during Block and any hit after 1000 ms remain damage-authorized",
+    "the successful counter restores the chain index frozen at Block entry",
+    "a Block request during Headbutt is rejected and never appears later as a buffered block",
+    "shorter and longer counter-presentation durations do not alter the 660 ms counter semantic end",
+    "no locked file changes"
+  ],
+  "humanReview": {
+    "requiredForSemanticVerdict": false,
+    "reason": "The proof is deterministic defensive state-transition parity only. Animation, VFX, readability, and feel remain unreviewed."
+  }
+}
