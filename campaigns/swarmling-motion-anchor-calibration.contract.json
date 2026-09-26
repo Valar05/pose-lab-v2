@@ -3,11 +3,39 @@
   "id": "swarmling-motion-anchor-calibration-v1",
   "status": "sealed-before-refresh",
   "mission": "Preserve the approved Swarmling run animation and source scale while stabilizing motion.html presentation using fixed source-space frame anchors against Vanguard's canonical motion review anchor.",
-  "targetRevision": "839427a3c0e7588aa244b540273420254a95478c",
+  "targetRevision": "b2e5a40167d6fea08b3d6b6e0596858f8d302061",
   "authority": {
     "presentationScale": 1.5,
-    "motionAnchor": [220, 226],
-    "frameAnchors": [[128,249],[128,249],[128,249],[128,250],[128,249],[128,250]],
+    "motionAnchor": [
+      220,
+      226
+    ],
+    "frameAnchors": [
+      [
+        128,
+        249
+      ],
+      [
+        128,
+        249
+      ],
+      [
+        128,
+        249
+      ],
+      [
+        128,
+        250
+      ],
+      [
+        128,
+        249
+      ],
+      [
+        128,
+        250
+      ]
+    ],
     "sourceManifest": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json"
   },
   "locks": [
@@ -19,6 +47,6 @@
   ],
   "writableSurface": [],
   "executionLane": "refresh/build/serve exact committed revision through existing phone Pose Lab runtime",
-  "visualGate": "motion.html?procedural=swarmling-run&rev=839427a3c0e7588aa244b540273420254a95478c&nocache=<timestamp>",
+  "visualGate": "motion.html?procedural=swarmling-run&rev=b2e5a40167d6fea08b3d6b6e0596858f8d302061&nocache=<timestamp>",
   "humanVerdict": "pending"
 }
