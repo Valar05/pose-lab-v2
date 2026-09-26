@@ -241,7 +241,7 @@ echo
 echo "=== REBUILD EXACT 1037x1728 ATLAS ==="
 cp "$ATLAS" "$L/atlas-1728-rebuild/before-4168.png"
 
-python3 - "$ATLAS" "$RELOAD" "$FIRE" "$CAL" "$BASE90" "$L/atlas-1728-rebuild/final-1728.png" <<'PY'
+python3 - "$ATLAS" "$RELOAD" "$FIRE" "$CAL" "$L/atlas-1728-rebuild/final-1728.png" <<'PY'
 from PIL import Image, ImageEnhance
 from pathlib import Path
 import hashlib, statistics, sys
