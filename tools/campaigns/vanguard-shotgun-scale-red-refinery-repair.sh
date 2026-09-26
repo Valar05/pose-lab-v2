@@ -26,14 +26,14 @@ cat \
   >/dev/null
 
 echo "============================================================"
-echo " VANGUARD SHOTGUN COLOR-ONLY V5"
+echo " VANGUARD SHOTGUN COLOR-ONLY V6"
 echo "============================================================"
-echo "MISSION=reduce redness slightly while preserving accepted size and fuzziness exactly"
+echo "MISSION=reduce red dominance further while preserving accepted size and fuzziness exactly"
 echo "PRIMARY_WORKTREE=READ_ONLY"
 echo "WRITABLE=$ATLAS_REL pixels inside existing foreground bboxes for cells 97-102 only"
 echo "WRITABLE+=$MANIFEST_REL result sha + color-only refinement metadata"
 echo "LOCKED=size; bbox; placement; fuzziness/softness; recipes; centerX; timing; effects; registration; renderer; dropdown; cells 1-96"
-echo "COLOR_DELTA=R*0.99 G*1.06 B*1.08"
+echo "COLOR_DELTA=R*1.00 G*1.12 B*1.18"
 
 echo
 echo "=== DIRTY / DIVERGENCE PREFLIGHT ==="
@@ -89,7 +89,7 @@ manifest=json.loads(manifest_p.read_text())
 recipe=json.loads(recipe_p.read_text())
 
 assert atlas.size==(1037,1754)
-assert manifest.get("refinement",{}).get("kind")=="shotgun-color-softness-v4"
+assert manifest.get("refinement",{}).get("kind")=="shotgun-color-only-v5"
 assert manifest["refinement"]["geometryPolicy"]=="preserve exact current bbox/size/placement for cells 97-102"
 assert recipe["atlases"]["vanguard-canonical"]["rowBounds"]["16"]==[1645,1754]
 
@@ -97,7 +97,7 @@ cols=recipe["atlases"]["vanguard-canonical"]["columns"]
 row_bounds={int(k):v for k,v in recipe["atlases"]["vanguard-canonical"]["rowBounds"].items()}
 W=atlas.width
 THRESH=18
-GAINS=(0.99,1.06,1.08)
+GAINS=(1.00,1.12,1.18)
 
 def cell_rect(cell):
     idx=cell-1
@@ -183,7 +183,7 @@ new_sha=hashlib.sha256(atlas_p.read_bytes()).hexdigest()
 manifest["result"]["sha256"]=new_sha
 manifest["refinement"]={
     **manifest["refinement"],
-    "kind":"shotgun-color-only-v5",
+    "kind":"shotgun-color-only-v6",
     "humanVerdict":"pending",
     "acceptedLocks":{
         "size":"locked from human feedback",
@@ -193,13 +193,13 @@ manifest["refinement"]={
         "rMultiplier":GAINS[0],
         "gMultiplier":GAINS[1],
         "bMultiplier":GAINS[2],
-        "reason":"human feedback: current candidate a little too red"
+        "reason":"human feedback: v5 still visibly too red; increase green/blue while preserving red, size, and softness"
     },
     "cells":report
 }
 manifest_p.write_text(json.dumps(manifest,indent=2)+"\n")
 
-print("COLOR_ONLY_V5=APPLIED")
+print("COLOR_ONLY_V6=APPLIED")
 print("SIZE=UNCHANGED")
 print("FUZZINESS=UNCHANGED")
 print("ATLAS_SHA256=",new_sha)
@@ -222,7 +222,7 @@ printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$MANIFEST_REL"
 echo
 echo "=== COMMIT + PUSH ==="
 git add "$ATLAS_REL" "$MANIFEST_REL"
-git commit -m "Reduce Vanguard shotgun redness"
+git commit -m "Reduce Vanguard shotgun red dominance further"
 REV="$(git rev-parse HEAD)"
 
 git fetch origin main
@@ -241,7 +241,7 @@ git show "$REV:$ATLAS_REL" > "$L/atlas-committed.png"
 python3 - "$L/manifest-committed.json" "$L/atlas-committed.png" <<'PY'
 import hashlib,json,sys
 m=json.load(open(sys.argv[1]))
-assert m["refinement"]["kind"]=="shotgun-color-only-v5"
+assert m["refinement"]["kind"]=="shotgun-color-only-v6"
 assert m["refinement"]["acceptedLocks"]["size"]=="locked from human feedback"
 assert m["refinement"]["acceptedLocks"]["fuzziness"]=="locked from human feedback"
 assert m["result"]["sha256"]==hashlib.sha256(open(sys.argv[2],"rb").read()).hexdigest()
@@ -309,7 +309,7 @@ FU="$BASE_URL/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STA
 
 echo
 echo "============================================================"
-echo " SHOTGUN COLOR-ONLY V5 REVIEW READY"
+echo " SHOTGUN COLOR-ONLY V6 REVIEW READY"
 echo "============================================================"
 echo "REV=$REV"
 echo "RELOAD_REVIEW=$RU"
