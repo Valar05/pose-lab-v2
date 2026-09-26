@@ -89,6 +89,12 @@ assert(viewer.includes("stack.classList.toggle('show-onion'"), '2D review must e
 assert(viewer.includes('buildDeltaImage') && viewer.includes("stack.classList.toggle('show-delta'"), '2D review must expose exact pixel-delta inspection');
 assert(!css.includes('sprite-onion-previous {\n  transform:') && !css.includes('sprite-onion-next {\n  transform:'), '2D inspection must not invent frame motion');
 assert(viewer.includes("document.body.dataset.reviewReady = '1'"), '2D review must expose a visual-capture readiness signal');
+assert(viewer.includes('const CHARACTER_MANIFESTS = Object.freeze({'), '2D review must keep a dedicated character registry');
+assert(viewer.includes("swarmling: { label: 'Swarmling', manifest: './assets/swarmling/fleshpunk/animations.json' }"), 'Swarmling must have its own manifest namespace');
+assert(viewer.includes('data-character-picker'), '2D review must expose a separate character selector');
+assert(viewer.includes("nextUrl.searchParams.delete('animation')"), 'character changes must not carry an animation id across characters');
+assert(viewer.includes("nextUrl.searchParams.delete('batch')"), 'character changes must not leak Vanguard batch state into another character');
+assert(viewer.includes("document.body.dataset.reviewCharacter = activeCharacterId"), '2D review must expose the active character for hosted verification');
 assert(viewer.includes("URL_PARAMS.get('batch')") && viewer.includes('data-batch-clips'), '2D review must expose refinery batch and clip state');
 assert(viewer.includes("status.setAttribute('aria-label'") && viewer.includes("role = 'listitem'"), 'batch evidence state must be labeled for assistive technology');
 assert(viewer.includes("link.target = '_blank'") && viewer.includes('attempt.provenance'), 'batch review must link work packet and attempt evidence');
