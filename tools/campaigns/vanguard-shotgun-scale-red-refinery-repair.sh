@@ -83,13 +83,22 @@ def nonblack_bbox(im,t=18):
    if max(px[x,y])>t: xs.append(x);ys.append(y)
  assert xs
  return min(xs),min(ys),max(xs)+1,max(ys)+1
-def place(c,im):
- box=nonblack_bbox(im); s=im.crop(box); x0,y0,x1,y1=rect(c)
- assert s.width<=x1-x0 and s.height<=y1-y0
+items=list(zip((91,92,93),frames(rp)))+list(zip((97,98,99),frames(fp)))
+measured=[]
+for c,im in items:
+ box=nonblack_bbox(im); sprite=im.crop(box); x0,y0,x1,y1=rect(c)
+ measured.append((c,sprite,x1-x0,y1-y0))
+ print(f"CELL {c}: sprite={sprite.width}x{sprite.height} slot={x1-x0}x{y1-y0}")
+# One shared additional fit scale across the entire six-frame batch.
+fit=min(1.0,min(min(sw/s.width,sh/s.height) for _,s,sw,sh in measured))
+print(f"SHARED_FIT_SCALE={fit:.6f}")
+for c,s,sw,sh in measured:
+ if fit<1.0:
+  s=s.resize((max(1,int(s.width*fit)),max(1,int(s.height*fit))),Image.Resampling.LANCZOS)
+ x0,y0,x1,y1=rect(c)
+ assert s.width<=sw and s.height<=sh
  a.paste((0,0,0),(x0,y0,x1,y1))
- a.paste(s,(x0+((x1-x0)-s.width)//2,y1-5-s.height))
-for c,s in zip((91,92,93),frames(rp)): place(c,s)
-for c,s in zip((97,98,99),frames(fp)): place(c,s)
+ a.paste(s,(x0+(sw-s.width)//2,y1-5-s.height))
 # Immutable old published rectangle and reserved slots.
 assert a.crop((0,0,1037,1536)).tobytes()==b.crop((0,0,1037,1536)).tobytes()
 for c in (94,95,96,100,101,102):
