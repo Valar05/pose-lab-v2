@@ -3,7 +3,7 @@ set -euo pipefail
 export GIT_PAGER=cat PAGER=cat
 
 P="$HOME/storage/documents/GodotProjects/pose-lab-v2"
-L="$HOME/.local/state/pose-lab-v2-vanguard-attack1-crop"
+L="$HOME/.local/state/pose-lab-v2-vanguard-attack1-rearfoot"
 W="$L/worktree"
 
 RUN_REL="public/assets/vanguard/procedural/run.recipe.json"
@@ -17,13 +17,12 @@ cd "$P"
 cat   AGENTS.md   docs/POSE_LAB_CAMPAIGN_RULES.md   docs/POSE_IS_GOD.md   docs/VANGUARD_ATLAS_AUTHORITY.md   animations/candidates/vanguard/overhand-strike/MANUAL_TEST_PROMPT.md   >/dev/null
 
 echo "============================================================"
-echo " VANGUARD ATTACK 1 ROW / PIVOT REPAIR"
+echo " VANGUARD ATTACK 1 REAR-FOOT RE-REGISTER"
 echo "============================================================"
 echo "HUMAN_VERDICT=Run fixed; locked"
-echo "MISSION=remove neighboring-sprite contamination AND preserve Attack 1 body motion"
-echo "AUTHORITY=accepted source vanguard_atlas_shoulders_midpoint.png -> uniform scale 1.0712809917355373"
-echo "WRITABLE=$ATTACK1_REL rowBounds[4..6], chamber/commit/preimpact/contact anchorPoint.y, remove bad contact.sourceRect"
-echo "LOCKED=$RUN_REL entire file; atlas bytes; cells; centerX; timing; effects; registration; deformation; anchorPoint.x; every other recipe"
+echo "MISSION=keep current sprites/row crops, remove disappearance, and pin every Attack 1 pose to the same rear-foot stage point"
+echo "WRITABLE=$ATTACK1_REL body anchorPoint + body registrationOffset only"
+echo "LOCKED=$RUN_REL entire file; atlas bytes; Attack1 rowBounds/cells/centerX/timing/effects/deformation/canvas; renderer; every other recipe"
 
 mkdir -p "$L"
 
@@ -50,7 +49,7 @@ RUN_SHA="$(sha256sum "$RUN" | awk '{print $1}')"
 cp "$ATTACK1" "$L/attack1-before.json"
 
 echo
-echo "=== APPLY SOURCE-DERIVED ROW BOUNDS + PIVOT TRANSLATION ==="
+echo "=== RE-PIN EXACT REAR-FOOT POINTS ==="
 python3 - "$ATTACK1" <<'PY'
 from pathlib import Path
 import copy,json,sys
@@ -61,98 +60,86 @@ after=copy.deepcopy(before)
 
 assert after["id"]=="vanguard-overhand-strike-procedural-proof-v4"
 assert after["stage"]["centerX"]==220
+assert after["canvas"]["anchor"]==[92,226]
 assert after["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 
-rb=after["atlases"]["vanguard-canonical"]["rowBounds"]
-
-# Accepted source foreground bands in original 968x1536 source:
-# row4: y 385..453
-# row5: y 470..543
-# row6: y 569..638
-#
-# Mid-gap source partitions:
-# row4 start = midpoint(363,385) -> 374
-# row4/5 boundary = midpoint(453,470) -> 462
-# row5/6 boundary = midpoint(543,569) -> 556
-# row6/7 boundary = midpoint(638,673) -> 656
-#
-# Uniform accepted scale = 1037 / 968 = 1.0712809917355373
-# Expanded atlas partitions:
-# 374 -> 401
-# 462 -> 495
-# 556 -> 596
-# 656 -> 703
-#
-# These are the actual row partitions for the accepted expanded atlas.
-old_starts={"4":410,"5":512,"6":614}
-new_bounds={
+# Current source-row geometry is preserved exactly.
+expected_rows={
     "4":[401,495],
     "5":[495,596],
     "6":[596,703],
 }
-for k,v in new_bounds.items():
-    rb[k]=v
+rb=after["atlases"]["vanguard-canonical"]["rowBounds"]
+for k,v in expected_rows.items():
+    assert rb[k]==v, f"STOP: unexpected rowBounds[{k}]={rb[k]}"
 
-# Preserve the exact absolute authored pivot while moving each crop origin.
-# newLocalY = oldLocalY + oldRowStart - newRowStart
-moves={
-    "chamber":("4",84),
-    "preimpact":("5",89),
-    "contact":("5",89),
-    "commit":("6",86),
+# Reject the broken contact-only crop if it somehow returned.
+assert "sourceRect" not in after["sources"]["contact"], "STOP: rejected contact sourceRect still present"
+
+# These are the explicit rear-foot points that existed before the bad
+# crop-origin compensation pass. They are inside the current crop windows
+# and represent the same physical rear foot across the authored poses.
+rear_foot={
+    "idle":[58,97],
+    "chamber":[64,84],
+    "commit":[58,86],
+    "preimpact":[60,89],
+    "contact":[46,89],
 }
-for key,(row,old_y) in moves.items():
+
+for key,point in rear_foot.items():
     src=after["sources"][key]
+    assert src["kind"]=="atlas-cell"
     assert src["anchorMode"]=="explicit-point"
-    assert src["anchorPoint"][1]==old_y
-    new_y=old_y + old_starts[row] - new_bounds[row][0]
-    src["anchorPoint"][1]=new_y
+    src["anchorPoint"]=point
 
-# Remove the rejected contact-only crop that cut the sprite out of frame.
-after["sources"]["contact"].pop("sourceRect",None)
+    # Pinning owns stage placement. Remove old +1/+2 X compensation so the
+    # explicit foot point itself is the sole registration authority.
+    src["registrationOffset"]=[0,0]
 
-# Remove earlier rejected cleanup flags if any survived.
-for key in ("idle","chamber","commit","preimpact","contact"):
-    src=after["sources"][key]
-    src.pop("backgroundKey",None)
-    src.pop("backgroundKeyThreshold",None)
-    src.pop("isolateLargestComponent",None)
+# Foot points must be inside their current cell crops.
+cell_rows={
+    "idle":"0",
+    "chamber":"4",
+    "commit":"6",
+    "preimpact":"5",
+    "contact":"5",
+}
+for key,row in cell_rows.items():
+    y0,y1=rb[row]
+    h=y1-y0
+    x,y=after["sources"][key]["anchorPoint"]
+    assert 0 <= y < h, f"STOP: {key} rear-foot y={y} outside crop height={h}"
+    assert 0 <= x < 173, f"STOP: {key} rear-foot x={x} outside cell width"
 
-# Guard exact writable surface.
-def normalized(o):
+# No phase-level shift compensation may remain while pinning.
+for phase in after["phases"]:
+    d=phase.get("deform",{})
+    assert NumberZero := True
+    assert float(d.get("shiftX",0) or 0)==0.0, f"STOP: {phase['id']} has shiftX compensation"
+    assert float(d.get("shiftY",0) or 0)==0.0, f"STOP: {phase['id']} has shiftY compensation"
+
+def normalize(o):
     x=copy.deepcopy(o)
-    for row in ("4","5","6"):
-        x["atlases"]["vanguard-canonical"]["rowBounds"][row]="__AUTHORIZED_ROW__"
-    for key in ("chamber","commit","preimpact","contact"):
-        x["sources"][key]["anchorPoint"][1]="__AUTHORIZED_Y__"
-    x["sources"]["contact"]["sourceRect"]="__AUTHORIZED_CONTACT_RECT__"
     for key in ("idle","chamber","commit","preimpact","contact"):
-        src=x["sources"][key]
-        src.pop("backgroundKey",None)
-        src.pop("backgroundKeyThreshold",None)
-        src.pop("isolateLargestComponent",None)
+        x["sources"][key]["anchorPoint"]="__AUTHORIZED_ANCHOR__"
+        x["sources"][key]["registrationOffset"]="__AUTHORIZED_REG__"
     return x
 
-before_cmp=copy.deepcopy(before)
-before_cmp["sources"]["contact"]["sourceRect"]="__AUTHORIZED_CONTACT_RECT__"
-assert normalized(after)==normalized(before_cmp), "STOP: mutation escaped authorized Attack 1 crop/motion surface"
+assert normalize(after)==normalize(before), "STOP: mutation escaped rear-foot registration surface"
 
 p.write_text(json.dumps(after,indent=2)+"\n")
 
-print("ROW4=[401,495]")
-print("ROW5=[495,596]")
-print("ROW6=[596,703]")
-print("CHAMBER_ANCHOR_Y=93")
-print("PREIMPACT_ANCHOR_Y=106")
-print("CONTACT_ANCHOR_Y=106")
-print("COMMIT_ANCHOR_Y=104")
-print("CONTACT_SOURCE_RECT=REMOVED")
-print("ABSOLUTE_PIVOTS=PRESERVED")
-print("RUN=LOCKED")
+for key in ("idle","chamber","commit","preimpact","contact"):
+    print(f"{key.upper()}_REAR_FOOT={after['sources'][key]['anchorPoint']}")
+    print(f"{key.upper()}_REGISTRATION=[0,0]")
+print("ROW_BOUNDS=UNCHANGED")
+print("CELLS=UNCHANGED")
+print("CENTER_X=UNCHANGED_220")
 print("TIMING=UNCHANGED")
 print("EFFECTS=UNCHANGED")
-print("REGISTRATION=UNCHANGED")
 print("DEFORMATION=UNCHANGED")
+print("RUN=LOCKED")
 PY
 
 echo
@@ -176,7 +163,7 @@ printf 'changed=%s\n' "${CHANGED[@]}"
 echo
 echo "=== COMMIT + PUSH ==="
 git add "$ATTACK1_REL"
-git commit -m "Repair Vanguard attack one source rows and pivots"
+git commit -m "Re-register Vanguard attack one to rear foot"
 git push origin main
 REV="$(git rev-parse HEAD)"
 echo "REV=$REV"
@@ -187,18 +174,23 @@ git show "$REV:$ATTACK1_REL" > "$L/attack1-committed.json"
 python3 - "$L/attack1-committed.json" <<'PY'
 import json,sys
 a=json.load(open(sys.argv[1]))
-rb=a["atlases"]["vanguard-canonical"]["rowBounds"]
-assert rb["4"]==[401,495]
-assert rb["5"]==[495,596]
-assert rb["6"]==[596,703]
-assert a["sources"]["chamber"]["anchorPoint"]==[64,93]
-assert a["sources"]["preimpact"]["anchorPoint"]==[60,106]
-assert a["sources"]["contact"]["anchorPoint"]==[46,106]
-assert a["sources"]["commit"]["anchorPoint"]==[58,104]
+assert a["atlases"]["vanguard-canonical"]["rowBounds"]["4"]==[401,495]
+assert a["atlases"]["vanguard-canonical"]["rowBounds"]["5"]==[495,596]
+assert a["atlases"]["vanguard-canonical"]["rowBounds"]["6"]==[596,703]
+expected={
+ "idle":[58,97],
+ "chamber":[64,84],
+ "commit":[58,86],
+ "preimpact":[60,89],
+ "contact":[46,89],
+}
+for k,v in expected.items():
+    assert a["sources"][k]["anchorPoint"]==v
+    assert a["sources"][k]["registrationOffset"]==[0,0]
 assert "sourceRect" not in a["sources"]["contact"]
 assert a["stage"]["centerX"]==220
 print("COMMITTED_READBACK=PASS")
-print("ABSOLUTE_PIVOT_INVARIANT=PASS")
+print("REAR_FOOT_REGISTRATION=SOLE_STAGE_AUTHORITY")
 PY
 
 echo
@@ -263,11 +255,11 @@ URL="$BASE/motion.html?procedural=vanguard-overhand-strike&rev=$REV&nocache=$STA
 
 echo
 echo "============================================================"
-echo " ATTACK 1 ROW / PIVOT REPAIR READY"
+echo " ATTACK 1 REAR-FOOT REVIEW READY"
 echo "============================================================"
 echo "REV=$REV"
 echo "RUN=LOCKED_ACCEPTED"
-echo "ATTACK1_REVIEW=$URL"
+echo "REVIEW_URL=$URL"
 echo "HUMAN_VERDICT=PENDING"
 
 termux-open-url "$URL"
