@@ -1,0 +1,71 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v1",
+  "id": "swarmling-planted-attacks-v1",
+  "status": "sealed-before-refresh",
+  "mission": "Review three quarantined Swarmling attack candidates in motion.html: two two-pose attacks and one three-pose special. Source sheet owns poses; SecurityTitan owns stopwatch timing only; all root motion is forbidden in Pose Lab and will be authored later in engine.",
+  "sourceRevision": "fa43bf8a7e25d9c944212bb2bfa56777974ff8ba",
+  "poseAuthority": {
+    "manifest": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+    "sourceAtlas": "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+    "sourceByteSha256": "2a9ee9cc38a4b695d9a561bdce08eab71671de261fcae9e07b1f6a44f55f6f91"
+  },
+  "timingAuthority": {
+    "repository": "Valar05/gravity-fist",
+    "revision": "e89c2adf671b06af4ce6a6c1d3f0118e68a6c274",
+    "file": "security_titan.json",
+    "role": "stopwatch only",
+    "Jab": {"activeAtMs": 550, "activeDurationMs": 50, "attackEndMs": 1000, "cooldownMs": 900},
+    "Cross": {"activeAtMs": 350, "activeDurationMs": 50, "attackEndMs": 1000, "cooldownMs": 1050}
+  },
+  "candidates": {
+    "jab": {
+      "label": "Needle Jab",
+      "sourceCells": [8, 13],
+      "frameDurationsMs": [350, 650],
+      "plantedFootAnchors": [[118,250],[112,250]],
+      "stopwatch": "SecurityTitan Cross"
+    },
+    "rake": {
+      "label": "Low Rake",
+      "sourceCells": [14, 15],
+      "frameDurationsMs": [550, 450],
+      "plantedFootAnchors": [[116,250],[116,250]],
+      "stopwatch": "SecurityTitan Jab"
+    },
+    "scythe-bloom": {
+      "label": "Scythe Bloom",
+      "sourceCells": [11, 15, 16],
+      "frameDurationsMs": [350, 100, 550],
+      "plantedFootAnchors": [[118,250],[116,250],[116,250]],
+      "stopwatch": "SecurityTitan Cross with a three-pose visual split"
+    }
+  },
+  "rootMotion": {
+    "enabled": false,
+    "stageAnchor": [220,226],
+    "rule": "Every attack frame uses an explicit source-space planted-foot anchor against one fixed stage anchor. No Pose Lab shift, dash, translation, or root travel is authorized."
+  },
+  "locks": [
+    "existing accepted Swarmling Run pixels/timing/presentation",
+    "Swarmling source atlas pixels and accepted scale/fuzziness",
+    "all Vanguard assets, recipes, and animation behavior",
+    "old Blender-derived Swarmling/Fleshling lineage",
+    "engine movement remains future work and is not represented here"
+  ],
+  "writableSurface": [],
+  "verification": [
+    "node tools/test_swarmling_attacks.mjs",
+    "node --check src/procedural-swarmling-preview.js",
+    "node --check src/procedural-review-shell.js",
+    "npm run test:2d",
+    "npm run build",
+    "npm run smoke",
+    "git diff --check"
+  ],
+  "visualGate": [
+    "motion.html?procedural=swarmling-jab",
+    "motion.html?procedural=swarmling-rake",
+    "motion.html?procedural=swarmling-scythe-bloom"
+  ],
+  "humanVerdict": "pending"
+}
