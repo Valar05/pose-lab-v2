@@ -8,24 +8,23 @@ W="$L/worktree"
 
 RUN_REL="public/assets/vanguard/procedural/run.recipe.json"
 ATTACK1_REL="public/assets/vanguard/procedural/overhand-strike.recipe.json"
-ATLAS_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+MANIFEST_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.manifest.json"
 
 RUN="$P/$RUN_REL"
 ATTACK1="$P/$ATTACK1_REL"
-ATLAS="$P/$ATLAS_REL"
+MANIFEST="$P/$MANIFEST_REL"
 
 cd "$P"
 
 cat   AGENTS.md   docs/POSE_LAB_CAMPAIGN_RULES.md   docs/POSE_IS_GOD.md   docs/VANGUARD_ATLAS_AUTHORITY.md   >/dev/null
 
 echo "============================================================"
-echo " VANGUARD RUN + ATTACK 1 MEASURED RECENTER"
+echo " VANGUARD RUN + ATTACK 1 RECENTER — ONE FIX"
 echo "============================================================"
-echo "MISSION=apply the visible residual measured from Drew's 921137 review"
-echo "EVIDENCE=both Run and Attack 1 visible sprite centers were about 5 px left of stage center"
-echo "TARGET_X=220 internal canvas px (canonical center 215 + measured 5 px correction)"
-echo "WRITABLE=Run canvas.anchor[0] + restoration of accepted Run offsetX pattern; Attack1 stage.centerX only"
-echo "LOCKED=atlas bytes; cells; Y; timing; effects; deformation; scale; anchor points; every other recipe"
+echo "MISSION=recenter Run + Attack 1 by correcting their atlas sampling windows"
+echo "WHY=expanded atlas was uniformly scaled, but these recipes kept pre-scale Y row bounds"
+echo "WRITABLE=$RUN_REL rowBounds[8] + canvas.anchor[0]; $ATTACK1_REL rowBounds[0,4,5,6] + stage.centerX"
+echo "LOCKED=atlas bytes; cell IDs; timing; effects; registration; deformation; Y stage placement; every other recipe"
 
 mkdir -p "$L/run-attack1-recenter"
 
@@ -49,19 +48,17 @@ echo "START_HEAD=$START"
 
 cp "$RUN" "$L/run-attack1-recenter/run-before.json"
 cp "$ATTACK1" "$L/run-attack1-recenter/attack1-before.json"
-ATLAS_SHA="$(sha256sum "$ATLAS" | awk '{print $1}')"
 
 echo
-echo "=== APPLY MEASURED +5PX RIGHT RECENTER ==="
-python3 - "$RUN" "$ATTACK1" <<'PY'
+echo "=== APPLY SOURCE-SCALE-CORRECT ROW BOUNDS ==="
+python3 - "$RUN" "$ATTACK1" "$MANIFEST" <<'PY'
 from pathlib import Path
 import copy,json,sys
 
-run_p=Path(sys.argv[1])
-atk_p=Path(sys.argv[2])
-
+run_p,atk_p,manifest_p=map(Path,sys.argv[1:])
 run=json.loads(run_p.read_text())
 atk=json.loads(atk_p.read_text())
+manifest=json.loads(manifest_p.read_text())
 rb=copy.deepcopy(run)
 ab=copy.deepcopy(atk)
 
@@ -70,45 +67,73 @@ assert atk["id"]=="vanguard-overhand-strike-procedural-proof-v4"
 assert run["atlas"]["file"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 assert atk["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 
-# The 8:47 review recording predates both failed recenter attempts.
-# Measured stage canvas: visible sprite center ~220 vs stage center ~225 on the
-# phone capture, which maps to ~5 internal canvas px. Apply that global residual.
-run["canvas"]["anchor"][0]=220
-atk["stage"]["centerX"]=220
+norm=manifest["normalization"]
+assert norm["kind"]=="uniform-whole-image-resize"
+assert norm["sourceSize"]==[968,1536]
+assert norm["outputSize"]==[1037,1645]
+scale=float(norm["scale"])
+assert abs(scale-(1037/968))<1e-12
 
-# Undo our previous failed "zero every offset" experiment and restore the
-# accepted Run intra-cycle horizontal registration pattern from before recenter work.
-accepted_offsets={"49":-3,"50":0,"51":3,"52":-3,"53":0,"54":3}
-for cell,val in accepted_offsets.items():
-    run["registration"]["byCell"][cell]["offsetX"]=val
+def scaled(pair):
+    return [round(pair[0]*scale),round(pair[1]*scale)]
+
+# Run's accepted pre-expansion extraction window was the special row-8 slice
+# [790,890], not the generic row. Map that exact window through the atlas's
+# documented whole-image scale.
+run_target=scaled([790,890])
+run["atlas"]["rowBounds"]["8"]=run_target
+run["canvas"]["anchor"][0]=215
+
+# Keep Run's accepted intra-cycle registration exactly as-is.
+accepted_offsets=[-3,0,3,-3,0,3]
+got_offsets=[run["registration"]["byCell"][str(c)]["offsetX"] for c in range(49,55)]
+assert got_offsets==accepted_offsets, f"STOP: Run offsetX pattern changed: {got_offsets}"
+
+# Attack 1 uses cells 2,26,32,35,40, i.e. rows 0,4,5,6.
+# Its old row coordinates were copied unchanged into the scaled atlas.
+# Map only those used rows through the same documented scale.
+atk_rows={
+    "0":scaled([0,102]),
+    "4":scaled([410,512]),
+    "5":scaled([512,614]),
+    "6":scaled([614,717]),
+}
+for k,v in atk_rows.items():
+    atk["atlases"]["vanguard-canonical"]["rowBounds"][k]=v
+
+# Remove our prior guessed global nudge. The actual fix is the sampling window.
+atk["stage"]["centerX"]=215
 
 def scrub_run(o):
     x=copy.deepcopy(o)
-    x["canvas"]["anchor"][0]="__GLOBAL_X__"
-    for c in accepted_offsets:
-        x["registration"]["byCell"][c]["offsetX"]="__ACCEPTED_OFFSET_X__"
+    x["atlas"]["rowBounds"]["8"]="__AUTHORIZED__"
+    x["canvas"]["anchor"][0]="__AUTHORIZED__"
     return x
 
 def scrub_atk(o):
     x=copy.deepcopy(o)
-    x["stage"]["centerX"]="__GLOBAL_X__"
+    for k in ("0","4","5","6"):
+        x["atlases"]["vanguard-canonical"]["rowBounds"][k]="__AUTHORIZED__"
+    x["stage"]["centerX"]="__AUTHORIZED__"
     return x
 
-assert scrub_run(run)==scrub_run(rb), "STOP: Run mutation escaped authorized horizontal recenter surface"
-assert scrub_atk(atk)==scrub_atk(ab), "STOP: Attack 1 mutation escaped stage.centerX"
+assert scrub_run(run)==scrub_run(rb), "STOP: Run mutation escaped authorized surface"
+assert scrub_atk(atk)==scrub_atk(ab), "STOP: Attack 1 mutation escaped authorized surface"
 
 run_p.write_text(json.dumps(run,indent=2)+"\n")
 atk_p.write_text(json.dumps(atk,indent=2)+"\n")
 
-print(f"RUN_GLOBAL_X={rb['canvas']['anchor'][0]}->220")
-print("RUN_ACCEPTED_OFFSET_X_RESTORED=-3,0,3,-3,0,3")
-print(f"ATTACK1_GLOBAL_X={ab['stage']['centerX']}->220")
-print("MEASURED_RESIDUAL=+5px RIGHT FROM PRE-RECENTER REVIEW")
-print("Y=UNCHANGED")
+print(f"ATLAS_SCALE={scale:.12f}")
+print(f"RUN_ROW8={rb['atlas']['rowBounds']['8']}->{run_target}")
+print(f"RUN_CENTER_X={rb['canvas']['anchor'][0]}->215")
+for k in ("0","4","5","6"):
+    print(f"ATTACK1_ROW{k}={ab['atlases']['vanguard-canonical']['rowBounds'][k]}->{atk_rows[k]}")
+print(f"ATTACK1_CENTER_X={ab['stage']['centerX']}->215")
+print("POSE_CELLS=UNCHANGED")
 print("TIMING=UNCHANGED")
 print("EFFECTS=UNCHANGED")
-print("DEFORMATION=UNCHANGED")
-print("POSE_CELLS=UNCHANGED")
+print("REGISTRATION=UNCHANGED")
+print("ATLAS_BYTES=UNCHANGED")
 PY
 
 echo
@@ -126,15 +151,10 @@ for F in "${CHANGED[@]}"; do
   esac
 done
 
-[ "$(sha256sum "$ATLAS" | awk '{print $1}')" = "$ATLAS_SHA" ] || {
-  echo "STOP: canonical atlas changed"
-  exit 1
-}
-
 echo
 echo "=== COMMIT + PUSH ==="
 git add "$RUN_REL" "$ATTACK1_REL"
-git commit -m "Apply measured Vanguard run and attack one recenter"
+git commit -m "Recenter Vanguard run and attack one sampling"
 git push origin main
 REV="$(git rev-parse HEAD)"
 echo "REV=$REV"
@@ -148,12 +168,21 @@ python3 - "$L/run-attack1-recenter/run-committed.json" "$L/run-attack1-recenter/
 import json,sys
 r=json.load(open(sys.argv[1]))
 a=json.load(open(sys.argv[2]))
-assert r["canvas"]["anchor"][0]==220
-assert [r["registration"]["byCell"][c]["offsetX"] for c in ("49","50","51","52","53","54")]==[-3,0,3,-3,0,3]
-assert a["stage"]["centerX"]==220
+
+assert r["atlas"]["rowBounds"]["8"]==[846,953]
+assert r["canvas"]["anchor"][0]==215
+assert [r["registration"]["byCell"][str(c)]["offsetX"] for c in range(49,55)]==[-3,0,3,-3,0,3]
+
+rb=a["atlases"]["vanguard-canonical"]["rowBounds"]
+assert rb["0"]==[0,109]
+assert rb["4"]==[439,548]
+assert rb["5"]==[548,658]
+assert rb["6"]==[658,768]
+assert a["stage"]["centerX"]==215
+
 print("COMMITTED_READBACK=PASS")
-print("RUN_CENTER_X=220")
-print("ATTACK1_CENTER_X=220")
+print("RUN_ROW8=846..953")
+print("ATTACK1_ROWS=0:0..109 4:439..548 5:548..658 6:658..768")
 PY
 
 echo
@@ -186,7 +215,7 @@ ATTACK1_URL="http://127.0.0.1:8766/motion.html?procedural=vanguard-overhand-stri
 
 echo
 echo "============================================================"
-echo " RUN + ATTACK 1 MEASURED RECENTER DEPLOYED"
+echo " RUN + ATTACK 1 RECENTER DEPLOYED"
 echo "============================================================"
 echo "REV=$REV"
 echo "RUN_REVIEW=$RUN_URL"
