@@ -135,7 +135,8 @@
       "anchorPoint": [
         64,
         84
-      ]
+      ],
+      "isolateLargestComponent": true
     },
     "commit": {
       "kind": "atlas-cell",
@@ -167,7 +168,8 @@
       "anchorPoint": [
         60,
         89
-      ]
+      ],
+      "isolateLargestComponent": true
     },
     "contact": {
       "kind": "atlas-cell",
@@ -183,7 +185,8 @@
       "anchorPoint": [
         46,
         89
-      ]
+      ],
+      "isolateLargestComponent": true
     },
     "slash-right": {
       "kind": "effect-atlas-cell",
