@@ -1,7 +1,7 @@
 {
   "schema": "pose-lab-v2-combat-parity-contract-v1",
   "id": "gravity-directional-parry-counter-parity-v0",
-  "status": "SEALED_BEFORE_APPLY",
+  "status": "PROVEN_MACHINE_PARITY",
   "mission": "Prove one defensive Gravity Fist semantic across the Vanguard adapter boundary: a live directional block denies a facing hit for its full block duration, while only a facing hit inside the early counter window transitions immediately into the donor counter and global offense lockout.",
   "sealedAtUtc": "2026-09-26T16:00:00Z",
   "donorAuthority": {
@@ -113,5 +113,25 @@
   "humanReview": {
     "requiredForSemanticVerdict": false,
     "reason": "The proof is deterministic defensive state-transition parity only. Animation, VFX, readability, and feel remain unreviewed."
+  },
+  "proofResult": {
+    "verdict": "PASS",
+    "property": "directional-block-early-counter-upgrade",
+    "donorVerified": true,
+    "targetLockedHashesVerified": true,
+    "inclusiveBoundary": {
+      "at500Ms": "BLOCKED_AND_COUNTERED",
+      "at501Ms": "BLOCKED_NO_COUNTER"
+    },
+    "rearHit": "DAMAGE_AUTHORIZED",
+    "postExpiryHit": "DAMAGE_AUTHORIZED",
+    "preservedChainIndexRestored": true,
+    "blockInputMode": "LIVE_ONLY_NOT_BUFFERED",
+    "headbuttSemanticEndMs": 660,
+    "targetPresentationDurationMs": 610,
+    "presentationDurationIndependence": "PASS",
+    "lockedSurfaceChanged": false,
+    "humanReviewRequired": false,
+    "claimBoundary": "Defensive state-transition parity only. No claim is made about target input integration, hitboxes, balance, animation/VFX quality, feel, deployment, or broad combat integration."
   }
 }
