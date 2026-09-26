@@ -22,32 +22,36 @@ git fetch origin main
 START=$(git rev-parse HEAD)
 test -f "$RELOAD" && test "$(sha256sum "$RELOAD"|awk '{print $1}')" = "$RH" || { echo "STOP: reload source authority mismatch"; exit 1; }
 test -f "$FIRE" && test "$(sha256sum "$FIRE"|awk '{print $1}')" = "$FH" || { echo "STOP: fire source authority mismatch"; exit 1; }
-# Recover executable refinery authority. Prose/docs and the rejected sharp-repair campaign are not authority.
-SELF="tools/campaigns/vanguard-shotgun-scale-red-refinery-repair.sh"
-mapfile -t CANDIDATES < <(
-  git grep -l -E 'POSE_LAB_VANGUARD_REFINERY_CLI_V1' -- 'tools/**' 'src/**' 2>/dev/null   | grep -v -F "$SELF"   | grep -v -F 'tools/campaigns/vanguard-shotgun-sharp-source-repair.sh'   || true
-)
-if [ "${#CANDIDATES[@]}" -ne 1 ]; then
-  echo "STOP: MISSING_REFINERY_AUTHORITY"
-  echo "Expected exactly one repository executable authority for the established Vanguard red/color refinery."
-  printf 'candidate=%s\n' "${CANDIDATES[@]:-}"
-  echo "No tint, histogram match, channel guess, or runtime bodyScale substitution is permitted."
-  exit 42
-fi
-REFINERY="${CANDIDATES[0]}"
-echo "REFINERY_AUTHORITY=$REFINERY"
-# The executable authority must expose the narrow CLI contract documented for this repair.
-grep -q 'POSE_LAB_VANGUARD_REFINERY_CLI_V1' "$REFINERY" || {
-  echo "STOP: MISSING_REFINERY_AUTHORITY"
-  echo "Candidate lacks POSE_LAB_VANGUARD_REFINERY_CLI_V1 contract: $REFINERY"
-  exit 42
-}
+# User explicitly authorized a guessed visual refinery candidate.
+# This is NOT canonical refinery authority and remains human-review quarantined.
+REFINERY="GUESS_V1:red*1.08 green*0.82 blue*0.78 contrast1.12 saturation1.10 brightness0.90"
+echo "REFINERY_CANDIDATE=$REFINERY"
 mkdir -p "$L/shotgun-red-repair"
 cp "$A" "$L/shotgun-red-repair/before.png"
-# Prepare two three-frame batches through exact refinery authority.
-# 0.85 is the user's explicit correction to the currently rejected batch scale.
-bash "$REFINERY" --source "$RELOAD" --frames 3 --shared-scale-multiplier 0.85 --output "$L/shotgun-red-repair/reload-prepared.png"
-bash "$REFINERY" --source "$FIRE" --frames 3 --shared-scale-multiplier 0.85 --output "$L/shotgun-red-repair/fire-prepared.png"
+# Prepare both authored batches with ONE declared guessed transform and the
+# user's explicit shared 0.85 scale correction. No per-frame normalization.
+python3 - "$RELOAD" "$L/shotgun-red-repair/reload-prepared.png" "$FIRE" "$L/shotgun-red-repair/fire-prepared.png" <<'PY'
+from PIL import Image,ImageEnhance
+from pathlib import Path
+import sys
+def prep(src,dst):
+ im=Image.open(src).convert("RGB")
+ # One visual candidate transform for every pixel/frame in both batches.
+ r,g,b=im.split()
+ r=r.point(lambda v:min(255,round(v*1.08)))
+ g=g.point(lambda v:min(255,round(v*0.82)))
+ b=b.point(lambda v:min(255,round(v*0.78)))
+ im=Image.merge("RGB",(r,g,b))
+ im=ImageEnhance.Contrast(im).enhance(1.12)
+ im=ImageEnhance.Color(im).enhance(1.10)
+ im=ImageEnhance.Brightness(im).enhance(0.90)
+ # Shared relative size correction. Preserve authored 3-wide geometry.
+ im=im.resize((round(im.width*0.85),round(im.height*0.85)),Image.Resampling.LANCZOS)
+ im.save(dst)
+for a,b in ((sys.argv[1],sys.argv[2]),(sys.argv[3],sys.argv[4])): prep(a,b)
+print("REFINERY_CANDIDATE=GUESS_V1")
+print("SHARED_SCALE_MULTIPLIER=0.85")
+PY
 python3 - "$A" "$L/shotgun-red-repair/before.png" "$L/shotgun-red-repair/reload-prepared.png" "$L/shotgun-red-repair/fire-prepared.png" <<'PY'
 from PIL import Image
 from pathlib import Path
@@ -107,7 +111,7 @@ STAMP=$(date +%s)
 RELOAD_URL="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-reload&rev=$REV&nocache=$STAMP"
 FIRE_URL="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STAMP"
 echo "REV=$REV"
-echo "REFINERY=$REFINERY"
+echo "REFINERY_CANDIDATE=$REFINERY"
 echo "RELOAD_REVIEW=$RELOAD_URL"
 echo "FIRE_REVIEW=$FIRE_URL"
 echo "HUMAN_VERDICT=PENDING"
