@@ -2,82 +2,62 @@
 
 This file exists so Vanguard pose selection does not require archaeology.
 
-## Canonical expanded gameplay atlas
+## One-atlas invariant
 
-For Vanguard procedural animations requiring expanded poses, use:
+There is exactly one live Vanguard runtime pose atlas:
 
 `assets/vanguard/procedural/vanguard-pose-atlas-expanded.png`
 
-Do not select an atlas by filename similarity, screenshots, backup names,
-review images, source-sheet names, or remembered dimensions.
+Every live Vanguard recipe, including Idle, Run, attacks, Butt Smash, Shoulder Charge, Reload, and Fire, must read this same atlas. No live recipe may reference `vanguard-pose-atlas-90.png` or another Vanguard pose atlas.
 
-## Machine-readable authority
+Historical atlases may remain in Git as archaeology, but they are never runtime-selection authority.
 
-`public/assets/vanguard/procedural/butt-smash.recipe.json`
+## Machine-readable geometry authority
 
-is the proven reference declaration for the expanded atlas.
+The current shotgun recipes carry the physically current atlas declaration after the appended review row. Existing accepted rows must remain pixel-identical when the atlas grows.
 
-New expanded-pose recipes must copy its complete:
-
-`atlases.vanguard-canonical`
-
-object, including `rowBounds`.
-
-Do not reconstruct or approximate the geometry.
-
-## Current geometry
+Current physical geometry:
 
 - columns: 6
-- rows: 16
+- rows: 17
 - index base: 1
-- size: 1037 × 1645
-- final row bounds: 1536 → 1645
+- size: 1037 × 1754
+- row 15 bounds: 1536 → 1645
+- row 16 bounds: 1645 → 1754
 
-## Bottom-row pose ownership
+## Pose ownership
 
+- cells 1–90: established Vanguard pose corpus
 - cell 91: Butt Smash windup
 - cell 92: Butt Smash drive
 - cell 93: Butt Smash impact
 - cell 94: Shoulder Charge brace
 - cell 95: Shoulder Charge impact / drive
-- cell 96: empty
+- cell 96: empty / reserved
+- cells 97–99: Shotgun Reload candidate, human review pending
+- cells 100–102: Shotgun Fire candidate, human review pending
 
-## Historical files are not authority
-
-`vanguard-pose-atlas-90.png` is historical and does not contain the
-expanded bottom-row contract used by Butt Smash and Shoulder Charge.
-
-Files containing names such as:
-
-- NO_CLIP
-- review
-- backup
-- pre-*
-- source
-
-may be useful archaeology, but they are not runtime atlas-selection
-authority.
+The shotgun row is quarantined until Drew accepts it. Quarantine does not create a second atlas.
 
 ## Authoring rule
 
-When creating a new Vanguard attack:
+When creating or repairing a Vanguard animation:
 
-1. Read `butt-smash.recipe.json`.
-2. Copy its complete expanded atlas declaration.
-3. Choose the intended cells.
-4. Do not alter another atlas's row count or dimensions to make those
-   cell numbers appear valid.
-5. Do not create another Vanguard runtime atlas merely to add an attack.
+1. Read this file.
+2. Use `vanguard-pose-atlas-expanded.png`.
+3. Preserve all existing atlas pixels exactly.
+4. Append downward only when genuinely new poses are needed.
+5. Update the single canonical atlas declaration without changing unrelated timing, effects, registration, or pose IDs.
+6. Never create, rebuild, or resurrect another Vanguard runtime pose atlas.
+
+## Migration rule
+
+If any live Vanguard recipe still points at `vanguard-pose-atlas-90.png` or another pose atlas, that recipe is stale infrastructure. Repoint only its atlas declaration to the one canonical expanded atlas, preserving every non-atlas property and every cell ID.
 
 ## Debugging rule
 
-If the page, renderer, and recipe load but the wrong pose appears,
-the server is already doing its job.
+If the page, renderer, and recipe load but the wrong pose appears, check:
 
-Check:
-
-route → recipe → atlas path → rowBounds → cell
-
-Do not restart or redesign a working server to fix a pose-selection bug.
+route → recipe → canonical atlas declaration → rowBounds → cell
 
 HTTP 200 proves plumbing, not animation correctness.
