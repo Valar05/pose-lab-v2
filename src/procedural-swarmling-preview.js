@@ -23,9 +23,12 @@ function render(ms){
   ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
   const image=images[index];
-  const x=Math.round((canvas.width-image.naturalWidth)/2);
-  const y=Math.round((canvas.height-image.naturalHeight)/2);
-  ctx.drawImage(image,x,y);
+  const presentationScale=1.5;
+  const drawW=Math.round(image.naturalWidth*presentationScale);
+  const drawH=Math.round(image.naturalHeight*presentationScale);
+  const x=Math.round((canvas.width-drawW)/2);
+  const y=Math.round((canvas.height-drawH)/2);
+  ctx.drawImage(image,0,0,image.naturalWidth,image.naturalHeight,x,y,drawW,drawH);
   phase.textContent='run-'+String(index+1);
   time.textContent=Math.round(ms)+' / '+total+' ms';
   scrub.value=String(ms/total);
