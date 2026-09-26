@@ -515,3 +515,11 @@ The receipt is for the next fresh chat. It must not require access to the conver
 - Apply color/refinery treatment at source-preparation resolution before final atlas packing, in the same order as its canonical executable authority.
 - If a rejected append batch has not been visually accepted, only those rejected append cells are writable. Existing accepted/published cells, reserved cells, recipes, timing, effects, renderer behavior, and registration remain locked unless explicitly reopened.
 - Visual comparison must include at least one accepted canonical pose and one repaired new pose at the same review zoom. Static atlas correctness and animated runtime correctness remain separate human gates.
+
+
+### Expanded canonical atlas / legacy recipe compatibility — 2026-09-25
+- The canonical Vanguard atlas may grow downward only by the exact rows required by accepted/appended cells. Accidental campaign padding or temporary oversized rows are not archaeology and must not be preserved as canonical content.
+- A known campaign-owned height explosion may be repaired by truncating only the proven campaign-owned tail, while verifying the entire retained pixel rectangle byte-for-byte before commit.
+- Legacy recipes may intentionally describe only the original atlas prefix (for example 1037x1536 / 15 rows) while the physical canonical atlas is taller. Their sampler must use the recipe-declared atlas height for row geometry and may accept a physical atlas whose width matches exactly and whose height is greater than or equal to the declared height.
+- A legacy compatibility change is valid only when behavior is identical when physical and declared atlas sizes are equal. Do not rewrite accepted idle/run pose recipes merely to accommodate append-only atlas growth.
+- Physical atlas height, recipe view height, and row sampling geometry are separate contracts. Never derive legacy row height from the physical expanded atlas height.
