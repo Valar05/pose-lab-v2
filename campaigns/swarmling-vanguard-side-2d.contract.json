@@ -1,19 +1,34 @@
 {
   "schema": "pose-lab-v2-campaign-contract-v1",
   "id": "swarmling-vanguard-side-2d-v1",
-  "status": "sealed-before-apply",
+  "status": "resealed-before-apply",
   "mission": "Keep the existing Blender-derived Swarmling/Fleshling lineage untouched; create a separate 2D sprite Swarmling under Vanguard's 2D Pose Lab workspace; repoint the existing character selector to that namespace; publish the accepted six-frame run for visible review.",
   "authority": {
     "acceptedSheetFilename": "fleshpunk_enemy_sheet_20pct_smaller_again.png",
     "acceptedSheetByteSha256": "2a9ee9cc38a4b695d9a561bdce08eab71671de261fcae9e07b1f6a44f55f6f91",
     "acceptedSheetRgbaPixelSha256": "d69d58e50ff26345a45230ea85f1e5d7eaad1d843c8a1774d8c92845f8f599ad",
-    "acceptedSheetDimensions": [1536, 1024],
-    "layout": {"columns": 6, "rows": 4, "cellWidth": 256, "cellHeight": 256},
-    "runCells": [1, 2, 3, 4, 5, 6],
+    "acceptedSheetDimensions": [
+      1536,
+      1024
+    ],
+    "layout": {
+      "columns": 6,
+      "rows": 4,
+      "cellWidth": 256,
+      "cellHeight": 256
+    },
+    "runCells": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
     "runDurationMsPerFrame": 80,
     "scaleLock": "The accepted sheet already includes the user's final repeated 20%-smaller correction. Do not resize again."
   },
-  "packageParentRevision": "b0262b421768477e17bdc546997e94509b413823",
+  "packageParentRevision": "f106a6eb740089188302d9625bed1bb3d7acd325",
   "locks": [
     "authoring/swarmling/**",
     "public/assets/swarmling/fleshpunk/**",
@@ -22,8 +37,10 @@
     "accepted Swarmling scale/fuzziness"
   ],
   "writableSurface": [
-    "src/sprite-viewer.js selector mapping only",
-    "tools/test_sprite_review_surface.mjs new-lane guards only",
+    "index.html: stale startup placeholder only",
+    "package.json: add missing test:2d script only",
+    "src/sprite-viewer.js: Swarmling character manifest mapping only",
+    "tools/test_sprite_review_surface.mjs: selector/new-lane guards only",
     "public/assets/vanguard/fleshpunk/characters/swarmling/**",
     "campaigns/swarmling-vanguard-side-2d.receipt.json"
   ],
@@ -39,5 +56,9 @@
     "new browser architecture"
   ],
   "visualGate": "?view=2d&character=swarmling&animation=run&cacheBust=<exact-final-revision>",
-  "humanVerdict": "pending"
+  "humanVerdict": "pending",
+  "failureBranches": {
+    "SMOKE_HTML_SHELL_STALE": "Replace only the stale startup placeholder with loading Pose Lab V2, then continue.",
+    "SMOKE_TEST_2D_SCRIPT_MISSING": "Add only test:2d = node tools/test_sprite_review_surface.mjs, then continue."
+  }
 }
