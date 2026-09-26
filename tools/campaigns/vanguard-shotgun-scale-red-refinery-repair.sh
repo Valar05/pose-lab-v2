@@ -28,7 +28,7 @@ cat \
 echo "============================================================"
 echo " VANGUARD SHOTGUN SIZE + RED REFINEMENT"
 echo "============================================================"
-echo "MISSION=undo accidental horizontal nudge; make cells 97-102 a little smaller and more red"
+echo "MISSION=apply or review the shotgun size+red v3 candidate; idempotent if already landed"
 echo "PRIMARY_WORKTREE=READ_ONLY"
 echo "SOURCE_AUTHORITY=manifest-pinned authored reload/fire sheets"
 echo "WRITABLE=$ATLAS_REL cells 97-102 only"
@@ -91,8 +91,10 @@ m=json.load(open(sys.argv[3]))
 canon="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 assert r["atlases"]["vanguard-canonical"]["path"]==canon
 assert f["atlases"]["vanguard-canonical"]["path"]==canon
-assert r["stage"]["centerX"]==221, f"STOP: reload centerX unexpected: {r['stage']['centerX']}"
-assert f["stage"]["centerX"]==221, f"STOP: fire centerX unexpected: {f['stage']['centerX']}"
+centers=(r["stage"]["centerX"],f["stage"]["centerX"])
+assert centers in ((221,221),(215,215)), f"STOP: shotgun centerX state unexpected: {centers}"
+if centers==(215,215):
+    assert m.get("refinement",{}).get("kind")=="shotgun-size-red-v3", "STOP: center restored without recorded v3 refinement"
 assert [r["sources"][k]["cell"] for k in ("open","shell","close")]==[97,98,99]
 assert [f["sources"][k]["cell"] for k in ("brace","drive","recoil")]==[100,101,102]
 assert m["newCells"]=={
@@ -107,8 +109,27 @@ print("RECIPE_MANIFEST_AUTHORITY=PASS")
 PY
 
 echo
-echo "=== RESOLVE PINNED AUTHORED SOURCES + REBUILD CELLS 97-102 ==="
-python3 - "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL" <<'PY'
+ALREADY_APPLIED="$(python3 - "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL" <<'PY'
+import json,sys
+r=json.load(open(sys.argv[1]))
+f=json.load(open(sys.argv[2]))
+m=json.load(open(sys.argv[3]))
+ok=(
+    r["stage"]["centerX"]==215 and
+    f["stage"]["centerX"]==215 and
+    m.get("refinement",{}).get("kind")=="shotgun-size-red-v3" and
+    m.get("refinement",{}).get("targetForegroundHeight")==67
+)
+print("yes" if ok else "no")
+PY
+)"
+
+if [ "$ALREADY_APPLIED" = "yes" ]; then
+  echo "SHOTGUN_SIZE_RED_V3=ALREADY_APPLIED"
+  REV="$ORIGIN_HEAD"
+else
+  echo "=== RESOLVE PINNED AUTHORED SOURCES + REBUILD CELLS 97-102 ==="
+  python3 - "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL" <<'PY'
 from PIL import Image, ImageEnhance
 from pathlib import Path
 import hashlib, json, sys
@@ -311,52 +332,58 @@ print("CENTER_X_RESTORED=215")
 print("CELLS_97_102=SMALLER_REDDER")
 PY
 
-echo
-echo "=== DIFF GUARD ==="
-mapfile -t CHANGED < <(git diff --name-only)
-printf 'changed=%s\n' "${CHANGED[@]}"
-[ "${#CHANGED[@]}" -eq 4 ] || { echo "STOP: expected exactly four changed files"; exit 1; }
-for WANT in "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL"; do
-  printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$WANT" || { echo "STOP: missing expected diff $WANT"; exit 1; }
-done
-
-[ "$(sha256sum "$EFFECT_REL" | awk '{print $1}')" = "$EFFECT_SHA" ] || { echo "STOP: effect changed"; exit 1; }
-[ "$(sha256sum "$RENDERER_REL" | awk '{print $1}')" = "$RENDERER_SHA" ] || { echo "STOP: renderer changed"; exit 1; }
-[ "$(sha256sum "$SHELL_REL" | awk '{print $1}')" = "$SHELL_SHA" ] || { echo "STOP: dropdown changed"; exit 1; }
-
-echo
-echo "=== COMMIT + PUSH ==="
-git add "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL"
-git commit -m "Refine Vanguard shotgun scale and red"
-REV="$(git rev-parse HEAD)"
-
-git fetch origin main
-[ "$(git rev-parse origin/main)" = "$ORIGIN_HEAD" ] || {
-  echo "STOP: origin/main advanced during campaign; no push performed"
-  exit 1
-}
-git push origin HEAD:main
-echo "REV=$REV"
-
-echo
-echo "=== COMMITTED READBACK ==="
-git show "$REV:$RELOAD_REL" > "$L/reload-committed.json"
-git show "$REV:$FIRE_REL" > "$L/fire-committed.json"
-git show "$REV:$MANIFEST_REL" > "$L/manifest-committed.json"
-git show "$REV:$ATLAS_REL" > "$L/atlas-committed.png"
-
-python3 - "$L/reload-committed.json" "$L/fire-committed.json" "$L/manifest-committed.json" "$L/atlas-committed.png" <<'PY'
-import hashlib,json,sys
-r=json.load(open(sys.argv[1]))
-f=json.load(open(sys.argv[2]))
-m=json.load(open(sys.argv[3]))
-atlas=sys.argv[4]
-assert r["stage"]["centerX"]==215
-assert f["stage"]["centerX"]==215
-assert m["refinement"]["kind"]=="shotgun-size-red-v3"
-assert m["result"]["sha256"]==hashlib.sha256(open(atlas,"rb").read()).hexdigest()
-print("COMMITTED_READBACK=PASS")
-PY
+  echo
+  echo "=== DIFF GUARD ==="
+  mapfile -t CHANGED < <(git diff --name-only)
+  printf 'changed=%s\n' "${CHANGED[@]}"
+  [ "${#CHANGED[@]}" -eq 4 ] || { echo "STOP: expected exactly four changed files"; exit 1; }
+  for WANT in "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL"; do
+    printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$WANT" || { echo "STOP: missing expected diff $WANT"; exit 1; }
+  done
+  
+  [ "$(sha256sum "$EFFECT_REL" | awk '{print $1}')" = "$EFFECT_SHA" ] || { echo "STOP: effect changed"; exit 1; }
+  [ "$(sha256sum "$RENDERER_REL" | awk '{print $1}')" = "$RENDERER_SHA" ] || { echo "STOP: renderer changed"; exit 1; }
+  [ "$(sha256sum "$SHELL_REL" | awk '{print $1}')" = "$SHELL_SHA" ] || { echo "STOP: dropdown changed"; exit 1; }
+  
+  echo
+  echo "=== COMMIT + PUSH ==="
+  git add "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL"
+  git commit -m "Refine Vanguard shotgun scale and red"
+  REV="$(git rev-parse HEAD)"
+  
+  git fetch origin main
+  [ "$(git rev-parse origin/main)" = "$ORIGIN_HEAD" ] || {
+    echo "STOP: origin/main advanced during campaign; no push performed"
+    exit 1
+  }
+  git push origin HEAD:main
+  echo "REV=$REV"
+  
+  echo
+  echo "=== COMMITTED READBACK ==="
+  git show "$REV:$RELOAD_REL" > "$L/reload-committed.json"
+  git show "$REV:$FIRE_REL" > "$L/fire-committed.json"
+  git show "$REV:$MANIFEST_REL" > "$L/manifest-committed.json"
+  git show "$REV:$ATLAS_REL" > "$L/atlas-committed.png"
+  
+  python3 - "$L/reload-committed.json" "$L/fire-committed.json" "$L/manifest-committed.json" "$L/atlas-committed.png" <<'PY'
+  import hashlib,json,sys
+  r=json.load(open(sys.argv[1]))
+  f=json.load(open(sys.argv[2]))
+  m=json.load(open(sys.argv[3]))
+  atlas=sys.argv[4]
+  assert r["stage"]["centerX"]==215
+  assert f["stage"]["centerX"]==215
+  assert m["refinement"]["kind"]=="shotgun-size-red-v3"
+  assert m["result"]["sha256"]==hashlib.sha256(open(atlas,"rb").read()).hexdigest()
+  print("COMMITTED_READBACK=PASS")
+  PY
+  
+  
+else
+  echo "NO_CREATIVE_MUTATION=YES"
+  echo "USING_CURRENT_ORIGIN_MAIN=$REV"
+fi
 
 echo
 echo "=== EXACT-REVISION BUILD ==="
