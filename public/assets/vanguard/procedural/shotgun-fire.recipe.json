@@ -277,8 +277,8 @@
     "source": "muzzle",
     "width": 150,
     "position": [
-      145,
-      92
+      100,
+      106
     ],
     "pivot": [
       0.5,
@@ -337,8 +337,8 @@
     "rotateZDeg": 0,
     "tiltXDeg": 0,
     "yawYDeg": 0,
-    "scaleX": 1,
-    "scaleY": 1,
+    "scaleX": 1.1,
+    "scaleY": 0.75,
     "flipX": false,
     "flipY": false,
     "depthSplit": 0,
