@@ -421,7 +421,7 @@
     "depthSplit": 0.5
   },
   "stage": {
-    "centerX": 195,
+    "centerX": 216,
     "centerSource": "idle",
     "mode": "translate-composite-after-local-authoring"
   },
