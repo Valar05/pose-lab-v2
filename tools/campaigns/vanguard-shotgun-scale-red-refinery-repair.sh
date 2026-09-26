@@ -23,7 +23,10 @@ START=$(git rev-parse HEAD)
 test -f "$RELOAD" && test "$(sha256sum "$RELOAD"|awk '{print $1}')" = "$RH" || { echo "STOP: reload source authority mismatch"; exit 1; }
 test -f "$FIRE" && test "$(sha256sum "$FIRE"|awk '{print $1}')" = "$FH" || { echo "STOP: fire source authority mismatch"; exit 1; }
 # Recover executable refinery authority. Prose/docs and the rejected sharp-repair campaign are not authority.
-mapfile -t CANDIDATES < <(git grep -l -E 'VANGUARD_RED_FILTER|vanguard_red_filter|red[_ -]refin|palette[_ -]transform|color[_ -]refin' -- 'tools/**' 'src/**' ':!tools/campaigns/vanguard-shotgun-sharp-source-repair.sh' 2>/dev/null || true)
+SELF="tools/campaigns/vanguard-shotgun-scale-red-refinery-repair.sh"
+mapfile -t CANDIDATES < <(
+  git grep -l -E 'POSE_LAB_VANGUARD_REFINERY_CLI_V1' -- 'tools/**' 'src/**' 2>/dev/null   | grep -v -F "$SELF"   | grep -v -F 'tools/campaigns/vanguard-shotgun-sharp-source-repair.sh'   || true
+)
 if [ "${#CANDIDATES[@]}" -ne 1 ]; then
   echo "STOP: MISSING_REFINERY_AUTHORITY"
   echo "Expected exactly one repository executable authority for the established Vanguard red/color refinery."
