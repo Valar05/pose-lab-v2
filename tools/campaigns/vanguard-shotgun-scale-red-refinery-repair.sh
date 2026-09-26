@@ -3,268 +3,412 @@ set -euo pipefail
 export GIT_PAGER=cat PAGER=cat
 
 P="$HOME/storage/documents/GodotProjects/pose-lab-v2"
-L="$HOME/.local/state/pose-lab-v2-vanguard-live"
-W="$L/worktree"
+L="$HOME/.local/state/pose-lab-v2-vanguard-shotgun-refine"
+A="$L/authoring"
+W="$L/review"
 
-ATLAS_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-90.png"
-ATLAS="$P/$ATLAS_REL"
-
-RELOAD="/storage/emulated/0/Download/vanguard-shotgun-reload-source-original.jpg"
-FIRE="/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856.png"
-CAL="/storage/emulated/0/Download/vanguard-pose-atlas-reload-calibrated-15pct-smaller.png"
-
-RH="b9f877a233d080792da17c32a4072ddce564d8dd795cbb4368aaeb7f4bdbdc5b"
-FH="ef055143656bcace7a688c7c6f484c828718edb93814a8d75d542be8a968c438"
-CH="005c0b0f199a72f93735f9072b8b34ba313bf600294c03a21ea81d266e2fe015"
+ATLAS_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+RELOAD_REL="public/assets/vanguard/procedural/shotgun-reload.recipe.json"
+FIRE_REL="public/assets/vanguard/procedural/shotgun-fire.recipe.json"
+MANIFEST_REL="public/assets/vanguard/procedural/vanguard-shotgun-atlas-append.manifest.json"
+EFFECT_REL="public/assets/vanguard/procedural/vanguard-shotgun-fire-effect.png"
+RENDERER_REL="src/procedural-motion-preview.js"
+SHELL_REL="src/procedural-review-shell.js"
 
 cd "$P"
+mkdir -p "$L"
 
-cat AGENTS.md docs/POSE_LAB_CAMPAIGN_RULES.md docs/POSE_IS_GOD.md >/dev/null
+cat \
+  AGENTS.md \
+  docs/POSE_LAB_CAMPAIGN_RULES.md \
+  docs/POSE_IS_GOD.md \
+  docs/VANGUARD_ATLAS_AUTHORITY.md \
+  >/dev/null
 
-echo "MISSION=repair rejected shotgun append sprites from the two real authored 3-frame sheets"
-echo "SOURCE_AUTHORITY=reload original + fire original"
-echo "SCALE_AUTHORITY=previous reload calibration, then explicit 15% shorter"
-echo "COLOR=GUESS_V2 mild candidate, still human-review quarantined"
-echo "WRITABLE=$ATLAS_REL pixels in rows 15-16 only (y=1536..1728)"
-echo "LOCKED=cells 1-90; everything below y=1728; recipes; timing; effects; renderer; registration"
+echo "============================================================"
+echo " VANGUARD SHOTGUN SIZE + RED REFINEMENT"
+echo "============================================================"
+echo "MISSION=undo accidental horizontal nudge; make cells 97-102 a little smaller and more red"
+echo "PRIMARY_WORKTREE=READ_ONLY"
+echo "SOURCE_AUTHORITY=manifest-pinned authored reload/fire sheets"
+echo "WRITABLE=$ATLAS_REL cells 97-102 only"
+echo "WRITABLE+=$RELOAD_REL stage.centerX only"
+echo "WRITABLE+=$FIRE_REL stage.centerX only"
+echo "WRITABLE+=$MANIFEST_REL result sha + refinement metadata"
+echo "LOCKED=cells 1-96; effect bytes/placement; timing; deformation; renderer; dropdown; every other recipe"
+echo "TARGET_HORIZONTAL=restore stage.centerX 215"
+echo "TARGET_SIZE=90 percent of current candidate foreground height, rebuilt from original authored sheets"
+echo "TARGET_COLOR=red refinery v3"
 
-git status --short
-git diff --quiet HEAD -- "$ATLAS_REL" || {
-  echo "STOP: DIRTY_TARGET $ATLAS_REL"
-  exit 1
-}
-
+echo
+echo "=== DIRTY / DIVERGENCE PREFLIGHT ==="
+git status --short || true
 git fetch origin main
-[ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ] || git merge --ff-only origin/main
-START="$(git rev-parse HEAD)"
-echo "START_HEAD=$START"
 
-resolve_exact_sha() {
-  local preferred="$1"
-  local want="$2"
+LOCAL_HEAD="$(git rev-parse HEAD)"
+ORIGIN_HEAD="$(git rev-parse origin/main)"
+BASE="$(git merge-base HEAD origin/main)"
+echo "LOCAL_HEAD=$LOCAL_HEAD"
+echo "ORIGIN_HEAD=$ORIGIN_HEAD"
+echo "MERGE_BASE=$BASE"
 
-  if [ -f "$preferred" ]; then
-    local got
-    got="$(sha256sum "$preferred" | awk '{print $1}')"
-    if [ "$got" = "$want" ]; then
-      printf '%s\n' "$preferred"
-      return 0
-    fi
-  fi
+if [ "$LOCAL_HEAD" != "$ORIGIN_HEAD" ]; then
+  git log --oneline --decorate "$BASE..HEAD" > "$L/local-only-commits.txt" || true
+  git diff --binary "$BASE..HEAD" > "$L/local-only-history.patch" || true
+  echo "LOCAL_DIVERGENCE=PRESERVED_NOT_MUTATED"
+fi
+git ls-files --others --exclude-standard > "$L/untracked.txt" || true
+echo "PRIMARY_WORKTREE_LEFT_UNTOUCHED=YES"
 
-  local found=""
-  local f got
-  while IFS= read -r -d '' f; do
-    got="$(sha256sum "$f" 2>/dev/null | awk '{print $1}')"
-    [ "$got" = "$want" ] || continue
-    found="$f"
-    break
-  done < <(
-    find /storage/emulated/0/Download /storage/emulated/0/Pictures \
-      -maxdepth 4 -type f \
-      \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) \
-      -print0 2>/dev/null
-  )
+echo
+echo "=== CLEAN AUTHORING WORKTREE FROM ORIGIN/MAIN ==="
+git worktree remove --force "$A" 2>/dev/null || true
+rm -rf "$A"
+git worktree add --detach "$A" "$ORIGIN_HEAD"
+cd "$A"
 
-  [ -n "$found" ] || return 1
-  printf '%s\n' "$found"
+for F in "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL" "$EFFECT_REL" "$RENDERER_REL" "$SHELL_REL"; do
+  test -e "$F" || { echo "STOP: missing $F"; exit 1; }
+done
+
+EFFECT_SHA="$(sha256sum "$EFFECT_REL" | awk '{print $1}')"
+RENDERER_SHA="$(sha256sum "$RENDERER_REL" | awk '{print $1}')"
+SHELL_SHA="$(sha256sum "$SHELL_REL" | awk '{print $1}')"
+
+cp "$ATLAS_REL" "$L/atlas-before.png"
+cp "$RELOAD_REL" "$L/reload-before.json"
+cp "$FIRE_REL" "$L/fire-before.json"
+cp "$MANIFEST_REL" "$L/manifest-before.json"
+
+echo
+echo "=== VERIFY RECIPES / MANIFEST ==="
+python3 - "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL" <<'PY'
+import json,sys
+r=json.load(open(sys.argv[1]))
+f=json.load(open(sys.argv[2]))
+m=json.load(open(sys.argv[3]))
+
+canon="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+assert r["atlases"]["vanguard-canonical"]["path"]==canon
+assert f["atlases"]["vanguard-canonical"]["path"]==canon
+assert r["stage"]["centerX"]==221, f"STOP: reload centerX unexpected: {r['stage']['centerX']}"
+assert f["stage"]["centerX"]==221, f"STOP: fire centerX unexpected: {f['stage']['centerX']}"
+assert [r["sources"][k]["cell"] for k in ("open","shell","close")]==[97,98,99]
+assert [f["sources"][k]["cell"] for k in ("brace","drive","recoil")]==[100,101,102]
+assert m["newCells"]=={
+ "97":"shotgun reload open",
+ "98":"shotgun reload insert",
+ "99":"shotgun reload close",
+ "100":"shotgun fire brace",
+ "101":"shotgun fire drive",
+ "102":"shotgun fire recoil"
 }
+print("RECIPE_MANIFEST_AUTHORITY=PASS")
+PY
 
-RELOAD="$(resolve_exact_sha "$RELOAD" "$RH")" || {
-  echo "STOP: exact reload source SHA-256 not found on device: $RH"
-  exit 1
-}
-FIRE="$(resolve_exact_sha "$FIRE" "$FH")" || {
-  echo "STOP: exact fire source SHA-256 not found on device: $FH"
-  exit 1
-}
-CAL="$(resolve_exact_sha "$CAL" "$CH")" || {
-  echo "STOP: exact calibration SHA-256 not found on device: $CH"
-  exit 1
-}
-
-echo "RESOLVED_RELOAD=$RELOAD"
-echo "RESOLVED_FIRE=$FIRE"
-echo "RESOLVED_CAL=$CAL"
-
-mkdir -p "$L/shotgun-red-repair"
-cp "$ATLAS" "$L/shotgun-red-repair/before.png"
-
-python3 - "$ATLAS" "$RELOAD" "$FIRE" "$CAL" <<'PY'
+echo
+echo "=== RESOLVE PINNED AUTHORED SOURCES + REBUILD CELLS 97-102 ==="
+python3 - "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL" <<'PY'
 from PIL import Image, ImageEnhance
 from pathlib import Path
-import numpy as np
-import sys
+import hashlib, json, sys
 
-atlas_p,reload_p,fire_p,cal_p=map(Path,sys.argv[1:])
+atlas_p,reload_recipe_p,fire_recipe_p,manifest_p=map(Path,sys.argv[1:])
+manifest=json.loads(manifest_p.read_text())
+
+def pixel_sha(path):
+    im=Image.open(path).convert("RGB")
+    return hashlib.sha256(im.tobytes()).hexdigest()
+
+def resolve_source(spec):
+    preferred=Path(spec["path"])
+    want=spec["pixelSha256"]
+
+    candidates=[]
+    if preferred.exists():
+        candidates.append(preferred)
+
+    roots=[Path("/storage/emulated/0/Download"),Path("/storage/emulated/0/Pictures")]
+    stem=preferred.stem.split(" (")[0]
+    for root in roots:
+        if not root.exists():
+            continue
+        for pat in (preferred.name, stem+"*", "*shotgun*"):
+            for p in root.glob(pat):
+                if p.is_file() and p.suffix.lower() in (".png",".jpg",".jpeg") and p not in candidates:
+                    candidates.append(p)
+
+    matches=[]
+    for p in candidates:
+        try:
+            if pixel_sha(p)==want:
+                matches.append(p)
+        except Exception:
+            pass
+
+    if not matches:
+        raise SystemExit(f"STOP: no bounded source matches pixel SHA {want}")
+    matches=sorted(set(matches), key=lambda p:(0 if p==preferred else 1, str(p)))
+    return matches[0]
+
+reload_src=resolve_source(manifest["sources"]["reload"])
+fire_src=resolve_source(manifest["sources"]["fire"])
+print("RELOAD_SOURCE=",reload_src)
+print("FIRE_SOURCE=",fire_src)
+
 atlas=Image.open(atlas_p).convert("RGB")
 before=atlas.copy()
+assert atlas.size==(1037,1754), f"STOP: atlas geometry changed: {atlas.size}"
 
-assert atlas.width==1037
-assert atlas.height>=1728
-assert Image.open(reload_p).size==(1536,512), "STOP: reload source is not the authored 3x horizontal sheet"
-assert Image.open(fire_p).size==(1536,512), "STOP: fire source is not the authored 3x horizontal sheet"
-assert Image.open(cal_p).size==(1037,1632), "STOP: calibration atlas geometry changed"
+ROW0,ROW1=1645,1754
+THRESH=18
 
-def component_bbox(im, threshold=18):
-    ar=np.asarray(im.convert("RGB"))
-    mask=ar.max(axis=2)>threshold
-    H,W=mask.shape
-    seen=np.zeros((H,W),dtype=np.uint8)
-    best=None
-    best_n=0
-    for y in range(H):
-        for x in range(W):
-            if not mask[y,x] or seen[y,x]:
-                continue
-            stack=[(x,y)]
-            seen[y,x]=1
-            xs=[]; ys=[]
-            while stack:
-                xx,yy=stack.pop()
-                xs.append(xx); ys.append(yy)
-                for nx,ny in ((xx-1,yy),(xx+1,yy),(xx,yy-1),(xx,yy+1)):
-                    if 0<=nx<W and 0<=ny<H and mask[ny,nx] and not seen[ny,nx]:
-                        seen[ny,nx]=1
-                        stack.append((nx,ny))
-            if len(xs)>best_n:
-                best_n=len(xs)
-                best=(min(xs),min(ys),max(xs)+1,max(ys)+1)
-    assert best is not None
-    return best
+def cell_rect(cell):
+    i=cell-1
+    row=i//6
+    col=i%6
+    assert row==16, f"STOP: shotgun cell {cell} not in row 16"
+    x0=round(col*1037/6)
+    x1=round((col+1)*1037/6)
+    return x0,ROW0,x1,ROW1
 
-def atlas_cell(im, cell, y0, y1):
-    col=(cell-1)%6
-    x0=round(col*1037/6); x1=round((col+1)*1037/6)
-    return im.crop((x0,y0,x1,y1))
+def bbox_nonblack(im):
+    pix=im.load()
+    xs=[]; ys=[]
+    for y in range(im.height):
+        for x in range(im.width):
+            if max(pix[x,y])>THRESH:
+                xs.append(x); ys.append(y)
+    if not xs:
+        raise SystemExit("STOP: empty foreground")
+    return min(xs),min(ys),max(xs)+1,max(ys)+1
 
-# Scale authority: the named calibration sheet was the immediately preceding
-# mechanical scale candidate. Drew then asked for 15% shorter.
-cal=Image.open(cal_p).convert("RGB")
-cal_heights=[]
-for c in (91,92,93):
-    b=component_bbox(atlas_cell(cal,c,1536,1632))
-    cal_heights.append(b[3]-b[1])
-cal_h=sorted(cal_heights)[1]
-target_h=max(1,round(cal_h*0.85))
-print("CALIBRATION_HEIGHTS=",cal_heights)
-print("CALIBRATION_MEDIAN=",cal_h)
-print("TARGET_HEIGHT_15PCT_SHORTER=",target_h)
+# Current visible candidate establishes only the requested RELATIVE correction.
+current_heights=[]
+for c in range(97,103):
+    crop=before.crop(cell_rect(c))
+    b=bbox_nonblack(crop)
+    current_heights.append(b[3]-b[1])
+current_median=sorted(current_heights)[len(current_heights)//2]
+target_h=max(1,round(current_median*0.90))
+print("CURRENT_HEIGHTS=",current_heights)
+print("CURRENT_MEDIAN=",current_median)
+print("TARGET_HEIGHT_90PCT=",target_h)
 
-def three_frames(path):
+def split3(path):
     im=Image.open(path).convert("RGB")
-    assert im.size==(1536,512)
-    return [im.crop((i*512,0,(i+1)*512,512)) for i in range(3)]
+    assert im.size==(1536,512), f"STOP: authored sheet geometry changed: {path} {im.size}"
+    out=[]
+    for i in range(3):
+        frame=im.crop((i*512,0,(i+1)*512,512))
+        out.append(frame.crop(bbox_nonblack(frame)))
+    return out
 
-reload_frames=three_frames(reload_p)
-fire_frames=three_frames(fire_p)
+reload_frames=split3(reload_src)
+fire_frames=split3(fire_src)
 
-# Derive ONE scale from the reload authored sheet, then apply that exact scale
-# to all six frames. Both source sheets are 1536x512 and were authored at the
-# same source scale.
-raw_boxes=[component_bbox(f) for f in reload_frames]
-raw_heights=[b[3]-b[1] for b in raw_boxes]
-raw_med=sorted(raw_heights)[1]
-scale=target_h/raw_med
-print("RAW_RELOAD_HEIGHTS=",raw_heights)
-print("SHARED_ALL_SIX_SCALE=",f"{scale:.8f}")
+# One shared scale across all six because both authored sheets share exact source geometry.
+source_heights=[f.height for f in reload_frames+fire_frames]
+source_median=sorted(source_heights)[len(source_heights)//2]
+scale=target_h/source_median
+print("SOURCE_HEIGHTS=",source_heights)
+print("SHARED_SCALE=",f"{scale:.8f}")
 
-def mild_red(im):
+def red_v3(im):
+    # Stronger than rejected V2, still conservative.
     r,g,b=im.split()
-    r=r.point(lambda v:min(255,round(v*1.02)))
-    g=g.point(lambda v:min(255,round(v*0.97)))
-    b=b.point(lambda v:min(255,round(v*0.95)))
+    r=r.point(lambda v:min(255,round(v*1.07)))
+    g=g.point(lambda v:min(255,round(v*0.91)))
+    b=b.point(lambda v:min(255,round(v*0.88)))
     im=Image.merge("RGB",(r,g,b))
+    im=ImageEnhance.Color(im).enhance(1.10)
     im=ImageEnhance.Contrast(im).enhance(1.05)
-    im=ImageEnhance.Color(im).enhance(1.03)
     im=ImageEnhance.Brightness(im).enhance(0.98)
     return im
 
 prepared=[]
 for label,frames in (("reload",reload_frames),("fire",fire_frames)):
-    for i,frame in enumerate(frames,1):
-        box=component_bbox(frame)
-        subject=frame.crop(box)
-        subject=mild_red(subject)
-        nw=max(1,round(subject.width*scale))
-        nh=max(1,round(subject.height*scale))
-        subject=subject.resize((nw,nh),Image.Resampling.LANCZOS)
-        prepared.append((label,i,subject))
-        print(f"PREP {label}{i}: {subject.width}x{subject.height}")
+    for idx,frame in enumerate(frames,1):
+        frame=red_v3(frame)
+        nw=max(1,round(frame.width*scale))
+        nh=max(1,round(frame.height*scale))
+        frame=frame.resize((nw,nh),Image.Resampling.LANCZOS)
+        prepared.append((label,idx,frame))
+        print(f"PREP_{label}_{idx}={nw}x{nh}")
 
-# Only the two rejected 96px append rows are rewritten.
-# Preserve all accepted history above and all trailing campaign archaeology below.
-out=atlas.copy()
-out.paste((0,0,0),(0,1536,1037,1728))
+out=before.copy()
 
-def dest_rect(cell):
-    i=cell-1
-    row=i//6
-    col=i%6
-    assert row in (15,16)
-    x0=round(col*1037/6); x1=round((col+1)*1037/6)
-    y0=1536+(row-15)*96
-    y1=y0+96
-    return x0,y0,x1,y1
+# Clear and rewrite ONLY 97-102.
+for c in range(97,103):
+    out.paste((0,0,0),cell_rect(c))
 
-for cell,(_,_,sprite) in zip((91,92,93,97,98,99),prepared):
-    x0,y0,x1,y1=dest_rect(cell)
+placements={}
+for cell,(_,_,sprite) in zip(range(97,103),prepared):
+    x0,y0,x1,y1=cell_rect(cell)
     sw,sh=x1-x0,y1-y0
-    assert sprite.width<=sw, f"STOP: cell {cell} too wide {sprite.width}>{sw}"
-    assert sprite.height<=sh-5, f"STOP: cell {cell} too tall {sprite.height}>{sh-5}"
+    assert sprite.width<=sw, f"STOP: cell {cell} too wide"
+    assert sprite.height<=sh-5, f"STOP: cell {cell} too tall"
     x=x0+(sw-sprite.width)//2
     y=y1-5-sprite.height
     out.paste(sprite,(x,y))
+    placements[str(cell)]=[x,y,sprite.width,sprite.height]
 
-# Locked rectangles.
-assert out.crop((0,0,1037,1536)).tobytes()==before.crop((0,0,1037,1536)).tobytes()
-if out.height>1728:
-    assert out.crop((0,1728,1037,out.height)).tobytes()==before.crop((0,1728,1037,before.height)).tobytes()
+# Published/other content is mechanically locked.
+assert out.crop((0,0,1037,ROW0)).tobytes()==before.crop((0,0,1037,ROW0)).tobytes()
+for c in range(97):
+    pass
 
-for c in (94,95,96,100,101,102):
-    r=dest_rect(c)
-    assert max(ch[1] for ch in out.crop(r).getextrema())==0, f"STOP: reserved cell {c} not black"
-
+# Verify every row16 cell outside 97-102 is irrelevant because row16 is exactly cells 97-102.
 out.save(atlas_p)
-print("ATLAS_SIZE=",out.size)
-print("ROWS_15_16=REPAIRED")
-print("TRAILING_Y_GE_1728=PRESERVED")
+
+# Undo accidental horizontal nudge only.
+for rp in (reload_recipe_p,fire_recipe_p):
+    d=json.loads(rp.read_text())
+    assert d["stage"]["centerX"]==221
+    d["stage"]["centerX"]=215
+    rp.write_text(json.dumps(d,indent=2)+"\n")
+
+# Update manifest to match new canonical atlas bytes and record this refinement.
+new_sha=hashlib.sha256(atlas_p.read_bytes()).hexdigest()
+manifest["result"]["sha256"]=new_sha
+manifest["refinement"]={
+    "kind":"shotgun-size-red-v3",
+    "humanVerdict":"pending",
+    "relativeScaleFromPreviousCandidate":0.90,
+    "targetForegroundHeight":target_h,
+    "sharedScaleFromAuthoredSources":scale,
+    "color":{
+        "rMultiplier":1.07,
+        "gMultiplier":0.91,
+        "bMultiplier":0.88,
+        "saturation":1.10,
+        "contrast":1.05,
+        "brightness":0.98
+    },
+    "placements":placements,
+    "horizontalPlacement":"restored stage.centerX 215 in reload/fire recipes"
+}
+manifest_p.write_text(json.dumps(manifest,indent=2)+"\n")
+
+print("ATLAS_SHA256=",new_sha)
+print("CENTER_X_RESTORED=215")
+print("CELLS_97_102=SMALLER_REDDER")
 PY
 
-BAD="$(git diff --name-only | grep -v "^$ATLAS_REL$" || true)"
-[ -z "$BAD" ] || { echo "STOP: UNEXPECTED_DIFF"; echo "$BAD"; exit 1; }
+echo
+echo "=== DIFF GUARD ==="
+mapfile -t CHANGED < <(git diff --name-only)
+printf 'changed=%s\n' "${CHANGED[@]}"
+[ "${#CHANGED[@]}" -eq 4 ] || { echo "STOP: expected exactly four changed files"; exit 1; }
+for WANT in "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL"; do
+  printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$WANT" || { echo "STOP: missing expected diff $WANT"; exit 1; }
+done
 
-node --check src/procedural-motion-preview.js
+[ "$(sha256sum "$EFFECT_REL" | awk '{print $1}')" = "$EFFECT_SHA" ] || { echo "STOP: effect changed"; exit 1; }
+[ "$(sha256sum "$RENDERER_REL" | awk '{print $1}')" = "$RENDERER_SHA" ] || { echo "STOP: renderer changed"; exit 1; }
+[ "$(sha256sum "$SHELL_REL" | awk '{print $1}')" = "$SHELL_SHA" ] || { echo "STOP: dropdown changed"; exit 1; }
 
-git add "$ATLAS_REL"
-git commit -m "Repair shotgun append sprites from correct authored sources"
-git push origin main
+echo
+echo "=== COMMIT + PUSH ==="
+git add "$ATLAS_REL" "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL"
+git commit -m "Refine Vanguard shotgun scale and red"
 REV="$(git rev-parse HEAD)"
+
+git fetch origin main
+[ "$(git rev-parse origin/main)" = "$ORIGIN_HEAD" ] || {
+  echo "STOP: origin/main advanced during campaign; no push performed"
+  exit 1
+}
+git push origin HEAD:main
 echo "REV=$REV"
 
-git show "$REV:$ATLAS_REL" > "$L/shotgun-red-repair/committed.png"
-cmp -s "$ATLAS" "$L/shotgun-red-repair/committed.png" || { echo "STOP: committed atlas readback mismatch"; exit 1; }
+echo
+echo "=== COMMITTED READBACK ==="
+git show "$REV:$RELOAD_REL" > "$L/reload-committed.json"
+git show "$REV:$FIRE_REL" > "$L/fire-committed.json"
+git show "$REV:$MANIFEST_REL" > "$L/manifest-committed.json"
+git show "$REV:$ATLAS_REL" > "$L/atlas-committed.png"
 
+python3 - "$L/reload-committed.json" "$L/fire-committed.json" "$L/manifest-committed.json" "$L/atlas-committed.png" <<'PY'
+import hashlib,json,sys
+r=json.load(open(sys.argv[1]))
+f=json.load(open(sys.argv[2]))
+m=json.load(open(sys.argv[3]))
+atlas=sys.argv[4]
+assert r["stage"]["centerX"]==215
+assert f["stage"]["centerX"]==215
+assert m["refinement"]["kind"]=="shotgun-size-red-v3"
+assert m["result"]["sha256"]==hashlib.sha256(open(atlas,"rb").read()).hexdigest()
+print("COMMITTED_READBACK=PASS")
+PY
+
+echo
+echo "=== EXACT-REVISION BUILD ==="
+cd "$P"
 git worktree remove --force "$W" 2>/dev/null || true
 rm -rf "$W"
 git worktree add --detach "$W" "$REV"
 cd "$W"
 
-node --check src/procedural-motion-preview.js
+node --check "$RENDERER_REL"
+node --check "$SHELL_REL"
 npm run build
 
-[ ! -f "$L/server.pid" ] || kill "$(cat "$L/server.pid")" 2>/dev/null || true
-python3 -m http.server 8766 --bind 127.0.0.1 --directory "$W/dist" >"$L/server.log" 2>&1 &
-PID=$!
-echo "$PID" > "$L/server.pid"
-sleep 2
-kill -0 "$PID" || { echo "STOP: review server died"; cat "$L/server.log"; exit 1; }
+echo
+echo "=== SERVE EXACT REVISION ==="
+probe_exact_server() {
+  local base="$1" tmp="$L/probe.$$"
+  if ! curl -fsS "$base/assets/vanguard/procedural/shotgun-reload.recipe.json" > "$tmp.reload" 2>/dev/null; then
+    rm -f "$tmp.reload" "$tmp.fire"
+    return 1
+  fi
+  if ! curl -fsS "$base/assets/vanguard/procedural/shotgun-fire.recipe.json" > "$tmp.fire" 2>/dev/null; then
+    rm -f "$tmp.reload" "$tmp.fire"
+    return 1
+  fi
+  local sr br sf bf
+  sr="$(sha256sum "$tmp.reload" | awk '{print $1}')"
+  br="$(sha256sum "$W/dist/assets/vanguard/procedural/shotgun-reload.recipe.json" | awk '{print $1}')"
+  sf="$(sha256sum "$tmp.fire" | awk '{print $1}')"
+  bf="$(sha256sum "$W/dist/assets/vanguard/procedural/shotgun-fire.recipe.json" | awk '{print $1}')"
+  rm -f "$tmp.reload" "$tmp.fire"
+  [ "$sr" = "$br" ] && [ "$sf" = "$bf" ]
+}
+
+BASE_URL=""
+for PORT in 8766 8767 8768 8769 8770 8771 8772 8773 8774 8775; do
+  CANDIDATE="http://127.0.0.1:$PORT"
+  if probe_exact_server "$CANDIDATE"; then
+    BASE_URL="$CANDIDATE"
+    echo "SERVER=REUSED_EXACT PORT=$PORT"
+    break
+  fi
+  python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$W/dist" >"$L/server-$PORT.log" 2>&1 &
+  PID=$!
+  sleep 1
+  if kill -0 "$PID" 2>/dev/null; then
+    BASE_URL="$CANDIDATE"
+    echo "$PID" > "$L/server.pid"
+    echo "$PORT" > "$L/server.port"
+    echo "SERVER=STARTED PORT=$PORT PID=$PID"
+    break
+  fi
+done
+
+[ -n "$BASE_URL" ] || { echo "STOP: no review port available in 8766..8775"; exit 1; }
+probe_exact_server "$BASE_URL" || { echo "STOP: selected server does not serve exact built bytes"; exit 1; }
 
 STAMP="$(date +%s)"
-RU="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-reload&rev=$REV&nocache=$STAMP"
-FU="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STAMP"
+RU="$BASE_URL/motion.html?procedural=vanguard-shotgun-reload&rev=$REV&nocache=$STAMP"
+FU="$BASE_URL/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STAMP"
 
+echo
+echo "============================================================"
+echo " SHOTGUN SIZE + RED REVIEW READY"
+echo "============================================================"
+echo "REV=$REV"
 echo "RELOAD_REVIEW=$RU"
 echo "FIRE_REVIEW=$FU"
 echo "HUMAN_VERDICT=PENDING"
+
 termux-open-url "$RU"
