@@ -6,46 +6,50 @@ P="$HOME/storage/documents/GodotProjects/pose-lab-v2"
 L="$HOME/.local/state/pose-lab-v2-vanguard-live"
 W="$L/worktree"
 
-A_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
-R_REL="public/assets/vanguard/procedural/shotgun-reload.recipe.json"
-F_REL="public/assets/vanguard/procedural/shotgun-fire.recipe.json"
-M_REL="public/assets/vanguard/procedural/vanguard-shotgun-atlas-append.manifest.json"
-REF_REL="public/assets/vanguard/procedural/butt-smash.recipe.json"
-
-A="$P/$A_REL"
-R="$P/$R_REL"
-F="$P/$F_REL"
-M="$P/$M_REL"
-REF="$P/$REF_REL"
-
-RELOAD="/storage/emulated/0/Download/vanguard-shotgun-reload-source-original.jpg"
-FIRE="/storage/emulated/0/Download/file_00000000be1481f5a3f60d247fb48856 (1).png"
-CAL="/storage/emulated/0/Download/vanguard-pose-atlas-reload-calibrated-15pct-smaller.png"
+ATLAS_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+APPEND_MANIFEST_REL="public/assets/vanguard/procedural/vanguard-shotgun-atlas-append.manifest.json"
+ATLAS="$P/$ATLAS_REL"
+APPEND_MANIFEST="$P/$APPEND_MANIFEST_REL"
 
 cd "$P"
-cat AGENTS.md docs/POSE_LAB_CAMPAIGN_RULES.md docs/POSE_IS_GOD.md docs/VANGUARD_ATLAS_AUTHORITY.md "$REF_REL" >/dev/null
+cat AGENTS.md docs/POSE_LAB_CAMPAIGN_RULES.md docs/POSE_IS_GOD.md docs/VANGUARD_ATLAS_AUTHORITY.md >/dev/null
 
 echo "============================================================"
-echo " VANGUARD SHOTGUN: APPEND TO CANONICAL EXPANDED ATLAS"
+echo " VANGUARD ONE-ATLAS RUNTIME MIGRATION"
 echo "============================================================"
-echo "AUTHORITY=$A_REL (NOT historical vanguard-pose-atlas-90.png)"
-echo "MISSION=append one six-cell row only: reload 97-99 + fire 100-102"
-echo "WRITABLE=$A_REL,$R_REL,$F_REL,$M_REL"
-echo "LOCKED=all existing atlas pixels through y=1645; Butt Smash 91-93; Shoulder Charge 94-95; all shotgun timing/effects/registration"
+echo "MISSION=make every live Vanguard recipe use the one canonical expanded atlas"
+echo "CANONICAL=$ATLAS_REL"
+echo "LOCKED=all pose cell IDs; all timing; all effects; all registration; atlas pixels"
+echo "WRITABLE=atlas declarations only inside live Vanguard *.recipe.json files"
+echo "HISTORICAL_ATLASES=archaeology only; never runtime"
 
-mkdir -p "$L/shotgun-expanded-append"
+mkdir -p "$L/one-atlas"
+
+mapfile -t TARGETS < <(python3 - <<'PY'
+from pathlib import Path
+import json
+root=Path("public/assets/vanguard/procedural")
+for p in sorted(root.glob("*.recipe.json")):
+    try:
+        o=json.loads(p.read_text())
+    except Exception:
+        continue
+    if o.get("subject")!="vanguard":
+        continue
+    if "atlas" in o or "vanguard-canonical" in o.get("atlases",{}):
+        print(p)
+PY
+)
+
+[ "${#TARGETS[@]}" -gt 0 ] || { echo "STOP: no live Vanguard recipes found"; exit 1; }
 
 echo
 echo "=== DIRTY PREFLIGHT ==="
 git status --short
-for X in "$A_REL" "$R_REL" "$F_REL" "$M_REL"; do
-  S="$(git status --porcelain --untracked-files=all -- "$X")"
-  if [ -n "$S" ]; then
-    printf '%s\n' "$S" > "$L/shotgun-expanded-append/$(basename "$X").preflight-status.txt"
-    if git ls-files --error-unmatch "$X" >/dev/null 2>&1; then
-      git diff -- "$X" > "$L/shotgun-expanded-append/$(basename "$X").preflight.diff"
-    fi
-    echo "STOP: campaign target already dirty: $X"
+for X in "${TARGETS[@]}"; do
+  if ! git diff --quiet HEAD -- "$X"; then
+    git diff -- "$X" > "$L/one-atlas/$(basename "$X").preflight.diff"
+    echo "STOP: live Vanguard recipe already dirty: $X"
     exit 1
   fi
 done
@@ -58,287 +62,177 @@ START="$(git rev-parse HEAD)"
 echo "START_HEAD=$START"
 
 echo
-echo "=== VERIFY CANONICAL EXPANDED ATLAS ==="
-python3 - "$A" public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.manifest.json <<'PY'
+echo "=== VERIFY ONE CANONICAL ATLAS ==="
+python3 - "$ATLAS" "$APPEND_MANIFEST" <<'PY'
 from PIL import Image
 from pathlib import Path
 import hashlib,json,sys
 a=Path(sys.argv[1]); m=Path(sys.argv[2])
-im=Image.open(a).convert("RGB")
-assert im.size==(1037,1645), f"STOP: canonical expanded atlas geometry changed: {im.size}"
 meta=json.loads(m.read_text())
-got=hashlib.sha256(a.read_bytes()).hexdigest()
-want=meta["destinationSha256"]
-assert got==want, f"STOP: canonical expanded atlas hash changed: {got} != {want}"
-print("EXPANDED_ATLAS_SIZE=1037x1645")
-print("EXPANDED_ATLAS_SHA256="+got)
-print("EXISTING_CELL_OWNERSHIP=91-93 Butt Smash; 94-95 Shoulder Charge; 96 empty")
+im=Image.open(a).convert("RGB")
+want_size=tuple(meta["result"]["size"])
+want_sha=meta["result"]["sha256"]
+got_sha=hashlib.sha256(a.read_bytes()).hexdigest()
+assert im.size==want_size==(1037,1754), f"STOP: canonical atlas size mismatch {im.size} != {want_size}"
+assert got_sha==want_sha, f"STOP: canonical atlas hash mismatch {got_sha} != {want_sha}"
+print("CANONICAL_ATLAS_SIZE=1037x1754")
+print("CANONICAL_ATLAS_SHA256="+got_sha)
+print("CANONICAL_ATLAS_PATH=assets/vanguard/procedural/vanguard-pose-atlas-expanded.png")
 PY
 
-cp "$A" "$L/shotgun-expanded-append/base-1645.png"
+ATLAS_SHA="$(sha256sum "$ATLAS" | awk '{print $1}')"
 
 echo
-echo "=== VERIFY PINNED SOURCES ==="
-python3 - "$RELOAD" "$FIRE" "$CAL" <<'PY'
-from PIL import Image
-import hashlib,sys
-spec=[
- ("reload",sys.argv[1],(1536,512),"c32f1590a435aea696de34ebe5f4a89c9039d1bc7fac368a8c77ac180bf177e6"),
- ("fire",sys.argv[2],(2172,724),"01424c34c4b0d9bd8b7216c566b4de2be3b967d1b776d2c39ecddccc459c91b0"),
- ("cal",sys.argv[3],(1037,1632),"db8bdbc7c8a3411b10ff5d29b40200884ca41d26db450b0392dc5a672b469a72"),
-]
-for label,path,size,want in spec:
-    im=Image.open(path).convert("RGB")
-    got=hashlib.sha256(im.tobytes()).hexdigest()
-    assert im.size==size, f"STOP: {label} dimensions {im.size} != {size}"
-    assert got==want, f"STOP: {label} pixel SHA mismatch {got}"
-    print(f"SOURCE_{label.upper()}={path}")
-    print(f"SOURCE_{label.upper()}_PIXEL_SHA256={got}")
-PY
-
-echo
-echo "=== APPEND ONE ROW: 97-102 ==="
-python3 - "$A" "$RELOAD" "$FIRE" "$CAL" "$M" <<'PY'
-from PIL import Image,ImageEnhance
-from pathlib import Path
-import copy,hashlib,json,statistics,sys
-
-a_p,reload_p,fire_p,cal_p,manifest_p=map(Path,sys.argv[1:])
-base=Image.open(a_p).convert("RGB")
-reload=Image.open(reload_p).convert("RGB")
-fire=Image.open(fire_p).convert("RGB")
-cal=Image.open(cal_p).convert("RGB")
-
-assert base.size==(1037,1645)
-assert reload.size==(1536,512)
-assert fire.size==(2172,724)
-assert cal.size==(1037,1632)
-
-base_file_sha=hashlib.sha256(a_p.read_bytes()).hexdigest()
-base_pixels=base.tobytes()
-W=1037
-Y0=1645
-Y1=1754
-ROW_H=Y1-Y0
-
-def col_rect(col,y0=Y0,y1=Y1):
-    x0=round(col*W/6); x1=round((col+1)*W/6)
-    return x0,y0,x1,y1
-
-def old_cal_cell(cell):
-    col=(cell-1)%6
-    x0=round(col*W/6); x1=round((col+1)*W/6)
-    return cal.crop((x0,1536,x1,1632))
-
-def bbox(im,t=18):
-    px=im.load(); xs=[]; ys=[]
-    for y in range(im.height):
-        for x in range(im.width):
-            if max(px[x,y])>t:
-                xs.append(x); ys.append(y)
-    assert xs
-    return min(xs),min(ys),max(xs)+1,max(ys)+1
-
-def three_square_frames(im):
-    p=im.height
-    assert im.width==p*3
-    return [im.crop((i*p,0,(i+1)*p,p)) for i in range(3)]
-
-out=Image.new("RGB",(W,Y1),(0,0,0))
-out.paste(base,(0,0))
-
-# Reload candidate already carries the requested calibration. Move those three
-# cell images intact into the new canonical row as 97,98,99.
-reload_cells=[old_cal_cell(c) for c in (91,92,93)]
-for cell,sprite in zip((97,98,99),reload_cells):
-    col=(cell-1)%6
-    x0,y0,x1,y1=col_rect(col)
-    assert sprite.width==(x1-x0)
-    assert sprite.height<=ROW_H
-    out.paste(sprite,(x0,y1-sprite.height))
-
-# One shared scale, inferred from authored reload -> calibrated reload,
-# then compensated once for the 724px fire carrier. No normalize-resize chain.
-ratios=[]
-for src,calcell in zip(three_square_frames(reload),reload_cells):
-    sb=bbox(src); cb=bbox(calcell)
-    ratios.append((cb[3]-cb[1])/(sb[3]-sb[1]))
-scale512=statistics.median(ratios)
-assert max(ratios)-min(ratios)<0.04, f"STOP: reload calibration scale inconsistent: {ratios}"
-fire_scale=scale512*(512/fire.height)
-print("RELOAD_CALIBRATION_RATIOS="+",".join(f"{x:.6f}" for x in ratios))
-print(f"FIRE_EFFECTIVE_SCALE={fire_scale:.8f}")
-
-def mild_red(im):
-    r,g,b=im.split()
-    r=r.point(lambda v:min(255,round(v*1.02)))
-    g=g.point(lambda v:min(255,round(v*0.97)))
-    b=b.point(lambda v:min(255,round(v*0.95)))
-    im=Image.merge("RGB",(r,g,b))
-    im=ImageEnhance.Contrast(im).enhance(1.05)
-    im=ImageEnhance.Color(im).enhance(1.03)
-    return ImageEnhance.Brightness(im).enhance(0.98)
-
-fire_prepared=[]
-for i,frame in enumerate(three_square_frames(fire),1):
-    b=bbox(frame)
-    subject=mild_red(frame.crop(b))
-    nw=max(1,round(subject.width*fire_scale))
-    nh=max(1,round(subject.height*fire_scale))
-    subject=subject.resize((nw,nh),Image.Resampling.LANCZOS)
-    fire_prepared.append(subject)
-    print(f"FIRE_PREP_{i}={nw}x{nh}")
-
-for cell,sprite in zip((100,101,102),fire_prepared):
-    col=(cell-1)%6
-    x0,y0,x1,y1=col_rect(col)
-    sw,sh=x1-x0,y1-y0
-    assert sprite.width<=sw, f"STOP: cell {cell} too wide {sprite.width}>{sw}"
-    assert sprite.height<=sh-5, f"STOP: cell {cell} too tall {sprite.height}>{sh-5}"
-    x=x0+(sw-sprite.width)//2
-    y=y1-5-sprite.height
-    out.paste(sprite,(x,y))
-
-assert out.crop((0,0,W,Y0)).tobytes()==base_pixels
-out.save(a_p)
-final_sha=hashlib.sha256(a_p.read_bytes()).hexdigest()
-
-manifest={
- "schema":"vanguard-shotgun-expanded-atlas-append-candidate-v1",
- "status":"quarantined",
- "humanVerdict":"pending",
- "baseAtlas":{
-   "path":"assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
-   "size":[1037,1645],
-   "sha256":base_file_sha,
-   "preservedPixelRect":[0,0,1037,1645]
- },
- "result":{
-   "size":[1037,1754],
-   "sha256":final_sha,
-   "rowBounds":{"16":[1645,1754]}
- },
- "newCells":{
-   "97":"shotgun reload open",
-   "98":"shotgun reload insert",
-   "99":"shotgun reload close",
-   "100":"shotgun fire brace",
-   "101":"shotgun fire drive",
-   "102":"shotgun fire recoil"
- },
- "sources":{
-   "reload":{"path":str(reload_p),"pixelSha256":hashlib.sha256(reload.tobytes()).hexdigest()},
-   "fire":{"path":str(fire_p),"pixelSha256":hashlib.sha256(fire.tobytes()).hexdigest()},
-   "reloadCalibration":{"path":str(cal_p),"pixelSha256":hashlib.sha256(cal.tobytes()).hexdigest()}
- }
-}
-manifest_p.write_text(json.dumps(manifest,indent=2)+"\n")
-print("OLD_ATLAS_PIXELS_0_1645=PRESERVED_EXACTLY")
-print("FINAL_ATLAS_SIZE=1037x1754")
-print("NEW_CELLS=97,98,99,100,101,102")
-print("FINAL_ATLAS_SHA256="+final_sha)
-PY
-
-echo
-echo "=== REPOINT ONLY THE TWO SHOTGUN RECIPES ==="
-python3 - "$R" "$F" "$REF" <<'PY'
+echo "=== MIGRATE LIVE RECIPES, ATLAS DECLARATION ONLY ==="
+python3 - "$ATLAS_SHA" "${TARGETS[@]}" <<'PY'
 from pathlib import Path
 import copy,json,sys
-rp,fp,refp=map(Path,sys.argv[1:])
-r=json.loads(rp.read_text())
-f=json.loads(fp.read_text())
-ref=json.loads(refp.read_text())
-r0=copy.deepcopy(r); f0=copy.deepcopy(f)
+atlas_sha=sys.argv[1]
+paths=[Path(x) for x in sys.argv[2:]]
 
-atlas=copy.deepcopy(ref["atlases"]["vanguard-canonical"])
-assert atlas["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
-assert atlas["size"]==[1037,1645]
-assert atlas["rows"]==16
-assert atlas["rowBounds"]["15"]==[1536,1645]
-atlas["rows"]=17
-atlas["size"]=[1037,1754]
-atlas["rowBounds"]["16"]=[1645,1754]
+canonical={
+  "path":"assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
+  "columns":6,
+  "rows":17,
+  "indexBase":1,
+  "mode":"blue-key",
+  "size":[1037,1754],
+  "rowBounds":{
+    "0":[0,102],"1":[102,205],"2":[205,307],"3":[307,410],"4":[410,512],
+    "5":[512,614],"6":[614,717],"7":[717,819],"8":[819,922],"9":[922,1024],
+    "10":[1024,1126],"11":[1126,1229],"12":[1229,1331],"13":[1331,1434],
+    "14":[1434,1536],"15":[1536,1645],"16":[1645,1754]
+  }
+}
 
-r["atlases"]["vanguard-canonical"]=copy.deepcopy(atlas)
-f["atlases"]["vanguard-canonical"]=copy.deepcopy(atlas)
+def without_vanguard_atlas(o):
+    x=copy.deepcopy(o)
+    if "atlas" in x:
+        x.pop("atlas")
+    if "atlases" in x and "vanguard-canonical" in x["atlases"]:
+        x["atlases"]=copy.deepcopy(x["atlases"])
+        x["atlases"].pop("vanguard-canonical")
+        if not x["atlases"]:
+            x.pop("atlases")
+    return x
 
-r["sources"]["open"]["cell"]=97
-r["sources"]["shell"]["cell"]=98
-r["sources"]["close"]["cell"]=99
-r["description"]="Shotgun reload review · expanded-atlas 97→98→99→idle"
-r["motionAuthority"]["description"]="Expanded canonical atlas cells 97,98,99 are shotgun reload pose authority; no visible effect; no guessed foot point."
+changed=[]
+for p in paths:
+    before=json.loads(p.read_text())
+    after=copy.deepcopy(before)
 
-f["sources"]["brace"]["cell"]=100
-f["sources"]["drive"]["cell"]=101
-f["sources"]["recoil"]["cell"]=102
-f["description"]="Shotgun fire review · expanded-atlas 100→101→102 + dedicated muzzle"
-f["motionAuthority"]["description"]="Expanded canonical atlas cells 100,101,102 are shotgun fire pose authority; dedicated exact muzzle; no root motion; pin/effect placement review-gated."
+    if "atlas" in after:
+        old=after["atlas"]
+        # procedural-run schema used by Idle/Run.
+        after["atlas"]={
+          "file":canonical["path"],
+          "columns":canonical["columns"],
+          "rows":canonical["rows"],
+          "indexBase":canonical["indexBase"],
+          "size":canonical["size"],
+          "sha256":atlas_sha,
+          "rowBounds":copy.deepcopy(canonical["rowBounds"])
+        }
+        # Preserve any non-geometry atlas metadata not superseded above.
+        for k,v in old.items():
+            if k not in {"file","columns","rows","indexBase","size","sha256","rowBounds"}:
+                after["atlas"][k]=v
 
-# Hard-lock everything unrelated to atlas selection / pose cell identity.
-for before,after,label in ((r0,r,"reload"),(f0,f,"fire")):
-    for key in ("rootMotion","canvas","bodyScale","stage","phases","effect"):
-        assert after[key]==before[key], f"STOP: {label} locked field changed: {key}"
-    assert after["sources"]["idle"]==before["sources"]["idle"]
-    assert after["sources"]["muzzle"]==before["sources"]["muzzle"]
+    if "vanguard-canonical" in after.get("atlases",{}):
+        after["atlases"]["vanguard-canonical"]=copy.deepcopy(canonical)
 
-rp.write_text(json.dumps(r,indent=2)+"\n")
-fp.write_text(json.dumps(f,indent=2)+"\n")
-print("SHOTGUN_RELOAD_CELLS=97,98,99")
-print("SHOTGUN_FIRE_CELLS=100,101,102")
-print("SHOTGUN_TIMING_EFFECTS_REGISTRATION=UNCHANGED")
+    assert without_vanguard_atlas(before)==without_vanguard_atlas(after), \
+        f"STOP: non-atlas property changed in {p}"
+
+    if after!=before:
+        p.write_text(json.dumps(after,indent=2)+"\n")
+        changed.append(str(p))
+        print("MIGRATED="+str(p))
+
+print("MIGRATED_COUNT="+str(len(changed)))
+PY
+
+echo
+echo "=== ONE-ATLAS GUARD ==="
+python3 - "$ATLAS_SHA" <<'PY'
+from pathlib import Path
+import json,sys
+want_sha=sys.argv[1]
+root=Path("public/assets/vanguard/procedural")
+bad=[]
+seen=0
+for p in sorted(root.glob("*.recipe.json")):
+    try:o=json.loads(p.read_text())
+    except Exception:continue
+    if o.get("subject")!="vanguard":continue
+
+    if "atlas" in o:
+        seen+=1
+        a=o["atlas"]
+        if a.get("file")!="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png":
+            bad.append(f"{p}: atlas.file={a.get('file')}")
+        if a.get("size")!=[1037,1754] or a.get("rows")!=17:
+            bad.append(f"{p}: atlas geometry stale")
+        if a.get("sha256")!=want_sha:
+            bad.append(f"{p}: atlas sha stale")
+
+    if "vanguard-canonical" in o.get("atlases",{}):
+        seen+=1
+        a=o["atlases"]["vanguard-canonical"]
+        if a.get("path")!="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png":
+            bad.append(f"{p}: canonical path={a.get('path')}")
+        if a.get("size")!=[1037,1754] or a.get("rows")!=17:
+            bad.append(f"{p}: canonical geometry stale")
+
+assert seen>0
+if bad:
+    raise SystemExit("STOP: one-atlas guard failed\n" + "\n".join(bad))
+print("ONE_ATLAS_GUARD=PASS")
+print("LIVE_VANGUARD_POSE_ATLAS_COUNT=1")
 PY
 
 echo
 echo "=== DIFF GUARD ==="
-mapfile -t TRACKED < <(git diff --name-only)
-printf 'tracked=%s\n' "${TRACKED[@]}"
-for X in "${TRACKED[@]}"; do
-  case "$X" in
-    "$A_REL"|"$R_REL"|"$F_REL") ;;
-    *) echo "STOP: UNAUTHORIZED_TRACKED_DIFF $X"; exit 1 ;;
-  esac
-done
-[ "${#TRACKED[@]}" -eq 3 ] || { echo "STOP: expected exactly atlas + two recipe tracked changes"; exit 1; }
-[ -f "$M" ] || { echo "STOP: candidate manifest missing"; exit 1; }
+mapfile -t CHANGED < <(git diff --name-only)
+printf 'changed=%s\n' "${CHANGED[@]}"
+[ "${#CHANGED[@]}" -gt 0 ] || { echo "STOP: expected stale live recipes to migrate"; exit 1; }
 
-python3 - "$A" "$L/shotgun-expanded-append/base-1645.png" <<'PY'
-from PIL import Image
-import sys
-a=Image.open(sys.argv[1]).convert("RGB")
-b=Image.open(sys.argv[2]).convert("RGB")
-assert a.size==(1037,1754)
-assert b.size==(1037,1645)
-assert a.crop((0,0,1037,1645)).tobytes()==b.tobytes()
-print("PRECOMMIT_EXISTING_ATLAS_PIXELS=PRESERVED")
-PY
+for X in "${CHANGED[@]}"; do
+  [[ "$X" == public/assets/vanguard/procedural/*.recipe.json ]] || {
+    echo "STOP: unauthorized diff $X"
+    exit 1
+  }
+done
+
+# Prove the canonical atlas itself did not move by one byte.
+[ "$(sha256sum "$ATLAS" | awk '{print $1}')" = "$ATLAS_SHA" ] || {
+  echo "STOP: canonical atlas changed during recipe migration"
+  exit 1
+}
 
 echo
 echo "=== COMMIT + PUSH ==="
-git add "$A_REL" "$R_REL" "$F_REL" "$M_REL"
-git commit -m "Append Vanguard shotgun poses to canonical expanded atlas"
+git add -- "${CHANGED[@]}"
+git commit -m "Unify Vanguard runtime on one canonical atlas"
 git push origin main
 REV="$(git rev-parse HEAD)"
 echo "REV=$REV"
 
 echo
 echo "=== COMMITTED READBACK ==="
-git show "$REV:$A_REL" > "$L/shotgun-expanded-append/committed-atlas.png"
-git show "$REV:$R_REL" > "$L/shotgun-expanded-append/committed-reload.json"
-git show "$REV:$F_REL" > "$L/shotgun-expanded-append/committed-fire.json"
-git show "$REV:$M_REL" > "$L/shotgun-expanded-append/committed-manifest.json"
-python3 - "$L/shotgun-expanded-append/committed-atlas.png" "$L/shotgun-expanded-append/base-1645.png" "$L/shotgun-expanded-append/committed-reload.json" "$L/shotgun-expanded-append/committed-fire.json" <<'PY'
-from PIL import Image
+git show "$REV:public/assets/vanguard/procedural/idle.recipe.json" > "$L/one-atlas/idle.json"
+git show "$REV:public/assets/vanguard/procedural/run.recipe.json" > "$L/one-atlas/run.json"
+python3 - "$L/one-atlas/idle.json" "$L/one-atlas/run.json" "$ATLAS_SHA" <<'PY'
 import json,sys
-a=Image.open(sys.argv[1]).convert("RGB")
-b=Image.open(sys.argv[2]).convert("RGB")
-assert a.size==(1037,1754)
-assert a.crop((0,0,1037,1645)).tobytes()==b.tobytes()
-r=json.load(open(sys.argv[3])); f=json.load(open(sys.argv[4]))
-assert r["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
-assert f["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
-assert [r["sources"][x]["cell"] for x in ("open","shell","close")]==[97,98,99]
-assert [f["sources"][x]["cell"] for x in ("brace","drive","recoil")]==[100,101,102]
-print("COMMITTED_READBACK=PASS")
+for path in sys.argv[1:3]:
+    o=json.load(open(path))
+    a=o["atlas"]
+    assert a["file"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+    assert a["size"]==[1037,1754]
+    assert a["rows"]==17
+    assert a["rowBounds"]["16"]==[1645,1754]
+    assert a["sha256"]==sys.argv[3]
+print("IDLE_RUN_COMMITTED_READBACK=PASS")
 PY
 
 echo
@@ -347,6 +241,7 @@ git worktree remove --force "$W" 2>/dev/null || true
 rm -rf "$W"
 git worktree add --detach "$W" "$REV"
 cd "$W"
+node --check src/procedural-run-preview.js
 node --check src/procedural-motion-preview.js
 npm run build
 
@@ -361,6 +256,8 @@ kill -0 "$PID" || { cat "$L/server.log"; exit 1; }
 
 for U in \
   assets/vanguard/procedural/vanguard-pose-atlas-expanded.png \
+  assets/vanguard/procedural/idle.recipe.json \
+  assets/vanguard/procedural/run.recipe.json \
   assets/vanguard/procedural/shotgun-reload.recipe.json \
   assets/vanguard/procedural/shotgun-fire.recipe.json \
   assets/vanguard/procedural/butt-smash.recipe.json \
@@ -369,24 +266,25 @@ for U in \
 done
 
 STAMP="$(date +%s)"
-RU="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-reload&rev=$REV&nocache=$STAMP"
-FU="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STAMP"
-BU="http://127.0.0.1:8766/motion.html?procedural=vanguard-butt-smash&rev=$REV&nocache=$STAMP"
-SU="http://127.0.0.1:8766/motion.html?procedural=vanguard-shoulder-charge&rev=$REV&nocache=$STAMP"
+IDLE="http://127.0.0.1:8766/motion.html?procedural=vanguard-idle&rev=$REV&nocache=$STAMP"
+RUNURL="http://127.0.0.1:8766/motion.html?procedural=vanguard-run&rev=$REV&nocache=$STAMP"
+RELOAD="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-reload&rev=$REV&nocache=$STAMP"
+FIRE="http://127.0.0.1:8766/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STAMP"
+BUTT="http://127.0.0.1:8766/motion.html?procedural=vanguard-butt-smash&rev=$REV&nocache=$STAMP"
+SHOULDER="http://127.0.0.1:8766/motion.html?procedural=vanguard-shoulder-charge&rev=$REV&nocache=$STAMP"
 
 echo
 echo "============================================================"
-echo " SHOTGUN APPENDED TO CANONICAL EXPANDED ATLAS"
+echo " VANGUARD ONE-ATLAS RUNTIME DEPLOYED"
 echo "============================================================"
 echo "REV=$REV"
-echo "ATLAS=assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
-echo "ATLAS_SIZE=1037x1754"
-echo "RELOAD_CELLS=97,98,99"
-echo "FIRE_CELLS=100,101,102"
-echo "RELOAD_REVIEW=$RU"
-echo "FIRE_REVIEW=$FU"
-echo "BUTT_SMASH_REGRESSION=$BU"
-echo "SHOULDER_CHARGE_REGRESSION=$SU"
+echo "SOLE_ATLAS=assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+echo "IDLE_REVIEW=$IDLE"
+echo "RUN_REVIEW=$RUNURL"
+echo "RELOAD_REVIEW=$RELOAD"
+echo "FIRE_REVIEW=$FIRE"
+echo "BUTT_SMASH_REVIEW=$BUTT"
+echo "SHOULDER_CHARGE_REVIEW=$SHOULDER"
 echo "HUMAN_VERDICT=PENDING"
 
-termux-open-url "$RU"
+termux-open-url "$IDLE"
