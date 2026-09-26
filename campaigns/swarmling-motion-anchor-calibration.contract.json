@@ -1,0 +1,24 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v1",
+  "id": "swarmling-motion-anchor-calibration-v1",
+  "status": "sealed-before-refresh",
+  "mission": "Preserve the approved Swarmling run animation and source scale while stabilizing motion.html presentation using fixed source-space frame anchors against Vanguard's canonical motion review anchor.",
+  "targetRevision": "839427a3c0e7588aa244b540273420254a95478c",
+  "authority": {
+    "presentationScale": 1.5,
+    "motionAnchor": [220, 226],
+    "frameAnchors": [[128,249],[128,249],[128,249],[128,250],[128,249],[128,250]],
+    "sourceManifest": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json"
+  },
+  "locks": [
+    "Swarmling source pixels",
+    "Swarmling accepted source scale and fuzziness",
+    "Swarmling run cells 1-6 and 80ms cadence",
+    "all Vanguard assets and behavior",
+    "old Blender-derived Swarmling/Fleshling lineage"
+  ],
+  "writableSurface": [],
+  "executionLane": "refresh/build/serve exact committed revision through existing phone Pose Lab runtime",
+  "visualGate": "motion.html?procedural=swarmling-run&rev=839427a3c0e7588aa244b540273420254a95478c&nocache=<timestamp>",
+  "humanVerdict": "pending"
+}
