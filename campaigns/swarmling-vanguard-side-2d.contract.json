@@ -28,7 +28,7 @@
     "runDurationMsPerFrame": 80,
     "scaleLock": "The accepted sheet already includes the user's final repeated 20%-smaller correction. Do not resize again."
   },
-  "packageParentRevision": "f106a6eb740089188302d9625bed1bb3d7acd325",
+  "packageParentRevision": "912c5c48c7cf0a9ce4eb8d56f0b9ea92a5f35cb8",
   "locks": [
     "authoring/swarmling/**",
     "public/assets/swarmling/fleshpunk/**",
@@ -37,8 +37,6 @@
     "accepted Swarmling scale/fuzziness"
   ],
   "writableSurface": [
-    "index.html: stale startup placeholder only",
-    "package.json: add missing test:2d script only",
     "src/sprite-viewer.js: Swarmling character manifest mapping only",
     "tools/test_sprite_review_surface.mjs: selector/new-lane guards only",
     "public/assets/vanguard/fleshpunk/characters/swarmling/**",
@@ -60,5 +58,9 @@
   "failureBranches": {
     "SMOKE_HTML_SHELL_STALE": "Replace only the stale startup placeholder with loading Pose Lab V2, then continue.",
     "SMOKE_TEST_2D_SCRIPT_MISSING": "Add only test:2d = node tools/test_sprite_review_surface.mjs, then continue."
+  },
+  "prerequisiteRepairs": {
+    "indexHtmlStartupShell": "5050d740da3a307f81007a212752b3a7b4405153",
+    "explicit2dTestScript": "912c5c48c7cf0a9ce4eb8d56f0b9ea92a5f35cb8"
   }
 }
