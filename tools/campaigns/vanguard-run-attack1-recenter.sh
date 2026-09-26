@@ -8,23 +8,20 @@ W="$L/worktree"
 
 RUN_REL="public/assets/vanguard/procedural/run.recipe.json"
 ATTACK1_REL="public/assets/vanguard/procedural/overhand-strike.recipe.json"
-MANIFEST_REL="public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.manifest.json"
 
 RUN="$P/$RUN_REL"
 ATTACK1="$P/$ATTACK1_REL"
-MANIFEST="$P/$MANIFEST_REL"
 
 cd "$P"
 
 cat   AGENTS.md   docs/POSE_LAB_CAMPAIGN_RULES.md   docs/POSE_IS_GOD.md   docs/VANGUARD_ATLAS_AUTHORITY.md   >/dev/null
 
 echo "============================================================"
-echo " VANGUARD RUN + ATTACK 1 RECENTER — ONE FIX"
+echo " VANGUARD RUN + ATTACK 1 RECENTER — REJECTED CROP REVERT"
 echo "============================================================"
-echo "MISSION=recenter Run + Attack 1 by correcting their atlas sampling windows"
-echo "WHY=expanded atlas was uniformly scaled, but these recipes kept pre-scale Y row bounds"
-echo "WRITABLE=$RUN_REL rowBounds[8] + canvas.anchor[0]; $ATTACK1_REL rowBounds[0,4,5,6] + stage.centerX"
-echo "LOCKED=atlas bytes; cell IDs; timing; effects; registration; deformation; Y stage placement; every other recipe"
+echo "MISSION=undo the rejected row-window experiment; keep only the measured +5px right recenter"
+echo "WRITABLE=$RUN_REL rowBounds[8] + canvas.anchor[0]; $ATTACK1_REL used rowBounds + stage.centerX"
+echo "LOCKED=atlas bytes; cells; timing; effects; registration; deformation; Y placement; every other recipe"
 
 mkdir -p "$L/run-attack1-recenter"
 
@@ -50,15 +47,14 @@ cp "$RUN" "$L/run-attack1-recenter/run-before.json"
 cp "$ATTACK1" "$L/run-attack1-recenter/attack1-before.json"
 
 echo
-echo "=== APPLY SOURCE-SCALE-CORRECT ROW BOUNDS ==="
-python3 - "$RUN" "$ATTACK1" "$MANIFEST" <<'PY'
+echo "=== RESTORE GOOD SAMPLING + APPLY ONLY +5PX RIGHT ==="
+python3 - "$RUN" "$ATTACK1" <<'PY'
 from pathlib import Path
 import copy,json,sys
 
-run_p,atk_p,manifest_p=map(Path,sys.argv[1:])
+run_p,atk_p=map(Path,sys.argv[1:])
 run=json.loads(run_p.read_text())
 atk=json.loads(atk_p.read_text())
-manifest=json.loads(manifest_p.read_text())
 rb=copy.deepcopy(run)
 ab=copy.deepcopy(atk)
 
@@ -67,42 +63,27 @@ assert atk["id"]=="vanguard-overhand-strike-procedural-proof-v4"
 assert run["atlas"]["file"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 assert atk["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
 
-norm=manifest["normalization"]
-assert norm["kind"]=="uniform-whole-image-resize"
-assert manifest["sourceSize"]==[968,1536]
-assert norm["outputSize"]==[1037,1645]
-scale=float(norm["scale"])
-assert abs(scale-(1037/968))<1e-12
+# Human verdict: the scaled row-window experiment changed the animation for the worse.
+# Restore the exact pre-experiment sampling windows.
+run["atlas"]["rowBounds"]["8"]=[790,890]
 
-def scaled(pair):
-    return [round(pair[0]*scale),round(pair[1]*scale)]
-
-# Run's accepted pre-expansion extraction window was the special row-8 slice
-# [790,890], not the generic row. Map that exact window through the atlas's
-# documented whole-image scale.
-run_target=scaled([790,890])
-run["atlas"]["rowBounds"]["8"]=run_target
-run["canvas"]["anchor"][0]=215
-
-# Keep Run's accepted intra-cycle registration exactly as-is.
-accepted_offsets=[-3,0,3,-3,0,3]
-got_offsets=[run["registration"]["byCell"][str(c)]["offsetX"] for c in range(49,55)]
-assert got_offsets==accepted_offsets, f"STOP: Run offsetX pattern changed: {got_offsets}"
-
-# Attack 1 uses cells 2,26,32,35,40, i.e. rows 0,4,5,6.
-# Its old row coordinates were copied unchanged into the scaled atlas.
-# Map only those used rows through the same documented scale.
 atk_rows={
-    "0":scaled([0,102]),
-    "4":scaled([410,512]),
-    "5":scaled([512,614]),
-    "6":scaled([614,717]),
+    "0":[0,102],
+    "4":[410,512],
+    "5":[512,614],
+    "6":[614,717],
 }
 for k,v in atk_rows.items():
     atk["atlases"]["vanguard-canonical"]["rowBounds"][k]=v
 
-# Remove our prior guessed global nudge. The actual fix is the sampling window.
-atk["stage"]["centerX"]=215
+# The pre-experiment review was only about ~5 px left of stage center.
+# Keep the small measured rightward recenter, and nothing else.
+run["canvas"]["anchor"][0]=220
+atk["stage"]["centerX"]=220
+
+# Preserve Run's accepted intra-cycle horizontal registration exactly.
+accepted_offsets=[-3,0,3,-3,0,3]
+assert [run["registration"]["byCell"][str(c)]["offsetX"] for c in range(49,55)]==accepted_offsets
 
 def scrub_run(o):
     x=copy.deepcopy(o)
@@ -123,12 +104,12 @@ assert scrub_atk(atk)==scrub_atk(ab), "STOP: Attack 1 mutation escaped authorize
 run_p.write_text(json.dumps(run,indent=2)+"\n")
 atk_p.write_text(json.dumps(atk,indent=2)+"\n")
 
-print(f"ATLAS_SCALE={scale:.12f}")
-print(f"RUN_ROW8={rb['atlas']['rowBounds']['8']}->{run_target}")
-print(f"RUN_CENTER_X={rb['canvas']['anchor'][0]}->215")
+print(f"RUN_ROW8={rb['atlas']['rowBounds']['8']}->[790, 890]")
+print(f"RUN_CENTER_X={rb['canvas']['anchor'][0]}->220")
 for k in ("0","4","5","6"):
     print(f"ATTACK1_ROW{k}={ab['atlases']['vanguard-canonical']['rowBounds'][k]}->{atk_rows[k]}")
-print(f"ATTACK1_CENTER_X={ab['stage']['centerX']}->215")
+print(f"ATTACK1_CENTER_X={ab['stage']['centerX']}->220")
+print("REJECTED_ROW_SCALING=REVERTED")
 print("POSE_CELLS=UNCHANGED")
 print("TIMING=UNCHANGED")
 print("EFFECTS=UNCHANGED")
@@ -154,7 +135,7 @@ done
 echo
 echo "=== COMMIT + PUSH ==="
 git add "$RUN_REL" "$ATTACK1_REL"
-git commit -m "Recenter Vanguard run and attack one sampling"
+git commit -m "Revert rejected Vanguard crop change and recenter"
 git push origin main
 REV="$(git rev-parse HEAD)"
 echo "REV=$REV"
@@ -169,20 +150,21 @@ import json,sys
 r=json.load(open(sys.argv[1]))
 a=json.load(open(sys.argv[2]))
 
-assert r["atlas"]["rowBounds"]["8"]==[846,953]
-assert r["canvas"]["anchor"][0]==215
+assert r["atlas"]["rowBounds"]["8"]==[790,890]
+assert r["canvas"]["anchor"][0]==220
 assert [r["registration"]["byCell"][str(c)]["offsetX"] for c in range(49,55)]==[-3,0,3,-3,0,3]
 
 rb=a["atlases"]["vanguard-canonical"]["rowBounds"]
-assert rb["0"]==[0,109]
-assert rb["4"]==[439,548]
-assert rb["5"]==[548,658]
-assert rb["6"]==[658,768]
-assert a["stage"]["centerX"]==215
+assert rb["0"]==[0,102]
+assert rb["4"]==[410,512]
+assert rb["5"]==[512,614]
+assert rb["6"]==[614,717]
+assert a["stage"]["centerX"]==220
 
 print("COMMITTED_READBACK=PASS")
-print("RUN_ROW8=846..953")
-print("ATTACK1_ROWS=0:0..109 4:439..548 5:548..658 6:658..768")
+print("RUN_ROW8=790..890")
+print("RUN_CENTER_X=220")
+print("ATTACK1_CENTER_X=220")
 PY
 
 echo
