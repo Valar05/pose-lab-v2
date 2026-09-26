@@ -3,7 +3,7 @@ set -euo pipefail
 export PAGER=cat GIT_PAGER=cat
 
 ROOT="/storage/emulated/0/Documents/GodotProjects/pose-lab-v2"
-TARGET="96e3571ad77d2a4caae57a231dea60fcd8990595"
+TARGET="e715e8052431dd76e8ac36f1e60c3df914da2827"
 CONTRACT="campaigns/swarmling-visible-body-anchor.contract.json"
 PREVIEW="src/procedural-swarmling-preview.js"
 RUN="public/assets/vanguard/fleshpunk/characters/swarmling/animations.json"
