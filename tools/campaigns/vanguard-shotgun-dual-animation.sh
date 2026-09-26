@@ -3,7 +3,7 @@ set -euo pipefail
 export GIT_PAGER=cat PAGER=cat
 
 P="$HOME/storage/documents/GodotProjects/pose-lab-v2"
-L="$HOME/.local/state/pose-lab-v2-vanguard-shotgun"
+L="$HOME/.local/state/pose-lab-v2-vanguard-shotgun-fire-single-pose"
 A="$L/authoring"
 W="$L/review"
 
@@ -18,37 +18,31 @@ MANIFEST_REL="public/assets/vanguard/procedural/vanguard-shotgun-atlas-append.ma
 cd "$P"
 mkdir -p "$L"
 
-cat \
-  AGENTS.md \
-  docs/POSE_LAB_CAMPAIGN_RULES.md \
-  docs/POSE_IS_GOD.md \
-  docs/VANGUARD_ATLAS_AUTHORITY.md \
-  >/dev/null
+cat AGENTS.md docs/POSE_LAB_CAMPAIGN_RULES.md docs/POSE_IS_GOD.md docs/VANGUARD_ATLAS_AUTHORITY.md >/dev/null
 
 echo "============================================================"
-echo " VANGUARD SHOTGUN RIGHT-NUDGE CAMPAIGN"
+echo " VANGUARD SHOTGUN FIRE — SINGLE WIDE-STANCE POSE"
 echo "============================================================"
-echo "MISSION=nudge Reload and Shotgun Fire 25px right as whole composites"
+echo "MISSION=one planted wide-stance body pose; skew back then snap forward"
 echo "PRIMARY_WORKTREE=READ_ONLY"
-echo "WRITABLE=$RELOAD_REL stage.centerX only"
-echo "WRITABLE+=$FIRE_REL stage.centerX only"
-echo "LOCKED=atlas pixels; source cells 97-102; effect bytes/placement; timing; deformation; renderer; dropdown; every other recipe"
-echo "TARGET_CENTER_X=240"
+echo "BODY_AUTHORITY=existing fire brace source / cell 100"
+echo "WRITABLE=$FIRE_REL phases + effect.controlProfile"
+echo "WRITABLE+=$RENDERER_REL shotgun-fire control UI branch only"
+echo "LOCKED=reload; atlas pixels; accepted size/color/fuzziness/placement; muzzle effect bytes/visual values; every other effect and animation"
+echo "SHOTGUN_BLAST_CONTROLS=move X/Y + scale X/Y only"
 
 echo
 echo "=== DIRTY / DIVERGENCE PREFLIGHT ==="
 git status --short || true
 git fetch origin main
-
 LOCAL_HEAD="$(git rev-parse HEAD)"
 ORIGIN_HEAD="$(git rev-parse origin/main)"
 BASE="$(git merge-base HEAD origin/main)"
 echo "LOCAL_HEAD=$LOCAL_HEAD"
 echo "ORIGIN_HEAD=$ORIGIN_HEAD"
 echo "MERGE_BASE=$BASE"
-
 if [ "$LOCAL_HEAD" != "$ORIGIN_HEAD" ]; then
-  git log --oneline --decorate "$BASE..HEAD" > "$L/local-only-commits.txt" || true
+  git log --oneline "$BASE..HEAD" > "$L/local-only-commits.txt" || true
   git diff --binary "$BASE..HEAD" > "$L/local-only-history.patch" || true
   echo "LOCAL_DIVERGENCE=PRESERVED_NOT_MUTATED"
 fi
@@ -66,180 +60,228 @@ for F in "$SHELL_REL" "$RENDERER_REL" "$RELOAD_REL" "$FIRE_REL" "$EFFECT_REL" "$
   test -e "$F" || { echo "STOP: missing $F"; exit 1; }
 done
 
-SHELL_SHA="$(sha256sum "$SHELL_REL" | awk '{print $1}')"
-RENDERER_SHA="$(sha256sum "$RENDERER_REL" | awk '{print $1}')"
-EFFECT_SHA="$(sha256sum "$EFFECT_REL" | awk '{print $1}')"
-ATLAS_SHA="$(sha256sum "$ATLAS_REL" | awk '{print $1}')"
-MANIFEST_SHA="$(sha256sum "$MANIFEST_REL" | awk '{print $1}')"
-
-cp "$RELOAD_REL" "$L/reload-before.json"
-cp "$FIRE_REL" "$L/fire-before.json"
+SHELL_SHA="$(sha256sum "$SHELL_REL"|awk '{print $1}')"
+RELOAD_SHA="$(sha256sum "$RELOAD_REL"|awk '{print $1}')"
+EFFECT_SHA="$(sha256sum "$EFFECT_REL"|awk '{print $1}')"
+ATLAS_SHA="$(sha256sum "$ATLAS_REL"|awk '{print $1}')"
+MANIFEST_SHA="$(sha256sum "$MANIFEST_REL"|awk '{print $1}')"
 
 echo
-echo "=== VERIFY AUTHORITY + APPLY RIGHT NUDGE ==="
-python3 - "$RELOAD_REL" "$FIRE_REL" "$MANIFEST_REL" <<'PY'
+echo "=== APPLY FIRE BODY + SHOTGUN-BLAST CONTROLS ==="
+python3 - "$FIRE_REL" "$RENDERER_REL" <<'PY'
 import copy,json,sys
 from pathlib import Path
 
-rp,fp,mp=map(Path,sys.argv[1:])
-reload=json.loads(rp.read_text())
+fp,rp=map(Path,sys.argv[1:])
 fire=json.loads(fp.read_text())
-manifest=json.loads(mp.read_text())
+before=copy.deepcopy(fire)
 
-canon="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
-
-for name,d in (("reload",reload),("fire",fire)):
-    assert d["atlases"]["vanguard-canonical"]["path"]==canon
-    assert d["stage"]["centerSource"]=="idle"
-    assert d["stage"]["centerX"]==221, f"STOP: {name} stage.centerX changed: {d['stage']['centerX']}"
-
-assert [reload["sources"][k]["cell"] for k in ("open","shell","close")]==[97,98,99]
-assert [fire["sources"][k]["cell"] for k in ("brace","drive","recoil")]==[100,101,102]
-assert reload["sources"]["muzzle"]["path"]=="assets/vanguard/procedural/vanguard-shotgun-fire-effect.png"
+assert fire["atlases"]["vanguard-canonical"]["path"]=="assets/vanguard/procedural/vanguard-pose-atlas-expanded.png"
+assert fire["stage"]["centerX"]==215
+assert fire["sources"]["brace"]["cell"]==100
+assert fire["sources"]["drive"]["cell"]==101
+assert fire["sources"]["recoil"]["cell"]==102
 assert fire["sources"]["muzzle"]["path"]=="assets/vanguard/procedural/vanguard-shotgun-fire-effect.png"
-assert manifest["newCells"]["97"]=="shotgun reload open"
-assert manifest["newCells"]["100"]=="shotgun fire brace"
 
-reload_before=copy.deepcopy(reload)
-fire_before=copy.deepcopy(fire)
+fx_before=copy.deepcopy(fire["effect"])
+fire["effect"]["controlProfile"]="move-scale-only"
 
-reload["stage"]["centerX"]=240
-fire["stage"]["centerX"]=240
+def phase(pid,source,duration,shear,reveal=0,core=0,tight=0,wide=0):
+    return {
+      "id":pid,"source":source,"durationMs":duration,
+      "deform":{"shearX":shear,"scaleX":1,"scaleY":1,"shiftX":0,"shiftY":0},
+      "effect":{"reveal":reveal,"core":core,"tightGlow":tight,"wideGlow":wide}
+    }
 
-def normalized(d):
-    x=copy.deepcopy(d)
-    x["stage"]["centerX"]="__AUTHORIZED_CENTER_X__"
-    return x
+fire["phases"]=[
+  phase("idle","idle",45,0),
+  phase("wide-plant","brace",60,0),
+  phase("load-back","brace",105,-0.24),
+  phase("fire","brace",65,0.30,1,1,0.8,0.42),
+  phase("settle","brace",105,0,0.28,0.25,0.16,0.08),
+  phase("idle-return","idle",120,0)
+]
 
-assert normalized(reload)==normalized(reload_before), "STOP: reload mutation escaped stage.centerX"
-assert normalized(fire)==normalized(fire_before), "STOP: fire mutation escaped stage.centerX"
+fx_after=copy.deepcopy(fire["effect"])
+fx_after.pop("controlProfile",None)
+assert fx_after==fx_before, "STOP: shotgun effect visual values changed"
 
-rp.write_text(json.dumps(reload,indent=2)+"\n")
+for k in ("schema","subject","rootMotion","canvas","atlases","bodyScale","stage","id","sources"):
+    assert fire[k]==before[k], f"STOP: unauthorized recipe change: {k}"
+
+fire["description"]="Shotgun fire review · single wide-stance brace pose · aggressive back/forward shear + dedicated muzzle"
+fire["motionAuthority"]={
+  "kind":"user-authored-shotgun-fire-single-wide-stance",
+  "description":"Brace cell 100 is the sole non-idle body pose. Body shears backward then snaps forward with zero body shift/scale. Dedicated muzzle remains unchanged; shotgun blast controls expose move and scale only."
+}
 fp.write_text(json.dumps(fire,indent=2)+"\n")
 
-print("RELOAD_CENTER_X=221->240")
-print("FIRE_CENTER_X=221->240")
-print("NUDGE=+19px_FROM_CURRENT; +25px_FROM_ORIGINAL")
-print("CELLS_97_102=UNCHANGED")
-print("EFFECT=UNCHANGED")
-print("TIMING=UNCHANGED")
-print("DEFORMATION=UNCHANGED")
+renderer=rp.read_text()
+needle="""function installSlashControls(){
+ const side=document.querySelector('.side');
+ if(!side||side.querySelector('[data-slash-controls]'))return;
+
+ const box=document.createElement('details');
+"""
+assert renderer.count(needle)==1, "STOP: Slash Controls anchor changed"
+
+branch=r'''function installShotgunBlastMoveScaleControls(side){
+ const box=document.createElement('details');
+ box.open=true;
+ box.setAttribute('data-slash-controls','');
+ box.innerHTML=
+   '<summary style="font-size:15px;margin-bottom:10px">Shotgun Blast Controls</summary>'+
+   '<div style="display:grid;grid-template-columns:92px 1fr 54px;gap:7px 8px;align-items:center;font-size:12px">'+
+   '<label>X</label><input data-hc="x" type="range" min="-250" max="450" step="1"><output data-out="x"></output>'+
+   '<label>Y</label><input data-hc="y" type="range" min="-250" max="450" step="1"><output data-out="y"></output>'+
+   '<label>Scale X</label><input data-hc="sx" type="range" min="-3" max="3" step=".05"><output data-out="sx"></output>'+
+   '<label>Scale Y</label><input data-hc="sy" type="range" min="-3" max="3" step=".05"><output data-out="sy"></output>'+
+   '</div>'+
+   '<div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">'+
+   '<button data-hc-reset>Reset move/scale</button><button data-hc-copy>Copy values</button></div>';
+ side.insertBefore(box,side.querySelector('details'));
+ const fx=recipe.effect;
+ const defaults={position:[...(fx.position||[0,0])],scaleX:Number(fx.scaleX??1),scaleY:Number(fx.scaleY??1)};
+ const controls={
+   x:box.querySelector('[data-hc="x"]'),y:box.querySelector('[data-hc="y"]'),
+   sx:box.querySelector('[data-hc="sx"]'),sy:box.querySelector('[data-hc="sy"]')
+ };
+ function refresh(){for(const k of ['x','y','sx','sy'])box.querySelector('[data-out="'+k+'"]').textContent=controls[k].value}
+ function setValues(){
+   controls.x.value=fx.position?.[0]??0;controls.y.value=fx.position?.[1]??0;
+   controls.sx.value=Number(fx.scaleX??1);controls.sy.value=Number(fx.scaleY??1);refresh();
+ }
+ function apply(){
+   fx.position=[Number(controls.x.value),Number(controls.y.value)];
+   const sx=Number(controls.sx.value),sy=Number(controls.sy.value);
+   fx.scaleX=Math.abs(sx)<.01?.01:sx;fx.scaleY=Math.abs(sy)<.01?.01:sy;
+   refresh();render(offset);
+ }
+ Object.values(controls).forEach(el=>{el.oninput=apply;el.onchange=apply});
+ box.querySelector('[data-hc-reset]').onclick=()=>{
+   fx.position=[...defaults.position];fx.scaleX=defaults.scaleX;fx.scaleY=defaults.scaleY;setValues();render(offset);
+ };
+ box.querySelector('[data-hc-copy]').onclick=async()=>{
+   const text=JSON.stringify({position:fx.position,scaleX:fx.scaleX,scaleY:fx.scaleY},null,2);
+   try{await navigator.clipboard.writeText(text)}catch{} console.log('SHOTGUN_BLAST_VALUES',text);
+ };
+ setValues();
+ window.__slashControls={box,controls};
+}
+
+function installSlashControls(){
+ const side=document.querySelector('.side');
+ if(!side||side.querySelector('[data-slash-controls]'))return;
+ if(recipe.id==='vanguard-shotgun-fire-procedural-v1'&&recipe.effect?.controlProfile==='move-scale-only'){
+   installShotgunBlastMoveScaleControls(side);
+   return;
+ }
+
+ const box=document.createElement('details');
+'''
+renderer=renderer.replace(needle,branch)
+assert renderer.count("Shotgun Blast Controls")==1
+assert renderer.count("Rotate Z °")==1
+assert renderer.count("Reveal sweep")==1
+assert "recipe.id==='vanguard-shotgun-fire-procedural-v1'" in renderer
+rp.write_text(renderer)
+
+print("BODY=brace/cell100 only for all non-idle fire phases")
+print("SHEAR=0 -> -0.24 -> +0.30 -> 0")
+print("BODY_SHIFT=0")
+print("BODY_SCALE=1")
+print("SHOTGUN_BLAST_CONTROLS=X,Y,SCALE_X,SCALE_Y_ONLY")
+print("OTHER_EFFECTS=UNCHANGED")
 PY
 
 echo
 echo "=== DIFF GUARD ==="
 mapfile -t CHANGED < <(git diff --name-only)
-printf 'changed=%s\n' "${CHANGED[@]}"
-[ "${#CHANGED[@]}" -eq 2 ] || { echo "STOP: expected exactly two changed files"; exit 1; }
-printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$RELOAD_REL"
-printf '%s\n' "${CHANGED[@]}" | grep -Fxq "$FIRE_REL"
+printf 'changed=%s\n' "\${CHANGED[@]}"
+[ "\${#CHANGED[@]}" -eq 2 ] || { echo "STOP: expected fire recipe + renderer only"; exit 1; }
+printf '%s\n' "\${CHANGED[@]}" | grep -Fxq "$FIRE_REL"
+printf '%s\n' "\${CHANGED[@]}" | grep -Fxq "$RENDERER_REL"
 
-[ "$(sha256sum "$SHELL_REL" | awk '{print $1}')" = "$SHELL_SHA" ] || { echo "STOP: dropdown shell changed"; exit 1; }
-[ "$(sha256sum "$RENDERER_REL" | awk '{print $1}')" = "$RENDERER_SHA" ] || { echo "STOP: renderer changed"; exit 1; }
-[ "$(sha256sum "$EFFECT_REL" | awk '{print $1}')" = "$EFFECT_SHA" ] || { echo "STOP: effect changed"; exit 1; }
-[ "$(sha256sum "$ATLAS_REL" | awk '{print $1}')" = "$ATLAS_SHA" ] || { echo "STOP: atlas changed"; exit 1; }
-[ "$(sha256sum "$MANIFEST_REL" | awk '{print $1}')" = "$MANIFEST_SHA" ] || { echo "STOP: manifest changed"; exit 1; }
+[ "$(sha256sum "$SHELL_REL"|awk '{print $1}')" = "$SHELL_SHA" ] || { echo "STOP: shell changed"; exit 1; }
+[ "$(sha256sum "$RELOAD_REL"|awk '{print $1}')" = "$RELOAD_SHA" ] || { echo "STOP: reload changed"; exit 1; }
+[ "$(sha256sum "$EFFECT_REL"|awk '{print $1}')" = "$EFFECT_SHA" ] || { echo "STOP: blast image bytes changed"; exit 1; }
+[ "$(sha256sum "$ATLAS_REL"|awk '{print $1}')" = "$ATLAS_SHA" ] || { echo "STOP: atlas changed"; exit 1; }
+[ "$(sha256sum "$MANIFEST_REL"|awk '{print $1}')" = "$MANIFEST_SHA" ] || { echo "STOP: manifest changed"; exit 1; }
+
+node --check "$RENDERER_REL"
 
 echo
 echo "=== COMMIT + PUSH ==="
-git add "$RELOAD_REL" "$FIRE_REL"
-git commit -m "Nudge Vanguard shotgun animations right"
+git add "$FIRE_REL" "$RENDERER_REL"
+git commit -m "Simplify Vanguard shotgun fire to one planted pose"
 REV="$(git rev-parse HEAD)"
-
 git fetch origin main
-[ "$(git rev-parse origin/main)" = "$ORIGIN_HEAD" ] || {
-  echo "STOP: origin/main advanced during campaign; no push performed"
-  exit 1
-}
+[ "$(git rev-parse origin/main)" = "$ORIGIN_HEAD" ] || { echo "STOP: origin/main advanced; no push"; exit 1; }
 git push origin HEAD:main
-
 echo "REV=$REV"
 
 echo
 echo "=== COMMITTED READBACK ==="
-git show "$REV:$RELOAD_REL" > "$L/reload-committed.json"
 git show "$REV:$FIRE_REL" > "$L/fire-committed.json"
-
-python3 - "$L/reload-committed.json" "$L/fire-committed.json" <<'PY'
+git show "$REV:$RENDERER_REL" > "$L/renderer-committed.js"
+python3 - "$L/fire-committed.json" "$L/renderer-committed.js" <<'PY'
 import json,sys
-r=json.load(open(sys.argv[1]))
-f=json.load(open(sys.argv[2]))
-assert r["stage"]["centerX"]==240
-assert f["stage"]["centerX"]==240
-assert [r["sources"][k]["cell"] for k in ("open","shell","close")]==[97,98,99]
-assert [f["sources"][k]["cell"] for k in ("brace","drive","recoil")]==[100,101,102]
+f=json.load(open(sys.argv[1])); r=open(sys.argv[2]).read()
+a=[p for p in f["phases"] if p["id"] in ("wide-plant","load-back","fire","settle")]
+assert [p["source"] for p in a]==["brace"]*4
+assert [p["deform"]["shearX"] for p in a]==[0,-0.24,0.30,0]
+assert all(p["deform"]["scaleX"]==p["deform"]["scaleY"]==1 for p in a)
+assert all(p["deform"]["shiftX"]==p["deform"]["shiftY"]==0 for p in a)
+assert f["effect"]["controlProfile"]=="move-scale-only"
+assert "Shotgun Blast Controls" in r
 print("COMMITTED_READBACK=PASS")
 PY
 
 echo
-echo "=== EXACT-REVISION BUILD ==="
+echo "=== EXACT BUILD / SERVE / REVIEW ==="
 cd "$P"
 git worktree remove --force "$W" 2>/dev/null || true
 rm -rf "$W"
 git worktree add --detach "$W" "$REV"
 cd "$W"
-
-node --check "$SHELL_REL"
 node --check "$RENDERER_REL"
+node --check "$SHELL_REL"
 npm run build
+test -f "$W/dist/assets/vanguard/procedural/shotgun-fire.recipe.json"
+test -f "$W/dist/assets/vanguard/procedural/vanguard-shotgun-fire-effect.png"
 
-echo
-echo "=== SERVE EXACT REVISION ==="
-
-probe_exact_server() {
-  local base="$1" tmp="$L/probe.$$"
-  if ! curl -fsS "$base/assets/vanguard/procedural/shotgun-reload.recipe.json" > "$tmp.reload" 2>/dev/null; then
-    rm -f "$tmp.reload" "$tmp.fire"
-    return 1
-  fi
-  if ! curl -fsS "$base/assets/vanguard/procedural/shotgun-fire.recipe.json" > "$tmp.fire" 2>/dev/null; then
-    rm -f "$tmp.reload" "$tmp.fire"
-    return 1
-  fi
-  local sr br sf bf
-  sr="$(sha256sum "$tmp.reload" | awk '{print $1}')"
-  br="$(sha256sum "$W/dist/assets/vanguard/procedural/shotgun-reload.recipe.json" | awk '{print $1}')"
-  sf="$(sha256sum "$tmp.fire" | awk '{print $1}')"
-  bf="$(sha256sum "$W/dist/assets/vanguard/procedural/shotgun-fire.recipe.json" | awk '{print $1}')"
-  rm -f "$tmp.reload" "$tmp.fire"
-  [ "$sr" = "$br" ] && [ "$sf" = "$bf" ]
+probe(){
+  local base="$1" t="$L/probe.$$"
+  curl -fsS "$base/assets/vanguard/procedural/shotgun-fire.recipe.json" > "$t.fire" 2>/dev/null || return 1
+  curl -fsS "$base/src/procedural-motion-preview.js" > "$t.js" 2>/dev/null || return 1
+  local ok=0
+  [ "$(sha256sum "$t.fire"|awk '{print $1}')" = "$(sha256sum "$W/dist/assets/vanguard/procedural/shotgun-fire.recipe.json"|awk '{print $1}')" ] || ok=1
+  [ "$(sha256sum "$t.js"|awk '{print $1}')" = "$(sha256sum "$W/dist/src/procedural-motion-preview.js"|awk '{print $1}')" ] || ok=1
+  rm -f "$t.fire" "$t.js"; [ "$ok" -eq 0 ]
 }
 
 BASE_URL=""
 for PORT in 8766 8767 8768 8769 8770 8771 8772 8773 8774 8775; do
-  CANDIDATE="http://127.0.0.1:$PORT"
-  if probe_exact_server "$CANDIDATE"; then
-    BASE_URL="$CANDIDATE"
-    echo "SERVER=REUSED_EXACT PORT=$PORT"
-    break
-  fi
-
+  C="http://127.0.0.1:$PORT"
+  if probe "$C"; then BASE_URL="$C"; echo "SERVER=REUSED_EXACT PORT=$PORT"; break; fi
   python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$W/dist" >"$L/server-$PORT.log" 2>&1 &
-  PID=$!
-  sleep 1
-  if kill -0 "$PID" 2>/dev/null; then
-    BASE_URL="$CANDIDATE"
-    echo "$PID" > "$L/server.pid"
-    echo "$PORT" > "$L/server.port"
-    echo "SERVER=STARTED PORT=$PORT PID=$PID"
-    break
+  PID=$!; sleep 1
+  if kill -0 "$PID" 2>/dev/null && probe "$C"; then
+    BASE_URL="$C"; echo "$PID" > "$L/server.pid"; echo "SERVER=STARTED_EXACT PORT=$PORT PID=$PID"; break
   fi
+  kill "$PID" 2>/dev/null || true
 done
-
-[ -n "$BASE_URL" ] || { echo "STOP: no review port available in 8766..8775"; exit 1; }
-probe_exact_server "$BASE_URL" || { echo "STOP: selected server does not serve exact built bytes"; exit 1; }
+[ -n "$BASE_URL" ] || { echo "STOP: no exact review server"; exit 1; }
 
 STAMP="$(date +%s)"
-RU="$BASE_URL/motion.html?procedural=vanguard-shotgun-reload&rev=$REV&nocache=$STAMP"
 FU="$BASE_URL/motion.html?procedural=vanguard-shotgun-fire&rev=$REV&nocache=$STAMP"
-
-echo
-echo "============================================================"
-echo " SHOTGUN RIGHT-NUDGE REVIEW READY"
-echo "============================================================"
-echo "REV=$REV"
-echo "RELOAD_REVIEW=$RU"
 echo "FIRE_REVIEW=$FU"
 echo "HUMAN_VERDICT=PENDING"
 
-termux-open-url "$RU"
+if command -v termux-open-url >/dev/null 2>&1 && termux-open-url "$FU" >/dev/null 2>&1; then
+  echo "BROWSER_OPEN=termux-open-url"
+elif command -v am >/dev/null 2>&1 && am start -a android.intent.action.VIEW -d "$FU" >/dev/null 2>&1; then
+  echo "BROWSER_OPEN=am"
+else
+  echo "OPEN_THIS_URL=$FU"
+fi
