@@ -207,7 +207,7 @@
     {
       "id": "air-a",
       "source": "pose",
-      "durationMs": 45,
+      "durationMs": 90,
       "deform": {
         "shearX": -0.015,
         "scaleX": 1.0,
@@ -225,7 +225,7 @@
     {
       "id": "air-b",
       "source": "pose",
-      "durationMs": 45,
+      "durationMs": 90,
       "deform": {
         "shearX": 0.015,
         "scaleX": 1.015,
@@ -243,7 +243,7 @@
     {
       "id": "air-c",
       "source": "pose",
-      "durationMs": 45,
+      "durationMs": 90,
       "deform": {
         "shearX": 0,
         "scaleX": 1.0,

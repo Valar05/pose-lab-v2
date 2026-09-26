@@ -210,8 +210,8 @@
       "durationMs": 55,
       "deform": {
         "shearX": 0.04,
-        "scaleX": 1.04,
-        "scaleY": 0.94,
+        "scaleX": 1.06,
+        "scaleY": 0.92,
         "shiftX": 0,
         "shiftY": 0
       },
