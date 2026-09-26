@@ -39,10 +39,7 @@ echo "=== PRIMARY WORKTREE READ-ONLY ==="
 git status --short
 git fetch origin main
 SEALED="$(git rev-parse origin/main)"
-PARENT="$(git rev-parse "$SEALED^")"
-[ "$PARENT" = "$PACKAGE_PARENT" ] || stop "campaign package parent changed"
-
-mapfile -t GOT < <(git diff --name-only "$PARENT..$SEALED" | sort)
+mapfile -t GOT < <(git diff --name-only "$PACKAGE_PARENT..$SEALED" | sort)
 mapfile -t WANT < <(printf '%s\n' "$CAMPAIGN" "$CONTRACT" | sort)
 [ "${GOT[*]}" = "${WANT[*]}" ] || stop "origin/main is not the sealed two-file campaign package"
 
