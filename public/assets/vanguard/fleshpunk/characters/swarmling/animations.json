@@ -14,15 +14,15 @@
   },
   "authority": {
     "source": "source/swarmling-approved-atlas.png",
-    "sourceByteSha256": "7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
-    "sourceRgbaPixelSha256": "a5b06f82cc741cfaac860fb76b789ae1320390c153ce60ccff475654ec7bef26",
+    "sourceByteSha256": "75932d49800ce93dacb7a3ed8a2f294020b3313ac5ae98a96083facac07eb602",
+    "sourceRgbaPixelSha256": "cde75a9d2150874f097e87b0dd82e1594858420ee963a2fde7017b1dee051e88",
     "sourceLayout": {
       "columns": 6,
       "rows": 4,
       "cellWidth": 256,
       "cellHeight": 256
     },
-    "scale": "already accepted; no additional resize",
+    "scale": "Run row is scale authority; non-Run cells normalized to Run scale in approved atlas",
     "excludedLineage": "authoring/swarmling/** and public/assets/swarmling/fleshpunk/**",
     "timingAuthority": {
       "repository": "Valar05/gravity-fist",
@@ -49,7 +49,7 @@
       1536,
       1024
     ],
-    "sourceRecovery": "recovered from user-approved atlas; exact sizing/layout preserved; no destructive crop"
+    "sourceRecovery": "normalized recovered atlas promoted by exact SHA"
   },
   "animations": [
     {
@@ -69,37 +69,37 @@
           "src": "run/frames/run_0000.png",
           "durationMs": 80,
           "sourceCell": 1,
-          "sha256": "883cddcd8cd555a0cfad3c2b3add5993fd2688939c080ac6fb7c08dece9521c4"
+          "sha256": "777f16ba9b21fd1beb690e58fd6e95c9b4e270af928c304db5605808ee553450"
         },
         {
           "src": "run/frames/run_0001.png",
           "durationMs": 80,
           "sourceCell": 2,
-          "sha256": "94392e09470dd4dc0060c71e232a845696503bbcf686613474a21316802439eb"
+          "sha256": "9ad6f770c407d3c23f4dee535b4feadb68070bea477bcdfcfe3b0b648522f2e6"
         },
         {
           "src": "run/frames/run_0002.png",
           "durationMs": 80,
           "sourceCell": 3,
-          "sha256": "3f7abb8b5a59eba70d47f323d4a33756dc6a5a78fa748326a7759eb2985aee3e"
+          "sha256": "e67fc2c43e4d94e2cebccba91e98d3318c0f073de4348378c52a96077ed25ba5"
         },
         {
           "src": "run/frames/run_0003.png",
           "durationMs": 80,
           "sourceCell": 4,
-          "sha256": "5548b0907f7f199377eba34589411c9610aeee360ea08035f93310f0f770958b"
+          "sha256": "ebaa6f947a2a02fbfb730fbaed97a5b19b71ff63ba7e9516bafcf9b377720223"
         },
         {
           "src": "run/frames/run_0004.png",
           "durationMs": 80,
           "sourceCell": 5,
-          "sha256": "950a9c3b8eac259fa5481724f167f9b84b066210af0ef53a581c8ab861d9bd58"
+          "sha256": "e8f6c7b7e6ffdb753880b2b46cf0ca7cfa1fccd16d0c7efc0a5d67a6943884d5"
         },
         {
           "src": "run/frames/run_0005.png",
           "durationMs": 80,
           "sourceCell": 6,
-          "sha256": "132929e9242bf511e97ac5c45be1ce28a8abd652ead4998119710231cb5b7a1f"
+          "sha256": "de61f438ea767ee276561f41850ba7c28bc6144e7684cd11ec6758d0658420ed"
         }
       ]
     },
@@ -132,24 +132,24 @@
           "sourceCell": 10,
           "phase": "windup",
           "anchorPoint": [
-            120,
-            222
+            128,
+            242
           ]
         },
         {
           "sourceCell": 14,
           "phase": "strike",
           "anchorPoint": [
-            113,
-            180
+            123,
+            242
           ]
         }
       ],
       "idleSource": {
         "sourceCell": 7,
         "anchorPoint": [
-          127,
-          223
+          131,
+          243
         ]
       },
       "timeline": [
@@ -158,8 +158,8 @@
           "sourceCell": 7,
           "durationMs": 100,
           "anchorPoint": [
-            127,
-            223
+            131,
+            243
           ],
           "deform": {
             "shearX": 0,
@@ -173,8 +173,8 @@
           "sourceCell": 10,
           "durationMs": 250,
           "anchorPoint": [
-            120,
-            222
+            128,
+            242
           ],
           "deform": {
             "shearX": -0.1,
@@ -188,8 +188,8 @@
           "sourceCell": 14,
           "durationMs": 100,
           "anchorPoint": [
-            113,
-            180
+            123,
+            242
           ],
           "deform": {
             "shearX": 0.14,
@@ -203,8 +203,8 @@
           "sourceCell": 14,
           "durationMs": 200,
           "anchorPoint": [
-            113,
-            180
+            123,
+            242
           ],
           "deform": {
             "shearX": 0.04,
@@ -218,8 +218,8 @@
           "sourceCell": 7,
           "durationMs": 350,
           "anchorPoint": [
-            127,
-            223
+            131,
+            243
           ],
           "deform": {
             "shearX": 0,
@@ -247,8 +247,8 @@
         ]
       },
       "pinAuthority": {
-        "source": "recovered atlas 7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
-        "method": "bottom-contact centroid per selected 256x256 source cell",
+        "source": "75932d49800ce93dacb7a3ed8a2f294020b3313ac5ae98a96083facac07eb602",
+        "method": "bottom-contact median x over final 4 occupied rows",
         "stageAnchor": [
           220,
           226
@@ -284,24 +284,24 @@
           "sourceCell": 13,
           "phase": "coil",
           "anchorPoint": [
-            111,
-            180
+            89,
+            243
           ]
         },
         {
           "sourceCell": 15,
           "phase": "rake",
           "anchorPoint": [
-            119,
-            186
+            111,
+            242
           ]
         }
       ],
       "idleSource": {
         "sourceCell": 7,
         "anchorPoint": [
-          127,
-          223
+          131,
+          243
         ]
       },
       "timeline": [
@@ -310,8 +310,8 @@
           "sourceCell": 7,
           "durationMs": 100,
           "anchorPoint": [
-            127,
-            223
+            131,
+            243
           ],
           "deform": {
             "shearX": 0,
@@ -325,8 +325,8 @@
           "sourceCell": 13,
           "durationMs": 450,
           "anchorPoint": [
-            111,
-            180
+            89,
+            243
           ],
           "deform": {
             "shearX": -0.1,
@@ -340,8 +340,8 @@
           "sourceCell": 15,
           "durationMs": 120,
           "anchorPoint": [
-            119,
-            186
+            111,
+            242
           ],
           "deform": {
             "shearX": 0.16,
@@ -355,8 +355,8 @@
           "sourceCell": 15,
           "durationMs": 180,
           "anchorPoint": [
-            119,
-            186
+            111,
+            242
           ],
           "deform": {
             "shearX": 0.04,
@@ -370,8 +370,8 @@
           "sourceCell": 7,
           "durationMs": 150,
           "anchorPoint": [
-            127,
-            223
+            131,
+            243
           ],
           "deform": {
             "shearX": 0,
@@ -399,8 +399,8 @@
         ]
       },
       "pinAuthority": {
-        "source": "recovered atlas 7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
-        "method": "bottom-contact centroid per selected 256x256 source cell",
+        "source": "75932d49800ce93dacb7a3ed8a2f294020b3313ac5ae98a96083facac07eb602",
+        "method": "bottom-contact median x over final 4 occupied rows",
         "stageAnchor": [
           220,
           226
@@ -436,32 +436,32 @@
           "sourceCell": 11,
           "phase": "coil",
           "anchorPoint": [
-            116,
-            224
+            110,
+            242
           ]
         },
         {
           "sourceCell": 15,
           "phase": "bloom-impact",
           "anchorPoint": [
-            119,
-            186
+            111,
+            242
           ]
         },
         {
           "sourceCell": 16,
           "phase": "follow-through",
           "anchorPoint": [
-            115,
-            183
+            121,
+            242
           ]
         }
       ],
       "idleSource": {
         "sourceCell": 7,
         "anchorPoint": [
-          127,
-          223
+          131,
+          243
         ]
       },
       "timeline": [
@@ -470,8 +470,8 @@
           "sourceCell": 7,
           "durationMs": 100,
           "anchorPoint": [
-            127,
-            223
+            131,
+            243
           ],
           "deform": {
             "shearX": 0,
@@ -485,8 +485,8 @@
           "sourceCell": 11,
           "durationMs": 250,
           "anchorPoint": [
-            116,
-            224
+            110,
+            242
           ],
           "deform": {
             "shearX": -0.12,
@@ -500,8 +500,8 @@
           "sourceCell": 15,
           "durationMs": 100,
           "anchorPoint": [
-            119,
-            186
+            111,
+            242
           ],
           "deform": {
             "shearX": 0.18,
@@ -515,8 +515,8 @@
           "sourceCell": 16,
           "durationMs": 250,
           "anchorPoint": [
-            115,
-            183
+            121,
+            242
           ],
           "deform": {
             "shearX": 0.08,
@@ -530,8 +530,8 @@
           "sourceCell": 7,
           "durationMs": 300,
           "anchorPoint": [
-            127,
-            223
+            131,
+            243
           ],
           "deform": {
             "shearX": 0,
@@ -559,8 +559,8 @@
         ]
       },
       "pinAuthority": {
-        "source": "recovered atlas 7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
-        "method": "bottom-contact centroid per selected 256x256 source cell",
+        "source": "75932d49800ce93dacb7a3ed8a2f294020b3313ac5ae98a96083facac07eb602",
+        "method": "bottom-contact median x over final 4 occupied rows",
         "stageAnchor": [
           220,
           226
