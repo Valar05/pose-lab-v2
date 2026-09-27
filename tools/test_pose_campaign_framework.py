@@ -72,15 +72,23 @@ with tempfile.TemporaryDirectory() as td:
     staged=core.assert_diff_allowed(root,c,staged=True)
     assert set(staged)=={"allowed.txt","state.json"}, staged
 
-    # A forbidden path must fail closed.
+    # A forbidden untracked path must fail closed.
     write(root/"forbidden.txt","nope\n")
     try:
         core.assert_diff_allowed(root,c)
     except core.CampaignError as exc:
         assert "unauthorized changed paths" in str(exc)
+        assert "forbidden.txt" in str(exc)
     else:
-        raise AssertionError("forbidden diff was accepted")
+        raise AssertionError("forbidden untracked diff was accepted")
     (root/"forbidden.txt").unlink()
+
+    # Whole-worktree checks must include staged-only tracked changes too.
+    git(root,"commit","-am","authorized baseline")
+    write(root/"allowed.txt","before\nstaged-only authorized mutation\n")
+    git(root,"add","allowed.txt")
+    changed=core.changed_paths(root,staged=False)
+    assert "allowed.txt" in changed, changed
 
     # Locked bytes must fail independently of mutable-path handling.
     write(root/"locked.txt","changed\n")
@@ -115,7 +123,8 @@ print(json.dumps({
     "checked":[
         "structural-json-checks",
         "locked-file-hashes",
-        "worktree-diff-allowlist",
+        "worktree-diff-allowlist-including-untracked",
+        "worktree-diff-includes-staged-only",
         "staged-diff-allowlist",
         "receipt-before-stage-order",
         "globbed-mutable-paths"
