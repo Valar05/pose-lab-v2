@@ -34,14 +34,15 @@ for(const [id,e] of Object.entries(expected)){
   if(!a.timeline.every(f=>Array.isArray(f.anchorPoint)&&f.anchorPoint.length===2))fail(id+' missing explicit planted-foot anchor');
   if(!a.timeline.every(f=>Number(f.deform?.scaleX)>0&&Number(f.deform?.scaleY)>0&&Number.isFinite(Number(f.deform?.shearX))))fail(id+' missing procedural deformation');
   if(a.procedural?.rootTranslation!==false)fail(id+' root translation must remain false');
-  if(a.procedural?.sourcePaddingPx!==18)fail(id+' clipping padding changed');
+  if(a.procedural?.sourcePaddingPx!==18)fail(id+' legacy padding metadata changed');
   if((a.procedural?.forbidden||[]).some(x=>!['shiftX','shiftY','root motion','stage translation'].includes(x)))fail(id+' unexpected forbidden list');
 }
 
 if(!preview.includes('function deformAt(index,u)'))fail('procedural deformation interpolation missing');
 if(!preview.includes('presentationScale*d.scaleX'))fail('procedural scale transform missing');
 if(!preview.includes('d.shearX'))fail('procedural shear transform missing');
-if(!preview.includes('visibleBounds(image,pad)'))fail('padded source bounds missing');
+if(!preview.includes('ctx.drawImage(image,-srcX,-srcY,w,h)'))fail('full-cell planted draw missing');
+if(preview.includes('ctx.drawImage(\n    image,\n    b.x,b.y,b.w,b.h'))fail('tight source-envelope draw must not return');
 if(!preview.includes('Root motion</div><div>OFF'))fail('no-root-motion readout missing');
 if(preview.includes('shiftX')||preview.includes('shiftY'))fail('preview introduced stage translation');
 if(!motion.includes("procedural?.startsWith('swarmling-')"))fail('motion router does not cover Swarmling attacks');
@@ -53,7 +54,7 @@ console.log(JSON.stringify({
   ok:true,
   rootMotion:false,
   idleBookends:true,
-  clippingPaddingPx:18,
+  clippingStrategy:'full-transparent-source-cell',
   procedural:['shearX','scaleX','scaleY'],
   timingAuthority:'SecurityTitan e89c2adf671b06af4ce6a6c1d3f0118e68a6c274',
   attacks:Object.keys(expected)
