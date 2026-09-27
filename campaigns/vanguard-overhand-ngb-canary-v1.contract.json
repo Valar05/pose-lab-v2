@@ -1,0 +1,127 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "vanguard-overhand-ngb-canary-v1",
+  "status": "sealed-before-apply",
+  "mission": "Retiming canary for Vanguard Overhand only. Preserve every authored pose/source cell, anchor, stage placement, body scale, atlas byte, slash source, slash transform, root-motion rule, and all other animations. Make the attack core substantially faster, preserve a readable recovery tail, persist the slash path through early recovery, and add strong recipe-gated action-frame body motion blur whose renderer path is behavior-neutral when the recipe does not opt in.",
+  "reference": {
+    "source": "User-supplied Ninja Gaiden Black gameplay clip measured frame-by-frame on 2026-09-27",
+    "playerReference": {
+      "visibleLaunchToImpactMsApprox": [30, 55],
+      "sixtyFpsEquivalentFramesApprox": [2, 3],
+      "readableFollowThroughFramesApprox": [7, 8]
+    },
+    "application": "Do not copy NGB literally. Vanguard is heavier. Use the reference to front-load commitment/contact while retaining readable follow-through and cancelable recovery."
+  },
+  "canary": {
+    "targetRecipe": "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+    "phaseOrder": ["idle","anticipation","chamber","cross-commit","lean-forward","contact","follow-through","recoil-1","recoil-2","idle-return"],
+    "phaseDurationsMs": [25,45,45,30,25,70,70,95,90,105],
+    "totalDurationMs": 600,
+    "contactStartMs": 170,
+    "contactEndMs": 240,
+    "comboHandoffMs": 310,
+    "meaning": "The essential attack and readable follow-through complete by 310 ms. Recovery after that remains visible when no buffered follow-up replaces it."
+  },
+  "motionBlur": {
+    "enabled": true,
+    "samples": 4,
+    "spanPx": 30,
+    "filterPx": 2.5,
+    "maxAlpha": 0.42,
+    "directionStage": [-1.0, 0.22],
+    "phaseAmounts": {
+      "idle": 0.0,
+      "anticipation": 0.0,
+      "chamber": 0.10,
+      "cross-commit": 0.58,
+      "lean-forward": 1.0,
+      "contact": 0.82,
+      "follow-through": 0.38,
+      "recoil-1": 0.12,
+      "recoil-2": 0.03,
+      "idle-return": 0.0
+    }
+  },
+  "slashPersistence": {
+    "principle": "The effect is perception of the strike path, not decoration after the strike.",
+    "phaseValues": {
+      "chamber": {"reveal":0.0,"core":0.0,"tightGlow":0.0,"wideGlow":0.0},
+      "cross-commit": {"reveal":0.28,"core":0.45,"tightGlow":0.32,"wideGlow":0.18},
+      "lean-forward": {"reveal":0.82,"core":0.9,"tightGlow":0.78,"wideGlow":0.44},
+      "contact": {"reveal":1.0,"core":1.0,"tightGlow":1.0,"wideGlow":0.7},
+      "follow-through": {"reveal":1.0,"core":0.5,"tightGlow":0.5,"wideGlow":0.58},
+      "recoil-1": {"reveal":0.92,"core":0.2,"tightGlow":0.22,"wideGlow":0.32},
+      "recoil-2": {"reveal":0.32,"core":0.04,"tightGlow":0.05,"wideGlow":0.1}
+    }
+  },
+  "locks": {
+    "poseSources": {
+      "idle": {"cell":2,"anchorPoint":[58,97]},
+      "chamber": {"cell":26,"anchorPoint":[64,84]},
+      "commit": {"cell":40,"anchorPoint":[58,86]},
+      "preimpact": {"cell":32,"anchorPoint":[60,89]},
+      "contact": {"cell":35,"anchorPoint":[46,89]}
+    },
+    "canvasAnchor": [92,226],
+    "stageCenterX": 220,
+    "bodyScale": 1.5,
+    "rootMotion": false,
+    "slashSourceCell": 5,
+    "slashAtlasSha256": "94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70",
+    "canonicalAtlasSha256": "54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587"
+  },
+  "machine": {
+    "mutablePaths": [
+      "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+      "src/procedural-motion-preview.js",
+      "campaigns/vanguard-overhand-ngb-canary-v1.receipt.json"
+    ],
+    "receiptPath": "campaigns/vanguard-overhand-ngb-canary-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
+        "sha256": "54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587"
+      },
+      {
+        "path": "public/assets/vanguard/procedural/diorama-slash-atlas.png",
+        "sha256": "94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70"
+      }
+    ],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+        "pointer": "/comboHandoffMs",
+        "value": 310
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+        "pointer": "/motionBlur/enabled",
+        "value": true
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+        "pointer": "/motionBlur/samples",
+        "value": 4
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-motion-preview.js",
+        "value": "recipe.motionBlur?.enabled"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-motion-preview.js",
+        "value": "drawBody(p.source,d,b)"
+      }
+    ]
+  }
+}
