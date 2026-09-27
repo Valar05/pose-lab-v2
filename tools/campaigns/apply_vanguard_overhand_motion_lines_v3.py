@@ -30,7 +30,7 @@ mb["primaryStretchX"]=0
 mb["primarySquashY"]=0
 mb["primaryShearX"]=0
 mb["primaryShiftPx"]=0
-mb["primaryFilterPx"]=0
+mb["primaryFilterPx"]=4.0
 
 recipe["motionLines"]=dict(contract["motionLines"])
 
@@ -67,6 +67,7 @@ if "function drawMotionLineBody" not in renderer:
  const wavePx=Math.max(0,Number(ml.wavePx??6))*amount;
  const waveCycles=Math.max(.1,Number(ml.waveCycles??3));
  const baseAlphaAtPeak=Math.max(0,Math.min(1,Number(ml.baseAlphaAtPeak??.35)));
+ const primaryBlurPx=Math.max(0,Number(recipe.motionBlur?.primaryFilterPx??0))*amount;
  const ghostAlpha=Math.max(0,Math.min(1,Number(ml.ghostAlpha??.2)));
  const ghostStep=Math.max(1,Number(ml.ghostStepPx??10));
  const ghostCount=Math.max(0,Math.round(Number(ml.ghostCount??3)));
@@ -76,6 +77,7 @@ if "function drawMotionLineBody" not in renderer:
  const begin=()=>{ctx.save();ctx.translate(stageOffsetX(),0);ctx.translate(px+Number(reg[0]||0),py+Number(reg[1]||0));ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);};
  begin();
  ctx.globalAlpha=1-amount*(1-baseAlphaAtPeak);
+ ctx.filter=primaryBlurPx?('blur('+primaryBlurPx+'px)'):'none';
  ctx.drawImage(it.canvas,x0,y0);
  ctx.restore();
 
@@ -96,7 +98,7 @@ if "function drawMotionLineBody" not in renderer:
 
  begin();
  ctx.globalAlpha=Math.min(1,.66+.34*amount);
- ctx.filter=lineFilterPx?('blur('+(lineFilterPx*.55*amount)+'px)'):'none';
+ ctx.filter=(primaryBlurPx||lineFilterPx)?('blur('+(primaryBlurPx+lineFilterPx*.55*amount)+'px)'):'none';
  for(let sy=0;sy<h;sy+=sliceH){
    const band=Math.min(sliceH,h-sy);
    const yn=(sy+band*.5)/Math.max(1,h);
@@ -116,6 +118,7 @@ sp.write_text(renderer)
 print("TIMING=LOCKED_600MS")
 print("HANDOFF=LOCKED_310MS")
 print("FORWARD_SCALING=OFF")
+print("PRIMARY_SPRITE_BLUR=KEPT")
 print("PRIMARY_SPRITE_SCANLINE_DISTORTION=ON")
 print("MAX_BACKWARD_PULL_PX=34")
 print("SPEED_LINE_GHOSTS=3")
