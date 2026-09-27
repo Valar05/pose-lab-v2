@@ -1,0 +1,28 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-run-body-core-centering-v1",
+  "status":"sealed-before-apply",
+  "mission":"Recenter Swarmling Run using body-core/torso X rather than full silhouette bounds. Preserve the current corrected Run-5 size and every atlas pixel. Recompute only the six Run X anchors from dense mid-body pixels while preserving each frame ground Y.",
+  "evidence":{
+    "currentAtlasSha256":"814251044e0308eaa74deea14b08273fb133abacca097c4f0537b75eb72ae40e",
+    "currentRunAnchors":[[127,249],[128,249],[128,249],[128,250],[126,249],[128,250]],
+    "problem":"full-silhouette centering includes tendrils and extended limbs, so apparent torso center still wanders"
+  },
+  "locks":[
+    "no atlas pixel changes",
+    "no run frame image changes",
+    "Run-5 resized state preserved",
+    "Needle Jab impact cell 15",
+    "all attack semantics unchanged",
+    "presentation scale 1.5",
+    "root motion OFF",
+    "Vanguard unchanged"
+  ],
+  "writableSurface":[
+    "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json Run anchorPoint fields only",
+    "src/procedural-swarmling-preview.js runAnchors constant only",
+    "tools/test_swarmling_attacks.mjs runAnchors assertion only",
+    "campaigns/swarmling-run-body-core-centering.receipt.json"
+  ],
+  "humanVerdict":"pending"
+}
