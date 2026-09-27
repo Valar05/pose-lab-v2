@@ -1,0 +1,31 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-run5-size-normalization-v1",
+  "status":"sealed-before-apply",
+  "mission":"Fix only the undersized fifth Swarmling Run source frame. Cells 1,2,3,4,6 are size authority; cell 5 is scaled from 40px visible height to the 46px median while preserving its horizontal body center and ground contact. Rebuild Run frames and recompute Run body-center anchors.",
+  "evidence":{
+    "sourceAtlasSha256":"81a883d4825474bd16a03e0bb70c7fc126a20aa96e98d255160bf5d807e19c71",
+    "runVisibleHeightsPx":[46,44,46,47,40,43],
+    "authorityCells":[1,2,3,4,6],
+    "targetMedianHeightPx":46,
+    "cell5Scale":1.15
+  },
+  "locks":[
+    "cells 1,2,3,4,6 pixel-identical",
+    "all non-Run atlas cells pixel-identical",
+    "Needle Jab impact cell 15",
+    "attack source choices/timing/deformation",
+    "presentation scale 1.5",
+    "root motion OFF",
+    "Vanguard unchanged"
+  ],
+  "writableSurface":[
+    "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png cell 5 only",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/run/**",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json source/run hashes + run anchorPoint fields",
+    "src/procedural-swarmling-preview.js runAnchors constant",
+    "tools/test_swarmling_attacks.mjs runAnchors assertion",
+    "campaigns/swarmling-run5-size-normalization.receipt.json"
+  ],
+  "humanVerdict":"pending"
+}
