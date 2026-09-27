@@ -52,6 +52,25 @@ Use only when motion transfer is explicitly the task.
 
 Do not switch lanes without recording the change.
 
+
+## Sprite Sheet First — Pose Is God
+
+For 2D sprite animation, the sprite sheet is the first visual/mechanical authority. Before changing runtime anchors, stage placement, timing, interpolation, deformation, presentation scale, or renderer code, inspect the canonical sheet itself.
+
+**Required order of diagnosis:**
+
+1. **Pose identity:** Is the correct authored pose/frame selected?
+2. **Sprite-sheet geometry:** Are frame scale, crop, source bounds, ground line, and body center internally consistent in the sheet?
+3. **Registration:** Only after the sheet is proven coherent, solve planted-foot/body anchors and stage placement.
+4. **Timing/deformation:** Only after identity + sheet geometry + registration are correct, tune timing, squash/skew/rotation, effects, or interpolation.
+5. **Runtime presentation:** Renderer or presentation-scale changes are last resort and must not compensate for a bad sheet.
+
+A runtime defect that appears to be anchoring may actually be baked into the sheet. A frame that is independently resized, cropped, re-centered, or packed differently from its neighbors can make downstream anchor math look wrong even when the runtime is behaving exactly as configured.
+
+**Never normalize frames independently when the source animation was authored at one shared character scale.** Preserve one shared scale for the animation family. If one source row is inconsistent, repair the row mechanically before adding compensating runtime offsets.
+
+Human-visible review outranks numeric convenience. If a screenshot/video says two frames do not read as the same character scale or center, inspect the sheet before inventing another anchor correction.
+
 ## Weapon contract
 
 Choose one:
