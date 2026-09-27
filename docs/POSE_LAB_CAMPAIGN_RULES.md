@@ -128,6 +128,27 @@ Named regression class: **SHEET-BLIND-TUNING** — repeated runtime/anchor/prese
 - An exact effect selection requires: canonical source asset + measured source rectangle (or proven regular cell) + explicit pivot/placement.
 - Effect extraction geometry and effect placement are separate. Fix extraction before tuning position/scale/rotation.
 
+
+## Campaign Framework V2 — shared mechanics, contract-owned expectations
+New or actively modified campaigns must use `docs/POSE_CAMPAIGN_FRAMEWORK.md`, `tools/campaigns/campaign_core.py`, and `tools/campaigns/campaign_common.sh` for generic campaign mechanics instead of copying one-off guard/stage/receipt logic.
+
+- Contract schema `pose-lab-v2-campaign-contract-v2` owns the machine-readable mutable path surface, locked file hashes, structural expectations, receipt path, and required doctrine.
+- Structural state must be verified structurally. JSON values use JSON Pointer checks; do not grep JSON formatting/whitespace.
+- Campaign-variable values belong in the active contract/current canonical state. Do not duplicate yesterday's value into a verifier and then reject the authorized change.
+- `machine.mutablePaths` is the single mechanical path allowlist. Do not maintain a second handwritten staging allowlist with different semantics.
+- Receipt ordering is fixed: mutate -> verify -> stage implementation -> commit implementation -> create receipt -> stage receipt -> commit receipt -> push/readback -> exact-revision review.
+- Active/new campaigns should source shared shell helpers for sticky boot, disposable worktrees, staged diff checks, receipt creation, push/readback, and server readiness.
+- Historical campaigns are archaeology. Do not bulk-rewrite them merely to conform. Migrate a campaign when it is next reopened.
+- A generic-looking guard that is actually campaign-specific must be treated as legacy infrastructure, not reused as universal authority.
+- Run `python3 tools/test_pose_campaign_framework.py` after framework changes.
+
+Named regression classes:
+- **FORMAT-AS-SEMANTICS:** verifier depends on JSON indentation, spacing, ordering, or error-message prose.
+- **DUPLICATE-EXPECTATION:** the same mutable property is independently hardcoded in contract, helper, and test.
+- **RECEIPT-BEFORE-BIRTH:** staging references a receipt before the receipt exists.
+- **ALLOWLIST-DRIFT:** shell staging list and contract writable surface disagree.
+- **STALE-VALUE-GUARD:** verifier rejects the exact property a sealed campaign is authorized to change because it still embeds the previous value.
+
 ## Script and campaign compliance
 - Any script handed to Drew must itself follow the active campaign doctrine. A script that bypasses the guard or reintroduces a rejected runtime topology is invalid even if its individual shell commands work.
 - Before handing off a script, compare it against the complete constraint ledger: source authority, locks, mutation surface, runtime root, asset paths, verifier schema, and acceptance boundary.
