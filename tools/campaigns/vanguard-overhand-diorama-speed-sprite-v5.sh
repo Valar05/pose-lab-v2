@@ -31,11 +31,17 @@ for f in "$CONTRACT" "$HELPER" "$SELF" "$COMMON" "$RECIPE" "$RENDERER" "$TEST"; 
 done
 
 echo "=== RESOLVE EXACT USER-APPROVED SPEED-LINE PNG ==="
-SRC="$(python3 - "$ROOT" "$CONTRACT" <<'PY'
-import glob,hashlib,json,struct,sys
+SRC="$(python3 - "$ROOT" "$CONTRACT" "$SEALED" <<'PY'
+import glob,hashlib,json,struct,subprocess,sys
 from pathlib import Path
 root=Path(sys.argv[1])
-c=json.loads((root/sys.argv[2]).read_text())
+contract_path=sys.argv[2]
+sealed=sys.argv[3]
+contract_text=subprocess.check_output(
+    ["git","-C",str(root),"show",f"{sealed}:{contract_path}"],
+    text=True,
+)
+c=json.loads(contract_text)
 a=c["sourceAsset"]
 ordered=[]
 for s in a["androidCandidates"]:
