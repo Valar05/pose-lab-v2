@@ -13,6 +13,17 @@ This applies even to casual follow-ups, fresh chats, low-reasoning/Instant execu
 Before consequential mutation, explicitly recover: current HEAD/runtime truth, dirty-tree state, source authority, accepted locks, exact writable surface, execution lane, expected evidence, and completion surface.
 
 
+
+## Campaign Framework V2
+
+For any new campaign or any campaign being actively revised, also read:
+
+4. `docs/POSE_CAMPAIGN_FRAMEWORK.md`
+
+Use `tools/campaigns/campaign_core.py` and `tools/campaigns/campaign_common.sh` for shared campaign mechanics. Do not copy/paste new bespoke implementations of sticky boot, writable-path enforcement, receipt ordering, push/readback, or server readiness when the shared framework already owns them.
+
+New active contracts should use `pose-lab-v2-campaign-contract-v2` so mutable paths, locked hashes, and structural expectations have one machine-readable authority. Historical v1 campaigns remain archaeology until explicitly reopened.
+
 For any pose, animation, retarget, sprite-motion, weapon, render, or review-link
 work, read and follow `docs/POSE_IS_GOD.md` before editing.
 
