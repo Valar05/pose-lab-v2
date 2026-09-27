@@ -115,32 +115,127 @@
         "cooldownMs": 1050
       },
       "contract": [
-        "2 authored source poses",
-        "rear foot explicit and planted",
-        "no root motion",
-        "no generated in-betweens",
-        "timing authority only from SecurityTitan Cross"
+        "2 authored attack source poses plus idle bookends",
+        "explicit planted-foot source anchor on every phase",
+        "no root motion; engine owns movement",
+        "procedural shear/squash/stretch is presentation only",
+        "padded source envelope prevents deformation clipping",
+        "SecurityTitan Cross stopwatch"
       ],
       "frames": [
         {
           "sourceCell": 8,
           "phase": "windup",
-          "durationMs": 350,
           "anchorPoint": [
-            118,
+            116,
             250
           ]
         },
         {
           "sourceCell": 13,
-          "phase": "strike-recovery-hold",
-          "durationMs": 650,
+          "phase": "strike",
           "anchorPoint": [
-            112,
+            104,
             250
           ]
         }
-      ]
+      ],
+      "idleSource": {
+        "sourceCell": 7,
+        "anchorPoint": [
+          119,
+          250
+        ]
+      },
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 100,
+          "anchorPoint": [
+            119,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "windup",
+          "sourceCell": 8,
+          "durationMs": 250,
+          "anchorPoint": [
+            116,
+            250
+          ],
+          "deform": {
+            "shearX": -0.1,
+            "scaleX": 0.92,
+            "scaleY": 1.06
+          }
+        },
+        {
+          "id": "strike",
+          "sourceCell": 13,
+          "durationMs": 100,
+          "anchorPoint": [
+            104,
+            250
+          ],
+          "deform": {
+            "shearX": 0.18,
+            "scaleX": 1.12,
+            "scaleY": 0.93
+          }
+        },
+        {
+          "id": "recovery",
+          "sourceCell": 13,
+          "durationMs": 250,
+          "anchorPoint": [
+            104,
+            250
+          ],
+          "deform": {
+            "shearX": 0.05,
+            "scaleX": 1.02,
+            "scaleY": 0.99
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 300,
+          "anchorPoint": [
+            119,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "sourcePaddingPx": 18,
+        "pivot": "explicit-planted-foot",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      }
     },
     {
       "id": "rake",
@@ -159,32 +254,127 @@
         "cooldownMs": 900
       },
       "contract": [
-        "2 authored source poses",
-        "rear foot explicit and planted",
-        "no root motion",
-        "no generated in-betweens",
-        "timing authority only from SecurityTitan Jab"
+        "2 authored attack source poses plus idle bookends",
+        "explicit planted-foot source anchor on every phase",
+        "no root motion; engine owns movement",
+        "procedural shear/squash/stretch is presentation only",
+        "padded source envelope prevents deformation clipping",
+        "SecurityTitan Jab stopwatch"
       ],
       "frames": [
         {
           "sourceCell": 14,
           "phase": "coil",
-          "durationMs": 550,
           "anchorPoint": [
-            116,
+            108,
             250
           ]
         },
         {
           "sourceCell": 15,
-          "phase": "rake-recovery-hold",
-          "durationMs": 450,
+          "phase": "rake",
           "anchorPoint": [
-            116,
+            105,
             250
           ]
         }
-      ]
+      ],
+      "idleSource": {
+        "sourceCell": 7,
+        "anchorPoint": [
+          119,
+          250
+        ]
+      },
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 100,
+          "anchorPoint": [
+            119,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "coil",
+          "sourceCell": 14,
+          "durationMs": 450,
+          "anchorPoint": [
+            108,
+            250
+          ],
+          "deform": {
+            "shearX": -0.12,
+            "scaleX": 0.9,
+            "scaleY": 1.08
+          }
+        },
+        {
+          "id": "rake",
+          "sourceCell": 15,
+          "durationMs": 120,
+          "anchorPoint": [
+            105,
+            250
+          ],
+          "deform": {
+            "shearX": 0.2,
+            "scaleX": 1.13,
+            "scaleY": 0.92
+          }
+        },
+        {
+          "id": "recovery",
+          "sourceCell": 15,
+          "durationMs": 180,
+          "anchorPoint": [
+            105,
+            250
+          ],
+          "deform": {
+            "shearX": 0.06,
+            "scaleX": 1.03,
+            "scaleY": 0.98
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 150,
+          "anchorPoint": [
+            119,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "sourcePaddingPx": 18,
+        "pivot": "explicit-planted-foot",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      }
     },
     {
       "id": "scythe-bloom",
@@ -203,41 +393,135 @@
         "cooldownMs": 1050
       },
       "contract": [
-        "3 authored source poses",
-        "rear foot explicit and planted",
-        "no root motion",
-        "special attack gets a distinct follow-through pose",
-        "timing remains bounded by SecurityTitan Cross"
+        "3 authored attack source poses plus idle bookends",
+        "explicit planted-foot source anchor on every phase",
+        "no root motion; engine owns movement",
+        "procedural shear/squash/stretch is presentation only",
+        "padded source envelope prevents deformation clipping",
+        "SecurityTitan Cross stopwatch with a three-pose visual split"
       ],
       "frames": [
         {
           "sourceCell": 11,
           "phase": "coil",
-          "durationMs": 350,
           "anchorPoint": [
-            118,
+            108,
             250
           ]
         },
         {
           "sourceCell": 15,
           "phase": "bloom-impact",
-          "durationMs": 100,
           "anchorPoint": [
-            116,
+            105,
             250
           ]
         },
         {
           "sourceCell": 16,
           "phase": "follow-through",
-          "durationMs": 550,
           "anchorPoint": [
-            116,
+            109,
             250
           ]
         }
-      ]
+      ],
+      "idleSource": {
+        "sourceCell": 7,
+        "anchorPoint": [
+          119,
+          250
+        ]
+      },
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 100,
+          "anchorPoint": [
+            119,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        },
+        {
+          "id": "coil",
+          "sourceCell": 11,
+          "durationMs": 250,
+          "anchorPoint": [
+            108,
+            250
+          ],
+          "deform": {
+            "shearX": -0.14,
+            "scaleX": 0.89,
+            "scaleY": 1.09
+          }
+        },
+        {
+          "id": "bloom-impact",
+          "sourceCell": 15,
+          "durationMs": 100,
+          "anchorPoint": [
+            105,
+            250
+          ],
+          "deform": {
+            "shearX": 0.22,
+            "scaleX": 1.15,
+            "scaleY": 0.91
+          }
+        },
+        {
+          "id": "follow-through",
+          "sourceCell": 16,
+          "durationMs": 250,
+          "anchorPoint": [
+            109,
+            250
+          ],
+          "deform": {
+            "shearX": 0.1,
+            "scaleX": 1.07,
+            "scaleY": 0.96
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 300,
+          "anchorPoint": [
+            119,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1
+          }
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "sourcePaddingPx": 18,
+        "pivot": "explicit-planted-foot",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      }
     }
   ]
 }
