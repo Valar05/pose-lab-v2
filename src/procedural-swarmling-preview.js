@@ -1,4 +1,5 @@
 import { createProceduralReviewShell } from './procedural-review-shell.js';
+import { evaluateProceduralMotion } from './procedural-motion-kernel.js';
 
 const params=new URLSearchParams(location.search);
 const requested=params.get('procedural')||'swarmling-run';
@@ -135,37 +136,15 @@ function deformAt(index,u){
 }
 
 function proceduralMotionAt(ms,state,base){
-  const p=animation?.proceduralMotion;
-  if(!p)return base;
-  const cycle=Math.max(1,Number(p.cycleMs||1000));
-  const phase=(ms/cycle)*Math.PI*2;
-  const s1=Math.sin(phase);
-  const s2=Math.sin(phase*2+0.65);
-  const harmonic=Number(p.secondHarmonic||0);
-  let signal=s1+harmonic*s2;
-  const decay=Math.max(1,Number(p.decayMs||600));
-  const decayEnv=Math.exp(-Math.max(0,ms)/decay);
-
-  if(p.mode==='organic-breath'){
-    signal=s1+harmonic*s2;
-  }else if(p.mode==='startle-quiver'){
-    signal=(Math.sin(phase*1.8)+0.45*Math.sin(phase*3.1))*Math.max(.28,decayEnv);
-  }else if(p.mode==='impact-rattle'){
-    signal=(Math.sin(phase*2.2)+0.35*Math.sin(phase*4.4))*decayEnv;
-  }else if(p.mode==='collapse-jolt'){
-    signal=(Math.sin(phase*1.6)+0.3*Math.sin(phase*3.2))*Math.max(.18,decayEnv);
-  }else if(p.mode==='effort-pulse'){
-    signal=(s1+harmonic*s2)*(.65+.35*Math.sin(Math.PI*clamp(state.u)));
-  }else if(p.mode==='death-spasm'){
-    signal=(Math.sin(phase*2.4)+0.4*Math.sin(phase*4.8))*decayEnv;
-  }
-
-  return{
-    shearX:Number(base.shearX||0)+signal*Number(p.shearX||0),
-    scaleX:Number(base.scaleX||1)-signal*Number(p.scaleX||0),
-    scaleY:Number(base.scaleY||1)+signal*Number(p.scaleY||0),
-    rotateDeg:Number(base.rotateDeg||0)+signal*Number(p.rotateDeg||0)
-  };
+  return evaluateProceduralMotion(
+    animation?.proceduralMotion,
+    {
+      ms,
+      phaseId:state?.item?.id||state?.item?.phase||'',
+      phaseU:Number(state?.u||0)
+    },
+    base
+  );
 }
 
 function reviewTimeAt(raw){
