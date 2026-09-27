@@ -1,0 +1,11 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-normalize-nonrun-to-run-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "60098862d90348841b99bc96b2a4a60054726353",
+  "implementationRevision": "1db74c6bdfd15f81e08ff71a74638bfd42f02642",
+  "sourceByteSha256": "75932d49800ce93dacb7a3ed8a2f294020b3313ac5ae98a96083facac07eb602",
+  "sourceRgbaPixelSha256": "cde75a9d2150874f097e87b0dd82e1594858420ee963a2fde7017b1dee051e88",
+  "rootMotion": false,
+  "humanVerdict": "pending"
+}
