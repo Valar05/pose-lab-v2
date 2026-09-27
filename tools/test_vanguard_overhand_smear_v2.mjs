@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+const recipe=JSON.parse(fs.readFileSync(new URL('../public/assets/vanguard/procedural/overhand-strike.recipe.json',import.meta.url),'utf8'));
+const renderer=fs.readFileSync(new URL('../src/procedural-motion-preview.js',import.meta.url),'utf8');
+const fail=m=>{throw new Error(m)};
+const expected=[25,45,45,30,25,70,70,95,90,105];
+if(recipe.phases.map(p=>p.durationMs).join(',')!==expected.join(','))fail('accepted timing changed');
+if(recipe.comboHandoffMs!==310)fail('accepted handoff changed');
+if(recipe.motionBlur?.primaryFilterPx!==4)fail('primary filter missing');
+if(recipe.motionBlur?.primaryStretchX!==0.34)fail('primary stretch missing');
+if(recipe.motionBlur?.primarySquashY!==0.10)fail('primary squash missing');
+if(recipe.motionBlur?.primaryShearX!==-0.16)fail('primary shear missing');
+if(recipe.motionBlur?.primaryShiftPx!==9)fail('primary shift missing');
+for(const needle of ['primaryFilterPx','primaryStretchX','primarySquashY','primaryShearX','primaryShiftPx','ctx.filter=primaryFilterPx','return;'])if(!renderer.includes(needle))fail('renderer missing '+needle);
+if(recipe.rootMotion!==false)fail('rootMotion changed');
+if(recipe.canvas.anchor.join(',')!=='92,226'||recipe.stage.centerX!==220||recipe.bodyScale!==1.5)fail('placement changed');
+console.log('Vanguard Overhand primary-sprite smear v2: PASS');
