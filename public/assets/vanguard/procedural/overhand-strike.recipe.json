@@ -237,7 +237,7 @@
         "wideGlow": 0.0
       },
       "blur": {
-        "amount": 0.1
+        "amount": 0.0
       }
     },
     {
@@ -256,7 +256,7 @@
         "wideGlow": 0.18
       },
       "blur": {
-        "amount": 0.58
+        "amount": 0.32
       }
     },
     {
@@ -296,7 +296,7 @@
         "wideGlow": 0.7
       },
       "blur": {
-        "amount": 0.82
+        "amount": 0.46
       }
     },
     {
@@ -315,7 +315,7 @@
         "wideGlow": 0.58
       },
       "blur": {
-        "amount": 0.38
+        "amount": 0.08
       }
     },
     {
@@ -335,7 +335,7 @@
         "wideGlow": 0.32
       },
       "blur": {
-        "amount": 0.12
+        "amount": 0.0
       }
     },
     {
@@ -355,7 +355,7 @@
         "wideGlow": 0.1
       },
       "blur": {
-        "amount": 0.03
+        "amount": 0.0
       }
     },
     {
@@ -495,16 +495,15 @@
     "standaloneRecoveryPreserved": true,
     "bufferMayReplaceRecoveryAfterMs": 310
   },
-  "motionLines": {
+  "animeSpeedLines": {
     "enabled": true,
-    "sliceHeightPx": 3,
-    "maxPullPx": 34,
-    "wavePx": 7,
-    "waveCycles": 3.5,
-    "baseAlphaAtPeak": 0.34,
-    "ghostAlpha": 0.24,
-    "ghostStepPx": 11,
-    "ghostCount": 3,
-    "lineFilterPx": 1.25
+    "count": 12,
+    "minLengthPx": 10,
+    "maxLengthPx": 32,
+    "spreadY": 34,
+    "offsetBackPx": 12,
+    "lineWidthPx": 1.5,
+    "alpha": 0.42,
+    "staggerPx": 7
   }
 }

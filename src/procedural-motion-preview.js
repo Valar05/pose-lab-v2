@@ -390,60 +390,53 @@ function drawBody(id,d,blurAmount=0){
      const alpha=blurAmount*maxAlpha*(1-.52*t);
      drawPass(dx*span*t,dy*span*t,alpha,filterPx?('blur('+filterPx+'px)'):'none');
    }
-   if(recipe.motionLines?.enabled){
-     drawMotionLineBody(it,px,py,reg,d,bodyScale,blurAmount);
-     return;
+   if(recipe.animeSpeedLines?.enabled){
+     drawAnimeSpeedLines(px,py,reg,d,bodyScale,blurAmount);
    }
+   const primaryFilterPx=Math.max(0,Number(blur.primaryFilterPx??0))*blurAmount;
+   ctx.save();
+   ctx.globalAlpha=1;
+   ctx.filter=primaryFilterPx?('blur('+primaryFilterPx+'px)'):'none';
+   ctx.translate(stageOffsetX(),0);
+   ctx.translate(px+Number(reg[0]||0),py+Number(reg[1]||0));
+   ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);
+   ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
+   ctx.restore();
+   return;
  }
  drawPass();
 }
 
-function drawMotionLineBody(it,px,py,reg,d,bodyScale,amount){
- const ml=recipe.motionLines||{};
- const sliceH=Math.max(1,Math.round(Number(ml.sliceHeightPx??3)));
- const maxPull=Math.max(0,Number(ml.maxPullPx??30))*amount;
- const wavePx=Math.max(0,Number(ml.wavePx??6))*amount;
- const waveCycles=Math.max(.1,Number(ml.waveCycles??3));
- const baseAlphaAtPeak=Math.max(0,Math.min(1,Number(ml.baseAlphaAtPeak??.35)));
- const primaryBlurPx=Math.max(0,Number(recipe.motionBlur?.primaryFilterPx??0))*amount;
- const ghostAlpha=Math.max(0,Math.min(1,Number(ml.ghostAlpha??.2)));
- const ghostStep=Math.max(1,Number(ml.ghostStepPx??10));
- const ghostCount=Math.max(0,Math.round(Number(ml.ghostCount??3)));
- const lineFilterPx=Math.max(0,Number(ml.lineFilterPx??1));
- const x0=-it.anchor[0],y0=-it.anchor[1],w=it.canvas.width,h=it.canvas.height;
+function drawAnimeSpeedLines(px,py,reg,d,bodyScale,amount){
+ const spec=recipe.animeSpeedLines||{};
+ if(!spec.enabled||amount<=0)return;
+ const count=Math.max(1,Math.round(Number(spec.count??10)));
+ const minLen=Math.max(1,Number(spec.minLengthPx??8));
+ const maxLen=Math.max(minLen,Number(spec.maxLengthPx??28));
+ const spreadY=Math.max(1,Number(spec.spreadY??28));
+ const back=Math.max(0,Number(spec.offsetBackPx??10));
+ const lineWidth=Math.max(.5,Number(spec.lineWidthPx??1.5));
+ const alpha=Math.max(0,Math.min(1,Number(spec.alpha??.4)))*amount;
+ const stagger=Math.max(0,Number(spec.staggerPx??6));
 
- const begin=()=>{ctx.save();ctx.translate(stageOffsetX(),0);ctx.translate(px+Number(reg[0]||0),py+Number(reg[1]||0));ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);};
- begin();
- ctx.globalAlpha=1-amount*(1-baseAlphaAtPeak);
- ctx.filter=primaryBlurPx?('blur('+primaryBlurPx+'px)'):'none';
- ctx.drawImage(it.canvas,x0,y0);
- ctx.restore();
-
- for(let g=ghostCount;g>=1;g--){
-   begin();
-   ctx.globalAlpha=ghostAlpha*amount*(1-g/(ghostCount+1));
-   ctx.filter=lineFilterPx?('blur('+lineFilterPx+'px)'):'none';
-   for(let sy=0;sy<h;sy+=sliceH){
-     const band=Math.min(sliceH,h-sy);
-     const yn=(sy+band*.5)/Math.max(1,h);
-     const wave=Math.sin((yn*waveCycles+g*.17)*Math.PI*2)*wavePx;
-     const taper=Math.sin(Math.PI*yn);
-     const pull=maxPull*(.35+.65*taper)+wave+g*ghostStep;
-     ctx.drawImage(it.canvas,0,sy,w,band,x0-pull,y0+sy,w,band);
-   }
-   ctx.restore();
- }
-
- begin();
- ctx.globalAlpha=Math.min(1,.66+.34*amount);
- ctx.filter=(primaryBlurPx||lineFilterPx)?('blur('+(primaryBlurPx+lineFilterPx*.55*amount)+'px)'):'none';
- for(let sy=0;sy<h;sy+=sliceH){
-   const band=Math.min(sliceH,h-sy);
-   const yn=(sy+band*.5)/Math.max(1,h);
-   const wave=Math.sin((yn*waveCycles+.11)*Math.PI*2)*wavePx;
-   const taper=Math.sin(Math.PI*yn);
-   const pull=maxPull*taper+wave;
-   ctx.drawImage(it.canvas,0,sy,w,band,x0-pull,y0+sy,w,band);
+ ctx.save();
+ ctx.translate(stageOffsetX(),0);
+ ctx.translate(px+Number(reg[0]||0),py+Number(reg[1]||0));
+ ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);
+ ctx.globalAlpha=alpha;
+ ctx.lineCap='round';
+ ctx.lineWidth=lineWidth;
+ ctx.strokeStyle='rgba(255,220,180,1)';
+ for(let i=0;i<count;i++){
+   const t=count===1?0.5:i/(count-1);
+   const y=(t-.5)*spreadY;
+   const wobble=Math.sin((i*1.91)+amount*3.2)*3;
+   const len=minLen+(maxLen-minLen)*(0.25+0.75*((i*37)%11)/10);
+   const x0=-back-stagger*(i%3);
+   ctx.beginPath();
+   ctx.moveTo(x0,y+wobble);
+   ctx.lineTo(x0-len,y+wobble*.65);
+   ctx.stroke();
  }
  ctx.restore();
 }
