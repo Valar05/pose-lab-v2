@@ -33,7 +33,7 @@ for(const [id,[cell,x,y]] of Object.entries(sourceExpect)){
   if(s.registrationOffset?.join(',')!=='0,0')fail(id+' registration changed');
 }
 if(recipe.sources['slash-right']?.cell!==5)fail('slash source cell changed');
-if(recipe.effectAtlases?.['slash-canonical']?.sha256!=='94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70')fail('slash atlas authority changed');
+if(recipe.effectAtlases?.['slash-canonical']?.sha256!=='e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d')fail('slash atlas authority changed');
 
 const blur=recipe.motionBlur;
 if(!blur?.enabled||blur.samples!==4||blur.spanPx!==30||blur.filterPx!==2.5||blur.maxAlpha!==0.42||blur.directionStage?.join(',')!=='-1,0.22')fail('motion blur config changed');
