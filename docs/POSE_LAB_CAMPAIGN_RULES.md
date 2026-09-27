@@ -106,6 +106,19 @@ These are named failure classes. Treat recurrence as a guard failure, not a crea
 - Every mutation must state internally: requested defect, writable property set, forbidden property set, authority, and acceptance evidence. If these cannot be named, do not mutate.
 - Never turn a diagnosis into a new architecture. Fix the named defect in the existing architecture.
 
+
+## Sprite-sheet-first diagnostic gate
+Before any 2D pose/registration mutation, inspect the canonical sprite sheet itself. This is mandatory.
+
+- **POSE-FIRST:** Verify exact pose/frame identity before placement.
+- **SHEET-FIRST:** Verify source-frame scale, crop, body center, ground line, and cell geometry before touching anchors or renderer math.
+- **ONE-SCALE:** A regular animation family authored at one scale must be rebuilt with one shared scale. Never independently fit each frame to a target box.
+- **NO-DOWNSTREAM-COMPENSATION:** Do not use stageAnchor, registrationOffset, bodyScale, presentationScale, shear, or renderer changes to compensate for inconsistent source-sheet geometry.
+- **VISIBLE-READ AUTHORITY:** When rendered review says a frame is visibly smaller/larger/off-center, inspect source pixels and neighboring frames first. Numeric bbox/centroid heuristics are supporting evidence, not taste authority.
+- **FIX-UPSTREAM-ONCE:** When the sheet is wrong, repair the smallest source-sheet region that owns the defect, then rebuild derived frames/hashes. Do not stack anchor corrections on top of bad source geometry.
+
+Named regression class: **SHEET-BLIND-TUNING** — repeated runtime/anchor/presentation adjustments made without first verifying the canonical sprite sheet. Treat recurrence as a guard failure.
+
 ## Atlas geometry
 - Never assume an image is a regular atlas because it contains multiple effects.
 - Grid metadata (columns/rows/indexBase) is allowed only when equal cell geometry is proven by the source artifact or authoritative metadata.
