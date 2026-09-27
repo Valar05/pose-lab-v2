@@ -25,6 +25,7 @@ const ASSETS = {
   vanguard: assetUrl('vanguard/vanguard_rigged_animations.glb'),
   fpsplayer: assetUrl('fpsplayer/FPSPlayer.glb'),
   fpsplayerAriesV8: assetUrl('fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8_runtime.glb'),
+  lionheartLancer: assetUrl('lionheart-lancer/LionheartLancer.glb'),
 };
 const MIXAMO_BONE_MAP = Object.freeze({
   Hips: 'mixamorig:Hips',
@@ -148,6 +149,20 @@ const CHARACTER_ASSETS = Object.freeze({
     supportsAnimationClips: true,
     defaultClip: 'Idle',
   },
+  'lionheart-lancer': {
+    key: 'lionheart-lancer',
+    label: 'Lionheart Lancer',
+    asset: ASSETS.lionheartLancer,
+    source: '/storage/emulated/0/Download/LionheartLancer.blend',
+    role: 'Lionheart Lancer 3D intake preview from the original Blend source',
+    boneMap: {},
+    supportsSaber: false,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+    supportsAnimationClips: true,
+    autoPlayAnimation: false,
+    defaultClip: null,
+  },
 });
 const CHARACTER_KEY_ALIASES = Object.freeze({
   default: 'davin',
@@ -172,6 +187,9 @@ const CHARACTER_KEY_ALIASES = Object.freeze({
   vanguard: 'vanguard',
   Vanguard: 'vanguard',
   guard: 'vanguard',
+  lionheart: 'lionheart-lancer',
+  lancer: 'lionheart-lancer',
+  'lionheart-lancer': 'lionheart-lancer',
 });
 const CHARACTER_KEYS = Object.freeze(Object.keys(CHARACTER_ASSETS));
 const MESHY_PBR_TEXTURES = {
