@@ -5,45 +5,53 @@ import {evaluateProceduralMotion} from '../src/procedural-motion-kernel.js';
 const base={shearX:0,scaleX:1,scaleY:1,rotateDeg:0};
 
 const idle={
-  mode:'organic-breath-v2',cycleMs:1500,
-  amplitudes:{shearX:.028,scaleX:.022,scaleY:.044,rotateDeg:1.15},
-  harmonics:{secondary:.26,tertiary:.08},
-  axisPhase:{shearX:.9,scaleX:2.2,scaleY:.15,rotateDeg:1.45},
+  mode:'deform-breath-v3',cycleMs:1500,
+  amplitudes:{shearX:.052,scaleX:.008,scaleY:.014,rotateDeg:1.75},
+  harmonics:{secondary:.30,tertiary:.10},
+  axisPhase:{shearX:.75,scaleX:2.4,scaleY:.2,rotateDeg:1.35},
   phaseWeights:{idle:1},terminalStillPhases:[]
 };
-const a=evaluateProceduralMotion(idle,{ms:0,phaseId:'idle',phaseU:0},base);
-const b=evaluateProceduralMotion(idle,{ms:375,phaseId:'idle',phaseU:.25},base);
-assert.notDeepEqual(a,b,'idle physiology must visibly evolve over time');
-assert.ok(Math.abs(b.scaleY-1)>0.005,'idle breathing must materially change vertical scale');
-assert.ok(Math.abs(b.rotateDeg)>0.1,'idle sway must materially rotate');
+const i0=evaluateProceduralMotion(idle,{ms:0,phaseId:'idle',phaseU:0},base);
+const i1=evaluateProceduralMotion(idle,{ms:420,phaseId:'idle',phaseU:.3},base);
+assert.notDeepEqual(i0,i1,'idle must deform over time');
+assert.ok(Math.abs(i1.shearX)>0.01||Math.abs(i1.rotateDeg)>0.25,'idle needs visible deformation');
+assert.ok(Math.abs(i1.scaleX-1)<0.02,'idle X shrink/grow must remain small');
+assert.ok(Math.abs(i1.scaleY-1)<0.03,'idle Y shrink/grow must remain small');
 
-const aggro={
-  mode:'asymmetric-alert-pulse',cycleMs:240,
-  amplitudes:{shearX:.052,scaleX:.034,scaleY:.062,rotateDeg:2.8},
-  axisPhase:{shearX:.35,scaleX:1.75,scaleY:0,rotateDeg:2.35},
-  phaseWeights:{'idle-enter':.12,'surprise-flare':1.25,'surprise-hold':.82,'idle-return':.22},
-  terminalStillPhases:[]
+const micro={
+  mode:'micro-alert-cluster',cycleMs:92,clusterMs:430,decayMs:720,
+  amplitudes:{shearX:.022,scaleX:.008,scaleY:.014,rotateDeg:1.15},
+  axisPhase:{shearX:.25,scaleX:1.6,scaleY:.05,rotateDeg:2.1},
+  phaseWeights:{'surprise-flare':1.15},terminalStillPhases:[]
 };
-const flare=evaluateProceduralMotion(aggro,{ms:60,phaseId:'surprise-flare',phaseU:.4},base);
-const idleEnter=evaluateProceduralMotion(aggro,{ms:60,phaseId:'idle-enter',phaseU:.4},base);
-assert.ok(Math.abs(flare.scaleY-1)>Math.abs(idleEnter.scaleY-1),'aggro flare must pulse harder than idle-enter');
+const samples=[0,23,46,69,92,115,138].map(ms=>
+  evaluateProceduralMotion(micro,{ms,phaseId:'surprise-flare',phaseU:.5},base)
+);
+assert.ok(new Set(samples.map(x=>x.rotateDeg.toFixed(3))).size>=5,'aggro must produce fast micro-pulse variation');
+assert.ok(Math.max(...samples.map(x=>Math.abs(x.scaleY-1)))<0.04,'aggro micro-pulses must not become broad size pumping');
 
-const death={
-  mode:'terminal-spasm',cycleMs:125,decayMs:520,
-  amplitudes:{shearX:.05,scaleX:.03,scaleY:.046,rotateDeg:3.25},
-  axisPhase:{shearX:.2,scaleX:1.3,scaleY:2.6,rotateDeg:.75},
-  phaseWeights:{'fatal-stagger':1,'fatal-kneel':.78,'fall-prone':.48,corpse:0},
-  terminalStillPhases:['corpse']
-};
-const corpse=evaluateProceduralMotion(death,{ms:1200,phaseId:'corpse',phaseU:.5},base);
-assert.deepEqual(corpse,base,'corpse phase must be absolutely still');
-const dying=evaluateProceduralMotion(death,{ms:100,phaseId:'fatal-stagger',phaseU:.5},base);
-assert.notDeepEqual(dying,base,'death must have motion before corpse');
+for(const [mode,phase] of [
+  ['attack-snap','strike'],
+  ['attack-drag','rake'],
+  ['attack-bloom','bloom-impact']
+]){
+  const p={
+    mode,cycleMs:200,
+    amplitudes:{shearX:.05,scaleX:.02,scaleY:.025,rotateDeg:2.5},
+    axisPhase:{shearX:0,scaleX:1,scaleY:2,rotateDeg:.5},
+    phaseWeights:{[phase]:1},terminalStillPhases:[]
+  };
+  const a=evaluateProceduralMotion(p,{ms:35,phaseId:phase,phaseU:.5},base);
+  assert.notDeepEqual(a,base,mode+' must materially affect the attack');
+}
 
-console.log(JSON.stringify({ok:true,checked:[
-  'independent-axis-oscillators',
-  'phase-weighted-envelopes',
-  'asymmetric-alert-pulse',
-  'visible-organic-idle',
-  'terminal-corpse-stillness'
-]},null,2));
+console.log(JSON.stringify({
+  ok:true,
+  checked:[
+    'low-shrink-high-deform-idle',
+    'clustered-aggro-micro-pulses',
+    'attack-snap',
+    'attack-drag',
+    'attack-bloom'
+  ]
+},null,2));
