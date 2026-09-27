@@ -152,9 +152,12 @@ if "const presentationScale=1.5;" not in preview_text:
 preview_path.write_text(preview_text)
 
 test_lines=test_path.read_text().splitlines()
-hits=[i for i,l in enumerate(test_lines) if "run pins missing" in l and "runAnchors=" in l]
+hits=[
+    i for i,l in enumerate(test_lines)
+    if "preview.includes(" in l and "const runAnchors=" in l
+]
 if len(hits)!=1:
-    raise SystemExit("STOP: expected exactly one run-pin assertion")
+    raise SystemExit(f"STOP: expected exactly one runAnchors preview assertion, found {len(hits)}")
 test_lines[hits[0]]="if(!preview.includes("+json.dumps(new_const)+"))fail('run body-center anchors missing');"
 test_path.write_text("\n".join(test_lines)+"\n")
 
