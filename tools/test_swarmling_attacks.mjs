@@ -16,8 +16,8 @@ if(manifest.authority?.rootMotion!=='OFF; all movement is authored later in engi
 if(manifest.authority?.timingAuthority?.revision!=='e89c2adf671b06af4ce6a6c1d3f0118e68a6c274')fail('SecurityTitan timing revision drifted');
 
 const expected={
-  jab:{authoredCells:[8,17],timelineCells:[7,8,17,17,7],activeAtMs:350},
-  rake:{authoredCells:[9,10],timelineCells:[7,9,10,10,7],activeAtMs:550},
+  jab:{authoredCells:[10,14],timelineCells:[7,10,14,14,7],activeAtMs:350},
+  rake:{authoredCells:[13,15],timelineCells:[7,13,15,15,7],activeAtMs:550},
   'scythe-bloom':{authoredCells:[11,15,16],timelineCells:[7,11,15,16,7],activeAtMs:350},
 };
 
@@ -40,6 +40,7 @@ for(const [id,e] of Object.entries(expected)){
 if(!preview.includes('function deformAt(index,u)'))fail('procedural deformation interpolation missing');
 if(!preview.includes('rotateDeg:lerp('))fail('procedural rotation interpolation missing');
 if(!preview.includes('ctx.rotate((d.rotateDeg||0)*Math.PI/180)'))fail('planted-foot rotation draw missing');
+if(!preview.includes('const runAnchors=[[128,238],[126,238],[126,239],[115,239],[122,239],[135,240]];'))fail('recovered-atlas run pins missing');
 if(!preview.includes('ctx.drawImage(image,-srcX,-srcY,w,h)'))fail('full-cell planted draw missing');
 if(preview.includes('const isBg='))fail('near-black flood-fill cleanup must not return');
 if(!preview.includes('Root motion</div><div>OFF'))fail('no-root-motion readout missing');
