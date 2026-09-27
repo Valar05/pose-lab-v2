@@ -162,6 +162,22 @@
       "terminalStillness": true,
       "atlasPixelsChanged": false,
       "poseSequencesChanged": false
+    },
+    "proceduralPhysiologyV5": {
+      "contract": "campaigns/swarmling-procedural-physiology-v5.contract.json",
+      "kernel": "src/procedural-motion-kernel.js",
+      "microPulseAggro": true,
+      "idleLowShrink": true,
+      "damageProfilePreserved": true,
+      "attackProfiles": {
+        "jab": "attack-snap",
+        "rake": "attack-drag",
+        "scythe-bloom": "attack-bloom"
+      },
+      "atlasPixelsChanged": false,
+      "poseSelectionsChanged": false,
+      "timingChanged": false,
+      "stageAnchorsChanged": false
     }
   },
   "animations": [
@@ -389,7 +405,8 @@
           "shiftY",
           "root motion",
           "stage translation"
-        ]
+        ],
+        "motionOverlay": "proceduralMotion-v5-kernel"
       },
       "pinAuthority": {
         "mode": "explicit-rear-support-foot",
@@ -402,6 +419,30 @@
         "presentationScale": 1.5,
         "weightedCoreOffsetPx": 16.9,
         "resolvedStageAnchorX": 190
+      },
+      "proceduralMotion": {
+        "mode": "attack-snap",
+        "cycleMs": 86,
+        "amplitudes": {
+          "shearX": 0.045,
+          "scaleX": 0.022,
+          "scaleY": 0.028,
+          "rotateDeg": 2.2
+        },
+        "axisPhase": {
+          "shearX": 0,
+          "scaleX": 1.6,
+          "scaleY": 2.7,
+          "rotateDeg": 0.8
+        },
+        "phaseWeights": {
+          "idle-enter": 0.05,
+          "windup": 0.55,
+          "strike": 1.35,
+          "recovery": 0.4,
+          "idle-return": 0.06
+        },
+        "terminalStillPhases": []
       }
     },
     {
@@ -545,7 +586,8 @@
           "shiftY",
           "root motion",
           "stage translation"
-        ]
+        ],
+        "motionOverlay": "proceduralMotion-v5-kernel"
       },
       "pinAuthority": {
         "mode": "explicit-rear-support-foot",
@@ -557,6 +599,34 @@
         "presentationScale": 1.5,
         "weightedCoreOffsetPx": 17.9,
         "resolvedStageAnchorX": 188
+      },
+      "proceduralMotion": {
+        "mode": "attack-drag",
+        "cycleMs": 260,
+        "amplitudes": {
+          "shearX": 0.075,
+          "scaleX": 0.018,
+          "scaleY": 0.025,
+          "rotateDeg": 2.6
+        },
+        "harmonics": {
+          "secondary": 0.18,
+          "tertiary": 0.04
+        },
+        "axisPhase": {
+          "shearX": 0.15,
+          "scaleX": 2.2,
+          "scaleY": 0.55,
+          "rotateDeg": 1.3
+        },
+        "phaseWeights": {
+          "idle-enter": 0.04,
+          "coil": 0.62,
+          "rake": 1.18,
+          "recovery": 0.6,
+          "idle-return": 0.05
+        },
+        "terminalStillPhases": []
       }
     },
     {
@@ -708,7 +778,8 @@
           "shiftY",
           "root motion",
           "stage translation"
-        ]
+        ],
+        "motionOverlay": "proceduralMotion-v5-kernel"
       },
       "pinAuthority": {
         "mode": "explicit-rear-support-foot",
@@ -720,6 +791,34 @@
         "presentationScale": 1.5,
         "weightedCoreOffsetPx": 16.8,
         "resolvedStageAnchorX": 190
+      },
+      "proceduralMotion": {
+        "mode": "attack-bloom",
+        "cycleMs": 310,
+        "amplitudes": {
+          "shearX": 0.07,
+          "scaleX": 0.025,
+          "scaleY": 0.032,
+          "rotateDeg": 3.15
+        },
+        "harmonics": {
+          "secondary": 0.22,
+          "tertiary": 0.06
+        },
+        "axisPhase": {
+          "shearX": 0.6,
+          "scaleX": 2.4,
+          "scaleY": 0,
+          "rotateDeg": 1.05
+        },
+        "phaseWeights": {
+          "idle-enter": 0.04,
+          "coil": 0.72,
+          "bloom-impact": 1.32,
+          "follow-through": 0.88,
+          "idle-return": 0.08
+        },
+        "terminalStillPhases": []
       }
     },
     {
@@ -759,23 +858,23 @@
         }
       ],
       "proceduralMotion": {
-        "mode": "organic-breath-v2",
+        "mode": "deform-breath-v3",
         "cycleMs": 1500,
         "amplitudes": {
-          "shearX": 0.028,
-          "scaleX": 0.022,
-          "scaleY": 0.044,
-          "rotateDeg": 1.15
+          "shearX": 0.052,
+          "scaleX": 0.008,
+          "scaleY": 0.014,
+          "rotateDeg": 1.75
         },
         "harmonics": {
-          "secondary": 0.26,
-          "tertiary": 0.08
+          "secondary": 0.3,
+          "tertiary": 0.1
         },
         "axisPhase": {
-          "shearX": 0.9,
-          "scaleX": 2.2,
-          "scaleY": 0.15,
-          "rotateDeg": 1.45
+          "shearX": 0.75,
+          "scaleX": 2.4,
+          "scaleY": 0.2,
+          "rotateDeg": 1.35
         },
         "phaseWeights": {
           "idle": 1
@@ -784,7 +883,7 @@
       },
       "procedural": {
         "interpolation": "smoothstep-deform-only",
-        "motionOverlay": "proceduralMotion-v2-kernel",
+        "motionOverlay": "proceduralMotion-v5-kernel",
         "pivot": "body-core-x-ground-y",
         "rootTranslation": false,
         "allowed": [
@@ -887,32 +986,33 @@
         }
       ],
       "proceduralMotion": {
-        "mode": "asymmetric-alert-pulse",
-        "cycleMs": 240,
-        "decayMs": 900,
+        "mode": "micro-alert-cluster",
+        "cycleMs": 92,
+        "clusterMs": 430,
+        "decayMs": 720,
         "amplitudes": {
-          "shearX": 0.052,
-          "scaleX": 0.034,
-          "scaleY": 0.062,
-          "rotateDeg": 2.8
+          "shearX": 0.022,
+          "scaleX": 0.008,
+          "scaleY": 0.014,
+          "rotateDeg": 1.15
         },
         "axisPhase": {
-          "shearX": 0.35,
-          "scaleX": 1.75,
-          "scaleY": 0,
-          "rotateDeg": 2.35
+          "shearX": 0.25,
+          "scaleX": 1.6,
+          "scaleY": 0.05,
+          "rotateDeg": 2.1
         },
         "phaseWeights": {
-          "idle-enter": 0.12,
-          "surprise-flare": 1.25,
-          "surprise-hold": 0.82,
-          "idle-return": 0.22
+          "idle-enter": 0.08,
+          "surprise-flare": 1.15,
+          "surprise-hold": 0.92,
+          "idle-return": 0.1
         },
         "terminalStillPhases": []
       },
       "procedural": {
         "interpolation": "smoothstep-deform-only",
-        "motionOverlay": "proceduralMotion-v2-kernel",
+        "motionOverlay": "proceduralMotion-v5-kernel",
         "pivot": "body-core-x-ground-y",
         "rootTranslation": false,
         "allowed": [
@@ -1040,7 +1140,7 @@
       },
       "procedural": {
         "interpolation": "smoothstep-deform-only",
-        "motionOverlay": "proceduralMotion-v2-kernel",
+        "motionOverlay": "proceduralMotion-v5-kernel",
         "pivot": "body-core-x-ground-y",
         "rootTranslation": false,
         "allowed": [
