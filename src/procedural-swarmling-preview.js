@@ -139,17 +139,27 @@ function proceduralMotionAt(ms,state,base){
   if(!p)return base;
   const cycle=Math.max(1,Number(p.cycleMs||1000));
   const phase=(ms/cycle)*Math.PI*2;
-  let signal=Math.sin(phase);
-  if(p.mode==='breathing-loop'){
-    signal=Math.sin(phase);
-  }else if(p.mode==='damped-wobble'){
-    const decay=Math.max(1,Number(p.decayMs||600));
-    signal=Math.sin(phase)*Math.exp(-Math.max(0,ms)/decay);
-  }else if(p.mode==='tension-wave'){
-    signal=Math.sin(phase)*(.65+.35*Math.sin(Math.PI*clamp(state.u)));
-  }else if(p.mode==='strain-wave'){
-    signal=Math.sin(phase)*(.55+.45*Math.sin(Math.PI*clamp(state.u)));
+  const s1=Math.sin(phase);
+  const s2=Math.sin(phase*2+0.65);
+  const harmonic=Number(p.secondHarmonic||0);
+  let signal=s1+harmonic*s2;
+  const decay=Math.max(1,Number(p.decayMs||600));
+  const decayEnv=Math.exp(-Math.max(0,ms)/decay);
+
+  if(p.mode==='organic-breath'){
+    signal=s1+harmonic*s2;
+  }else if(p.mode==='startle-quiver'){
+    signal=(Math.sin(phase*1.8)+0.45*Math.sin(phase*3.1))*Math.max(.28,decayEnv);
+  }else if(p.mode==='impact-rattle'){
+    signal=(Math.sin(phase*2.2)+0.35*Math.sin(phase*4.4))*decayEnv;
+  }else if(p.mode==='collapse-jolt'){
+    signal=(Math.sin(phase*1.6)+0.3*Math.sin(phase*3.2))*Math.max(.18,decayEnv);
+  }else if(p.mode==='effort-pulse'){
+    signal=(s1+harmonic*s2)*(.65+.35*Math.sin(Math.PI*clamp(state.u)));
+  }else if(p.mode==='death-spasm'){
+    signal=(Math.sin(phase*2.4)+0.4*Math.sin(phase*4.8))*decayEnv;
   }
+
   return{
     shearX:Number(base.shearX||0)+signal*Number(p.shearX||0),
     scaleX:Number(base.scaleX||1)-signal*Number(p.scaleX||0),
@@ -158,10 +168,17 @@ function proceduralMotionAt(ms,state,base){
   };
 }
 
-function normalizedTimeMs(ms){
-  if(animation?.loop===false)return Math.max(0,Math.min(Math.max(0,total-.001),ms));
-  return ((ms%total)+total)%total;
+function reviewTimeAt(raw){
+  if(animation?.reviewLoop===true){
+    const gap=Math.max(0,Number(animation.reviewLoopGapMs||0));
+    const span=Math.max(1,total+gap);
+    const t=((raw%span)+span)%span;
+    return t>=total?Math.max(0,total-.001):t;
+  }
+  if(animation?.loop===true)return ((raw%total)+total)%total;
+  return Math.max(0,Math.min(Math.max(0,total-.001),raw));
 }
+
 
 async function imageFor(item){
   if(item.src){
@@ -195,7 +212,7 @@ function drawPlanted(image,item,index,d){
 }
 
 async function render(ms){
-  ms=normalizedTimeMs(ms);
+  ms=reviewTimeAt(ms);
   const state=stateAtMs(ms),item=state.item,index=state.index;
   ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -226,21 +243,19 @@ async function render(ms){
 
 function loop(now){
   const raw=playing?(offset+(now-start)):offset;
-  if(animation?.loop===false && playing && raw>=total){
+  if(animation?.reviewLoop!==true && animation?.loop!==true && playing && raw>=total){
     offset=Math.max(0,total-.001);
     playing=false;
     play.textContent='▶';
-    render(offset).catch(err=>{throw err});
-    requestAnimationFrame(loop);
-    return;
   }
-  const ms=animation?.loop===false?raw:(raw%total);
+  const ms=reviewTimeAt(playing?raw:offset);
   render(ms).catch(err=>{playing=false;throw err});
   requestAnimationFrame(loop);
 }
+
 play.onclick=()=>{
   if(playing){offset=(offset+(performance.now()-start))%total;playing=false;play.textContent='▶'}
-  else{if(animation?.loop===false&&offset>=total-1)offset=0;start=performance.now();playing=true;play.textContent='❚❚'}
+  else{if(animation?.reviewLoop!==true&&animation?.loop!==true&&offset>=total-1)offset=0;start=performance.now();playing=true;play.textContent='❚❚'}
 };
 restart.onclick=()=>{offset=0;start=performance.now();render(0)};
 scrub.oninput=()=>{offset=Number(scrub.value)*total;start=performance.now();render(offset)};

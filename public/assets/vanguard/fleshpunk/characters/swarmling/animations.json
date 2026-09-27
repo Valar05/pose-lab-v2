@@ -88,7 +88,7 @@
       "targetGroundY": 249
     },
     "utilityPack": {
-      "contract": "campaigns/swarmling-utility-pack-v2.contract.json",
+      "contract": "campaigns/swarmling-utility-pack-v3.contract.json",
       "animations": [
         "idle",
         "aggro",
@@ -100,9 +100,15 @@
       "idleSourceCells": [
         7
       ],
+      "aggroSurpriseSourceCell": 17,
+      "damageSourceCells": [
+        18,
+        19
+      ],
       "knockdownTerminalCell": 21,
       "deathTerminalCell": 22,
       "proceduralMotionRequired": true,
+      "reviewLoopSeparatedFromGameplay": true,
       "rootMotion": false
     },
     "utilityScaleRepairV2": {
@@ -703,23 +709,26 @@
       "id": "idle",
       "label": "Idle",
       "loop": true,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 0,
       "rootMotion": false,
       "stageAnchor": [
         215,
         226
       ],
-      "semantic": "single authored idle pose animated procedurally",
+      "semantic": "single authored idle pose with visible procedural breathing and body sway",
       "contract": [
         "canonical atlas pose authority",
-        "utility-exclusive cells share one source scale family",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
         "root motion OFF; engine owns translation",
-        "procedural motion profile is required"
+        "explicit procedural motion profile required"
       ],
       "timeline": [
         {
           "id": "idle",
           "sourceCell": 7,
-          "durationMs": 1200,
+          "durationMs": 1400,
           "deform": {
             "shearX": 0,
             "scaleX": 1,
@@ -733,12 +742,13 @@
         }
       ],
       "proceduralMotion": {
-        "mode": "breathing-loop",
-        "cycleMs": 1200,
-        "shearX": 0.012,
-        "scaleX": 0.012,
-        "scaleY": 0.018,
-        "rotateDeg": 0.6
+        "mode": "organic-breath",
+        "cycleMs": 1400,
+        "shearX": 0.035,
+        "scaleX": 0.028,
+        "scaleY": 0.045,
+        "rotateDeg": 1.4,
+        "secondHarmonic": 0.35
       },
       "procedural": {
         "interpolation": "smoothstep-deform-only",
@@ -765,25 +775,28 @@
     },
     {
       "id": "aggro",
-      "label": "Aggro / Attention",
+      "label": "Aggro / Surprise",
       "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 500,
       "rootMotion": false,
       "stageAnchor": [
         215,
         226
       ],
-      "semantic": "attention/aggro tell; no attack active window",
+      "semantic": "surprise/aggro tell centered on authored flare pose cell 17",
       "contract": [
         "canonical atlas pose authority",
-        "utility-exclusive cells share one source scale family",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
         "root motion OFF; engine owns translation",
-        "procedural motion profile is required"
+        "explicit procedural motion profile required"
       ],
       "timeline": [
         {
           "id": "idle-enter",
           "sourceCell": 7,
-          "durationMs": 150,
+          "durationMs": 180,
           "deform": {
             "shearX": 0,
             "scaleX": 1,
@@ -796,13 +809,28 @@
           ]
         },
         {
-          "id": "threat-rise",
-          "sourceCell": 8,
-          "durationMs": 500,
+          "id": "surprise-flare",
+          "sourceCell": 17,
+          "durationMs": 420,
           "deform": {
-            "shearX": -0.03,
+            "shearX": -0.06,
+            "scaleX": 0.96,
+            "scaleY": 1.07,
+            "rotateDeg": -2.5
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "surprise-hold",
+          "sourceCell": 17,
+          "durationMs": 300,
+          "deform": {
+            "shearX": -0.025,
             "scaleX": 0.985,
-            "scaleY": 1.02,
+            "scaleY": 1.025,
             "rotateDeg": -1
           },
           "anchorPoint": [
@@ -813,7 +841,7 @@
         {
           "id": "idle-return",
           "sourceCell": 7,
-          "durationMs": 350,
+          "durationMs": 320,
           "deform": {
             "shearX": 0,
             "scaleX": 1,
@@ -827,12 +855,13 @@
         }
       ],
       "proceduralMotion": {
-        "mode": "tension-wave",
-        "cycleMs": 420,
-        "shearX": 0.024,
-        "scaleX": 0.012,
-        "scaleY": 0.02,
-        "rotateDeg": 1
+        "mode": "startle-quiver",
+        "cycleMs": 120,
+        "decayMs": 650,
+        "shearX": 0.055,
+        "scaleX": 0.025,
+        "scaleY": 0.045,
+        "rotateDeg": 2.8
       },
       "procedural": {
         "interpolation": "smoothstep-deform-only",
@@ -861,23 +890,26 @@
       "id": "damage",
       "label": "Damage / Hit React",
       "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 450,
       "rootMotion": false,
       "stageAnchor": [
         215,
         226
       ],
-      "semantic": "non-knockdown hit reaction",
+      "semantic": "non-knockdown hit reaction using authored folded and stagger poses",
       "contract": [
         "canonical atlas pose authority",
-        "utility-exclusive cells share one source scale family",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
         "root motion OFF; engine owns translation",
-        "procedural motion profile is required"
+        "explicit procedural motion profile required"
       ],
       "timeline": [
         {
           "id": "idle-enter",
           "sourceCell": 7,
-          "durationMs": 70,
+          "durationMs": 80,
           "deform": {
             "shearX": 0,
             "scaleX": 1,
@@ -890,14 +922,14 @@
           ]
         },
         {
-          "id": "impact",
-          "sourceCell": 17,
-          "durationMs": 130,
+          "id": "impact-fold",
+          "sourceCell": 18,
+          "durationMs": 170,
           "deform": {
             "shearX": -0.08,
-            "scaleX": 0.96,
-            "scaleY": 1.04,
-            "rotateDeg": -2
+            "scaleX": 0.95,
+            "scaleY": 1.06,
+            "rotateDeg": -3
           },
           "anchorPoint": [
             128,
@@ -905,14 +937,14 @@
           ]
         },
         {
-          "id": "recoil",
+          "id": "hurt-stagger",
           "sourceCell": 19,
-          "durationMs": 180,
+          "durationMs": 240,
           "deform": {
-            "shearX": 0.03,
-            "scaleX": 0.99,
-            "scaleY": 1.01,
-            "rotateDeg": 1
+            "shearX": 0.04,
+            "scaleX": 0.985,
+            "scaleY": 1.02,
+            "rotateDeg": 1.5
           },
           "anchorPoint": [
             128,
@@ -922,7 +954,7 @@
         {
           "id": "recover",
           "sourceCell": 7,
-          "durationMs": 320,
+          "durationMs": 360,
           "deform": {
             "shearX": 0,
             "scaleX": 1,
@@ -936,13 +968,13 @@
         }
       ],
       "proceduralMotion": {
-        "mode": "damped-wobble",
-        "cycleMs": 170,
-        "decayMs": 600,
-        "shearX": 0.05,
-        "scaleX": 0.022,
-        "scaleY": 0.032,
-        "rotateDeg": 2.6
+        "mode": "impact-rattle",
+        "cycleMs": 100,
+        "decayMs": 520,
+        "shearX": 0.06,
+        "scaleX": 0.03,
+        "scaleY": 0.045,
+        "rotateDeg": 3.2
       },
       "procedural": {
         "interpolation": "smoothstep-deform-only",
@@ -971,73 +1003,46 @@
       "id": "knockdown",
       "label": "Knockdown",
       "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 650,
       "rootMotion": false,
       "stageAnchor": [
         215,
         226
       ],
-      "semantic": "recoverable prone state; terminal source cell 21",
+      "semantic": "recoverable prone state terminating on cell 21",
       "contract": [
         "canonical atlas pose authority",
-        "utility-exclusive cells share one source scale family",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
         "root motion OFF; engine owns translation",
-        "procedural motion profile is required"
+        "explicit procedural motion profile required"
       ],
       "timeline": [
         {
-          "id": "impact",
-          "sourceCell": 17,
-          "durationMs": 100,
-          "deform": {
-            "shearX": -0.06,
-            "scaleX": 0.97,
-            "scaleY": 1.03,
-            "rotateDeg": -2
-          },
-          "anchorPoint": [
-            128,
-            250
-          ]
-        },
-        {
           "id": "stagger",
           "sourceCell": 19,
-          "durationMs": 140,
-          "deform": {
-            "shearX": 0.02,
-            "scaleX": 0.99,
-            "scaleY": 1.01,
-            "rotateDeg": 1
-          },
-          "anchorPoint": [
-            128,
-            250
-          ]
-        },
-        {
-          "id": "collapse",
-          "sourceCell": 18,
-          "durationMs": 160,
-          "deform": {
-            "shearX": -0.02,
-            "scaleX": 1.01,
-            "scaleY": 0.99,
-            "rotateDeg": -1
-          },
-          "anchorPoint": [
-            128,
-            250
-          ]
-        },
-        {
-          "id": "down-knees",
-          "sourceCell": 20,
           "durationMs": 180,
           "deform": {
-            "shearX": 0,
-            "scaleX": 1,
-            "scaleY": 1,
-            "rotateDeg": 0
+            "shearX": 0.04,
+            "scaleX": 0.985,
+            "scaleY": 1.02,
+            "rotateDeg": 1.5
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "kneel",
+          "sourceCell": 20,
+          "durationMs": 260,
+          "deform": {
+            "shearX": -0.025,
+            "scaleX": 1.02,
+            "scaleY": 0.97,
+            "rotateDeg": -1.5
           },
           "anchorPoint": [
             128,
@@ -1047,7 +1052,7 @@
         {
           "id": "prone-vulnerable",
           "sourceCell": 21,
-          "durationMs": 520,
+          "durationMs": 620,
           "deform": {
             "shearX": 0,
             "scaleX": 1,
@@ -1061,13 +1066,13 @@
         }
       ],
       "proceduralMotion": {
-        "mode": "damped-wobble",
-        "cycleMs": 210,
-        "decayMs": 650,
-        "shearX": 0.035,
-        "scaleX": 0.025,
-        "scaleY": 0.035,
-        "rotateDeg": 2
+        "mode": "collapse-jolt",
+        "cycleMs": 150,
+        "decayMs": 700,
+        "shearX": 0.045,
+        "scaleX": 0.028,
+        "scaleY": 0.05,
+        "rotateDeg": 3
       },
       "procedural": {
         "interpolation": "smoothstep-deform-only",
@@ -1096,23 +1101,26 @@
       "id": "stand-up",
       "label": "Stand Up",
       "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 500,
       "rootMotion": false,
       "stageAnchor": [
         215,
         226
       ],
-      "semantic": "recovery from knockdown cell 21 to standing idle",
+      "semantic": "recovery from prone cell 21 through kneel and stagger to idle",
       "contract": [
         "canonical atlas pose authority",
-        "utility-exclusive cells share one source scale family",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
         "root motion OFF; engine owns translation",
-        "procedural motion profile is required"
+        "explicit procedural motion profile required"
       ],
       "timeline": [
         {
           "id": "prone-enter",
           "sourceCell": 21,
-          "durationMs": 180,
+          "durationMs": 220,
           "deform": {
             "shearX": 0,
             "scaleX": 1,
@@ -1125,29 +1133,14 @@
           ]
         },
         {
-          "id": "push-up",
+          "id": "push-kneel",
           "sourceCell": 20,
-          "durationMs": 190,
+          "durationMs": 280,
           "deform": {
-            "shearX": -0.02,
-            "scaleX": 0.99,
-            "scaleY": 1.02,
-            "rotateDeg": -1
-          },
-          "anchorPoint": [
-            128,
-            250
-          ]
-        },
-        {
-          "id": "low-rise",
-          "sourceCell": 18,
-          "durationMs": 180,
-          "deform": {
-            "shearX": 0.02,
-            "scaleX": 0.985,
-            "scaleY": 1.025,
-            "rotateDeg": 1
+            "shearX": -0.035,
+            "scaleX": 0.98,
+            "scaleY": 1.04,
+            "rotateDeg": -2
           },
           "anchorPoint": [
             128,
@@ -1157,12 +1150,12 @@
         {
           "id": "stagger-rise",
           "sourceCell": 19,
-          "durationMs": 190,
+          "durationMs": 280,
           "deform": {
-            "shearX": -0.015,
-            "scaleX": 0.995,
-            "scaleY": 1.01,
-            "rotateDeg": -0.5
+            "shearX": 0.03,
+            "scaleX": 0.985,
+            "scaleY": 1.03,
+            "rotateDeg": 1.5
           },
           "anchorPoint": [
             128,
@@ -1172,7 +1165,7 @@
         {
           "id": "idle-return",
           "sourceCell": 7,
-          "durationMs": 300,
+          "durationMs": 360,
           "deform": {
             "shearX": 0,
             "scaleX": 1,
@@ -1186,12 +1179,13 @@
         }
       ],
       "proceduralMotion": {
-        "mode": "strain-wave",
-        "cycleMs": 360,
-        "shearX": 0.025,
-        "scaleX": 0.015,
-        "scaleY": 0.025,
-        "rotateDeg": 1.2
+        "mode": "effort-pulse",
+        "cycleMs": 260,
+        "shearX": 0.04,
+        "scaleX": 0.025,
+        "scaleY": 0.045,
+        "rotateDeg": 2,
+        "secondHarmonic": 0.25
       },
       "procedural": {
         "interpolation": "smoothstep-deform-only",
@@ -1220,43 +1214,31 @@
       "id": "death",
       "label": "Death",
       "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 900,
       "rootMotion": false,
       "stageAnchor": [
         215,
         226
       ],
-      "semantic": "terminal death state; source cell 22 distinguishes death from recoverable knockdown",
+      "semantic": "terminal death state ending on corpse cell 22",
       "contract": [
         "canonical atlas pose authority",
-        "utility-exclusive cells share one source scale family",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
         "root motion OFF; engine owns translation",
-        "procedural motion profile is required"
+        "explicit procedural motion profile required"
       ],
       "timeline": [
         {
-          "id": "fatal-impact",
-          "sourceCell": 17,
-          "durationMs": 100,
-          "deform": {
-            "shearX": -0.06,
-            "scaleX": 0.97,
-            "scaleY": 1.03,
-            "rotateDeg": -2
-          },
-          "anchorPoint": [
-            128,
-            250
-          ]
-        },
-        {
           "id": "fatal-stagger",
           "sourceCell": 19,
-          "durationMs": 140,
+          "durationMs": 170,
           "deform": {
-            "shearX": 0.02,
-            "scaleX": 0.99,
-            "scaleY": 1.01,
-            "rotateDeg": 1
+            "shearX": 0.04,
+            "scaleX": 0.985,
+            "scaleY": 1.02,
+            "rotateDeg": 1.5
           },
           "anchorPoint": [
             128,
@@ -1264,14 +1246,14 @@
           ]
         },
         {
-          "id": "collapse",
+          "id": "fatal-kneel",
           "sourceCell": 20,
-          "durationMs": 170,
+          "durationMs": 240,
           "deform": {
-            "shearX": -0.02,
-            "scaleX": 1.01,
-            "scaleY": 0.99,
-            "rotateDeg": -1
+            "shearX": -0.03,
+            "scaleX": 1.02,
+            "scaleY": 0.97,
+            "rotateDeg": -1.5
           },
           "anchorPoint": [
             128,
@@ -1281,12 +1263,12 @@
         {
           "id": "fall-prone",
           "sourceCell": 21,
-          "durationMs": 230,
+          "durationMs": 280,
           "deform": {
-            "shearX": 0,
-            "scaleX": 1,
-            "scaleY": 1,
-            "rotateDeg": 0
+            "shearX": 0.015,
+            "scaleX": 1.01,
+            "scaleY": 0.99,
+            "rotateDeg": 1
           },
           "anchorPoint": [
             128,
@@ -1296,7 +1278,7 @@
         {
           "id": "corpse",
           "sourceCell": 22,
-          "durationMs": 1000,
+          "durationMs": 900,
           "deform": {
             "shearX": 0,
             "scaleX": 1,
@@ -1310,13 +1292,13 @@
         }
       ],
       "proceduralMotion": {
-        "mode": "damped-wobble",
-        "cycleMs": 150,
-        "decayMs": 520,
-        "shearX": 0.04,
-        "scaleX": 0.02,
-        "scaleY": 0.03,
-        "rotateDeg": 2.4
+        "mode": "death-spasm",
+        "cycleMs": 110,
+        "decayMs": 500,
+        "shearX": 0.05,
+        "scaleX": 0.025,
+        "scaleY": 0.04,
+        "rotateDeg": 3.4
       },
       "procedural": {
         "interpolation": "smoothstep-deform-only",
