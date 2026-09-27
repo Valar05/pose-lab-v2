@@ -1,0 +1,82 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v1",
+  "id": "swarmling-planted-attacks-v2",
+  "status": "sealed-before-refresh",
+  "mission": "Second-pass visual review of the three existing Swarmling attack candidates after human feedback: prevent clipping, add real procedural deformation, and make every attack start from and return to idle while preserving planted feet and zero root motion.",
+  "sourceRevision": "ff5246bdbae07cfb5a976f1913d7ae1452788574",
+  "humanFeedbackAuthority": [
+    "first pass was a good start",
+    "most attacks appeared clipped",
+    "no procedural animation was visible",
+    "attacks did not reset and start from idle"
+  ],
+  "poseAuthority": {
+    "sourceAtlas": "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+    "sourceByteSha256": "2a9ee9cc38a4b695d9a561bdce08eab71671de261fcae9e07b1f6a44f55f6f91",
+    "idleSourceCell": 7
+  },
+  "timingAuthority": {
+    "repository": "Valar05/gravity-fist",
+    "revision": "e89c2adf671b06af4ce6a6c1d3f0118e68a6c274",
+    "file": "security_titan.json",
+    "role": "stopwatch only; no pose, deformation, or movement authority",
+    "Jab": {"activeAtMs": 550, "activeDurationMs": 50, "attackEndMs": 1000, "cooldownMs": 900},
+    "Cross": {"activeAtMs": 350, "activeDurationMs": 50, "attackEndMs": 1000, "cooldownMs": 1050}
+  },
+  "candidates": {
+    "jab": {
+      "label": "Needle Jab",
+      "authoredAttackCells": [8,13],
+      "timelineCells": [7,8,13,13,7],
+      "stopwatch": "SecurityTitan Cross"
+    },
+    "rake": {
+      "label": "Low Rake",
+      "authoredAttackCells": [14,15],
+      "timelineCells": [7,14,15,15,7],
+      "stopwatch": "SecurityTitan Jab"
+    },
+    "scythe-bloom": {
+      "label": "Scythe Bloom",
+      "authoredAttackCells": [11,15,16],
+      "timelineCells": [7,11,15,16,7],
+      "stopwatch": "SecurityTitan Cross"
+    }
+  },
+  "proceduralPresentation": {
+    "allowed": ["shearX","scaleX","scaleY"],
+    "interpolation": "smoothstep within each phase",
+    "sourcePaddingPx": 18,
+    "pivot": "explicit planted-foot source anchor",
+    "stageAnchor": [220,226]
+  },
+  "rootMotion": {
+    "enabled": false,
+    "engineOwnsMovement": true,
+    "forbidden": ["shiftX","shiftY","stage translation","dash","root travel"]
+  },
+  "locks": [
+    "accepted Swarmling Run",
+    "Swarmling source atlas pixels and accepted scale/fuzziness",
+    "SecurityTitan stopwatch values",
+    "Vanguard assets/recipes/behavior",
+    "old Blender-derived Swarmling/Fleshling lineage",
+    "engine locomotion remains future work"
+  ],
+  "verification": [
+    "node tools/test_swarmling_attacks.mjs",
+    "node --check src/procedural-swarmling-preview.js",
+    "node --check src/procedural-review-shell.js",
+    "npm run test:2d",
+    "npm run build",
+    "npm run smoke",
+    "git diff --check",
+    "exact served manifest and preview probes"
+  ],
+  "visualGate": [
+    "motion.html?procedural=swarmling-jab",
+    "motion.html?procedural=swarmling-rake",
+    "motion.html?procedural=swarmling-scythe-bloom"
+  ],
+  "humanVerdict": "pending"
+}
