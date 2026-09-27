@@ -24,7 +24,7 @@ let manifest,animation,sourceAtlas=null,playing=true,start=performance.now(),off
 const boundsCache=new WeakMap();
 const sourceCellCache=new Map();
 const imageCache=new Map();
-const runAnchors=[[134,243],[128,242],[118,242],[110,243],[114,243],[132,243]];
+const runAnchors=[[139,249],[129,249],[119,249],[105,249],[126,249],[139,250]];
 const clamp=v=>Math.max(0,Math.min(1,v));
 const smooth=t=>{t=clamp(t);return t*t*(3-2*t)};
 const lerp=(a,b,t)=>a+(b-a)*t;

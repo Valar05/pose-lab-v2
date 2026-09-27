@@ -40,7 +40,7 @@ for(const [id,e] of Object.entries(expected)){
 if(!preview.includes('function deformAt(index,u)'))fail('procedural deformation interpolation missing');
 if(!preview.includes('rotateDeg:lerp('))fail('procedural rotation interpolation missing');
 if(!preview.includes('ctx.rotate((d.rotateDeg||0)*Math.PI/180)'))fail('planted-foot rotation draw missing');
-if(!preview.includes("const runAnchors=[[134,243],[128,242],[118,242],[110,243],[114,243],[132,243]];"))fail('normalized-atlas run pins missing');
+if(!preview.includes("const runAnchors=[[139,249],[129,249],[119,249],[105,249],[126,249],[139,250]];"))fail('tiny-atlas run pins missing');
 if(!preview.includes('ctx.drawImage(image,-srcX,-srcY,w,h)'))fail('full-cell planted draw missing');
 if(preview.includes('const isBg='))fail('near-black flood-fill cleanup must not return');
 if(!preview.includes('Root motion</div><div>OFF'))fail('no-root-motion readout missing');
