@@ -2,13 +2,13 @@
   "schema":"pose-lab-v2-campaign-contract-v2",
   "id":"vanguard-overhand-motion-lines-v3",
   "status":"sealed-before-apply",
-  "mission":"Preserve the accepted 600 ms Overhand timing, 310 ms handoff, slash timing/persistence, pose/source cells, anchors, stage placement, atlas bytes and root-motion rule. Remove the rejected forward body scaling/squash/shear smear and replace it with backward scanline distortion plus speed-line ghosts on the primary sprite itself. This is a Canvas2D canary for the same deformation law intended for a later real GPU shader in Violent Heart.",
+  "mission":"Preserve the accepted 600 ms Overhand timing, 310 ms handoff, slash timing/persistence, pose/source cells, anchors, stage placement, atlas bytes and root-motion rule. Remove only the rejected forward body scaling/squash/shear. Keep the accepted visible blur treatment and combine it with backward scanline distortion plus speed-line ghosts on the primary sprite itself. This is a Canvas2D canary for the same deformation law intended for a later real GPU shader in Violent Heart.",
   "humanVerdict":{
     "timing":"accepted",
     "slash":"accepted",
     "v2AtSpeed":"neat",
     "forwardScaling":"rejected; does not read right",
-    "desired":"motion lines that distort the sprite backwards; speed lines; shader-like treatment"
+    "desired":"keep the blur, add motion lines that distort the sprite backwards and speed lines, but no forward scale"
   },
   "lockedTiming":{
     "phaseDurationsMs":[25,45,45,30,25,70,70,95,90,105],
@@ -49,6 +49,7 @@
     "checks":[
       {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/comboHandoffMs","value":310},
       {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/motionBlur/primaryStretchX","value":0},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/motionBlur/primaryFilterPx","value":4.0},
       {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/motionLines/maxPullPx","value":34},
       {"kind":"text-contains","path":"src/procedural-motion-preview.js","value":"function drawMotionLineBody"},
       {"kind":"text-contains","path":"src/procedural-motion-preview.js","value":"motionLines?.enabled"}
