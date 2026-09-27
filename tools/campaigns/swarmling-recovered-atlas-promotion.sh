@@ -126,9 +126,20 @@ print("background_cleanup=exact-black-only")
 PY
 
 echo "=== VERIFY CAMPAIGN LOCKS ==="
-grep -Fq ""sourceByteSha256": "$EXPECTED_SHA"" "$MANIFEST" || stop "manifest source hash not updated"
-grep -Fq '"rootMotion": false' "$MANIFEST" || stop "attack no-root-motion contract missing"
-grep -Fq '"revision": "e89c2adf671b06af4ce6a6c1d3f0118e68a6c274"' "$MANIFEST" || stop "SecurityTitan timing authority changed"
+python3 - "$MANIFEST" "$EXPECTED_SHA" <<'PY'
+from pathlib import Path
+import json,sys
+m=json.loads(Path(sys.argv[1]).read_text())
+expected=sys.argv[2]
+if m.get("authority",{}).get("sourceByteSha256") != expected:
+    raise SystemExit("STOP: manifest source hash not updated")
+if m.get("authority",{}).get("timingAuthority",{}).get("revision") != "e89c2adf671b06af4ce6a6c1d3f0118e68a6c274":
+    raise SystemExit("STOP: SecurityTitan timing authority changed")
+for a in m.get("animations",[]):
+    if a.get("id") in {"jab","rake","scythe-bloom"} and a.get("rootMotion") is not False:
+        raise SystemExit("STOP: attack no-root-motion contract missing")
+print("manifest_lock_check=PASS")
+PY
 
 node tools/test_swarmling_attacks.mjs
 node --check "$PREVIEW"
@@ -176,7 +187,7 @@ echo "=== PUSH + READBACK ==="
 git push origin "HEAD:main"
 git fetch origin main
 [ "$(git rev-parse origin/main)" = "$FINAL" ] || stop "origin/main readback mismatch"
-git show "$FINAL:$MANIFEST" | grep -Fq ""sourceByteSha256": "$EXPECTED_SHA"" || stop "committed manifest readback mismatch"
+git show "$FINAL:$MANIFEST" | python3 -c 'import json,sys; expected=sys.argv[1]; m=json.load(sys.stdin); raise SystemExit(0 if m.get("authority",{}).get("sourceByteSha256")==expected else 1)' "$EXPECTED_SHA" || stop "committed manifest readback mismatch"
 
 echo "=== BUILD EXACT FINAL REVISION ==="
 if [ -d "$LIVE" ]; then
