@@ -42,6 +42,8 @@ if(!preview.includes('function deformAt(index,u)'))fail('procedural deformation 
 if(!preview.includes('presentationScale*d.scaleX'))fail('procedural scale transform missing');
 if(!preview.includes('d.shearX'))fail('procedural shear transform missing');
 if(!preview.includes('ctx.drawImage(image,-srcX,-srcY,w,h)'))fail('full-cell planted draw missing');
+if(preview.includes('const isBg='))fail('near-black flood-fill cleanup must not return');
+if(!preview.includes('Preserve the authored source cell exactly'))fail('raw source preservation path missing');
 if(preview.includes('ctx.drawImage(\n    image,\n    b.x,b.y,b.w,b.h'))fail('tight source-envelope draw must not return');
 if(!preview.includes('Root motion</div><div>OFF'))fail('no-root-motion readout missing');
 if(preview.includes('shiftX')||preview.includes('shiftY'))fail('preview introduced stage translation');
@@ -54,7 +56,7 @@ console.log(JSON.stringify({
   ok:true,
   rootMotion:false,
   idleBookends:true,
-  clippingStrategy:'full-transparent-source-cell',
+  clippingStrategy:'raw-authored-source-cell',
   procedural:['shearX','scaleX','scaleY'],
   timingAuthority:'SecurityTitan e89c2adf671b06af4ce6a6c1d3f0118e68a6c274',
   attacks:Object.keys(expected)
