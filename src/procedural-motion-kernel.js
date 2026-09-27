@@ -28,6 +28,14 @@ function commonEnvelope(profile,ctx){
   switch(profile?.mode){
     case 'asymmetric-alert-pulse':
       return weight*(0.42+0.58*clamp(ctx.phaseU,0,1));
+    case 'micro-alert-cluster':
+      return weight*(0.55+0.45*clamp(ctx.phaseU,0,1));
+    case 'attack-snap':
+      return weight*(0.35+0.65*Math.sin(Math.PI*clamp(ctx.phaseU,0,1)));
+    case 'attack-drag':
+      return weight*(0.45+0.55*clamp(ctx.phaseU,0,1));
+    case 'attack-bloom':
+      return weight*(0.30+0.70*Math.sin(Math.PI*clamp(ctx.phaseU,0,1)));
     case 'ringdown-impact':
     case 'collapse-ringdown':
     case 'terminal-spasm':
@@ -45,11 +53,19 @@ function modeSignal(profile,ctx){
   switch(profile?.mode){
     case 'organic-breath-v2':
       return 0.18*Math.sin(p*0.5+0.4);
+    case 'deform-breath-v3':
+      return 0.12*Math.sin(p*0.55+0.35)+0.08*Math.sin(p*1.15+1.1);
     case 'asymmetric-alert-pulse': {
       const s=Math.sin(p);
       const sharp=Math.pow(Math.max(0,s),3);
       const rebound=0.28*Math.pow(Math.max(0,-s),2);
       return sharp-rebound;
+    }
+    case 'micro-alert-cluster': {
+      const fast=Math.sin(p*1.0);
+      const faster=Math.sin(p*2.37+0.9);
+      const cluster=Math.max(0,Math.sin((num(ctx.ms,0)/Math.max(1,num(profile?.clusterMs,430)))*TAU));
+      return (0.72*fast+0.28*faster)*(0.25+0.75*cluster);
     }
     case 'ringdown-impact':
       return 0.45*Math.sin(p*2.35)*Math.exp(-Math.max(0,num(ctx.ms,0))/Math.max(1,num(profile?.decayMs,560)));
@@ -59,6 +75,12 @@ function modeSignal(profile,ctx){
       return 0.22*Math.sin(p*0.75+0.8);
     case 'terminal-spasm':
       return 0.5*Math.sin(p*2.8)*Math.exp(-Math.max(0,num(ctx.ms,0))/Math.max(1,num(profile?.decayMs,520)));
+    case 'attack-snap':
+      return 0.55*Math.sin(p*1.9)+0.18*Math.sin(p*4.1+0.6);
+    case 'attack-drag':
+      return 0.38*Math.sin(p*0.85+0.4)+0.22*Math.sin(p*1.7+1.2);
+    case 'attack-bloom':
+      return 0.42*Math.sin(p*0.72-0.7)+0.30*Math.sin(p*1.44+0.5);
     default:
       return 0;
   }
