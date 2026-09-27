@@ -46,9 +46,21 @@ echo "=== APPLY RENDER CALIBRATION ==="
 python3 "$HELPER" "$ATLAS" "$MANIFEST" "$ASSET_ROOT"
 
 echo "=== VERIFY ==="
-grep -Fq '"renderedTargetPx": 99' "$CONTRACT" || stop "render target contract missing"
-grep -Fq '"sourceCell": 15' "$MANIFEST" || stop "Needle Jab impact cell 15 changed"
-grep -Fq 'const presentationScale=1.5;' "$PREVIEW" || stop "presentation scale changed"
+python3 - "$CONTRACT" "$MANIFEST" "$PREVIEW" <<'PY'
+from pathlib import Path
+import json,sys
+contract=json.loads(Path(sys.argv[1]).read_text())
+manifest=json.loads(Path(sys.argv[2]).read_text())
+preview=Path(sys.argv[3]).read_text()
+if contract.get("evidence",{}).get("renderedRun4HeightPx") != 99:
+    raise SystemExit("STOP: render target contract missing")
+jab=next((a for a in manifest.get("animations",[]) if a.get("id")=="jab"),None)
+if not jab or len(jab.get("frames",[]))<2 or jab["frames"][1].get("sourceCell") != 15:
+    raise SystemExit("STOP: Needle Jab impact cell 15 changed")
+if "const presentationScale=1.5;" not in preview:
+    raise SystemExit("STOP: presentation scale changed")
+print("contract_and_lock_check=PASS")
+PY
 node "$TEST"
 node --check "$PREVIEW"
 npm run test:2d
