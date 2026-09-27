@@ -51,30 +51,44 @@ git diff --check
 
 probe(){
   local base="$1"
+  curl -fsS "$base/motion.html?rev=$TARGET" | grep -Fq "Motion Profile Lab" &&
   curl -fsS "$base/$PREVIEW?rev=$TARGET" | grep -Fq "Missing Swarmling animation" &&
   curl -fsS "$base/$MANIFEST?rev=$TARGET" | grep -Fq '"scythe-bloom"'
 }
 
-BASE=""
-for PORT in 8766 8767 8768 8769 8770 8771 8772 8773 8774 8775; do
-  C="http://127.0.0.1:$PORT"
-  if probe "$C"; then
-    BASE="$C"
-    echo "SERVER=REUSED_EXACT PORT=$PORT"
+PORT="$(python3 - <<'PY'
+import socket
+s=socket.socket()
+s.bind(('127.0.0.1',0))
+print(s.getsockname()[1])
+s.close()
+PY
+)"
+[ -n "$PORT" ] || stop "failed to allocate free review port"
+
+BASE="http://127.0.0.1:$PORT"
+LOG="$STATE/server-$PORT.log"
+python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$LIVE/dist" >"$LOG" 2>&1 &
+PID=$!
+echo "$PID" >"$STATE/server.pid"
+
+READY=0
+for _ in $(seq 1 40); do
+  if ! kill -0 "$PID" 2>/dev/null; then
+    cat "$LOG" >&2 || true
+    stop "exact review server exited"
+  fi
+  if probe "$BASE"; then
+    READY=1
     break
   fi
-  python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$LIVE/dist" >"$STATE/server-$PORT.log" 2>&1 &
-  PID=$!
-  sleep 1
-  if kill -0 "$PID" 2>/dev/null && probe "$C"; then
-    echo "$PID" >"$STATE/server.pid"
-    BASE="$C"
-    echo "SERVER=STARTED_EXACT PORT=$PORT PID=$PID"
-    break
-  fi
-  kill "$PID" 2>/dev/null || true
+  sleep .1
 done
-[ -n "$BASE" ] || stop "exact review server unavailable"
+[ "$READY" = 1 ] || {
+  cat "$LOG" >&2 || true
+  stop "exact review server did not become ready"
+}
+echo "SERVER=STARTED_EXACT PORT=$PORT PID=$PID"
 
 STAMP="$(date +%s)"
 JAB="$BASE/motion.html?procedural=swarmling-jab&rev=$TARGET&nocache=$STAMP"
