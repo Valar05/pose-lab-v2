@@ -69,39 +69,67 @@
           "src": "run/frames/run_0000.png",
           "durationMs": 80,
           "sourceCell": 1,
-          "sha256": "38ed332851edebf171ed4848d3fa2be1d425e1395e0521f4d7fdaf9f359d1712"
+          "sha256": "38ed332851edebf171ed4848d3fa2be1d425e1395e0521f4d7fdaf9f359d1712",
+          "anchorPoint": [
+            127,
+            249
+          ]
         },
         {
           "src": "run/frames/run_0001.png",
           "durationMs": 80,
           "sourceCell": 2,
-          "sha256": "4ac7fcb8947ee6dcf8454123437a3a24c82e257e6225f00457c610c50d0ceb37"
+          "sha256": "4ac7fcb8947ee6dcf8454123437a3a24c82e257e6225f00457c610c50d0ceb37",
+          "anchorPoint": [
+            128,
+            249
+          ]
         },
         {
           "src": "run/frames/run_0002.png",
           "durationMs": 80,
           "sourceCell": 3,
-          "sha256": "838d01fec9a9af60170374bb4ab72ae8e6259d8eaa6731b87b503a776d97773d"
+          "sha256": "838d01fec9a9af60170374bb4ab72ae8e6259d8eaa6731b87b503a776d97773d",
+          "anchorPoint": [
+            128,
+            249
+          ]
         },
         {
           "src": "run/frames/run_0003.png",
           "durationMs": 80,
           "sourceCell": 4,
-          "sha256": "bc0e5dd5bf44c0abbd6897965ffb37ed2a932c77a74db0e2fa927d709761da57"
+          "sha256": "bc0e5dd5bf44c0abbd6897965ffb37ed2a932c77a74db0e2fa927d709761da57",
+          "anchorPoint": [
+            128,
+            249
+          ]
         },
         {
           "src": "run/frames/run_0004.png",
           "durationMs": 80,
           "sourceCell": 5,
-          "sha256": "673185e5112377dc9e029f9e661d75860e52e2cf83e75f4ff2f437eb7e5cd153"
+          "sha256": "673185e5112377dc9e029f9e661d75860e52e2cf83e75f4ff2f437eb7e5cd153",
+          "anchorPoint": [
+            128,
+            249
+          ]
         },
         {
           "src": "run/frames/run_0005.png",
           "durationMs": 80,
           "sourceCell": 6,
-          "sha256": "326700a04835e6d7602603cbdee9cd98a82beffe3c5652b6c98e75ac01a70ee2"
+          "sha256": "326700a04835e6d7602603cbdee9cd98a82beffe3c5652b6c98e75ac01a70ee2",
+          "anchorPoint": [
+            128,
+            250
+          ]
         }
-      ]
+      ],
+      "pinAuthority": {
+        "mode": "body-center-x-ground-y",
+        "reason": "Human review: Run was worst offender; body centering chosen for run only"
+      }
     },
     {
       "id": "jab",
