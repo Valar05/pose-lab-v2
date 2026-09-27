@@ -134,6 +134,35 @@ function deformAt(index,u){
   };
 }
 
+function proceduralMotionAt(ms,state,base){
+  const p=animation?.proceduralMotion;
+  if(!p)return base;
+  const cycle=Math.max(1,Number(p.cycleMs||1000));
+  const phase=(ms/cycle)*Math.PI*2;
+  let signal=Math.sin(phase);
+  if(p.mode==='breathing-loop'){
+    signal=Math.sin(phase);
+  }else if(p.mode==='damped-wobble'){
+    const decay=Math.max(1,Number(p.decayMs||600));
+    signal=Math.sin(phase)*Math.exp(-Math.max(0,ms)/decay);
+  }else if(p.mode==='tension-wave'){
+    signal=Math.sin(phase)*(.65+.35*Math.sin(Math.PI*clamp(state.u)));
+  }else if(p.mode==='strain-wave'){
+    signal=Math.sin(phase)*(.55+.45*Math.sin(Math.PI*clamp(state.u)));
+  }
+  return{
+    shearX:Number(base.shearX||0)+signal*Number(p.shearX||0),
+    scaleX:Number(base.scaleX||1)-signal*Number(p.scaleX||0),
+    scaleY:Number(base.scaleY||1)+signal*Number(p.scaleY||0),
+    rotateDeg:Number(base.rotateDeg||0)+signal*Number(p.rotateDeg||0)
+  };
+}
+
+function normalizedTimeMs(ms){
+  if(animation?.loop===false)return Math.max(0,Math.min(Math.max(0,total-.001),ms));
+  return ((ms%total)+total)%total;
+}
+
 async function imageFor(item){
   if(item.src){
     const base='./assets/vanguard/fleshpunk/characters/swarmling/';
@@ -166,13 +195,14 @@ function drawPlanted(image,item,index,d){
 }
 
 async function render(ms){
-  ms=((ms%total)+total)%total;
+  ms=normalizedTimeMs(ms);
   const state=stateAtMs(ms),item=state.item,index=state.index;
   ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
 
   const image=await imageFor(item);
-  const d=deformAt(index,state.u);
+  const baseDeform=deformAt(index,state.u);
+  const d=proceduralMotionAt(ms,state,baseDeform);
   drawPlanted(image,item,index,d);
 
   const timing=animation.combatTiming||{};
@@ -195,13 +225,22 @@ async function render(ms){
 }
 
 function loop(now){
-  const ms=playing?(offset+(now-start))%total:offset;
+  const raw=playing?(offset+(now-start)):offset;
+  if(animation?.loop===false && playing && raw>=total){
+    offset=Math.max(0,total-.001);
+    playing=false;
+    play.textContent='▶';
+    render(offset).catch(err=>{throw err});
+    requestAnimationFrame(loop);
+    return;
+  }
+  const ms=animation?.loop===false?raw:(raw%total);
   render(ms).catch(err=>{playing=false;throw err});
   requestAnimationFrame(loop);
 }
 play.onclick=()=>{
   if(playing){offset=(offset+(performance.now()-start))%total;playing=false;play.textContent='▶'}
-  else{start=performance.now();playing=true;play.textContent='❚❚'}
+  else{if(animation?.loop===false&&offset>=total-1)offset=0;start=performance.now();playing=true;play.textContent='❚❚'}
 };
 restart.onclick=()=>{offset=0;start=performance.now();render(0)};
 scrub.oninput=()=>{offset=Number(scrub.value)*total;start=performance.now();render(offset)};

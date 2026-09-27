@@ -98,6 +98,7 @@
     "animation:insert": "python3 tools/animation_insert.py",
     "test:2d": "node tools/test_sprite_review_surface.mjs",
     "test:campaign-framework": "python3 tools/test_pose_campaign_framework.py",
-    "test:swarmling-utility": "node tools/test_swarmling_utility_animations.mjs"
+    "test:swarmling-utility": "node tools/test_swarmling_utility_animations.mjs",
+    "test:swarmling-utility-scale": "python3 tools/test_swarmling_utility_scale.py"
   }
 }
