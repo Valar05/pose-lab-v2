@@ -14,8 +14,8 @@
   },
   "authority": {
     "source": "source/swarmling-approved-atlas.png",
-    "sourceByteSha256": "81a883d4825474bd16a03e0bb70c7fc126a20aa96e98d255160bf5d807e19c71",
-    "sourceRgbaPixelSha256": "abb95e486b8140bddc22e11684420a93e3f7483bcd9323103792b3015dff61e0",
+    "sourceByteSha256": "0f1e4e667f52a075c4ead4723673a9e93fc25c688d38f3385ddeae7d0d23e058",
+    "sourceRgbaPixelSha256": "17cdae7cb864c07cd8180a17ea2650dc2c04d544c9db45d7c274e04af4fc1c5c",
     "sourceLayout": {
       "columns": 6,
       "rows": 4,
@@ -49,7 +49,19 @@
       1536,
       1024
     ],
-    "sourceRecovery": "tiny uncropped atlas promoted by exact SHA"
+    "sourceRecovery": "run cell 5 normalized to median Run height; all other atlas cells unchanged",
+    "run5ScaleNormalization": {
+      "oldVisibleHeightPx": 40,
+      "targetVisibleHeightPx": 46,
+      "scale": 1.15,
+      "authorityCells": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ]
+    }
   },
   "animations": [
     {
@@ -102,14 +114,14 @@
           "sha256": "bc0e5dd5bf44c0abbd6897965ffb37ed2a932c77a74db0e2fa927d709761da57",
           "anchorPoint": [
             128,
-            249
+            250
           ]
         },
         {
           "src": "run/frames/run_0004.png",
           "durationMs": 80,
           "sourceCell": 5,
-          "sha256": "673185e5112377dc9e029f9e661d75860e52e2cf83e75f4ff2f437eb7e5cd153",
+          "sha256": "cfbe7e2a685600370233db345006da907051c8f3a36319ac64acc8b900c2d172",
           "anchorPoint": [
             128,
             249
@@ -128,7 +140,7 @@
       ],
       "pinAuthority": {
         "mode": "body-center-x-ground-y",
-        "reason": "Human review: Run was worst offender; body centering chosen for run only"
+        "reason": "Run body-centered; cell 5 size normalized to peer frames"
       }
     },
     {
