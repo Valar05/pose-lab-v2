@@ -3,8 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root=path.resolve(import.meta.dirname,'..');
-const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
-const fail=(m)=>{throw new Error(m)};
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const fail=m=>{throw new Error(m)};
 
 const manifest=JSON.parse(read('public/assets/vanguard/fleshpunk/characters/swarmling/animations.json'));
 const preview=read('src/procedural-swarmling-preview.js');
@@ -16,9 +16,9 @@ if(manifest.authority?.rootMotion!=='OFF; all movement is authored later in engi
 if(manifest.authority?.timingAuthority?.revision!=='e89c2adf671b06af4ce6a6c1d3f0118e68a6c274')fail('SecurityTitan timing revision drifted');
 
 const expected={
-  jab:{cells:[8,13],durations:[350,650],activeAtMs:350,activeDurationMs:50,attackEndMs:1000,cooldownMs:1050},
-  rake:{cells:[14,15],durations:[550,450],activeAtMs:550,activeDurationMs:50,attackEndMs:1000,cooldownMs:900},
-  'scythe-bloom':{cells:[11,15,16],durations:[350,100,550],activeAtMs:350,activeDurationMs:50,attackEndMs:1000,cooldownMs:1050},
+  jab:{authoredCells:[8,13],timelineCells:[7,8,13,13,7],activeAtMs:350},
+  rake:{authoredCells:[14,15],timelineCells:[7,14,15,15,7],activeAtMs:550},
+  'scythe-bloom':{authoredCells:[11,15,16],timelineCells:[7,11,15,16,7],activeAtMs:350},
 };
 
 for(const [id,e] of Object.entries(expected)){
@@ -26,16 +26,24 @@ for(const [id,e] of Object.entries(expected)){
   if(!a)fail('missing '+id);
   if(a.rootMotion!==false)fail(id+' root motion must be false');
   if(JSON.stringify(a.stageAnchor)!==JSON.stringify([220,226]))fail(id+' stage anchor changed');
-  if(JSON.stringify(a.frames.map(f=>f.sourceCell))!==JSON.stringify(e.cells))fail(id+' source cells changed');
-  if(JSON.stringify(a.frames.map(f=>f.durationMs))!==JSON.stringify(e.durations))fail(id+' visual timing changed');
-  if(!a.frames.every(f=>Array.isArray(f.anchorPoint)&&f.anchorPoint.length===2))fail(id+' missing explicit planted-foot anchor');
-  for(const key of ['activeAtMs','activeDurationMs','attackEndMs','cooldownMs']){
-    if(a.combatTiming?.[key]!==e[key])fail(id+' '+key+' changed');
-  }
+  if(JSON.stringify(a.frames.map(f=>f.sourceCell))!==JSON.stringify(e.authoredCells))fail(id+' authored attack cells changed');
+  if(JSON.stringify(a.timeline.map(f=>f.sourceCell))!==JSON.stringify(e.timelineCells))fail(id+' idle bookends/timeline changed');
+  if(a.timeline.reduce((n,f)=>n+f.durationMs,0)!==1000)fail(id+' timeline must remain 1000ms');
+  if(a.timeline[0].id!=='idle-enter'||a.timeline.at(-1).id!=='idle-return')fail(id+' must start and end on idle');
+  if(a.combatTiming?.activeAtMs!==e.activeAtMs||a.combatTiming?.activeDurationMs!==50||a.combatTiming?.attackEndMs!==1000)fail(id+' Titan stopwatch changed');
+  if(!a.timeline.every(f=>Array.isArray(f.anchorPoint)&&f.anchorPoint.length===2))fail(id+' missing explicit planted-foot anchor');
+  if(!a.timeline.every(f=>Number(f.deform?.scaleX)>0&&Number(f.deform?.scaleY)>0&&Number.isFinite(Number(f.deform?.shearX))))fail(id+' missing procedural deformation');
+  if(a.procedural?.rootTranslation!==false)fail(id+' root translation must remain false');
+  if(a.procedural?.sourcePaddingPx!==18)fail(id+' clipping padding changed');
+  if((a.procedural?.forbidden||[]).some(x=>!['shiftX','shiftY','root motion','stage translation'].includes(x)))fail(id+' unexpected forbidden list');
 }
 
-if(!preview.includes("const [srcAnchorX,srcAnchorY]=anchorFor(frame,index);"))fail('preview is not using explicit source anchors');
-if(!preview.includes("Root motion</div><div>OFF"))fail('preview no-root-motion readout missing');
+if(!preview.includes('function deformAt(index,u)'))fail('procedural deformation interpolation missing');
+if(!preview.includes('presentationScale*d.scaleX'))fail('procedural scale transform missing');
+if(!preview.includes('d.shearX'))fail('procedural shear transform missing');
+if(!preview.includes('visibleBounds(image,pad)'))fail('padded source bounds missing');
+if(!preview.includes('Root motion</div><div>OFF'))fail('no-root-motion readout missing');
+if(preview.includes('shiftX')||preview.includes('shiftY'))fail('preview introduced stage translation');
 if(!motion.includes("procedural?.startsWith('swarmling-')"))fail('motion router does not cover Swarmling attacks');
 for(const route of ['swarmling-jab','swarmling-rake','swarmling-scythe-bloom']){
   if(!shell.includes(route))fail('selector missing '+route);
@@ -44,6 +52,9 @@ for(const route of ['swarmling-jab','swarmling-rake','swarmling-scythe-bloom']){
 console.log(JSON.stringify({
   ok:true,
   rootMotion:false,
+  idleBookends:true,
+  clippingPaddingPx:18,
+  procedural:['shearX','scaleX','scaleY'],
   timingAuthority:'SecurityTitan e89c2adf671b06af4ce6a6c1d3f0118e68a6c274',
   attacks:Object.keys(expected)
 },null,2));
