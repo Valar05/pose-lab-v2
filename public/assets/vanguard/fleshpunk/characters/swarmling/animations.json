@@ -121,35 +121,35 @@
       },
       "contract": [
         "2 authored attack poses plus shared idle bookends",
-        "explicit planted-foot source anchor on every phase",
+        "source-cell choices reviewed against recovered atlas",
+        "each phase uses measured bottom-contact anchor from recovered atlas",
         "no root motion; engine owns movement",
-        "materially distinct source pose choices from v4",
-        "procedural shear/squash/stretch/rotation around planted foot",
+        "procedural deformation pivots around pinned foot",
         "SecurityTitan Cross stopwatch"
       ],
       "frames": [
         {
-          "sourceCell": 8,
+          "sourceCell": 10,
           "phase": "windup",
           "anchorPoint": [
-            112,
-            250
+            120,
+            222
           ]
         },
         {
-          "sourceCell": 17,
+          "sourceCell": 14,
           "phase": "strike",
           "anchorPoint": [
-            110,
-            250
+            113,
+            180
           ]
         }
       ],
       "idleSource": {
         "sourceCell": 7,
         "anchorPoint": [
-          116,
-          250
+          127,
+          223
         ]
       },
       "timeline": [
@@ -158,8 +158,8 @@
           "sourceCell": 7,
           "durationMs": 100,
           "anchorPoint": [
-            116,
-            250
+            127,
+            223
           ],
           "deform": {
             "shearX": 0,
@@ -170,47 +170,47 @@
         },
         {
           "id": "windup",
-          "sourceCell": 8,
+          "sourceCell": 10,
           "durationMs": 250,
           "anchorPoint": [
-            112,
-            250
+            120,
+            222
           ],
           "deform": {
-            "shearX": -0.16,
-            "scaleX": 0.88,
-            "scaleY": 1.12,
-            "rotateDeg": -4
+            "shearX": -0.1,
+            "scaleX": 0.92,
+            "scaleY": 1.06,
+            "rotateDeg": -2
           }
         },
         {
           "id": "strike",
-          "sourceCell": 17,
+          "sourceCell": 14,
           "durationMs": 100,
           "anchorPoint": [
-            110,
-            250
+            113,
+            180
           ],
           "deform": {
-            "shearX": 0.28,
-            "scaleX": 1.22,
-            "scaleY": 0.88,
-            "rotateDeg": 5
+            "shearX": 0.14,
+            "scaleX": 1.1,
+            "scaleY": 0.94,
+            "rotateDeg": 2
           }
         },
         {
           "id": "recovery",
-          "sourceCell": 17,
+          "sourceCell": 14,
           "durationMs": 200,
           "anchorPoint": [
-            110,
-            250
+            113,
+            180
           ],
           "deform": {
-            "shearX": 0.08,
-            "scaleX": 1.05,
-            "scaleY": 0.97,
-            "rotateDeg": 1
+            "shearX": 0.04,
+            "scaleX": 1.02,
+            "scaleY": 0.99,
+            "rotateDeg": 0
           }
         },
         {
@@ -218,8 +218,8 @@
           "sourceCell": 7,
           "durationMs": 350,
           "anchorPoint": [
-            116,
-            250
+            127,
+            223
           ],
           "deform": {
             "shearX": 0,
@@ -244,6 +244,14 @@
           "shiftY",
           "root motion",
           "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "source": "recovered atlas 7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
+        "method": "bottom-contact centroid per selected 256x256 source cell",
+        "stageAnchor": [
+          220,
+          226
         ]
       }
     },
@@ -265,35 +273,35 @@
       },
       "contract": [
         "2 authored attack poses plus shared idle bookends",
-        "explicit planted-foot source anchor on every phase",
+        "source-cell choices reviewed against recovered atlas",
+        "each phase uses measured bottom-contact anchor from recovered atlas",
         "no root motion; engine owns movement",
-        "materially distinct source pose choices from v4",
-        "procedural shear/squash/stretch/rotation around planted foot",
+        "procedural deformation pivots around pinned foot",
         "SecurityTitan Jab stopwatch"
       ],
       "frames": [
         {
-          "sourceCell": 9,
+          "sourceCell": 13,
           "phase": "coil",
           "anchorPoint": [
-            104,
-            250
+            111,
+            180
           ]
         },
         {
-          "sourceCell": 10,
+          "sourceCell": 15,
           "phase": "rake",
           "anchorPoint": [
-            102,
-            251
+            119,
+            186
           ]
         }
       ],
       "idleSource": {
         "sourceCell": 7,
         "anchorPoint": [
-          116,
-          250
+          127,
+          223
         ]
       },
       "timeline": [
@@ -302,8 +310,8 @@
           "sourceCell": 7,
           "durationMs": 100,
           "anchorPoint": [
-            116,
-            250
+            127,
+            223
           ],
           "deform": {
             "shearX": 0,
@@ -314,47 +322,47 @@
         },
         {
           "id": "coil",
-          "sourceCell": 9,
-          "durationMs": 400,
+          "sourceCell": 13,
+          "durationMs": 450,
           "anchorPoint": [
-            104,
-            250
+            111,
+            180
           ],
           "deform": {
-            "shearX": -0.18,
-            "scaleX": 0.86,
-            "scaleY": 1.14,
-            "rotateDeg": -6
+            "shearX": -0.1,
+            "scaleX": 0.92,
+            "scaleY": 1.06,
+            "rotateDeg": -2
           }
         },
         {
           "id": "rake",
-          "sourceCell": 10,
-          "durationMs": 150,
+          "sourceCell": 15,
+          "durationMs": 120,
           "anchorPoint": [
-            102,
-            251
+            119,
+            186
           ],
           "deform": {
-            "shearX": 0.3,
-            "scaleX": 1.18,
-            "scaleY": 0.86,
-            "rotateDeg": 4
+            "shearX": 0.16,
+            "scaleX": 1.1,
+            "scaleY": 0.94,
+            "rotateDeg": 2
           }
         },
         {
           "id": "recovery",
-          "sourceCell": 10,
-          "durationMs": 200,
+          "sourceCell": 15,
+          "durationMs": 180,
           "anchorPoint": [
-            102,
-            251
+            119,
+            186
           ],
           "deform": {
-            "shearX": 0.08,
-            "scaleX": 1.04,
-            "scaleY": 0.97,
-            "rotateDeg": 1
+            "shearX": 0.04,
+            "scaleX": 1.02,
+            "scaleY": 0.99,
+            "rotateDeg": 0
           }
         },
         {
@@ -362,8 +370,8 @@
           "sourceCell": 7,
           "durationMs": 150,
           "anchorPoint": [
-            116,
-            250
+            127,
+            223
           ],
           "deform": {
             "shearX": 0,
@@ -388,6 +396,14 @@
           "shiftY",
           "root motion",
           "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "source": "recovered atlas 7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
+        "method": "bottom-contact centroid per selected 256x256 source cell",
+        "stageAnchor": [
+          220,
+          226
         ]
       }
     },
@@ -409,10 +425,10 @@
       },
       "contract": [
         "3 authored attack poses plus shared idle bookends",
-        "explicit planted-foot source anchor on every phase",
+        "source-cell choices reviewed against recovered atlas",
+        "each phase uses measured bottom-contact anchor from recovered atlas",
         "no root motion; engine owns movement",
-        "materially distinct source pose choices from v4",
-        "procedural shear/squash/stretch/rotation around planted foot",
+        "procedural deformation pivots around pinned foot",
         "SecurityTitan Cross stopwatch with a three-pose visual split"
       ],
       "frames": [
@@ -420,32 +436,32 @@
           "sourceCell": 11,
           "phase": "coil",
           "anchorPoint": [
-            104,
-            250
+            116,
+            224
           ]
         },
         {
           "sourceCell": 15,
           "phase": "bloom-impact",
           "anchorPoint": [
-            100,
-            250
+            119,
+            186
           ]
         },
         {
           "sourceCell": 16,
           "phase": "follow-through",
           "anchorPoint": [
-            104,
-            250
+            115,
+            183
           ]
         }
       ],
       "idleSource": {
         "sourceCell": 7,
         "anchorPoint": [
-          116,
-          250
+          127,
+          223
         ]
       },
       "timeline": [
@@ -454,8 +470,8 @@
           "sourceCell": 7,
           "durationMs": 100,
           "anchorPoint": [
-            116,
-            250
+            127,
+            223
           ],
           "deform": {
             "shearX": 0,
@@ -469,14 +485,14 @@
           "sourceCell": 11,
           "durationMs": 250,
           "anchorPoint": [
-            104,
-            250
+            116,
+            224
           ],
           "deform": {
-            "shearX": -0.22,
-            "scaleX": 0.82,
-            "scaleY": 1.18,
-            "rotateDeg": -8
+            "shearX": -0.12,
+            "scaleX": 0.9,
+            "scaleY": 1.08,
+            "rotateDeg": -3
           }
         },
         {
@@ -484,14 +500,14 @@
           "sourceCell": 15,
           "durationMs": 100,
           "anchorPoint": [
-            100,
-            250
+            119,
+            186
           ],
           "deform": {
-            "shearX": 0.32,
-            "scaleX": 1.24,
-            "scaleY": 0.84,
-            "rotateDeg": 6
+            "shearX": 0.18,
+            "scaleX": 1.12,
+            "scaleY": 0.92,
+            "rotateDeg": 3
           }
         },
         {
@@ -499,14 +515,14 @@
           "sourceCell": 16,
           "durationMs": 250,
           "anchorPoint": [
-            104,
-            250
+            115,
+            183
           ],
           "deform": {
-            "shearX": 0.15,
-            "scaleX": 1.12,
-            "scaleY": 0.92,
-            "rotateDeg": 3
+            "shearX": 0.08,
+            "scaleX": 1.05,
+            "scaleY": 0.97,
+            "rotateDeg": 1
           }
         },
         {
@@ -514,8 +530,8 @@
           "sourceCell": 7,
           "durationMs": 300,
           "anchorPoint": [
-            116,
-            250
+            127,
+            223
           ],
           "deform": {
             "shearX": 0,
@@ -540,6 +556,14 @@
           "shiftY",
           "root motion",
           "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "source": "recovered atlas 7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
+        "method": "bottom-contact centroid per selected 256x256 source cell",
+        "stageAnchor": [
+          220,
+          226
         ]
       }
     }
