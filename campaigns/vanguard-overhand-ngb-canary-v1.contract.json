@@ -67,7 +67,7 @@
     "bodyScale": 1.5,
     "rootMotion": false,
     "slashSourceCell": 5,
-    "slashAtlasSha256": "94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70",
+    "slashAtlasSha256": "e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d",
     "canonicalAtlasSha256": "54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587"
   },
   "machine": {
@@ -90,7 +90,7 @@
       },
       {
         "path": "public/assets/vanguard/procedural/diorama-slash-atlas.png",
-        "sha256": "94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70"
+        "sha256": "e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"
       }
     ],
     "checks": [
