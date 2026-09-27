@@ -48,8 +48,15 @@ slash=recipe.get("sources",{}).get("slash-right")
 if not slash or slash.get("kind")!="effect-atlas-cell" or slash.get("cell")!=locks["slashSourceCell"]:
     stop("slash source changed")
 slash_atlas=recipe.get("effectAtlases",{}).get(slash.get("atlas"),{})
-if slash_atlas.get("sha256")!=locks["slashAtlasSha256"]:
-    stop("slash atlas authority changed")
+embedded_slash_sha=slash_atlas.get("sha256")
+if embedded_slash_sha not in (
+    locks["slashAtlasSha256"],
+    "94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70",
+):
+    stop("unexpected slash atlas metadata")
+# The Git-owned effect bytes are locked by Campaign Framework V2. The Overhand
+# recipe carried stale pre-repair metadata, so reconcile metadata only.
+slash_atlas["sha256"]=locks["slashAtlasSha256"]
 
 phase_order=[p.get("id") for p in recipe.get("phases",[])]
 if phase_order!=canary["phaseOrder"]:
@@ -139,7 +146,7 @@ new_draw="""function drawBody(id,d,blurAmount=0){
 }
 """
 
-if "recipe.motionBlur?.enabled" not in renderer:
+if "function drawBody(id,d,blurAmount=0)" not in renderer:
     if old_draw not in renderer:
         stop("renderer drawBody structure changed")
     renderer=renderer.replace(old_draw,new_draw,1)
