@@ -16,16 +16,16 @@ if(manifest.authority?.rootMotion!=='OFF; all movement is authored later in engi
 if(manifest.authority?.timingAuthority?.revision!=='e89c2adf671b06af4ce6a6c1d3f0118e68a6c274')fail('SecurityTitan timing revision drifted');
 
 const expected={
-  jab:{authoredCells:[10,15],timelineCells:[7,10,15,15,7],activeAtMs:350},
-  rake:{authoredCells:[13,15],timelineCells:[7,13,15,15,7],activeAtMs:550},
-  'scythe-bloom':{authoredCells:[11,15,16],timelineCells:[7,11,15,16,7],activeAtMs:350},
+  jab:{authoredCells:[10,15],timelineCells:[7,10,15,15,7],activeAtMs:350,stageAnchor:[190,226]},
+  rake:{authoredCells:[13,15],timelineCells:[7,13,15,15,7],activeAtMs:550,stageAnchor:[188,226]},
+  'scythe-bloom':{authoredCells:[11,15,16],timelineCells:[7,11,15,16,7],activeAtMs:350,stageAnchor:[190,226]},
 };
 
 for(const [id,e] of Object.entries(expected)){
   const a=manifest.animations.find(x=>x.id===id);
   if(!a)fail('missing '+id);
   if(a.rootMotion!==false)fail(id+' root motion must be false');
-  if(JSON.stringify(a.stageAnchor)!==JSON.stringify([220,226]))fail(id+' stage anchor changed');
+  if(JSON.stringify(a.stageAnchor)!==JSON.stringify(e.stageAnchor))fail(id+' stage anchor changed');
   if(JSON.stringify(a.frames.map(f=>f.sourceCell))!==JSON.stringify(e.authoredCells))fail(id+' authored source cells changed');
   if(JSON.stringify(a.timeline.map(f=>f.sourceCell))!==JSON.stringify(e.timelineCells))fail(id+' timeline source cells changed');
   if(a.timeline.reduce((n,f)=>n+f.durationMs,0)!==1000)fail(id+' timeline must remain 1000ms');
