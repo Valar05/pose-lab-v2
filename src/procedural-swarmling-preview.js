@@ -78,31 +78,14 @@ function sourceCellImage(cellNo){
   const sx=c*spec.cellWidth,sy=r*spec.cellHeight;
   const out=document.createElement('canvas');
   out.width=spec.cellWidth;out.height=spec.cellHeight;
-  const x=out.getContext('2d',{willReadFrequently:true});
-  x.drawImage(sourceAtlas,sx,sy,spec.cellWidth,spec.cellHeight,0,0,spec.cellWidth,spec.cellHeight);
-
-  const im=x.getImageData(0,0,out.width,out.height),d=im.data;
-  const seen=new Uint8Array(out.width*out.height),stack=[];
-  const isBg=(px,py)=>{
-    const i=(py*out.width+px)*4;
-    return d[i+3]>8 && Math.max(d[i],d[i+1],d[i+2])<=18;
-  };
-  const push=(px,py)=>{
-    const i=py*out.width+px;
-    if(seen[i]||!isBg(px,py))return;
-    seen[i]=1;stack.push([px,py]);
-  };
-  for(let px=0;px<out.width;px++){push(px,0);push(px,out.height-1)}
-  for(let py=0;py<out.height;py++){push(0,py);push(out.width-1,py)}
-  while(stack.length){
-    const [px,py]=stack.pop(),i=(py*out.width+px)*4;
-    d[i+3]=0;
-    if(px>0)push(px-1,py);
-    if(px+1<out.width)push(px+1,py);
-    if(py>0)push(px,py-1);
-    if(py+1<out.height)push(px,py+1);
-  }
-  x.putImageData(im,0,0);
+  const x=out.getContext('2d');
+  // Preserve the authored source cell exactly. The motion stage is already
+  // black, so background-keying would only destroy dark silhouette detail.
+  x.drawImage(
+    sourceAtlas,
+    sx,sy,spec.cellWidth,spec.cellHeight,
+    0,0,spec.cellWidth,spec.cellHeight
+  );
   sourceCellCache.set(cellNo,out);
   return out;
 }
