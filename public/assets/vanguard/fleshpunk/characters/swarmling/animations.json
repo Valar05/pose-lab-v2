@@ -178,7 +178,7 @@
       "loop": true,
       "rootMotion": false,
       "stageAnchor": [
-        220,
+        190,
         226
       ],
       "timingAuthority": "SecurityTitan Cross stopwatch",
@@ -319,6 +319,13 @@
         "mode": "explicit-rear-support-foot",
         "source": "human-reviewed tiny atlas",
         "impactCell": 15
+      },
+      "centeringAuthority": {
+        "mode": "weighted-body-core-vs-pinned-foot",
+        "canvasCenterX": 215,
+        "presentationScale": 1.5,
+        "weightedCoreOffsetPx": 16.9,
+        "resolvedStageAnchorX": 190
       }
     },
     {
@@ -327,7 +334,7 @@
       "loop": true,
       "rootMotion": false,
       "stageAnchor": [
-        220,
+        188,
         226
       ],
       "timingAuthority": "SecurityTitan Jab stopwatch",
@@ -467,6 +474,13 @@
       "pinAuthority": {
         "mode": "explicit-rear-support-foot",
         "source": "human-reviewed tiny atlas"
+      },
+      "centeringAuthority": {
+        "mode": "weighted-body-core-vs-pinned-foot",
+        "canvasCenterX": 215,
+        "presentationScale": 1.5,
+        "weightedCoreOffsetPx": 17.9,
+        "resolvedStageAnchorX": 188
       }
     },
     {
@@ -475,7 +489,7 @@
       "loop": true,
       "rootMotion": false,
       "stageAnchor": [
-        220,
+        190,
         226
       ],
       "timingAuthority": "SecurityTitan Cross stopwatch with a three-pose visual split",
@@ -623,6 +637,13 @@
       "pinAuthority": {
         "mode": "explicit-rear-support-foot",
         "source": "human-reviewed tiny atlas"
+      },
+      "centeringAuthority": {
+        "mode": "weighted-body-core-vs-pinned-foot",
+        "canvasCenterX": 215,
+        "presentationScale": 1.5,
+        "weightedCoreOffsetPx": 16.8,
+        "resolvedStageAnchorX": 190
       }
     }
   ]
