@@ -390,6 +390,20 @@ function drawBody(id,d,blurAmount=0){
      const alpha=blurAmount*maxAlpha*(1-.52*t);
      drawPass(dx*span*t,dy*span*t,alpha,filterPx?('blur('+filterPx+'px)'):'none');
    }
+   const primaryFilterPx=Math.max(0,Number(blur.primaryFilterPx??0))*blurAmount;
+   const primaryStretchX=1+Math.max(0,Number(blur.primaryStretchX??0))*blurAmount;
+   const primarySquashY=1-Math.max(0,Number(blur.primarySquashY??0))*blurAmount;
+   const primaryShearX=Number(blur.primaryShearX??0)*blurAmount;
+   const primaryShiftPx=Math.max(0,Number(blur.primaryShiftPx??0))*blurAmount;
+   ctx.save();
+   ctx.globalAlpha=1;
+   ctx.filter=primaryFilterPx?('blur('+primaryFilterPx+'px)'):'none';
+   ctx.translate(stageOffsetX(),0);
+   ctx.translate(px+Number(reg[0]||0)-dx*primaryShiftPx,py+Number(reg[1]||0)-dy*primaryShiftPx);
+   ctx.transform((d.scaleX||1)*bodyScale*primaryStretchX,0,d.shearX+primaryShearX,(d.scaleY||1)*bodyScale*primarySquashY,d.shiftX||0,d.shiftY||0);
+   ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
+   ctx.restore();
+   return;
  }
  drawPass();
 }

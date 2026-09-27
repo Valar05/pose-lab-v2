@@ -472,13 +472,18 @@
   "motionBlur": {
     "enabled": true,
     "samples": 4,
-    "spanPx": 30,
-    "filterPx": 2.5,
-    "maxAlpha": 0.42,
+    "spanPx": 34,
+    "filterPx": 2.0,
+    "maxAlpha": 0.48,
     "directionStage": [
       -1.0,
       0.22
-    ]
+    ],
+    "primaryFilterPx": 4.0,
+    "primaryStretchX": 0.34,
+    "primarySquashY": 0.1,
+    "primaryShearX": -0.16,
+    "primaryShiftPx": 9
   },
   "comboHandoffMs": 310,
   "timingCanary": {
