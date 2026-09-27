@@ -14,8 +14,8 @@
   },
   "authority": {
     "source": "source/swarmling-approved-atlas.png",
-    "sourceByteSha256": "2a9ee9cc38a4b695d9a561bdce08eab71671de261fcae9e07b1f6a44f55f6f91",
-    "sourceRgbaPixelSha256": "d69d58e50ff26345a45230ea85f1e5d7eaad1d843c8a1774d8c92845f8f599ad",
+    "sourceByteSha256": "7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
+    "sourceRgbaPixelSha256": "a5b06f82cc741cfaac860fb76b789ae1320390c153ce60ccff475654ec7bef26",
     "sourceLayout": {
       "columns": 6,
       "rows": 4,
@@ -44,7 +44,12 @@
         }
       }
     },
-    "rootMotion": "OFF; all movement is authored later in engine. Pose Lab fixes one explicit planted-foot source anchor to the canonical stage anchor."
+    "rootMotion": "OFF; all movement is authored later in engine. Pose Lab fixes one explicit planted-foot source anchor to the canonical stage anchor.",
+    "sourceDimensions": [
+      1536,
+      1024
+    ],
+    "sourceRecovery": "recovered from user-approved atlas; exact sizing/layout preserved; no destructive crop"
   },
   "animations": [
     {
@@ -64,37 +69,37 @@
           "src": "run/frames/run_0000.png",
           "durationMs": 80,
           "sourceCell": 1,
-          "sha256": "193b2aa957d6784e7608f2f309201646bd993a51fdc8847d5ec5d8bfcf8bb9a9"
+          "sha256": "883cddcd8cd555a0cfad3c2b3add5993fd2688939c080ac6fb7c08dece9521c4"
         },
         {
           "src": "run/frames/run_0001.png",
           "durationMs": 80,
           "sourceCell": 2,
-          "sha256": "d05ac68a93db825724d0c0534b859ea8fa2f0bf77c805d097855fde9fc19aa79"
+          "sha256": "94392e09470dd4dc0060c71e232a845696503bbcf686613474a21316802439eb"
         },
         {
           "src": "run/frames/run_0002.png",
           "durationMs": 80,
           "sourceCell": 3,
-          "sha256": "c341a92d228ef3dc48322993ce9136835cff63cdeb42d391c0cc60b53d7273dd"
+          "sha256": "3f7abb8b5a59eba70d47f323d4a33756dc6a5a78fa748326a7759eb2985aee3e"
         },
         {
           "src": "run/frames/run_0003.png",
           "durationMs": 80,
           "sourceCell": 4,
-          "sha256": "a15a31627e6edfd0faad0921575b18cbf076063d74e3d88af049f70502c19f87"
+          "sha256": "5548b0907f7f199377eba34589411c9610aeee360ea08035f93310f0f770958b"
         },
         {
           "src": "run/frames/run_0004.png",
           "durationMs": 80,
           "sourceCell": 5,
-          "sha256": "636b4f8bd363d39db6781953e78964d7ca3d02ebd2072b3df4d1c691856c9d7d"
+          "sha256": "950a9c3b8eac259fa5481724f167f9b84b066210af0ef53a581c8ab861d9bd58"
         },
         {
           "src": "run/frames/run_0005.png",
           "durationMs": 80,
           "sourceCell": 6,
-          "sha256": "71d1bd900b8d88ef0ee1b6944c208f95d1be1417d411b24adf67710cb0d3c9ec"
+          "sha256": "132929e9242bf511e97ac5c45be1ce28a8abd652ead4998119710231cb5b7a1f"
         }
       ]
     },
