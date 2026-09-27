@@ -88,7 +88,7 @@
           "sourceCell": 1,
           "sha256": "38ed332851edebf171ed4848d3fa2be1d425e1395e0521f4d7fdaf9f359d1712",
           "anchorPoint": [
-            127,
+            129,
             249
           ]
         },
@@ -98,7 +98,7 @@
           "sourceCell": 2,
           "sha256": "4ac7fcb8947ee6dcf8454123437a3a24c82e257e6225f00457c610c50d0ceb37",
           "anchorPoint": [
-            128,
+            129,
             249
           ]
         },
@@ -118,8 +118,8 @@
           "sourceCell": 4,
           "sha256": "bc0e5dd5bf44c0abbd6897965ffb37ed2a932c77a74db0e2fa927d709761da57",
           "anchorPoint": [
-            128,
-            250
+            132,
+            249
           ]
         },
         {
@@ -138,18 +138,14 @@
           "sourceCell": 6,
           "sha256": "326700a04835e6d7602603cbdee9cd98a82beffe3c5652b6c98e75ac01a70ee2",
           "anchorPoint": [
-            128,
+            131,
             250
           ]
         }
       ],
       "pinAuthority": {
-        "mode": "body-center-x-ground-y",
-        "reason": "Run body-centered; Run-5 recentered after size calibration by human-visible delta",
-        "run5AnchorCorrection": [
-          -2,
-          0
-        ]
+        "mode": "body-core-x-ground-y",
+        "reason": "Human review: full-silhouette centering did not improve perceived centering because tendrils/extremities skewed the center"
       }
     },
     {
