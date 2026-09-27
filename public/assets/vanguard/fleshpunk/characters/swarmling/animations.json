@@ -128,7 +128,7 @@
           "sourceCell": 5,
           "sha256": "ab246c8a9e22b85c142242fd8fcf628b1318394a0b002b8fdb6d447f086d23fa",
           "anchorPoint": [
-            128,
+            126,
             249
           ]
         },
@@ -145,7 +145,11 @@
       ],
       "pinAuthority": {
         "mode": "body-center-x-ground-y",
-        "reason": "Run body-centered; cell 5 size normalized to peer frames"
+        "reason": "Run body-centered; Run-5 recentered after size calibration by human-visible delta",
+        "run5AnchorCorrection": [
+          -2,
+          0
+        ]
       }
     },
     {
