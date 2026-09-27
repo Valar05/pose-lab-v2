@@ -74,7 +74,7 @@
     "test:crimson-light-attack1:quarantine": "node tools/test_crimson_light_attack_quarantine.mjs",
     "test:crimson-light-attack1:geometry": "node tools/test_crimson_light_attack_v4_geometry.mjs",
     "test:guardrails": "npm run test:repo-guardrails",
-    "test:repo-guardrails": "npm run smoke && npm run test:crimson-model-viewer-constraints && npm run test:crimson-review-surface && npm run test:crimson-review-assets && npm run test:crimson-visual-evidence-promotion && npm run test:saber-transform-interaction && npm run test:crimson-light-attack1 && npm run test:crimson-light-attack1:quarantine && npm run test:crimson-light-attack1:geometry && npm run test:crimson-manual-keyframe && npm run test:crimson-frame-zero-pose-hashes && npm run test:crimson-frame-zero-runtime-authoring && npm run test:crimson-frame-zero-parity && npm run test:crimson-orientation-probe-contract && npm run test:crimson-orientation-space",
+    "test:repo-guardrails": "npm run smoke && npm run test:crimson-model-viewer-constraints && npm run test:crimson-review-surface && npm run test:crimson-review-assets && npm run test:crimson-visual-evidence-promotion && npm run test:saber-transform-interaction && npm run test:crimson-light-attack1 && npm run test:crimson-light-attack1:quarantine && npm run test:crimson-light-attack1:geometry && npm run test:crimson-manual-keyframe && npm run test:crimson-frame-zero-pose-hashes && npm run test:crimson-frame-zero-runtime-authoring && npm run test:crimson-frame-zero-parity && npm run test:crimson-orientation-probe-contract && npm run test:crimson-orientation-space && npm run test:campaign-framework",
     "test:external-integration": "npm run test:learning-packet && npm run test:cloud-worker-surface && npm run test:crimson-cloud-visual-gate",
     "test:crimson-manual-keyframe": "node tools/test_crimson_manual_keyframe_authoring.mjs",
     "test:crimson-frame-zero-runtime-authoring": "node tools/author_crimson_frame_zero_runtime.mjs --angle-deg 48 --check",
@@ -96,6 +96,7 @@
     "motion:validate": "python3 tools/render_motion_recipe.py --validate-only",
     "animation:update": "python3 tools/animation_update.py",
     "animation:insert": "python3 tools/animation_insert.py",
-    "test:2d": "node tools/test_sprite_review_surface.mjs"
+    "test:2d": "node tools/test_sprite_review_surface.mjs",
+    "test:campaign-framework": "python3 tools/test_pose_campaign_framework.py"
   }
 }
