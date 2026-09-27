@@ -195,6 +195,7 @@ framework:
 - locked file hashes
 - worktree diff allowlists
 - staged diff allowlists
+- whole-worktree guards include staged, unstaged, and untracked files
 - receipt creation before staging
 - globbed mutable paths
 - rejection of unauthorized mutations
