@@ -91,11 +91,37 @@ def path_allowed(path: str, patterns: list[str]) -> bool:
 
 
 def changed_paths(root: Path, staged: bool) -> list[str]:
-    args = ["git", "-C", str(root), "diff", "--name-only"]
     if staged:
-        args.insert(4, "--cached")
-    result = subprocess.run(args, capture_output=True, text=True, check=True)
-    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+        result = subprocess.run(
+            ["git", "-C", str(root), "diff", "--cached", "--name-only"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return sorted({line.strip() for line in result.stdout.splitlines() if line.strip()})
+
+    # Whole-worktree authority check: tracked staged/unstaged changes plus
+    # untracked files. Plain "git diff --name-only" misses both staged-only
+    # changes and all untracked files, which is not fail-closed enough for a
+    # campaign writable-surface guard.
+    tracked = subprocess.run(
+        ["git", "-C", str(root), "diff", "HEAD", "--name-only"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    untracked = subprocess.run(
+        ["git", "-C", str(root), "ls-files", "--others", "--exclude-standard"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return sorted({
+        line.strip()
+        for text in (tracked.stdout, untracked.stdout)
+        for line in text.splitlines()
+        if line.strip()
+    })
 
 
 def assert_diff_allowed(root: Path, contract: dict[str, Any], staged: bool = False) -> list[str]:
