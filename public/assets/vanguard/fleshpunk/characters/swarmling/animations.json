@@ -132,15 +132,15 @@
           "sourceCell": 10,
           "phase": "windup",
           "anchorPoint": [
-            130,
+            106,
             250
           ]
         },
         {
-          "sourceCell": 14,
+          "sourceCell": 15,
           "phase": "strike",
           "anchorPoint": [
-            131,
+            104,
             250
           ]
         }
@@ -148,7 +148,7 @@
       "idleSource": {
         "sourceCell": 7,
         "anchorPoint": [
-          126,
+          117,
           250
         ]
       },
@@ -158,7 +158,7 @@
           "sourceCell": 7,
           "durationMs": 100,
           "anchorPoint": [
-            126,
+            117,
             250
           ],
           "deform": {
@@ -173,7 +173,7 @@
           "sourceCell": 10,
           "durationMs": 250,
           "anchorPoint": [
-            130,
+            106,
             250
           ],
           "deform": {
@@ -185,10 +185,10 @@
         },
         {
           "id": "strike",
-          "sourceCell": 14,
+          "sourceCell": 15,
           "durationMs": 100,
           "anchorPoint": [
-            131,
+            104,
             250
           ],
           "deform": {
@@ -200,10 +200,10 @@
         },
         {
           "id": "recovery",
-          "sourceCell": 14,
+          "sourceCell": 15,
           "durationMs": 200,
           "anchorPoint": [
-            131,
+            104,
             250
           ],
           "deform": {
@@ -218,7 +218,7 @@
           "sourceCell": 7,
           "durationMs": 350,
           "anchorPoint": [
-            126,
+            117,
             250
           ],
           "deform": {
@@ -247,12 +247,9 @@
         ]
       },
       "pinAuthority": {
-        "source": "81a883d4825474bd16a03e0bb70c7fc126a20aa96e98d255160bf5d807e19c71",
-        "method": "bright bottom-contact median x over final 4 rows",
-        "stageAnchor": [
-          220,
-          226
-        ]
+        "mode": "explicit-rear-support-foot",
+        "source": "human-reviewed tiny atlas",
+        "impactCell": 15
       }
     },
     {
@@ -284,15 +281,15 @@
           "sourceCell": 13,
           "phase": "coil",
           "anchorPoint": [
-            122,
-            249
+            103,
+            250
           ]
         },
         {
           "sourceCell": 15,
           "phase": "rake",
           "anchorPoint": [
-            130,
+            104,
             250
           ]
         }
@@ -300,7 +297,7 @@
       "idleSource": {
         "sourceCell": 7,
         "anchorPoint": [
-          126,
+          117,
           250
         ]
       },
@@ -310,7 +307,7 @@
           "sourceCell": 7,
           "durationMs": 100,
           "anchorPoint": [
-            126,
+            117,
             250
           ],
           "deform": {
@@ -325,8 +322,8 @@
           "sourceCell": 13,
           "durationMs": 450,
           "anchorPoint": [
-            122,
-            249
+            103,
+            250
           ],
           "deform": {
             "shearX": -0.1,
@@ -340,7 +337,7 @@
           "sourceCell": 15,
           "durationMs": 120,
           "anchorPoint": [
-            130,
+            104,
             250
           ],
           "deform": {
@@ -355,7 +352,7 @@
           "sourceCell": 15,
           "durationMs": 180,
           "anchorPoint": [
-            130,
+            104,
             250
           ],
           "deform": {
@@ -370,7 +367,7 @@
           "sourceCell": 7,
           "durationMs": 150,
           "anchorPoint": [
-            126,
+            117,
             250
           ],
           "deform": {
@@ -399,12 +396,8 @@
         ]
       },
       "pinAuthority": {
-        "source": "81a883d4825474bd16a03e0bb70c7fc126a20aa96e98d255160bf5d807e19c71",
-        "method": "bright bottom-contact median x over final 4 rows",
-        "stageAnchor": [
-          220,
-          226
-        ]
+        "mode": "explicit-rear-support-foot",
+        "source": "human-reviewed tiny atlas"
       }
     },
     {
@@ -436,7 +429,7 @@
           "sourceCell": 11,
           "phase": "coil",
           "anchorPoint": [
-            129,
+            110,
             249
           ]
         },
@@ -444,7 +437,7 @@
           "sourceCell": 15,
           "phase": "bloom-impact",
           "anchorPoint": [
-            130,
+            104,
             250
           ]
         },
@@ -452,7 +445,7 @@
           "sourceCell": 16,
           "phase": "follow-through",
           "anchorPoint": [
-            131,
+            110,
             250
           ]
         }
@@ -460,7 +453,7 @@
       "idleSource": {
         "sourceCell": 7,
         "anchorPoint": [
-          126,
+          117,
           250
         ]
       },
@@ -470,7 +463,7 @@
           "sourceCell": 7,
           "durationMs": 100,
           "anchorPoint": [
-            126,
+            117,
             250
           ],
           "deform": {
@@ -485,7 +478,7 @@
           "sourceCell": 11,
           "durationMs": 250,
           "anchorPoint": [
-            129,
+            110,
             249
           ],
           "deform": {
@@ -500,7 +493,7 @@
           "sourceCell": 15,
           "durationMs": 100,
           "anchorPoint": [
-            130,
+            104,
             250
           ],
           "deform": {
@@ -515,7 +508,7 @@
           "sourceCell": 16,
           "durationMs": 250,
           "anchorPoint": [
-            131,
+            110,
             250
           ],
           "deform": {
@@ -530,7 +523,7 @@
           "sourceCell": 7,
           "durationMs": 300,
           "anchorPoint": [
-            126,
+            117,
             250
           ],
           "deform": {
@@ -559,12 +552,8 @@
         ]
       },
       "pinAuthority": {
-        "source": "81a883d4825474bd16a03e0bb70c7fc126a20aa96e98d255160bf5d807e19c71",
-        "method": "bright bottom-contact median x over final 4 rows",
-        "stageAnchor": [
-          220,
-          226
-        ]
+        "mode": "explicit-rear-support-foot",
+        "source": "human-reviewed tiny atlas"
       }
     }
   ]
