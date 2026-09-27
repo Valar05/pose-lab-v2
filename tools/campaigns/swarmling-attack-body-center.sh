@@ -41,7 +41,7 @@ for f in AGENTS.md docs/POSE_LAB_CAMPAIGN_RULES.md docs/POSE_IS_GOD.md "$CONTRAC
   echo "READ=$f"
 done
 
-echo "=== APPLY ATTACK CENTERING ==="
+echo "=== APPLY ATTACK CENTERING ==="\necho "TEST_EXPECTATIONS=PER_ATTACK_STAGE_ANCHORS_V2"
 python3 "$HELPER" "$ATLAS" "$MANIFEST"
 
 echo "=== VERIFY ==="
