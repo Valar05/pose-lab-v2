@@ -6,6 +6,7 @@ ROOT="/storage/emulated/0/Documents/GodotProjects/pose-lab-v2"
 TARGET="a6f1d7bcd89890d123c56ce170c4a9f65561e598"
 CONTRACT="campaigns/swarmling-planted-attacks.contract.json"
 MANIFEST="public/assets/vanguard/fleshpunk/characters/swarmling/animations.json"
+SERVED_MANIFEST="${MANIFEST#public/}"
 PREVIEW="src/procedural-swarmling-preview.js"
 SHELL="src/procedural-review-shell.js"
 MOTION="motion.html"
@@ -53,7 +54,7 @@ probe(){
   local base="$1"
   curl -fsS "$base/motion.html?rev=$TARGET" | grep -Fq "Motion Profile Lab" &&
   curl -fsS "$base/$PREVIEW?rev=$TARGET" | grep -Fq "Missing Swarmling animation" &&
-  curl -fsS "$base/$MANIFEST?rev=$TARGET" | grep -Fq '"scythe-bloom"'
+  curl -fsS "$base/$SERVED_MANIFEST?rev=$TARGET" | grep -Fq '"scythe-bloom"'
 }
 
 PORT="$(python3 - <<'PY'
