@@ -14,8 +14,8 @@
   },
   "authority": {
     "source": "source/swarmling-approved-atlas.png",
-    "sourceByteSha256": "814251044e0308eaa74deea14b08273fb133abacca097c4f0537b75eb72ae40e",
-    "sourceRgbaPixelSha256": "e806aac56d99f5e797e1b9f0c901be7256be2e1ac04729610ef839b4dd6d5534",
+    "sourceByteSha256": "c9546c1bc61d9e5b0a2e558e26b53488e140520d5ae21b0f288ff2c3c85c7ea2",
+    "sourceRgbaPixelSha256": "05edbf0dd4a07f628b7c7492c87aeb438dca7529376556e252980ea8ddb4d399",
     "sourceLayout": {
       "columns": 6,
       "rows": 4,
@@ -49,7 +49,7 @@
       1536,
       1024
     ],
-    "sourceRecovery": "Run cell 5 recalibrated from rendered review ratio 99/83; all other atlas cells unchanged",
+    "sourceRecovery": "Run row rebuilt to one shared character scale and physical torso center",
     "run5ScaleNormalization": {
       "oldVisibleHeightPx": 40,
       "targetVisibleHeightPx": 46,
@@ -66,6 +66,26 @@
       "renderedBeforePx": 83,
       "renderedTargetPx": 99,
       "scaleFromCurrent": 1.1927710843373494
+    },
+    "runUniformScaleRepair": {
+      "originalSourceVisibleHeightsPx": [
+        62,
+        62,
+        64,
+        64,
+        63,
+        64
+      ],
+      "targetRunVisibleHeightsPx": [
+        45,
+        45,
+        46,
+        46,
+        45,
+        46
+      ],
+      "targetBodyCoreX": 128,
+      "targetGroundY": 249
     }
   },
   "animations": [
@@ -86,9 +106,9 @@
           "src": "run/frames/run_0000.png",
           "durationMs": 80,
           "sourceCell": 1,
-          "sha256": "38ed332851edebf171ed4848d3fa2be1d425e1395e0521f4d7fdaf9f359d1712",
+          "sha256": "e98ecf52b53cd1d00cad540aedbb44b1f88af4b493da46a63a35f80849e9a8e5",
           "anchorPoint": [
-            129,
+            128,
             249
           ]
         },
@@ -96,9 +116,9 @@
           "src": "run/frames/run_0001.png",
           "durationMs": 80,
           "sourceCell": 2,
-          "sha256": "4ac7fcb8947ee6dcf8454123437a3a24c82e257e6225f00457c610c50d0ceb37",
+          "sha256": "fe4a58e6b4b8cb76c9b602c0aa15b4896e3ac7d2c31d85facd21ec6f95360a84",
           "anchorPoint": [
-            129,
+            128,
             249
           ]
         },
@@ -106,7 +126,7 @@
           "src": "run/frames/run_0002.png",
           "durationMs": 80,
           "sourceCell": 3,
-          "sha256": "838d01fec9a9af60170374bb4ab72ae8e6259d8eaa6731b87b503a776d97773d",
+          "sha256": "8fe684ae41fa97b8df511821f3d52907e61d1db345829de2cd1236169e4b56d2",
           "anchorPoint": [
             128,
             249
@@ -116,9 +136,9 @@
           "src": "run/frames/run_0003.png",
           "durationMs": 80,
           "sourceCell": 4,
-          "sha256": "bc0e5dd5bf44c0abbd6897965ffb37ed2a932c77a74db0e2fa927d709761da57",
+          "sha256": "999b1ccbaf4e39ac6eaab7988ad0672867a1132fa2c77da5dc612c921f3a03f5",
           "anchorPoint": [
-            132,
+            128,
             249
           ]
         },
@@ -126,9 +146,9 @@
           "src": "run/frames/run_0004.png",
           "durationMs": 80,
           "sourceCell": 5,
-          "sha256": "ab246c8a9e22b85c142242fd8fcf628b1318394a0b002b8fdb6d447f086d23fa",
+          "sha256": "38a81a20781ffcfc0394e1b46130be86f45d4becf8ffcf3a44d6c325750d34fa",
           "anchorPoint": [
-            126,
+            128,
             249
           ]
         },
@@ -136,16 +156,20 @@
           "src": "run/frames/run_0005.png",
           "durationMs": 80,
           "sourceCell": 6,
-          "sha256": "326700a04835e6d7602603cbdee9cd98a82beffe3c5652b6c98e75ac01a70ee2",
+          "sha256": "00b4b961381f6b6ba040739421e4c2010a9628a233e9495be94a2b34232754f9",
           "anchorPoint": [
-            131,
-            250
+            128,
+            249
           ]
         }
       ],
       "pinAuthority": {
-        "mode": "body-core-x-ground-y",
-        "reason": "Human review: full-silhouette centering did not improve perceived centering because tendrils/extremities skewed the center"
+        "mode": "physical-body-core-centered-source",
+        "reason": "Run source row rebuilt uniformly; all frames physically centered at one torso X and ground Y",
+        "stageAnchor": [
+          220,
+          226
+        ]
       }
     },
     {
