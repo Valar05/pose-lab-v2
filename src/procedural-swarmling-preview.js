@@ -4,10 +4,16 @@ const params=new URLSearchParams(location.search);
 const requested=params.get('procedural')||'swarmling-run';
 const animationId=requested.startsWith('swarmling-')?requested.slice('swarmling-'.length):'run';
 const routeLabels=Object.freeze({
-  run:'Swarmling Run',
-  jab:'Swarmling Needle Jab',
-  rake:'Swarmling Low Rake',
-  'scythe-bloom':'Swarmling Scythe Bloom'
+  "run":"Swarmling Run",
+  "jab":"Swarmling Needle Jab",
+  "rake":"Swarmling Low Rake",
+  "scythe-bloom":"Swarmling Scythe Bloom",
+  "idle":"Swarmling Idle",
+  "aggro":"Swarmling Aggro / Attention",
+  "damage":"Swarmling Damage / Hit React",
+  "knockdown":"Swarmling Knockdown",
+  "stand-up":"Swarmling Stand Up",
+  "death":"Swarmling Death",
 });
 const ui=createProceduralReviewShell({
   title:routeLabels[animationId]||'Swarmling',
@@ -206,7 +212,7 @@ try{
   if(manifest.character!=='Swarmling'||manifest.lineage!=='vanguard-side-2d-sprite')throw new Error('Wrong Swarmling lineage');
   animation=manifest.animations.find(a=>a.id===animationId);
   if(!animation)throw new Error('Missing Swarmling animation '+animationId);
-  if(animation.rootMotion!==false && animationId!=='run')throw new Error('Swarmling attack root motion must be OFF');
+  if(animation.rootMotion!==false && animationId!=='run')throw new Error('Swarmling root motion must be OFF');
 
   const seq=sequence();
   total=seq.reduce((sum,item)=>sum+Number(item.durationMs),0);

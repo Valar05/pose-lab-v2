@@ -86,6 +86,20 @@
       ],
       "targetBodyCoreX": 128,
       "targetGroundY": 249
+    },
+    "utilityPack": {
+      "contract": "campaigns/swarmling-utility-pack.contract.json",
+      "animations": [
+        "idle",
+        "aggro",
+        "damage",
+        "knockdown",
+        "stand-up",
+        "death"
+      ],
+      "knockdownTerminalCell": 21,
+      "deathTerminalCell": 22,
+      "rootMotion": false
     }
   },
   "animations": [
@@ -644,6 +658,651 @@
         "presentationScale": 1.5,
         "weightedCoreOffsetPx": 16.8,
         "resolvedStageAnchorX": 190
+      }
+    },
+    {
+      "id": "idle",
+      "label": "Idle",
+      "loop": true,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "ambient living idle",
+      "contract": [
+        "canonical atlas pose authority",
+        "body-core X + ground Y registration",
+        "root motion OFF; engine owns translation",
+        "utility animation; no combat active window"
+      ],
+      "timeline": [
+        {
+          "id": "idle-a",
+          "sourceCell": 7,
+          "durationMs": 350,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "idle-b",
+          "sourceCell": 8,
+          "durationMs": 350,
+          "deform": {
+            "shearX": 0.015,
+            "scaleX": 0.99,
+            "scaleY": 1.01,
+            "rotateDeg": -0.5
+          },
+          "anchorPoint": [
+            126,
+            250
+          ]
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 350,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "canonical Swarmling atlas"
+      }
+    },
+    {
+      "id": "aggro",
+      "label": "Aggro / Attention",
+      "loop": false,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "attention/aggro tell; no attack active window",
+      "contract": [
+        "canonical atlas pose authority",
+        "body-core X + ground Y registration",
+        "root motion OFF; engine owns translation",
+        "utility animation; no combat active window"
+      ],
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 120,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "notice",
+          "sourceCell": 8,
+          "durationMs": 180,
+          "deform": {
+            "shearX": -0.02,
+            "scaleX": 0.99,
+            "scaleY": 1.01,
+            "rotateDeg": -1
+          },
+          "anchorPoint": [
+            126,
+            250
+          ]
+        },
+        {
+          "id": "threat-coil",
+          "sourceCell": 10,
+          "durationMs": 280,
+          "deform": {
+            "shearX": -0.04,
+            "scaleX": 0.97,
+            "scaleY": 1.03,
+            "rotateDeg": -1.5
+          },
+          "anchorPoint": [
+            131,
+            250
+          ]
+        },
+        {
+          "id": "settle",
+          "sourceCell": 8,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            126,
+            250
+          ]
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 240,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "canonical Swarmling atlas"
+      }
+    },
+    {
+      "id": "damage",
+      "label": "Damage / Hit React",
+      "loop": false,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "non-knockdown hit reaction",
+      "contract": [
+        "canonical atlas pose authority",
+        "body-core X + ground Y registration",
+        "root motion OFF; engine owns translation",
+        "utility animation; no combat active window"
+      ],
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 80,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "impact",
+          "sourceCell": 17,
+          "durationMs": 140,
+          "deform": {
+            "shearX": -0.08,
+            "scaleX": 0.96,
+            "scaleY": 1.04,
+            "rotateDeg": -2
+          },
+          "anchorPoint": [
+            127,
+            250
+          ]
+        },
+        {
+          "id": "recoil",
+          "sourceCell": 19,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0.03,
+            "scaleX": 0.99,
+            "scaleY": 1.01,
+            "rotateDeg": 1
+          },
+          "anchorPoint": [
+            130,
+            250
+          ]
+        },
+        {
+          "id": "recover",
+          "sourceCell": 7,
+          "durationMs": 300,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "canonical Swarmling atlas"
+      }
+    },
+    {
+      "id": "knockdown",
+      "label": "Knockdown",
+      "loop": false,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "recoverable prone state; terminal source cell 21",
+      "contract": [
+        "canonical atlas pose authority",
+        "body-core X + ground Y registration",
+        "root motion OFF; engine owns translation",
+        "utility animation; no combat active window"
+      ],
+      "timeline": [
+        {
+          "id": "impact",
+          "sourceCell": 17,
+          "durationMs": 100,
+          "deform": {
+            "shearX": -0.06,
+            "scaleX": 0.97,
+            "scaleY": 1.03,
+            "rotateDeg": -2
+          },
+          "anchorPoint": [
+            127,
+            250
+          ]
+        },
+        {
+          "id": "stagger",
+          "sourceCell": 19,
+          "durationMs": 150,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            130,
+            250
+          ]
+        },
+        {
+          "id": "collapse",
+          "sourceCell": 18,
+          "durationMs": 150,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            132,
+            250
+          ]
+        },
+        {
+          "id": "down-knees",
+          "sourceCell": 20,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            132,
+            249
+          ]
+        },
+        {
+          "id": "prone-vulnerable",
+          "sourceCell": 21,
+          "durationMs": 420,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            132,
+            249
+          ]
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "canonical Swarmling atlas"
+      }
+    },
+    {
+      "id": "stand-up",
+      "label": "Stand Up",
+      "loop": false,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "recovery from knockdown cell 21 to standing idle",
+      "contract": [
+        "canonical atlas pose authority",
+        "body-core X + ground Y registration",
+        "root motion OFF; engine owns translation",
+        "utility animation; no combat active window"
+      ],
+      "timeline": [
+        {
+          "id": "prone-enter",
+          "sourceCell": 21,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            132,
+            249
+          ]
+        },
+        {
+          "id": "push-up",
+          "sourceCell": 20,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            132,
+            249
+          ]
+        },
+        {
+          "id": "low-rise",
+          "sourceCell": 18,
+          "durationMs": 160,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            132,
+            250
+          ]
+        },
+        {
+          "id": "stagger-rise",
+          "sourceCell": 19,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            130,
+            250
+          ]
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 300,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "canonical Swarmling atlas"
+      }
+    },
+    {
+      "id": "death",
+      "label": "Death",
+      "loop": false,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "terminal death state; source cell 22 distinguishes death from recoverable knockdown",
+      "contract": [
+        "canonical atlas pose authority",
+        "body-core X + ground Y registration",
+        "root motion OFF; engine owns translation",
+        "utility animation; no combat active window"
+      ],
+      "timeline": [
+        {
+          "id": "fatal-impact",
+          "sourceCell": 17,
+          "durationMs": 100,
+          "deform": {
+            "shearX": -0.06,
+            "scaleX": 0.97,
+            "scaleY": 1.03,
+            "rotateDeg": -2
+          },
+          "anchorPoint": [
+            127,
+            250
+          ]
+        },
+        {
+          "id": "fatal-stagger",
+          "sourceCell": 19,
+          "durationMs": 140,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            130,
+            250
+          ]
+        },
+        {
+          "id": "collapse",
+          "sourceCell": 20,
+          "durationMs": 160,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            132,
+            249
+          ]
+        },
+        {
+          "id": "fall-prone",
+          "sourceCell": 21,
+          "durationMs": 220,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            132,
+            249
+          ]
+        },
+        {
+          "id": "corpse",
+          "sourceCell": 22,
+          "durationMs": 880,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            129,
+            250
+          ]
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "canonical Swarmling atlas"
       }
     }
   ]
