@@ -20,21 +20,31 @@ const ctx=canvas.getContext('2d');
 ctx.imageSmoothingEnabled=true;
 const play=q('[data-play]'),restart=q('[data-restart]'),scrub=q('[data-scrub]');
 const phase=q('[data-phase]'),time=q('[data-time]'),kv=q('[data-kv]');
-let manifest,animation,images=[],sourceAtlas=null,playing=true,start=performance.now(),offset=0,total=1;
+let manifest,animation,sourceAtlas=null,playing=true,start=performance.now(),offset=0,total=1;
 const boundsCache=new WeakMap();
 const sourceCellCache=new Map();
-const runAnchors=[
-  [128,249],[128,249],[128,249],[128,250],[128,249],[128,250]
-];
+const imageCache=new Map();
+const runAnchors=[[128,249],[128,249],[128,249],[128,250],[128,249],[128,250]];
+const clamp=v=>Math.max(0,Math.min(1,v));
+const smooth=t=>{t=clamp(t);return t*t*(3-2*t)};
+const lerp=(a,b,t)=>a+(b-a)*t;
 
-const loadImage=src=>new Promise((ok,no)=>{
-  const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('Could not load '+src));i.src=src;
-});
+const loadImage=src=>{
+  if(imageCache.has(src))return Promise.resolve(imageCache.get(src));
+  return new Promise((ok,no)=>{
+    const i=new Image();
+    i.onload=()=>{imageCache.set(src,i);ok(i)};
+    i.onerror=()=>no(new Error('Could not load '+src));
+    i.src=src;
+  });
+};
 const widthOf=image=>image.naturalWidth||image.width;
 const heightOf=image=>image.naturalHeight||image.height;
 
-function visibleBounds(image){
-  if(boundsCache.has(image))return boundsCache.get(image);
+function visibleBounds(image,pad=0){
+  const key=String(pad);
+  let byPad=boundsCache.get(image);
+  if(byPad?.[key])return byPad[key];
   const w=widthOf(image),h=heightOf(image);
   const c=document.createElement('canvas');
   c.width=w;c.height=h;
@@ -49,8 +59,14 @@ function visibleBounds(image){
     }
   }
   if(maxX<minX)throw new Error('Empty Swarmling frame');
-  const b={x:minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
-  boundsCache.set(image,b);
+  const b={
+    x:Math.max(0,minX-pad),
+    y:Math.max(0,minY-pad),
+    w:Math.min(w,maxX+1+pad)-Math.max(0,minX-pad),
+    h:Math.min(h,maxY+1+pad)-Math.max(0,minY-pad)
+  };
+  byPad={...(byPad||{}),[key]:b};
+  boundsCache.set(image,byPad);
   return b;
 }
 
@@ -76,8 +92,8 @@ function sourceCellImage(cellNo){
     if(seen[i]||!isBg(px,py))return;
     seen[i]=1;stack.push([px,py]);
   };
-  for(let px=0;px<out.width;px++){push(px,0);push(px,out.height-1);}
-  for(let py=0;py<out.height;py++){push(0,py);push(out.width-1,py);}
+  for(let px=0;px<out.width;px++){push(px,0);push(px,out.height-1)}
+  for(let py=0;py<out.height;py++){push(0,py);push(out.width-1,py)}
   while(stack.length){
     const [px,py]=stack.pop(),i=(py*out.width+px)*4;
     d[i+3]=0;
@@ -91,57 +107,109 @@ function sourceCellImage(cellNo){
   return out;
 }
 
-function frameAtMs(ms){
-  let acc=0;
-  for(let i=0;i<animation.frames.length;i++){
-    const f=animation.frames[i],end=acc+Number(f.durationMs);
-    if(ms<end||i===animation.frames.length-1)return{frame:f,index:i,startMs:acc};
-    acc=end;
-  }
-  return{frame:animation.frames[0],index:0,startMs:0};
+function sequence(){
+  return Array.isArray(animation.timeline)&&animation.timeline.length
+    ? animation.timeline
+    : animation.frames;
 }
 
-function anchorFor(frame,index){
-  if(Array.isArray(frame.anchorPoint))return frame.anchorPoint.map(Number);
+function stateAtMs(ms){
+  const seq=sequence();
+  let acc=0;
+  for(let i=0;i<seq.length;i++){
+    const item=seq[i],end=acc+Number(item.durationMs);
+    if(ms<end||i===seq.length-1){
+      const u=Number(item.durationMs)>0?clamp((ms-acc)/Number(item.durationMs)):0;
+      return{item,index:i,startMs:acc,u};
+    }
+    acc=end;
+  }
+  return{item:seq[0],index:0,startMs:0,u:0};
+}
+
+function anchorFor(item,index){
+  if(Array.isArray(item.anchorPoint))return item.anchorPoint.map(Number);
   return runAnchors[index]||runAnchors[0];
 }
 
-function render(ms){
+function deformAt(index,u){
+  const seq=sequence();
+  const a=seq[index]?.deform||{};
+  const b=seq[Math.min(seq.length-1,index+1)]?.deform||a;
+  const t=smooth(u);
+  return{
+    shearX:lerp(Number(a.shearX??0),Number(b.shearX??a.shearX??0),t),
+    scaleX:lerp(Number(a.scaleX??1),Number(b.scaleX??a.scaleX??1),t),
+    scaleY:lerp(Number(a.scaleY??1),Number(b.scaleY??a.scaleY??1),t)
+  };
+}
+
+async function imageFor(item){
+  if(item.src){
+    const base='./assets/vanguard/fleshpunk/characters/swarmling/';
+    return loadImage(base+item.src);
+  }
+  if(Number.isInteger(item.sourceCell))return sourceCellImage(item.sourceCell);
+  throw new Error('Swarmling sequence item has no src or sourceCell');
+}
+
+function drawPlanted(image,item,index,d){
+  const pad=Number(animation.procedural?.sourcePaddingPx??0);
+  const b=visibleBounds(image,pad);
+  const presentationScale=1.5;
+  const stageAnchor=Array.isArray(animation.stageAnchor)?animation.stageAnchor:[220,226];
+  const [stageX,stageY]=stageAnchor.map(Number);
+  const [srcX,srcY]=anchorFor(item,index);
+
+  ctx.save();
+  ctx.translate(stageX,stageY);
+  ctx.transform(
+    presentationScale*d.scaleX,
+    0,
+    d.shearX,
+    presentationScale*d.scaleY,
+    0,
+    0
+  );
+  ctx.drawImage(
+    image,
+    b.x,b.y,b.w,b.h,
+    b.x-srcX,b.y-srcY,b.w,b.h
+  );
+  ctx.restore();
+}
+
+async function render(ms){
   ms=((ms%total)+total)%total;
-  const state=frameAtMs(ms),frame=state.frame,index=state.index;
+  const state=stateAtMs(ms),item=state.item,index=state.index;
   ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  const image=images[index];
-  const b=visibleBounds(image);
-  const presentationScale=1.5;
-  const stageAnchor=Array.isArray(animation.stageAnchor)?animation.stageAnchor:[220,226];
-  const [anchorX,anchorY]=stageAnchor.map(Number);
-  const [srcAnchorX,srcAnchorY]=anchorFor(frame,index);
-  const drawW=Math.round(b.w*presentationScale);
-  const drawH=Math.round(b.h*presentationScale);
-  const x=Math.round(anchorX-(srcAnchorX-b.x)*presentationScale);
-  const y=Math.round(anchorY-(srcAnchorY-b.y)*presentationScale);
-  ctx.drawImage(image,b.x,b.y,b.w,b.h,x,y,drawW,drawH);
+  const image=await imageFor(item);
+  const d=deformAt(index,state.u);
+  drawPlanted(image,item,index,d);
 
   const timing=animation.combatTiming||{};
   const active=Number.isFinite(timing.activeAtMs)
     && ms>=timing.activeAtMs
     && ms<timing.activeAtMs+Number(timing.activeDurationMs||0);
-  phase.textContent=frame.phase||((animationId==='run')?'run-'+String(index+1):animationId+'-'+String(index+1));
+  const [srcAnchorX,srcAnchorY]=anchorFor(item,index);
+  phase.textContent=item.id||item.phase||((animationId==='run')?'run-'+String(index+1):animationId+'-'+String(index+1));
   time.textContent=Math.round(ms)+' / '+total+' ms';
   scrub.value=String(ms/total);
   kv.innerHTML=`<div>Character</div><div>Swarmling</div>
-    <div>Frame</div><div>${index+1} / ${animation.frames.length}</div>
-    <div>Source cell</div><div>${frame.sourceCell??'derived'}</div>
+    <div>Phase</div><div>${index+1} / ${sequence().length}</div>
+    <div>Source cell</div><div>${item.sourceCell??'derived'}</div>
     <div>Active</div><div>${active?'YES':'no'}</div>
+    <div>Shear X</div><div>${d.shearX.toFixed(3)}</div>
+    <div>Scale X/Y</div><div>${d.scaleX.toFixed(3)} / ${d.scaleY.toFixed(3)}</div>
     <div>Root motion</div><div>OFF</div>
     <div>Plant anchor</div><div>${srcAnchorX}, ${srcAnchorY}</div>`;
 }
 
 function loop(now){
   const ms=playing?(offset+(now-start))%total:offset;
-  render(ms);
+  render(ms).catch(err=>{playing=false;throw err});
   requestAnimationFrame(loop);
 }
 play.onclick=()=>{
@@ -158,21 +226,20 @@ try{
   animation=manifest.animations.find(a=>a.id===animationId);
   if(!animation)throw new Error('Missing Swarmling animation '+animationId);
   if(animation.rootMotion!==false && animationId!=='run')throw new Error('Swarmling attack root motion must be OFF');
-  total=animation.frames.reduce((sum,f)=>sum+Number(f.durationMs),0);
 
-  const base='./assets/vanguard/fleshpunk/characters/swarmling/';
-  const needsAtlas=animation.frames.some(f=>!f.src && Number.isInteger(f.sourceCell));
-  if(needsAtlas)sourceAtlas=await loadImage(base+manifest.authority.source);
-  images=await Promise.all(animation.frames.map(async f=>{
-    if(f.src)return loadImage(base+f.src);
-    if(Number.isInteger(f.sourceCell))return sourceCellImage(f.sourceCell);
-    throw new Error('Frame has no src or sourceCell');
-  }));
+  const seq=sequence();
+  total=seq.reduce((sum,item)=>sum+Number(item.durationMs),0);
+  const needsAtlas=seq.some(item=>!item.src&&Number.isInteger(item.sourceCell));
+  if(needsAtlas){
+    const base='./assets/vanguard/fleshpunk/characters/swarmling/';
+    sourceAtlas=await loadImage(base+manifest.authority.source);
+  }
+  await Promise.all(seq.filter(item=>item.src).map(item=>imageFor(item)));
 
   canvas.width=430;canvas.height=260;
   q('[data-recipe]').textContent=JSON.stringify(animation,null,2);
   q('[data-title]').textContent=routeLabels[animationId]||animation.label;
-  render(0);
+  await render(0);
   requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
 }catch(err){
   document.querySelector('#app').innerHTML='<pre style="padding:18px;color:#ff8a8a;white-space:pre-wrap"></pre>';
