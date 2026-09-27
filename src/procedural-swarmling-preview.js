@@ -123,7 +123,8 @@ function deformAt(index,u){
   return{
     shearX:lerp(Number(a.shearX??0),Number(b.shearX??a.shearX??0),t),
     scaleX:lerp(Number(a.scaleX??1),Number(b.scaleX??a.scaleX??1),t),
-    scaleY:lerp(Number(a.scaleY??1),Number(b.scaleY??a.scaleY??1),t)
+    scaleY:lerp(Number(a.scaleY??1),Number(b.scaleY??a.scaleY??1),t),
+    rotateDeg:lerp(Number(a.rotateDeg??0),Number(b.rotateDeg??a.rotateDeg??0),t)
   };
 }
 
@@ -145,6 +146,7 @@ function drawPlanted(image,item,index,d){
 
   ctx.save();
   ctx.translate(stageX,stageY);
+  ctx.rotate((d.rotateDeg||0)*Math.PI/180);
   ctx.transform(
     presentationScale*d.scaleX,
     0,
@@ -181,6 +183,7 @@ async function render(ms){
     <div>Active</div><div>${active?'YES':'no'}</div>
     <div>Shear X</div><div>${d.shearX.toFixed(3)}</div>
     <div>Scale X/Y</div><div>${d.scaleX.toFixed(3)} / ${d.scaleY.toFixed(3)}</div>
+    <div>Rotate</div><div>${d.rotateDeg.toFixed(1)}°</div>
     <div>Root motion</div><div>OFF</div>
     <div>Plant anchor</div><div>${srcAnchorX}, ${srcAnchorY}</div>`;
 }
