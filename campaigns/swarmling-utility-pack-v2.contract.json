@@ -1,0 +1,595 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "swarmling-utility-pack-v2",
+  "status": "sealed-before-apply",
+  "mission": "Replace the first utility-pack pass in one campaign: fix utility sprite-scale consistency at the atlas-cell level, make Idle a single authored frame with procedural motion, add explicit procedural motion profiles to every utility animation, and make non-loop utilities hold their terminal pose. Preserve accepted Run and attacks exactly.",
+  "diagnosis": {
+    "userFeedback": [
+      "utility poses visibly change character size",
+      "Idle must be one authored frame with deformation, not a surprise second pose",
+      "utility animations need real procedural motion, not only frame interpolation"
+    ],
+    "rootCause": [
+      "utility-exclusive atlas cells inherited inconsistent per-frame scaling from the old tiny-atlas rebuild",
+      "Idle incorrectly used source cell 8 as a second authored pose",
+      "preview only interpolated per-frame deform values; it had no independent procedural motion layer",
+      "non-loop utility animations wrapped modulo total duration instead of holding terminal state"
+    ]
+  },
+  "authority": {
+    "currentAtlasSha256": "c9546c1bc61d9e5b0a2e558e26b53488e140520d5ae21b0f288ff2c3c85c7ea2",
+    "scaleAnchorCell": 7,
+    "scaleAnchorCurrentVisibleHeightPx": 47,
+    "originalAuthoredVisibleHeightsPx": {
+      "7": 83,
+      "8": 77,
+      "17": 88,
+      "18": 86,
+      "19": 76,
+      "20": 58,
+      "21": 43,
+      "22": 32
+    },
+    "sharedScaleFormula": "targetHeight(cell)=round(originalAuthoredHeight(cell)*47/83)",
+    "utilityExclusiveCells": [
+      8,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22
+    ],
+    "targetVisibleHeightsPx": {
+      "8": 44,
+      "17": 50,
+      "18": 49,
+      "19": 43,
+      "20": 33,
+      "21": 24,
+      "22": 18
+    },
+    "physicalRegistration": {
+      "bodyCoreX": 128,
+      "groundY": 250
+    },
+    "poseRule": "Pose is God. Repair utility source-cell scale first; do not compensate with runtime bodyScale or presentationScale."
+  },
+  "lockedAcceptedState": {
+    "run": {
+      "sourceCells": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "anchors": [
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ]
+      ]
+    },
+    "jab": {
+      "sourceCells": [
+        10,
+        15
+      ],
+      "timelineCells": [
+        7,
+        10,
+        15,
+        15,
+        7
+      ],
+      "stageAnchor": [
+        190,
+        226
+      ],
+      "impactCell": 15
+    },
+    "rake": {
+      "sourceCells": [
+        13,
+        15
+      ],
+      "timelineCells": [
+        7,
+        13,
+        15,
+        15,
+        7
+      ],
+      "stageAnchor": [
+        188,
+        226
+      ]
+    },
+    "scythe-bloom": {
+      "sourceCells": [
+        11,
+        15,
+        16
+      ],
+      "timelineCells": [
+        7,
+        11,
+        15,
+        16,
+        7
+      ],
+      "stageAnchor": [
+        190,
+        226
+      ]
+    },
+    "presentationScale": 1.5,
+    "rootMotion": false
+  },
+  "utilityAnimations": {
+    "idle": {
+      "label": "Idle",
+      "loop": true,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "idle",
+          "sourceCell": 7,
+          "durationMs": 1200,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "breathing-loop",
+        "cycleMs": 1200,
+        "shearX": 0.012,
+        "scaleX": 0.012,
+        "scaleY": 0.018,
+        "rotateDeg": 0.6
+      },
+      "semantic": "single authored idle pose animated procedurally"
+    },
+    "aggro": {
+      "label": "Aggro / Attention",
+      "loop": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 150,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "threat-rise",
+          "sourceCell": 8,
+          "durationMs": 500,
+          "deform": {
+            "shearX": -0.03,
+            "scaleX": 0.985,
+            "scaleY": 1.02,
+            "rotateDeg": -1
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 350,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "tension-wave",
+        "cycleMs": 420,
+        "shearX": 0.024,
+        "scaleX": 0.012,
+        "scaleY": 0.02,
+        "rotateDeg": 1
+      },
+      "semantic": "attention/aggro tell; no attack active window"
+    },
+    "damage": {
+      "label": "Damage / Hit React",
+      "loop": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 70,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "impact",
+          "sourceCell": 17,
+          "durationMs": 130,
+          "deform": {
+            "shearX": -0.08,
+            "scaleX": 0.96,
+            "scaleY": 1.04,
+            "rotateDeg": -2
+          }
+        },
+        {
+          "id": "recoil",
+          "sourceCell": 19,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0.03,
+            "scaleX": 0.99,
+            "scaleY": 1.01,
+            "rotateDeg": 1
+          }
+        },
+        {
+          "id": "recover",
+          "sourceCell": 7,
+          "durationMs": 320,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "damped-wobble",
+        "cycleMs": 170,
+        "decayMs": 600,
+        "shearX": 0.05,
+        "scaleX": 0.022,
+        "scaleY": 0.032,
+        "rotateDeg": 2.6
+      },
+      "semantic": "non-knockdown hit reaction"
+    },
+    "knockdown": {
+      "label": "Knockdown",
+      "loop": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "impact",
+          "sourceCell": 17,
+          "durationMs": 100,
+          "deform": {
+            "shearX": -0.06,
+            "scaleX": 0.97,
+            "scaleY": 1.03,
+            "rotateDeg": -2
+          }
+        },
+        {
+          "id": "stagger",
+          "sourceCell": 19,
+          "durationMs": 140,
+          "deform": {
+            "shearX": 0.02,
+            "scaleX": 0.99,
+            "scaleY": 1.01,
+            "rotateDeg": 1
+          }
+        },
+        {
+          "id": "collapse",
+          "sourceCell": 18,
+          "durationMs": 160,
+          "deform": {
+            "shearX": -0.02,
+            "scaleX": 1.01,
+            "scaleY": 0.99,
+            "rotateDeg": -1
+          }
+        },
+        {
+          "id": "down-knees",
+          "sourceCell": 20,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "prone-vulnerable",
+          "sourceCell": 21,
+          "durationMs": 520,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "damped-wobble",
+        "cycleMs": 210,
+        "decayMs": 650,
+        "shearX": 0.035,
+        "scaleX": 0.025,
+        "scaleY": 0.035,
+        "rotateDeg": 2
+      },
+      "semantic": "recoverable prone state; terminal source cell 21"
+    },
+    "stand-up": {
+      "label": "Stand Up",
+      "loop": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "prone-enter",
+          "sourceCell": 21,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "push-up",
+          "sourceCell": 20,
+          "durationMs": 190,
+          "deform": {
+            "shearX": -0.02,
+            "scaleX": 0.99,
+            "scaleY": 1.02,
+            "rotateDeg": -1
+          }
+        },
+        {
+          "id": "low-rise",
+          "sourceCell": 18,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0.02,
+            "scaleX": 0.985,
+            "scaleY": 1.025,
+            "rotateDeg": 1
+          }
+        },
+        {
+          "id": "stagger-rise",
+          "sourceCell": 19,
+          "durationMs": 190,
+          "deform": {
+            "shearX": -0.015,
+            "scaleX": 0.995,
+            "scaleY": 1.01,
+            "rotateDeg": -0.5
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 300,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "strain-wave",
+        "cycleMs": 360,
+        "shearX": 0.025,
+        "scaleX": 0.015,
+        "scaleY": 0.025,
+        "rotateDeg": 1.2
+      },
+      "semantic": "recovery from knockdown cell 21 to standing idle"
+    },
+    "death": {
+      "label": "Death",
+      "loop": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "fatal-impact",
+          "sourceCell": 17,
+          "durationMs": 100,
+          "deform": {
+            "shearX": -0.06,
+            "scaleX": 0.97,
+            "scaleY": 1.03,
+            "rotateDeg": -2
+          }
+        },
+        {
+          "id": "fatal-stagger",
+          "sourceCell": 19,
+          "durationMs": 140,
+          "deform": {
+            "shearX": 0.02,
+            "scaleX": 0.99,
+            "scaleY": 1.01,
+            "rotateDeg": 1
+          }
+        },
+        {
+          "id": "collapse",
+          "sourceCell": 20,
+          "durationMs": 170,
+          "deform": {
+            "shearX": -0.02,
+            "scaleX": 1.01,
+            "scaleY": 0.99,
+            "rotateDeg": -1
+          }
+        },
+        {
+          "id": "fall-prone",
+          "sourceCell": 21,
+          "durationMs": 230,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "corpse",
+          "sourceCell": 22,
+          "durationMs": 1000,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "damped-wobble",
+        "cycleMs": 150,
+        "decayMs": 520,
+        "shearX": 0.04,
+        "scaleX": 0.02,
+        "scaleY": 0.03,
+        "rotateDeg": 2.4
+      },
+      "semantic": "terminal death state; source cell 22 distinguishes death from recoverable knockdown"
+    }
+  },
+  "machine": {
+    "mutablePaths": [
+      "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+      "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+      "src/procedural-swarmling-preview.js",
+      "tools/test_swarmling_utility_animations.mjs",
+      "tools/test_swarmling_utility_scale.py",
+      "package.json",
+      "campaigns/swarmling-utility-pack-v2.receipt.json"
+    ],
+    "receiptPath": "campaigns/swarmling-utility-pack-v2.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/0/frames/0/anchorPoint",
+        "value": [
+          128,
+          249
+        ]
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/1/stageAnchor",
+        "value": [
+          190,
+          226
+        ]
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/1/frames/1/sourceCell",
+        "value": 15
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/2/stageAnchor",
+        "value": [
+          188,
+          226
+        ]
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/3/stageAnchor",
+        "value": [
+          190,
+          226
+        ]
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-swarmling-preview.js",
+        "value": "function proceduralMotionAt(ms,state,base)"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-swarmling-preview.js",
+        "value": "const presentationScale=1.5;"
+      }
+    ]
+  }
+}
