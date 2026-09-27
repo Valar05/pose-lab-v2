@@ -480,10 +480,10 @@
       0.22
     ],
     "primaryFilterPx": 4.0,
-    "primaryStretchX": 0.34,
-    "primarySquashY": 0.1,
-    "primaryShearX": -0.16,
-    "primaryShiftPx": 9
+    "primaryStretchX": 0,
+    "primarySquashY": 0,
+    "primaryShearX": 0,
+    "primaryShiftPx": 0
   },
   "comboHandoffMs": 310,
   "timingCanary": {
@@ -494,5 +494,17 @@
     "fullPresentationMs": 600,
     "standaloneRecoveryPreserved": true,
     "bufferMayReplaceRecoveryAfterMs": 310
+  },
+  "motionLines": {
+    "enabled": true,
+    "sliceHeightPx": 3,
+    "maxPullPx": 34,
+    "wavePx": 7,
+    "waveCycles": 3.5,
+    "baseAlphaAtPeak": 0.34,
+    "ghostAlpha": 0.24,
+    "ghostStepPx": 11,
+    "ghostCount": 3,
+    "lineFilterPx": 1.25
   }
 }
