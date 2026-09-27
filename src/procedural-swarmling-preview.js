@@ -154,12 +154,11 @@ async function imageFor(item){
 }
 
 function drawPlanted(image,item,index,d){
-  const pad=Number(animation.procedural?.sourcePaddingPx??0);
-  const b=visibleBounds(image,pad);
   const presentationScale=1.5;
   const stageAnchor=Array.isArray(animation.stageAnchor)?animation.stageAnchor:[220,226];
   const [stageX,stageY]=stageAnchor.map(Number);
   const [srcX,srcY]=anchorFor(item,index);
+  const w=widthOf(image),h=heightOf(image);
 
   ctx.save();
   ctx.translate(stageX,stageY);
@@ -171,11 +170,7 @@ function drawPlanted(image,item,index,d){
     0,
     0
   );
-  ctx.drawImage(
-    image,
-    b.x,b.y,b.w,b.h,
-    b.x-srcX,b.y-srcY,b.w,b.h
-  );
+  ctx.drawImage(image,-srcX,-srcY,w,h);
   ctx.restore();
 }
 
