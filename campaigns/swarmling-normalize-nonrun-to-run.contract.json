@@ -1,0 +1,56 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-normalize-nonrun-to-run-v1",
+  "status":"sealed-before-apply",
+  "mission":"Promote the user-downloaded normalized Swarmling atlas where Run remains scale authority and oversized non-Run poses are reduced to match it, then rebuild Run frames, refresh source hashes, re-measure pins from the normalized atlas, preserve attack timing and zero root motion, commit/push from a disposable worktree, and open exact-revision review.",
+  "downloadedAtlas":{
+    "filename":"Swarmling_Scaled_To_Run_BLACK.png",
+    "byteSha256":"75932d49800ce93dacb7a3ed8a2f294020b3313ac5ae98a96083facac07eb602",
+    "dimensions":[1536,1024],
+    "layout":{"columns":6,"rows":4,"cellWidth":256,"cellHeight":256}
+  },
+  "scaleAuthority":{
+    "runCells":[1,2,3,4,5,6],
+    "rule":"Run row is unchanged. Non-Run cells are already normalized in the downloaded atlas; campaign must not rescale again."
+  },
+  "pins":{
+    "method":"measure bottom-contact centroid from non-black pixels in each 256x256 cell at runtime",
+    "run":"recompute cells 1-6",
+    "attacks":"recompute every selected source-cell anchor used by jab/rake/scythe-bloom",
+    "stageAnchor":[220,226]
+  },
+  "locks":[
+    "SecurityTitan stopwatch values",
+    "attack source-cell choices currently on main",
+    "procedural deformation values currently on main",
+    "root motion OFF",
+    "Vanguard assets/recipes/behavior",
+    "old Blender-derived Swarmling/Fleshling lineage"
+  ],
+  "writableSurface":[
+    "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/run/**",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json source/run hashes + measured anchorPoint fields only",
+    "src/procedural-swarmling-preview.js runAnchors constant only",
+    "campaigns/swarmling-normalize-nonrun-to-run.receipt.json"
+  ],
+  "executionLane":"Repo-owned shell campaign run from phone checkout. Primary worktree stays read-only. All mutation occurs in a disposable worktree from exact origin/main.",
+  "verification":[
+    "rules reread at runtime",
+    "downloaded atlas located by exact SHA-256",
+    "atlas dimensions 1536x1024",
+    "run row unchanged from downloaded atlas",
+    "run frame hashes regenerated",
+    "manifest source hash updated",
+    "all selected attack anchors re-measured from normalized atlas",
+    "root motion remains off",
+    "node tools/test_swarmling_attacks.mjs",
+    "node --check src/procedural-swarmling-preview.js",
+    "npm run test:2d",
+    "npm run build",
+    "npm run smoke",
+    "git diff --check",
+    "origin/main exact readback after push"
+  ],
+  "humanVerdict":"pending"
+}
