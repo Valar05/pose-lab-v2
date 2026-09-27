@@ -1,0 +1,16 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "vanguard-overhand-smear-v2",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "ee7504427fce03c2516ee8467147567e8e1c2596",
+  "implementationRevision": "174e8df0bbed8ee6961cc38168420170908c08a2",
+  "finalRevision": null,
+  "executionLane": "repo-owned-framework-v2-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+    "src/procedural-motion-preview.js",
+    "campaigns/vanguard-overhand-smear-v2.receipt.json"
+  ]
+}
