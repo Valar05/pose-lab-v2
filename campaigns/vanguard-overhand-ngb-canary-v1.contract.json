@@ -115,7 +115,7 @@
       {
         "kind": "text-contains",
         "path": "src/procedural-motion-preview.js",
-        "value": "recipe.motionBlur?.enabled"
+        "value": "const blur=recipe.motionBlur;"
       },
       {
         "kind": "text-contains",
