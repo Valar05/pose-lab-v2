@@ -362,17 +362,36 @@ function stageOffsetX(){
  const localCenter=px-it.anchor[0]*bodyScale+(it.canvas.width*bodyScale)/2;
  return (recipe.stage?.centerX??215)-localCenter;
 }
-function drawBody(id,d){
+function drawBody(id,d,blurAmount=0){
  const it=body(id),[px,py]=recipe.canvas.anchor;
  const src=recipe.sources[id]||{};
  const reg=src.registrationOffset||[0,0];
- ctx.save();
- ctx.translate(stageOffsetX(),0);
- ctx.translate(px+Number(reg[0]||0),py+Number(reg[1]||0));
  const bodyScale=Number(recipe.bodyScale??1);
- ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);
- ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
- ctx.restore();
+ const drawPass=(offsetX=0,offsetY=0,alpha=1,filter='none')=>{
+   ctx.save();
+   ctx.globalAlpha=alpha;
+   ctx.filter=filter;
+   ctx.translate(stageOffsetX(),0);
+   ctx.translate(px+Number(reg[0]||0)+offsetX,py+Number(reg[1]||0)+offsetY);
+   ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);
+   ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
+   ctx.restore();
+ };
+ const blur=recipe.motionBlur;
+ if(blur?.enabled && blurAmount>0){
+   const samples=Math.max(1,Math.round(Number(blur.samples??4)));
+   const span=Math.max(0,Number(blur.spanPx??28));
+   const filterPx=Math.max(0,Number(blur.filterPx??2));
+   const maxAlpha=Math.max(0,Math.min(1,Number(blur.maxAlpha??.32)));
+   const direction=Array.isArray(blur.directionStage)?blur.directionStage:[-1,0];
+   const dx=Number(direction[0]??-1),dy=Number(direction[1]??0);
+   for(let n=samples;n>=1;n--){
+     const t=n/samples;
+     const alpha=blurAmount*maxAlpha*(1-.52*t);
+     drawPass(dx*span*t,dy*span*t,alpha,filterPx?('blur('+filterPx+'px)'):'none');
+   }
+ }
+ drawPass();
 }
 
 function revealOriginFor(sourceId){
@@ -568,13 +587,13 @@ function drawSlash(e,layerName='front'){
  ctx.restore();
 }
 function render(ms){
- const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null; if(window.__slashControls?.controls?.full?.checked&&e){e.reveal=1;e.core=1;e.tightGlow=1;e.wideGlow=.7;}
+ const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},b=iv(i,u,'blur','amount'),e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null; if(window.__slashControls?.controls?.full?.checked&&e){e.reveal=1;e.core=1;e.tightGlow=1;e.wideGlow=.7;}
  ctx.setTransform(1,0,0,1,0,0);
  ctx.fillStyle='#000';
  ctx.fillRect(0,0,canvas.width,canvas.height);
 
  drawSlash(e,'back');
- drawBody(p.source,d);
+ drawBody(p.source,d,b);
  drawSlash(e,'front');
 
  phaseEl.textContent=p.id;
