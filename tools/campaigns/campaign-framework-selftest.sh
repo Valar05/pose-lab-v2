@@ -32,7 +32,7 @@ do
   echo "READ=$f"
 done
 
-echo "=== STATIC PREFLIGHT ==="
+echo "=== STATIC PREFLIGHT ==="\necho "WORKTREE_GUARD=TRACKED_PLUS_UNTRACKED"
 python3 -m py_compile tools/campaigns/campaign_core.py
 bash -n tools/campaigns/campaign_common.sh
 python3 tools/test_pose_campaign_framework.py
