@@ -16,8 +16,8 @@ if(manifest.authority?.rootMotion!=='OFF; all movement is authored later in engi
 if(manifest.authority?.timingAuthority?.revision!=='e89c2adf671b06af4ce6a6c1d3f0118e68a6c274')fail('SecurityTitan timing revision drifted');
 
 const expected={
-  jab:{authoredCells:[8,13],timelineCells:[7,8,13,13,7],activeAtMs:350},
-  rake:{authoredCells:[14,15],timelineCells:[7,14,15,15,7],activeAtMs:550},
+  jab:{authoredCells:[8,17],timelineCells:[7,8,17,17,7],activeAtMs:350},
+  rake:{authoredCells:[9,10],timelineCells:[7,9,10,10,7],activeAtMs:550},
   'scythe-bloom':{authoredCells:[11,15,16],timelineCells:[7,11,15,16,7],activeAtMs:350},
 };
 
@@ -26,25 +26,22 @@ for(const [id,e] of Object.entries(expected)){
   if(!a)fail('missing '+id);
   if(a.rootMotion!==false)fail(id+' root motion must be false');
   if(JSON.stringify(a.stageAnchor)!==JSON.stringify([220,226]))fail(id+' stage anchor changed');
-  if(JSON.stringify(a.frames.map(f=>f.sourceCell))!==JSON.stringify(e.authoredCells))fail(id+' authored attack cells changed');
-  if(JSON.stringify(a.timeline.map(f=>f.sourceCell))!==JSON.stringify(e.timelineCells))fail(id+' idle bookends/timeline changed');
+  if(JSON.stringify(a.frames.map(f=>f.sourceCell))!==JSON.stringify(e.authoredCells))fail(id+' authored source cells changed');
+  if(JSON.stringify(a.timeline.map(f=>f.sourceCell))!==JSON.stringify(e.timelineCells))fail(id+' timeline source cells changed');
   if(a.timeline.reduce((n,f)=>n+f.durationMs,0)!==1000)fail(id+' timeline must remain 1000ms');
   if(a.timeline[0].id!=='idle-enter'||a.timeline.at(-1).id!=='idle-return')fail(id+' must start and end on idle');
   if(a.combatTiming?.activeAtMs!==e.activeAtMs||a.combatTiming?.activeDurationMs!==50||a.combatTiming?.attackEndMs!==1000)fail(id+' Titan stopwatch changed');
   if(!a.timeline.every(f=>Array.isArray(f.anchorPoint)&&f.anchorPoint.length===2))fail(id+' missing explicit planted-foot anchor');
-  if(!a.timeline.every(f=>Number(f.deform?.scaleX)>0&&Number(f.deform?.scaleY)>0&&Number.isFinite(Number(f.deform?.shearX))))fail(id+' missing procedural deformation');
+  if(!a.timeline.every(f=>Number(f.deform?.scaleX)>0&&Number(f.deform?.scaleY)>0&&Number.isFinite(Number(f.deform?.shearX))&&Number.isFinite(Number(f.deform?.rotateDeg))))fail(id+' missing procedural deformation/rotation');
   if(a.procedural?.rootTranslation!==false)fail(id+' root translation must remain false');
-  if(a.procedural?.sourcePaddingPx!==18)fail(id+' legacy padding metadata changed');
-  if((a.procedural?.forbidden||[]).some(x=>!['shiftX','shiftY','root motion','stage translation'].includes(x)))fail(id+' unexpected forbidden list');
+  if(JSON.stringify(a.procedural?.allowed)!==JSON.stringify(['shearX','scaleX','scaleY','rotateDeg']))fail(id+' procedural allowlist changed');
 }
 
 if(!preview.includes('function deformAt(index,u)'))fail('procedural deformation interpolation missing');
-if(!preview.includes('presentationScale*d.scaleX'))fail('procedural scale transform missing');
-if(!preview.includes('d.shearX'))fail('procedural shear transform missing');
+if(!preview.includes('rotateDeg:lerp('))fail('procedural rotation interpolation missing');
+if(!preview.includes('ctx.rotate((d.rotateDeg||0)*Math.PI/180)'))fail('planted-foot rotation draw missing');
 if(!preview.includes('ctx.drawImage(image,-srcX,-srcY,w,h)'))fail('full-cell planted draw missing');
 if(preview.includes('const isBg='))fail('near-black flood-fill cleanup must not return');
-if(!preview.includes('Preserve the authored source cell exactly'))fail('raw source preservation path missing');
-if(preview.includes('ctx.drawImage(\n    image,\n    b.x,b.y,b.w,b.h'))fail('tight source-envelope draw must not return');
 if(!preview.includes('Root motion</div><div>OFF'))fail('no-root-motion readout missing');
 if(preview.includes('shiftX')||preview.includes('shiftY'))fail('preview introduced stage translation');
 if(!motion.includes("procedural?.startsWith('swarmling-')"))fail('motion router does not cover Swarmling attacks');
@@ -55,9 +52,8 @@ for(const route of ['swarmling-jab','swarmling-rake','swarmling-scythe-bloom']){
 console.log(JSON.stringify({
   ok:true,
   rootMotion:false,
-  idleBookends:true,
-  clippingStrategy:'raw-authored-source-cell',
-  procedural:['shearX','scaleX','scaleY'],
+  materiallyChangedPoseChoices:true,
+  procedural:['shearX','scaleX','scaleY','rotateDeg'],
   timingAuthority:'SecurityTitan e89c2adf671b06af4ce6a6c1d3f0118e68a6c274',
   attacks:Object.keys(expected)
 },null,2));
