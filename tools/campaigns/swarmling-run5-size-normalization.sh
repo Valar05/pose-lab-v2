@@ -42,7 +42,7 @@ for f in AGENTS.md docs/POSE_LAB_CAMPAIGN_RULES.md docs/POSE_IS_GOD.md "$CONTRAC
   echo "READ=$f"
 done
 
-echo "=== APPLY RUN-5 NORMALIZATION ==="
+echo "=== APPLY RUN-5 NORMALIZATION ==="\necho "GUARD_MATCH=STRUCTURAL_V2"
 python3 "$HELPER" "$ATLAS" "$MANIFEST" "$PREVIEW" "$TEST" "$ASSET_ROOT"
 
 echo "=== VERIFY ==="
