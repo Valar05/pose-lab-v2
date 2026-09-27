@@ -1,0 +1,56 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-tiny-uncropped-promotion-v1",
+  "status":"sealed-before-apply",
+  "mission":"Promote the corrected Swarmling atlas that preserves the exact tiny approved per-cell footprint while restoring full uncropped silhouettes. Keep the current 1.5 motion presentation scale, rebuild Run frames, remeasure pins from the corrected tiny atlas, preserve current attack source choices/timing/deformation/root-motion rules, push from a disposable worktree, and open exact-revision review.",
+  "downloadedAtlas":{
+    "filename":"Swarmling_Tiny_Uncropped_BLACK.png",
+    "byteSha256":"81a883d4825474bd16a03e0bb70c7fc126a20aa96e98d255160bf5d807e19c71",
+    "dimensions":[1536,1024],
+    "layout":{"columns":6,"rows":4,"cellWidth":256,"cellHeight":256},
+    "geometryAuthority":"old tiny atlas visible non-black per-cell bounds",
+    "pixelAuthority":"recovered full uncropped source sprites"
+  },
+  "presentation":{
+    "motionScale":1.5,
+    "rule":"Do not compensate for atlas size in renderer. Tiny footprint is baked into the atlas intentionally."
+  },
+  "pins":{
+    "method":"measure bottom-contact median x from corrected tiny atlas at runtime",
+    "run":"recompute cells 1-6",
+    "attacks":"recompute anchors for all selected source cells currently used by jab/rake/scythe-bloom"
+  },
+  "locks":[
+    "current attack source-cell choices",
+    "SecurityTitan stopwatch values",
+    "current procedural deformation values",
+    "root motion OFF",
+    "Vanguard unchanged",
+    "old Blender-derived Swarmling/Fleshling lineage unchanged"
+  ],
+  "writableSurface":[
+    "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/run/**",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json source/run hashes + anchorPoint fields only",
+    "src/procedural-swarmling-preview.js runAnchors constant only",
+    "tools/test_swarmling_attacks.mjs run-anchor guard only",
+    "campaigns/swarmling-tiny-uncropped-promotion.receipt.json"
+  ],
+  "executionLane":"Repo-owned shell campaign from phone checkout; primary worktree read-only; mutation in disposable worktree from exact origin/main.",
+  "verification":[
+    "rules reread at runtime",
+    "downloaded atlas found by exact SHA",
+    "atlas dimensions 1536x1024",
+    "manifest source hash updated",
+    "Run frames rebuilt from cells 1-6 at exact 256x256",
+    "all selected pins remeasured from corrected atlas",
+    "node tools/test_swarmling_attacks.mjs",
+    "node --check src/procedural-swarmling-preview.js",
+    "npm run test:2d",
+    "npm run build",
+    "npm run smoke",
+    "git diff --check",
+    "origin/main exact readback after push"
+  ],
+  "humanVerdict":"pending"
+}
