@@ -58,7 +58,6 @@
       "docs/POSE_CAMPAIGN_FRAMEWORK.md"
     ],
     "lockedFiles": [
-      {"path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","sha256":"dbf04bd3f1787c743469e5222273605ea23b68785a0fe5901a08981ae6c1d33f"},
       {"path":"public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png","sha256":"54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587"},
       {"path":"public/assets/vanguard/procedural/diorama-slash-atlas.png","sha256":"e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"}
     ],
