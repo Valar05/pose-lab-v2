@@ -46,7 +46,7 @@ pose_campaign_boot "$AUTHOR" "$CONTRACT"
 echo "=== MUTABLE SURFACE ==="
 printf '%s\n' "$RECIPE" "$RENDERER" "$RECEIPT"
 echo "ROOT_CAUSE=OPAQUE_BLACK_BODY_CARD"
-echo "SPEED_LINE_ASSET=LOCKED_UNCHANGED"
+echo "SPEED_LINE_ASSET=LOCKED_CURRENT_GIT_BYTES"
 echo "SLASH_CONTROLS=MUST_REMAIN"
 echo "SPEED_LINE_CONTROLS=ADD_SEPARATELY"
 
@@ -103,7 +103,7 @@ npm run build
 npm run smoke
 git diff --check
 [ -z "$(git status --porcelain)" ] || stop "final live worktree is dirty"
-[ "$(sha256sum "$ASSET" | awk '{print $1}')" = "363b184de9bfc98a74c92a2066f63b6a4c9a9998a168fad87f67f2c32cc396e8" ] || stop "speed-line asset bytes changed"
+[ "$(sha256sum "$ASSET" | awk '{print $1}')" = "0ffcd220e8688e74387235305ca82853fc80dad5e7212f5c99b69d42d70cb0fa" ] || stop "speed-line asset bytes changed"
 
 echo "=== START REVIEW SERVER ==="
 PORT="$(pose_campaign_free_port)"
