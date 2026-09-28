@@ -44,7 +44,7 @@ const ui=createProceduralReviewShell({
 const {q,canvas,fit}=ui;
 const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=true;
 const play=q('[data-play]'),restart=q('[data-restart]'),scrub=q('[data-scrub]'),phaseEl=q('[data-phase]'),timeEl=q('[data-time]'),kv=q('[data-kv]');
-let recipe,atlas,slash,slashMap,playing=true,start=performance.now(),offset=0,total=1,phases=[];
+let recipe,atlas,slash,slashMap,speedLines,playing=true,start=performance.now(),offset=0,total=1,phases=[];
 const cache=new Map(),clamp=v=>Math.max(0,Math.min(1,v)),ease=t=>{t=clamp(t);return t*t*(3-2*t)},lerp=(a,b,t)=>a+(b-a)*t;
 const loadImage=src=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('Could not load '+src));i.src=src;});
 function rect(spec,cell){const idx=cell-(spec.indexBase||0),c=idx%spec.columns,r=Math.floor(idx/spec.columns);const x0=Math.round(c*atlas.naturalWidth/spec.columns),x1=Math.round((c+1)*atlas.naturalWidth/spec.columns),explicit=spec.rowBounds?.[String(r)],y0=explicit?Number(explicit[0]):Math.round(r*atlas.naturalHeight/spec.rows),y1=explicit?Number(explicit[1]):Math.round((r+1)*atlas.naturalHeight/spec.rows);return[x0,y0,x1-x0,y1-y0]}
@@ -390,8 +390,8 @@ function drawBody(id,d,blurAmount=0){
      const alpha=blurAmount*maxAlpha*(1-.52*t);
      drawPass(dx*span*t,dy*span*t,alpha,filterPx?('blur('+filterPx+'px)'):'none');
    }
-   if(recipe.animeSpeedLines?.enabled){
-     drawAnimeSpeedLines(px,py,reg,d,bodyScale,blurAmount);
+   if(recipe.speedLineSprite?.enabled){
+     drawSpeedLineSprite(px,py,reg,d,blurAmount);
    }
    const primaryFilterPx=Math.max(0,Number(blur.primaryFilterPx??0))*blurAmount;
    ctx.save();
@@ -407,37 +407,25 @@ function drawBody(id,d,blurAmount=0){
  drawPass();
 }
 
-function drawAnimeSpeedLines(px,py,reg,d,bodyScale,amount){
- const spec=recipe.animeSpeedLines||{};
- if(!spec.enabled||amount<=0)return;
- const count=Math.max(1,Math.round(Number(spec.count??10)));
- const minLen=Math.max(1,Number(spec.minLengthPx??8));
- const maxLen=Math.max(minLen,Number(spec.maxLengthPx??28));
- const spreadY=Math.max(1,Number(spec.spreadY??28));
- const back=Math.max(0,Number(spec.offsetBackPx??10));
- const lineWidth=Math.max(.5,Number(spec.lineWidthPx??1.5));
- const alpha=Math.max(0,Math.min(1,Number(spec.alpha??.4)))*amount;
- const stagger=Math.max(0,Number(spec.staggerPx??6));
+function drawSpeedLineSprite(px,py,reg,d,amount){
+ const spec=recipe.speedLineSprite||{};
+ if(!spec.enabled||!speedLines||amount<=0)return;
+ const pos=Array.isArray(spec.position)?spec.position:[20,-68];
+ const minX=Number(spec.minScaleX??0.58);
+ const maxX=Number(spec.maxScaleX??1);
+ const sx=minX+(maxX-minX)*Math.max(0,Math.min(1,amount));
+ const sy=Number(spec.scaleY??1);
+ const alpha=Math.max(0,Math.min(1,Number(spec.alpha??0.78)))*amount;
 
  ctx.save();
- ctx.translate(stageOffsetX(),0);
- ctx.translate(px+Number(reg[0]||0),py+Number(reg[1]||0));
- ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);
  ctx.globalAlpha=alpha;
- ctx.lineCap='round';
- ctx.lineWidth=lineWidth;
- ctx.strokeStyle='rgba(255,220,180,1)';
- for(let i=0;i<count;i++){
-   const t=count===1?0.5:i/(count-1);
-   const y=(t-.5)*spreadY;
-   const wobble=Math.sin((i*1.91)+amount*3.2)*3;
-   const len=minLen+(maxLen-minLen)*(0.25+0.75*((i*37)%11)/10);
-   const x0=-back-stagger*(i%3);
-   ctx.beginPath();
-   ctx.moveTo(x0,y+wobble);
-   ctx.lineTo(x0-len,y+wobble*.65);
-   ctx.stroke();
- }
+ ctx.imageSmoothingEnabled=spec.imageSmoothing!==false;
+ ctx.translate(stageOffsetX(),0);
+ ctx.translate(px+Number(reg[0]||0)+Number(pos[0]||0),py+Number(reg[1]||0)+Number(pos[1]||0));
+ ctx.transform((d.scaleX||1),0,d.shearX,(d.scaleY||1),d.shiftX||0,d.shiftY||0);
+ ctx.scale(sx,sy);
+ // The source converges at its right edge, so pin that edge to Vanguard's back.
+ ctx.drawImage(speedLines,-speedLines.width,-speedLines.height/2);
  ctx.restore();
 }
 
@@ -852,6 +840,12 @@ try{
  }else{
    const slashPath=effectSource.path.startsWith('./')?effectSource.path:'./'+effectSource.path;
    [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);
+ }
+ if(recipe.speedLineSprite?.enabled){
+   const speedPath=recipe.speedLineSprite.path.startsWith('./')
+     ? recipe.speedLineSprite.path
+     : './'+recipe.speedLineSprite.path;
+   speedLines=await loadImage(speedPath);
  }
  buildSlash();
  for(const [id,src] of Object.entries(recipe.sources))if(src.role==='body')body(id);

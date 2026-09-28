@@ -495,15 +495,17 @@
     "standaloneRecoveryPreserved": true,
     "bufferMayReplaceRecoveryAfterMs": 310
   },
-  "animeSpeedLines": {
+  "speedLineSprite": {
     "enabled": true,
-    "count": 12,
-    "minLengthPx": 10,
-    "maxLengthPx": 32,
-    "spreadY": 34,
-    "offsetBackPx": 12,
-    "lineWidthPx": 1.5,
-    "alpha": 0.42,
-    "staggerPx": 7
+    "path": "assets/vanguard/procedural/vanguard-diorama-speed-lines.png",
+    "position": [
+      20,
+      -68
+    ],
+    "minScaleX": 0.58,
+    "maxScaleX": 1.0,
+    "scaleY": 1.0,
+    "alpha": 0.78,
+    "imageSmoothing": false
   }
 }
