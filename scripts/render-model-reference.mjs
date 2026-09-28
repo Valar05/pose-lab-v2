@@ -16,30 +16,24 @@ export function slugify(value) {
 }
 
 export function gridFor(count) {
-  if (!Number.isInteger(count) || count < 2) {
-    throw new Error('--samples must be an integer >= 2');
+  if (!Number.isInteger(count) || count < 1) {
+    throw new Error('frame count must be an integer >= 1');
   }
-  for (let rows = Math.floor(Math.sqrt(count)); rows >= 1; rows -= 1) {
-    if (count % rows === 0) {
-      return { columns: count / rows, rows };
-    }
-  }
-  return { columns: count, rows: 1 };
+  const columns = Math.ceil(Math.sqrt(count));
+  const rows = Math.ceil(count / columns);
+  return { columns, rows };
 }
 
-export function sampleFrames(frameRange, count) {
-  const [start, end] = frameRange.map(Number);
-  if (!Number.isFinite(start) || !Number.isFinite(end)) {
-    throw new Error(`Invalid action frame range: ${frameRange}`);
-  }
-  if (count < 2) throw new Error('sample count must be >= 2');
-  if (end <= start) {
-    return Array.from({ length: count }, (_, index) => index);
-  }
-  const step = (end - start) / (count - 1);
-  return Array.from({ length: count }, (_, index) =>
-    Number((start + step * index).toFixed(6))
-  );
+const ATTACK_TOKENS = [
+  'attack', 'light', 'heavy', 'kick', 'stomp', 'spring',
+  'cast', 'slash', 'stab', 'bash', 'shield', 'thrust',
+  'smash', 'strike', 'swing', 'uppercut', 'jab', 'counter',
+  'combo', 'finisher', 'charge', 'lunge',
+];
+
+export function isAttackAction(action) {
+  const value = slugify(action.label || action.name);
+  return ATTACK_TOKENS.some((token) => value.includes(token));
 }
 
 function fail(message) {
@@ -56,7 +50,7 @@ function run(command, args) {
 
 function parseArgs(argv) {
   const options = {
-    samples: 6,
+    scope: 'attacks',
     sourceFps: 60,
     cameraSide: 'right',
     width: 512,
@@ -78,8 +72,8 @@ function parseArgs(argv) {
         options.actions = next;
         index += 1;
         break;
-      case '--samples':
-        options.samples = Number(next);
+      case '--scope':
+        options.scope = next;
         index += 1;
         break;
       case '--source-fps':
@@ -110,7 +104,6 @@ function parseArgs(argv) {
 }
 
 function findRequestedActions(actions, requested) {
-  if (!requested) return actions;
   const wanted = requested.split(',').map((value) => value.trim()).filter(Boolean);
   const normalizedWanted = new Set(wanted.map((value) => slugify(value)));
   const selected = actions.filter((action) =>
@@ -119,7 +112,9 @@ function findRequestedActions(actions, requested) {
     normalizedWanted.has(slugify(action.name)) ||
     normalizedWanted.has(slugify(action.label))
   );
-  const selectedKeys = new Set(selected.flatMap((action) => [action.name, action.label, slugify(action.name), slugify(action.label)]));
+  const selectedKeys = new Set(selected.flatMap((action) => [
+    action.name, action.label, slugify(action.name), slugify(action.label),
+  ]));
   const missing = wanted.filter((value) =>
     !selectedKeys.has(value) && !selectedKeys.has(slugify(value))
   );
@@ -129,13 +124,30 @@ function findRequestedActions(actions, requested) {
   return selected;
 }
 
-export function buildActionPlan(action, samples) {
-  const grid = gridFor(samples);
+export function selectActions(actions, { requested, scope = 'attacks' } = {}) {
+  if (requested) return findRequestedActions(actions, requested);
+  if (scope === 'all') return actions;
+  if (scope !== 'attacks') throw new Error('--scope must be attacks or all');
+  const selected = actions.filter(isAttackAction);
+  if (!selected.length) {
+    throw new Error('No attack-like actions found; use --scope all or --actions explicitly');
+  }
+  return selected;
+}
+
+export function buildActionPlan(action) {
+  const frames = Array.isArray(action.keyframes)
+    ? action.keyframes.map(Number).filter(Number.isFinite)
+    : [];
+  if (!frames.length) {
+    throw new Error(`Action ${action.name} has no authored keyframes`);
+  }
+  const grid = gridFor(frames.length);
   return {
     name: action.name,
     label: action.label,
     slug: slugify(action.label || action.name),
-    frames: sampleFrames(action.frameRange, samples),
+    frames,
     columns: grid.columns,
     rows: grid.rows,
   };
@@ -144,13 +156,10 @@ export function buildActionPlan(action, samples) {
 export function main(argv = process.argv.slice(2)) {
   const options = parseArgs(argv);
   if (!options.model || !options.name) {
-    fail('usage: npm run reference:model -- --model MODEL.glb --name model-name [--actions Idle,Attack] [--samples 6]');
+    fail('usage: npm run reference:model -- --model MODEL.glb --name model-name [--scope attacks|all] [--actions A,B]');
   }
   if (!['left', 'right'].includes(options.cameraSide)) {
     fail('--camera-side must be left or right');
-  }
-  if (!Number.isInteger(options.samples) || options.samples < 2) {
-    fail('--samples must be an integer >= 2');
   }
 
   const model = path.resolve(root, options.model);
@@ -179,30 +188,39 @@ export function main(argv = process.argv.slice(2)) {
 
   let selected;
   try {
-    selected = findRequestedActions(inspection.actions, options.actions);
+    selected = selectActions(inspection.actions, {
+      requested: options.actions,
+      scope: options.scope,
+    });
   } catch (error) {
     fail(error.message);
   }
 
   const receipt = {
-    schema: 'pose-lab-model-reference-v1',
+    schema: 'pose-lab-model-reference-v2',
     status: 'rendering',
+    framePolicy: 'every-authored-keyframe',
     name: options.name,
     slug: modelSlug,
     model,
     inspection: inspectionPath,
+    scope: options.actions ? 'explicit-actions' : options.scope,
     cameraSide: options.cameraSide,
-    samplesPerAction: options.samples,
     actions: [],
   };
 
   for (const action of selected) {
-    const plan = buildActionPlan(action, options.samples);
+    let plan;
+    try {
+      plan = buildActionPlan(action);
+    } catch (error) {
+      fail(error.message);
+    }
     const actionOut = path.join(outRoot, plan.slug);
     fs.rmSync(actionOut, { recursive: true, force: true });
     fs.mkdirSync(actionOut, { recursive: true });
 
-    console.log(`\n=== ${action.name} -> ${plan.slug} ===`);
+    console.log(`\n=== ${action.name} -> ${plan.slug}: ${plan.frames.length} authored keyframes ===`);
     run('node', [
       'scripts/run-blender-tool.mjs',
       'tools/render_animation_pose_packet.py',
@@ -219,10 +237,7 @@ export function main(argv = process.argv.slice(2)) {
       '--rows', String(plan.rows),
     ]);
 
-    run('python3', [
-      'tools/assemble_animation_pose_packet.py',
-      '--root', actionOut,
-    ]);
+    run('python3', ['tools/assemble_animation_pose_packet.py', '--root', actionOut]);
 
     const verificationPath = path.join(actionOut, 'verification.json');
     run('python3', [
@@ -236,7 +251,8 @@ export function main(argv = process.argv.slice(2)) {
       label: action.label,
       slug: plan.slug,
       frameRange: action.frameRange,
-      sampleFrames: plan.frames,
+      authoredKeyframes: plan.frames,
+      keyframeCount: plan.frames.length,
       grid: { columns: plan.columns, rows: plan.rows },
       root: actionOut,
       beautyGrid: path.join(actionOut, 'beauty-grid.png'),
@@ -254,18 +270,19 @@ export function main(argv = process.argv.slice(2)) {
   ]);
 
   receipt.status = 'PASS';
+  receipt.totalRenderedKeyframes = receipt.actions.reduce((sum, action) => sum + action.keyframeCount, 0);
   receipt.masterContact = masterContact;
   const receiptPath = path.join(outRoot, 'receipt.json');
   fs.writeFileSync(receiptPath, JSON.stringify(receipt, null, 2) + '\n');
 
   console.log('\n=== MODEL REFERENCE READY ===');
   console.log(`model=${model}`);
+  console.log(`scope=${receipt.scope}`);
   console.log(`actions=${receipt.actions.length}`);
+  console.log(`authored_keyframes=${receipt.totalRenderedKeyframes}`);
   console.log(`master_contact=${masterContact}`);
   console.log(`receipt=${receiptPath}`);
 }
 
 const invokedDirectly = process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
-if (invokedDirectly) {
-  main();
-}
+if (invokedDirectly) main();
