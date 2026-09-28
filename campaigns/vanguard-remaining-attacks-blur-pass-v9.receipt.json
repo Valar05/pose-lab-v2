@@ -1,0 +1,19 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "vanguard-remaining-attacks-blur-pass-v9",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "65359e00b3501a26b12cebcacfd1f2ae87ac68e5",
+  "implementationRevision": "aa7f4dae72c44b85bb662829caccfa920a3409be",
+  "finalRevision": null,
+  "executionLane": "repo-owned-framework-v2-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+    "public/assets/vanguard/procedural/undercut-strike.recipe.json",
+    "public/assets/vanguard/procedural/attack2-uppercut.recipe.json",
+    "public/assets/vanguard/procedural/horizontal-strike.recipe.json",
+    "public/assets/vanguard/procedural/attack5.recipe.json",
+    "campaigns/vanguard-remaining-attacks-blur-pass-v9.receipt.json"
+  ]
+}
