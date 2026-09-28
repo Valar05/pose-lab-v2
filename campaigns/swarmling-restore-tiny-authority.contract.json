@@ -1,0 +1,11 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-restore-tiny-authority-v1",
+  "status":"sealed-before-apply",
+  "mission":"Replace the oversized Swarmling atlas with the downloaded tiny-uncropped atlas and rebuild review assets from it.",
+  "sourceSha256":"81a883d4825474bd16a03e0bb70c7fc126a20aa96e98d255160bf5d807e19c71",
+  "sourceDimensions":[1536,1024],
+  "presentationScale":1.5,
+  "locks":["attack source cells","Titan timing","procedural deformation","root motion OFF","Vanguard unchanged"],
+  "humanVerdict":"pending"
+}

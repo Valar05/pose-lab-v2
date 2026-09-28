@@ -1,0 +1,17 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "swarmling-utility-pack-v3",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "2f1495a2ea945315faebb667829dc654e64086e6",
+  "implementationRevision": "ad7ec48772ce2c0daab2d24f47d5f13c1d05ac70",
+  "finalRevision": null,
+  "executionLane": "repo-owned-framework-v2-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+    "src/procedural-swarmling-preview.js",
+    "tools/test_swarmling_utility_animations.mjs",
+    "campaigns/swarmling-utility-pack-v3.receipt.json"
+  ]
+}

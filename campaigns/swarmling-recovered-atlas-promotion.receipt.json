@@ -1,0 +1,19 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-recovered-atlas-promotion-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "aa8c3d792d8c146e5c62771440971539d256298f",
+  "implementationRevision": "15ef795ccb3a8270571faf44ee30762b5dbf5ebc",
+  "sourceByteSha256": "7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
+  "sourceRgbaPixelSha256": "a5b06f82cc741cfaac860fb76b789ae1320390c153ce60ccff475654ec7bef26",
+  "runFrameHashes": [
+    "883cddcd8cd555a0cfad3c2b3add5993fd2688939c080ac6fb7c08dece9521c4",
+    "94392e09470dd4dc0060c71e232a845696503bbcf686613474a21316802439eb",
+    "3f7abb8b5a59eba70d47f323d4a33756dc6a5a78fa748326a7759eb2985aee3e",
+    "5548b0907f7f199377eba34589411c9610aeee360ea08035f93310f0f770958b",
+    "950a9c3b8eac259fa5481724f167f9b84b066210af0ef53a581c8ab861d9bd58",
+    "132929e9242bf511e97ac5c45be1ce28a8abd652ead4998119710231cb5b7a1f"
+  ],
+  "rootMotion": false,
+  "humanVerdict": "pending"
+}

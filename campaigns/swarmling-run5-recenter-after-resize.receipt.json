@@ -1,0 +1,19 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-run5-recenter-after-resize-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "8db97c8fbc7cc1d67bb3120c84d4fdf0676e9746",
+  "implementationRevision": "fac9e9e0bf0df1264e8ca20b7e0f80d95823c23c",
+  "sourceAtlasSha256": "814251044e0308eaa74deea14b08273fb133abacca097c4f0537b75eb72ae40e",
+  "run5AnchorOld": [
+    128,
+    249
+  ],
+  "run5AnchorNew": [
+    126,
+    249
+  ],
+  "pixelChanges": false,
+  "rootMotion": false,
+  "humanVerdict": "pending"
+}

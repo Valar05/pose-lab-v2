@@ -101,3 +101,82 @@ silhouette during animation export.
 4. Skin the style anchor over the native idle without changing geometry.
 5. Review the result at beat-em-up gameplay scale beside Vanguard.
 6. Only then export hurt and death poses.
+
+## Current 2D Swarmling Production Checkpoint — 2026-09-27
+
+The active production Swarmling is the **Vanguard-side 2D sprite character**, not the older Blender/Fleshling lineage described above. The 3D lineage remains archaeology/reference and must not be substituted back into the active 2D motion lane.
+
+Canonical active manifest:
+
+```text
+public/assets/vanguard/fleshpunk/characters/swarmling/animations.json
+```
+
+Canonical active atlas:
+
+```text
+public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png
+```
+
+Current atlas SHA-256:
+
+```text
+c9546c1bc61d9e5b0a2e558e26b53488e140520d5ae21b0f288ff2c3c85c7ea2
+```
+
+### Accepted working animation vocabulary
+
+Human review considers the current **Run + three attacks** good enough to stop polishing and move forward:
+
+- Run — six frames, 80 ms each
+- Needle Jab — impact source cell 15
+- Low Rake
+- Scythe Bloom — three-pose special
+
+Shared behavioral locks:
+
+- root motion OFF; engine owns translation
+- presentation scale 1.5
+- SecurityTitan is stopwatch/timing authority only
+- source sheet owns pose identity
+- attacks use explicit support-foot pins
+- attack centering is solved separately from foot pinning
+
+Current attack stage anchors:
+
+```text
+Needle Jab   [190, 226]
+Low Rake     [188, 226]
+Scythe Bloom [190, 226]
+```
+
+Run-row production lesson: the original authored Run source had one coherent character scale. Independent per-frame fitting broke that relationship and caused repeated false diagnoses downstream. The repaired Run row now uses one shared scale family and a common physical body/ground convention.
+
+### Mandatory lesson from the Run repair
+
+**Check the sprite sheet first. Pose is God.**
+
+When a frame looks too small, too large, clipped, or apparently misregistered:
+
+1. inspect the canonical atlas cell itself;
+2. compare neighboring frames at source scale;
+3. verify whether the source row has one shared scale and body/ground convention;
+4. only then touch anchors or runtime placement.
+
+Do not compensate for a broken sheet with renderer scale, repeated stage-anchor nudges, or deformation. A bad source sheet can make correct runtime math look wrong.
+
+### Next animation tranche
+
+Next work should add the non-attack utility vocabulary without reopening accepted Run/attacks:
+
+1. Idle
+2. Aggro / Attention
+3. Damage / Hit React
+4. Knockdown
+5. Stand Up
+6. Death
+
+The crouch/kneel/prone poses can support Knockdown -> Stand Up. Death should end one state farther than recoverable knockdown so the two states remain semantically distinct.
+
+All new utility animation work inherits the sprite-sheet-first gate above.
+

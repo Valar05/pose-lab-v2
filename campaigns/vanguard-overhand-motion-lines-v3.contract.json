@@ -1,0 +1,58 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v2",
+  "id":"vanguard-overhand-motion-lines-v3",
+  "status":"sealed-before-apply",
+  "mission":"Preserve the accepted 600 ms Overhand timing, 310 ms handoff, slash timing/persistence, pose/source cells, anchors, stage placement, atlas bytes and root-motion rule. Remove only the rejected forward body scaling/squash/shear. Keep the accepted visible blur treatment and combine it with backward scanline distortion plus speed-line ghosts on the primary sprite itself. This is a Canvas2D canary for the same deformation law intended for a later real GPU shader in Violent Heart.",
+  "humanVerdict":{
+    "timing":"accepted",
+    "slash":"accepted",
+    "v2AtSpeed":"neat",
+    "forwardScaling":"rejected; does not read right",
+    "desired":"keep the blur, add motion lines that distort the sprite backwards and speed lines, but no forward scale"
+  },
+  "lockedTiming":{
+    "phaseDurationsMs":[25,45,45,30,25,70,70,95,90,105],
+    "totalMs":600,
+    "contactStartMs":170,
+    "contactEndMs":240,
+    "comboHandoffMs":310
+  },
+  "motionLines":{
+    "enabled":true,
+    "sliceHeightPx":3,
+    "maxPullPx":34,
+    "wavePx":7,
+    "waveCycles":3.5,
+    "baseAlphaAtPeak":0.34,
+    "ghostAlpha":0.24,
+    "ghostStepPx":11,
+    "ghostCount":3,
+    "lineFilterPx":1.25
+  },
+  "machine":{
+    "mutablePaths":[
+      "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+      "src/procedural-motion-preview.js",
+      "campaigns/vanguard-overhand-motion-lines-v3.receipt.json"
+    ],
+    "receiptPath":"campaigns/vanguard-overhand-motion-lines-v3.receipt.json",
+    "requiredRules":[
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles":[
+      {"path":"public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png","sha256":"54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587"},
+      {"path":"public/assets/vanguard/procedural/diorama-slash-atlas.png","sha256":"e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"}
+    ],
+    "checks":[
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/comboHandoffMs","value":310},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/motionBlur/primaryStretchX","value":0},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/motionBlur/primaryFilterPx","value":4.0},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/motionLines/maxPullPx","value":34},
+      {"kind":"text-contains","path":"src/procedural-motion-preview.js","value":"function drawMotionLineBody"},
+      {"kind":"text-contains","path":"src/procedural-motion-preview.js","value":"motionLines?.enabled"}
+    ]
+  }
+}

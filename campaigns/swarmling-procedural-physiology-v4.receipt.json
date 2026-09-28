@@ -1,0 +1,21 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "swarmling-procedural-physiology-v4",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "5d482a962fd68204e2c563af14a3143dcb7e474e",
+  "implementationRevision": "32f47da1b68425efd84dbb0952838f91e77f043d",
+  "finalRevision": null,
+  "executionLane": "repo-owned-framework-v2-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+    "src/procedural-swarmling-preview.js",
+    "src/procedural-motion-kernel.js",
+    "tools/test_procedural_motion_kernel.mjs",
+    "tools/test_swarmling_utility_animations.mjs",
+    "package.json",
+    "docs/PROCEDURAL_SPRITE_MOTION.md",
+    "campaigns/swarmling-procedural-physiology-v4.receipt.json"
+  ]
+}

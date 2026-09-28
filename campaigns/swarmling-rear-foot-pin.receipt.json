@@ -1,0 +1,36 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-rear-foot-pin-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "c33c22ca6a59b2c60deb3e809322752ea30494fb",
+  "implementationRevision": "ea42fb242a1d2cb3c68700e0bbfcf294ae72e538",
+  "runAnchors": [
+    [
+      105,
+      249
+    ],
+    [
+      115,
+      249
+    ],
+    [
+      113,
+      249
+    ],
+    [
+      104,
+      250
+    ],
+    [
+      121,
+      249
+    ],
+    [
+      108,
+      250
+    ]
+  ],
+  "needleJabImpactCell": 15,
+  "rootMotion": false,
+  "humanVerdict": "pending"
+}

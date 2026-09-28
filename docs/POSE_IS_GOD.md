@@ -52,6 +52,25 @@ Use only when motion transfer is explicitly the task.
 
 Do not switch lanes without recording the change.
 
+
+## Sprite Sheet First — Pose Is God
+
+For 2D sprite animation, the sprite sheet is the first visual/mechanical authority. Before changing runtime anchors, stage placement, timing, interpolation, deformation, presentation scale, or renderer code, inspect the canonical sheet itself.
+
+**Required order of diagnosis:**
+
+1. **Pose identity:** Is the correct authored pose/frame selected?
+2. **Sprite-sheet geometry:** Are frame scale, crop, source bounds, ground line, and body center internally consistent in the sheet?
+3. **Registration:** Only after the sheet is proven coherent, solve planted-foot/body anchors and stage placement.
+4. **Timing/deformation:** Only after identity + sheet geometry + registration are correct, tune timing, squash/skew/rotation, effects, or interpolation.
+5. **Runtime presentation:** Renderer or presentation-scale changes are last resort and must not compensate for a bad sheet.
+
+A runtime defect that appears to be anchoring may actually be baked into the sheet. A frame that is independently resized, cropped, re-centered, or packed differently from its neighbors can make downstream anchor math look wrong even when the runtime is behaving exactly as configured.
+
+**Never normalize frames independently when the source animation was authored at one shared character scale.** Preserve one shared scale for the animation family. If one source row is inconsistent, repair the row mechanically before adding compensating runtime offsets.
+
+Human-visible review outranks numeric convenience. If a screenshot/video says two frames do not read as the same character scale or center, inspect the sheet before inventing another anchor correction.
+
 ## Weapon contract
 
 Choose one:
@@ -181,3 +200,112 @@ Do not promote when the human verdict is not explicitly `accepted`.
 
 ## Sprite-sheet production lane
 When working with authored 2D sprite/contact sheets, the original authored sheet is the source authority. Shrink the source before inference/measurement, use one shared scale for a regular sheet, preserve source order and cell geometry, and never normalize each frame independently. Atlas cells are containers: grow the atlas instead of clipping or shrinking useful poses. Preserve the established body/ground anchor. Cleanup must distinguish phantom fragments from legitimate separated geometry; use explicit masks when needed. Prefer corpus inclusion over premature dedupe. Generated derivatives, screenshots, and review GIFs are not mechanical source when the original exists.
+
+
+## Contact-sheet authoring discipline — 2026-09-27
+For pose selection, the requested review artifact is itself part of the authoring contract.
+
+- If the task is to build a contact sheet for a proposed animation, select the intended poses first, then build the sheet from those poses. An exhaustive source dump is provenance, not the requested animation contact sheet.
+- Use the highest-detail available source for the selected poses. Do not intentionally downrez a reference before generation or human review.
+- A user-supplied screenshot can be review authority when explicitly requested, even though it is not mechanical extraction authority.
+- Deliver the visible artifact before explaining process when the artifact can already be produced.
+- Do not require the user to shuttle an artifact through another tool or device merely to return it to the assistant.
+- Preserve meaningful micro-variation in a growing pose ledger. Similar-looking poses may encode different hand, chest, weapon, shield, timing, or silhouette reads and should not be removed solely for deduplication.
+
+
+## Lightweight action-reference lane — 2026-09-27
+For direct pose selection and ImageGen-reference preparation, use the smallest authoring surface that preserves source truth.
+
+- Render only the named action.
+- Render only the selected authored keyframes when the desired subset is already known.
+- Render one full-resolution beauty PNG per selected frame. Do not produce forensic passes unless a later diagnostic explicitly needs them.
+- Keep the final curated contact sheet small: assemble selected full-resolution frames directly, without resizing or thumbnail extraction.
+- A large overview sheet may help select frame identities, but it must never replace the original full-resolution frame renders in the final reference artifact.
+- If transport downsampling is observed, reduce the number of frames/actions per artifact rather than reducing source resolution.
+
+
+### High-resolution curation order — 2026-09-27
+When the purpose of rendering is to decide which poses to keep:
+1. render every authored keyframe for the named action at the requested native review resolution;
+2. preserve each frame as an individual beauty PNG;
+3. paginate those originals into small review sheets without resizing;
+4. inspect those pages;
+5. choose the final small pose set;
+6. assemble the final ImageGen reference from the original selected PNGs.
+
+Do not preselect the final frame set from a downsampled overview and then call the later rerender a curation pass.
+
+
+## Appearance consistency gate — 2026-09-27
+Before ImageGen is used for a sprite animation, freeze two separate authorities:
+
+1. **Pose authority:** the selected native/full-resolution pose frames.
+2. **Appearance authority:** the exact approved character reference set.
+
+The appearance set must visibly establish every identity-critical feature that needs to remain stable across the animation. For a weapon-and-shield character, that normally includes:
+- body/armor silhouette;
+- helmet/head silhouette;
+- weapon construction and proportions;
+- shield construction and motif;
+- which side owns the weapon and shield;
+- primary material and color language.
+
+A single hero plate is sufficient only when those properties are visibly unambiguous. If one of them is obscured or ambiguous, add the smallest dedicated reference needed before generation.
+
+Generation order:
+1. freeze selected pose frames;
+2. freeze appearance authority set;
+3. state identity locks;
+4. generate all frames from the same frozen packet;
+5. review the whole generated set side-by-side for drift;
+6. reject drifted frames and retry from the original packet;
+7. never use a generated frame as the reference for another frame.
+
+The goal is not maximum reference count. The goal is enough visual authority to prevent model drift before it starts.
+
+
+## Four-pose textured reference lane — 2026-09-27
+For ImageGen sprite-reference preparation:
+1. render the complete named action as textured/material beauty frames when the pose subset is not already known;
+2. inspect the full-detail renders;
+3. choose four poses by default, favoring distinct motion information;
+4. include idle only when that specific animation actually needs it;
+5. assemble the final sheet from the original selected renders.
+
+The candidate render count and the final contact-sheet pose count are separate concerns. Rendering many candidate frames is allowed; the final reference should remain concise.
+
+
+## Back-view pose fidelity — 2026-09-28
+For sprite transfer, camera-facing anatomy is not privileged. If the source pose shows the character's back or rear quarter, preserve it.
+
+A pose is red if:
+- the pelvis faces the wrong direction;
+- the lower body remains front-facing while the source rotates it with the torso;
+- the back/rear shoulder/rear hip planes disappear;
+- the head or chest turns back toward camera only to keep the face visible;
+- the shield or weapon is correct but the body's facing is not.
+
+When a single frame is being repaired, use localized edit/inpaint on that frame only. Do not regenerate the other accepted frames.
+
+
+## Canonical long-weapon scale lane — 2026-09-28
+For a long-weapon playable character, preserve character scale and weapon envelope as separate concepts.
+
+**Scale authority**
+- Character body height is the scale anchor.
+- Weapon reach, cape spill, raised shield, and VFX do not participate in body-height normalization.
+- Same-height playable characters should remain the same body height unless the design explicitly says otherwise.
+
+**Down-resolution**
+- Pick one clean body-height authority.
+- Compute one global scale factor from one representative source pose.
+- Freeze that factor.
+- Apply it unchanged to every pose.
+- Never fit poses independently.
+- Never shrink the body to keep the weapon inside a fixed box.
+- Save per-pose low-resolution images first.
+- Build atlases from those frozen low-resolution images without further scaling.
+- Record the factor, measurement, resampler, source bounds, output dimensions, and hashes in a manifest.
+- Keep full-resolution originals separate and untouched.
+
+A long lance is allowed to make the sprite much wider than another character while the two bodies remain equal in height.

@@ -1,0 +1,25 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v1",
+  "id": "swarmling-visible-body-anchor-v1",
+  "status": "sealed-before-apply",
+  "mission": "Fix Swarmling motion.html presentation so the accepted 1.5x presentation scale applies to the visible sprite body, anchored at Vanguard's canonical motion review ground point, rather than scaling the full 256x256 source cell.",
+  "targetRevision": "96e3571ad77d2a4caae57a231dea60fcd8990595",
+  "authority": {
+    "presentationScale": 1.5,
+    "motionAnchor": [220, 226],
+    "anchorMeaning": "canonical Vanguard bottom-center review anchor from run.recipe.json"
+  },
+  "locks": [
+    "Swarmling source pixels",
+    "Swarmling accepted source scale/fuzziness",
+    "Swarmling run timing/order",
+    "all Vanguard assets and behavior",
+    "old Blender-derived Swarmling/Fleshling lineage"
+  ],
+  "writableSurface": [
+    "none during refresh; source correction already committed in GitHub"
+  ],
+  "executionLane": "refresh/build/serve exact committed revision in disposable phone worktree",
+  "visualGate": "motion.html?procedural=swarmling-run&rev=96e3571ad77d2a4caae57a231dea60fcd8990595&nocache=<timestamp>",
+  "humanVerdict": "pending"
+}

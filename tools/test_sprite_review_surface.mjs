@@ -130,6 +130,7 @@ if (fs.existsSync(path.join(root, swarmlingManifestPath))) {
   }
 }
 
+
 if (failures.length) {
   console.error(JSON.stringify({ ok: false, failures }, null, 2));
   process.exit(1);

@@ -1,0 +1,32 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-run5-recenter-after-resize-v1",
+  "status":"sealed-before-apply",
+  "mission":"Recenter only Swarmling Run frame 5 after the successful size calibration. Human-visible review shows Run-5 approximately 5-6 screen pixels left of Run-4. Preserve the resized atlas, all run frame pixels, all attack semantics, presentation scale, and root-motion rules. Change only Run-5 horizontal anchor from 128 to 126.",
+  "evidence":{
+    "currentAtlasSha256":"814251044e0308eaa74deea14b08273fb133abacca097c4f0537b75eb72ae40e",
+    "run4ScreenCenterXApprox":350.5,
+    "run5ScreenCenterXApprox":345.0,
+    "screenDeltaPxApprox":5.5,
+    "canvasCssScaleApprox":1.5,
+    "presentationScale":1.5,
+    "sourceAnchorCorrectionPx":-2
+  },
+  "locks":[
+    "no atlas pixel changes",
+    "no run frame image changes",
+    "Run frame 5 size calibration preserved",
+    "Needle Jab impact cell 15",
+    "all attack source choices/timing/deformation unchanged",
+    "presentation scale 1.5",
+    "root motion OFF",
+    "Vanguard unchanged"
+  ],
+  "writableSurface":[
+    "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json Run frame 5 anchorPoint only",
+    "src/procedural-swarmling-preview.js runAnchors entry 5 only",
+    "tools/test_swarmling_attacks.mjs runAnchors assertion only",
+    "campaigns/swarmling-run5-recenter-after-resize.receipt.json"
+  ],
+  "humanVerdict":"pending"
+}

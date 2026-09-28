@@ -1,0 +1,38 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-planted-attacks-v4",
+  "status":"sealed-before-refresh",
+  "mission":"Fourth-pass review after proving v3 was visually equivalent. Preserve the same attack motion/timing/anchors/root-motion locks, but preserve raw authored attack-cell pixels by removing near-black flood-fill cleanup.",
+  "sourceRevision":"ce36ed5751b97ab4c5c57cc48e8d8624bc8efdfc",
+  "diagnosis":{
+    "v3FalseAssumption":"full transparent cell vs tight visible bbox contained the same visible pixels, so v3 could not change the rendered sprite",
+    "sourceCellsTouchCellEdge":false,
+    "transformedBoundsInsideCanvas":true,
+    "newSuspect":"near-black cleanup erodes dark silhouette detail around toes, claws, tendrils, and limb ends"
+  },
+  "locks":[
+    "same three attack candidates",
+    "same source cells",
+    "same idle bookends",
+    "same procedural deformation values",
+    "same SecurityTitan stopwatch",
+    "same planted anchors",
+    "root motion remains off",
+    "Vanguard unchanged"
+  ],
+  "representation":{
+    "attackSourcePixels":"raw authored 256x256 source cell",
+    "backgroundCleanup":"none",
+    "stageBackground":"black",
+    "presentationScale":1.5
+  },
+  "verification":[
+    "node tools/test_swarmling_attacks.mjs",
+    "node --check src/procedural-swarmling-preview.js",
+    "npm run test:2d",
+    "npm run build",
+    "npm run smoke",
+    "git diff --check"
+  ],
+  "humanVerdict":"pending"
+}

@@ -1,0 +1,29 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-attack-body-center-v1",
+  "status":"sealed-before-apply",
+  "mission":"Center all Swarmling attacks on the review canvas without sacrificing explicit rear/support-foot pinning. For each attack, compute the weighted-average body-core X offset from its existing per-phase foot anchor using the current atlas, then solve a per-animation stageAnchor X that places the body core at canvas center x=215. Preserve stageAnchor Y=226.",
+  "evidence":{
+    "currentAtlasSha256":"c9546c1bc61d9e5b0a2e558e26b53488e140520d5ae21b0f288ff2c3c85c7ea2",
+    "canvasWidth":430,
+    "canvasCenterX":215,
+    "presentationScale":1.5,
+    "observedProblem":"all attack bodies appear right-shifted because foot anchors are left of the torso while stageAnchor X remains 220"
+  },
+  "locks":[
+    "Run animation untouched",
+    "atlas pixels untouched",
+    "Run frame images/hashes untouched",
+    "Needle Jab impact cell 15",
+    "all attack source cells/timing/deformation untouched",
+    "all per-phase attack foot anchors untouched",
+    "presentation scale 1.5",
+    "root motion OFF",
+    "Vanguard unchanged"
+  ],
+  "writableSurface":[
+    "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json attack stageAnchor fields + centering authority metadata only",
+    "campaigns/swarmling-attack-body-center.receipt.json"
+  ],
+  "humanVerdict":"pending"
+}

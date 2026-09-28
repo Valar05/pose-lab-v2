@@ -1,0 +1,61 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v1",
+  "id": "swarmling-planted-attacks-v3",
+  "status": "sealed-before-refresh",
+  "mission": "Third-pass visual review of the same three Swarmling attacks after human feedback confirmed better motion but visible hand/foot clipping. Preserve the improved procedural motion, idle bookends, planted feet, and zero root motion; remove clipping by rendering the complete transparent source cell around the explicit planted-foot anchor instead of a tight source envelope.",
+  "sourceRevision": "d54bae8448cc131118ad0be6df51eadf462804cf",
+  "humanFeedbackAuthority": [
+    "motion looks better",
+    "feet are cropped",
+    "hand is cropped"
+  ],
+  "poseAuthority": {
+    "sourceAtlas": "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+    "sourceByteSha256": "2a9ee9cc38a4b695d9a561bdce08eab71671de261fcae9e07b1f6a44f55f6f91",
+    "cellGeometry": [256,256]
+  },
+  "timingAuthority": {
+    "repository": "Valar05/gravity-fist",
+    "revision": "e89c2adf671b06af4ce6a6c1d3f0118e68a6c274",
+    "file": "security_titan.json",
+    "role": "stopwatch only"
+  },
+  "presentation": {
+    "presentationScale": 1.5,
+    "stageAnchor": [220,226],
+    "sourceEnvelope": "full transparent 256x256 source cell",
+    "pivot": "explicit planted-foot anchor",
+    "proceduralAllowed": ["shearX","scaleX","scaleY"],
+    "proceduralForbidden": ["shiftX","shiftY","root motion","stage translation"]
+  },
+  "rootMotion": {
+    "enabled": false,
+    "engineOwnsMovement": true
+  },
+  "locks": [
+    "same three attack candidates",
+    "same authored source cells",
+    "same SecurityTitan stopwatch values",
+    "same idle bookends",
+    "same procedural deformation values",
+    "accepted Swarmling Run",
+    "all Vanguard assets and behavior",
+    "old Blender-derived Swarmling/Fleshling lineage"
+  ],
+  "verification": [
+    "node tools/test_swarmling_attacks.mjs",
+    "node --check src/procedural-swarmling-preview.js",
+    "node --check src/procedural-review-shell.js",
+    "npm run test:2d",
+    "npm run build",
+    "npm run smoke",
+    "git diff --check",
+    "served preview must contain full-cell planted draw"
+  ],
+  "visualGate": [
+    "motion.html?procedural=swarmling-jab",
+    "motion.html?procedural=swarmling-rake",
+    "motion.html?procedural=swarmling-scythe-bloom"
+  ],
+  "humanVerdict": "pending"
+}

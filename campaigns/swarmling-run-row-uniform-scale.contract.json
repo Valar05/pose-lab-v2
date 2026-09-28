@@ -1,0 +1,29 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-run-row-uniform-scale-v1",
+  "status":"sealed-before-apply",
+  "mission":"Repair the Swarmling Run row itself. The original source Run poses were generated at one consistent character scale with visible heights [62,62,64,64,63,64], but the tiny atlas independently rescaled them. Rebuild cells 1-6 from their current pixels to preserve pose/content while restoring one shared scale: target visible heights [45,45,46,46,45,46]. Physically center each Run body-core at x=128 and ground each frame at y=249. Set all Run anchors to [128,249].",
+  "evidence":{
+    "currentAtlasSha256":"814251044e0308eaa74deea14b08273fb133abacca097c4f0537b75eb72ae40e",
+    "originalRunVisibleHeightsPx":[62,62,64,64,63,64],
+    "uniformScale":0.71875,
+    "targetRunVisibleHeightsPx":[45,45,46,46,45,46]
+  },
+  "locks":[
+    "atlas cells 7-24 pixel-identical",
+    "Needle Jab impact cell 15",
+    "all attack source choices/timing/deformation unchanged",
+    "presentation scale 1.5",
+    "root motion OFF",
+    "Vanguard unchanged"
+  ],
+  "writableSurface":[
+    "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png cells 1-6 only",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/run/**",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json source/run hashes + Run anchorPoint fields",
+    "src/procedural-swarmling-preview.js runAnchors constant only",
+    "tools/test_swarmling_attacks.mjs runAnchors assertion only",
+    "campaigns/swarmling-run-row-uniform-scale.receipt.json"
+  ],
+  "humanVerdict":"pending"
+}

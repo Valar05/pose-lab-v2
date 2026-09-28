@@ -1,0 +1,14 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-run-body-core-centering-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "b229795f428603d847daff38f80c945788c358b0",
+  "implementationRevision": "ba3dc00a25d961c0e4338e194d0deb523bdfe692",
+  "sourceAtlasSha256": "814251044e0308eaa74deea14b08273fb133abacca097c4f0537b75eb72ae40e",
+  "pixelChanges": false,
+  "frameSizeChanges": false,
+  "runPinMode": "body-core-x-ground-y",
+  "needleJabImpactCell": 15,
+  "rootMotion": false,
+  "humanVerdict": "pending"
+}

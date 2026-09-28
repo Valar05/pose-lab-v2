@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import json,sys
+from pathlib import Path
+
+root=Path(sys.argv[1]).resolve()
+contract=json.loads((root/sys.argv[2]).read_text())
+rp=root/'public/assets/vanguard/procedural/overhand-strike.recipe.json'
+sp=root/'src/procedural-motion-preview.js'
+recipe=json.loads(rp.read_text())
+renderer=sp.read_text()
+
+def stop(m): raise SystemExit('STOP: '+m)
+
+if [p['durationMs'] for p in recipe['phases']] != [25,45,45,30,25,70,70,95,90,105]: stop('accepted timing changed')
+if recipe.get('comboHandoffMs') != 310: stop('accepted handoff changed')
+if recipe.get('rootMotion') is not False: stop('rootMotion changed')
+if recipe.get('canvas',{}).get('anchor') != [92,226]: stop('canvas anchor changed')
+if recipe.get('stage',{}).get('centerX') != 220: stop('stage changed')
+if recipe.get('bodyScale') != 1.5: stop('bodyScale changed')
+for k,v in {'idle':2,'chamber':26,'commit':40,'preimpact':32,'contact':35}.items():
+    if recipe['sources'][k]['cell'] != v: stop(f'{k} source cell changed')
+if recipe['sources']['slash-right']['cell'] != 5: stop('slash source changed')
+expected_blur={'idle':0.0,'anticipation':0.0,'chamber':0.0,'cross-commit':0.32,'lean-forward':1.0,'contact':0.46,'follow-through':0.08,'recoil-1':0.0,'recoil-2':0.0,'idle-return':0.0}
+for pid,amount in expected_blur.items():
+    p=next((q for q in recipe['phases'] if q['id']==pid),None)
+    if not p or p.get('blur',{}).get('amount') != amount: stop(f'{pid} blur envelope changed')
+
+# Actual alpha fix: opt only these Overhand body sources into the existing
+# border-connected black-key cleanup. Interior black pixels remain intact.
+for k in ['idle','chamber','commit','preimpact','contact']:
+    src=recipe['sources'][k]
+    src['backgroundKey']='black-border'
+    src['backgroundKeyThreshold']=18
+
+fx=recipe.get('speedLineSprite')
+if not fx or not fx.get('enabled'): stop('speedLineSprite missing')
+fx.setdefault('manualScaleX',1)
+fx.setdefault('manualScaleY',1)
+
+old=""" const sx=minX+(maxX-minX)*Math.max(0,Math.min(1,amount));
+ const sy=Number(spec.scaleY??1);
+ const alpha=Math.max(0,Math.min(1,Number(spec.alpha??0.78)))*amount;
+"""
+new=""" const sx=(minX+(maxX-minX)*Math.max(0,Math.min(1,amount)))*Number(spec.manualScaleX??1);
+ const sy=Number(spec.scaleY??1)*Number(spec.manualScaleY??1);
+ const alpha=Math.max(0,Math.min(1,Number(spec.alpha??0.78)))*amount;
+"""
+if old in renderer:
+    renderer=renderer.replace(old,new,1)
+elif 'Number(spec.manualScaleX??1)' not in renderer:
+    stop('speed-line scale block not found')
+
+if 'function installSpeedLineControls()' not in renderer:
+    anchor='function installSlashControls(){'
+    idx=renderer.find(anchor)
+    if idx<0: stop('Slash Controls function not found')
+    speed_controls=r'''function installSpeedLineControls(){
+ const side=document.querySelector('.side');
+ if(!side||!recipe.speedLineSprite?.enabled||side.querySelector('[data-speed-line-controls]'))return;
+ const fx=recipe.speedLineSprite;
+ const box=document.createElement('details');
+ box.open=true;
+ box.setAttribute('data-speed-line-controls','');
+ box.innerHTML=''
+  +'<summary style="font-size:15px;margin-bottom:10px">Speed Line Controls</summary>'
+  +'<div style="display:grid;grid-template-columns:92px 1fr 54px;gap:7px 8px;align-items:center;font-size:12px">'
+  +'<label>X</label><input data-sp="x" type="range" min="-250" max="450" step="1"><output data-spout="x"></output>'
+  +'<label>Y</label><input data-sp="y" type="range" min="-250" max="450" step="1"><output data-spout="y"></output>'
+  +'<label>Scale X</label><input data-sp="sx" type="range" min=".1" max="4" step=".05"><output data-spout="sx"></output>'
+  +'<label>Scale Y</label><input data-sp="sy" type="range" min=".1" max="4" step=".05"><output data-spout="sy"></output>'
+  +'<label>Alpha</label><input data-sp="a" type="range" min="0" max="1" step=".01"><output data-spout="a"></output>'
+  +'</div>'
+  +'<div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">'
+  +'<button data-sp-reset>Reset speed lines</button><button data-sp-copy>Copy speed-line values</button></div>';
+ const firstDetails=side.querySelector('details');
+ if(firstDetails)side.insertBefore(box,firstDetails); else side.appendChild(box);
+ const defaults={position:[...(fx.position||[0,0])],manualScaleX:Number(fx.manualScaleX??1),manualScaleY:Number(fx.manualScaleY??1),alpha:Number(fx.alpha??.78)};
+ const controls={x:box.querySelector('[data-sp="x"]'),y:box.querySelector('[data-sp="y"]'),sx:box.querySelector('[data-sp="sx"]'),sy:box.querySelector('[data-sp="sy"]'),a:box.querySelector('[data-sp="a"]')};
+ function refresh(){for(const k of ['x','y','sx','sy','a'])box.querySelector('[data-spout="'+k+'"]').textContent=controls[k].value;}
+ function setValues(){controls.x.value=fx.position?.[0]??0;controls.y.value=fx.position?.[1]??0;controls.sx.value=Number(fx.manualScaleX??1);controls.sy.value=Number(fx.manualScaleY??1);controls.a.value=Number(fx.alpha??.78);refresh();}
+ function apply(){fx.position=[Number(controls.x.value),Number(controls.y.value)];fx.manualScaleX=Number(controls.sx.value);fx.manualScaleY=Number(controls.sy.value);fx.alpha=Number(controls.a.value);refresh();render(offset);}
+ Object.values(controls).forEach(el=>{el.oninput=apply;el.onchange=apply;});
+ box.querySelector('[data-sp-reset]').onclick=()=>{fx.position=[...defaults.position];fx.manualScaleX=defaults.manualScaleX;fx.manualScaleY=defaults.manualScaleY;fx.alpha=defaults.alpha;setValues();render(offset);};
+ box.querySelector('[data-sp-copy]').onclick=async()=>{const payload={position:fx.position,manualScaleX:fx.manualScaleX,manualScaleY:fx.manualScaleY,alpha:fx.alpha};const txt=JSON.stringify(payload,null,2);try{await navigator.clipboard.writeText(txt)}catch{}console.log('SPEED_LINE_VALUES',txt);box.querySelector('[data-sp-copy]').textContent='Copied';setTimeout(()=>box.querySelector('[data-sp-copy]').textContent='Copy speed-line values',800);};
+ setValues();
+ window.__speedLineControls={box,controls};
+}
+
+'''
+    renderer=renderer[:idx]+speed_controls+renderer[idx:]
+
+if 'installSpeedLineControls();' not in renderer:
+    old_call=''' installSlashControls();
+ render(0);
+'''
+    new_call=''' installSlashControls();
+ installSpeedLineControls();
+ render(0);
+'''
+    if old_call not in renderer: stop('control install boundary not found')
+    renderer=renderer.replace(old_call,new_call,1)
+
+rp.write_text(json.dumps(recipe,indent=2)+'\n')
+sp.write_text(renderer)
+
+print('ROOT_CAUSE=OPAQUE_BLACK_BODY_CARD')
+print('BODY_ALPHA_FIX=BLACK_BORDER_KEY_ON_OVERHAND_SOURCES_ONLY')
+print('SPEED_LINE_ASSET=UNCHANGED')
+print('SLASH_CONTROLS=PRESERVED')
+print('SPEED_LINE_CONTROLS=ADDED_SEPARATELY')
+print('TIMING=LOCKED_600MS')
+print('HANDOFF=LOCKED_310MS')
+print('SLASH=LOCKED')
+print('POSES=LOCKED')
+print('BLUR_ENVELOPE=LOCKED')

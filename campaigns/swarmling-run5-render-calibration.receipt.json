@@ -1,0 +1,17 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-run5-render-calibration-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "bc6be9325a2e82b637fa0f8cb3cd0aa65870953f",
+  "implementationRevision": "f1a7ae9ce0392046deaf050b249f01cb6e86f61c",
+  "renderedBeforePx": 83,
+  "renderedTargetPx": 99,
+  "scaleFromCurrent": 1.1927710843373494,
+  "locksPreserved": {
+    "needleJabImpactCell": 15,
+    "presentationScale": 1.5,
+    "rootMotion": false,
+    "runAnchorsUnchanged": true
+  },
+  "humanVerdict": "pending"
+}

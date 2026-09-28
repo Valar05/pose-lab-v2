@@ -1,0 +1,68 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v2",
+  "id":"vanguard-overhand-anime-lines-v4",
+  "status":"sealed-before-apply",
+  "mission":"Preserve accepted Overhand timing, handoff, slash timing/persistence, pose/source cells, anchors, stage placement, atlas bytes and root-motion. Keep sprite blur, shorten its temporal envelope by about half, remove the expensive scanline/sliced-sprite distortion, and replace it with cheap anime-style backward speed lines drawn as primitive strokes behind the sprite.",
+  "humanVerdict":{
+    "timing":"accepted",
+    "slash":"accepted",
+    "v3Performance":"too laggy to afford",
+    "v3Visual":"not the intended look",
+    "desired":"small anime speed lines going backward; keep blur; roughly halve blur duration; no forward scaling"
+  },
+  "lockedTiming":{
+    "phaseDurationsMs":[25,45,45,30,25,70,70,95,90,105],
+    "totalMs":600,
+    "contactStartMs":170,
+    "contactEndMs":240,
+    "comboHandoffMs":310
+  },
+  "blurEnvelope":{
+    "idle":0.0,
+    "anticipation":0.0,
+    "chamber":0.0,
+    "cross-commit":0.32,
+    "lean-forward":1.0,
+    "contact":0.46,
+    "follow-through":0.08,
+    "recoil-1":0.0,
+    "recoil-2":0.0,
+    "idle-return":0.0
+  },
+  "animeLines":{
+    "enabled":true,
+    "count":12,
+    "minLengthPx":10,
+    "maxLengthPx":32,
+    "spreadY":34,
+    "offsetBackPx":12,
+    "lineWidthPx":1.5,
+    "alpha":0.42,
+    "staggerPx":7
+  },
+  "machine":{
+    "mutablePaths":[
+      "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+      "src/procedural-motion-preview.js",
+      "campaigns/vanguard-overhand-anime-lines-v4.receipt.json"
+    ],
+    "receiptPath":"campaigns/vanguard-overhand-anime-lines-v4.receipt.json",
+    "requiredRules":[
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles":[
+      {"path":"public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png","sha256":"54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587"},
+      {"path":"public/assets/vanguard/procedural/diorama-slash-atlas.png","sha256":"e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"}
+    ],
+    "checks":[
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/comboHandoffMs","value":310},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/motionBlur/primaryStretchX","value":0},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/overhand-strike.recipe.json","pointer":"/animeSpeedLines/count","value":12},
+      {"kind":"text-contains","path":"src/procedural-motion-preview.js","value":"function drawAnimeSpeedLines"},
+      {"kind":"text-contains","path":"src/procedural-motion-preview.js","value":"recipe.animeSpeedLines?.enabled"}
+    ]
+  }
+}

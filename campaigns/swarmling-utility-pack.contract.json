@@ -1,0 +1,552 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "swarmling-utility-pack-v1",
+  "status": "sealed-before-apply",
+  "mission": "Add the complete non-attack Swarmling utility animation vocabulary in one campaign: Idle, Aggro/Attention, Damage/Hit React, Knockdown, Stand Up, and Death. Use only existing canonical atlas cells. Preserve accepted Run and attacks exactly. Root motion remains OFF.",
+  "authority": {
+    "pose": "canonical Swarmling sprite atlas",
+    "atlasPath": "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+    "atlasSha256": "c9546c1bc61d9e5b0a2e558e26b53488e140520d5ae21b0f288ff2c3c85c7ea2",
+    "diagnosisOrder": [
+      "pose identity",
+      "sprite-sheet geometry",
+      "registration",
+      "timing/deformation",
+      "runtime presentation"
+    ],
+    "note": "Pose is God; source sheet inspected before authoring utility timelines."
+  },
+  "utilityAnimations": {
+    "idle": {
+      "label": "Idle",
+      "loop": true,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "idle-a",
+          "sourceCell": 7,
+          "durationMs": 350,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "idle-b",
+          "sourceCell": 8,
+          "durationMs": 350,
+          "deform": {
+            "shearX": 0.015,
+            "scaleX": 0.99,
+            "scaleY": 1.01,
+            "rotateDeg": -0.5
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 350,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "semantic": "ambient living idle"
+    },
+    "aggro": {
+      "label": "Aggro / Attention",
+      "loop": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 120,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "notice",
+          "sourceCell": 8,
+          "durationMs": 180,
+          "deform": {
+            "shearX": -0.02,
+            "scaleX": 0.99,
+            "scaleY": 1.01,
+            "rotateDeg": -1
+          }
+        },
+        {
+          "id": "threat-coil",
+          "sourceCell": 10,
+          "durationMs": 280,
+          "deform": {
+            "shearX": -0.04,
+            "scaleX": 0.97,
+            "scaleY": 1.03,
+            "rotateDeg": -1.5
+          }
+        },
+        {
+          "id": "settle",
+          "sourceCell": 8,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 240,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "semantic": "attention/aggro tell; no attack active window"
+    },
+    "damage": {
+      "label": "Damage / Hit React",
+      "loop": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 80,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "impact",
+          "sourceCell": 17,
+          "durationMs": 140,
+          "deform": {
+            "shearX": -0.08,
+            "scaleX": 0.96,
+            "scaleY": 1.04,
+            "rotateDeg": -2
+          }
+        },
+        {
+          "id": "recoil",
+          "sourceCell": 19,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0.03,
+            "scaleX": 0.99,
+            "scaleY": 1.01,
+            "rotateDeg": 1
+          }
+        },
+        {
+          "id": "recover",
+          "sourceCell": 7,
+          "durationMs": 300,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "semantic": "non-knockdown hit reaction"
+    },
+    "knockdown": {
+      "label": "Knockdown",
+      "loop": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "impact",
+          "sourceCell": 17,
+          "durationMs": 100,
+          "deform": {
+            "shearX": -0.06,
+            "scaleX": 0.97,
+            "scaleY": 1.03,
+            "rotateDeg": -2
+          }
+        },
+        {
+          "id": "stagger",
+          "sourceCell": 19,
+          "durationMs": 150,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "collapse",
+          "sourceCell": 18,
+          "durationMs": 150,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "down-knees",
+          "sourceCell": 20,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "prone-vulnerable",
+          "sourceCell": 21,
+          "durationMs": 420,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "semantic": "recoverable prone state; terminal source cell 21"
+    },
+    "stand-up": {
+      "label": "Stand Up",
+      "loop": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "prone-enter",
+          "sourceCell": 21,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "push-up",
+          "sourceCell": 20,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "low-rise",
+          "sourceCell": 18,
+          "durationMs": 160,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "stagger-rise",
+          "sourceCell": 19,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 300,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "semantic": "recovery from knockdown cell 21 to standing idle"
+    },
+    "death": {
+      "label": "Death",
+      "loop": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "fatal-impact",
+          "sourceCell": 17,
+          "durationMs": 100,
+          "deform": {
+            "shearX": -0.06,
+            "scaleX": 0.97,
+            "scaleY": 1.03,
+            "rotateDeg": -2
+          }
+        },
+        {
+          "id": "fatal-stagger",
+          "sourceCell": 19,
+          "durationMs": 140,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "collapse",
+          "sourceCell": 20,
+          "durationMs": 160,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "fall-prone",
+          "sourceCell": 21,
+          "durationMs": 220,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "corpse",
+          "sourceCell": 22,
+          "durationMs": 880,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "semantic": "terminal death state; source cell 22 distinguishes death from recoverable knockdown"
+    }
+  },
+  "lockedAcceptedState": {
+    "run": {
+      "sourceCells": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "anchors": [
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ]
+      ]
+    },
+    "jab": {
+      "sourceCells": [
+        10,
+        15
+      ],
+      "timelineCells": [
+        7,
+        10,
+        15,
+        15,
+        7
+      ],
+      "stageAnchor": [
+        190,
+        226
+      ],
+      "impactCell": 15
+    },
+    "rake": {
+      "sourceCells": [
+        13,
+        15
+      ],
+      "timelineCells": [
+        7,
+        13,
+        15,
+        15,
+        7
+      ],
+      "stageAnchor": [
+        188,
+        226
+      ]
+    },
+    "scythe-bloom": {
+      "sourceCells": [
+        11,
+        15,
+        16
+      ],
+      "timelineCells": [
+        7,
+        11,
+        15,
+        16,
+        7
+      ],
+      "stageAnchor": [
+        190,
+        226
+      ]
+    }
+  },
+  "machine": {
+    "mutablePaths": [
+      "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+      "src/procedural-swarmling-preview.js",
+      "src/procedural-review-shell.js",
+      "tools/test_swarmling_utility_animations.mjs",
+      "package.json",
+      "campaigns/swarmling-utility-pack.receipt.json"
+    ],
+    "receiptPath": "campaigns/swarmling-utility-pack.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+        "sha256": "c9546c1bc61d9e5b0a2e558e26b53488e140520d5ae21b0f288ff2c3c85c7ea2"
+      }
+    ],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/0/frames/0/anchorPoint",
+        "value": [
+          128,
+          249
+        ]
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/1/stageAnchor",
+        "value": [
+          190,
+          226
+        ]
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/1/frames/1/sourceCell",
+        "value": 15
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/2/stageAnchor",
+        "value": [
+          188,
+          226
+        ]
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/3/stageAnchor",
+        "value": [
+          190,
+          226
+        ]
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-swarmling-preview.js",
+        "value": "const presentationScale=1.5;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-swarmling-preview.js",
+        "value": "root motion must be OFF"
+      }
+    ]
+  }
+}

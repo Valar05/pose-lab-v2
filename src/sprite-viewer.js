@@ -566,6 +566,7 @@ async function boot() {
   }
 }
 
+
 playButton.addEventListener('click', () => {
   if (playing) pause({ speak: true });
   else play({ speak: true });

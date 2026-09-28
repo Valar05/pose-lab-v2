@@ -1,0 +1,73 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "vanguard-blur-tail-trim-and-specials-v10",
+  "status": "sealed-before-apply",
+  "mission": "Finish the Vanguard blur family pass. Preserve Overhand exactly. Make the other attacks use the same visible echo-shadow trail behavior by enabling the existing border-connected black alpha cleanup on their body sources, while preserving interior black pixels. Keep accepted Undercut and Uppercut blur envelopes. Shorten Halberd Jab and Horizontal blur tails without retiming. Add blur to Butt Strike and Shoulder Charge/Tackle. Preserve all pose/source cells, anchors, stage placement, effect transforms, timing authorities, root-motion rules and atlas bytes.",
+  "humanVerdict": {
+    "overhandBlur": "preferred reference; echo-shadow look is the target",
+    "undercutBlur": "accepted envelope; keep",
+    "uppercutBlur": "accepted envelope; keep",
+    "jabBlur": "too long; shorten tail",
+    "horizontalBlur": "about 30 percent too long; shorten tail",
+    "buttStrikeBlur": "missing; add",
+    "shoulderChargeTackleBlur": "missing; add"
+  },
+  "motionBlur": {
+    "enabled": true,
+    "samples": 4,
+    "spanPx": 34,
+    "filterPx": 2.0,
+    "maxAlpha": 0.48,
+    "primaryFilterPx": 4.0,
+    "primaryStretchX": 0,
+    "primarySquashY": 0,
+    "primaryShearX": 0,
+    "primaryShiftPx": 0
+  },
+  "envelopes": {
+    "undercut": {"idle":0.0,"anticipation":0.0,"low-chamber":0.08,"undercut-commit":0.42,"rise-through":1.0,"high-contact":0.50,"high-follow-through":0.10,"recoil-1":0.0,"recoil-2":0.0,"idle-return":0.0},
+    "uppercut": {"idle":0.0,"anticipation":0.0,"low-chamber":0.08,"rising-drive":1.0,"high-contact":0.52,"high-follow-through":0.10,"recoil":0.0,"idle-return":0.0},
+    "jab": {"idle":0.0,"coil":0.0,"launch":1.0,"contact":0.22,"hold":0.0,"recover":0.0,"return":0.0},
+    "horizontal": {"idle":0.0,"chamber":0.0,"stab-contact":1.0,"recover-high":0.10,"settle":0.0,"idle-return":0.0},
+    "buttStrike": {"idle":0.0,"windup":0.0,"drive":1.0,"impact":0.18,"idle-return":0.0},
+    "shoulderCharge": {"idle":0.0,"anticipation":0.0,"release":0.58,"impact":1.0,"crush":0.12,"idle-return":0.0}
+  },
+  "directions": {
+    "undercut":[-0.8,0.35],
+    "uppercut":[-0.7,0.45],
+    "jab":[-1.0,0.05],
+    "horizontal":[-1.0,0.0],
+    "buttStrike":[-1.0,0.10],
+    "shoulderCharge":[-1.0,0.02]
+  },
+  "machine": {
+    "mutablePaths": [
+      "public/assets/vanguard/procedural/undercut-strike.recipe.json",
+      "public/assets/vanguard/procedural/attack2-uppercut.recipe.json",
+      "public/assets/vanguard/procedural/attack5.recipe.json",
+      "public/assets/vanguard/procedural/horizontal-strike.recipe.json",
+      "public/assets/vanguard/procedural/butt-smash.recipe.json",
+      "public/assets/vanguard/procedural/shoulder-charge.recipe.json",
+      "campaigns/vanguard-blur-tail-trim-and-specials-v10.receipt.json"
+    ],
+    "receiptPath": "campaigns/vanguard-blur-tail-trim-and-specials-v10.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles": [
+      {"path":"public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png","sha256":"54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587"},
+      {"path":"public/assets/vanguard/procedural/diorama-slash-atlas.png","sha256":"e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"}
+    ],
+    "checks": [
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/attack5.recipe.json","pointer":"/phases/4/blur/amount","value":0.0},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/horizontal-strike.recipe.json","pointer":"/phases/3/blur/amount","value":0.10},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/butt-smash.recipe.json","pointer":"/motionBlur/enabled","value":true},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/shoulder-charge.recipe.json","pointer":"/motionBlur/enabled","value":true},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/undercut-strike.recipe.json","pointer":"/sources/contact/backgroundKey","value":"black-border"},
+      {"kind":"json-equals","path":"public/assets/vanguard/procedural/attack2-uppercut.recipe.json","pointer":"/sources/contact/backgroundKey","value":"black-border"}
+    ]
+  }
+}

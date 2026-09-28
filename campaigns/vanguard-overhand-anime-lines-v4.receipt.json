@@ -1,0 +1,16 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "vanguard-overhand-anime-lines-v4",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "cb94f033c4d9ca8b2a72675e1f9b2f2cdc01f722",
+  "implementationRevision": "35831bb3e665f62454c74bba41abfc375ac3212c",
+  "finalRevision": null,
+  "executionLane": "repo-owned-framework-v2-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+    "src/procedural-motion-preview.js",
+    "campaigns/vanguard-overhand-anime-lines-v4.receipt.json"
+  ]
+}

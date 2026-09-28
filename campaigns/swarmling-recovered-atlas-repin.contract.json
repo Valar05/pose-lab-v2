@@ -1,0 +1,40 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-recovered-atlas-repin-v1",
+  "status":"sealed-before-refresh",
+  "mission":"Correct the recovered-atlas Swarmling review after human video review: re-pin Run using measured recovered-atlas foot contacts, replace Needle Jab and Low Rake source pairs, preserve Scythe Bloom source set, reduce excess deformation travel, keep SecurityTitan timing and zero root motion.",
+  "sourceRevision":"62942e7f65672e024656ee20a45f85b81460c5fe",
+  "humanFeedback":{
+    "run":"best one, but not foot-pinned",
+    "needleJab":"wrong animation and moves too much",
+    "lowRake":"wrong animation and moves too much",
+    "scytheBloom":"probably right animation, but not pinned"
+  },
+  "recoveredAtlas":{
+    "sourceByteSha256":"7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
+    "runPins":[[128,238],[126,238],[126,239],[115,239],[122,239],[135,240]],
+    "pinMethod":"bottom-contact centroid measured from recovered 256x256 source cells"
+  },
+  "attackSourceChoices":{
+    "jab":[10,14],
+    "rake":[13,15],
+    "scytheBloom":[11,15,16],
+    "idle":7
+  },
+  "locks":[
+    "root motion OFF",
+    "SecurityTitan stopwatch values",
+    "recovered atlas pixels/hash",
+    "Scythe Bloom authored source set",
+    "Vanguard unchanged"
+  ],
+  "verification":[
+    "node tools/test_swarmling_attacks.mjs",
+    "node --check src/procedural-swarmling-preview.js",
+    "npm run test:2d",
+    "npm run build",
+    "npm run smoke",
+    "git diff --check"
+  ],
+  "humanVerdict":"pending"
+}

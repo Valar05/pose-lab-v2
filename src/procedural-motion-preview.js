@@ -2,7 +2,13 @@ import { createProceduralReviewShell } from './procedural-review-shell.js';
 
 const params=new URLSearchParams(location.search);
 const requested=params.get('procedural');
-const animation=requested==='vanguard-shotgun-reload'
+const animation=requested==='vanguard-jump'
+  ? 'vanguard-jump'
+  : requested==='vanguard-midair'
+  ? 'vanguard-midair'
+  : requested==='vanguard-land'
+  ? 'vanguard-land'
+  : requested==='vanguard-shotgun-reload'
   ? 'vanguard-shotgun-reload'
   : requested==='vanguard-shotgun-fire'
   ? 'vanguard-shotgun-fire'
@@ -19,6 +25,9 @@ const animation=requested==='vanguard-shotgun-reload'
     : requested==='vanguard-horizontal-strike'
       ? 'vanguard-horizontal-strike'
       : 'vanguard-overhand-strike';
+const isJump=animation==='vanguard-jump';
+const isMidair=animation==='vanguard-midair';
+const isLand=animation==='vanguard-land';
 const isShotgunReload=animation==='vanguard-shotgun-reload';
 const isShotgunFire=animation==='vanguard-shotgun-fire';
 const isShoulderCharge=animation==='vanguard-shoulder-charge';
@@ -28,14 +37,14 @@ const isUndercut=animation==='vanguard-undercut-strike';
 const isAttack2=animation==='vanguard-attack2-uppercut';
 const isHorizontal=animation==='vanguard-horizontal-strike';
 const ui=createProceduralReviewShell({
-  title:isShotgunReload?'Vanguard Shotgun Reload':isShotgunFire?'Vanguard Shotgun Fire':isShoulderCharge?'Vanguard Shoulder Charge':isButtSmash?'Vanguard Butt Smash':isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
+  title:isJump?'Vanguard Jump':isMidair?'Vanguard Mid-Air':isLand?'Vanguard Land':isShotgunReload?'Vanguard Shotgun Reload':isShotgunFire?'Vanguard Shotgun Fire':isShoulderCharge?'Vanguard Shoulder Charge':isButtSmash?'Vanguard Butt Smash':isAttack5?'Vanguard Attack 5':isHorizontal?'Vanguard Horizontal Slash':isAttack2?'Vanguard Attack 2 Uppercut':isUndercut?'Vanguard Undercut Strike':'Vanguard Overhand Strike',
   animation,
   accent:'#ffbd4a'
 });
 const {q,canvas,fit}=ui;
 const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=true;
 const play=q('[data-play]'),restart=q('[data-restart]'),scrub=q('[data-scrub]'),phaseEl=q('[data-phase]'),timeEl=q('[data-time]'),kv=q('[data-kv]');
-let recipe,atlas,slash,slashMap,playing=true,start=performance.now(),offset=0,total=1,phases=[];
+let recipe,atlas,slash,slashMap,speedLines,playing=true,start=performance.now(),offset=0,total=1,phases=[];
 const cache=new Map(),clamp=v=>Math.max(0,Math.min(1,v)),ease=t=>{t=clamp(t);return t*t*(3-2*t)},lerp=(a,b,t)=>a+(b-a)*t;
 const loadImage=src=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('Could not load '+src));i.src=src;});
 function rect(spec,cell){const idx=cell-(spec.indexBase||0),c=idx%spec.columns,r=Math.floor(idx/spec.columns);const x0=Math.round(c*atlas.naturalWidth/spec.columns),x1=Math.round((c+1)*atlas.naturalWidth/spec.columns),explicit=spec.rowBounds?.[String(r)],y0=explicit?Number(explicit[0]):Math.round(r*atlas.naturalHeight/spec.rows),y1=explicit?Number(explicit[1]):Math.round((r+1)*atlas.naturalHeight/spec.rows);return[x0,y0,x1-x0,y1-y0]}
@@ -353,16 +362,71 @@ function stageOffsetX(){
  const localCenter=px-it.anchor[0]*bodyScale+(it.canvas.width*bodyScale)/2;
  return (recipe.stage?.centerX??215)-localCenter;
 }
-function drawBody(id,d){
+function drawBody(id,d,blurAmount=0){
  const it=body(id),[px,py]=recipe.canvas.anchor;
  const src=recipe.sources[id]||{};
  const reg=src.registrationOffset||[0,0];
- ctx.save();
- ctx.translate(stageOffsetX(),0);
- ctx.translate(px+Number(reg[0]||0),py+Number(reg[1]||0));
  const bodyScale=Number(recipe.bodyScale??1);
- ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);
- ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
+ const drawPass=(offsetX=0,offsetY=0,alpha=1,filter='none')=>{
+   ctx.save();
+   ctx.globalAlpha=alpha;
+   ctx.filter=filter;
+   ctx.translate(stageOffsetX(),0);
+   ctx.translate(px+Number(reg[0]||0)+offsetX,py+Number(reg[1]||0)+offsetY);
+   ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);
+   ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
+   ctx.restore();
+ };
+ const blur=recipe.motionBlur;
+ if(blur?.enabled && blurAmount>0){
+   const samples=Math.max(1,Math.round(Number(blur.samples??4)));
+   const span=Math.max(0,Number(blur.spanPx??28));
+   const filterPx=Math.max(0,Number(blur.filterPx??2));
+   const maxAlpha=Math.max(0,Math.min(1,Number(blur.maxAlpha??.32)));
+   const direction=Array.isArray(blur.directionStage)?blur.directionStage:[-1,0];
+   const dx=Number(direction[0]??-1),dy=Number(direction[1]??0);
+   for(let n=samples;n>=1;n--){
+     const t=n/samples;
+     const alpha=blurAmount*maxAlpha*(1-.52*t);
+     drawPass(dx*span*t,dy*span*t,alpha,filterPx?('blur('+filterPx+'px)'):'none');
+   }
+   if(recipe.speedLineSprite?.enabled){
+     drawSpeedLineSprite(px,py,reg,d,bodyScale,blurAmount);
+   }
+   const primaryFilterPx=Math.max(0,Number(blur.primaryFilterPx??0))*blurAmount;
+   ctx.save();
+   ctx.globalAlpha=1;
+   ctx.filter=primaryFilterPx?('blur('+primaryFilterPx+'px)'):'none';
+   ctx.translate(stageOffsetX(),0);
+   ctx.translate(px+Number(reg[0]||0),py+Number(reg[1]||0));
+   ctx.transform((d.scaleX||1)*bodyScale,0,d.shearX,(d.scaleY||1)*bodyScale,d.shiftX||0,d.shiftY||0);
+   ctx.drawImage(it.canvas,-it.anchor[0],-it.anchor[1]);
+   ctx.restore();
+   return;
+ }
+ drawPass();
+}
+
+function drawSpeedLineSprite(px,py,reg,d,bodyScale,amount){
+ const spec=recipe.speedLineSprite||{};
+ if(!spec.enabled||!speedLines||amount<=0)return;
+ const pos=Array.isArray(spec.position)?spec.position:[20,-68];
+ const minX=Number(spec.minScaleX??0.58);
+ const maxX=Number(spec.maxScaleX??1);
+ const sx=(minX+(maxX-minX)*Math.max(0,Math.min(1,amount)))*Number(spec.manualScaleX??1);
+ const sy=Number(spec.scaleY??1)*Number(spec.manualScaleY??1);
+ const alpha=Math.max(0,Math.min(1,Number(spec.alpha??0.78)))*amount;
+
+ ctx.save();
+ ctx.globalAlpha=alpha;
+ ctx.imageSmoothingEnabled=spec.imageSmoothing!==false;
+ ctx.translate(stageOffsetX(),0);
+ ctx.translate(px+Number(reg[0]||0)+Number(pos[0]||0),py+Number(reg[1]||0)+Number(pos[1]||0));
+ const inheritedScale=spec.inheritBodyScale===false?1:bodyScale;
+ ctx.transform((d.scaleX||1)*inheritedScale,0,d.shearX,(d.scaleY||1)*inheritedScale,d.shiftX||0,d.shiftY||0);
+ ctx.scale(sx,sy);
+ // The source converges at its right edge, so pin that edge to Vanguard's back.
+ ctx.drawImage(speedLines,-speedLines.width,-speedLines.height/2);
  ctx.restore();
 }
 
@@ -559,13 +623,13 @@ function drawSlash(e,layerName='front'){
  ctx.restore();
 }
 function render(ms){
- const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null; if(window.__slashControls?.controls.full.checked&&e){e.reveal=1;e.core=1;e.tightGlow=1;e.wideGlow=.7;}
+ const s=phaseAt(ms),p=s.p,i=s.i,u=s.u,d={shearX:iv(i,u,'deform','shearX'),scaleX:iv(i,u,'deform','scaleX'),scaleY:iv(i,u,'deform','scaleY'),shiftX:iv(i,u,'deform','shiftX'),shiftY:iv(i,u,'deform','shiftY')},b=iv(i,u,'blur','amount'),e=p.effect?{reveal:iv(i,u,'effect','reveal'),core:iv(i,u,'effect','core'),tightGlow:iv(i,u,'effect','tightGlow'),wideGlow:iv(i,u,'effect','wideGlow')}:null; if(window.__slashControls?.controls?.full?.checked&&e){e.reveal=1;e.core=1;e.tightGlow=1;e.wideGlow=.7;}
  ctx.setTransform(1,0,0,1,0,0);
  ctx.fillStyle='#000';
  ctx.fillRect(0,0,canvas.width,canvas.height);
 
  drawSlash(e,'back');
- drawBody(p.source,d);
+ drawBody(p.source,d,b);
  drawSlash(e,'front');
 
  phaseEl.textContent=p.id;
@@ -578,9 +642,90 @@ function loop(now){let ms=offset;if(playing)ms=(offset+(now-start))%total;render
 play.onclick=()=>{if(playing){offset=(offset+(performance.now()-start))%total;playing=false;play.textContent='▶'}else{start=performance.now();playing=true;play.textContent='❚❚'}};
 restart.onclick=()=>{offset=0;start=performance.now();render(0)};scrub.oninput=()=>{offset=Number(scrub.value)*total;start=performance.now();render(offset)};
 
+function installShotgunBlastMoveScaleControls(side){
+ const box=document.createElement('details');
+ box.open=true;
+ box.setAttribute('data-slash-controls','');
+ box.innerHTML=
+   '<summary style="font-size:15px;margin-bottom:10px">Shotgun Blast Controls</summary>'+
+   '<div style="display:grid;grid-template-columns:92px 1fr 54px;gap:7px 8px;align-items:center;font-size:12px">'+
+   '<label>X</label><input data-hc="x" type="range" min="-250" max="450" step="1"><output data-out="x"></output>'+
+   '<label>Y</label><input data-hc="y" type="range" min="-250" max="450" step="1"><output data-out="y"></output>'+
+   '<label>Scale X</label><input data-hc="sx" type="range" min="-3" max="3" step=".05"><output data-out="sx"></output>'+
+   '<label>Scale Y</label><input data-hc="sy" type="range" min="-3" max="3" step=".05"><output data-out="sy"></output>'+
+   '</div>'+
+   '<div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">'+
+   '<button data-hc-reset>Reset move/scale</button><button data-hc-copy>Copy values</button></div>';
+ side.insertBefore(box,side.querySelector('details'));
+ const fx=recipe.effect;
+ const defaults={position:[...(fx.position||[0,0])],scaleX:Number(fx.scaleX??1),scaleY:Number(fx.scaleY??1)};
+ const controls={
+   x:box.querySelector('[data-hc="x"]'),y:box.querySelector('[data-hc="y"]'),
+   sx:box.querySelector('[data-hc="sx"]'),sy:box.querySelector('[data-hc="sy"]')
+ };
+ function refresh(){for(const k of ['x','y','sx','sy'])box.querySelector('[data-out="'+k+'"]').textContent=controls[k].value}
+ function setValues(){
+   controls.x.value=fx.position?.[0]??0;controls.y.value=fx.position?.[1]??0;
+   controls.sx.value=Number(fx.scaleX??1);controls.sy.value=Number(fx.scaleY??1);refresh();
+ }
+ function apply(){
+   fx.position=[Number(controls.x.value),Number(controls.y.value)];
+   const sx=Number(controls.sx.value),sy=Number(controls.sy.value);
+   fx.scaleX=Math.abs(sx)<.01?.01:sx;fx.scaleY=Math.abs(sy)<.01?.01:sy;
+   refresh();render(offset);
+ }
+ Object.values(controls).forEach(el=>{el.oninput=apply;el.onchange=apply});
+ box.querySelector('[data-hc-reset]').onclick=()=>{
+   fx.position=[...defaults.position];fx.scaleX=defaults.scaleX;fx.scaleY=defaults.scaleY;setValues();render(offset);
+ };
+ box.querySelector('[data-hc-copy]').onclick=async()=>{
+   const text=JSON.stringify({position:fx.position,scaleX:fx.scaleX,scaleY:fx.scaleY},null,2);
+   try{await navigator.clipboard.writeText(text)}catch{} console.log('SHOTGUN_BLAST_VALUES',text);
+ };
+ setValues();
+ window.__slashControls={box,controls};
+}
+
+function installSpeedLineControls(){
+ const side=document.querySelector('.side');
+ if(!side||!recipe.speedLineSprite?.enabled||side.querySelector('[data-speed-line-controls]'))return;
+ const fx=recipe.speedLineSprite;
+ const box=document.createElement('details');
+ box.open=true;
+ box.setAttribute('data-speed-line-controls','');
+ box.innerHTML=''
+  +'<summary style="font-size:15px;margin-bottom:10px">Speed Line Controls</summary>'
+  +'<div style="display:grid;grid-template-columns:92px 1fr 54px;gap:7px 8px;align-items:center;font-size:12px">'
+  +'<label>X</label><input data-sp="x" type="range" min="-250" max="450" step="1"><output data-spout="x"></output>'
+  +'<label>Y</label><input data-sp="y" type="range" min="-250" max="450" step="1"><output data-spout="y"></output>'
+  +'<label>Scale X</label><input data-sp="sx" type="range" min=".1" max="4" step=".05"><output data-spout="sx"></output>'
+  +'<label>Scale Y</label><input data-sp="sy" type="range" min=".1" max="4" step=".05"><output data-spout="sy"></output>'
+  +'<label>Alpha</label><input data-sp="a" type="range" min="0" max="1" step=".01"><output data-spout="a"></output>'
+  +'</div>'
+  +'<div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">'
+  +'<button data-sp-reset>Reset speed lines</button><button data-sp-copy>Copy speed-line values</button></div>';
+ const firstDetails=side.querySelector('details');
+ if(firstDetails)side.insertBefore(box,firstDetails); else side.appendChild(box);
+ const defaults={position:[...(fx.position||[0,0])],manualScaleX:Number(fx.manualScaleX??1),manualScaleY:Number(fx.manualScaleY??1),alpha:Number(fx.alpha??.78)};
+ const controls={x:box.querySelector('[data-sp="x"]'),y:box.querySelector('[data-sp="y"]'),sx:box.querySelector('[data-sp="sx"]'),sy:box.querySelector('[data-sp="sy"]'),a:box.querySelector('[data-sp="a"]')};
+ function refresh(){for(const k of ['x','y','sx','sy','a'])box.querySelector('[data-spout="'+k+'"]').textContent=controls[k].value;}
+ function setValues(){controls.x.value=fx.position?.[0]??0;controls.y.value=fx.position?.[1]??0;controls.sx.value=Number(fx.manualScaleX??1);controls.sy.value=Number(fx.manualScaleY??1);controls.a.value=Number(fx.alpha??.78);refresh();}
+ function apply(){fx.position=[Number(controls.x.value),Number(controls.y.value)];fx.manualScaleX=Number(controls.sx.value);fx.manualScaleY=Number(controls.sy.value);fx.alpha=Number(controls.a.value);refresh();render(offset);}
+ Object.values(controls).forEach(el=>{el.oninput=apply;el.onchange=apply;});
+ box.querySelector('[data-sp-reset]').onclick=()=>{fx.position=[...defaults.position];fx.manualScaleX=defaults.manualScaleX;fx.manualScaleY=defaults.manualScaleY;fx.alpha=defaults.alpha;setValues();render(offset);};
+ box.querySelector('[data-sp-copy]').onclick=async()=>{const payload={position:fx.position,manualScaleX:fx.manualScaleX,manualScaleY:fx.manualScaleY,alpha:fx.alpha};const txt=JSON.stringify(payload,null,2);try{await navigator.clipboard.writeText(txt)}catch{}console.log('SPEED_LINE_VALUES',txt);box.querySelector('[data-sp-copy]').textContent='Copied';setTimeout(()=>box.querySelector('[data-sp-copy]').textContent='Copy speed-line values',800);};
+ setValues();
+ window.__speedLineControls={box,controls};
+}
+
 function installSlashControls(){
  const side=document.querySelector('.side');
  if(!side||side.querySelector('[data-slash-controls]'))return;
+ if(recipe.effect?.liveControls===false)return;
+ if(recipe.id==='vanguard-shotgun-fire-procedural-v1'&&recipe.effect?.controlProfile==='move-scale-only'){
+   installShotgunBlastMoveScaleControls(side);
+   return;
+ }
 
  const box=document.createElement('details');
  box.open=true;
@@ -691,7 +836,13 @@ function installSlashControls(){
 }
 
 try{
- const recipePath=isShotgunReload
+ const recipePath=isJump
+   ? './assets/vanguard/procedural/jump.recipe.json'
+   : isMidair
+   ? './assets/vanguard/procedural/midair.recipe.json'
+   : isLand
+   ? './assets/vanguard/procedural/land.recipe.json'
+   : isShotgunReload
    ? './assets/vanguard/procedural/shotgun-reload.recipe.json'
    : isShotgunFire
    ? './assets/vanguard/procedural/shotgun-fire.recipe.json'
@@ -723,9 +874,16 @@ try{
    const slashPath=effectSource.path.startsWith('./')?effectSource.path:'./'+effectSource.path;
    [atlas,slash]=await Promise.all([loadImage(atlasPath),loadImage(slashPath)]);
  }
+ if(recipe.speedLineSprite?.enabled){
+   const speedPath=recipe.speedLineSprite.path.startsWith('./')
+     ? recipe.speedLineSprite.path
+     : './'+recipe.speedLineSprite.path;
+   speedLines=await loadImage(speedPath);
+ }
  buildSlash();
  for(const [id,src] of Object.entries(recipe.sources))if(src.role==='body')body(id);
  installSlashControls();
+ installSpeedLineControls();
  render(0);
  requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
 }catch(err){document.querySelector('#app').innerHTML='<pre style="padding:18px;color:#ff8a8a;white-space:pre-wrap"></pre>';document.querySelector('#app pre').textContent=err?.stack||String(err)}

@@ -1,0 +1,22 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-run5-render-calibration-v1",
+  "status":"sealed-before-apply",
+  "mission":"Calibrate only Swarmling Run cell 5 using human-visible review measurements. Current rendered Run-5 is ~83px tall and Run-4 is ~99px tall, so scale current cell 5 by 99/83 = 1.192771 while preserving its current body center and ground contact.",
+  "evidence":{
+    "currentAtlasSha256":"0f1e4e667f52a075c4ead4723673a9e93fc25c688d38f3385ddeae7d0d23e058",
+    "renderedRun5HeightPx":83,
+    "renderedRun4HeightPx":99,
+    "scaleFromCurrent":1.1927710843373494
+  },
+  "locks":[
+    "only atlas cell 5 may change",
+    "Run anchors remain unchanged",
+    "Needle Jab impact cell 15",
+    "attack source choices/timing/deformation unchanged",
+    "presentation scale 1.5",
+    "root motion OFF",
+    "Vanguard unchanged"
+  ],
+  "humanVerdict":"pending"
+}

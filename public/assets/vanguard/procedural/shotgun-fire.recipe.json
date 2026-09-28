@@ -117,7 +117,7 @@
     }
   },
   "id": "vanguard-shotgun-fire-procedural-v1",
-  "description": "Shotgun fire review \u00b7 expanded-atlas 100\u2192101\u2192102 + dedicated muzzle",
+  "description": "Shotgun fire review \u00b7 single wide-stance brace pose \u00b7 aggressive back/forward shear + dedicated muzzle",
   "sources": {
     "idle": {
       "kind": "atlas-cell",
@@ -191,13 +191,31 @@
       }
     },
     {
-      "id": "brace",
+      "id": "wide-plant",
       "source": "brace",
-      "durationMs": 100,
+      "durationMs": 60,
       "deform": {
-        "shearX": -0.08,
-        "scaleX": 0.985,
-        "scaleY": 1.015,
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      },
+      "effect": {
+        "reveal": 0,
+        "core": 0,
+        "tightGlow": 0,
+        "wideGlow": 0
+      }
+    },
+    {
+      "id": "load-back",
+      "source": "brace",
+      "durationMs": 105,
+      "deform": {
+        "shearX": -0.24,
+        "scaleX": 1,
+        "scaleY": 1,
         "shiftX": 0,
         "shiftY": 0
       },
@@ -210,12 +228,12 @@
     },
     {
       "id": "fire",
-      "source": "drive",
-      "durationMs": 70,
+      "source": "brace",
+      "durationMs": 65,
       "deform": {
-        "shearX": 0.12,
-        "scaleX": 1.035,
-        "scaleY": 0.985,
+        "shearX": 0.3,
+        "scaleX": 1,
+        "scaleY": 1,
         "shiftX": 0,
         "shiftY": 0
       },
@@ -227,21 +245,21 @@
       }
     },
     {
-      "id": "recoil",
-      "source": "recoil",
-      "durationMs": 125,
+      "id": "settle",
+      "source": "brace",
+      "durationMs": 105,
       "deform": {
-        "shearX": -0.08,
-        "scaleX": 0.98,
-        "scaleY": 1.02,
+        "shearX": 0,
+        "scaleX": 1,
+        "scaleY": 1,
         "shiftX": 0,
         "shiftY": 0
       },
       "effect": {
-        "reveal": 0.35,
-        "core": 0.32,
-        "tightGlow": 0.22,
-        "wideGlow": 0.12
+        "reveal": 0.28,
+        "core": 0.25,
+        "tightGlow": 0.16,
+        "wideGlow": 0.08
       }
     },
     {
@@ -267,8 +285,8 @@
     "source": "muzzle",
     "width": 150,
     "position": [
-      145,
-      92
+      100,
+      106
     ],
     "pivot": [
       0.5,
@@ -327,17 +345,18 @@
     "rotateZDeg": 0,
     "tiltXDeg": 0,
     "yawYDeg": 0,
-    "scaleX": 1,
-    "scaleY": 1,
+    "scaleX": 1.1,
+    "scaleY": 0.75,
     "flipX": false,
     "flipY": false,
     "depthSplit": 0,
     "revealStartDeg": 0,
     "revealSweepDeg": 360,
-    "liveControls": true
+    "liveControls": true,
+    "controlProfile": "move-scale-only"
   },
   "motionAuthority": {
-    "kind": "user-authored-shotgun-fire",
-    "description": "Expanded canonical atlas cells 100,101,102 are shotgun fire pose authority; dedicated exact muzzle; no root motion; pin/effect placement review-gated."
+    "kind": "user-authored-shotgun-fire-single-wide-stance",
+    "description": "Brace cell 100 is the sole non-idle body pose. Body shears backward then snaps forward with zero body shift/scale. Dedicated muzzle remains unchanged; shotgun blast controls expose move and scale only."
   }
 }

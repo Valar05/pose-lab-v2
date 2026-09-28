@@ -1,0 +1,16 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "vanguard-overhand-ngb-canary-v1",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "af8d68b57e7f8777c13b6608d021a3456e9b3dfe",
+  "implementationRevision": "887ed635b665cf4b8c33694dd3574c4457783bfe",
+  "finalRevision": null,
+  "executionLane": "repo-owned-framework-v2-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+    "src/procedural-motion-preview.js",
+    "campaigns/vanguard-overhand-ngb-canary-v1.receipt.json"
+  ]
+}

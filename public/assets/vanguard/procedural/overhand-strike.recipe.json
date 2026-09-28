@@ -119,7 +119,9 @@
       "anchorPoint": [
         58,
         97
-      ]
+      ],
+      "backgroundKey": "black-border",
+      "backgroundKeyThreshold": 18
     },
     "chamber": {
       "kind": "atlas-cell",
@@ -135,7 +137,9 @@
       "anchorPoint": [
         64,
         84
-      ]
+      ],
+      "backgroundKey": "black-border",
+      "backgroundKeyThreshold": 18
     },
     "commit": {
       "kind": "atlas-cell",
@@ -151,7 +155,9 @@
       "anchorPoint": [
         58,
         86
-      ]
+      ],
+      "backgroundKey": "black-border",
+      "backgroundKeyThreshold": 18
     },
     "preimpact": {
       "kind": "atlas-cell",
@@ -167,7 +173,9 @@
       "anchorPoint": [
         60,
         89
-      ]
+      ],
+      "backgroundKey": "black-border",
+      "backgroundKeyThreshold": 18
     },
     "contact": {
       "kind": "atlas-cell",
@@ -183,7 +191,9 @@
       "anchorPoint": [
         46,
         89
-      ]
+      ],
+      "backgroundKey": "black-border",
+      "backgroundKeyThreshold": 18
     },
     "slash-right": {
       "kind": "effect-atlas-cell",
@@ -197,60 +207,72 @@
     {
       "id": "idle",
       "source": "idle",
-      "durationMs": 75,
+      "durationMs": 25,
       "deform": {
         "shearX": 0,
         "scaleX": 1,
         "scaleY": 1
+      },
+      "blur": {
+        "amount": 0.0
       }
     },
     {
       "id": "anticipation",
       "source": "idle",
-      "durationMs": 75,
+      "durationMs": 45,
       "deform": {
         "shearX": 0.1,
         "scaleX": 1,
         "scaleY": 0.97,
         "shiftY": 0
+      },
+      "blur": {
+        "amount": 0.0
       }
     },
     {
       "id": "chamber",
       "source": "chamber",
-      "durationMs": 70,
+      "durationMs": 45,
       "deform": {
         "shearX": 0.06,
         "scaleX": 1.01,
         "scaleY": 0.98
       },
       "effect": {
-        "reveal": 0.1,
-        "core": 0.3,
-        "tightGlow": 0.18,
-        "wideGlow": 0.12
+        "reveal": 0.0,
+        "core": 0.0,
+        "tightGlow": 0.0,
+        "wideGlow": 0.0
+      },
+      "blur": {
+        "amount": 0.0
       }
     },
     {
       "id": "cross-commit",
       "source": "commit",
-      "durationMs": 45,
+      "durationMs": 30,
       "deform": {
         "shearX": -0.1,
         "scaleX": 1.02,
         "scaleY": 0.99
       },
       "effect": {
-        "reveal": 0.48,
-        "core": 0.72,
-        "tightGlow": 0.52,
-        "wideGlow": 0.3
+        "reveal": 0.28,
+        "core": 0.45,
+        "tightGlow": 0.32,
+        "wideGlow": 0.18
+      },
+      "blur": {
+        "amount": 0.32
       }
     },
     {
       "id": "lean-forward",
       "source": "preimpact",
-      "durationMs": 45,
+      "durationMs": 25,
       "deform": {
         "shearX": -0.24,
         "scaleX": 1.04,
@@ -258,16 +280,19 @@
         "shiftY": 0
       },
       "effect": {
-        "reveal": 0.84,
-        "core": 0.92,
-        "tightGlow": 0.82,
-        "wideGlow": 0.46
+        "reveal": 0.82,
+        "core": 0.9,
+        "tightGlow": 0.78,
+        "wideGlow": 0.44
+      },
+      "blur": {
+        "amount": 1.0
       }
     },
     {
       "id": "contact",
       "source": "contact",
-      "durationMs": 125,
+      "durationMs": 70,
       "deform": {
         "shearX": -0.34,
         "scaleX": 1.06,
@@ -275,26 +300,32 @@
         "shiftY": 0
       },
       "effect": {
-        "reveal": 1,
-        "core": 1,
-        "tightGlow": 1,
+        "reveal": 1.0,
+        "core": 1.0,
+        "tightGlow": 1.0,
         "wideGlow": 0.7
+      },
+      "blur": {
+        "amount": 0.46
       }
     },
     {
       "id": "follow-through",
       "source": "contact",
-      "durationMs": 90,
+      "durationMs": 70,
       "deform": {
         "shearX": -0.25,
         "scaleX": 1.05,
         "scaleY": 1
       },
       "effect": {
-        "reveal": 1,
-        "core": 0.42,
-        "tightGlow": 0.45,
-        "wideGlow": 0.55
+        "reveal": 1.0,
+        "core": 0.5,
+        "tightGlow": 0.5,
+        "wideGlow": 0.58
+      },
+      "blur": {
+        "amount": 0.08
       }
     },
     {
@@ -308,10 +339,13 @@
         "shiftY": 0
       },
       "effect": {
-        "reveal": 1,
-        "core": 0.16,
-        "tightGlow": 0.18,
-        "wideGlow": 0.26
+        "reveal": 0.92,
+        "core": 0.2,
+        "tightGlow": 0.22,
+        "wideGlow": 0.32
+      },
+      "blur": {
+        "amount": 0.0
       }
     },
     {
@@ -325,10 +359,13 @@
         "shiftY": 0
       },
       "effect": {
-        "reveal": 0,
-        "core": 0,
-        "tightGlow": 0,
-        "wideGlow": 0.05
+        "reveal": 0.32,
+        "core": 0.04,
+        "tightGlow": 0.05,
+        "wideGlow": 0.1
+      },
+      "blur": {
+        "amount": 0.0
       }
     },
     {
@@ -339,6 +376,9 @@
         "shearX": 0,
         "scaleX": 1,
         "scaleY": 1
+      },
+      "blur": {
+        "amount": 0.0
       }
     }
   ],
@@ -436,7 +476,33 @@
         768,
         384
       ],
-      "sha256": "94a59e09dd0bbc9ceb79a81697d4c5096fc451438c3d9df337e7e2782d743b70"
+      "sha256": "e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"
     }
+  },
+  "motionBlur": {
+    "enabled": true,
+    "samples": 4,
+    "spanPx": 34,
+    "filterPx": 2.0,
+    "maxAlpha": 0.48,
+    "directionStage": [
+      -1.0,
+      0.22
+    ],
+    "primaryFilterPx": 4.0,
+    "primaryStretchX": 0,
+    "primarySquashY": 0,
+    "primaryShearX": 0,
+    "primaryShiftPx": 0
+  },
+  "comboHandoffMs": 310,
+  "timingCanary": {
+    "reference": "Ninja Gaiden Black user-supplied video, fine-frame analysis 2026-09-27",
+    "contactStartMs": 170,
+    "contactEndMs": 240,
+    "essentialFollowThroughEndMs": 310,
+    "fullPresentationMs": 600,
+    "standaloneRecoveryPreserved": true,
+    "bufferMayReplaceRecoveryAfterMs": 310
   }
 }

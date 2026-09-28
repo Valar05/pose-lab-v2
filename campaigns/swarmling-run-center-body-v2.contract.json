@@ -1,0 +1,14 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-run-center-body-v2",
+  "status":"sealed-before-apply",
+  "mission":"Center Swarmling Run by body center X plus ground Y, preserve current scale, preserve Needle Jab impact cell 15, and complete campaign staging in the correct order.",
+  "locks":[
+    "root motion OFF",
+    "presentation scale unchanged",
+    "tiny atlas remains source authority",
+    "Needle Jab impact cell 15",
+    "Vanguard unchanged"
+  ],
+  "humanVerdict":"pending"
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "vanguard-blur-tail-trim-and-specials-v10",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "23474e7ead9b386f9cb5840421cfac98aa4a45b5",
+  "implementationRevision": "ba89848411c560e2d17392a3739edc6b676953ea",
+  "finalRevision": null,
+  "executionLane": "repo-owned-framework-v2-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/vanguard/procedural/undercut-strike.recipe.json",
+    "public/assets/vanguard/procedural/attack2-uppercut.recipe.json",
+    "public/assets/vanguard/procedural/attack5.recipe.json",
+    "public/assets/vanguard/procedural/horizontal-strike.recipe.json",
+    "public/assets/vanguard/procedural/butt-smash.recipe.json",
+    "public/assets/vanguard/procedural/shoulder-charge.recipe.json",
+    "campaigns/vanguard-blur-tail-trim-and-specials-v10.receipt.json"
+  ]
+}

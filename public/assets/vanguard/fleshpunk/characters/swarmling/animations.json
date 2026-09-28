@@ -1,0 +1,1538 @@
+{
+  "schema": "pose-lab-v2-2d-animation-set-v1",
+  "status": "quarantined",
+  "character": "Swarmling",
+  "lineage": "vanguard-side-2d-sprite",
+  "defaultAnimation": "run",
+  "frameSpace": {
+    "width": 256,
+    "height": 256,
+    "colorMode": "RGBA",
+    "background": "transparent",
+    "facing": "source-authored",
+    "camera": "fixed"
+  },
+  "authority": {
+    "source": "source/swarmling-approved-atlas.png",
+    "sourceByteSha256": "baa3541de5a292b9230a4a1f444a7c227985d204afa6f8fec6e3640eff32ff52",
+    "sourceRgbaPixelSha256": "8799d74dc462208cc7e49bcb6d597477f7acbcc4eb3669474664ccfe112317cc",
+    "sourceLayout": {
+      "columns": 6,
+      "rows": 4,
+      "cellWidth": 256,
+      "cellHeight": 256
+    },
+    "scale": "Tiny approved footprint restored; no renderer compensation",
+    "excludedLineage": "authoring/swarmling/** and public/assets/swarmling/fleshpunk/**",
+    "timingAuthority": {
+      "repository": "Valar05/gravity-fist",
+      "revision": "e89c2adf671b06af4ce6a6c1d3f0118e68a6c274",
+      "file": "security_titan.json",
+      "role": "stopwatch only; no pose/root-motion authority",
+      "SecurityTitan": {
+        "Jab": {
+          "activeAtMs": 550,
+          "activeDurationMs": 50,
+          "attackEndMs": 1000,
+          "cooldownMs": 900
+        },
+        "Cross": {
+          "activeAtMs": 350,
+          "activeDurationMs": 50,
+          "attackEndMs": 1000,
+          "cooldownMs": 1050
+        }
+      }
+    },
+    "rootMotion": "OFF; all movement is authored later in engine. Pose Lab fixes one explicit planted-foot source anchor to the canonical stage anchor.",
+    "sourceDimensions": [
+      1536,
+      1024
+    ],
+    "sourceRecovery": "Run row rebuilt to one shared character scale and physical torso center",
+    "run5ScaleNormalization": {
+      "oldVisibleHeightPx": 40,
+      "targetVisibleHeightPx": 46,
+      "scale": 1.15,
+      "authorityCells": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ]
+    },
+    "run5RenderCalibration": {
+      "renderedBeforePx": 83,
+      "renderedTargetPx": 99,
+      "scaleFromCurrent": 1.1927710843373494
+    },
+    "runUniformScaleRepair": {
+      "originalSourceVisibleHeightsPx": [
+        62,
+        62,
+        64,
+        64,
+        63,
+        64
+      ],
+      "targetRunVisibleHeightsPx": [
+        45,
+        45,
+        46,
+        46,
+        45,
+        46
+      ],
+      "targetBodyCoreX": 128,
+      "targetGroundY": 249
+    },
+    "utilityPack": {
+      "contract": "campaigns/swarmling-utility-pack-v3.contract.json",
+      "animations": [
+        "idle",
+        "aggro",
+        "damage",
+        "knockdown",
+        "stand-up",
+        "death"
+      ],
+      "idleSourceCells": [
+        7
+      ],
+      "aggroSurpriseSourceCell": 17,
+      "damageSourceCells": [
+        18,
+        19
+      ],
+      "knockdownTerminalCell": 21,
+      "deathTerminalCell": 22,
+      "proceduralMotionRequired": true,
+      "reviewLoopSeparatedFromGameplay": true,
+      "rootMotion": false
+    },
+    "utilityScaleRepairV2": {
+      "sourceContract": "campaigns/swarmling-utility-pack-v2.contract.json",
+      "scaleAnchorCell": 7,
+      "scaleAnchorVisibleHeightPx": 47,
+      "originalAuthoredVisibleHeightsPx": {
+        "7": 83,
+        "8": 77,
+        "17": 88,
+        "18": 86,
+        "19": 76,
+        "20": 58,
+        "21": 43,
+        "22": 32
+      },
+      "targetVisibleHeightsPx": {
+        "8": 44,
+        "17": 50,
+        "18": 49,
+        "19": 43,
+        "20": 33,
+        "21": 24,
+        "22": 18
+      },
+      "physicalBodyCoreX": 128,
+      "physicalGroundY": 250,
+      "changedCells": [
+        8,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+      ]
+    },
+    "proceduralPhysiologyV4": {
+      "contract": "campaigns/swarmling-procedural-physiology-v4.contract.json",
+      "kernel": "src/procedural-motion-kernel.js",
+      "profiles": [
+        "idle",
+        "aggro",
+        "damage",
+        "knockdown",
+        "stand-up",
+        "death"
+      ],
+      "stateAware": true,
+      "independentAxisPhase": true,
+      "terminalStillness": true,
+      "atlasPixelsChanged": false,
+      "poseSequencesChanged": false
+    },
+    "proceduralPhysiologyV5": {
+      "contract": "campaigns/swarmling-procedural-physiology-v5.contract.json",
+      "kernel": "src/procedural-motion-kernel.js",
+      "microPulseAggro": true,
+      "idleLowShrink": true,
+      "damageProfilePreserved": true,
+      "attackProfiles": {
+        "jab": "attack-snap",
+        "rake": "attack-drag",
+        "scythe-bloom": "attack-bloom"
+      },
+      "atlasPixelsChanged": false,
+      "poseSelectionsChanged": false,
+      "timingChanged": false,
+      "stageAnchorsChanged": false
+    }
+  },
+  "animations": [
+    {
+      "id": "run",
+      "label": "Run",
+      "loop": true,
+      "contactSheet": "run/contact-sheet.png",
+      "groundGuideY": 255,
+      "contract": [
+        "cells 1-6",
+        "80ms each",
+        "no resize",
+        "no generated in-betweens"
+      ],
+      "frames": [
+        {
+          "src": "run/frames/run_0000.png",
+          "durationMs": 80,
+          "sourceCell": 1,
+          "sha256": "e98ecf52b53cd1d00cad540aedbb44b1f88af4b493da46a63a35f80849e9a8e5",
+          "anchorPoint": [
+            128,
+            249
+          ]
+        },
+        {
+          "src": "run/frames/run_0001.png",
+          "durationMs": 80,
+          "sourceCell": 2,
+          "sha256": "fe4a58e6b4b8cb76c9b602c0aa15b4896e3ac7d2c31d85facd21ec6f95360a84",
+          "anchorPoint": [
+            128,
+            249
+          ]
+        },
+        {
+          "src": "run/frames/run_0002.png",
+          "durationMs": 80,
+          "sourceCell": 3,
+          "sha256": "8fe684ae41fa97b8df511821f3d52907e61d1db345829de2cd1236169e4b56d2",
+          "anchorPoint": [
+            128,
+            249
+          ]
+        },
+        {
+          "src": "run/frames/run_0003.png",
+          "durationMs": 80,
+          "sourceCell": 4,
+          "sha256": "999b1ccbaf4e39ac6eaab7988ad0672867a1132fa2c77da5dc612c921f3a03f5",
+          "anchorPoint": [
+            128,
+            249
+          ]
+        },
+        {
+          "src": "run/frames/run_0004.png",
+          "durationMs": 80,
+          "sourceCell": 5,
+          "sha256": "38a81a20781ffcfc0394e1b46130be86f45d4becf8ffcf3a44d6c325750d34fa",
+          "anchorPoint": [
+            128,
+            249
+          ]
+        },
+        {
+          "src": "run/frames/run_0005.png",
+          "durationMs": 80,
+          "sourceCell": 6,
+          "sha256": "00b4b961381f6b6ba040739421e4c2010a9628a233e9495be94a2b34232754f9",
+          "anchorPoint": [
+            128,
+            249
+          ]
+        }
+      ],
+      "pinAuthority": {
+        "mode": "physical-body-core-centered-source",
+        "reason": "Run source row rebuilt uniformly; all frames physically centered at one torso X and ground Y",
+        "stageAnchor": [
+          220,
+          226
+        ]
+      }
+    },
+    {
+      "id": "jab",
+      "label": "Needle Jab",
+      "loop": true,
+      "rootMotion": false,
+      "stageAnchor": [
+        190,
+        226
+      ],
+      "timingAuthority": "SecurityTitan Cross stopwatch",
+      "combatTiming": {
+        "activeAtMs": 350,
+        "activeDurationMs": 50,
+        "attackEndMs": 1000,
+        "cooldownMs": 1050
+      },
+      "contract": [
+        "2 authored attack poses plus shared idle bookends",
+        "source-cell choices reviewed against recovered atlas",
+        "each phase uses measured bottom-contact anchor from recovered atlas",
+        "no root motion; engine owns movement",
+        "procedural deformation pivots around pinned foot",
+        "SecurityTitan Cross stopwatch"
+      ],
+      "frames": [
+        {
+          "sourceCell": 10,
+          "phase": "windup",
+          "anchorPoint": [
+            106,
+            250
+          ]
+        },
+        {
+          "sourceCell": 15,
+          "phase": "strike",
+          "anchorPoint": [
+            104,
+            250
+          ]
+        }
+      ],
+      "idleSource": {
+        "sourceCell": 7,
+        "anchorPoint": [
+          117,
+          250
+        ]
+      },
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 100,
+          "anchorPoint": [
+            117,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "windup",
+          "sourceCell": 10,
+          "durationMs": 250,
+          "anchorPoint": [
+            106,
+            250
+          ],
+          "deform": {
+            "shearX": -0.1,
+            "scaleX": 0.92,
+            "scaleY": 1.06,
+            "rotateDeg": -2
+          }
+        },
+        {
+          "id": "strike",
+          "sourceCell": 15,
+          "durationMs": 100,
+          "anchorPoint": [
+            104,
+            250
+          ],
+          "deform": {
+            "shearX": 0.14,
+            "scaleX": 1.1,
+            "scaleY": 0.94,
+            "rotateDeg": 2
+          }
+        },
+        {
+          "id": "recovery",
+          "sourceCell": 15,
+          "durationMs": 200,
+          "anchorPoint": [
+            104,
+            250
+          ],
+          "deform": {
+            "shearX": 0.04,
+            "scaleX": 1.02,
+            "scaleY": 0.99,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 350,
+          "anchorPoint": [
+            117,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "pivot": "explicit-planted-foot",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ],
+        "motionOverlay": "proceduralMotion-v5-kernel"
+      },
+      "pinAuthority": {
+        "mode": "explicit-rear-support-foot",
+        "source": "human-reviewed tiny atlas",
+        "impactCell": 15
+      },
+      "centeringAuthority": {
+        "mode": "weighted-body-core-vs-pinned-foot",
+        "canvasCenterX": 215,
+        "presentationScale": 1.5,
+        "weightedCoreOffsetPx": 16.9,
+        "resolvedStageAnchorX": 190
+      },
+      "proceduralMotion": {
+        "mode": "attack-snap",
+        "cycleMs": 86,
+        "amplitudes": {
+          "shearX": 0.045,
+          "scaleX": 0.022,
+          "scaleY": 0.028,
+          "rotateDeg": 2.2
+        },
+        "axisPhase": {
+          "shearX": 0,
+          "scaleX": 1.6,
+          "scaleY": 2.7,
+          "rotateDeg": 0.8
+        },
+        "phaseWeights": {
+          "idle-enter": 0.05,
+          "windup": 0.55,
+          "strike": 1.35,
+          "recovery": 0.4,
+          "idle-return": 0.06
+        },
+        "terminalStillPhases": []
+      }
+    },
+    {
+      "id": "rake",
+      "label": "Low Rake",
+      "loop": true,
+      "rootMotion": false,
+      "stageAnchor": [
+        188,
+        226
+      ],
+      "timingAuthority": "SecurityTitan Jab stopwatch",
+      "combatTiming": {
+        "activeAtMs": 550,
+        "activeDurationMs": 50,
+        "attackEndMs": 1000,
+        "cooldownMs": 900
+      },
+      "contract": [
+        "2 authored attack poses plus shared idle bookends",
+        "source-cell choices reviewed against recovered atlas",
+        "each phase uses measured bottom-contact anchor from recovered atlas",
+        "no root motion; engine owns movement",
+        "procedural deformation pivots around pinned foot",
+        "SecurityTitan Jab stopwatch"
+      ],
+      "frames": [
+        {
+          "sourceCell": 13,
+          "phase": "coil",
+          "anchorPoint": [
+            103,
+            250
+          ]
+        },
+        {
+          "sourceCell": 15,
+          "phase": "rake",
+          "anchorPoint": [
+            104,
+            250
+          ]
+        }
+      ],
+      "idleSource": {
+        "sourceCell": 7,
+        "anchorPoint": [
+          117,
+          250
+        ]
+      },
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 100,
+          "anchorPoint": [
+            117,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "coil",
+          "sourceCell": 13,
+          "durationMs": 450,
+          "anchorPoint": [
+            103,
+            250
+          ],
+          "deform": {
+            "shearX": -0.1,
+            "scaleX": 0.92,
+            "scaleY": 1.06,
+            "rotateDeg": -2
+          }
+        },
+        {
+          "id": "rake",
+          "sourceCell": 15,
+          "durationMs": 120,
+          "anchorPoint": [
+            104,
+            250
+          ],
+          "deform": {
+            "shearX": 0.16,
+            "scaleX": 1.1,
+            "scaleY": 0.94,
+            "rotateDeg": 2
+          }
+        },
+        {
+          "id": "recovery",
+          "sourceCell": 15,
+          "durationMs": 180,
+          "anchorPoint": [
+            104,
+            250
+          ],
+          "deform": {
+            "shearX": 0.04,
+            "scaleX": 1.02,
+            "scaleY": 0.99,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 150,
+          "anchorPoint": [
+            117,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "pivot": "explicit-planted-foot",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ],
+        "motionOverlay": "proceduralMotion-v5-kernel"
+      },
+      "pinAuthority": {
+        "mode": "explicit-rear-support-foot",
+        "source": "human-reviewed tiny atlas"
+      },
+      "centeringAuthority": {
+        "mode": "weighted-body-core-vs-pinned-foot",
+        "canvasCenterX": 215,
+        "presentationScale": 1.5,
+        "weightedCoreOffsetPx": 17.9,
+        "resolvedStageAnchorX": 188
+      },
+      "proceduralMotion": {
+        "mode": "attack-drag",
+        "cycleMs": 260,
+        "amplitudes": {
+          "shearX": 0.075,
+          "scaleX": 0.018,
+          "scaleY": 0.025,
+          "rotateDeg": 2.6
+        },
+        "harmonics": {
+          "secondary": 0.18,
+          "tertiary": 0.04
+        },
+        "axisPhase": {
+          "shearX": 0.15,
+          "scaleX": 2.2,
+          "scaleY": 0.55,
+          "rotateDeg": 1.3
+        },
+        "phaseWeights": {
+          "idle-enter": 0.04,
+          "coil": 0.62,
+          "rake": 1.18,
+          "recovery": 0.6,
+          "idle-return": 0.05
+        },
+        "terminalStillPhases": []
+      }
+    },
+    {
+      "id": "scythe-bloom",
+      "label": "Scythe Bloom",
+      "loop": true,
+      "rootMotion": false,
+      "stageAnchor": [
+        190,
+        226
+      ],
+      "timingAuthority": "SecurityTitan Cross stopwatch with a three-pose visual split",
+      "combatTiming": {
+        "activeAtMs": 350,
+        "activeDurationMs": 50,
+        "attackEndMs": 1000,
+        "cooldownMs": 1050
+      },
+      "contract": [
+        "3 authored attack poses plus shared idle bookends",
+        "source-cell choices reviewed against recovered atlas",
+        "each phase uses measured bottom-contact anchor from recovered atlas",
+        "no root motion; engine owns movement",
+        "procedural deformation pivots around pinned foot",
+        "SecurityTitan Cross stopwatch with a three-pose visual split"
+      ],
+      "frames": [
+        {
+          "sourceCell": 11,
+          "phase": "coil",
+          "anchorPoint": [
+            110,
+            249
+          ]
+        },
+        {
+          "sourceCell": 15,
+          "phase": "bloom-impact",
+          "anchorPoint": [
+            104,
+            250
+          ]
+        },
+        {
+          "sourceCell": 16,
+          "phase": "follow-through",
+          "anchorPoint": [
+            110,
+            250
+          ]
+        }
+      ],
+      "idleSource": {
+        "sourceCell": 7,
+        "anchorPoint": [
+          117,
+          250
+        ]
+      },
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 100,
+          "anchorPoint": [
+            117,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "coil",
+          "sourceCell": 11,
+          "durationMs": 250,
+          "anchorPoint": [
+            110,
+            249
+          ],
+          "deform": {
+            "shearX": -0.12,
+            "scaleX": 0.9,
+            "scaleY": 1.08,
+            "rotateDeg": -3
+          }
+        },
+        {
+          "id": "bloom-impact",
+          "sourceCell": 15,
+          "durationMs": 100,
+          "anchorPoint": [
+            104,
+            250
+          ],
+          "deform": {
+            "shearX": 0.18,
+            "scaleX": 1.12,
+            "scaleY": 0.92,
+            "rotateDeg": 3
+          }
+        },
+        {
+          "id": "follow-through",
+          "sourceCell": 16,
+          "durationMs": 250,
+          "anchorPoint": [
+            110,
+            250
+          ],
+          "deform": {
+            "shearX": 0.08,
+            "scaleX": 1.05,
+            "scaleY": 0.97,
+            "rotateDeg": 1
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 300,
+          "anchorPoint": [
+            117,
+            250
+          ],
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "pivot": "explicit-planted-foot",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ],
+        "motionOverlay": "proceduralMotion-v5-kernel"
+      },
+      "pinAuthority": {
+        "mode": "explicit-rear-support-foot",
+        "source": "human-reviewed tiny atlas"
+      },
+      "centeringAuthority": {
+        "mode": "weighted-body-core-vs-pinned-foot",
+        "canvasCenterX": 215,
+        "presentationScale": 1.5,
+        "weightedCoreOffsetPx": 16.8,
+        "resolvedStageAnchorX": 190
+      },
+      "proceduralMotion": {
+        "mode": "attack-bloom",
+        "cycleMs": 310,
+        "amplitudes": {
+          "shearX": 0.07,
+          "scaleX": 0.025,
+          "scaleY": 0.032,
+          "rotateDeg": 3.15
+        },
+        "harmonics": {
+          "secondary": 0.22,
+          "tertiary": 0.06
+        },
+        "axisPhase": {
+          "shearX": 0.6,
+          "scaleX": 2.4,
+          "scaleY": 0,
+          "rotateDeg": 1.05
+        },
+        "phaseWeights": {
+          "idle-enter": 0.04,
+          "coil": 0.72,
+          "bloom-impact": 1.32,
+          "follow-through": 0.88,
+          "idle-return": 0.08
+        },
+        "terminalStillPhases": []
+      }
+    },
+    {
+      "id": "idle",
+      "label": "Idle",
+      "loop": true,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 0,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "single authored idle pose with visible procedural breathing and body sway",
+      "contract": [
+        "canonical atlas pose authority",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
+        "root motion OFF; engine owns translation",
+        "explicit procedural motion profile required"
+      ],
+      "timeline": [
+        {
+          "id": "idle",
+          "sourceCell": 7,
+          "durationMs": 1400,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "deform-breath-v3",
+        "cycleMs": 1500,
+        "amplitudes": {
+          "shearX": 0.052,
+          "scaleX": 0.008,
+          "scaleY": 0.014,
+          "rotateDeg": 1.75
+        },
+        "harmonics": {
+          "secondary": 0.3,
+          "tertiary": 0.1
+        },
+        "axisPhase": {
+          "shearX": 0.75,
+          "scaleX": 2.4,
+          "scaleY": 0.2,
+          "rotateDeg": 1.35
+        },
+        "phaseWeights": {
+          "idle": 1
+        },
+        "terminalStillPhases": []
+      },
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "motionOverlay": "proceduralMotion-v5-kernel",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "utility-scale-repaired canonical Swarmling atlas"
+      }
+    },
+    {
+      "id": "aggro",
+      "label": "Aggro / Surprise",
+      "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 500,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "surprise/aggro tell centered on authored flare pose cell 17",
+      "contract": [
+        "canonical atlas pose authority",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
+        "root motion OFF; engine owns translation",
+        "explicit procedural motion profile required"
+      ],
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "surprise-flare",
+          "sourceCell": 17,
+          "durationMs": 420,
+          "deform": {
+            "shearX": -0.06,
+            "scaleX": 0.96,
+            "scaleY": 1.07,
+            "rotateDeg": -2.5
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "surprise-hold",
+          "sourceCell": 17,
+          "durationMs": 300,
+          "deform": {
+            "shearX": -0.025,
+            "scaleX": 0.985,
+            "scaleY": 1.025,
+            "rotateDeg": -1
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 320,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "micro-alert-cluster",
+        "cycleMs": 92,
+        "clusterMs": 430,
+        "decayMs": 720,
+        "amplitudes": {
+          "shearX": 0.022,
+          "scaleX": 0.008,
+          "scaleY": 0.014,
+          "rotateDeg": 1.15
+        },
+        "axisPhase": {
+          "shearX": 0.25,
+          "scaleX": 1.6,
+          "scaleY": 0.05,
+          "rotateDeg": 2.1
+        },
+        "phaseWeights": {
+          "idle-enter": 0.08,
+          "surprise-flare": 1.15,
+          "surprise-hold": 0.92,
+          "idle-return": 0.1
+        },
+        "terminalStillPhases": []
+      },
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "motionOverlay": "proceduralMotion-v5-kernel",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "utility-scale-repaired canonical Swarmling atlas"
+      }
+    },
+    {
+      "id": "damage",
+      "label": "Damage / Hit React",
+      "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 450,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "non-knockdown hit reaction using authored folded and stagger poses",
+      "contract": [
+        "canonical atlas pose authority",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
+        "root motion OFF; engine owns translation",
+        "explicit procedural motion profile required"
+      ],
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 80,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "impact-fold",
+          "sourceCell": 18,
+          "durationMs": 170,
+          "deform": {
+            "shearX": -0.08,
+            "scaleX": 0.95,
+            "scaleY": 1.06,
+            "rotateDeg": -3
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "hurt-stagger",
+          "sourceCell": 19,
+          "durationMs": 240,
+          "deform": {
+            "shearX": 0.04,
+            "scaleX": 0.985,
+            "scaleY": 1.02,
+            "rotateDeg": 1.5
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "recover",
+          "sourceCell": 7,
+          "durationMs": 360,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "ringdown-impact",
+        "cycleMs": 145,
+        "decayMs": 560,
+        "amplitudes": {
+          "shearX": 0.055,
+          "scaleX": 0.032,
+          "scaleY": 0.05,
+          "rotateDeg": 3
+        },
+        "axisPhase": {
+          "shearX": 0,
+          "scaleX": 1.1,
+          "scaleY": 2.45,
+          "rotateDeg": 0.65
+        },
+        "phaseWeights": {
+          "idle-enter": 0,
+          "impact-fold": 1.2,
+          "hurt-stagger": 0.72,
+          "recover": 0.18
+        },
+        "terminalStillPhases": []
+      },
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "motionOverlay": "proceduralMotion-v5-kernel",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "utility-scale-repaired canonical Swarmling atlas"
+      }
+    },
+    {
+      "id": "knockdown",
+      "label": "Knockdown",
+      "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 650,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "recoverable prone state terminating on cell 21",
+      "contract": [
+        "canonical atlas pose authority",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
+        "root motion OFF; engine owns translation",
+        "explicit procedural motion profile required"
+      ],
+      "timeline": [
+        {
+          "id": "stagger",
+          "sourceCell": 19,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0.04,
+            "scaleX": 0.985,
+            "scaleY": 1.02,
+            "rotateDeg": 1.5
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "kneel",
+          "sourceCell": 20,
+          "durationMs": 260,
+          "deform": {
+            "shearX": -0.025,
+            "scaleX": 1.02,
+            "scaleY": 0.97,
+            "rotateDeg": -1.5
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "prone-vulnerable",
+          "sourceCell": 21,
+          "durationMs": 620,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "collapse-ringdown",
+        "cycleMs": 180,
+        "decayMs": 720,
+        "amplitudes": {
+          "shearX": 0.044,
+          "scaleX": 0.028,
+          "scaleY": 0.052,
+          "rotateDeg": 2.65
+        },
+        "axisPhase": {
+          "shearX": 0.25,
+          "scaleX": 1.5,
+          "scaleY": 2.8,
+          "rotateDeg": 0.95
+        },
+        "phaseWeights": {
+          "stagger": 0.78,
+          "kneel": 1.15,
+          "prone-vulnerable": 0.12
+        },
+        "terminalStillPhases": []
+      },
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "motionOverlay": "proceduralMotion-v2-kernel",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "utility-scale-repaired canonical Swarmling atlas"
+      }
+    },
+    {
+      "id": "stand-up",
+      "label": "Stand Up",
+      "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 500,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "recovery from prone cell 21 through kneel and stagger to idle",
+      "contract": [
+        "canonical atlas pose authority",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
+        "root motion OFF; engine owns translation",
+        "explicit procedural motion profile required"
+      ],
+      "timeline": [
+        {
+          "id": "prone-enter",
+          "sourceCell": 21,
+          "durationMs": 220,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "push-kneel",
+          "sourceCell": 20,
+          "durationMs": 280,
+          "deform": {
+            "shearX": -0.035,
+            "scaleX": 0.98,
+            "scaleY": 1.04,
+            "rotateDeg": -2
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "stagger-rise",
+          "sourceCell": 19,
+          "durationMs": 280,
+          "deform": {
+            "shearX": 0.03,
+            "scaleX": 0.985,
+            "scaleY": 1.03,
+            "rotateDeg": 1.5
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 360,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "effort-burst",
+        "cycleMs": 320,
+        "amplitudes": {
+          "shearX": 0.036,
+          "scaleX": 0.026,
+          "scaleY": 0.05,
+          "rotateDeg": 1.9
+        },
+        "harmonics": {
+          "secondary": 0.2,
+          "tertiary": 0.05
+        },
+        "axisPhase": {
+          "shearX": 0.5,
+          "scaleX": 2,
+          "scaleY": 0.1,
+          "rotateDeg": 1.15
+        },
+        "phaseWeights": {
+          "prone-enter": 0.18,
+          "push-kneel": 1,
+          "stagger-rise": 0.74,
+          "idle-return": 0.16
+        },
+        "terminalStillPhases": []
+      },
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "motionOverlay": "proceduralMotion-v2-kernel",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "utility-scale-repaired canonical Swarmling atlas"
+      }
+    },
+    {
+      "id": "death",
+      "label": "Death",
+      "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 900,
+      "rootMotion": false,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "semantic": "terminal death state ending on corpse cell 22",
+      "contract": [
+        "canonical atlas pose authority",
+        "utility scale repair from v2 is locked",
+        "gameplay loop semantics are separate from review looping",
+        "root motion OFF; engine owns translation",
+        "explicit procedural motion profile required"
+      ],
+      "timeline": [
+        {
+          "id": "fatal-stagger",
+          "sourceCell": 19,
+          "durationMs": 170,
+          "deform": {
+            "shearX": 0.04,
+            "scaleX": 0.985,
+            "scaleY": 1.02,
+            "rotateDeg": 1.5
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "fatal-kneel",
+          "sourceCell": 20,
+          "durationMs": 240,
+          "deform": {
+            "shearX": -0.03,
+            "scaleX": 1.02,
+            "scaleY": 0.97,
+            "rotateDeg": -1.5
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "fall-prone",
+          "sourceCell": 21,
+          "durationMs": 280,
+          "deform": {
+            "shearX": 0.015,
+            "scaleX": 1.01,
+            "scaleY": 0.99,
+            "rotateDeg": 1
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        },
+        {
+          "id": "corpse",
+          "sourceCell": 22,
+          "durationMs": 900,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          },
+          "anchorPoint": [
+            128,
+            250
+          ]
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "terminal-spasm",
+        "cycleMs": 125,
+        "decayMs": 520,
+        "amplitudes": {
+          "shearX": 0.05,
+          "scaleX": 0.03,
+          "scaleY": 0.046,
+          "rotateDeg": 3.25
+        },
+        "axisPhase": {
+          "shearX": 0.2,
+          "scaleX": 1.3,
+          "scaleY": 2.6,
+          "rotateDeg": 0.75
+        },
+        "phaseWeights": {
+          "fatal-stagger": 1,
+          "fatal-kneel": 0.78,
+          "fall-prone": 0.48,
+          "corpse": 0
+        },
+        "terminalStillPhases": [
+          "corpse"
+        ]
+      },
+      "procedural": {
+        "interpolation": "smoothstep-deform-only",
+        "motionOverlay": "proceduralMotion-v2-kernel",
+        "pivot": "body-core-x-ground-y",
+        "rootTranslation": false,
+        "allowed": [
+          "shearX",
+          "scaleX",
+          "scaleY",
+          "rotateDeg"
+        ],
+        "forbidden": [
+          "shiftX",
+          "shiftY",
+          "root motion",
+          "stage translation"
+        ]
+      },
+      "pinAuthority": {
+        "mode": "body-core-x-ground-y",
+        "source": "utility-scale-repaired canonical Swarmling atlas"
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-rear-foot-pin-v1",
+  "status":"sealed-before-apply",
+  "mission":"Improve rear/support-foot pinning for Run, Needle Jab, Low Rake, and Scythe Bloom; correct Needle Jab impact from source cell 14 to 15.",
+  "runAnchors":[[105,249],[115,249],[113,249],[104,250],[121,249],[108,250]],
+  "attackAnchors":{"7":[117,250],"10":[106,250],"11":[110,249],"13":[103,250],"15":[104,250],"16":[110,250]},
+  "needleJab":{"windupCell":10,"impactCell":15,"timeline":[7,10,15,15,7]},
+  "locks":["tiny atlas SHA 81a883... remains source authority","presentationScale 1.5","SecurityTitan timing","root motion OFF","Vanguard unchanged"],
+  "humanVerdict":"pending"
+}

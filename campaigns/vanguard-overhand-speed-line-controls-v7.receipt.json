@@ -1,0 +1,17 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "vanguard-overhand-speed-line-controls-v7",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "3492feeaa68ff7b3f13251ff787b0a826bd2e0bf",
+  "implementationRevision": "0a0d9cbc66b8764a0933cc71caf0e95c1b18d951",
+  "finalRevision": null,
+  "executionLane": "repo-owned-framework-v2-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/vanguard/procedural/vanguard-diorama-speed-lines.png",
+    "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+    "src/procedural-motion-preview.js",
+    "campaigns/vanguard-overhand-speed-line-controls-v7.receipt.json"
+  ]
+}

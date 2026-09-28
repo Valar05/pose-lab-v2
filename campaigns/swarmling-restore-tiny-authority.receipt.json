@@ -1,0 +1,11 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-restore-tiny-authority-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "55b06ae85c0d71e2935d593c04d5f18117f98f9b",
+  "implementationRevision": "afd56c829cc9ad15d0808a2f2b61d45e6e114161",
+  "sourceByteSha256": "81a883d4825474bd16a03e0bb70c7fc126a20aa96e98d255160bf5d807e19c71",
+  "presentationScale": 1.5,
+  "rootMotion": false,
+  "humanVerdict": "pending"
+}

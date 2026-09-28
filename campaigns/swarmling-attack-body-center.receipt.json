@@ -1,0 +1,27 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-attack-body-center-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "ae7bda05a30a1e697aa4a0639ead54e15cde2ee6",
+  "implementationRevision": "23fe50402baa75af156995314efd2d8214dec92d",
+  "attackStageAnchors": {
+    "jab": [
+      190,
+      226
+    ],
+    "rake": [
+      188,
+      226
+    ],
+    "scythe-bloom": [
+      190,
+      226
+    ]
+  },
+  "runUntouched": true,
+  "atlasPixelsChanged": false,
+  "needleJabImpactCell": 15,
+  "presentationScale": 1.5,
+  "rootMotion": false,
+  "humanVerdict": "pending"
+}

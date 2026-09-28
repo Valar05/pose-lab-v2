@@ -1,0 +1,57 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-planted-attacks-v5",
+  "status":"sealed-before-refresh",
+  "mission":"Materially change the three Swarmling attack animations after repeated renderer-only no-ops. Replace weak authored pose choices, strengthen procedural deformation, and add planted-foot rotation while preserving SecurityTitan timing, idle bookends, exact source atlas, accepted run, and zero root motion.",
+  "sourceRevision":"6f78b71f9c3ab66a39e01a72836415bd0c8799c1",
+  "diagnosis":{
+    "failedAssumption":"renderer representation changes could fix attacks while source pose choices remained unchanged",
+    "actualChangeRequired":"animation design itself: source pose selection plus stronger deformation"
+  },
+  "poseAuthority":{
+    "sourceAtlas":"public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+    "sourceByteSha256":"2a9ee9cc38a4b695d9a561bdce08eab71671de261fcae9e07b1f6a44f55f6f91",
+    "idleSourceCell":7,
+    "jab":[8,17],
+    "rake":[9,10],
+    "scytheBloom":[11,15,16]
+  },
+  "timingAuthority":{
+    "repository":"Valar05/gravity-fist",
+    "revision":"e89c2adf671b06af4ce6a6c1d3f0118e68a6c274",
+    "file":"security_titan.json",
+    "role":"stopwatch only"
+  },
+  "proceduralPresentation":{
+    "allowed":["shearX","scaleX","scaleY","rotateDeg"],
+    "pivot":"explicit planted-foot anchor",
+    "rootTranslation":false,
+    "stageAnchor":[220,226]
+  },
+  "rootMotion":{
+    "enabled":false,
+    "engineOwnsMovement":true
+  },
+  "locks":[
+    "accepted Swarmling Run",
+    "Swarmling source atlas pixels and scale/fuzziness",
+    "SecurityTitan stopwatch values",
+    "Vanguard assets/recipes/behavior",
+    "old Blender-derived Swarmling/Fleshling lineage"
+  ],
+  "verification":[
+    "node tools/test_swarmling_attacks.mjs",
+    "node --check src/procedural-swarmling-preview.js",
+    "node --check src/procedural-review-shell.js",
+    "npm run test:2d",
+    "npm run build",
+    "npm run smoke",
+    "git diff --check"
+  ],
+  "visualGate":[
+    "motion.html?procedural=swarmling-jab",
+    "motion.html?procedural=swarmling-rake",
+    "motion.html?procedural=swarmling-scythe-bloom"
+  ],
+  "humanVerdict":"pending"
+}

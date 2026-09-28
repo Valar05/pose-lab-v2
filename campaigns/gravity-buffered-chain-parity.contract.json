@@ -1,0 +1,85 @@
+{
+  "schema": "pose-lab-v2-combat-parity-contract-v1",
+  "id": "gravity-buffered-chain-parity-v0",
+  "status": "PROVEN_MACHINE_PARITY",
+  "mission": "Prove one Gravity Fist combat semantic across the Vanguard representation boundary: one standard-attack request made during an active attack is buffered, does not start early, and starts the next chain move at the current move's semantic attack_end even when the current visual recipe still has recovery frames.",
+  "donorAuthority": {
+    "repository": "Valar05/gravity-fist",
+    "revision": "e89c2adf671b06af4ce6a6c1d3f0118e68a6c274",
+    "path": "scripts/player.gd",
+    "gitBlob": "47088e150126f99a59fd25cfc6e417d374ad2d80",
+    "sha256": "851aab158c7b5ccedecd6193e5bf11d5fd75e7337d5f5911e8c489b46a16a262",
+    "evidence": [
+      "lines 1296-1337: a right-side tap sets buffered_attack",
+      "lines 1339-1365: _do_attack selects and advances the ordered standard chain",
+      "lines 1431-1469: buffered attack fires only when no attack and no combo recovery are active",
+      "lines 1471-1523: attack_end closes the current attack"
+    ]
+  },
+  "semanticInvariant": {
+    "name": "buffered-standard-chain-cutover",
+    "executable": "During an active standard attack, retain at most one next-standard-attack request. Do not start it before semantic attack_end. On the first eligible update that reaches or passes attack_end, if no blocking recovery exists, consume the request exactly once and start the next ordered standard move.",
+    "excluded": [
+      "exact donor timing values",
+      "animation exposure duration",
+      "pose selection",
+      "damage and hitbox timing",
+      "finisher recovery",
+      "human feel acceptance"
+    ]
+  },
+  "targetBoundary": {
+    "repositoryRevision": "51ac775612ea0aa1b26e7af7104d0c858f1d0f84",
+    "firstRepresentation": {
+      "path": "public/assets/vanguard/procedural/horizontal-strike.recipe.json",
+      "gitBlob": "e1f540d9adde64deb7257ec5001ef279e14849df",
+      "sha256": "d61c0d218c96e61cc043c39d895881bd7533db65295230788084aec41b51930c",
+      "semanticCutover": "end of stab-contact",
+      "semanticEndMs": 320,
+      "presentationDurationMs": 650
+    },
+    "nextRepresentation": {
+      "path": "public/assets/vanguard/procedural/attack2-uppercut.recipe.json",
+      "gitBlob": "48c95e22ec3f7ddb427315e825d6ec58b130ec81",
+      "sha256": "a50eba7a4be2f2f50b48b9b2fb7128a3a39031d93d573249f7d4c7f128c13402"
+    },
+    "authorityRule": "The adapter owns combat cutover. Recipes remain presentation data and are read-only proof fixtures."
+  },
+  "writableSurface": [
+    "campaigns/gravity-buffered-chain-parity.contract.json",
+    "src/combat/gravity-buffered-chain-adapter.js",
+    "tools/test_gravity_buffered_chain_parity.mjs",
+    "docs/GRAVITY_FIST_COMBAT_PARITY_PROOF.md"
+  ],
+  "lockedSurface": [
+    "public/assets/vanguard/procedural/*.recipe.json",
+    "public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png",
+    "src/procedural-motion-preview.js",
+    "src/procedural-review-shell.js",
+    "all accepted or quarantined animation assets"
+  ],
+  "requiredEvidence": [
+    "donor revision and source hash match",
+    "target recipe hashes match",
+    "buffer does not start the next move before 320 ms",
+    "the next move starts exactly at 320 ms",
+    "the request is consumed once",
+    "changing presentation recovery duration does not change semantic cutover",
+    "no locked file changes"
+  ],
+  "humanReview": {
+    "requiredForSemanticVerdict": false,
+    "reason": "This proof is limited to deterministic state-transition parity. Animation quality and combat feel are explicitly outside the claim."
+  },
+  "proofResult": {
+    "verdict": "PASS",
+    "donorVerified": true,
+    "semanticCutoverMs": 320,
+    "presentationDurationMs": 650,
+    "preemptedRecoveryMs": 330,
+    "presentationDurationIndependence": "PASS",
+    "lockedSurfaceChanged": false,
+    "humanReviewRequired": false,
+    "claimBoundary": "State-transition parity only. No claim is made about animation quality, combat feel, hit timing, damage, deployment, or broad target integration."
+  }
+}

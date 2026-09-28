@@ -1,0 +1,14 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-run-center-body-v2",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "bd6aae24e0c5e893b0f401d494f5933dfbe826e8",
+  "implementationRevision": "6b7f74e5b6bdac84de7e55d347fd1f5c171b91ea",
+  "summary": {
+    "run": "body-center X plus ground Y on all six frames",
+    "needleJab": "impact cell 15 preserved"
+  },
+  "rootMotion": false,
+  "presentationScale": 1.5,
+  "humanVerdict": "pending"
+}

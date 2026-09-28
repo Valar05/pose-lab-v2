@@ -21,7 +21,7 @@
       1037,
       1754
     ],
-    "sha256": "d01cf5beb73dc7a6b6fccca8aa1d2745014f64b4ad6a284cab2e1d35c8eeedbd",
+    "sha256": "54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587",
     "rowBounds": {
       "16": [
         1645,
@@ -49,6 +49,227 @@
     "reloadCalibration": {
       "path": "/storage/emulated/0/Download/vanguard-pose-atlas-reload-calibrated-15pct-smaller.png",
       "pixelSha256": "db8bdbc7c8a3411b10ff5d29b40200884ca41d26db450b0392dc5a672b469a72"
+    }
+  },
+  "refinement": {
+    "kind": "shotgun-color-only-v6",
+    "humanVerdict": "pending",
+    "relativeScaleFromPreviousCandidate": 0.9,
+    "targetForegroundHeight": 67,
+    "sharedScaleFromAuthoredSources": {
+      "reload": 0.14135021097046413,
+      "fire": 0.10307692307692308
+    },
+    "color": {
+      "rMultiplier": 1.07,
+      "gMultiplier": 0.91,
+      "bMultiplier": 0.88,
+      "saturation": 1.1,
+      "contrast": 1.05,
+      "brightness": 0.98
+    },
+    "placements": {
+      "97": [
+        57,
+        1682,
+        59,
+        67
+      ],
+      "98": [
+        230,
+        1682,
+        59,
+        67
+      ],
+      "99": [
+        402,
+        1682,
+        59,
+        67
+      ],
+      "100": [
+        572,
+        1683,
+        64,
+        66
+      ],
+      "101": [
+        744,
+        1682,
+        66,
+        67
+      ],
+      "102": [
+        919,
+        1682,
+        63,
+        67
+      ]
+    },
+    "horizontalPlacement": "restored stage.centerX 215 in reload/fire recipes",
+    "appearanceAuthority": "canonical atlas cell 2",
+    "geometryPolicy": "preserve exact current bbox/size/placement for cells 97-102",
+    "referenceRgb": [
+      108.009,
+      57.192,
+      56.959
+    ],
+    "referenceEdge": 51.37334,
+    "cells": {
+      "97": {
+        "bbox": [
+          57,
+          37,
+          116,
+          104
+        ],
+        "size": [
+          59,
+          67
+        ],
+        "rgbBefore": [
+          107.643,
+          51.064,
+          47.406
+        ],
+        "rgbAfter": [
+          107.643,
+          57.198,
+          55.95
+        ],
+        "edgeBefore": 50.71161,
+        "edgeAfter": 53.55297
+      },
+      "98": {
+        "bbox": [
+          57,
+          37,
+          116,
+          104
+        ],
+        "size": [
+          59,
+          67
+        ],
+        "rgbBefore": [
+          106.9,
+          50.716,
+          47.069
+        ],
+        "rgbAfter": [
+          106.9,
+          56.812,
+          55.553
+        ],
+        "edgeBefore": 50.8437,
+        "edgeAfter": 53.65039
+      },
+      "99": {
+        "bbox": [
+          56,
+          37,
+          115,
+          104
+        ],
+        "size": [
+          59,
+          67
+        ],
+        "rgbBefore": [
+          108.713,
+          51.689,
+          47.933
+        ],
+        "rgbAfter": [
+          108.713,
+          57.91,
+          56.572
+        ],
+        "edgeBefore": 51.36916,
+        "edgeAfter": 54.26656
+      },
+      "100": {
+        "bbox": [
+          54,
+          38,
+          118,
+          104
+        ],
+        "size": [
+          64,
+          66
+        ],
+        "rgbBefore": [
+          106.351,
+          50.297,
+          46.427
+        ],
+        "rgbAfter": [
+          106.262,
+          56.315,
+          54.77
+        ],
+        "edgeBefore": 51.71075,
+        "edgeAfter": 54.69541
+      },
+      "101": {
+        "bbox": [
+          53,
+          37,
+          119,
+          104
+        ],
+        "size": [
+          66,
+          67
+        ],
+        "rgbBefore": [
+          105.919,
+          49.85,
+          46.053
+        ],
+        "rgbAfter": [
+          105.919,
+          55.856,
+          54.351
+        ],
+        "edgeBefore": 51.31682,
+        "edgeAfter": 54.2958
+      },
+      "102": {
+        "bbox": [
+          55,
+          37,
+          118,
+          104
+        ],
+        "size": [
+          63,
+          67
+        ],
+        "rgbBefore": [
+          105.837,
+          49.657,
+          45.895
+        ],
+        "rgbAfter": [
+          105.745,
+          55.596,
+          54.131
+        ],
+        "edgeBefore": 50.80912,
+        "edgeAfter": 53.74123
+      }
+    },
+    "acceptedLocks": {
+      "size": "locked from human feedback",
+      "fuzziness": "locked from human feedback"
+    },
+    "colorDelta": {
+      "rMultiplier": 1.0,
+      "gMultiplier": 1.12,
+      "bMultiplier": 1.18,
+      "reason": "human feedback: v5 still visibly too red; increase green/blue while preserving red, size, and softness"
     }
   }
 }

@@ -13,7 +13,7 @@ These rules are mandatory for Vanguard procedural sprite campaigns. They exist b
 - A correction narrows the writable surface. "Everything is good except X" means ONLY X may change.
 - Never repair one frame by rewriting all frames.
 - Never modify a shared renderer to solve a single-animation problem unless the change is proven behavior-neutral for every locked animation and explicitly authorized.
-- Attacks 1–4 are currently locked. Attack 5 is the only active mutation surface.
+- Historical attack locks remain in force unless a later explicit human verdict reopens the named attack/property in an active campaign contract. Do not infer a global unlock from adjacent work.
 
 ## Planted foot / 2D IK
 - Exact foot. Exact point. Exact coordinate space. Pin first. Trim second. Verify on render.
@@ -106,6 +106,19 @@ These are named failure classes. Treat recurrence as a guard failure, not a crea
 - Every mutation must state internally: requested defect, writable property set, forbidden property set, authority, and acceptance evidence. If these cannot be named, do not mutate.
 - Never turn a diagnosis into a new architecture. Fix the named defect in the existing architecture.
 
+
+## Sprite-sheet-first diagnostic gate
+Before any 2D pose/registration mutation, inspect the canonical sprite sheet itself. This is mandatory.
+
+- **POSE-FIRST:** Verify exact pose/frame identity before placement.
+- **SHEET-FIRST:** Verify source-frame scale, crop, body center, ground line, and cell geometry before touching anchors or renderer math.
+- **ONE-SCALE:** A regular animation family authored at one scale must be rebuilt with one shared scale. Never independently fit each frame to a target box.
+- **NO-DOWNSTREAM-COMPENSATION:** Do not use stageAnchor, registrationOffset, bodyScale, presentationScale, shear, or renderer changes to compensate for inconsistent source-sheet geometry.
+- **VISIBLE-READ AUTHORITY:** When rendered review says a frame is visibly smaller/larger/off-center, inspect source pixels and neighboring frames first. Numeric bbox/centroid heuristics are supporting evidence, not taste authority.
+- **FIX-UPSTREAM-ONCE:** When the sheet is wrong, repair the smallest source-sheet region that owns the defect, then rebuild derived frames/hashes. Do not stack anchor corrections on top of bad source geometry.
+
+Named regression class: **SHEET-BLIND-TUNING** — repeated runtime/anchor/presentation adjustments made without first verifying the canonical sprite sheet. Treat recurrence as a guard failure.
+
 ## Atlas geometry
 - Never assume an image is a regular atlas because it contains multiple effects.
 - Grid metadata (columns/rows/indexBase) is allowed only when equal cell geometry is proven by the source artifact or authoritative metadata.
@@ -114,6 +127,27 @@ These are named failure classes. Treat recurrence as a guard failure, not a crea
 - Never solve bad atlas extraction by re-importing, regenerating, copying, or transporting an asset that is already present.
 - An exact effect selection requires: canonical source asset + measured source rectangle (or proven regular cell) + explicit pivot/placement.
 - Effect extraction geometry and effect placement are separate. Fix extraction before tuning position/scale/rotation.
+
+
+## Campaign Framework V2 — shared mechanics, contract-owned expectations
+New or actively modified campaigns must use `docs/POSE_CAMPAIGN_FRAMEWORK.md`, `tools/campaigns/campaign_core.py`, and `tools/campaigns/campaign_common.sh` for generic campaign mechanics instead of copying one-off guard/stage/receipt logic.
+
+- Contract schema `pose-lab-v2-campaign-contract-v2` owns the machine-readable mutable path surface, locked file hashes, structural expectations, receipt path, and required doctrine.
+- Structural state must be verified structurally. JSON values use JSON Pointer checks; do not grep JSON formatting/whitespace.
+- Campaign-variable values belong in the active contract/current canonical state. Do not duplicate yesterday's value into a verifier and then reject the authorized change.
+- `machine.mutablePaths` is the single mechanical path allowlist. Do not maintain a second handwritten staging allowlist with different semantics.
+- Receipt ordering is fixed: mutate -> verify -> stage implementation -> commit implementation -> create receipt -> stage receipt -> commit receipt -> push/readback -> exact-revision review.
+- Active/new campaigns should source shared shell helpers for sticky boot, disposable worktrees, staged diff checks, receipt creation, push/readback, and server readiness.
+- Historical campaigns are archaeology. Do not bulk-rewrite them merely to conform. Migrate a campaign when it is next reopened.
+- A generic-looking guard that is actually campaign-specific must be treated as legacy infrastructure, not reused as universal authority.
+- Run `python3 tools/test_pose_campaign_framework.py` after framework changes.
+
+Named regression classes:
+- **FORMAT-AS-SEMANTICS:** verifier depends on JSON indentation, spacing, ordering, or error-message prose.
+- **DUPLICATE-EXPECTATION:** the same mutable property is independently hardcoded in contract, helper, and test.
+- **RECEIPT-BEFORE-BIRTH:** staging references a receipt before the receipt exists.
+- **ALLOWLIST-DRIFT:** shell staging list and contract writable surface disagree.
+- **STALE-VALUE-GUARD:** verifier rejects the exact property a sealed campaign is authorized to change because it still embeds the previous value.
 
 ## Script and campaign compliance
 - Any script handed to Drew must itself follow the active campaign doctrine. A script that bypasses the guard or reintroduces a rejected runtime topology is invalid even if its individual shell commands work.
@@ -537,3 +571,204 @@ The receipt is for the next fresh chat. It must not require access to the conver
 - Byte SHA remains the authority when exact encoded bytes matter (for example an accepted runtime effect). Pixel SHA is only for source-art identity across lossless/re-encoded containers.
 - Once exact source identity is established, do not use connected-component selection to discard legitimate separated geometry such as hair, weapon tips, shells, or detached silhouette details. Use the full foreground bbox inside the proven authored frame partition.
 - A named calibration artifact that already encodes a requested relative correction (for example `*-15pct-smaller`) is the post-correction authority. Never apply the same percentage a second time.
+
+
+## Contact-sheet delivery and anti-meta failure class — 2026-09-27
+Observed repeated failure: the assistant discussed workflows, scripts, source purity, future corrective steps, and contact-sheet plans instead of delivering the requested contact sheet. It also substituted the wrong artifact shape: every rendered frame when the user asked for the selected animation poses, and repeatedly produced low-resolution derivatives when the task required preserving available detail.
+
+Mandatory rules:
+- **DELIVERABLE-FIRST:** When the requested artifact can be produced from evidence already present in the conversation or current authorized source, produce the artifact before discussing methodology.
+- **NO-TALKING-ABOUT-DOING:** Do not substitute plans, scripts, workflow explanations, future promises, or meta-commentary for the requested visible artifact.
+- **CONTACT-SHEET-MEANS-SELECTION:** If the user asks for a contact sheet of a proposed animation, assemble the selected poses for that animation. Do not dump every source/keyframe unless the user explicitly requests exhaustive provenance.
+- **NO-USER-ROUNDTRIP:** Do not make Drew ferry an artifact through Termux, Downloads, Drive, or another abstraction layer when the assistant already has sufficient in-chat evidence to produce the requested review artifact.
+- **PRESERVE-AVAILABLE-DETAIL:** Do not downsample, thumbnail, crop-reassemble, or otherwise degrade a user-supplied review image merely for convenience. If the available source is already low resolution, do not claim a derivative is full-detail; use the highest-detail available authority or stop at the exact missing source.
+- **NO-GUESSED-CROP:** Never infer panel/frame geometry from a composite and then present the crop as authoritative without visually verifying the exact action region against the supplied parent artifact.
+- **VISIBLE-REQUEST-OUTRANKS-PIPELINE-PURITY:** A user-supplied screenshot may be valid review authority even when it is not mechanical source authority. Use it directly for review tasks when the user explicitly asks to.
+- **BOUNTY-BEFORE-DEDUPE:** For pose-ledgers and sprite donor selection, preserve meaningful near-duplicates and micro-variants unless the user explicitly asks for consolidation. Storage scarcity is not an excuse for premature deletion.
+
+Named regression classes:
+- **DELIVERABLE-STALL:** repeated explanation of what will be done instead of producing the requested artifact.
+- **CONTACT-SHEET-SUBSTITUTION:** returning exhaustive source frames, an index, a script, or a theory when the user requested a curated contact sheet.
+- **USER-AS-FILE-BUS:** requiring the user to move an already-available artifact between tools/layers so the assistant can continue.
+- **REVIEW-DERIVATIVE-DEGRADATION:** unnecessarily lowering resolution or fidelity of a review source before selection.
+- **UNVERIFIED-PANEL-CROP:** selecting or labeling frames from a guessed/misaligned crop.
+
+
+## Oversized review atlas and over-render failures — 2026-09-27
+Observed failure: a multi-action master atlas was rendered so large that ChatGPT transport/review downsampled it, destroying the very pose detail the render was meant to preserve. The assistant then compounded the problem by cropping thumbnails from that degraded overview and by invoking a four-pass forensic renderer for a simple beauty-frame selection task.
+
+Mandatory rules:
+- **RENDER-ONLY-THE-NAMED-ACTION:** When Drew asks to inspect or select poses for one action, render only that action unless he explicitly requests a corpus-wide pass.
+- **RENDER-ONLY-THE-NEEDED-PASS:** A beauty/reference request gets one beauty render per selected frame. Do not render silhouette, limb-id, depth, geometry, or other forensic passes unless they are explicitly needed.
+- **NO-MEGA-ATLAS-FOR-SELECTION:** Do not combine many actions into one giant review image when the immediate task is selecting poses from one action. Keep review artifacts small enough that transport does not discard useful pixels.
+- **FULL-FRAME-AUTHORITY:** If full-resolution per-frame renders exist, they outrank a downsampled overview/contact sheet for assembly of the final ImageGen reference.
+- **SELECT-THEN-ASSEMBLE:** Use the overview only to choose candidate frame identities when necessary. The final curated contact sheet must be assembled from the original full-resolution selected frames, not from thumbnails cut out of the overview.
+- **ONE-RENDER-PER-FRAME:** Do not pay multiple render passes for the same frame when a single beauty image is the requested deliverable.
+- **NO-TRANSPORT-INDUCED-LOSS:** If a review image is so large that the chat/client will downsample it, change the artifact shape rather than accepting resolution loss. Prefer one action and a small selected set of full-resolution frames.
+
+Named regression classes:
+- **MEGA-ATLAS-DOWNREZ:** oversized multi-action review image loses pose detail in transport.
+- **THUMBNAIL-AS-FINAL-SOURCE:** final contact sheet assembled from overview thumbnails despite full frames existing.
+- **FORENSIC-OVERRENDER:** silhouette/limb/depth/geometry passes rendered for a beauty-only selection task.
+- **SCOPE-OVERRENDER:** all actions rendered when only one named action was requested.
+
+
+### Exact-runner preflight for handed-off Blender tools — 2026-09-27
+Observed failure: a newly added Blender tool imported a sibling module successfully in repository reasoning but failed under the actual `scripts/run-blender-tool.mjs` execution lane because Blender's Python path did not include the tool directory.
+
+Mandatory rules:
+- **EXACT-LANE-PREFLIGHT:** Before handing Drew a script that invokes a new Blender Python tool, preflight that tool under the exact repo runner/topology it will use in production, not merely by source inspection.
+- **SIBLING-IMPORT-SELF-CONTAINMENT:** Blender tools that import sibling modules under `tools/` must explicitly add their own tool directory to `sys.path` or use an already-proven import mechanism. Do not assume Blender adds the script directory.
+- **NO-UNEXECUTED-HANDOFF:** A new repo-owned execution path may not be presented as ready merely because the code was committed. If exact-lane execution has not been proven, label it unproven and do not make Drew discover the first import/runtime error.
+- **REPAIR-AND-CONTINUE:** When the handed-off lane fails on repo-owned plumbing, repair the plumbing immediately and continue the original requested task. Do not turn the failure into another architecture discussion.
+
+Named regression class:
+- **BLENDER-SIBLING-IMPORT:** Blender tool fails under the canonical runner because sibling `tools/` imports were assumed rather than made explicit.
+
+
+### Full-resolution selection must precede curation — 2026-09-27
+Observed failure: frame choices were made from a transport-downsampled overview, then only those guessed frames were rerendered at high resolution. This inverted the purpose of the high-resolution render.
+
+Mandatory rules:
+- **RENDER-BEFORE-CURATE:** When high-resolution rendering exists specifically to enable pose selection, render the complete named action first, then curate from those full-resolution frames.
+- **NO-LOWRES-PRESELECTION:** Do not choose the final candidate frame set from a downsampled overview when full-resolution frame inspection is the stated goal.
+- **PAGINATE-DONT-DOWNSAMPLE:** When the complete action is too large for one review image, split it into small pages of native-resolution frames. Never solve transport limits by shrinking the frames.
+- **CURATE-FROM-NATIVE:** Final selected pose IDs must come from inspection of the native-resolution review pages, not from the overview atlas.
+- **OVERVIEW-IS-NAVIGATION:** A low-resolution master overview may locate an action or rough phase only. It is not sufficient evidence for final pose selection when native frames are available or can be rendered.
+
+Named regression class:
+- **LOWRES-PRESELECTION:** final high-resolution render set was chosen from low-resolution evidence before the high-resolution corpus was inspected.
+
+
+## Appearance-authority and drift-prevention gate — 2026-09-27
+Observed risk: a single strong hero plate may communicate overall identity while still leaving distinctive equipment, side ownership, and construction details under-specified. Repeated generation from an under-specified appearance reference invites model drift and expensive after-the-fact repair.
+
+Mandatory rules:
+- **APPEARANCE-AUTHORITY-MUST-BE-EXPLICIT:** Before the first sprite-generation pass, name the exact appearance authority set. It may include one hero plate or multiple references, but the set must be deliberate and frozen for the attempt.
+- **IDENTITY-LOCKS-BEFORE-GENERATION:** Record the character features that must not drift across frames: facing, handedness, weapon side, shield side, helmet/head silhouette, armor silhouette, primary materials/colors, signature weapon proportions, and signature shield design.
+- **DISTINCTIVE-PROP-COVERAGE:** If the hero plate does not clearly resolve a signature prop or construction detail that must remain consistent, add a dedicated reference for that prop before generation rather than fixing drift afterward.
+- **NO-PROMPT-ONLY-IDENTITY:** Do not rely on prose alone to preserve a complex weapon, shield, helmet, or armor construction when a visual reference is available or can be prepared.
+- **POSE-AND-APPEARANCE-SEPARATION:** Pose references own geometry and articulation. Appearance references own costume/material/identity. Neither may silently overwrite the other.
+- **NO-GENERATED-REFERENCE-RECURSION:** A generated sprite/frame is never promoted into appearance authority merely because it looks good. Retries return to the frozen source pose + frozen appearance authority set.
+- **FIRST-PASS-DRIFT-CHECK:** Before accepting a first sprite pass, compare all frames side-by-side for character identity drift, weapon/shield construction drift, side swaps, silhouette mutation, and color/material drift.
+- **FIX-SOURCE-COVERAGE-BEFORE-INPAINTING-DRIFT:** When repeated drift comes from missing appearance information, improve the reference packet first. Do not enter a frame-by-frame repair spiral while the source packet remains under-specified.
+- **CONSISTENCY-OUTRANKS-ORNAMENT:** At low sprite resolution, preserve identity-defining shapes and side relationships before decorative detail. Extra ornament may vary only if it does not change the read of the character.
+- **NO-UNNECESSARY-REFERENCE-BLOAT:** More references are not automatically better. Add a reference only when it closes a real ambiguity that could cause drift.
+
+Named regression classes:
+- **APPEARANCE-DRIFT:** the same character changes armor, prop construction, color/material identity, or silhouette across generated frames.
+- **SIDE-SWAP:** weapon/shield/hand ownership flips or migrates between frames.
+- **PROP-DRIFT:** a signature weapon or shield mutates between frames because its appearance authority was insufficient.
+- **PROMPT-ONLY-IDENTITY:** generation relied on prose where visual identity authority was needed.
+- **DRIFT-REPAIR-SPIRAL:** repeated local fixes attempted before correcting an under-specified appearance reference packet.
+
+
+## Textured single-action review and four-pose curation — 2026-09-27
+For sprite-reference generation, render one named animation at a time with the model's actual textures/materials. Silhouette-only renders are diagnostic evidence, not the default final pose authority for ImageGen-reference preparation.
+
+Mandatory rules:
+- **TEXTURED-BY-DEFAULT:** Use textured/material beauty renders for sprite-reference curation unless Drew explicitly requests a diagnostic pass.
+- **ONE-ACTION-AT-A-TIME:** Render and review one named animation at a time. Do not build giant multi-action review atlases for curation.
+- **RENDER-WHOLE-ACTION-BEFORE-CURATE:** When the final poses are not already known, render the whole named action, then choose from those full-detail frames.
+- **FOUR-POSE-DEFAULT:** Final ImageGen reference contact sheets use four poses unless Drew explicitly overrides it.
+- **UNIQUE-POSE-BIAS:** Prefer four meaningfully distinct poses.
+- **IDLE-BY-EXCEPTION:** Idle or near-idle belongs in a contact sheet only when that specific animation benefits from it. Idle is not a universal first/last slot.
+- **RENDER-MORE-THAN-YOU-KEEP:** The review corpus may contain many frames; the curated final sheet remains small.
+- **CONTACT-SHEET-FROM-ORIGINALS:** Assemble the final four-pose sheet from the original selected full-detail renders, never from thumbnails, overview crops, or chat-downsampled derivatives.
+- **STYLE-ECONOMY-OUTRANKS-COVERAGE:** More poses are not automatically better. Preserve the compressed visual language of the sprite style.
+
+Named regression classes:
+- **IDLE-OVERGENERALIZATION:** idle anchors were treated as mandatory for unrelated animations.
+- **REDUNDANT-ANCHOR-WASTE:** scarce final-sheet slots were spent on near-duplicate anchors when unique action poses existed.
+- **OVERCOVERAGE-SHEET:** final sheet included more poses than the style needed.
+- **SILHOUETTE-AUTHORITY-MISTAKE:** silhouette-only review was used as final ImageGen pose authority despite textured renders being required.
+- **GIANT-ATLAS-REVIEW:** a multi-action atlas was used where one-action review was the actual task.
+
+## Blender-version compatibility for handed-off render tools — 2026-09-27
+A handed-off Blender script must not assume optional engine properties exist across Blender versions.
+- Prefer engine-agnostic settings when a property is nonessential.
+- Optional settings must be guarded with feature checks.
+- A cosmetic renderer option may never be allowed to abort the production render.
+- Exact-runner preflight must cover the Blender version used by the handoff lane when available.
+
+Named regression class:
+- **BLENDER-OPTIONAL-PROPERTY:** a nonessential version-specific renderer property (for example Eevee bloom) aborts the entire render.
+
+
+## Back-view and whole-body rotation authority — 2026-09-28
+Observed failure: sprite transfer preserved the limb gesture and weapon direction but rotated the character back toward a front-facing presentation pose, erasing the rear hip, back, shoulder, and pelvis orientation present in the source.
+
+Mandatory rules:
+- **BACK-VIEW-AUTHORITY:** If the pose reference exposes the back, rear hip, rear shoulder, backside, or rear-facing armor planes, preserve that viewpoint exactly. Do not rotate the torso, pelvis, or head toward camera merely to improve facial or costume readability.
+- **WHOLE-BODY-ROTATION:** When the source shows pelvis and upper body rotating together, preserve the full committed rotation through feet, knees, hips, pelvis, spine, shoulders, head, shield plane, and weapon line. Do not reduce it to an upper-body twist on a front-facing lower body.
+- **PELVIS-IS-POSE-AUTHORITY:** Pelvis facing is a first-class pose property. A correct weapon vector with the wrong pelvis orientation is a failed pose transfer.
+- **REAR-PLANE-PRESERVATION:** Back armor, cape root, rear shoulder, rear hip, and shield/back overlap are valid identity-bearing surfaces. Do not replace them with more recognizable front-facing anatomy.
+- **NO-FACE-RECOVERY:** Do not turn the head or chest back toward camera simply to recover a visible face when the source pose turns away.
+- **SILHOUETTE-BEATS-PRESENTATION:** Viewpoint truth and pose geometry outrank character-presentation preferences such as showing the face, chest, or front shield motif.
+- **LOCAL-EDIT-ONLY:** If one generated frame is wrong and the user requests inpaint/edit, edit only that frame/region. All already-good pixels outside the requested frame remain locked.
+
+Named regression classes:
+- **FRONT-FACING-BIAS:** a rear/side pose is converted into a front-biased presentation pose while keeping only the limb gesture.
+- **PELVIS-FRONT-LOCK:** upper body rotates but pelvis/lower body remain incorrectly front-facing.
+- **FACE-RECOVERY-DRIFT:** head/chest are rotated back toward camera to expose the face.
+- **REAR-PLANE-ERASURE:** visible back/rear armor or hip planes from the source are replaced by front-facing surfaces.
+
+
+## Long-weapon character scale and down-resolution contract — 2026-09-28
+This contract captures the Obsidian/Vanguard mistakes and is mandatory for future long-weapon sprite families.
+
+### Character scale is not weapon envelope
+- **BODY-HEIGHT-AUTHORITY:** Normalize character scale from visible body height, not from full sprite bounds.
+- **SAME-HEIGHT-PEERS:** When two playable characters are intended to be the same physical height, their canonical standing/body height must match even if one has a much longer weapon.
+- **WEAPON-OVERFLOW-ALLOWED:** A lance, polearm, cape, raised shield, or VFX may exceed the normal body envelope. Grow the canvas/cell instead of shrinking the character.
+- **NO-WEAPON-BOUND-SCALING:** Never use lance tip, raised weapon, cape spill, motion blur, or attack VFX to determine character scale.
+- **NO-BOSS-SCALE-DRIFT:** Do not make a long-weapon character taller merely because the weapon makes the overall sprite larger.
+- **WIDTH-CAN-GROW:** Long weapons are expected to increase horizontal bounds while body height remains fixed.
+
+### Exact down-resolution procedure
+1. Choose one clean gameplay-scale body-height authority image for the comparison character.
+2. Choose one source pose for the new character whose weapon is mostly horizontal and does not artificially inflate vertical bounds.
+3. Measure the visible body height only. Exclude weapon tip, raised weapon, cape spikes, VFX, labels, and empty canvas.
+4. Compute exactly one global scale factor:
+   `globalScale = targetBodyHeightPx / sourceBodyHeightPx`.
+5. Freeze that factor for the entire character family.
+6. Apply the same factor to every full-resolution pose. Do not fit, normalize, or rescale poses independently.
+7. Preserve each pose's aspect ratio and source geometry exactly.
+8. Use a single declared resampling method for the batch. Record it in the manifest.
+9. Let long/raised weapons exceed the body-height envelope. Expand output cell/canvas dimensions instead of shrinking the pose.
+10. Save each low-resolution pose as an individual image before building any atlas.
+11. Build atlases only from those already-down-resed individual images. The atlas step may add padding/labels but may not rescale a pose.
+12. Preserve the untouched high-resolution originals separately.
+
+### Required manifest
+Every down-resolution batch must record:
+- target body height in pixels;
+- source body-height authority and measured source body height;
+- exact global scale factor;
+- resampling method;
+- source image identity for every pose;
+- source crop/bounds used for each pose;
+- output dimensions for each pose;
+- output hash for each pose;
+- statement that per-pose fitting was not used.
+
+### Mechanical comparison rules
+- Compare clean body frames to clean body frames.
+- Do not compare a motion-blurred/VFX-heavy Vanguard frame against a clean Obsidian frame and treat the resulting envelope as character scale.
+- Do not include UI/stage/background area in the measured character bounds.
+- A side-by-side proof must use the same body-height target for both characters and must visually expose weapon overflow separately from body scale.
+
+Named regression classes:
+- **WEAPON-BOUND-SCALE:** full weapon/VFX bounds were used to set character size.
+- **PER-POSE-NORMALIZATION:** each pose was independently fitted into a box, destroying shared scale.
+- **EFFECT-AS-BODY-SCALE:** blur/VFX inflated the comparison character's measured size.
+- **STAGE-AS-CHARACTER-BOUNDS:** UI/stage/background pixels contaminated scale measurement.
+- **LONG-WEAPON-SHRINK:** character body was made too small merely to fit the lance inside a fixed cell.
+- **LONG-WEAPON-BOSSIFY:** character body was made taller merely because the lance needed more canvas.
+- **ATLAS-RESCALE-DRIFT:** poses were resized again during atlas assembly after the family scale was already frozen.
+
+### Workflow discipline learned from Obsidian
+- Freeze the source pose bounty before consolidation. Do not generate new poses during down-resolution.
+- Preserve meaningful near-duplicates. Consolidation means organization, not premature deletion.
+- High-resolution originals remain source authority; low-resolution copies are gameplay/consolidation derivatives.
+- One scale proof image is enough. Do not produce repeated speculative comparison images after the body-height authority is settled.

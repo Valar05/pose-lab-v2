@@ -1,0 +1,53 @@
+{
+  "schema":"pose-lab-v2-campaign-contract-v1",
+  "id":"swarmling-recovered-atlas-promotion-v1",
+  "status":"sealed-before-apply",
+  "mission":"Promote the user-approved recovered Swarmling atlas already installed on the phone into Pose Lab source truth, regenerate the six run frames from its top row without destructive cropping, update manifest source/run hashes, preserve attack timing/pose indices/root-motion rules, push from a disposable worktree, and open exact-revision motion review.",
+  "packageParentRevision":"14301acc00db906cfd7ed172dd330e8d46c7b17f",
+  "localSource":{
+    "path":"/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+    "byteSha256":"7513136d32a923d33d212609ea722d34c26bab855d2ce2775f0922bb88871787",
+    "dimensions":[1536,1024],
+    "layout":{"columns":6,"rows":4,"cellWidth":256,"cellHeight":256},
+    "meaning":"Exact downloaded atlas approved by the user for sizing/layout, replacing the damaged crop ancestor."
+  },
+  "runRebuild":{
+    "sourceCells":[1,2,3,4,5,6],
+    "durationMsPerFrame":80,
+    "backgroundRule":"Only exact RGB(0,0,0) becomes transparent in exported run frames; no near-black thresholding or silhouette cleanup.",
+    "geometry":"Each run frame remains 256x256 with no recentering or resizing."
+  },
+  "locks":[
+    "Swarmling attack source-cell indices",
+    "SecurityTitan stopwatch values",
+    "Swarmling planted-foot anchors",
+    "Swarmling procedural deformation values",
+    "root motion remains OFF",
+    "accepted Vanguard assets/recipes/behavior",
+    "old Blender-derived Swarmling/Fleshling lineage"
+  ],
+  "writableSurface":[
+    "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/run/frames/run_0000.png through run_0005.png",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/run/contact-sheet.png",
+    "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json source/run hashes only",
+    "campaigns/swarmling-recovered-atlas-promotion.receipt.json"
+  ],
+  "executionLane":"Repo-owned shell campaign run from phone checkout. Primary worktree is read-only. Authoring occurs in a disposable worktree from exact origin/main. Exact committed revision is rebuilt and served for review.",
+  "verification":[
+    "local atlas byte hash and 1536x1024 dimensions",
+    "rules reread at runtime",
+    "new source RGBA pixel hash recorded in manifest",
+    "run frames crop cells 1-6 at exact 256x256 geometry",
+    "run frame hashes match manifest",
+    "node tools/test_swarmling_attacks.mjs",
+    "node --check src/procedural-swarmling-preview.js",
+    "npm run test:2d",
+    "npm run build",
+    "npm run smoke",
+    "git diff --check",
+    "origin/main exact readback after push"
+  ],
+  "visualGate":"motion.html?procedural=swarmling-run&rev=<exact-final-revision>&nocache=<timestamp>",
+  "humanVerdict":"pending"
+}

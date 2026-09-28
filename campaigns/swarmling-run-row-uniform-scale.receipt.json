@@ -1,0 +1,45 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-run-row-uniform-scale-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "39711d78f513be404c70ec1136d3f20669858819",
+  "implementationRevision": "a90479ae70d4b367cd12a55e88567308cdc452a8",
+  "sourceAtlasSha256": "c9546c1bc61d9e5b0a2e558e26b53488e140520d5ae21b0f288ff2c3c85c7ea2",
+  "targetRunHeightsPx": [
+    45,
+    45,
+    46,
+    46,
+    45,
+    46
+  ],
+  "runAnchors": [
+    [
+      128,
+      249
+    ],
+    [
+      128,
+      249
+    ],
+    [
+      128,
+      249
+    ],
+    [
+      128,
+      249
+    ],
+    [
+      128,
+      249
+    ],
+    [
+      128,
+      249
+    ]
+  ],
+  "needleJabImpactCell": 15,
+  "rootMotion": false,
+  "humanVerdict": "pending"
+}

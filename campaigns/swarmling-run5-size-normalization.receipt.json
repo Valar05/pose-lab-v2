@@ -1,0 +1,18 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v1",
+  "campaign": "swarmling-run5-size-normalization-v1",
+  "status": "implemented-awaiting-human-review",
+  "sealedRevision": "42f0a55d54949da14207713c2c63123fa8574bdb",
+  "implementationRevision": "e3aa26a731c938b7c14ac287437cb1a2f258b5d2",
+  "run5": {
+    "oldVisibleHeightPx": 40,
+    "targetVisibleHeightPx": 46,
+    "scale": 1.15
+  },
+  "locksPreserved": {
+    "needleJabImpactCell": 15,
+    "presentationScale": 1.5,
+    "rootMotion": false
+  },
+  "humanVerdict": "pending"
+}

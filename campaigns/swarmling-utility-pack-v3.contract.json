@@ -1,0 +1,533 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "swarmling-utility-pack-v3",
+  "status": "sealed-before-apply",
+  "mission": "Correct utility pose semantics and review playback without touching utility scale repair: restore cell 17 as Aggro/Surprise, keep Idle to cell 7 only, move Damage to cells 18/19, add visibly strong distinct procedural motion to every utility animation, and decouple gameplay loop semantics from automatic Pose Lab review looping.",
+  "diagnosis": {
+    "userFeedback": [
+      "Idle correctly lost its surprise frame, but Aggro/Surprise incorrectly lost it too",
+      "Idle procedural motion is not visibly doing enough",
+      "all utility animations need clear procedural motion",
+      "utility animations should repeat automatically on the review surface"
+    ],
+    "sourceSheetReading": {
+      "7": "neutral standing idle",
+      "17": "surprise/aggro flare pose",
+      "18": "folded hit/collapse pose",
+      "19": "hunched damage/stagger pose",
+      "20": "kneeling/down transition",
+      "21": "recoverable prone",
+      "22": "terminal corpse"
+    }
+  },
+  "lockedAcceptedState": {
+    "atlasSha256": "baa3541de5a292b9230a4a1f444a7c227985d204afa6f8fec6e3640eff32ff52",
+    "run": {
+      "sourceCells": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "anchors": [
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ],
+        [
+          128,
+          249
+        ]
+      ]
+    },
+    "jab": {
+      "sourceCells": [
+        10,
+        15
+      ],
+      "timelineCells": [
+        7,
+        10,
+        15,
+        15,
+        7
+      ],
+      "stageAnchor": [
+        190,
+        226
+      ],
+      "impactCell": 15
+    },
+    "rake": {
+      "sourceCells": [
+        13,
+        15
+      ],
+      "timelineCells": [
+        7,
+        13,
+        15,
+        15,
+        7
+      ],
+      "stageAnchor": [
+        188,
+        226
+      ]
+    },
+    "scythe-bloom": {
+      "sourceCells": [
+        11,
+        15,
+        16
+      ],
+      "timelineCells": [
+        7,
+        11,
+        15,
+        16,
+        7
+      ],
+      "stageAnchor": [
+        190,
+        226
+      ]
+    },
+    "presentationScale": 1.5,
+    "utilityScaleRepair": "locked from v2; no atlas pixel edits"
+  },
+  "utilityAnimations": {
+    "idle": {
+      "label": "Idle",
+      "loop": true,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 0,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "idle",
+          "sourceCell": 7,
+          "durationMs": 1400,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "organic-breath",
+        "cycleMs": 1400,
+        "shearX": 0.035,
+        "scaleX": 0.028,
+        "scaleY": 0.045,
+        "rotateDeg": 1.4,
+        "secondHarmonic": 0.35
+      },
+      "semantic": "single authored idle pose with visible procedural breathing and body sway"
+    },
+    "aggro": {
+      "label": "Aggro / Surprise",
+      "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 500,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "surprise-flare",
+          "sourceCell": 17,
+          "durationMs": 420,
+          "deform": {
+            "shearX": -0.06,
+            "scaleX": 0.96,
+            "scaleY": 1.07,
+            "rotateDeg": -2.5
+          }
+        },
+        {
+          "id": "surprise-hold",
+          "sourceCell": 17,
+          "durationMs": 300,
+          "deform": {
+            "shearX": -0.025,
+            "scaleX": 0.985,
+            "scaleY": 1.025,
+            "rotateDeg": -1
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 320,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "startle-quiver",
+        "cycleMs": 120,
+        "decayMs": 650,
+        "shearX": 0.055,
+        "scaleX": 0.025,
+        "scaleY": 0.045,
+        "rotateDeg": 2.8
+      },
+      "semantic": "surprise/aggro tell centered on authored flare pose cell 17"
+    },
+    "damage": {
+      "label": "Damage / Hit React",
+      "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 450,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "idle-enter",
+          "sourceCell": 7,
+          "durationMs": 80,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "impact-fold",
+          "sourceCell": 18,
+          "durationMs": 170,
+          "deform": {
+            "shearX": -0.08,
+            "scaleX": 0.95,
+            "scaleY": 1.06,
+            "rotateDeg": -3
+          }
+        },
+        {
+          "id": "hurt-stagger",
+          "sourceCell": 19,
+          "durationMs": 240,
+          "deform": {
+            "shearX": 0.04,
+            "scaleX": 0.985,
+            "scaleY": 1.02,
+            "rotateDeg": 1.5
+          }
+        },
+        {
+          "id": "recover",
+          "sourceCell": 7,
+          "durationMs": 360,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "impact-rattle",
+        "cycleMs": 100,
+        "decayMs": 520,
+        "shearX": 0.06,
+        "scaleX": 0.03,
+        "scaleY": 0.045,
+        "rotateDeg": 3.2
+      },
+      "semantic": "non-knockdown hit reaction using authored folded and stagger poses"
+    },
+    "knockdown": {
+      "label": "Knockdown",
+      "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 650,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "stagger",
+          "sourceCell": 19,
+          "durationMs": 180,
+          "deform": {
+            "shearX": 0.04,
+            "scaleX": 0.985,
+            "scaleY": 1.02,
+            "rotateDeg": 1.5
+          }
+        },
+        {
+          "id": "kneel",
+          "sourceCell": 20,
+          "durationMs": 260,
+          "deform": {
+            "shearX": -0.025,
+            "scaleX": 1.02,
+            "scaleY": 0.97,
+            "rotateDeg": -1.5
+          }
+        },
+        {
+          "id": "prone-vulnerable",
+          "sourceCell": 21,
+          "durationMs": 620,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "collapse-jolt",
+        "cycleMs": 150,
+        "decayMs": 700,
+        "shearX": 0.045,
+        "scaleX": 0.028,
+        "scaleY": 0.05,
+        "rotateDeg": 3
+      },
+      "semantic": "recoverable prone state terminating on cell 21"
+    },
+    "stand-up": {
+      "label": "Stand Up",
+      "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 500,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "prone-enter",
+          "sourceCell": 21,
+          "durationMs": 220,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        },
+        {
+          "id": "push-kneel",
+          "sourceCell": 20,
+          "durationMs": 280,
+          "deform": {
+            "shearX": -0.035,
+            "scaleX": 0.98,
+            "scaleY": 1.04,
+            "rotateDeg": -2
+          }
+        },
+        {
+          "id": "stagger-rise",
+          "sourceCell": 19,
+          "durationMs": 280,
+          "deform": {
+            "shearX": 0.03,
+            "scaleX": 0.985,
+            "scaleY": 1.03,
+            "rotateDeg": 1.5
+          }
+        },
+        {
+          "id": "idle-return",
+          "sourceCell": 7,
+          "durationMs": 360,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "effort-pulse",
+        "cycleMs": 260,
+        "shearX": 0.04,
+        "scaleX": 0.025,
+        "scaleY": 0.045,
+        "rotateDeg": 2,
+        "secondHarmonic": 0.25
+      },
+      "semantic": "recovery from prone cell 21 through kneel and stagger to idle"
+    },
+    "death": {
+      "label": "Death",
+      "loop": false,
+      "reviewLoop": true,
+      "reviewLoopGapMs": 900,
+      "stageAnchor": [
+        215,
+        226
+      ],
+      "timeline": [
+        {
+          "id": "fatal-stagger",
+          "sourceCell": 19,
+          "durationMs": 170,
+          "deform": {
+            "shearX": 0.04,
+            "scaleX": 0.985,
+            "scaleY": 1.02,
+            "rotateDeg": 1.5
+          }
+        },
+        {
+          "id": "fatal-kneel",
+          "sourceCell": 20,
+          "durationMs": 240,
+          "deform": {
+            "shearX": -0.03,
+            "scaleX": 1.02,
+            "scaleY": 0.97,
+            "rotateDeg": -1.5
+          }
+        },
+        {
+          "id": "fall-prone",
+          "sourceCell": 21,
+          "durationMs": 280,
+          "deform": {
+            "shearX": 0.015,
+            "scaleX": 1.01,
+            "scaleY": 0.99,
+            "rotateDeg": 1
+          }
+        },
+        {
+          "id": "corpse",
+          "sourceCell": 22,
+          "durationMs": 900,
+          "deform": {
+            "shearX": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotateDeg": 0
+          }
+        }
+      ],
+      "proceduralMotion": {
+        "mode": "death-spasm",
+        "cycleMs": 110,
+        "decayMs": 500,
+        "shearX": 0.05,
+        "scaleX": 0.025,
+        "scaleY": 0.04,
+        "rotateDeg": 3.4
+      },
+      "semantic": "terminal death state ending on corpse cell 22"
+    }
+  },
+  "machine": {
+    "mutablePaths": [
+      "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+      "src/procedural-swarmling-preview.js",
+      "tools/test_swarmling_utility_animations.mjs",
+      "campaigns/swarmling-utility-pack-v3.receipt.json"
+    ],
+    "receiptPath": "campaigns/swarmling-utility-pack-v3.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/source/swarmling-approved-atlas.png",
+        "sha256": "baa3541de5a292b9230a4a1f444a7c227985d204afa6f8fec6e3640eff32ff52"
+      }
+    ],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/0/frames/0/anchorPoint",
+        "value": [
+          128,
+          249
+        ]
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/1/stageAnchor",
+        "value": [
+          190,
+          226
+        ]
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vanguard/fleshpunk/characters/swarmling/animations.json",
+        "pointer": "/animations/1/frames/1/sourceCell",
+        "value": 15
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-swarmling-preview.js",
+        "value": "function proceduralMotionAt(ms,state,base)"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-swarmling-preview.js",
+        "value": "function reviewTimeAt(raw)"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-swarmling-preview.js",
+        "value": "const presentationScale=1.5;"
+      }
+    ]
+  }
+}
