@@ -592,3 +592,22 @@ Named regression classes:
 - **USER-AS-FILE-BUS:** requiring the user to move an already-available artifact between tools/layers so the assistant can continue.
 - **REVIEW-DERIVATIVE-DEGRADATION:** unnecessarily lowering resolution or fidelity of a review source before selection.
 - **UNVERIFIED-PANEL-CROP:** selecting or labeling frames from a guessed/misaligned crop.
+
+
+## Oversized review atlas and over-render failures — 2026-09-27
+Observed failure: a multi-action master atlas was rendered so large that ChatGPT transport/review downsampled it, destroying the very pose detail the render was meant to preserve. The assistant then compounded the problem by cropping thumbnails from that degraded overview and by invoking a four-pass forensic renderer for a simple beauty-frame selection task.
+
+Mandatory rules:
+- **RENDER-ONLY-THE-NAMED-ACTION:** When Drew asks to inspect or select poses for one action, render only that action unless he explicitly requests a corpus-wide pass.
+- **RENDER-ONLY-THE-NEEDED-PASS:** A beauty/reference request gets one beauty render per selected frame. Do not render silhouette, limb-id, depth, geometry, or other forensic passes unless they are explicitly needed.
+- **NO-MEGA-ATLAS-FOR-SELECTION:** Do not combine many actions into one giant review image when the immediate task is selecting poses from one action. Keep review artifacts small enough that transport does not discard useful pixels.
+- **FULL-FRAME-AUTHORITY:** If full-resolution per-frame renders exist, they outrank a downsampled overview/contact sheet for assembly of the final ImageGen reference.
+- **SELECT-THEN-ASSEMBLE:** Use the overview only to choose candidate frame identities when necessary. The final curated contact sheet must be assembled from the original full-resolution selected frames, not from thumbnails cut out of the overview.
+- **ONE-RENDER-PER-FRAME:** Do not pay multiple render passes for the same frame when a single beauty image is the requested deliverable.
+- **NO-TRANSPORT-INDUCED-LOSS:** If a review image is so large that the chat/client will downsample it, change the artifact shape rather than accepting resolution loss. Prefer one action and a small selected set of full-resolution frames.
+
+Named regression classes:
+- **MEGA-ATLAS-DOWNREZ:** oversized multi-action review image loses pose detail in transport.
+- **THUMBNAIL-AS-FINAL-SOURCE:** final contact sheet assembled from overview thumbnails despite full frames existing.
+- **FORENSIC-OVERRENDER:** silhouette/limb/depth/geometry passes rendered for a beauty-only selection task.
+- **SCOPE-OVERRENDER:** all actions rendered when only one named action was requested.
