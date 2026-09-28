@@ -1,0 +1,16 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "vanguard-overhand-speed-sprite-calibration-v6",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "0d8f683b7fcfc7fca0d7eac133f89c2ce834132d",
+  "implementationRevision": "e2e80207006378ebafd6fe664aad2cbad153ca58",
+  "finalRevision": null,
+  "executionLane": "repo-owned-framework-v2-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+    "src/procedural-motion-preview.js",
+    "campaigns/vanguard-overhand-speed-sprite-calibration-v6.receipt.json"
+  ]
+}
