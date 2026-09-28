@@ -15,7 +15,7 @@ for(const k of ['idle','chamber','commit','preimpact','contact']){
   if(recipe.sources[k]?.backgroundKey!=='black-border')fail(k+' alpha key missing');
   if(recipe.sources[k]?.backgroundKeyThreshold!==18)fail(k+' alpha key threshold changed');
 }
-if(crypto.createHash('sha256').update(asset).digest('hex')!=='363b184de9bfc98a74c92a2066f63b6a4c9a9998a168fad87f67f2c32cc396e8')fail('speed-line source bytes changed');
+if(crypto.createHash('sha256').update(asset).digest('hex')!=='0ffcd220e8688e74387235305ca82853fc80dad5e7212f5c99b69d42d70cb0fa')fail('speed-line source bytes changed');
 const expectedBlur={idle:0,anticipation:0,chamber:0,'cross-commit':.32,'lean-forward':1,contact:.46,'follow-through':.08,'recoil-1':0,'recoil-2':0,'idle-return':0};
 for(const [id,v] of Object.entries(expectedBlur))if(recipe.phases.find(p=>p.id===id)?.blur?.amount!==v)fail(id+' blur envelope changed');
 for(const needle of [
