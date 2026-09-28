@@ -262,3 +262,14 @@ Generation order:
 7. never use a generated frame as the reference for another frame.
 
 The goal is not maximum reference count. The goal is enough visual authority to prevent model drift before it starts.
+
+
+## Four-pose textured reference lane — 2026-09-27
+For ImageGen sprite-reference preparation:
+1. render the complete named action as textured/material beauty frames when the pose subset is not already known;
+2. inspect the full-detail renders;
+3. choose four poses by default, favoring distinct motion information;
+4. include idle only when that specific animation actually needs it;
+5. assemble the final sheet from the original selected renders.
+
+The candidate render count and the final contact-sheet pose count are separate concerns. Rendering many candidate frames is allowed; the final reference should remain concise.
