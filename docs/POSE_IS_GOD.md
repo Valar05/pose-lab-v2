@@ -200,3 +200,14 @@ Do not promote when the human verdict is not explicitly `accepted`.
 
 ## Sprite-sheet production lane
 When working with authored 2D sprite/contact sheets, the original authored sheet is the source authority. Shrink the source before inference/measurement, use one shared scale for a regular sheet, preserve source order and cell geometry, and never normalize each frame independently. Atlas cells are containers: grow the atlas instead of clipping or shrinking useful poses. Preserve the established body/ground anchor. Cleanup must distinguish phantom fragments from legitimate separated geometry; use explicit masks when needed. Prefer corpus inclusion over premature dedupe. Generated derivatives, screenshots, and review GIFs are not mechanical source when the original exists.
+
+
+## Contact-sheet authoring discipline — 2026-09-27
+For pose selection, the requested review artifact is itself part of the authoring contract.
+
+- If the task is to build a contact sheet for a proposed animation, select the intended poses first, then build the sheet from those poses. An exhaustive source dump is provenance, not the requested animation contact sheet.
+- Use the highest-detail available source for the selected poses. Do not intentionally downrez a reference before generation or human review.
+- A user-supplied screenshot can be review authority when explicitly requested, even though it is not mechanical extraction authority.
+- Deliver the visible artifact before explaining process when the artifact can already be produced.
+- Do not require the user to shuttle an artifact through another tool or device merely to return it to the assistant.
+- Preserve meaningful micro-variation in a growing pose ledger. Similar-looking poses may encode different hand, chest, weapon, shield, timing, or silhouette reads and should not be removed solely for deduplication.

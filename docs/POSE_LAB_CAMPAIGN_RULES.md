@@ -571,3 +571,24 @@ The receipt is for the next fresh chat. It must not require access to the conver
 - Byte SHA remains the authority when exact encoded bytes matter (for example an accepted runtime effect). Pixel SHA is only for source-art identity across lossless/re-encoded containers.
 - Once exact source identity is established, do not use connected-component selection to discard legitimate separated geometry such as hair, weapon tips, shells, or detached silhouette details. Use the full foreground bbox inside the proven authored frame partition.
 - A named calibration artifact that already encodes a requested relative correction (for example `*-15pct-smaller`) is the post-correction authority. Never apply the same percentage a second time.
+
+
+## Contact-sheet delivery and anti-meta failure class — 2026-09-27
+Observed repeated failure: the assistant discussed workflows, scripts, source purity, future corrective steps, and contact-sheet plans instead of delivering the requested contact sheet. It also substituted the wrong artifact shape: every rendered frame when the user asked for the selected animation poses, and repeatedly produced low-resolution derivatives when the task required preserving available detail.
+
+Mandatory rules:
+- **DELIVERABLE-FIRST:** When the requested artifact can be produced from evidence already present in the conversation or current authorized source, produce the artifact before discussing methodology.
+- **NO-TALKING-ABOUT-DOING:** Do not substitute plans, scripts, workflow explanations, future promises, or meta-commentary for the requested visible artifact.
+- **CONTACT-SHEET-MEANS-SELECTION:** If the user asks for a contact sheet of a proposed animation, assemble the selected poses for that animation. Do not dump every source/keyframe unless the user explicitly requests exhaustive provenance.
+- **NO-USER-ROUNDTRIP:** Do not make Drew ferry an artifact through Termux, Downloads, Drive, or another abstraction layer when the assistant already has sufficient in-chat evidence to produce the requested review artifact.
+- **PRESERVE-AVAILABLE-DETAIL:** Do not downsample, thumbnail, crop-reassemble, or otherwise degrade a user-supplied review image merely for convenience. If the available source is already low resolution, do not claim a derivative is full-detail; use the highest-detail available authority or stop at the exact missing source.
+- **NO-GUESSED-CROP:** Never infer panel/frame geometry from a composite and then present the crop as authoritative without visually verifying the exact action region against the supplied parent artifact.
+- **VISIBLE-REQUEST-OUTRANKS-PIPELINE-PURITY:** A user-supplied screenshot may be valid review authority even when it is not mechanical source authority. Use it directly for review tasks when the user explicitly asks to.
+- **BOUNTY-BEFORE-DEDUPE:** For pose-ledgers and sprite donor selection, preserve meaningful near-duplicates and micro-variants unless the user explicitly asks for consolidation. Storage scarcity is not an excuse for premature deletion.
+
+Named regression classes:
+- **DELIVERABLE-STALL:** repeated explanation of what will be done instead of producing the requested artifact.
+- **CONTACT-SHEET-SUBSTITUTION:** returning exhaustive source frames, an index, a script, or a theory when the user requested a curated contact sheet.
+- **USER-AS-FILE-BUS:** requiring the user to move an already-available artifact between tools/layers so the assistant can continue.
+- **REVIEW-DERIVATIVE-DEGRADATION:** unnecessarily lowering resolution or fidelity of a review source before selection.
+- **UNVERIFIED-PANEL-CROP:** selecting or labeling frames from a guessed/misaligned crop.
