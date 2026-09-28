@@ -1,8 +1,8 @@
 import fs from 'node:fs';
-import crypto from 'node:crypto';
+import {spawnSync} from 'node:child_process';
 const recipe=JSON.parse(fs.readFileSync(new URL('../public/assets/vanguard/procedural/overhand-strike.recipe.json',import.meta.url),'utf8'));
 const renderer=fs.readFileSync(new URL('../src/procedural-motion-preview.js',import.meta.url),'utf8');
-const asset=fs.readFileSync(new URL('../public/assets/vanguard/procedural/vanguard-diorama-speed-lines.png',import.meta.url));
+const assetUrl=new URL('../public/assets/vanguard/procedural/vanguard-diorama-speed-lines.png',import.meta.url);
 const fail=m=>{throw new Error(m)};
 if(recipe.phases.map(p=>p.durationMs).join(',')!=='25,45,45,30,25,70,70,95,90,105')fail('timing changed');
 if(recipe.comboHandoffMs!==310)fail('handoff changed');
@@ -16,7 +16,9 @@ for(const [id,v] of Object.entries(expectedBlur))if(recipe.phases.find(p=>p.id==
 const fx=recipe.speedLineSprite;
 if(!fx?.enabled)fail('speedLineSprite disabled');
 if(fx.manualScaleX!==1||fx.manualScaleY!==1)fail('manual scale defaults changed');
-if(crypto.createHash('sha256').update(asset).digest('hex')!=='7603f1349f767e085a984468c06934c4018360d9faf1d8afe55bcbf9f66f4bf0')fail('crop-fixed speed-line bytes wrong');
+const py=spawnSync('python3',['-c',"from PIL import Image; import hashlib,sys; im=Image.open(sys.argv[1]).convert('RGBA'); print(hashlib.sha256(im.tobytes()).hexdigest())",assetUrl.pathname],{encoding:'utf8'});
+if(py.status!==0)fail('could not decode speed-line PNG for pixel identity');
+if(py.stdout.trim()!=='0675ecc1022145a893833f722e547a22bf73fa4c034c56db4bd9b9d2c678a448')fail('crop-fixed speed-line pixels wrong');
 for(const needle of [
   'function installSpeedLineControls()',
   'data-speed-line-controls',
