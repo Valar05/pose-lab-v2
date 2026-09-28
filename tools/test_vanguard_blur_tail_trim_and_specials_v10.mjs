@@ -61,4 +61,14 @@ const cells={
 };
 for(const [name,map] of Object.entries(cells))for(const [sid,cell] of Object.entries(map))if(r[name].sources[sid]?.cell!==cell)fail(name+':'+sid+' source changed');
 
+
+for(const name of ['undercut','uppercut','jab','horizontal','buttStrike','shoulderCharge']){
+  for(const [sid,src] of Object.entries(r[name].sources)){
+    if(src.role==='body'){
+      if(src.backgroundKey!=='black-border')fail(name+':'+sid+' missing Overhand-style black-border alpha compositing');
+      if(src.backgroundKeyThreshold!==18)fail(name+':'+sid+' background key threshold changed');
+    }
+  }
+}
+
 console.log('Vanguard blur-tail trim and specials v10: PASS');
