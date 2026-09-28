@@ -15,7 +15,7 @@
     "fadeWidthPx": 24,
     "transparentPadRightPx": 12,
     "outputSize": [169,72],
-    "outputSha256": "7603f1349f767e085a984468c06934c4018360d9faf1d8afe55bcbf9f66f4bf0"
+    "outputPixelSha256": "0675ecc1022145a893833f722e547a22bf73fa4c034c56db4bd9b9d2c678a448"
   },
   "machine": {
     "mutablePaths": [
