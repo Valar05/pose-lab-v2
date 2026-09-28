@@ -1,0 +1,17 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "vanguard-overhand-diorama-speed-sprite-v5",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "80002cff4f725239cfe62ff5420a49019fb008a0",
+  "implementationRevision": "cf08acd4eff6b7c64d365bb586a8a386b9a59fa7",
+  "finalRevision": null,
+  "executionLane": "repo-owned-framework-v2-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/vanguard/procedural/vanguard-diorama-speed-lines.png",
+    "public/assets/vanguard/procedural/overhand-strike.recipe.json",
+    "src/procedural-motion-preview.js",
+    "campaigns/vanguard-overhand-diorama-speed-sprite-v5.receipt.json"
+  ]
+}
