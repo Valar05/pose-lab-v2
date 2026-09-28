@@ -234,3 +234,31 @@ When the purpose of rendering is to decide which poses to keep:
 6. assemble the final ImageGen reference from the original selected PNGs.
 
 Do not preselect the final frame set from a downsampled overview and then call the later rerender a curation pass.
+
+
+## Appearance consistency gate — 2026-09-27
+Before ImageGen is used for a sprite animation, freeze two separate authorities:
+
+1. **Pose authority:** the selected native/full-resolution pose frames.
+2. **Appearance authority:** the exact approved character reference set.
+
+The appearance set must visibly establish every identity-critical feature that needs to remain stable across the animation. For a weapon-and-shield character, that normally includes:
+- body/armor silhouette;
+- helmet/head silhouette;
+- weapon construction and proportions;
+- shield construction and motif;
+- which side owns the weapon and shield;
+- primary material and color language.
+
+A single hero plate is sufficient only when those properties are visibly unambiguous. If one of them is obscured or ambiguous, add the smallest dedicated reference needed before generation.
+
+Generation order:
+1. freeze selected pose frames;
+2. freeze appearance authority set;
+3. state identity locks;
+4. generate all frames from the same frozen packet;
+5. review the whole generated set side-by-side for drift;
+6. reject drifted frames and retry from the original packet;
+7. never use a generated frame as the reference for another frame.
+
+The goal is not maximum reference count. The goal is enough visual authority to prevent model drift before it starts.
