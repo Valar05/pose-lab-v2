@@ -693,3 +693,22 @@ A handed-off Blender script must not assume optional engine properties exist acr
 
 Named regression class:
 - **BLENDER-OPTIONAL-PROPERTY:** a nonessential version-specific renderer property (for example Eevee bloom) aborts the entire render.
+
+
+## Back-view and whole-body rotation authority — 2026-09-28
+Observed failure: sprite transfer preserved the limb gesture and weapon direction but rotated the character back toward a front-facing presentation pose, erasing the rear hip, back, shoulder, and pelvis orientation present in the source.
+
+Mandatory rules:
+- **BACK-VIEW-AUTHORITY:** If the pose reference exposes the back, rear hip, rear shoulder, backside, or rear-facing armor planes, preserve that viewpoint exactly. Do not rotate the torso, pelvis, or head toward camera merely to improve facial or costume readability.
+- **WHOLE-BODY-ROTATION:** When the source shows pelvis and upper body rotating together, preserve the full committed rotation through feet, knees, hips, pelvis, spine, shoulders, head, shield plane, and weapon line. Do not reduce it to an upper-body twist on a front-facing lower body.
+- **PELVIS-IS-POSE-AUTHORITY:** Pelvis facing is a first-class pose property. A correct weapon vector with the wrong pelvis orientation is a failed pose transfer.
+- **REAR-PLANE-PRESERVATION:** Back armor, cape root, rear shoulder, rear hip, and shield/back overlap are valid identity-bearing surfaces. Do not replace them with more recognizable front-facing anatomy.
+- **NO-FACE-RECOVERY:** Do not turn the head or chest back toward camera simply to recover a visible face when the source pose turns away.
+- **SILHOUETTE-BEATS-PRESENTATION:** Viewpoint truth and pose geometry outrank character-presentation preferences such as showing the face, chest, or front shield motif.
+- **LOCAL-EDIT-ONLY:** If one generated frame is wrong and the user requests inpaint/edit, edit only that frame/region. All already-good pixels outside the requested frame remain locked.
+
+Named regression classes:
+- **FRONT-FACING-BIAS:** a rear/side pose is converted into a front-biased presentation pose while keeping only the limb gesture.
+- **PELVIS-FRONT-LOCK:** upper body rotates but pelvis/lower body remain incorrectly front-facing.
+- **FACE-RECOVERY-DRIFT:** head/chest are rotated back toward camera to expose the face.
+- **REAR-PLANE-ERASURE:** visible back/rear armor or hip planes from the source are replaced by front-facing surfaces.
