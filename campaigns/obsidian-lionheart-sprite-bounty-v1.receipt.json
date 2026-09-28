@@ -1,0 +1,24 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "obsidian-lionheart-sprite-bounty-v1",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "09522be83f5a7ca3b6a5eb4c2375f7d2f6e4a4c2",
+  "implementationRevision": "701eae96abed7590e616719f68d03edab0108621",
+  "finalRevision": null,
+  "executionLane": "continuity-save",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "campaigns/obsidian-lionheart-sprite-bounty-v1.contract.json",
+    "campaigns/obsidian-lionheart-sprite-bounty-v1.receipt.json",
+    "docs/campaigns/OBSIDIAN_LIONHEART_SPRITE_BOUNTY.md",
+    "tools/campaigns/obsidian_sprite_cleanup_exact.py",
+    "generated/obsidian-lionheart/**"
+  ],
+  "continuation": {
+    "acceptedLowResArtifactSha256": "245adbc39d5dfe358276e9f6c10861678e6ceac15cb30389893da6fdaaa25a39",
+    "acceptedLowResVerdict": "Perfect!",
+    "nextAction": "Heavy1",
+    "nextState": "render-all-authored-keyframes-before-curation"
+  }
+}
