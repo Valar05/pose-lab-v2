@@ -1,0 +1,39 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "obsidian-lionheart-sprite-bounty-v1",
+  "mission": "Preserve and continue the Obsidian sprite-bounty campaign from LionheartLancer authored actions through textured pose review, frozen appearance/pose authority, generated sprite sheets, manual sprite cleanup, low-resolution consolidation, and the next Heavy1 review without rediscovering prior decisions.",
+  "machine": {
+    "mutablePaths": [
+      "campaigns/obsidian-lionheart-sprite-bounty-v1.contract.json",
+      "campaigns/obsidian-lionheart-sprite-bounty-v1.receipt.json",
+      "docs/campaigns/OBSIDIAN_LIONHEART_SPRITE_BOUNTY.md",
+      "tools/campaigns/obsidian_sprite_cleanup_exact.py",
+      "generated/obsidian-lionheart/**"
+    ],
+    "receiptPath": "campaigns/obsidian-lionheart-sprite-bounty-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "text-contains",
+        "path": "docs/campaigns/OBSIDIAN_LIONHEART_SPRITE_BOUNTY.md",
+        "value": "ACCEPTED LOW-RES CLEANUP"
+      },
+      {
+        "kind": "text-contains",
+        "path": "docs/campaigns/OBSIDIAN_LIONHEART_SPRITE_BOUNTY.md",
+        "value": "Heavy1"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/obsidian_sprite_cleanup_exact.py",
+        "value": "245adbc39d5dfe358276e9f6c10861678e6ceac15cb30389893da6fdaaa25a39"
+      }
+    ]
+  }
+}
