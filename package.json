@@ -100,6 +100,8 @@
     "test:campaign-framework": "python3 tools/test_pose_campaign_framework.py",
     "test:swarmling-utility": "node tools/test_swarmling_utility_animations.mjs",
     "test:swarmling-utility-scale": "python3 tools/test_swarmling_utility_scale.py",
-    "test:procedural-motion-kernel": "node tools/test_procedural_motion_kernel.mjs"
+    "test:procedural-motion-kernel": "node tools/test_procedural_motion_kernel.mjs",
+    "reference:model": "node scripts/render-model-reference.mjs",
+    "test:model-reference": "node tools/test_render_model_reference.mjs"
   }
 }
