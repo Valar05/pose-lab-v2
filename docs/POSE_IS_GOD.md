@@ -273,3 +273,16 @@ For ImageGen sprite-reference preparation:
 5. assemble the final sheet from the original selected renders.
 
 The candidate render count and the final contact-sheet pose count are separate concerns. Rendering many candidate frames is allowed; the final reference should remain concise.
+
+
+## Back-view pose fidelity — 2026-09-28
+For sprite transfer, camera-facing anatomy is not privileged. If the source pose shows the character's back or rear quarter, preserve it.
+
+A pose is red if:
+- the pelvis faces the wrong direction;
+- the lower body remains front-facing while the source rotates it with the torso;
+- the back/rear shoulder/rear hip planes disappear;
+- the head or chest turns back toward camera only to keep the face visible;
+- the shield or weapon is correct but the body's facing is not.
+
+When a single frame is being repaired, use localized edit/inpaint on that frame only. Do not regenerate the other accepted frames.
