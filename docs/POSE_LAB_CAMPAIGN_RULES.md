@@ -13,7 +13,7 @@ These rules are mandatory for Vanguard procedural sprite campaigns. They exist b
 - A correction narrows the writable surface. "Everything is good except X" means ONLY X may change.
 - Never repair one frame by rewriting all frames.
 - Never modify a shared renderer to solve a single-animation problem unless the change is proven behavior-neutral for every locked animation and explicitly authorized.
-- Attacks 1–4 are currently locked. Attack 5 is the only active mutation surface.
+- Historical attack locks remain in force unless a later explicit human verdict reopens the named attack/property in an active campaign contract. Do not infer a global unlock from adjacent work.
 
 ## Planted foot / 2D IK
 - Exact foot. Exact point. Exact coordinate space. Pin first. Trim second. Verify on render.
