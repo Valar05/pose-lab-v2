@@ -211,3 +211,14 @@ For pose selection, the requested review artifact is itself part of the authorin
 - Deliver the visible artifact before explaining process when the artifact can already be produced.
 - Do not require the user to shuttle an artifact through another tool or device merely to return it to the assistant.
 - Preserve meaningful micro-variation in a growing pose ledger. Similar-looking poses may encode different hand, chest, weapon, shield, timing, or silhouette reads and should not be removed solely for deduplication.
+
+
+## Lightweight action-reference lane — 2026-09-27
+For direct pose selection and ImageGen-reference preparation, use the smallest authoring surface that preserves source truth.
+
+- Render only the named action.
+- Render only the selected authored keyframes when the desired subset is already known.
+- Render one full-resolution beauty PNG per selected frame. Do not produce forensic passes unless a later diagnostic explicitly needs them.
+- Keep the final curated contact sheet small: assemble selected full-resolution frames directly, without resizing or thumbnail extraction.
+- A large overview sheet may help select frame identities, but it must never replace the original full-resolution frame renders in the final reference artifact.
+- If transport downsampling is observed, reduce the number of frames/actions per artifact rather than reducing source resolution.
