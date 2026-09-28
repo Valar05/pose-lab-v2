@@ -102,11 +102,19 @@
       }
     }
   },
-  "bodyScale": 1.5,
+  "bodyScale": 0.85,
   "stage": {
     "centerX": 215,
     "centerSource": "idle",
-    "mode": "native-pixel-scale-ground-anchor"
+    "mode": "native-pixel-scale-ground-anchor",
+    "colorAdjust": {
+      "red": 1.02,
+      "green": 0.97,
+      "blue": 0.95,
+      "contrast": 1.05,
+      "saturation": 1.03,
+      "brightness": 0.98
+    }
   },
   "id": "vanguard-shotgun-reload-procedural-v1",
   "description": "Shotgun reload review \u00b7 expanded-atlas 97\u219298\u219299\u2192idle",
