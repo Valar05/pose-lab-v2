@@ -222,3 +222,15 @@ For direct pose selection and ImageGen-reference preparation, use the smallest a
 - Keep the final curated contact sheet small: assemble selected full-resolution frames directly, without resizing or thumbnail extraction.
 - A large overview sheet may help select frame identities, but it must never replace the original full-resolution frame renders in the final reference artifact.
 - If transport downsampling is observed, reduce the number of frames/actions per artifact rather than reducing source resolution.
+
+
+### High-resolution curation order — 2026-09-27
+When the purpose of rendering is to decide which poses to keep:
+1. render every authored keyframe for the named action at the requested native review resolution;
+2. preserve each frame as an individual beauty PNG;
+3. paginate those originals into small review sheets without resizing;
+4. inspect those pages;
+5. choose the final small pose set;
+6. assemble the final ImageGen reference from the original selected PNGs.
+
+Do not preselect the final frame set from a downsampled overview and then call the later rerender a curation pass.
