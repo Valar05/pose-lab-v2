@@ -286,3 +286,26 @@ A pose is red if:
 - the shield or weapon is correct but the body's facing is not.
 
 When a single frame is being repaired, use localized edit/inpaint on that frame only. Do not regenerate the other accepted frames.
+
+
+## Canonical long-weapon scale lane — 2026-09-28
+For a long-weapon playable character, preserve character scale and weapon envelope as separate concepts.
+
+**Scale authority**
+- Character body height is the scale anchor.
+- Weapon reach, cape spill, raised shield, and VFX do not participate in body-height normalization.
+- Same-height playable characters should remain the same body height unless the design explicitly says otherwise.
+
+**Down-resolution**
+- Pick one clean body-height authority.
+- Compute one global scale factor from one representative source pose.
+- Freeze that factor.
+- Apply it unchanged to every pose.
+- Never fit poses independently.
+- Never shrink the body to keep the weapon inside a fixed box.
+- Save per-pose low-resolution images first.
+- Build atlases from those frozen low-resolution images without further scaling.
+- Record the factor, measurement, resampler, source bounds, output dimensions, and hashes in a manifest.
+- Keep full-resolution originals separate and untouched.
+
+A long lance is allowed to make the sprite much wider than another character while the two bodies remain equal in height.
