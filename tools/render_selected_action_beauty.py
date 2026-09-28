@@ -24,7 +24,6 @@ from bpy_extras import anim_utils
 
 from render_animation_pose_packet import (
     clear_scene,
-    configure_workbench,
     evaluated_world_vertices,
     lock_camera,
     make_camera,
@@ -118,6 +117,54 @@ def authored_keyframes(
     return result
 
 
+def configure_fast_base_color_review(scene, mesh_objects):
+    """Render actual base-color textures without PBR lighting."""
+    engine_items = {
+        item.identifier
+        for item in bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items
+    }
+    engine = next(
+        (name for name in ("BLENDER_EEVEE_NEXT", "BLENDER_EEVEE") if name in engine_items),
+        None,
+    )
+    if engine is None:
+        raise RuntimeError(f"No supported Eevee engine available: {sorted(engine_items)}")
+    scene.render.engine = engine
+    scene.render.film_transparent = True
+
+    converted = 0
+    for obj in mesh_objects:
+        for slot in obj.material_slots:
+            mat = slot.material
+            if mat is None or not mat.use_nodes or mat.node_tree is None:
+                continue
+            nt = mat.node_tree
+            output = next((n for n in nt.nodes if n.type == "OUTPUT_MATERIAL" and n.is_active_output), None)
+            if output is None:
+                output = next((n for n in nt.nodes if n.type == "OUTPUT_MATERIAL"), None)
+            principled = next((n for n in nt.nodes if n.type == "BSDF_PRINCIPLED"), None)
+            if output is None or principled is None:
+                continue
+            base = principled.inputs.get("Base Color")
+            source = base.links[0].from_socket if base and base.is_linked and base.links else None
+            default = tuple(base.default_value) if base else (0.8, 0.8, 0.8, 1.0)
+            emission = nt.nodes.new("ShaderNodeEmission")
+            emission.inputs["Strength"].default_value = 1.0
+            emission.inputs["Color"].default_value = default
+            if source is not None:
+                nt.links.new(source, emission.inputs["Color"])
+            surface = output.inputs.get("Surface")
+            if surface is None:
+                continue
+            for link in list(surface.links):
+                nt.links.remove(link)
+            nt.links.new(emission.outputs["Emission"], surface)
+            converted += 1
+    if converted == 0:
+        raise RuntimeError("No materials converted to base-color review shading")
+    return converted
+
+
 def main() -> None:
     args = cli_args()
     asset = Path(args.asset).resolve()
@@ -177,8 +224,7 @@ def main() -> None:
     scene.render.image_settings.file_format = "PNG"
     scene.render.image_settings.color_mode = "RGBA"
     scene.render.fps = round(args.source_fps)
-    configure_workbench(scene, mesh_objects)
-    scene.display.shading.color_type = "OBJECT"
+    converted_materials = configure_fast_base_color_review(scene, mesh_objects)
 
     lower, upper = sampled_bounds(
         scene,
@@ -231,6 +277,9 @@ def main() -> None:
         "cameraSide": f"model-{args.camera_side}",
         "resolution": [args.width, args.height],
         "rootMotionSuppressed": True,
+        "appearance": "base-color-textures-only",
+        "renderer": scene.render.engine,
+        "convertedMaterialCount": converted_materials,
         "mutedRootMotionCurves": muted_root_curves,
         "frames": records,
     }
@@ -247,6 +296,8 @@ def main() -> None:
                 "resolution": [args.width, args.height],
                 "cameraSide": args.camera_side,
                 "passes": ["beauty"],
+                "appearance": "base-color-textures-only",
+                "renderer": scene.render.engine,
                 "outDir": str(out_dir),
             }
         )
