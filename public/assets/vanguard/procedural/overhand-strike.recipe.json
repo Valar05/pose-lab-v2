@@ -507,6 +507,8 @@
     "scaleY": 1.0,
     "alpha": 0.88,
     "imageSmoothing": false,
-    "inheritBodyScale": true
+    "inheritBodyScale": true,
+    "manualScaleX": 1,
+    "manualScaleY": 1
   }
 }

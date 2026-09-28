@@ -413,8 +413,8 @@ function drawSpeedLineSprite(px,py,reg,d,bodyScale,amount){
  const pos=Array.isArray(spec.position)?spec.position:[20,-68];
  const minX=Number(spec.minScaleX??0.58);
  const maxX=Number(spec.maxScaleX??1);
- const sx=minX+(maxX-minX)*Math.max(0,Math.min(1,amount));
- const sy=Number(spec.scaleY??1);
+ const sx=(minX+(maxX-minX)*Math.max(0,Math.min(1,amount)))*Number(spec.manualScaleX??1);
+ const sy=Number(spec.scaleY??1)*Number(spec.manualScaleY??1);
  const alpha=Math.max(0,Math.min(1,Number(spec.alpha??0.78)))*amount;
 
  ctx.save();
@@ -686,6 +686,38 @@ function installShotgunBlastMoveScaleControls(side){
  window.__slashControls={box,controls};
 }
 
+function installSpeedLineControls(){
+ const side=document.querySelector('.side');
+ if(!side||!recipe.speedLineSprite?.enabled||side.querySelector('[data-speed-line-controls]'))return;
+ const fx=recipe.speedLineSprite;
+ const box=document.createElement('details');
+ box.open=true;
+ box.setAttribute('data-speed-line-controls','');
+ box.innerHTML=''
+  +'<summary style="font-size:15px;margin-bottom:10px">Speed Line Controls</summary>'
+  +'<div style="display:grid;grid-template-columns:92px 1fr 54px;gap:7px 8px;align-items:center;font-size:12px">'
+  +'<label>X</label><input data-sp="x" type="range" min="-250" max="450" step="1"><output data-spout="x"></output>'
+  +'<label>Y</label><input data-sp="y" type="range" min="-250" max="450" step="1"><output data-spout="y"></output>'
+  +'<label>Scale X</label><input data-sp="sx" type="range" min=".1" max="4" step=".05"><output data-spout="sx"></output>'
+  +'<label>Scale Y</label><input data-sp="sy" type="range" min=".1" max="4" step=".05"><output data-spout="sy"></output>'
+  +'<label>Alpha</label><input data-sp="a" type="range" min="0" max="1" step=".01"><output data-spout="a"></output>'
+  +'</div>'
+  +'<div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap">'
+  +'<button data-sp-reset>Reset speed lines</button><button data-sp-copy>Copy speed-line values</button></div>';
+ const firstDetails=side.querySelector('details');
+ if(firstDetails)side.insertBefore(box,firstDetails); else side.appendChild(box);
+ const defaults={position:[...(fx.position||[0,0])],manualScaleX:Number(fx.manualScaleX??1),manualScaleY:Number(fx.manualScaleY??1),alpha:Number(fx.alpha??.78)};
+ const controls={x:box.querySelector('[data-sp="x"]'),y:box.querySelector('[data-sp="y"]'),sx:box.querySelector('[data-sp="sx"]'),sy:box.querySelector('[data-sp="sy"]'),a:box.querySelector('[data-sp="a"]')};
+ function refresh(){for(const k of ['x','y','sx','sy','a'])box.querySelector('[data-spout="'+k+'"]').textContent=controls[k].value;}
+ function setValues(){controls.x.value=fx.position?.[0]??0;controls.y.value=fx.position?.[1]??0;controls.sx.value=Number(fx.manualScaleX??1);controls.sy.value=Number(fx.manualScaleY??1);controls.a.value=Number(fx.alpha??.78);refresh();}
+ function apply(){fx.position=[Number(controls.x.value),Number(controls.y.value)];fx.manualScaleX=Number(controls.sx.value);fx.manualScaleY=Number(controls.sy.value);fx.alpha=Number(controls.a.value);refresh();render(offset);}
+ Object.values(controls).forEach(el=>{el.oninput=apply;el.onchange=apply;});
+ box.querySelector('[data-sp-reset]').onclick=()=>{fx.position=[...defaults.position];fx.manualScaleX=defaults.manualScaleX;fx.manualScaleY=defaults.manualScaleY;fx.alpha=defaults.alpha;setValues();render(offset);};
+ box.querySelector('[data-sp-copy]').onclick=async()=>{const payload={position:fx.position,manualScaleX:fx.manualScaleX,manualScaleY:fx.manualScaleY,alpha:fx.alpha};const txt=JSON.stringify(payload,null,2);try{await navigator.clipboard.writeText(txt)}catch{}console.log('SPEED_LINE_VALUES',txt);box.querySelector('[data-sp-copy]').textContent='Copied';setTimeout(()=>box.querySelector('[data-sp-copy]').textContent='Copy speed-line values',800);};
+ setValues();
+ window.__speedLineControls={box,controls};
+}
+
 function installSlashControls(){
  const side=document.querySelector('.side');
  if(!side||side.querySelector('[data-slash-controls]'))return;
@@ -851,6 +883,7 @@ try{
  buildSlash();
  for(const [id,src] of Object.entries(recipe.sources))if(src.role==='body')body(id);
  installSlashControls();
+ installSpeedLineControls();
  render(0);
  requestAnimationFrame(()=>{fit();requestAnimationFrame(loop)});
 }catch(err){document.querySelector('#app').innerHTML='<pre style="padding:18px;color:#ff8a8a;white-space:pre-wrap"></pre>';document.querySelector('#app pre').textContent=err?.stack||String(err)}
