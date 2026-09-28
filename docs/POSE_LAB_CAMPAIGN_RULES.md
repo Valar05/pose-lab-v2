@@ -661,3 +661,35 @@ Named regression classes:
 - **PROP-DRIFT:** a signature weapon or shield mutates between frames because its appearance authority was insufficient.
 - **PROMPT-ONLY-IDENTITY:** generation relied on prose where visual identity authority was needed.
 - **DRIFT-REPAIR-SPIRAL:** repeated local fixes attempted before correcting an under-specified appearance reference packet.
+
+
+## Textured single-action review and four-pose curation — 2026-09-27
+For sprite-reference generation, render one named animation at a time with the model's actual textures/materials. Silhouette-only renders are diagnostic evidence, not the default final pose authority for ImageGen-reference preparation.
+
+Mandatory rules:
+- **TEXTURED-BY-DEFAULT:** Use textured/material beauty renders for sprite-reference curation unless Drew explicitly requests a diagnostic pass.
+- **ONE-ACTION-AT-A-TIME:** Render and review one named animation at a time. Do not build giant multi-action review atlases for curation.
+- **RENDER-WHOLE-ACTION-BEFORE-CURATE:** When the final poses are not already known, render the whole named action, then choose from those full-detail frames.
+- **FOUR-POSE-DEFAULT:** Final ImageGen reference contact sheets use four poses unless Drew explicitly overrides it.
+- **UNIQUE-POSE-BIAS:** Prefer four meaningfully distinct poses.
+- **IDLE-BY-EXCEPTION:** Idle or near-idle belongs in a contact sheet only when that specific animation benefits from it. Idle is not a universal first/last slot.
+- **RENDER-MORE-THAN-YOU-KEEP:** The review corpus may contain many frames; the curated final sheet remains small.
+- **CONTACT-SHEET-FROM-ORIGINALS:** Assemble the final four-pose sheet from the original selected full-detail renders, never from thumbnails, overview crops, or chat-downsampled derivatives.
+- **STYLE-ECONOMY-OUTRANKS-COVERAGE:** More poses are not automatically better. Preserve the compressed visual language of the sprite style.
+
+Named regression classes:
+- **IDLE-OVERGENERALIZATION:** idle anchors were treated as mandatory for unrelated animations.
+- **REDUNDANT-ANCHOR-WASTE:** scarce final-sheet slots were spent on near-duplicate anchors when unique action poses existed.
+- **OVERCOVERAGE-SHEET:** final sheet included more poses than the style needed.
+- **SILHOUETTE-AUTHORITY-MISTAKE:** silhouette-only review was used as final ImageGen pose authority despite textured renders being required.
+- **GIANT-ATLAS-REVIEW:** a multi-action atlas was used where one-action review was the actual task.
+
+## Blender-version compatibility for handed-off render tools — 2026-09-27
+A handed-off Blender script must not assume optional engine properties exist across Blender versions.
+- Prefer engine-agnostic settings when a property is nonessential.
+- Optional settings must be guarded with feature checks.
+- A cosmetic renderer option may never be allowed to abort the production render.
+- Exact-runner preflight must cover the Blender version used by the handoff lane when available.
+
+Named regression class:
+- **BLENDER-OPTIONAL-PROPERTY:** a nonessential version-specific renderer property (for example Eevee bloom) aborts the entire render.
