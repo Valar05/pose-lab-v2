@@ -43,7 +43,9 @@ def cli_args() -> argparse.Namespace:
     parser.add_argument("--asset", required=True)
     parser.add_argument("--action", required=True)
     parser.add_argument("--out-dir", required=True)
-    parser.add_argument("--key-indices", required=True)
+    selection = parser.add_mutually_exclusive_group(required=True)
+    selection.add_argument("--key-indices")
+    selection.add_argument("--all-keyframes", action="store_true")
     parser.add_argument("--camera-side", choices=("left", "right"), required=True)
     parser.add_argument("--width", type=int, default=512)
     parser.add_argument("--height", type=int, default=512)
@@ -127,17 +129,19 @@ def main() -> None:
     if args.source_fps <= 0:
         raise RuntimeError("source fps must be positive")
 
-    requested_indices = [
-        int(value.strip())
-        for value in args.key_indices.split(",")
-        if value.strip()
-    ]
-    if not requested_indices:
-        raise RuntimeError("--key-indices must select at least one authored key")
-    if len(set(requested_indices)) != len(requested_indices):
-        raise RuntimeError("--key-indices contains duplicates")
-    if any(index < 0 for index in requested_indices):
-        raise RuntimeError("--key-indices must be non-negative")
+    requested_indices = None
+    if args.key_indices is not None:
+        requested_indices = [
+            int(value.strip())
+            for value in args.key_indices.split(",")
+            if value.strip()
+        ]
+        if not requested_indices:
+            raise RuntimeError("--key-indices must select at least one authored key")
+        if len(set(requested_indices)) != len(requested_indices):
+            raise RuntimeError("--key-indices contains duplicates")
+        if any(index < 0 for index in requested_indices):
+            raise RuntimeError("--key-indices must be non-negative")
 
     clear_scene()
     bpy.ops.import_scene.gltf(filepath=str(asset))
@@ -149,6 +153,9 @@ def main() -> None:
     muted_root_curves = suppress_root_motion(action, armature)
 
     keys = authored_keyframes(action, armature)
+    if args.all_keyframes:
+        requested_indices = list(range(len(keys)))
+    assert requested_indices is not None
     missing = [index for index in requested_indices if index >= len(keys)]
     if missing:
         raise RuntimeError(
@@ -209,7 +216,11 @@ def main() -> None:
     manifest = {
         "schema": "pose-lab-selected-action-beauty-v1",
         "status": "PASS",
-        "renderPolicy": "beauty-only-selected-authored-keyframes",
+        "renderPolicy": (
+            "beauty-only-all-authored-keyframes"
+            if args.all_keyframes
+            else "beauty-only-selected-authored-keyframes"
+        ),
         "asset": str(asset),
         "assetSha256": sha256(asset),
         "actionRequested": args.action,
