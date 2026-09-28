@@ -213,6 +213,17 @@ print("PASS: source order preserved")
 print(f"MANIFEST_SHA256={hashlib.sha256(manifest_path.read_bytes()).hexdigest()}")
 PY
 
+echo "=== ANDROID MEDIA REFRESH ==="
+if command -v termux-media-scan >/dev/null 2>&1; then
+  for f in "$OUT"/k*.png "$OUT"/manifest.json; do
+    [ -f "$f" ] || continue
+    termux-media-scan "$f" >/dev/null 2>&1 || true
+  done
+  echo "MEDIA_REFRESH=PASS"
+else
+  stop "termux-media-scan missing; Android Files visibility cannot be guaranteed"
+fi
+
 echo "=== POST-RENDER REPO VERIFY ==="
 pose_campaign_verify "$LIVE" "$CONTRACT"
 pose_campaign_check_worktree "$LIVE" "$CONTRACT"
