@@ -15,6 +15,10 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+TOOL_DIR = Path(__file__).resolve().parent
+if str(TOOL_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOL_DIR))
+
 import bpy
 from bpy_extras import anim_utils
 
