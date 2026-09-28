@@ -712,3 +712,63 @@ Named regression classes:
 - **PELVIS-FRONT-LOCK:** upper body rotates but pelvis/lower body remain incorrectly front-facing.
 - **FACE-RECOVERY-DRIFT:** head/chest are rotated back toward camera to expose the face.
 - **REAR-PLANE-ERASURE:** visible back/rear armor or hip planes from the source are replaced by front-facing surfaces.
+
+
+## Long-weapon character scale and down-resolution contract — 2026-09-28
+This contract captures the Obsidian/Vanguard mistakes and is mandatory for future long-weapon sprite families.
+
+### Character scale is not weapon envelope
+- **BODY-HEIGHT-AUTHORITY:** Normalize character scale from visible body height, not from full sprite bounds.
+- **SAME-HEIGHT-PEERS:** When two playable characters are intended to be the same physical height, their canonical standing/body height must match even if one has a much longer weapon.
+- **WEAPON-OVERFLOW-ALLOWED:** A lance, polearm, cape, raised shield, or VFX may exceed the normal body envelope. Grow the canvas/cell instead of shrinking the character.
+- **NO-WEAPON-BOUND-SCALING:** Never use lance tip, raised weapon, cape spill, motion blur, or attack VFX to determine character scale.
+- **NO-BOSS-SCALE-DRIFT:** Do not make a long-weapon character taller merely because the weapon makes the overall sprite larger.
+- **WIDTH-CAN-GROW:** Long weapons are expected to increase horizontal bounds while body height remains fixed.
+
+### Exact down-resolution procedure
+1. Choose one clean gameplay-scale body-height authority image for the comparison character.
+2. Choose one source pose for the new character whose weapon is mostly horizontal and does not artificially inflate vertical bounds.
+3. Measure the visible body height only. Exclude weapon tip, raised weapon, cape spikes, VFX, labels, and empty canvas.
+4. Compute exactly one global scale factor:
+   `globalScale = targetBodyHeightPx / sourceBodyHeightPx`.
+5. Freeze that factor for the entire character family.
+6. Apply the same factor to every full-resolution pose. Do not fit, normalize, or rescale poses independently.
+7. Preserve each pose's aspect ratio and source geometry exactly.
+8. Use a single declared resampling method for the batch. Record it in the manifest.
+9. Let long/raised weapons exceed the body-height envelope. Expand output cell/canvas dimensions instead of shrinking the pose.
+10. Save each low-resolution pose as an individual image before building any atlas.
+11. Build atlases only from those already-down-resed individual images. The atlas step may add padding/labels but may not rescale a pose.
+12. Preserve the untouched high-resolution originals separately.
+
+### Required manifest
+Every down-resolution batch must record:
+- target body height in pixels;
+- source body-height authority and measured source body height;
+- exact global scale factor;
+- resampling method;
+- source image identity for every pose;
+- source crop/bounds used for each pose;
+- output dimensions for each pose;
+- output hash for each pose;
+- statement that per-pose fitting was not used.
+
+### Mechanical comparison rules
+- Compare clean body frames to clean body frames.
+- Do not compare a motion-blurred/VFX-heavy Vanguard frame against a clean Obsidian frame and treat the resulting envelope as character scale.
+- Do not include UI/stage/background area in the measured character bounds.
+- A side-by-side proof must use the same body-height target for both characters and must visually expose weapon overflow separately from body scale.
+
+Named regression classes:
+- **WEAPON-BOUND-SCALE:** full weapon/VFX bounds were used to set character size.
+- **PER-POSE-NORMALIZATION:** each pose was independently fitted into a box, destroying shared scale.
+- **EFFECT-AS-BODY-SCALE:** blur/VFX inflated the comparison character's measured size.
+- **STAGE-AS-CHARACTER-BOUNDS:** UI/stage/background pixels contaminated scale measurement.
+- **LONG-WEAPON-SHRINK:** character body was made too small merely to fit the lance inside a fixed cell.
+- **LONG-WEAPON-BOSSIFY:** character body was made taller merely because the lance needed more canvas.
+- **ATLAS-RESCALE-DRIFT:** poses were resized again during atlas assembly after the family scale was already frozen.
+
+### Workflow discipline learned from Obsidian
+- Freeze the source pose bounty before consolidation. Do not generate new poses during down-resolution.
+- Preserve meaningful near-duplicates. Consolidation means organization, not premature deletion.
+- High-resolution originals remain source authority; low-resolution copies are gameplay/consolidation derivatives.
+- One scale proof image is enough. Do not produce repeated speculative comparison images after the body-height authority is settled.
