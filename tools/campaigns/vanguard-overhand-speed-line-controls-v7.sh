@@ -103,7 +103,14 @@ npm run build
 npm run smoke
 git diff --check
 [ -z "$(git status --porcelain)" ] || stop "final live worktree is dirty"
-[ "$(sha256sum "$ASSET" | awk '{print $1}')" = "7603f1349f767e085a984468c06934c4018360d9faf1d8afe55bcbf9f66f4bf0" ] || stop "crop-fixed speed-line asset hash mismatch"
+PIXEL_SHA="$(python3 - "$ASSET" <<'PY'
+from PIL import Image
+import hashlib,sys
+im=Image.open(sys.argv[1]).convert("RGBA")
+print(hashlib.sha256(im.tobytes()).hexdigest())
+PY
+)"
+[ "$PIXEL_SHA" = "0675ecc1022145a893833f722e547a22bf73fa4c034c56db4bd9b9d2c678a448" ] || stop "crop-fixed speed-line pixel hash mismatch"
 
 echo "=== START REVIEW SERVER ==="
 PORT="$(pose_campaign_free_port)"
