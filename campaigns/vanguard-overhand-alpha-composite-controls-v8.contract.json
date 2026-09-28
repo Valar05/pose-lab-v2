@@ -6,7 +6,7 @@
   "humanVerdict": {
     "rootCause": "speed lines render behind Vanguard's opaque black sprite card because body source lacks alpha",
     "cropRepair": "rejected as wrong diagnosis; do not rewrite speed-line asset",
-    "speedLineSource": "locked exact bytes",
+    "speedLineSource": "lock current Git-owned bytes; v8 does not rewrite asset",
     "slashControls": "must remain intact",
     "requestedControls": ["X","Y","Scale X","Scale Y","Alpha","Copy values","Reset"]
   },
@@ -24,7 +24,7 @@
       "docs/POSE_CAMPAIGN_FRAMEWORK.md"
     ],
     "lockedFiles": [
-      {"path":"public/assets/vanguard/procedural/vanguard-diorama-speed-lines.png","sha256":"363b184de9bfc98a74c92a2066f63b6a4c9a9998a168fad87f67f2c32cc396e8"},
+      {"path":"public/assets/vanguard/procedural/vanguard-diorama-speed-lines.png","sha256":"0ffcd220e8688e74387235305ca82853fc80dad5e7212f5c99b69d42d70cb0fa"},
       {"path":"public/assets/vanguard/procedural/vanguard-pose-atlas-expanded.png","sha256":"54986141111b3386dce6dc27f219ffe7ddc5529f9e11577e77fcc51a324f8587"},
       {"path":"public/assets/vanguard/procedural/diorama-slash-atlas.png","sha256":"e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"}
     ],
