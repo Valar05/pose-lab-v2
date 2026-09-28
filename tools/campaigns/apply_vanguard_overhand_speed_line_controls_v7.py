@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib,json,struct,sys
 from pathlib import Path
 from PIL import Image
-import numpy as np
 
 root=Path(sys.argv[1]).resolve()
 contract=json.loads((root/sys.argv[2]).read_text())
@@ -36,11 +35,14 @@ if raw[:8]!=b'\x89PNG\r\n\x1a\n': stop('speed-line asset is not PNG')
 w,h=struct.unpack('>II',raw[16:24])
 if [w,h]!=repair['inputSize']: stop(f'unexpected speed-line input size {w}x{h}')
 im=Image.open(ap).convert('RGBA')
-arr=np.array(im)
 fade_w=int(repair['fadeWidthPx'])
-ramp=np.linspace(1.0,0.0,fade_w,dtype=np.float32)
-arr[:,w-fade_w:w,3]=(arr[:,w-fade_w:w,3].astype(np.float32)*ramp[None,:]).astype(np.uint8)
-fixed=Image.fromarray(arr,'RGBA')
+fixed=im.copy()
+px=fixed.load()
+for x in range(w-fade_w,w):
+    t=(w-1-x)/max(1,fade_w-1)
+    for y in range(h):
+        r,g,b,a=px[x,y]
+        px[x,y]=(r,g,b,round(a*t))
 pad=int(repair['transparentPadRightPx'])
 out=Image.new('RGBA',(w+pad,h),(0,0,0,0))
 out.paste(fixed,(0,0))
