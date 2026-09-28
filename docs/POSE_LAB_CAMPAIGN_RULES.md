@@ -611,3 +611,16 @@ Named regression classes:
 - **THUMBNAIL-AS-FINAL-SOURCE:** final contact sheet assembled from overview thumbnails despite full frames existing.
 - **FORENSIC-OVERRENDER:** silhouette/limb/depth/geometry passes rendered for a beauty-only selection task.
 - **SCOPE-OVERRENDER:** all actions rendered when only one named action was requested.
+
+
+### Exact-runner preflight for handed-off Blender tools — 2026-09-27
+Observed failure: a newly added Blender tool imported a sibling module successfully in repository reasoning but failed under the actual `scripts/run-blender-tool.mjs` execution lane because Blender's Python path did not include the tool directory.
+
+Mandatory rules:
+- **EXACT-LANE-PREFLIGHT:** Before handing Drew a script that invokes a new Blender Python tool, preflight that tool under the exact repo runner/topology it will use in production, not merely by source inspection.
+- **SIBLING-IMPORT-SELF-CONTAINMENT:** Blender tools that import sibling modules under `tools/` must explicitly add their own tool directory to `sys.path` or use an already-proven import mechanism. Do not assume Blender adds the script directory.
+- **NO-UNEXECUTED-HANDOFF:** A new repo-owned execution path may not be presented as ready merely because the code was committed. If exact-lane execution has not been proven, label it unproven and do not make Drew discover the first import/runtime error.
+- **REPAIR-AND-CONTINUE:** When the handed-off lane fails on repo-owned plumbing, repair the plumbing immediately and continue the original requested task. Do not turn the failure into another architecture discussion.
+
+Named regression class:
+- **BLENDER-SIBLING-IMPORT:** Blender tool fails under the canonical runner because sibling `tools/` imports were assumed rather than made explicit.
