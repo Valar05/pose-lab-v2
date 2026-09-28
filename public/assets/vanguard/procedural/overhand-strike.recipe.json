@@ -504,21 +504,5 @@
     "fullPresentationMs": 600,
     "standaloneRecoveryPreserved": true,
     "bufferMayReplaceRecoveryAfterMs": 310
-  },
-  "speedLineSprite": {
-    "enabled": true,
-    "path": "assets/vanguard/procedural/vanguard-diorama-speed-lines.png",
-    "position": [
-      42,
-      -96
-    ],
-    "minScaleX": 1.05,
-    "maxScaleX": 1.45,
-    "scaleY": 1.0,
-    "alpha": 0.88,
-    "imageSmoothing": false,
-    "inheritBodyScale": true,
-    "manualScaleX": 1,
-    "manualScaleY": 1
   }
 }

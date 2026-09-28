@@ -198,6 +198,9 @@
         "core": 0,
         "tightGlow": 0,
         "wideGlow": 0
+      },
+      "blur": {
+        "amount": 0.0
       }
     },
     {
@@ -216,6 +219,9 @@
         "core": 0,
         "tightGlow": 0,
         "wideGlow": 0
+      },
+      "blur": {
+        "amount": 0.08
       }
     },
     {
@@ -234,6 +240,9 @@
         "core": 0.94,
         "tightGlow": 0.82,
         "wideGlow": 0.42
+      },
+      "blur": {
+        "amount": 1.0
       }
     },
     {
@@ -252,6 +261,9 @@
         "core": 0.56,
         "tightGlow": 0.48,
         "wideGlow": 0.28
+      },
+      "blur": {
+        "amount": 0.3
       }
     },
     {
@@ -270,6 +282,9 @@
         "core": 0,
         "tightGlow": 0,
         "wideGlow": 0
+      },
+      "blur": {
+        "amount": 0.0
       }
     },
     {
@@ -288,6 +303,9 @@
         "core": 0,
         "tightGlow": 0,
         "wideGlow": 0
+      },
+      "blur": {
+        "amount": 0.0
       }
     }
   ],
@@ -405,5 +423,21 @@
       ],
       "sha256": "e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"
     }
+  },
+  "motionBlur": {
+    "enabled": true,
+    "samples": 4,
+    "spanPx": 34,
+    "filterPx": 2.0,
+    "maxAlpha": 0.48,
+    "primaryFilterPx": 4.0,
+    "primaryStretchX": 0,
+    "primarySquashY": 0,
+    "primaryShearX": 0,
+    "primaryShiftPx": 0,
+    "directionStage": [
+      -1.0,
+      0.0
+    ]
   }
 }

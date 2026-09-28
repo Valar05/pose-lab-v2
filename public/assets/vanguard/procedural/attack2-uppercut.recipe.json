@@ -190,6 +190,9 @@
         "scaleX": 1,
         "scaleY": 1,
         "shiftY": 0
+      },
+      "blur": {
+        "amount": 0.0
       }
     },
     {
@@ -201,6 +204,9 @@
         "scaleX": 1,
         "scaleY": 1,
         "shiftY": 0
+      },
+      "blur": {
+        "amount": 0.0
       }
     },
     {
@@ -218,6 +224,9 @@
         "core": 0.22,
         "tightGlow": 0.14,
         "wideGlow": 0.08
+      },
+      "blur": {
+        "amount": 0.08
       }
     },
     {
@@ -235,6 +244,9 @@
         "core": 0.82,
         "tightGlow": 0.7,
         "wideGlow": 0.38
+      },
+      "blur": {
+        "amount": 1.0
       }
     },
     {
@@ -252,6 +264,9 @@
         "core": 1,
         "tightGlow": 1,
         "wideGlow": 0.7
+      },
+      "blur": {
+        "amount": 0.52
       }
     },
     {
@@ -269,6 +284,9 @@
         "core": 0.42,
         "tightGlow": 0.46,
         "wideGlow": 0.5
+      },
+      "blur": {
+        "amount": 0.1
       }
     },
     {
@@ -286,6 +304,9 @@
         "core": 0.14,
         "tightGlow": 0.15,
         "wideGlow": 0.2
+      },
+      "blur": {
+        "amount": 0.0
       }
     },
     {
@@ -303,6 +324,9 @@
         "core": 0,
         "tightGlow": 0,
         "wideGlow": 0
+      },
+      "blur": {
+        "amount": 0.0
       }
     }
   ],
@@ -408,5 +432,21 @@
       ],
       "sha256": "e9b551585d6f92e1e5d94c7722d5051771fd6f38092eeb5c3f447b5c27e55c2d"
     }
+  },
+  "motionBlur": {
+    "enabled": true,
+    "samples": 4,
+    "spanPx": 34,
+    "filterPx": 2.0,
+    "maxAlpha": 0.48,
+    "primaryFilterPx": 4.0,
+    "primaryStretchX": 0,
+    "primarySquashY": 0,
+    "primaryShearX": 0,
+    "primaryShiftPx": 0,
+    "directionStage": [
+      -0.7,
+      0.45
+    ]
   }
 }
