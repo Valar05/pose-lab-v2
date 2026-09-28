@@ -118,3 +118,27 @@ If generated joints, limb ownership, sword endpoints, feet, silhouette, or
 camera side disagree with the overlay/source packet, the generation is red.
 
 Animation pose is geometry. Concept art is costume.
+
+
+## Appearance Authority Packet
+For appearance transfer, concept art is not a vague mood board. It is a frozen visual authority set.
+
+Before generation:
+- list the exact reference images;
+- state which identity-critical properties each reference owns;
+- confirm that weapon, shield, helmet/head silhouette, armor silhouette, side ownership, and material/color language are all visually covered;
+- add a dedicated prop/detail reference only when the hero plate leaves a real ambiguity.
+
+A single hero plate may be enough when every critical property is readable. If not, expand the packet before generation rather than repairing drift afterward.
+
+Every generated frame in one animation attempt must receive the same appearance authority packet. Do not let frame 2 inherit appearance from generated frame 1.
+
+After generation, review the entire set side-by-side for:
+- armor/silhouette drift;
+- weapon construction drift;
+- shield construction or motif drift;
+- weapon/shield side swaps;
+- helmet/head drift;
+- color/material drift.
+
+Any drifted frame is rejected. Retry from the original pose + appearance packet. Never use the drifted/generated frame as a new authority.
