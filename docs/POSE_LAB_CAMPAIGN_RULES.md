@@ -624,3 +624,17 @@ Mandatory rules:
 
 Named regression class:
 - **BLENDER-SIBLING-IMPORT:** Blender tool fails under the canonical runner because sibling `tools/` imports were assumed rather than made explicit.
+
+
+### Full-resolution selection must precede curation — 2026-09-27
+Observed failure: frame choices were made from a transport-downsampled overview, then only those guessed frames were rerendered at high resolution. This inverted the purpose of the high-resolution render.
+
+Mandatory rules:
+- **RENDER-BEFORE-CURATE:** When high-resolution rendering exists specifically to enable pose selection, render the complete named action first, then curate from those full-resolution frames.
+- **NO-LOWRES-PRESELECTION:** Do not choose the final candidate frame set from a downsampled overview when full-resolution frame inspection is the stated goal.
+- **PAGINATE-DONT-DOWNSAMPLE:** When the complete action is too large for one review image, split it into small pages of native-resolution frames. Never solve transport limits by shrinking the frames.
+- **CURATE-FROM-NATIVE:** Final selected pose IDs must come from inspection of the native-resolution review pages, not from the overview atlas.
+- **OVERVIEW-IS-NAVIGATION:** A low-resolution master overview may locate an action or rough phase only. It is not sufficient evidence for final pose selection when native frames are available or can be rendered.
+
+Named regression class:
+- **LOWRES-PRESELECTION:** final high-resolution render set was chosen from low-resolution evidence before the high-resolution corpus was inspected.
