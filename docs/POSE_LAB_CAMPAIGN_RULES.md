@@ -638,3 +638,26 @@ Mandatory rules:
 
 Named regression class:
 - **LOWRES-PRESELECTION:** final high-resolution render set was chosen from low-resolution evidence before the high-resolution corpus was inspected.
+
+
+## Appearance-authority and drift-prevention gate — 2026-09-27
+Observed risk: a single strong hero plate may communicate overall identity while still leaving distinctive equipment, side ownership, and construction details under-specified. Repeated generation from an under-specified appearance reference invites model drift and expensive after-the-fact repair.
+
+Mandatory rules:
+- **APPEARANCE-AUTHORITY-MUST-BE-EXPLICIT:** Before the first sprite-generation pass, name the exact appearance authority set. It may include one hero plate or multiple references, but the set must be deliberate and frozen for the attempt.
+- **IDENTITY-LOCKS-BEFORE-GENERATION:** Record the character features that must not drift across frames: facing, handedness, weapon side, shield side, helmet/head silhouette, armor silhouette, primary materials/colors, signature weapon proportions, and signature shield design.
+- **DISTINCTIVE-PROP-COVERAGE:** If the hero plate does not clearly resolve a signature prop or construction detail that must remain consistent, add a dedicated reference for that prop before generation rather than fixing drift afterward.
+- **NO-PROMPT-ONLY-IDENTITY:** Do not rely on prose alone to preserve a complex weapon, shield, helmet, or armor construction when a visual reference is available or can be prepared.
+- **POSE-AND-APPEARANCE-SEPARATION:** Pose references own geometry and articulation. Appearance references own costume/material/identity. Neither may silently overwrite the other.
+- **NO-GENERATED-REFERENCE-RECURSION:** A generated sprite/frame is never promoted into appearance authority merely because it looks good. Retries return to the frozen source pose + frozen appearance authority set.
+- **FIRST-PASS-DRIFT-CHECK:** Before accepting a first sprite pass, compare all frames side-by-side for character identity drift, weapon/shield construction drift, side swaps, silhouette mutation, and color/material drift.
+- **FIX-SOURCE-COVERAGE-BEFORE-INPAINTING-DRIFT:** When repeated drift comes from missing appearance information, improve the reference packet first. Do not enter a frame-by-frame repair spiral while the source packet remains under-specified.
+- **CONSISTENCY-OUTRANKS-ORNAMENT:** At low sprite resolution, preserve identity-defining shapes and side relationships before decorative detail. Extra ornament may vary only if it does not change the read of the character.
+- **NO-UNNECESSARY-REFERENCE-BLOAT:** More references are not automatically better. Add a reference only when it closes a real ambiguity that could cause drift.
+
+Named regression classes:
+- **APPEARANCE-DRIFT:** the same character changes armor, prop construction, color/material identity, or silhouette across generated frames.
+- **SIDE-SWAP:** weapon/shield/hand ownership flips or migrates between frames.
+- **PROP-DRIFT:** a signature weapon or shield mutates between frames because its appearance authority was insufficient.
+- **PROMPT-ONLY-IDENTITY:** generation relied on prose where visual identity authority was needed.
+- **DRIFT-REPAIR-SPIRAL:** repeated local fixes attempted before correcting an under-specified appearance reference packet.
