@@ -1,7 +1,8 @@
 #!/usr/bin/env node
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import os from 'node:os';
 
 const root = path.resolve(import.meta.dirname, '..');
 const [toolPath, separator, ...toolArgs] = process.argv.slice(2);
@@ -16,41 +17,71 @@ if (separator !== '--') {
 }
 
 const absoluteTool = path.resolve(root, toolPath);
+if (!fs.existsSync(absoluteTool)) {
+  console.error(`missing host Blender tool: ${absoluteTool}`);
+  process.exit(1);
+}
+
 const configuredBlender = process.env.BLENDER_BIN?.trim();
-const command = configuredBlender || 'proot-distro';
+if (configuredBlender) {
+  const result = spawnSync(
+    configuredBlender,
+    ['--background', '--python-exit-code', '1', '--python', absoluteTool, '--', ...toolArgs],
+    { cwd: root, stdio: 'inherit' },
+  );
+  if (result.signal) {
+    console.error(`blender tool terminated by signal ${result.signal}`);
+    process.exit(1);
+  }
+  process.exit(result.status ?? 1);
+}
+
 const termuxHome = os.homedir();
 const sharedStorage = '/storage/emulated/0';
-const commandArgs = configuredBlender
-  ? ['--background', '--python-exit-code', '1', '--python', absoluteTool, '--', ...toolArgs]
-  : [
-      'login',
-      'debian',
-      '--bind',
-      `${root}:${root}`,
-      '--bind',
-      `${termuxHome}:${termuxHome}`,
-      '--bind',
-      `${sharedStorage}:${sharedStorage}`,
-      '--',
-      'env',
-      '-u',
-      'PYTHONHOME',
-      'PYTHONPATH=/usr/lib/python3/dist-packages:/usr/local/lib/python3.13/dist-packages',
-      'blender',
-      '--background',
-      '--python-exit-code',
-      '1',
-      '--python',
-      absoluteTool,
-      '--',
-      ...toolArgs,
-    ];
+const guestRepo = '/mnt/pose-lab-host';
+const guestTermuxHome = '/mnt/termux-home-host';
+const guestStorage = '/mnt/shared-storage-host';
 
-const result = spawnSync(
-  command,
-  commandArgs,
-  { cwd: root, stdio: 'inherit' }
-);
+function translateArg(value) {
+  const replacements = [
+    [root, guestRepo],
+    [termuxHome, guestTermuxHome],
+    [sharedStorage, guestStorage],
+  ];
+  for (const [hostPrefix, guestPrefix] of replacements) {
+    if (value === hostPrefix) return guestPrefix;
+    if (value.startsWith(hostPrefix + '/')) {
+      return guestPrefix + value.slice(hostPrefix.length);
+    }
+  }
+  return value;
+}
+
+const guestTool = translateArg(absoluteTool);
+const guestArgs = toolArgs.map(translateArg);
+
+const commandArgs = [
+  'login',
+  '--bind', `${root}:${guestRepo}`,
+  '--bind', `${termuxHome}:${guestTermuxHome}`,
+  '--bind', `${sharedStorage}:${guestStorage}`,
+  'debian',
+  '--',
+  'env',
+  '-u',
+  'PYTHONHOME',
+  'PYTHONPATH=/usr/lib/python3/dist-packages:/usr/local/lib/python3.13/dist-packages',
+  'blender',
+  '--background',
+  '--python-exit-code',
+  '1',
+  '--python',
+  guestTool,
+  '--',
+  ...guestArgs,
+];
+
+const result = spawnSync('proot-distro', commandArgs, { cwd: root, stdio: 'inherit' });
 
 if (result.signal) {
   console.error(`blender tool terminated by signal ${result.signal}`);
