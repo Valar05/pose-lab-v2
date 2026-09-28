@@ -515,10 +515,12 @@ def main() -> None:
     source_frames = [float(value) for value in args.frames.split(",") if value.strip()]
     if not asset.is_file():
         raise FileNotFoundError(asset)
-    if len(source_frames) != args.columns * args.rows:
+    grid_capacity = args.columns * args.rows
+    minimum_for_rows = max(1, (args.rows - 1) * args.columns + 1)
+    if len(source_frames) > grid_capacity or len(source_frames) < minimum_for_rows:
         raise RuntimeError(
-            f"Grid {args.columns}x{args.rows} requires {args.columns * args.rows} frames; "
-            f"received {source_frames}"
+            f"Grid {args.columns}x{args.rows} has capacity {grid_capacity} and expects "
+            f"a populated final row; received {len(source_frames)} frames: {source_frames}"
         )
     if args.source_fps <= 0:
         raise RuntimeError("--source-fps must be positive")
@@ -536,11 +538,12 @@ def main() -> None:
     source_end = max(source_frames)
     source_span = source_end - source_start
     if source_span <= 0:
-        raise RuntimeError(f"Invalid source frame range: {source_frames}")
-    render_frames = [
-        action_start + ((frame - source_start) / source_span) * (action_end - action_start)
-        for frame in source_frames
-    ]
+        render_frames = [action_start for _frame in source_frames]
+    else:
+        render_frames = [
+            action_start + ((frame - source_start) / source_span) * (action_end - action_start)
+            for frame in source_frames
+        ]
     mesh_objects = [obj for obj in scene.objects if obj.type == "MESH" and not obj.hide_render]
     if not mesh_objects:
         raise RuntimeError("Source asset imported no renderable mesh objects")

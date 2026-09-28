@@ -140,8 +140,12 @@ def main() -> None:
     frame_width = int(grid["frameWidth"])
     frame_height = int(grid["frameHeight"])
     records = sorted(manifest["frames"], key=lambda record: int(record["index"]))
-    if len(records) != columns * rows:
-        raise RuntimeError("Pose packet frame count does not fill the declared grid")
+    capacity = columns * rows
+    minimum_for_rows = max(1, (rows - 1) * columns + 1)
+    if len(records) > capacity or len(records) < minimum_for_rows:
+        raise RuntimeError(
+            "Pose packet frames must fit the declared grid and populate its final row"
+        )
 
     assembled: dict[str, dict[str, object]] = {}
     sheets: dict[str, Image.Image] = {}

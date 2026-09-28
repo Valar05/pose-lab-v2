@@ -89,7 +89,13 @@ def verify(
     frames = manifest.get("frames", [])
     require(columns > 0 and rows > 0, "grid must be positive", failures)
     require(width > 0 and height > 0, "frame dimensions must be positive", failures)
-    require(len(frames) == columns * rows, "frame count must exactly fill grid", failures)
+    capacity = columns * rows
+    minimum_for_rows = max(1, (rows - 1) * columns + 1)
+    require(
+        minimum_for_rows <= len(frames) <= capacity,
+        "frame count must fit grid and populate its final row",
+        failures,
+    )
 
     seen_indices: set[int] = set()
     for record in frames:
