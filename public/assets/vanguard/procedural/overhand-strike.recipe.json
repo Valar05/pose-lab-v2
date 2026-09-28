@@ -499,13 +499,14 @@
     "enabled": true,
     "path": "assets/vanguard/procedural/vanguard-diorama-speed-lines.png",
     "position": [
-      20,
-      -68
+      42,
+      -96
     ],
-    "minScaleX": 0.58,
-    "maxScaleX": 1.0,
+    "minScaleX": 1.05,
+    "maxScaleX": 1.45,
     "scaleY": 1.0,
-    "alpha": 0.78,
-    "imageSmoothing": false
+    "alpha": 0.88,
+    "imageSmoothing": false,
+    "inheritBodyScale": true
   }
 }

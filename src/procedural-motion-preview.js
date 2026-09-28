@@ -391,7 +391,7 @@ function drawBody(id,d,blurAmount=0){
      drawPass(dx*span*t,dy*span*t,alpha,filterPx?('blur('+filterPx+'px)'):'none');
    }
    if(recipe.speedLineSprite?.enabled){
-     drawSpeedLineSprite(px,py,reg,d,blurAmount);
+     drawSpeedLineSprite(px,py,reg,d,bodyScale,blurAmount);
    }
    const primaryFilterPx=Math.max(0,Number(blur.primaryFilterPx??0))*blurAmount;
    ctx.save();
@@ -407,7 +407,7 @@ function drawBody(id,d,blurAmount=0){
  drawPass();
 }
 
-function drawSpeedLineSprite(px,py,reg,d,amount){
+function drawSpeedLineSprite(px,py,reg,d,bodyScale,amount){
  const spec=recipe.speedLineSprite||{};
  if(!spec.enabled||!speedLines||amount<=0)return;
  const pos=Array.isArray(spec.position)?spec.position:[20,-68];
@@ -422,7 +422,8 @@ function drawSpeedLineSprite(px,py,reg,d,amount){
  ctx.imageSmoothingEnabled=spec.imageSmoothing!==false;
  ctx.translate(stageOffsetX(),0);
  ctx.translate(px+Number(reg[0]||0)+Number(pos[0]||0),py+Number(reg[1]||0)+Number(pos[1]||0));
- ctx.transform((d.scaleX||1),0,d.shearX,(d.scaleY||1),d.shiftX||0,d.shiftY||0);
+ const inheritedScale=spec.inheritBodyScale===false?1:bodyScale;
+ ctx.transform((d.scaleX||1)*inheritedScale,0,d.shearX,(d.scaleY||1)*inheritedScale,d.shiftX||0,d.shiftY||0);
  ctx.scale(sx,sy);
  // The source converges at its right edge, so pin that edge to Vanguard's back.
  ctx.drawImage(speedLines,-speedLines.width,-speedLines.height/2);
