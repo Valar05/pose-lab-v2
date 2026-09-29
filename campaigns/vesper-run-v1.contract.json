@@ -1,0 +1,95 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "vesper-run-v1",
+  "status": "sealed-before-review",
+  "mission": "Serve the accepted Vesper gameplay atlas as a six-pose procedural run in Pose Lab V2 using cells 2-7, Vanguard-derived cadence, no root motion, and subtle procedural shear/bob while preserving all accepted atlas bytes.",
+  "authority": {
+    "atlasSha256": "02553770f1987ec0a235ff972deee0eeb9d28140855384031e62c9c2de05273b",
+    "runCells": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "cycleMs": 1050,
+    "procedural": {
+      "bobPx": 1.25,
+      "shearPulse": 0.012
+    },
+    "reviewRoute": "motion.html?procedural=vesper-run"
+  },
+  "machine": {
+    "mutablePaths": [
+      "public/assets/vesper/procedural/run.recipe.json",
+      "src/procedural-vesper-run-preview.js",
+      "motion.html",
+      "tools/test_vesper_run_runtime.mjs",
+      "campaigns/vesper-run-v1.receipt.json"
+    ],
+    "receiptPath": "campaigns/vesper-run-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/VESPER_LOW_RES_ATLAS_PROCESS.md",
+      "docs/VESPER_LOW_RES_ACCEPTED_ARTIFACT.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/vesper/procedural/vesper-gameplay-atlas.png",
+        "sha256": "02553770f1987ec0a235ff972deee0eeb9d28140855384031e62c9c2de05273b"
+      }
+    ],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vesper/procedural/run.recipe.json",
+        "pointer": "/cycleMs",
+        "value": 1050
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vesper/procedural/run.recipe.json",
+        "pointer": "/rootMotion",
+        "value": false
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vesper/procedural/run.recipe.json",
+        "pointer": "/poses/0/cell",
+        "value": 2
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vesper/procedural/run.recipe.json",
+        "pointer": "/poses/5/cell",
+        "value": 7
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vesper/procedural/run.recipe.json",
+        "pointer": "/secondary/bobPx",
+        "value": 1.25
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/vesper/procedural/run.recipe.json",
+        "pointer": "/secondary/shearPulse",
+        "value": 0.012
+      },
+      {
+        "kind": "text-contains",
+        "path": "motion.html",
+        "value": "procedural-vesper-run-preview.js"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-vesper-run-preview.js",
+        "value": "preserve source-cell geometry"
+      }
+    ]
+  }
+}
