@@ -309,3 +309,25 @@ For a long-weapon playable character, preserve character scale and weapon envelo
 - Keep full-resolution originals separate and untouched.
 
 A long lance is allowed to make the sprite much wider than another character while the two bodies remain equal in height.
+
+
+## Low-resolution sprite visual-language gate — 2026-09-28
+
+For any high-resolution sprite/contact-sheet -> gameplay low-resolution conversion, `docs/LOW_RES_SPRITE_DOWNSAMPLE_CONTRACT.md` is mandatory.
+
+A mathematically correct resize is not sufficient. The delivered candidate must match the accepted gameplay lane in:
+- body scale;
+- detail frequency;
+- softness/readability.
+
+Required order:
+1. choose accepted source and readable gameplay comparison authority;
+2. establish one family-wide body scale;
+3. apply declared detail-collapse treatment;
+4. save individual low-resolution frames;
+5. assemble atlas without rescaling;
+6. produce native, nearest-neighbor, and soft comparison proofs;
+7. **open and visually inspect those proofs before handing them to Drew**;
+8. keep human verdict pending until Drew accepts the visible result.
+
+A candidate that is merely a crisp miniature of high-resolution art is red even if its dimensions and scale math are correct.
