@@ -2,8 +2,11 @@
 set -euo pipefail
 export PAGER=cat GIT_PAGER=cat
 
-# Heavy2 V2 campaign: exact Heavy1 contact-review lane, action-swapped only.\n# Human review remains paginated 2x2 contact sheets; sprite generation stays off.\nROOT="/storage/emulated/0/Documents/GodotProjects/pose-lab-v2"
+# Heavy2 V2 campaign: exact Heavy1 contact-review lane, action-swapped only.
+# Human review remains paginated 2x2 contact sheets; sprite generation stays off.
+ROOT="/storage/emulated/0/Documents/GodotProjects/pose-lab-v2"
 CONTRACT="campaigns/obsidian-lionheart-sprite-bounty-v1.contract.json"
+SELF="generated/obsidian-lionheart/run-heavy2-contact-review.sh"
 COMMON="tools/campaigns/campaign_common.sh"
 FRAMEWORK="docs/POSE_CAMPAIGN_FRAMEWORK.md"
 CONTINUATION="docs/campaigns/OBSIDIAN_LIONHEART_SPRITE_BOUNTY.md"
@@ -36,7 +39,7 @@ git fetch origin main
 SEALED="$(git rev-parse origin/main)"
 echo "SEALED_REV=$SEALED"
 
-for f in   "$CONTRACT" "$COMMON" "$FRAMEWORK" "$CONTINUATION" "$RUNNER" "$RENDERER"
+for f in   "$CONTRACT" "$SELF" "$COMMON" "$FRAMEWORK" "$CONTINUATION" "$RUNNER" "$RENDERER"
 do
   git cat-file -e "$SEALED:$f" || stop "sealed package missing: $f"
 done
