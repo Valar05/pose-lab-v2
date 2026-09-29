@@ -3,7 +3,9 @@ set -euo pipefail
 export PAGER=cat GIT_PAGER=cat
 
 # Obsidian / Lionheart SpringAttack V2 contact-review campaign.
-# Render every authored SpringAttack keyframe through the canonical fast EEVEE1 lane,\n# build paginated 2x2 contact sheets, media-refresh them, and stop for Drew's curation.\n# Sprite generation and accepted-atlas mutation remain OFF.
+# Render every authored SpringAttack keyframe through the canonical fast EEVEE1 lane,
+# build paginated 2x2 contact sheets, media-refresh them, and stop for Drew's curation.
+# Sprite generation and accepted-atlas mutation remain OFF.
 ROOT="/storage/emulated/0/Documents/GodotProjects/pose-lab-v2"
 CONTRACT="campaigns/obsidian-lionheart-sprite-bounty-v1.contract.json"
 SELF="generated/obsidian-lionheart/run-springattack-contact-review.sh"
