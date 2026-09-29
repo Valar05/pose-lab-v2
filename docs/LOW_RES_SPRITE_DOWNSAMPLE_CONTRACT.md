@@ -250,3 +250,12 @@ After scale is correct, reject the result if Vesper still reads like a miniature
 
 See:
 `docs/VESPER_LOW_RES_ATLAS_PROCESS.md`
+
+
+## Explicit comparison-surface override
+
+Body height is the default scale authority, but a campaign may explicitly designate another comparison surface. When the user names a surface such as the head, that surface becomes scale authority for that campaign. Compare the same surface across characters, derive one uniform scale factor, and apply it to the entire sprite. Do not independently resize the head/body and do not silently revert to body-height fitting.
+
+The accepted Vesper/Obsidian case uses head size as the cross-character scale ruler because crouch and pose compression made whole-body bounds misleading.
+
+Reference: `docs/campaigns/VESPER_LOW_RES_ATLAS_PIPELINE.md`
