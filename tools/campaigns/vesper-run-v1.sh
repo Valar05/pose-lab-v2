@@ -100,16 +100,9 @@ PY
 
 echo
 echo "=== BUILD EXACT REVISION ==="
-if [ ! -e node_modules ]; then
-  if [ -d "$P/node_modules" ]; then
-    ln -s "$P/node_modules" node_modules
-    echo "NODE_MODULES=reused-from-canonical-checkout"
-  else
-    npm ci --no-audit --no-fund
-    echo "NODE_MODULES=npm-ci"
-  fi
-fi
-npm run build
+# Pose Lab is intentionally dependency-free for local static builds.
+# package.json guardrails require no npm dependencies; do not npm install/ci here.
+node scripts/build.mjs
 
 echo
 echo "=== SERVE POSE LAB V2 ==="
