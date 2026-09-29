@@ -1,0 +1,71 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "vesper-run-v1",
+  "status": "quarantined-candidate",
+  "mission": "Integrate only Vesper's accepted six-pose run into Pose Lab V2 using atlas cells 1–6, the accepted Vanguard run cadence as timing authority only, and subtle procedural deformation. No root motion. Do not modify accepted Vesper atlas pixels.",
+  "authority": {
+    "pose": "accepted Vesper low-res atlas cells 1–6",
+    "atlasPath": "public/assets/vesper/procedural/vesper-lowres-atlas.png",
+    "atlasSha256": "02553770f1987ec0a235ff972deee0eeb9d28140855384031e62c9c2de05273b",
+    "timing": "Vanguard run cadence: cycle 1050 ms; weights 1.10,1.18,0.86 repeated",
+    "sourceCellGeometry": "8x6 regular atlas; 181x181 cells; preserve full cell geometry",
+    "rootMotion": false
+  },
+  "run": {
+    "sourceCells": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "cycleMs": 1050,
+    "procedural": {
+      "stepBobPx": 1.25,
+      "forwardShearPulse": 0.004,
+      "torsoBreathScaleY": 0.004
+    },
+    "stageAnchor": [
+      220,
+      226
+    ]
+  },
+  "locks": [
+    "accepted Vesper atlas pixels and SHA-256",
+    "cells 1–6 pose identity",
+    "atlas cell geometry",
+    "no root translation",
+    "all non-run Vesper cells"
+  ],
+  "machine": {
+    "mutablePaths": [
+      "public/assets/vesper/procedural/vesper-lowres-atlas.png",
+      "public/assets/vesper/procedural/run.recipe.json",
+      "src/procedural-vesper-run-preview.js",
+      "src/procedural-review-shell.js",
+      "motion.html",
+      "campaigns/vesper-run-v1.contract.json"
+    ],
+    "requiredRules": [
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/VESPER_LOW_RES_ATLAS_PROCESS.md",
+      "docs/LOW_RES_SPRITE_DOWNSAMPLE_CONTRACT.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/vesper/procedural/vesper-lowres-atlas.png",
+        "sha256": "02553770f1987ec0a235ff972deee0eeb9d28140855384031e62c9c2de05273b"
+      }
+    ]
+  },
+  "acceptance": [
+    "Vesper run is visible on Pose Lab V2 motion.html?procedural=vesper-run",
+    "six authored poses remain dominant",
+    "cautious cadence matches the previously accepted run read",
+    "procedural bob/shear/breath add life without changing pose identity",
+    "no unintended root travel",
+    "human visual verdict is explicit before merge/promotion"
+  ]
+}
