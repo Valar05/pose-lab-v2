@@ -808,3 +808,21 @@ Before any Vesper low-resolution scale/detail/atlas mutation, also read:
 `docs/VESPER_LOW_RES_ATLAS_PROCESS.md`
 
 This character-specific process record is mandatory because it captures the settled head-size comparison surface, detail-collapse workflow, one-atlas growth policy, local-cell correction rule, and the failure history that must not be reconstructed from chat.
+
+
+## Cross-character low-res case-study rule
+
+Character-specific low-resolution process records such as `docs/VESPER_LOW_RES_ATLAS_PROCESS.md` may be reused as **method references** across Pose Lab, but their character-specific measurements are never universal authority.
+
+Mandatory rules:
+- reuse process structure, not unproven numeric calibration;
+- choose a fresh readable comparison surface for the current character;
+- keep source authority, generated derivative, gameplay derivative, and atlas container roles explicit;
+- an accepted atlas does not become source authority merely because it contains the accepted sprite;
+- when Drew says a visual property is close enough / good enough / accepted, stop tuning that property and lock it;
+- later repair is local to the explicitly reopened cell/property.
+
+Named regressions:
+- **CASE-STUDY-NUMBER-LEAK:** copied another character's scale/blur/proportion constants without a new proof.
+- **PROVENANCE-COLLAPSE:** treated source, generated derivative, gameplay sprite, and atlas container as interchangeable.
+- **ACCEPTANCE-OVERRUN:** continued tuning after human acceptance instead of locking the accepted property.
