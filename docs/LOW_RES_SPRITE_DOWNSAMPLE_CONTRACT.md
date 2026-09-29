@@ -177,6 +177,29 @@ Named failure:
 - **BAD-PROOF-FRAME:** comparison pose prevents trustworthy scale/proportion judgment.
 - **UNINSPECTED-HANDOFF:** artifact was delivered without the operator visibly reviewing the actual output.
 
+## Accepted-artifact provenance roles
+
+Low-resolution work must keep artifact roles explicit. Acceptance in one role does not silently promote an artifact into another role.
+
+- **source authority** — original authored or explicitly accepted high-resolution source used for mechanical conversion;
+- **generated derivative** — creative/generated output that may be accepted art but is not automatically mechanical source authority;
+- **gameplay derivative** — down-resolved individual sprite produced from a frozen source by the declared low-res process;
+- **atlas container** — packing/placement artifact built from already-frozen gameplay derivatives; atlas acceptance does not redefine source authority.
+
+A file may be accepted in more than one role only when Drew explicitly says so. Record provenance separately from visual acceptance.
+
+Named failure:
+- **PROVENANCE-COLLAPSE:** source authority, generated derivative, gameplay derivative, and atlas container were treated as interchangeable.
+
+## Stop-and-lock rule
+
+When Drew says a low-resolution result is **"close enough"**, **"good enough"**, **accepted**, or otherwise visibly approves the relevant property, stop polishing that property and lock it.
+
+Do not continue speculative scale, blur, detail-collapse, or atlas normalization after acceptance. A later defect reopens only the specifically rejected property or cell.
+
+Named failure:
+- **ACCEPTANCE-OVERRUN:** continued visual tuning after the human acceptance boundary had already been reached.
+
 ## Human authority
 
 Drew's visible review is final.
