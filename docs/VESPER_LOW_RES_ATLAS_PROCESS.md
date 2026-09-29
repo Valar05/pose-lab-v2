@@ -448,3 +448,26 @@ Measurements support the human verdict; they do not replace it.
 If you remember nothing else:
 
 > **Match Vesper to Obsidian by head size. Scale the whole sprite uniformly from that head match. Then deliberately collapse high-resolution detail until face, rifle, cloth, and armor read at Obsidian's softness/detail frequency. Save individual low-res frames first. Pack them into one roomy atlas without rescaling. If one cell is wrong, touch only that cell. Open the actual comparison before delivery. Stop when Drew says close enough.**
+
+
+---
+
+## Cross-character method boundary
+
+This file is a **case-study method reference**, not a source of universal character measurements.
+
+Future Obsidian, Vanguard, or other Pose Lab low-resolution work may reuse the process structure:
+
+- choose a readable anatomical comparison surface;
+- derive one uniform whole-sprite scale from that surface;
+- separate scale matching from detail-collapse;
+- use source preblur -> BOX downsample -> small postblur where needed;
+- save individual low-res frames before atlas assembly;
+- treat atlas packing as placement only;
+- repair accepted work locally;
+- stop and lock when Drew says close enough.
+
+Do **not** copy Vesper-specific numeric measurements, head proportions, cell dimensions, or blur values into another character unless a new proof establishes them there.
+
+Artifact provenance remains separate:
+**source authority -> generated/painted derivative when applicable -> gameplay derivative -> atlas container**.
