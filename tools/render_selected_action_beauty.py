@@ -132,6 +132,17 @@ def configure_fast_base_color_review(scene, mesh_objects):
     scene.render.engine = engine
     scene.render.film_transparent = True
 
+    # Pose-review rendering is intentionally one-sample Eevee. The materials
+    # are converted to unlit emission below, so additional temporal samples,
+    # shadows, and ray tracing add cost without adding pose-review information.
+    eevee = scene.eevee
+    eevee.taa_render_samples = 1
+    eevee.taa_samples = 1
+    eevee.use_shadows = False
+    eevee.use_raytracing = False
+    eevee.volumetric_samples = 1
+    eevee.volumetric_shadow_samples = 1
+
     converted = 0
     for obj in mesh_objects:
         for slot in obj.material_slots:
@@ -263,9 +274,9 @@ def main() -> None:
         "schema": "pose-lab-selected-action-beauty-v1",
         "status": "PASS",
         "renderPolicy": (
-            "beauty-only-all-authored-keyframes"
+            "eevee1-unlit-base-color-only-all-authored-keyframes"
             if args.all_keyframes
-            else "beauty-only-selected-authored-keyframes"
+            else "eevee1-unlit-base-color-only-selected-authored-keyframes"
         ),
         "asset": str(asset),
         "assetSha256": sha256(asset),
@@ -279,6 +290,7 @@ def main() -> None:
         "rootMotionSuppressed": True,
         "appearance": "base-color-textures-only",
         "renderer": scene.render.engine,
+        "eeveeRenderSamples": int(scene.eevee.taa_render_samples),
         "convertedMaterialCount": converted_materials,
         "mutedRootMotionCurves": muted_root_curves,
         "frames": records,
@@ -298,6 +310,7 @@ def main() -> None:
                 "passes": ["beauty"],
                 "appearance": "base-color-textures-only",
                 "renderer": scene.render.engine,
+                "eeveeRenderSamples": int(scene.eevee.taa_render_samples),
                 "outDir": str(out_dir),
             }
         )
