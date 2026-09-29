@@ -7,9 +7,10 @@ const CHARACTER_ANIMATIONS = Object.freeze({
     ['vanguard-midair','Mid-Air'],['vanguard-land','Land'],['vanguard-shotgun-reload','Shotgun Reload'],
     ['vanguard-shotgun-fire','Shotgun Fire']
   ],
-  swarmling: [['swarmling-run','Run'],['swarmling-idle','Idle'],['swarmling-aggro','Aggro / Attention'],['swarmling-damage','Damage / Hit React'],['swarmling-knockdown','Knockdown'],['swarmling-stand-up','Stand Up'],['swarmling-death','Death'],['swarmling-jab','Needle Jab'],['swarmling-rake','Low Rake'],['swarmling-scythe-bloom','Scythe Bloom']]
+  swarmling: [['swarmling-run','Run'],['swarmling-idle','Idle'],['swarmling-aggro','Aggro / Attention'],['swarmling-damage','Damage / Hit React'],['swarmling-knockdown','Knockdown'],['swarmling-stand-up','Stand Up'],['swarmling-death','Death'],['swarmling-jab','Needle Jab'],['swarmling-rake','Low Rake'],['swarmling-scythe-bloom','Scythe Bloom']],
+  vesper: [['vesper-run','Run']]
 });
-const DEFAULT_ANIMATION = Object.freeze({vanguard:'vanguard-idle',swarmling:'swarmling-run'});
+const DEFAULT_ANIMATION = Object.freeze({vanguard:'vanguard-idle',swarmling:'swarmling-run',vesper:'vesper-run'});
 
 export function createProceduralReviewShell({title,animation,accent='#59d5e8',character=null}){
   const app=document.querySelector('#app');
@@ -58,7 +59,7 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8',ch
   const zoomInput=q('[data-zoom]'), zoomReadout=q('[data-zoom-readout]'), select=q('[data-animation]'), characterSelect=q('[data-character]');
   const activeCharacter=character || (String(animation).startsWith('swarmling-')?'swarmling':'vanguard');
   for(const id of Object.keys(CHARACTER_ANIMATIONS)){
-    const o=document.createElement('option');o.value=id;o.textContent=id==='vanguard'?'Vanguard':'Swarmling';characterSelect.append(o);
+    const o=document.createElement('option');o.value=id;o.textContent=id==='vanguard'?'Vanguard':id==='swarmling'?'Swarmling':'Vesper';characterSelect.append(o);
   }
   characterSelect.value=activeCharacter;
   for(const [id,label] of CHARACTER_ANIMATIONS[activeCharacter]){
