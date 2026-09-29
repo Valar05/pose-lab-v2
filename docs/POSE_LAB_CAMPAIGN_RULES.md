@@ -772,3 +772,30 @@ Named regression classes:
 - Preserve meaningful near-duplicates. Consolidation means organization, not premature deletion.
 - High-resolution originals remain source authority; low-resolution copies are gameplay/consolidation derivatives.
 - One scale proof image is enough. Do not produce repeated speculative comparison images after the body-height authority is settled.
+
+
+## Mandatory low-resolution sprite downsample contract — 2026-09-28
+
+Before any mechanical high-resolution -> gameplay low-resolution sprite conversion, read and obey:
+
+`docs/LOW_RES_SPRITE_DOWNSAMPLE_CONTRACT.md`
+
+This is a hard preflight dependency, not optional background reading.
+
+Key guardrails:
+- **DOWNSAMPLE-IS-NOT-RESIZE:** a smaller image that still reads like a miniature high-resolution illustration is a failure.
+- **DETAIL-FREQUENCY-MATCH:** candidate internal detail density must be visually compared against an accepted gameplay-scale character.
+- **SOFTNESS-MATCH:** candidate must occupy the same low-resolution softness/frequency lane as the accepted comparison authority.
+- **SOURCE-PREBLUR-ALLOWED:** high-detail painted/generated sources may require declared source-space low-pass blur before BOX downsampling.
+- **INDIVIDUAL-FIRST:** save frozen low-resolution individual frames before atlas assembly.
+- **NO-ATLAS-RESCALE:** atlas assembly is placement only.
+- **THREE-PROOF-GATE:** native comparison + nearest-neighbor inspection preview + soft/readability preview are required before handoff.
+- **OPERATOR-MUST-LOOK:** scripts, dimensions, hashes, and manifests are not visual acceptance. Open the actual proof images before delivery.
+- **BAD-PROOF-FRAME-FAILS:** an extreme crouch/foreshortened pose cannot be used as trusted body-scale proof.
+- **NO-IMAGEGEN-DOWNSAMPLE:** mechanical down-resolution problems stay in the raster-processing lane unless Drew explicitly asks for new generation.
+
+Named regressions from the Vesper/Obsidian production failure:
+- **MINIATURE-ILLUSTRATION**
+- **SOFTNESS-MISMATCH**
+- **BAD-PROOF-FRAME**
+- **UNINSPECTED-HANDOFF**
