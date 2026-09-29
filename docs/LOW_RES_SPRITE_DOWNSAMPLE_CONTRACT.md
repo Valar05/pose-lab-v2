@@ -228,3 +228,25 @@ Before handoff:
 - [ ] Candidate softness/detail frequency visibly matches authority closely enough for human review
 - [ ] Atlas was assembled from frozen low-res frames with no rescale
 - [ ] Human verdict is still pending until Drew accepts it
+
+
+## Vesper-specific scale refinement — 2026-09-29
+
+For the Vesper / Obsidian gameplay family, Drew explicitly established **head size as the comparison surface**.
+
+This refines generic body-height guidance for this character pairing.
+
+Procedure:
+1. choose a clean head-readable Obsidian frame;
+2. choose a clean head-readable Vesper frame;
+3. compare head pixel footprint / apparent head size;
+4. choose one uniform whole-sprite scale factor from that head match;
+5. freeze that factor for the family;
+6. then solve detail-frequency / softness separately.
+
+Do not use total sprite height, rifle length, cape spill, antennae, or crouch compression to override the head-size visual authority.
+
+After scale is correct, reject the result if Vesper still reads like a miniature high-resolution illustration. Detail collapse is a separate required gate.
+
+See:
+`docs/VESPER_LOW_RES_ATLAS_PROCESS.md`
