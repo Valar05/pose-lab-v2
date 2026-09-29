@@ -799,3 +799,12 @@ Named regressions from the Vesper/Obsidian production failure:
 - **SOFTNESS-MISMATCH**
 - **BAD-PROOF-FRAME**
 - **UNINSPECTED-HANDOFF**
+
+
+## Vesper low-resolution atlas sticky boot — 2026-09-29
+
+Before any Vesper low-resolution scale/detail/atlas mutation, also read:
+
+`docs/VESPER_LOW_RES_ATLAS_PROCESS.md`
+
+This character-specific process record is mandatory because it captures the settled head-size comparison surface, detail-collapse workflow, one-atlas growth policy, local-cell correction rule, and the failure history that must not be reconstructed from chat.
