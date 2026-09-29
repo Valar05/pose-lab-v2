@@ -23,7 +23,7 @@ STATE="$HOME/.local/state/pose-lab-v2-obsidian-heavy2-contact-review"
 LIVE="$STATE/live"
 TMP="$STATE/tmp_frames"
 
-EXISTING="/storage/emulated/0/Download/LionheartHeavy2Review"
+EXISTING="/storage/emulated/0/Download/LionheartHeavy2FastBaseColorReview"
 OUT_BASE="/storage/emulated/0/Download/LionheartHeavy2ContactReview"
 
 stop(){ echo "STOP: $*" >&2; exit 1; }
@@ -75,6 +75,9 @@ m=json.loads((root/"manifest.json").read_text())
 assert m.get("status")=="PASS"
 assert m.get("actionRequested")==action
 assert m.get("resolution")==[w,h]
+assert m.get("renderPolicy")=="eevee1-unlit-base-color-only-all-authored-keyframes"
+assert m.get("appearance")=="base-color-textures-only"
+assert m.get("eeveeRenderSamples")==1
 frames=m.get("frames") or []
 assert frames
 assert m.get("selectedKeyIndices")==list(range(len(frames)))
@@ -92,7 +95,7 @@ PY
 fi
 
 if [ -z "$SOURCE" ]; then
-  echo "=== RENDER EVERY AUTHORED HEAVY2 KEYFRAME ==="
+  echo "=== RENDER EVERY AUTHORED HEAVY2 KEYFRAME — FAST EEVEE1 ==="
   rm -rf "$TMP"
   mkdir -p "$TMP"
   [ -f "$ASSET" ] || stop "Lionheart donor GLB missing: $ASSET"
@@ -166,7 +169,7 @@ receipt={
     "actionRequested":action,
     "actionResolved":manifest.get("actionResolved"),
     "frameCount":len(frames),
-    "renderPolicy":"textured-all-authored-keyframes-2x2-contact-sheets",
+    "renderPolicy":"eevee1-unlit-base-color-only-all-authored-keyframes-to-2x2-contact-sheets",
     "cellResolution":[w,h],
     "pageGrid":[2,2],
     "pages":pages,
@@ -207,6 +210,7 @@ echo "SEALED_REV=$SEALED"
 echo "SOURCE_FRAMES=$SOURCE"
 echo "CONTACT_REVIEW_DIR=$OUT"
 echo "ACTION=$ACTION"
+echo "RENDER_POLICY=EEVEE1_UNLIT_BASE_COLOR_ONLY"
 echo "CELL_RESOLUTION=${WIDTH}x${HEIGHT}"
 echo "GRID=2x2"
 echo "HUMAN_VERDICT=PENDING"
