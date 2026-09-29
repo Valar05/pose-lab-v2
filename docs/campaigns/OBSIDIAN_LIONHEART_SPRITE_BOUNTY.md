@@ -289,3 +289,27 @@ That script verifies the accepted input SHA before touching pixels and verifies 
 9. Generate one four-pose sheet, review for identity/back-view/weapon drift.
 10. Keep useful resulting poses in the bounty.
 11. Only after human acceptance, consolidate/down-res with the established body-height and manual-cleanup discipline.
+
+## 2026-09-28 Heavy1 acceptance and Heavy2 handoff
+
+Heavy1 was completed after repeated strict pose-transfer correction. Drew explicitly accepted the final single-frame Obsidian result with: **"You beautiful ritsu crab bastard. You did it."**
+
+Final accepted Heavy1 local artifact in this ChatGPT session:
+
+- `/mnt/data/obsidian_knight_s_crimson_lance.png`
+- accepted behavior: exact Lionheart donor pose transfer, rear-facing orientation preserved, lance adjusted, back heel adjusted, Obsidian appearance retained
+
+Heavy1 lessons to preserve as hard gates:
+
+- reread Pose Lab sticky-boot rules before every mutation
+- donor pose and Obsidian appearance are separate frozen authorities
+- pelvis/lower-body direction is first-class pose authority
+- preserve facing, handedness, shield side, weapon side, heel/foot orientation, and shoulder anatomy
+- do not recover the face on rear-facing poses
+- do not use generated derivatives as appearance authority
+- when a frame is close, prefer local edit/inpaint over whole-frame regeneration
+- one requested animation/frame means one output, not a contact sheet or four variants
+
+Next action: **Heavy2**. Same pipeline, new donor action. Render every authored Heavy2 keyframe from the LionheartLancer GLB, build paginated 2x2 contact sheets for human review, choose distinct motion-bearing authorities with no automatic idle preference, then generate Obsidian only after pose selection.
+
+Heavy2 launch note: an initial Home Center -> Phone Hands launch attempt on 2026-09-28 timed out during the bounded command before successful launch evidence was returned. Do not treat Heavy2 as rendered or complete until a phone receipt proves the render/contact-sheet campaign completed.
