@@ -26,7 +26,15 @@ echo "ROOT_MOTION=OFF"
 
 echo
 echo "=== READ DOCTRINE ==="
-for f in   AGENTS.md   docs/POSE_LAB_CAMPAIGN_RULES.md   docs/POSE_IS_GOD.md   docs/POSE_CAMPAIGN_FRAMEWORK.md   docs/VESPER_LOW_RES_ATLAS_PROCESS.md   docs/VESPER_LOW_RES_ACCEPTED_ARTIFACT.md; do
+RULES=(
+  "AGENTS.md"
+  "docs/POSE_LAB_CAMPAIGN_RULES.md"
+  "docs/POSE_IS_GOD.md"
+  "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+  "docs/VESPER_LOW_RES_ATLAS_PROCESS.md"
+  "docs/VESPER_LOW_RES_ACCEPTED_ARTIFACT.md"
+)
+for f in "${RULES[@]}"; do
   [ -s "$f" ] || stop "missing required rule: $f"
   cat "$f" >/dev/null
   echo "READ=$f"
@@ -50,7 +58,9 @@ cleanup_on_fail(){
   code=$?
   if [ "$code" -ne 0 ]; then
     echo "FAILED_REVISION=$REV" >&2
-    [ -f "$STATE/server.log" ] && tail -80 "$STATE/server.log" >&2 || true
+    if [ -f "$STATE/server.log" ]; then
+      tail -80 "$STATE/server.log" >&2 || true
+    fi
   fi
   exit "$code"
 }
@@ -71,7 +81,9 @@ node --check src/procedural-vesper-run-preview.js
 
 ATLAS="public/assets/vesper/procedural/vesper-gameplay-atlas.png"
 GOT_SHA="$(sha256sum "$ATLAS" | awk '{print $1}')"
-[ "$GOT_SHA" = "02553770f1987ec0a235ff972deee0eeb9d28140855384031e62c9c2de05273b" ]   || stop "locked Vesper atlas SHA mismatch: $GOT_SHA"
+if [ "$GOT_SHA" != "02553770f1987ec0a235ff972deee0eeb9d28140855384031e62c9c2de05273b" ]; then
+  stop "locked Vesper atlas SHA mismatch: $GOT_SHA"
+fi
 
 python3 - <<'PY'
 import json
@@ -103,7 +115,9 @@ echo
 echo "=== SERVE POSE LAB V2 ==="
 if [ -f "$STATE/server.pid" ]; then
   old="$(cat "$STATE/server.pid" 2>/dev/null || true)"
-  [ -z "$old" ] || kill "$old" 2>/dev/null || true
+  if [ -n "$old" ]; then
+    kill "$old" 2>/dev/null || true
+  fi
 fi
 
 if [ -z "$PORT" ]; then
@@ -116,8 +130,12 @@ echo "$PID" > "$STATE/server.pid"
 
 pose_campaign_wait_http "http://127.0.0.1:$PORT/motion.html" "$PID" "$STATE/server.log"
 
-for rel in   "assets/vesper/procedural/vesper-gameplay-atlas.png"   "assets/vesper/procedural/run.recipe.json"   "src/procedural-vesper-run-preview.js"; do
-  curl -fsS "http://127.0.0.1:$PORT/$rel" >/dev/null     || stop "runtime resource unavailable: $rel"
+RUNTIME_FILES=(
+  "assets/vesper/procedural/vesper-gameplay-atlas.png"
+  "assets/vesper/procedural/run.recipe.json"
+)
+for rel in "${RUNTIME_FILES[@]}"; do
+  curl -fsS "http://127.0.0.1:$PORT/$rel" >/dev/null || stop "runtime resource unavailable: $rel"
 done
 
 STAMP="$(date +%s)"
