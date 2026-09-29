@@ -1,0 +1,123 @@
+{
+  "schema": "pose-lab-v2-procedural-run-recipe-v1",
+  "id": "vesper-sixframe-run-procedural-v1",
+  "subject": "vesper",
+  "poseAuthority": "accepted Vesper gameplay atlas cells 2-7, top row after butt-strike cell",
+  "motionAuthority": "accepted six-frame Vesper run with Vanguard timing/procedural treatment",
+  "rootMotion": false,
+  "travelOwner": "game-controller",
+  "canvas": {
+    "size": [
+      430,
+      260
+    ],
+    "anchor": [
+      220,
+      226
+    ],
+    "anchorMeaning": "bottom-center Pose Lab review anchor"
+  },
+  "atlas": {
+    "file": "assets/vesper/procedural/vesper-gameplay-atlas.png",
+    "columns": 8,
+    "rows": 6,
+    "indexBase": 1,
+    "size": [
+      1448,
+      1086
+    ],
+    "sha256": "02553770f1987ec0a235ff972deee0eeb9d28140855384031e62c9c2de05273b"
+  },
+  "cycleMs": 1050,
+  "blendWindow": 0.08,
+  "poses": [
+    {
+      "id": "run-1",
+      "cell": 2,
+      "weight": 1.1,
+      "deform": {
+        "shearX": 0.0375,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      }
+    },
+    {
+      "id": "run-2",
+      "cell": 3,
+      "weight": 1.18,
+      "deform": {
+        "shearX": -0.0475,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      }
+    },
+    {
+      "id": "run-3",
+      "cell": 4,
+      "weight": 0.86,
+      "deform": {
+        "shearX": 0.0375,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      }
+    },
+    {
+      "id": "run-4",
+      "cell": 5,
+      "weight": 1.1,
+      "deform": {
+        "shearX": -0.0475,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      }
+    },
+    {
+      "id": "run-5",
+      "cell": 6,
+      "weight": 1.18,
+      "deform": {
+        "shearX": 0.0375,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      }
+    },
+    {
+      "id": "run-6",
+      "cell": 7,
+      "weight": 0.86,
+      "deform": {
+        "shearX": -0.0475,
+        "scaleX": 1,
+        "scaleY": 1,
+        "shiftX": 0,
+        "shiftY": 0
+      }
+    }
+  ],
+  "secondary": {
+    "bobPx": 1.25,
+    "bobCyclesPerRun": 2,
+    "shearPulse": 0.012,
+    "shearPulseCyclesPerRun": 1
+  },
+  "bodyScale": 1,
+  "acceptance": [
+    "accepted atlas pixels remain pose authority",
+    "run uses cells 2-7 only",
+    "no root translation",
+    "Vanguard-derived six-frame cadence is preserved",
+    "alternating shear provides procedural body commitment",
+    "secondary bob remains subtle and subordinate to authored poses",
+    "loop returns continuously from run-6 to run-1"
+  ]
+}
