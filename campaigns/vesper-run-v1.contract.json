@@ -1,24 +1,26 @@
 {
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "vesper-run-v1",
-  "status": "sealed-before-review",
-  "mission": "Serve the accepted Vesper gameplay atlas as a six-pose procedural run in Pose Lab V2 using cells 2-7, Vanguard-derived cadence, no root motion, and subtle procedural shear/bob while preserving all accepted atlas bytes.",
+  "status": "source-authority-corrected",
+  "mission": "Build Vesper run from the exact six raster cells in user-supplied 929519.png (SHA-256 2e49d53c17d956b89574d850cf70be1d9e074409301b90f4dbe7d9fb32e934c0), using mechanical down-resolution only, then serve it in Pose Lab V2 with subordinate procedural motion.",
   "authority": {
     "atlasSha256": "02553770f1987ec0a235ff972deee0eeb9d28140855384031e62c9c2de05273b",
-    "runCells": [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7
-    ],
     "cycleMs": 1050,
     "procedural": {
       "bobPx": 1.25,
       "shearPulse": 0.012
     },
-    "reviewRoute": "motion.html?procedural=vesper-run"
+    "reviewRoute": "motion.html?procedural=vesper-run",
+    "sourceFile": "929519.png",
+    "sourceSha256": "2e49d53c17d956b89574d850cf70be1d9e074409301b90f4dbe7d9fb32e934c0",
+    "sourceGrid": {
+      "columns": 3,
+      "rows": 2,
+      "cellWidth": 512,
+      "cellHeight": 512
+    },
+    "imageGenerationForbidden": true,
+    "runCells": "PENDING_APPEND_FROM_EXACT_SOURCE_CELLS"
   },
   "machine": {
     "mutablePaths": [
@@ -59,18 +61,6 @@
       {
         "kind": "json-equals",
         "path": "public/assets/vesper/procedural/run.recipe.json",
-        "pointer": "/poses/0/cell",
-        "value": 2
-      },
-      {
-        "kind": "json-equals",
-        "path": "public/assets/vesper/procedural/run.recipe.json",
-        "pointer": "/poses/5/cell",
-        "value": 7
-      },
-      {
-        "kind": "json-equals",
-        "path": "public/assets/vesper/procedural/run.recipe.json",
         "pointer": "/secondary/bobPx",
         "value": 1.25
       },
@@ -89,6 +79,11 @@
         "kind": "text-contains",
         "path": "src/procedural-vesper-run-preview.js",
         "value": "preserve source-cell geometry"
+      },
+      {
+        "kind": "text-contains",
+        "path": "docs/VESPER_LOW_RES_ATLAS_PROCESS.md",
+        "value": "HARD BAN — NO IMAGE GENERATION"
       }
     ]
   }
