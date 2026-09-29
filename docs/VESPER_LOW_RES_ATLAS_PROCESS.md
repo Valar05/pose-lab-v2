@@ -471,3 +471,38 @@ Do **not** copy Vesper-specific numeric measurements, head proportions, cell dim
 
 Artifact provenance remains separate:
 **source authority -> generated/painted derivative when applicable -> gameplay derivative -> atlas container**.
+
+
+## Accepted Vesper raster authorities — 2026-09-29
+
+These user-supplied sprite sheets are **source authority**. They are not prompts, inspiration, or approximate references.
+
+- `929519.png` — six-frame Vesper run source, 1536×1024, SHA-256 `2e49d53c17d956b89574d850cf70be1d9e074409301b90f4dbe7d9fb32e934c0`
+  - same exact bytes were previously recorded under the alias `929523.png`
+  - grid: **3 columns × 2 rows**
+  - each run frame is mechanically extracted from its exact 512×512 source cell
+- `929514.png` — accepted Vesper sprite source sheet, SHA-256 `90f6838423764ed6059eeec5653adf4ebbbc1915641f1bc2098e088547afc611`
+- `929515.png` — accepted Vesper sprite source sheet, SHA-256 `9ca7070b0e83e72ee6373a4a2007a0af9a9373af476cf911b82b8fba058e6e66`
+- `929578.png` — accepted Vesper sprite source sheet, SHA-256 `8bb9f557758bcd856b01841b19ea0cc4a80c4afbbd9522c3af83adf07c16a7b8`
+
+### HARD BAN — NO IMAGE GENERATION
+
+For these accepted Vesper sprite authorities:
+
+- **ImageGen is forbidden.**
+- Do not redraw, reinterpret, restyle, "improve", interpolate with generation, or invent replacement poses.
+- Mechanical operations only: exact cell extraction, uniform scaling, declared raster filtering/down-resolution, padding, placement, atlas append, registration, timing, and procedural runtime transforms.
+- A generated sprite may never substitute for one of these source-authority pixels.
+- If a required pose is absent from these authorities, stop at the missing pose instead of inventing it.
+
+Named regression: **GENERATED-SUBSTITUTION** — replacing an accepted raster pose with a newly imagined/generated approximation.
+
+### Run-specific authority
+
+For `vesper-run`, the six exact cells from `929519.png` are the pose authority.
+
+Do not infer the run from neighboring atlas cells.
+Do not use a GIF as pose authority when these source cells are available.
+Do not substitute a visually similar generated cell.
+
+The only writable operations before human acceptance are mechanical conversion, registration, timing, and subordinate procedural presentation.
