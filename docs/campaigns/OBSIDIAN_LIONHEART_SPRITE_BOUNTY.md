@@ -86,7 +86,7 @@ Use:
 
 The runner owns Debian/proot Blender invocation and host-to-guest path translation. The renderer owns action resolution, authored-key enumeration, one locked camera, root-motion suppression, PNG output, and manifest output.
 
-The renderer was changed from unavailable Workbench rendering to fast Eevee **base-color-textures-only** review so the donor keeps useful material identity without paying the PBR cost.
+The canonical review lane is **Eevee 1-sample, unlit base-color only**. `tools/render_selected_action_beauty.py` must set `scene.eevee.taa_render_samples = 1` (and disable shadows/ray tracing) because the materials are converted to emission for pose review. Do not regress to default 64-sample Eevee: that is the known slow lane. Canonical render policy: `eevee1-unlit-base-color-only-all-authored-keyframes`.
 
 ### Heavy1 next command
 
@@ -312,6 +312,8 @@ Heavy1 lessons to preserve as hard gates:
 
 Next action: **Heavy2**. Same pipeline, new donor action.
 
-Canonical Heavy2 campaign script: `generated/obsidian-lionheart/run-heavy2-contact-review.sh`. Render every authored Heavy2 keyframe from the LionheartLancer GLB, build paginated 2x2 contact sheets for human review, choose distinct motion-bearing authorities with no automatic idle preference, then generate Obsidian only after pose selection.
+Canonical Heavy2 campaign script: `generated/obsidian-lionheart/run-heavy2-contact-review.sh`.
+
+Heavy2 must use the **fast EEVEE1** lane. The campaign rejects reusable manifests unless `renderPolicy == "eevee1-unlit-base-color-only-all-authored-keyframes"` and `eeveeRenderSamples == 1`. Existing slow/default-sample Heavy2 frames are not valid reuse evidence. Render every authored Heavy2 keyframe from the LionheartLancer GLB, build paginated 2x2 contact sheets for human review, choose distinct motion-bearing authorities with no automatic idle preference, then generate Obsidian only after pose selection.
 
 Heavy2 launch note: an initial Home Center -> Phone Hands launch attempt on 2026-09-28 timed out during the bounded command before successful launch evidence was returned. Do not treat Heavy2 as rendered or complete until a phone receipt proves the render/contact-sheet campaign completed.
