@@ -310,6 +310,8 @@ Heavy1 lessons to preserve as hard gates:
 - when a frame is close, prefer local edit/inpaint over whole-frame regeneration
 - one requested animation/frame means one output, not a contact sheet or four variants
 
-Next action: **Heavy2**. Same pipeline, new donor action. Render every authored Heavy2 keyframe from the LionheartLancer GLB, build paginated 2x2 contact sheets for human review, choose distinct motion-bearing authorities with no automatic idle preference, then generate Obsidian only after pose selection.
+Next action: **Heavy2**. Same pipeline, new donor action.
+
+Canonical Heavy2 campaign script: `generated/obsidian-lionheart/run-heavy2-contact-review.sh`. Render every authored Heavy2 keyframe from the LionheartLancer GLB, build paginated 2x2 contact sheets for human review, choose distinct motion-bearing authorities with no automatic idle preference, then generate Obsidian only after pose selection.
 
 Heavy2 launch note: an initial Home Center -> Phone Hands launch attempt on 2026-09-28 timed out during the bounded command before successful launch evidence was returned. Do not treat Heavy2 as rendered or complete until a phone receipt proves the render/contact-sheet campaign completed.
