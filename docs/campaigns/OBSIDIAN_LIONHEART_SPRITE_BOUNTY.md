@@ -337,3 +337,22 @@ Canonical Heavy2 campaign script: `generated/obsidian-lionheart/run-heavy2-conta
 Heavy2 must use the **fast EEVEE1** lane. The campaign rejects reusable manifests unless `renderPolicy == "eevee1-unlit-base-color-only-all-authored-keyframes"` and `eeveeRenderSamples == 1`. Existing slow/default-sample Heavy2 frames are not valid reuse evidence. Render every authored Heavy2 keyframe from the LionheartLancer GLB, build paginated 2x2 contact sheets for human review, choose distinct motion-bearing authorities with no automatic idle preference, then generate Obsidian only after pose selection.
 
 Heavy2 launch note: an initial Home Center -> Phone Hands launch attempt on 2026-09-28 timed out during the bounded command before successful launch evidence was returned. Do not treat Heavy2 as rendered or complete until a phone receipt proves the render/contact-sheet campaign completed.
+
+
+## SpringAttack continuation — 2026-09-29
+
+Next donor action after Heavy2: **SpringAttack**.
+
+Canonical V2 campaign script:
+
+`generated/obsidian-lionheart/run-springattack-contact-review.sh`
+
+Campaign boundary:
+- render every authored SpringAttack keyframe;
+- canonical fast EEVEE1 unlit base-color lane;
+- 512x512 individual review frames;
+- paginated 2x2 contact sheets;
+- Android media refresh;
+- sprite generation OFF;
+- accepted atlas mutation OFF;
+- stop for Drew's human pose curation.
