@@ -262,6 +262,26 @@ The exact reproducible cleanup is saved in:
 
 That script verifies the accepted input SHA before touching pixels and verifies the accepted output SHA after writing.
 
+### Low-resolution calibration method reference
+
+For Obsidian low-resolution scale/detail matching mechanics, also read:
+
+- `docs/LOW_RES_SPRITE_DOWNSAMPLE_CONTRACT.md`
+- `docs/VESPER_LOW_RES_ATLAS_PROCESS.md`
+
+The Vesper file is **method authority only** for the reconstruction-proof workflow. It does not supply Obsidian-specific head measurements, body scale, blur constants, atlas dimensions, or character proportions.
+
+For Obsidian, preserve this provenance chain explicitly:
+
+1. Lionheart donor / frozen Obsidian appearance references own source authority for pose and identity.
+2. Generated Obsidian frames are generated derivatives, even when visually accepted.
+3. Down-resolved individual Obsidian sprites are gameplay derivatives.
+4. The Obsidian atlas is a container assembled from frozen gameplay derivatives and must not rescale them.
+
+Do not promote an atlas cell back into appearance authority or use a low-res derivative to replace the frozen high-resolution source packet.
+
+If Drew says a low-resolution Obsidian result is close enough / good enough, lock that accepted property and stop polishing it. Reopen only a specifically rejected cell or property.
+
 ## What not to do on restart
 
 - Do not regenerate already accepted Obsidian sprites to "make them consistent".
