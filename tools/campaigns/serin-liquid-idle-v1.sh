@@ -64,6 +64,7 @@ else
 fi
 node --check src/serin-idle-preview.js
 node tools/test_serin_idle_runtime.mjs
+node tools/test_serin_blink_timeline.mjs
 pose_campaign_verify "$W" "$CONTRACT"
 node scripts/build.mjs
 test -f "$W/dist/assets/serin/serin-idle.png" || stop 'Build did not contain exact PNG'

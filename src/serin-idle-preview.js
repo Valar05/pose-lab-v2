@@ -1,3 +1,4 @@
+import {scheduledBlink,manualBlink,verifyBlinkSpec} from './serin-blink-timeline.mjs';
 // Serin: one immutable RGBA pose, animated in a dedicated WebGL lane.
 // Nothing in this module changes Vanguard/Swarmling renderers or atlas pixels.
 const app=document.querySelector('#app');
@@ -39,12 +40,13 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
  </section>
  <section class="serin-controls" aria-label="Serin deformation controls">
   <h2>Liquid physics lab</h2><div class="serin-status" id="serin-status">Loading approved source…</div>
-  <div class="serin-actions"><button id="serin-play" aria-pressed="false">Pause</button><button id="serin-restart">Restart</button><button id="serin-checker" aria-pressed="true">Transparency grid</button></div>
+  <div class="serin-actions"><button id="serin-play" aria-pressed="false">Pause</button><button id="serin-restart">Restart</button><button id="serin-blink-now" aria-label="Make Serin blink now">Blink now</button><button id="serin-checker" aria-pressed="true">Transparency grid</button></div>
   <label class="serin-control">Hair inertia <output id="hair-value">1.00</output><input id="hair" aria-label="Hair inertia" type="range" min="0" max="2" step="0.05" value="1"></label>
   <label class="serin-control">Liquid column <output id="liquid-value">1.00</output><input id="liquid" aria-label="Liquid column deformation" type="range" min="0" max="2" step="0.05" value="1"></label>
   <label class="serin-control">Surface currents <output id="currents-value">1.00</output><input id="currents" aria-label="Liquid surface currents" type="range" min="0" max="2" step="0.05" value="1"></label>
   <label class="serin-control">Starlight pulse <output id="glow-value">1.00</output><input id="glow" aria-label="Starlight pulse" type="range" min="0" max="2" step="0.05" value="1"></label>
   <label class="serin-control">Tempo <output id="speed-value">1.00</output><input id="speed" aria-label="Animation tempo" type="range" min="0.25" max="2" step="0.05" value="1"></label>
+  <p class="serin-notice" id="serin-blink-note">Blinks: irregular intervals, with an occasional double blink. The face returns to the exact original frame between blinks.</p>
   <p class="serin-notice">One approved transparent PNG. Every motion is reversible shader deformation. Hair sways in layers; the luminous lower body rolls through currents and eddies while the pool breathes. No newly invented poses, no root movement, no opaque backdrop.</p>
   <p class="serin-notice">Review candidate. Your visual approval is required before promotion.</p>
  </section>
@@ -58,6 +60,8 @@ for(const name of Object.keys(settings)){
 }
 q('#serin-checker').onclick=()=>{const on=stage.classList.toggle('checker');q('#serin-checker').setAttribute('aria-pressed',String(on));};
 let playing=!prefersReduced,clockStart=performance.now(),clockOffset=0,ready=false;
+let manualBlinkStart=Number.NaN;
+q('#serin-blink-now').onclick=()=>{manualBlinkStart=performance.now();};
 function timeAt(now){return (clockOffset+(playing?(now-clockStart)*settings.speed:0));}
 q('#serin-play').textContent=playing?'Pause':'Play';
 q('#serin-play').setAttribute('aria-pressed',String(!playing));
@@ -88,8 +92,32 @@ uniform float uHair;
 uniform float uLiquid;
 uniform float uCurrents;
 uniform float uGlow;
+uniform float uBlink;
+uniform vec4 uEyeLeft;
+uniform vec4 uEyeRight;
+uniform vec2 uEyeSlants;
 float smoothBand(float a,float b,float c,float d,float v){return smoothstep(a,b,v)*(1.0-smoothstep(c,d,v));}
 float hash21(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}
+// One-source eyelid closure: sample nearby approved painted cheek skin,
+// then return the existing lash-line as a narrow curved eyelid crease.
+// This runs only within the two individually calibrated facial ellipses.
+vec4 applyBlink(vec4 base,vec2 uv,vec4 eye,float slope,float closing){
+  vec2 d=vec2((uv.x-eye.x)/eye.z,(uv.y-eye.y)/eye.w);
+  d.y-=slope*d.x;
+  float oval=length(d);
+  float region=1.0-smoothstep(0.72,1.02,oval);
+  float shutter=region*closing;
+  if(shutter<0.001)return base;
+  // Skin is borrowed from immediately beneath this specific eye. No new art.
+  vec2 cheekUv=clamp(uv+vec2(0.0,eye.w*1.95),vec2(0.001),vec2(0.999));
+  vec4 skin=texture2D(uImage,vec2(cheekUv.x,1.0-cheekUv.y));
+  vec4 covered=vec4(mix(base.rgb,skin.rgb,shutter*skin.a),base.a);
+  float crease=(1.0-smoothstep(0.04,0.19,abs(d.y-0.07)))*
+    (1.0-smoothstep(0.58,0.91,abs(d.x)))*
+    smoothstep(0.45,0.89,closing);
+  covered.rgb=mix(covered.rgb,vec3(0.21,0.065,0.14),0.83*crease);
+  return covered;
+}
 void main(){
   // Coordinates in top-origin source space. Source pose never advances frames.
   vec2 p=vec2(vUv.x,1.0-vUv.y);
@@ -117,6 +145,11 @@ void main(){
   vec2 source=clamp(p+hairWarp+liquidWarp+poolWarp+breath,vec2(0.001),vec2(0.999));
   vec4 c=texture2D(uImage,vec2(source.x,1.0-source.y));
   if(c.a<0.004){gl_FragColor=vec4(0.0);return;}
+  // Outside the blink ellipses, source pixels and all prior physics stay untouched.
+  if(uBlink>0.001){
+    c=applyBlink(c,source,uEyeLeft,uEyeSlants.x,uBlink);
+    c=applyBlink(c,source,uEyeRight,uEyeSlants.y,uBlink);
+  }
   float violet=clamp((c.b-max(c.r,c.g)*0.78)*3.0,0.0,1.0);
   float flow=tailMask+poolMask*0.85;
   // Tangential nebula streaks and small deterministic, repeating sparkles.
@@ -133,6 +166,7 @@ void main(){
 async function boot(){
  const recipe=await fetch(configUrl+query,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Serin recipe HTTP '+r.status);return r.json();});
  if(recipe.schema!=='pose-lab-v2-serin-idle-v1'||recipe.source.sha256!=='00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f')throw new Error('Serin source contract mismatch');
+ verifyBlinkSpec(recipe.blink);
  const image=new Image();image.decoding='async';
  image.src='./'+recipe.source.file+query;
  await new Promise((yes,no)=>{image.onload=yes;image.onerror=()=>no(new Error('Approved source missing: '+recipe.source.file+'. Run the Serin phone campaign to ingest the exact PNG.'));});
@@ -162,7 +196,11 @@ async function boot(){
  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,image);
  if(gl.getError()!==gl.NO_ERROR)throw new Error('GPU rejected Serin texture');
  const loc=name=>gl.getUniformLocation(program,name);
- const uniforms={phase:loc('uPhase'),hair:loc('uHair'),liquid:loc('uLiquid'),currents:loc('uCurrents'),glow:loc('uGlow')};
+ const uniforms={phase:loc('uPhase'),hair:loc('uHair'),liquid:loc('uLiquid'),currents:loc('uCurrents'),glow:loc('uGlow'),blink:loc('uBlink')};
+ const eyeVec=(eye)=>new Float32Array([eye.x/1086,eye.y/1448,eye.rx/1086,eye.ry/1448]);
+ gl.uniform4fv(loc('uEyeLeft'),eyeVec(recipe.blink.leftEye));
+ gl.uniform4fv(loc('uEyeRight'),eyeVec(recipe.blink.rightEye));
+ gl.uniform2f(loc('uEyeSlants'),recipe.blink.leftEye.slant,recipe.blink.rightEye.slant);
  gl.uniform1i(loc('uImage'),0);
  gl.viewport(0,0,canvas.width,canvas.height);
  gl.clearColor(0,0,0,0);
@@ -177,6 +215,7 @@ async function boot(){
    gl.uniform1f(uniforms.liquid,settings.liquid);
    gl.uniform1f(uniforms.currents,settings.currents);
    gl.uniform1f(uniforms.glow,settings.glow);
+   gl.uniform1f(uniforms.blink,Math.max(scheduledBlink(timeAt(now),recipe.blink),manualBlink(now,manualBlinkStart,recipe.blink.manual)));
    gl.drawArrays(gl.TRIANGLES,0,6);
    requestAnimationFrame(render);
  }

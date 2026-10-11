@@ -1,8 +1,8 @@
 {
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "serin-liquid-idle-v1",
-  "status": "quarantined",
-  "mission": "Ingest only the user-approved single transparent RGBA Serin portrait by exact phone path and SHA-256; register a dedicated WebGL one-frame shader idle on Pose Lab V2 phone without modifying any accepted Vanguard/Swarmling assets. Keep human visual verdict pending.",
+  "status": "quarantined-blink-enhancement",
+  "mission": "Continue Serin's approved one-frame fluid idle. Preserve exact PNG, WebGL liquid/hair motion, root pin and alpha. Add source-calibrated irregular eye blinking and manual Blink now review control, with no new poses or changes to shared renderers.",
   "authority": {
     "imageSha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
     "phoneSource": "/storage/emulated/0/Pictures/file_00000000c48481f5a63e37968c17dffe.png",
@@ -15,7 +15,8 @@
     "rootMotion": false,
     "reference": "Vanguard continuous one-frame idle is conceptual inspiration only",
     "reviewRoute": "motion.html?procedural=serin-idle",
-    "humanVerdict": "pending"
+    "humanVerdict": "pending",
+    "blinkReview": "Eye geometry from approved Serin PNG; close quickly, open gently; double blink rare; zero blink yields exact original facial pixels"
   },
   "machine": {
     "mutablePaths": [
@@ -29,7 +30,9 @@
       "campaigns/serin-liquid-idle-v1.contract.json",
       "campaigns/serin-liquid-idle-v1.receipt.json",
       "docs/campaigns/SERIN_LIQUID_IDLE_V1.md",
-      ".github/workflows/serin-liquid-idle.yml"
+      ".github/workflows/serin-liquid-idle.yml",
+      "src/serin-blink-timeline.mjs",
+      "tools/test_serin_blink_timeline.mjs"
     ],
     "receiptPath": "campaigns/serin-liquid-idle-v1.receipt.json",
     "requiredRules": [
@@ -38,7 +41,12 @@
       "docs/POSE_IS_GOD.md",
       "docs/POSE_CAMPAIGN_FRAMEWORK.md"
     ],
-    "lockedFiles": [],
+    "lockedFiles": [
+      {
+        "path": "public/assets/serin/serin-idle.png",
+        "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f"
+      }
+    ],
     "checks": [
       {
         "kind": "json-equals",
@@ -77,6 +85,39 @@
         "kind": "text-contains",
         "path": "src/serin-idle-preview.js",
         "value": "gl_FragColor=c"
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin/idle.recipe.json",
+        "pointer": "/blink/periodMs",
+        "value": 34000
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin/idle.recipe.json",
+        "pointer": "/blink/leftEye/x",
+        "value": 668
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin/idle.recipe.json",
+        "pointer": "/blink/rightEye/x",
+        "value": 713
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-idle-preview.js",
+        "value": "applyBlink(c,source,uEyeLeft"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-idle-preview.js",
+        "value": "manualBlink(now,manualBlinkStart"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-blink-timeline.mjs",
+        "value": "export function scheduledBlink"
       }
     ]
   }

@@ -33,3 +33,8 @@ The repo-owned script creates an isolated worktree, reads the laws and contract,
 ## Acceptance boundary
 
 A Git branch or build green is not a visible review. Phone runtime HTTP and SHA readback prove transport, not visual quality or deployed hosted cloud status. Candidate stays quarantined until the correct Pose Lab result is inspected by Drew. Do not merge into main or claim accepted visual motion without that verdict.
+## Eye blink continuation (2026-10-11)
+
+The earlier idle is visually liked, so all accepted liquid, hair, backdrop and one-frame identity values are preserved. Added two artwork-calibrated eye masks (left 668,110 radius 25×11; right 713,126 radius 19×9) in **source pixel coordinates**. Blinks close briskly, open more slowly, occur irregularly over a 34-second deterministic sequence, and sometimes double blink. A **Blink now** button provides immediate human review independent of animation's pause state. Blink strength zero returns the original facial pixels; no change to source PNG. The crop overlay used to estimate coordinates is diagnostic only, never a runtime input. Tests pin original hair, pool, tail and breath shader expressions.
+
+Original command, branch and repo-owned campaign launcher remain unchanged. Reload using the existing launcher to pick up the new exact commit. Phone-side screenshots and visual acceptance remain pending.

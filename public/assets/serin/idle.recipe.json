@@ -25,5 +25,61 @@
     "poolRootPinned": true
   },
   "reviewRoute": "motion.html?procedural=serin-idle",
-  "humanVerdict": "pending"
+  "humanVerdict": "pending",
+  "blink": {
+    "periodMs": 34000,
+    "events": [
+      {
+        "atMs": 4200,
+        "closeMs": 85,
+        "holdMs": 42,
+        "openMs": 165
+      },
+      {
+        "atMs": 10900,
+        "closeMs": 82,
+        "holdMs": 35,
+        "openMs": 160
+      },
+      {
+        "atMs": 11290,
+        "closeMs": 72,
+        "holdMs": 25,
+        "openMs": 140
+      },
+      {
+        "atMs": 19600,
+        "closeMs": 95,
+        "holdMs": 55,
+        "openMs": 165
+      },
+      {
+        "atMs": 26500,
+        "closeMs": 78,
+        "holdMs": 35,
+        "openMs": 165
+      }
+    ],
+    "manual": {
+      "atMs": 0,
+      "closeMs": 90,
+      "holdMs": 65,
+      "openMs": 170
+    },
+    "leftEye": {
+      "x": 668,
+      "y": 110,
+      "rx": 25,
+      "ry": 11,
+      "slant": 0.11
+    },
+    "rightEye": {
+      "x": 713,
+      "y": 126,
+      "rx": 19,
+      "ry": 9,
+      "slant": 0.12
+    },
+    "artAuthority": "unchanged approved source PNG; eye coordinates calibrated from that PNG"
+  }
 }
