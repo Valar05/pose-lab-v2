@@ -1,0 +1,102 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "serin-back-liquid-idle-v1",
+  "status": "quarantined",
+  "mission": "Deploy isolated Serin back view one-frame liquid idle as a Git-owned Pose Lab V2 phone campaign. Use only the named 1024x1536 RGBA PNG and existing source-pixel eyelid deformation. Preserve Serin front, Vanguard and Swarmling.",
+  "authority": {
+    "imageSha256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c",
+    "phoneSource": "/storage/emulated/0/Pictures/file_000000004e1081f5b22a4ef0ddd717a5.png",
+    "sourceDimensions": [
+      1024,
+      1536
+    ],
+    "frames": 1,
+    "sourceRGBA": true,
+    "rootMotion": false,
+    "reviewRoute": "motion.html?procedural=serin-back-idle",
+    "humanVerdict": "pending",
+    "inspiration": "approved Serin front idle exact revision 809e2c5d735b624707095cc9fee7c94446849462"
+  },
+  "machine": {
+    "mutablePaths": [
+      "motion.html",
+      "src/procedural-review-shell.js",
+      "src/serin-back-idle-preview.js",
+      "src/serin-back-blink-timeline.mjs",
+      "public/assets/serin-back/idle.recipe.json",
+      "public/assets/serin-back/serin-back-idle.png",
+      "tools/campaigns/serin-back-liquid-idle-v1.sh",
+      "tools/test_serin_back_idle_runtime.mjs",
+      "tools/test_serin_back_blink_timeline.mjs",
+      "campaigns/serin-back-liquid-idle-v1.contract.json",
+      "campaigns/serin-back-liquid-idle-v1.receipt.json",
+      "docs/campaigns/SERIN_BACK_LIQUID_IDLE_V1.md",
+      ".github/workflows/serin-back-liquid-idle.yml"
+    ],
+    "receiptPath": "campaigns/serin-back-liquid-idle-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/serin/serin-idle.png",
+        "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f"
+      }
+    ],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-back/idle.recipe.json",
+        "pointer": "/id",
+        "value": "serin-back-idle"
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-back/idle.recipe.json",
+        "pointer": "/poseFrames",
+        "value": 1
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-back/idle.recipe.json",
+        "pointer": "/rootMotion",
+        "value": false
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-back/idle.recipe.json",
+        "pointer": "/source/sha256",
+        "value": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c"
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-back/idle.recipe.json",
+        "pointer": "/blink/method",
+        "value": "upper-lid-vertexless-inverse-pixel-deformation"
+      },
+      {
+        "kind": "text-contains",
+        "path": "motion.html",
+        "value": "procedural === 'serin-back-idle'"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-review-shell.js",
+        "value": "['serin-back-idle','Liquid Idle']"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-back-idle-preview.js",
+        "value": "applyBlinkDeform(c,source,uEyeLeft"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-back-idle-preview.js",
+        "value": "gl.clearColor(0,0,0,0)"
+      }
+    ]
+  }
+}

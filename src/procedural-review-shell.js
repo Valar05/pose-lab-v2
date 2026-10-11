@@ -8,9 +8,10 @@ const CHARACTER_ANIMATIONS = Object.freeze({
     ['vanguard-shotgun-fire','Shotgun Fire']
   ],
   serin: [['serin-idle','Liquid Idle']],
+  'serin-back': [['serin-back-idle','Liquid Idle']],
   swarmling: [['swarmling-run','Run'],['swarmling-idle','Idle'],['swarmling-aggro','Aggro / Attention'],['swarmling-damage','Damage / Hit React'],['swarmling-knockdown','Knockdown'],['swarmling-stand-up','Stand Up'],['swarmling-death','Death'],['swarmling-jab','Needle Jab'],['swarmling-rake','Low Rake'],['swarmling-scythe-bloom','Scythe Bloom']]
 });
-const DEFAULT_ANIMATION = Object.freeze({vanguard:'vanguard-idle',swarmling:'swarmling-run',serin:'serin-idle'});
+const DEFAULT_ANIMATION = Object.freeze({vanguard:'vanguard-idle',swarmling:'swarmling-run',serin:'serin-idle','serin-back':'serin-back-idle'});
 
 export function createProceduralReviewShell({title,animation,accent='#59d5e8',character=null}){
   const app=document.querySelector('#app');
@@ -59,7 +60,7 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8',ch
   const zoomInput=q('[data-zoom]'), zoomReadout=q('[data-zoom-readout]'), select=q('[data-animation]'), characterSelect=q('[data-character]');
   const activeCharacter=character || (String(animation).startsWith('swarmling-')?'swarmling':'vanguard');
   for(const id of Object.keys(CHARACTER_ANIMATIONS)){
-    const o=document.createElement('option');o.value=id;o.textContent=id==='vanguard'?'Vanguard':id==='serin'?'Serin':'Swarmling';characterSelect.append(o);
+    const o=document.createElement('option');o.value=id;o.textContent=id==='vanguard'?'Vanguard':id==='serin'?'Serin':id==='serin-back'?'Serin Back':'Swarmling';characterSelect.append(o);
   }
   characterSelect.value=activeCharacter;
   for(const [id,label] of CHARACTER_ANIMATIONS[activeCharacter]){

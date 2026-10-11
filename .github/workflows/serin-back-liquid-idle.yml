@@ -1,0 +1,30 @@
+name: Serin Back Liquid Idle Candidate
+on:
+  push:
+    branches:
+      - codex/serin-back-liquid-idle-v1
+permissions:
+  contents: read
+jobs:
+  candidate-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source syntax and blink timing
+        run: |
+          node --check src/serin-back-idle-preview.js
+          node --check src/serin-back-blink-timeline.mjs
+          node tools/test_serin_back_blink_timeline.mjs
+          bash -n tools/campaigns/serin-back-liquid-idle-v1.sh
+      - name: Source authority and V2 routing
+        run: node tools/test_serin_back_idle_runtime.mjs --allow-missing-asset
+      - name: Campaign framework
+        run: |
+          python3 tools/campaigns/campaign_core.py --root . preflight --contract campaigns/serin-back-liquid-idle-v1.contract.json --skip-diff
+          python3 tools/test_pose_campaign_framework.py
+      - name: Build
+        run: node scripts/build.mjs
