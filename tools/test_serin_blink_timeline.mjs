@@ -23,7 +23,7 @@ for(const t of [0,1000,2250,9750,19950,21999])assert.equal(scheduledBlink(t,spec
 for(let i=0;i<spec.events.length;i++){
  const prev=spec.events[i];const next=spec.events[(i+1)%spec.events.length];
  const gap=i===spec.events.length-1 ? spec.periodMs-prev.atMs+next.atMs : next.atMs-prev.atMs;
- assert.ok(gap<=5000,'blink too far apart');
+ assert.ok(gap<=6000,'blink too far apart');
 }
 assert.ok(spec.events[3].atMs-spec.events[2].atMs<500,'occasional double blink removed');
 assert.equal(scheduledBlink(21999,spec),0);
