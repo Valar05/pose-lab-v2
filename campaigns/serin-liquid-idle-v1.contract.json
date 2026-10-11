@@ -28,7 +28,8 @@
       "tools/test_serin_idle_runtime.mjs",
       "campaigns/serin-liquid-idle-v1.contract.json",
       "campaigns/serin-liquid-idle-v1.receipt.json",
-      "docs/campaigns/SERIN_LIQUID_IDLE_V1.md"
+      "docs/campaigns/SERIN_LIQUID_IDLE_V1.md",
+      ".github/workflows/serin-liquid-idle.yml"
     ],
     "receiptPath": "campaigns/serin-liquid-idle-v1.receipt.json",
     "requiredRules": [
