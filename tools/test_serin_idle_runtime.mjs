@@ -13,7 +13,7 @@ assert.equal(recipe.poseFrames,1);assert.equal(recipe.rootMotion,false);
 assert.equal(recipe.source.alpha,true);assert.deepEqual(recipe.source.size,[1086,1448]);
 assert.equal(sha,contract.authority.imageSha256);
 assert.match(text('motion.html'),/procedural === 'serin-idle'/);
-assert.match(text('src/procedural-review-shell.js'),/\\['serin-idle','Liquid Idle'\\]/);
+assert.ok(text('src/procedural-review-shell.js').includes("['serin-idle','Liquid Idle']"));
 const src=text('src/serin-idle-preview.js');
 for(const key of ['uHair','uLiquid','uCurrents','uGlow','gl.clearColor(0,0,0,0)','prefers-reduced-motion'])assert.ok(src.includes(key),key);
 const image=new URL('public/'+recipe.source.file,root);
