@@ -6,7 +6,7 @@ const params=new URLSearchParams(location.search);
 const rev=params.get('rev') || '';
 const query=rev ? '?rev='+encodeURIComponent(rev) : '';
 const prefersReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-app.innerHTML = \`
+app.innerHTML = `
 <style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#080911;color:#f4ecff;font:15px system-ui,sans-serif}
 button,select,input{font:inherit;accent-color:#c66bff}
@@ -48,7 +48,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
   <p class="serin-notice">One approved transparent PNG. Every motion is reversible shader deformation. Hair sways in layers; the luminous lower body rolls through currents and eddies while the pool breathes. No newly invented poses, no root movement, no opaque backdrop.</p>
   <p class="serin-notice">Review candidate. Your visual approval is required before promotion.</p>
  </section>
-</main>\`;
+</main>`;
 const q=(selector)=>app.querySelector(selector),canvas=q('#serin-canvas'),stage=q('#serin-stage');
 q('#serin-profiles').onclick=()=>location.assign('./motion.html');
 q('#serin-character').onchange=e=>location.assign('./motion.html?procedural='+encodeURIComponent(e.target.value));
@@ -74,12 +74,12 @@ function compile(gl,type,text){
  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s)||'Shader compile failed');
  return s;
 }
-const vertex=\`
+const vertex=`
 attribute vec2 aPosition;
 varying vec2 vUv;
 void main(){vUv=aPosition*0.5+0.5;gl_Position=vec4(aPosition,0.0,1.0);}
-\`;
-const fragment=\`
+`;
+const fragment=`
 precision highp float;
 varying vec2 vUv;
 uniform sampler2D uImage;
@@ -129,7 +129,7 @@ void main(){
   float pulse=(0.5+0.5*sin(t+source.y*9.0))*0.09*uGlow;
   c.rgb=clamp(c.rgb+tint*uGlow+vec3(0.10,0.025,0.15)*pulse*violet,0.0,1.0);
   gl_FragColor=c;
-}\`;
+}`;
 async function boot(){
  const recipe=await fetch(configUrl+query,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Serin recipe HTTP '+r.status);return r.json();});
  if(recipe.schema!=='pose-lab-v2-serin-idle-v1'||recipe.source.sha256!=='00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f')throw new Error('Serin source contract mismatch');
