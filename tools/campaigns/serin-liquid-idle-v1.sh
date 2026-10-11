@@ -3,7 +3,7 @@
 # Intentionally does not touch the user's current checkout, Vanguard, or main.
 set -euo pipefail
 export PAGER=cat GIT_PAGER=cat
-stop(){ printf 'SERIN_STOP=%s\\n' "$*" >&2; exit 1; }
+stop(){ printf 'SERIN_STOP=%s\n' "$*" >&2; exit 1; }
 ROOT="${POSE_LAB_ROOT:-/storage/emulated/0/Documents/GodotProjects/pose-lab-v2}"
 BRANCH="codex/serin-liquid-idle-v1"
 CONTRACT="campaigns/serin-liquid-idle-v1.contract.json"
@@ -18,10 +18,10 @@ command -v python3 >/dev/null || stop 'Python3 is required by the existing V2 ca
 command -v tmux >/dev/null || stop 'tmux is required to keep phone preview alive'
 command -v curl >/dev/null || stop 'curl required for runtime byte readback'
 mkdir -p "$STATE"
-printf 'REPO=%s\\n' "$ROOT"
-printf 'DIRTY_CURRENT_WORKTREE_BEGIN\\n'
+printf 'REPO=%s\n' "$ROOT"
+printf 'DIRTY_CURRENT_WORKTREE_BEGIN\n'
 git -C "$ROOT" status --porcelain=v1 --untracked-files=normal || stop 'Cannot inspect current user workspace'
-printf 'DIRTY_CURRENT_WORKTREE_END (preserved: no checkout, reset, clean, stash, merge)\\n'
+printf 'DIRTY_CURRENT_WORKTREE_END (preserved: no checkout, reset, clean, stash, merge)\n'
 git -C "$ROOT" fetch origin "refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" || stop 'Cannot fetch GitHub candidate branch'
 REV="$(git -C "$ROOT" rev-parse "refs/remotes/origin/$BRANCH")"
 W="$STATE/worktree-$REV"
@@ -37,7 +37,7 @@ source tools/campaigns/campaign_common.sh
 pose_campaign_boot "$W" "$CONTRACT"
 for rule in docs/POSE_CAMPAIGN_FRAMEWORK.md; do [ -s "$rule" ] || stop "Missing $rule"; cat "$rule" >/dev/null; echo "READ=$rule"; done
 pose_campaign_verify "$W" "$CONTRACT"
-printf 'CURRENT_REMOTE_CANDIDATE=%s\\n' "$REV"
+printf 'CURRENT_REMOTE_CANDIDATE=%s\n' "$REV"
 if [ -f "$ASSET" ]; then
  GOT="$(sha256sum "$ASSET" | awk '{print $1}')"
  [ "$GOT" = "$EXPECTED" ] || stop "LOCK_VIOLATION: Git-owned Serin PNG $GOT"
@@ -79,9 +79,9 @@ if tmux has-session -t "$SESSION" 2>/dev/null; then
 fi
 if ! tmux has-session -t "$SESSION" 2>/dev/null; then
  PORT="${POSE_LAB_SERIN_PORT:-$(pose_campaign_free_port)}"
- printf '%s\\n' "$PORT" > "$STATE/server-port"
+ printf '%s\n' "$PORT" > "$STATE/server-port"
  tmux new-session -d -s "$SESSION" "exec python3 -m http.server $PORT --bind 127.0.0.1 --directory '$W/dist' > '$STATE/server.log' 2>&1"
- printf '%s\\n' "$REV" > "$STATE/served-revision"
+ printf '%s\n' "$REV" > "$STATE/served-revision"
 fi
 PID="$(tmux display-message -p -t "$SESSION" '#{pane_pid}')"
 BASE="http://127.0.0.1:$PORT"
@@ -90,5 +90,5 @@ curl -fsS "$BASE/assets/serin/idle.recipe.json" >/dev/null || stop 'Served recip
 HTTP_SHA="$(curl -fsS "$BASE/assets/serin/serin-idle.png" | sha256sum | awk '{print $1}')"
 [ "$HTTP_SHA" = "$EXPECTED" ] || stop "SERVER_ROOT_MISMATCH: served image hash=$HTTP_SHA"
 URL="$BASE/motion.html?procedural=serin-idle&rev=$REV"
-printf '\\nSERIN_TRANSPORT=PASS\\nREVISION=%s\\nSOURCE_SHA256=%s\\nSERVED_SHA256=%s\\nTMUX_SESSION=%s\\nREVIEW_URL=%s\\nHUMAN_VERDICT=PENDING\\n' "$REV" "$EXPECTED" "$HTTP_SHA" "$SESSION" "$URL"
+printf '\nSERIN_TRANSPORT=PASS\nREVISION=%s\nSOURCE_SHA256=%s\nSERVED_SHA256=%s\nTMUX_SESSION=%s\nREVIEW_URL=%s\nHUMAN_VERDICT=PENDING\n' "$REV" "$EXPECTED" "$HTTP_SHA" "$SESSION" "$URL"
 if command -v termux-open-url >/dev/null; then termux-open-url "$URL" || echo "OPEN_BROWSER_MANUALLY=$URL"; fi
