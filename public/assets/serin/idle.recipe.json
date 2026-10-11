@@ -27,37 +27,43 @@
   "reviewRoute": "motion.html?procedural=serin-idle",
   "humanVerdict": "pending",
   "blink": {
-    "periodMs": 34000,
+    "periodMs": 22000,
     "events": [
       {
-        "atMs": 4200,
+        "atMs": 2150,
         "closeMs": 85,
-        "holdMs": 42,
+        "holdMs": 40,
+        "openMs": 155
+      },
+      {
+        "atMs": 5500,
+        "closeMs": 85,
+        "holdMs": 40,
         "openMs": 165
       },
       {
-        "atMs": 10900,
-        "closeMs": 82,
-        "holdMs": 35,
-        "openMs": 160
+        "atMs": 9300,
+        "closeMs": 90,
+        "holdMs": 40,
+        "openMs": 150
       },
       {
-        "atMs": 11290,
-        "closeMs": 72,
-        "holdMs": 25,
-        "openMs": 140
+        "atMs": 9690,
+        "closeMs": 75,
+        "holdMs": 28,
+        "openMs": 135
       },
       {
-        "atMs": 19600,
-        "closeMs": 95,
-        "holdMs": 55,
-        "openMs": 165
+        "atMs": 14100,
+        "closeMs": 90,
+        "holdMs": 48,
+        "openMs": 170
       },
       {
-        "atMs": 26500,
-        "closeMs": 78,
-        "holdMs": 35,
-        "openMs": 165
+        "atMs": 18400,
+        "closeMs": 83,
+        "holdMs": 36,
+        "openMs": 162
       }
     ],
     "manual": {
@@ -80,6 +86,7 @@
       "ry": 9,
       "slant": 0.12
     },
-    "artAuthority": "unchanged approved source PNG; eye coordinates calibrated from that PNG"
+    "artAuthority": "Original one-frame image; upper-lid pixel deformation, no redraw or invented frame; lower lid stationary",
+    "method": "upper-lid-vertexless-inverse-pixel-deformation"
   }
 }

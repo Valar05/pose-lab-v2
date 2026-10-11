@@ -16,8 +16,10 @@ assert.match(text('motion.html'),/procedural === 'serin-idle'/);
 assert.ok(text('src/procedural-review-shell.js').includes("['serin-idle','Liquid Idle']"));
 const src=text('src/serin-idle-preview.js');
 for(const key of ['uHair','uLiquid','uCurrents','uGlow','uBlink','uEyeLeft','uEyeRight','gl.clearColor(0,0,0,0)','prefers-reduced-motion'])assert.ok(src.includes(key),key);
-assert.ok(recipe.blink&&recipe.blink.periodMs===34000);
+assert.ok(recipe.blink&&recipe.blink.periodMs===22000);
 assert.ok(src.includes('id="serin-blink-now"'));
+assert.ok(src.includes('applyBlinkDeform'));
+assert.ok(!src.includes('cheekUv'));
 const image=new URL('public/'+recipe.source.file,root);
 if(!fs.existsSync(image)){
  if(process.argv.includes('--allow-missing-asset')){console.log('SERIN_CODE_ONLY=PASS (image ingress pending)');process.exit(0);}

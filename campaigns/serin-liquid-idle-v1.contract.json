@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "serin-liquid-idle-v1",
   "status": "quarantined-blink-enhancement",
-  "mission": "Continue Serin's approved one-frame fluid idle. Preserve exact PNG, WebGL liquid/hair motion, root pin and alpha. Add source-calibrated irregular eye blinking and manual Blink now review control, with no new poses or changes to shared renderers.",
+  "mission": "Replace Serin's rejected paint-over blink with source-pixel upper-lid deformation and denser 3-5 second blinks; preserve all approved hair, liquid, pool, brightness, transparency and single exact PNG source without creating new sprite frames.",
   "authority": {
     "imageSha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
     "phoneSource": "/storage/emulated/0/Pictures/file_00000000c48481f5a63e37968c17dffe.png",
@@ -16,7 +16,7 @@
     "reference": "Vanguard continuous one-frame idle is conceptual inspiration only",
     "reviewRoute": "motion.html?procedural=serin-idle",
     "humanVerdict": "pending",
-    "blinkReview": "Eye geometry from approved Serin PNG; close quickly, open gently; double blink rare; zero blink yields exact original facial pixels"
+    "blinkReview": "Correction: prior cheek-cover blink explicitly REJECTED. Upper lid extends to fixed lower lid by reverse pixel deformation of approved source; no recolor, skin overlay, inpaint, or new sprite; every 3-5 s, one double blink each 22-second loop."
   },
   "machine": {
     "mutablePaths": [
@@ -89,12 +89,6 @@
       {
         "kind": "json-equals",
         "path": "public/assets/serin/idle.recipe.json",
-        "pointer": "/blink/periodMs",
-        "value": 34000
-      },
-      {
-        "kind": "json-equals",
-        "path": "public/assets/serin/idle.recipe.json",
         "pointer": "/blink/leftEye/x",
         "value": 668
       },
@@ -107,17 +101,34 @@
       {
         "kind": "text-contains",
         "path": "src/serin-idle-preview.js",
-        "value": "applyBlink(c,source,uEyeLeft"
-      },
-      {
-        "kind": "text-contains",
-        "path": "src/serin-idle-preview.js",
         "value": "manualBlink(now,manualBlinkStart"
       },
       {
         "kind": "text-contains",
         "path": "src/serin-blink-timeline.mjs",
         "value": "export function scheduledBlink"
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin/idle.recipe.json",
+        "pointer": "/blink/periodMs",
+        "value": 22000
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin/idle.recipe.json",
+        "pointer": "/blink/method",
+        "value": "upper-lid-vertexless-inverse-pixel-deformation"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-idle-preview.js",
+        "value": "applyBlinkDeform(c,source,uEyeLeft"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-idle-preview.js",
+        "value": "applyBlinkDeform(c,source,uEyeRight"
       }
     ]
   }

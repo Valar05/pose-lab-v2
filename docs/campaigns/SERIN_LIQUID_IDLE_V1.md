@@ -38,3 +38,9 @@ A Git branch or build green is not a visible review. Phone runtime HTTP and SHA 
 The earlier idle is visually liked, so all accepted liquid, hair, backdrop and one-frame identity values are preserved. Added two artwork-calibrated eye masks (left 668,110 radius 25×11; right 713,126 radius 19×9) in **source pixel coordinates**. Blinks close briskly, open more slowly, occur irregularly over a 34-second deterministic sequence, and sometimes double blink. A **Blink now** button provides immediate human review independent of animation's pause state. Blink strength zero returns the original facial pixels; no change to source PNG. The crop overlay used to estimate coordinates is diagnostic only, never a runtime input. Tests pin original hair, pool, tail and breath shader expressions.
 
 Original command, branch and repo-owned campaign launcher remain unchanged. Reload using the existing launcher to pick up the new exact commit. Phone-side screenshots and visual acceptance remain pending.
+
+## Corrected eyelid campaign
+
+Human rejected the cheek-sampled covering and sparse spacing. This revision replaces the painted facial overlay with reversible **upper-lid image deformation**. A top eyelid tissue interval from the same canonical PNG is stretched downward; exposed original iris interval compresses toward the stationary lower eyelid. No skin tint, line drawing, cheek sampling, regeneration, additional frame or alpha change. At zero blink the exact original facial pixels are returned, and earlier accepted hair/liquid/pool math remains unchanged.
+
+Schedule is deterministic over 22 seconds with five regularly spaced intervals of about 3–5 s and one closely spaced double blink. `Blink now` continues to work. Exact phone campaign launcher in this document is unchanged. Result is a quarantined candidate until the user reviews eyelid movement on the phone.

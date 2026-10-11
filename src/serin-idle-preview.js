@@ -98,25 +98,36 @@ uniform vec4 uEyeRight;
 uniform vec2 uEyeSlants;
 float smoothBand(float a,float b,float c,float d,float v){return smoothstep(a,b,v)*(1.0-smoothstep(c,d,v));}
 float hash21(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}
-// One-source eyelid closure: sample nearby approved painted cheek skin,
-// then return the existing lash-line as a narrow curved eyelid crease.
-// This runs only within the two individually calibrated facial ellipses.
-vec4 applyBlink(vec4 base,vec2 uv,vec4 eye,float slope,float closing){
+// Upper-lid deformation only. No cover color, cheek fill, or painted crease.
+// Map output pixels back to the original upper lid and remaining eye opening.
+// Source upper eyelid skin stretches down as the visible iris compresses;
+// lower eyelid stays at its original source coordinate.
+vec4 applyBlinkDeform(vec4 base,vec2 uv,vec4 eye,float slope,float closing){
+  if(closing<=0.0001)return base;
   vec2 d=vec2((uv.x-eye.x)/eye.z,(uv.y-eye.y)/eye.w);
   d.y-=slope*d.x;
-  float oval=length(d);
-  float region=1.0-smoothstep(0.72,1.02,oval);
-  float shutter=region*closing;
-  if(shutter<0.001)return base;
-  // Skin is borrowed from immediately beneath this specific eye. No new art.
-  vec2 cheekUv=clamp(uv+vec2(0.0,eye.w*1.95),vec2(0.001),vec2(0.999));
-  vec4 skin=texture2D(uImage,vec2(cheekUv.x,1.0-cheekUv.y));
-  vec4 covered=vec4(mix(base.rgb,skin.rgb,shutter*skin.a),base.a);
-  float crease=(1.0-smoothstep(0.04,0.19,abs(d.y-0.07)))*
-    (1.0-smoothstep(0.58,0.91,abs(d.x)))*
-    smoothstep(0.45,0.89,closing);
-  covered.rgb=mix(covered.rgb,vec3(0.21,0.065,0.14),0.83*crease);
-  return covered;
+  float wing=1.0-smoothstep(0.76,1.0,abs(d.x));
+  float topBoundary=-1.12;
+  float corner=pow(min(abs(d.x),1.0),1.6);
+  float upperEdge=-0.39+0.16*corner;
+  float lowerEdge=0.43-0.10*corner;
+  if(wing<=0.0001 || d.y<=topBoundary || d.y>=lowerEdge)return base;
+  float lidY=mix(upperEdge,lowerEdge,closing*wing);
+  // Upper lid travels down: expand the original painted lid tissue from
+  // [topBoundary,upperEdge] into [topBoundary,lidY]. No pixels manufactured.
+  float sourceY;
+  if(d.y<lidY){
+    sourceY=topBoundary+
+       (d.y-topBoundary)*(upperEdge-topBoundary)/max(0.00001,lidY-topBoundary);
+  }else{
+    // The uncovered eye contracts toward the stationary lower lid.
+    sourceY=upperEdge+
+       (d.y-lidY)*(lowerEdge-upperEdge)/max(0.00001,lowerEdge-lidY);
+  }
+  // At closure=0 the source mapping is identity, and the outside remains
+  // untouched. At closure=1 the iris disappears beneath the moving upper lid.
+  vec2 movedUv=vec2(uv.x,clamp(uv.y+(sourceY-d.y)*eye.w,0.001,0.999));
+  return texture2D(uImage,vec2(movedUv.x,1.0-movedUv.y));
 }
 void main(){
   // Coordinates in top-origin source space. Source pose never advances frames.
@@ -147,8 +158,8 @@ void main(){
   if(c.a<0.004){gl_FragColor=vec4(0.0);return;}
   // Outside the blink ellipses, source pixels and all prior physics stay untouched.
   if(uBlink>0.001){
-    c=applyBlink(c,source,uEyeLeft,uEyeSlants.x,uBlink);
-    c=applyBlink(c,source,uEyeRight,uEyeSlants.y,uBlink);
+    c=applyBlinkDeform(c,source,uEyeLeft,uEyeSlants.x,uBlink);
+    c=applyBlinkDeform(c,source,uEyeRight,uEyeSlants.y,uBlink);
   }
   float violet=clamp((c.b-max(c.r,c.g)*0.78)*3.0,0.0,1.0);
   float flow=tailMask+poolMask*0.85;
