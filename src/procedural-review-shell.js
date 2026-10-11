@@ -8,7 +8,7 @@ const CHARACTER_ANIMATIONS = Object.freeze({
     ['vanguard-shotgun-fire','Shotgun Fire']
   ],
   serin: [['serin-idle','Liquid Idle']],
-  'serin-back': [['serin-back-idle','Liquid Idle']],
+  'serin-back': [['serin-back-idle','Liquid Idle'],['serin-glide','Dynamic Glide']],
   swarmling: [['swarmling-run','Run'],['swarmling-idle','Idle'],['swarmling-aggro','Aggro / Attention'],['swarmling-damage','Damage / Hit React'],['swarmling-knockdown','Knockdown'],['swarmling-stand-up','Stand Up'],['swarmling-death','Death'],['swarmling-jab','Needle Jab'],['swarmling-rake','Low Rake'],['swarmling-scythe-bloom','Scythe Bloom']]
 });
 const DEFAULT_ANIMATION = Object.freeze({vanguard:'vanguard-idle',swarmling:'swarmling-run',serin:'serin-idle','serin-back':'serin-back-idle'});
