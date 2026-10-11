@@ -11,6 +11,13 @@ assert.deepEqual(m.source.idle.size,[1024,1536]);
 assert.deepEqual(m.source.glide.size,[1024,1536]);
 assert.ok(read('motion.html').includes("procedural === 'serin-glide'"));
 assert.ok(read('src/procedural-review-shell.js').includes("['serin-glide','Dynamic Glide']"));
+const launcher=read('tools/campaigns/serin-glide-locomotion-v1.sh');
+const servedRecipePath='assets/serin-glide/locomotion.recipe.json';
+assert.equal(m.reviewRoute,'motion.html?procedural=serin-glide');
+assert.ok(launcher.includes('curl -fsS "$BASE/'+servedRecipePath+'"'),'Phone launcher must serve the actual recipe path');
+assert.ok(!launcher.includes('assets/serin-glide/idle.recipe.json'),'Old idle recipe path must never be probed by glide');
+assert.ok(launcher.includes('pose_campaign_wait_http "$BASE/motion.html"'),'Review server readiness must be checked');
+
 const src=read('src/serin-glide-preview.js');
 for(const needle of ['uPoseBlend','uPitch','uWake','uSlosh','gl.clearColor(0,0,0,0)','SOURCE_SHA256_MISMATCH','SerinGlideController','loadAuthorized(recipe.source.idle.file','loadAuthorized(recipe.source.glide.file'])assert.ok(src.includes(needle),needle);
 for(const kind of ['idle','glide']){

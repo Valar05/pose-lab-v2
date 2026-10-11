@@ -86,6 +86,11 @@
         "kind": "text-contains",
         "path": "src/procedural-review-shell.js",
         "value": "['serin-glide','Dynamic Glide']"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/serin-glide-locomotion-v1.sh",
+        "value": "curl -fsS \"$BASE/assets/serin-glide/locomotion.recipe.json\""
       }
     ]
   }

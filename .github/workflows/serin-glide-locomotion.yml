@@ -21,10 +21,20 @@ jobs:
           node tools/test_serin_glide_system.mjs
           bash -n tools/campaigns/serin-glide-locomotion-v1.sh
       - name: Source contract and route
-        run: node tools/test_serin_glide_runtime.mjs --allow-pending-ingress
+        run: node tools/test_serin_glide_runtime.mjs
       - name: Sealed campaign and shared framework
         run: |
           python3 tools/campaigns/campaign_core.py --root . preflight --contract campaigns/serin-glide-locomotion-v1.contract.json --skip-diff
           python3 tools/test_pose_campaign_framework.py
       - name: Build
         run: node scripts/build.mjs
+      - name: Verify exact HTTP recipe and source serving
+        run: |
+          python3 -m http.server 18765 --bind 127.0.0.1 --directory dist > /tmp/serin-glide-review-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:18765/motion.html >/dev/null
+          curl -fsS http://127.0.0.1:18765/assets/serin-glide/locomotion.recipe.json | cmp - dist/assets/serin-glide/locomotion.recipe.json
+          curl -fsS http://127.0.0.1:18765/assets/serin-glide/serin-glide-right.png | cmp - dist/assets/serin-glide/serin-glide-right.png
+          curl -fsS http://127.0.0.1:18765/assets/serin-back/serin-back-idle.png | cmp - dist/assets/serin-back/serin-back-idle.png
+

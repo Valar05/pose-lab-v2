@@ -25,3 +25,8 @@ The repository-owned campaign uses isolated worktree, shared framework boot/lock
 
 ## Acceptance
 Must visibly begin idle and end idle; accelerate forward and pitch, coast smoothly without legs crossing, brake with slosh but pinned pool, and settle naturally. GitHub CI and HTTP 200 are not visual acceptance. HUMAN_VERDICT=PENDING until phone review.
+
+## Repair: phone server recipe 404 (2026-10-11)
+Phone campaign completed exact PNG ingress, GitHub push/readback at `b45a7111eca1225ce252f99c7912faa7260c609b`, source checks, controller tests, and build. It then stopped because the campaign launcher probed the nonexistent path `/assets/serin-glide/idle.recipe.json`. Canonical recipe and the renderer both use `/assets/serin-glide/locomotion.recipe.json`.
+
+Correction is limited to the launcher's served-recipe check, a deterministic script/recipe identity regression guard, and a GitHub Actions HTTP smoke test of the actual built artifact for recipe + both locked PNGs. The already committed glide PNG, idle PNG, physics controller, pose blending and WebGL renderer are unchanged. Human visual review is still pending. Re-run the same GitHub fetch-and-run command to create an isolated worktree for this corrected revision and serve its assets from the dedicated Serin glide tmux session.

@@ -108,7 +108,7 @@ fi
 PID="$(tmux display-message -p -t "$SESSION" '#{pane_pid}')"
 BASE="http://127.0.0.1:$PORT"
 pose_campaign_wait_http "$BASE/motion.html" "$PID" "$STATE/server.log"
-curl -fsS "$BASE/assets/serin-glide/idle.recipe.json" >/dev/null || stop 'Served recipe unavailable'
+curl -fsS "$BASE/assets/serin-glide/locomotion.recipe.json" >/dev/null || stop 'Served locomotion recipe unavailable'
 HTTP_SHA="$(curl -fsS "$BASE/assets/serin-glide/serin-glide-right.png" | sha256sum | awk '{print $1}')"
 [ "$HTTP_SHA" = "$EXPECTED" ] || stop "SERVER_ROOT_MISMATCH: served image hash=$HTTP_SHA"
 URL="$BASE/motion.html?procedural=serin-glide&rev=$REV"
