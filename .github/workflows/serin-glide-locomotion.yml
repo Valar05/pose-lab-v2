@@ -1,0 +1,30 @@
+name: Serin Dynamic Glide Candidate
+on:
+  push:
+    branches:
+      - codex/serin-glide-locomotion-v1
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and deterministic game dynamics
+        run: |
+          node --check src/serin-glide-system.mjs
+          node --check src/serin-glide-preview.js
+          node tools/test_serin_glide_system.mjs
+          bash -n tools/campaigns/serin-glide-locomotion-v1.sh
+      - name: Source contract and route
+        run: node tools/test_serin_glide_runtime.mjs --allow-pending-ingress
+      - name: Sealed campaign and shared framework
+        run: |
+          python3 tools/campaigns/campaign_core.py --root . preflight --contract campaigns/serin-glide-locomotion-v1.contract.json --skip-diff
+          python3 tools/test_pose_campaign_framework.py
+      - name: Build
+        run: node scripts/build.mjs
