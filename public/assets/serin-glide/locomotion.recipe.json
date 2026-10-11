@@ -1,0 +1,38 @@
+{
+  "schema": "pose-lab-v2-serin-glide-v1",
+  "id": "serin-glide",
+  "status": "quarantined",
+  "frames": 2,
+  "rootMotion": false,
+  "source": {
+    "idle": {
+      "file": "assets/serin-back/serin-back-idle.png",
+      "sha256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c",
+      "size": [
+        1024,
+        1536
+      ],
+      "alpha": true
+    },
+    "glide": {
+      "file": "assets/serin-glide/serin-glide-right.png",
+      "sha256": "d7cd7e8df9168b1adc774c6784fae3aad4671a68a7369d56329c18ee01ccfa40",
+      "size": [
+        1024,
+        1536
+      ],
+      "alpha": true
+    }
+  },
+  "behavior": {
+    "liveInput": true,
+    "worldPositionByController": true,
+    "physicsDrivenPitch": true,
+    "brakingSlosh": true,
+    "distanceDrivenLiquid": true,
+    "poolPinned": true,
+    "idleEndpoints": true
+  },
+  "reviewRoute": "motion.html?procedural=serin-glide",
+  "humanVerdict": "pending"
+}

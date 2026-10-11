@@ -1,0 +1,92 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "serin-glide-locomotion-v1",
+  "status": "quarantined",
+  "mission": "Implement a game-facing input-driven dynamic Serin glide system with acceleration, velocity, braking, pitch, hair drag and decaying liquid slosh. Approved back-view idle source at beginning and end; new glamorous right-facing glide pose during movement. No new frames or changes to accepted Serin renderers.",
+  "authority": {
+    "idleSHA256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c",
+    "glideSHA256": "d7cd7e8df9168b1adc774c6784fae3aad4671a68a7369d56329c18ee01ccfa40",
+    "glideIngress": "one exact SHA256 match from Android Pictures",
+    "sourceDimensions": [
+      1024,
+      1536
+    ],
+    "rootMotion": false,
+    "reviewRoute": "motion.html?procedural=serin-glide",
+    "humanVerdict": "pending"
+  },
+  "machine": {
+    "mutablePaths": [
+      "motion.html",
+      "src/procedural-review-shell.js",
+      "src/serin-glide-system.mjs",
+      "src/serin-glide-preview.js",
+      "public/assets/serin-glide/locomotion.recipe.json",
+      "public/assets/serin-glide/serin-glide-right.png",
+      "tools/campaigns/serin-glide-locomotion-v1.sh",
+      "tools/test_serin_glide_system.mjs",
+      "tools/test_serin_glide_runtime.mjs",
+      "campaigns/serin-glide-locomotion-v1.contract.json",
+      "campaigns/serin-glide-locomotion-v1.receipt.json",
+      "docs/campaigns/SERIN_GLIDE_LOCOMOTION_V1.md",
+      ".github/workflows/serin-glide-locomotion.yml"
+    ],
+    "receiptPath": "campaigns/serin-glide-locomotion-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/serin/serin-idle.png",
+        "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f"
+      },
+      {
+        "path": "public/assets/serin-back/serin-back-idle.png",
+        "sha256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c"
+      }
+    ],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-glide/locomotion.recipe.json",
+        "pointer": "/rootMotion",
+        "value": false
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-glide/locomotion.recipe.json",
+        "pointer": "/frames",
+        "value": 2
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-glide/locomotion.recipe.json",
+        "pointer": "/source/glide/sha256",
+        "value": "d7cd7e8df9168b1adc774c6784fae3aad4671a68a7369d56329c18ee01ccfa40"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-system.mjs",
+        "value": "export class SerinGlideController"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-preview.js",
+        "value": "uPoseBlend"
+      },
+      {
+        "kind": "text-contains",
+        "path": "motion.html",
+        "value": "procedural === 'serin-glide'"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-review-shell.js",
+        "value": "['serin-glide','Dynamic Glide']"
+      }
+    ]
+  }
+}
