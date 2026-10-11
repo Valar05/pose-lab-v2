@@ -1,0 +1,46 @@
+name: Serin Liquid Idle Candidate
+
+on:
+  push:
+    branches:
+      - codex/serin-liquid-idle-v1
+  pull_request:
+    paths:
+      - 'src/serin-idle-preview.js'
+      - 'tools/campaigns/serin-liquid-idle-v1.sh'
+      - 'tools/test_serin_idle_runtime.mjs'
+      - 'campaigns/serin-liquid-idle-v1.contract.json'
+      - 'public/assets/serin/**'
+      - 'motion.html'
+      - 'src/procedural-review-shell.js'
+      - '.github/workflows/serin-liquid-idle.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check source and shell syntax
+        run: |
+          node --check src/serin-idle-preview.js
+          node --check tools/test_serin_idle_runtime.mjs
+          bash -n tools/campaigns/serin-liquid-idle-v1.sh
+      - name: Check exact one-frame routing and authority
+        run: node tools/test_serin_idle_runtime.mjs --allow-missing-asset
+      - name: Verify V2 campaign framework and sealed contract
+        run: |
+          python3 tools/campaigns/campaign_core.py --root . preflight --contract campaigns/serin-liquid-idle-v1.contract.json --skip-diff
+          python3 tools/test_pose_campaign_framework.py
+      - name: Build Pose Lab static output
+        run: node scripts/build.mjs
+      - name: Require alpha-capable shader and source contract
+        run: |
+          grep -F "gl.clearColor(0,0,0,0)" src/serin-idle-preview.js
+          grep -F "serin-idle" motion.html
