@@ -15,11 +15,16 @@ assert.equal(sha,contract.authority.imageSha256);
 assert.match(text('motion.html'),/procedural === 'serin-back-idle'/);
 assert.ok(text('src/procedural-review-shell.js').includes("['serin-back-idle','Liquid Idle']"));
 const src=text('src/serin-back-idle-preview.js');
+const renderedShaLiteral=src.match(/const SERIN_BACK_SOURCE_SHA256='([0-9a-f]{64})';/);
+assert.ok(renderedShaLiteral,'runtime must contain one valid 64-digit source SHA declaration');
+assert.equal(renderedShaLiteral[1],recipe.source.sha256,'runtime SHA must match the actual recipe');
+assert.ok(src.includes('recipe.source.sha256!==SERIN_BACK_SOURCE_SHA256'),'the runtime must check the source SHA, not bypass the guard');
+assert.ok(!src.includes('91515360bab7918e94afab307f'),'reject previously broken SHA literal');
+assert.ok(src.includes("recipe.schema!=='pose-lab-v2-serin-idle-v1'"),'schema must still be validated');
 for(const key of ['uHair','uLiquid','uCurrents','uGlow','uBlink','uEyeLeft','uEyeRight','gl.clearColor(0,0,0,0)','prefers-reduced-motion'])assert.ok(src.includes(key),key);
 assert.ok(recipe.blink&&recipe.blink.periodMs===22000);
 assert.ok(src.includes('id="serin-blink-now"'));
 assert.ok(src.includes('applyBlinkDeform'));
-assert.ok(!src.includes('cheekUv'));
 assert.ok(!src.includes('cheekUv'));
 const image=new URL('public/'+recipe.source.file,root);
 if(!fs.existsSync(image)){

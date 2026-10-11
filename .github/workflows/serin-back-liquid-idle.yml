@@ -19,9 +19,10 @@ jobs:
           node --check src/serin-back-idle-preview.js
           node --check src/serin-back-blink-timeline.mjs
           node tools/test_serin_back_blink_timeline.mjs
+          node --check tools/test_serin_back_idle_runtime.mjs
           bash -n tools/campaigns/serin-back-liquid-idle-v1.sh
       - name: Source authority and V2 routing
-        run: node tools/test_serin_back_idle_runtime.mjs --allow-missing-asset
+        run: node tools/test_serin_back_idle_runtime.mjs
       - name: Campaign framework
         run: |
           python3 tools/campaigns/campaign_core.py --root . preflight --contract campaigns/serin-back-liquid-idle-v1.contract.json --skip-diff

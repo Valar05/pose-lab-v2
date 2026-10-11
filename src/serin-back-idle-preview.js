@@ -3,6 +3,8 @@ import {scheduledBlink,manualBlink,verifyBlinkSpec} from './serin-back-blink-tim
 // Nothing in this module changes Vanguard/Swarmling renderers or atlas pixels.
 const app=document.querySelector('#app');
 const configUrl='./assets/serin-back/idle.recipe.json';
+// Source authority. Keep this pinned to the approved rear-view PNG, not a derived crop.
+const SERIN_BACK_SOURCE_SHA256='e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c';
 const params=new URLSearchParams(location.search);
 const rev=params.get('rev') || '';
 const query=rev ? '?rev='+encodeURIComponent(rev) : '';
@@ -175,8 +177,8 @@ void main(){
   gl_FragColor=c;
 }`;
 async function boot(){
- const recipe=await fetch(configUrl+query,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Serin recipe HTTP '+r.status);return r.json();});
- if(recipe.schema!=='pose-lab-v2-serin-idle-v1'||recipe.source.sha256!=='00ba472a4ee922a0840a3d63a71deafd054a3f91515360bab7918e94afab307f')throw new Error('Serin source contract mismatch');
+ const recipe=await fetch(configUrl+query,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Serin Back recipe HTTP '+r.status);return r.json();});
+ if(recipe.schema!=='pose-lab-v2-serin-idle-v1'||recipe.source.sha256!==SERIN_BACK_SOURCE_SHA256)throw new Error('Serin Back source contract mismatch');
  verifyBlinkSpec(recipe.blink);
  const image=new Image();image.decoding='async';
  image.src='./'+recipe.source.file+query;

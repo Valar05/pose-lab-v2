@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "serin-back-liquid-idle-v1",
   "status": "quarantined",
-  "mission": "Deploy isolated Serin back view one-frame liquid idle as a Git-owned Pose Lab V2 phone campaign. Use only the named 1024x1536 RGBA PNG and existing source-pixel eyelid deformation. Preserve Serin front, Vanguard and Swarmling.",
+  "mission": "Fix Serin Back's rejected runtime source contract mismatch without changing approved source PNG, one-frame pose, front Serin, liquid physics, transparency or deformation blinks. Require matching source SHA at browser boot and in CI.",
   "authority": {
     "imageSha256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c",
     "phoneSource": "/storage/emulated/0/Pictures/file_000000004e1081f5b22a4ef0ddd717a5.png",
@@ -96,6 +96,21 @@
         "kind": "text-contains",
         "path": "src/serin-back-idle-preview.js",
         "value": "gl.clearColor(0,0,0,0)"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-back-idle-preview.js",
+        "value": "const SERIN_BACK_SOURCE_SHA256='e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c'"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-back-idle-preview.js",
+        "value": "recipe.source.sha256!==SERIN_BACK_SOURCE_SHA256"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/serin-back-liquid-idle-v1.sh",
+        "value": "node --check src/serin-back-idle-preview.js"
       }
     ]
   }

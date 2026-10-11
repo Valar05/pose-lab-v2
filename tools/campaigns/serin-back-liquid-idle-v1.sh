@@ -62,7 +62,7 @@ else
  REV="$FINAL"
  echo "GITHUB_ASSET_COMMITTED=$FINAL"
 fi
-node --check src/serin-idle-preview.js
+node --check src/serin-back-idle-preview.js
 node tools/test_serin_back_idle_runtime.mjs
 node tools/test_serin_back_blink_timeline.mjs
 pose_campaign_verify "$W" "$CONTRACT"
