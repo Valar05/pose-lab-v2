@@ -1,0 +1,29 @@
+{
+  "schema": "pose-lab-v2-serin-idle-v1",
+  "id": "serin-idle",
+  "status": "quarantined",
+  "rootMotion": false,
+  "source": {
+    "file": "assets/serin/serin-idle.png",
+    "sourcePhone": "/storage/emulated/0/Pictures/file_00000000c48481f5a63e37968c17dffe.png",
+    "size": [
+      1086,
+      1448
+    ],
+    "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
+    "alpha": true
+  },
+  "cycleMs": 9800,
+  "loop": true,
+  "poseFrames": 1,
+  "procedural": {
+    "backend": "webgl1-fragment-deformation",
+    "hairInertia": 1,
+    "liquidColumn": 1,
+    "surfaceCurrents": 1,
+    "starlightPulse": 1,
+    "poolRootPinned": true
+  },
+  "reviewRoute": "motion.html?procedural=serin-idle",
+  "humanVerdict": "pending"
+}

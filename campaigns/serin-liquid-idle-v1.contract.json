@@ -1,0 +1,82 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "serin-liquid-idle-v1",
+  "status": "quarantined",
+  "mission": "Ingest only the user-approved single transparent RGBA Serin portrait by exact phone path and SHA-256; register a dedicated WebGL one-frame shader idle on Pose Lab V2 phone without modifying any accepted Vanguard/Swarmling assets. Keep human visual verdict pending.",
+  "authority": {
+    "imageSha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
+    "phoneSource": "/storage/emulated/0/Pictures/file_00000000c48481f5a63e37968c17dffe.png",
+    "sourceDimensions": [
+      1086,
+      1448
+    ],
+    "frames": 1,
+    "sourceRGBA": true,
+    "rootMotion": false,
+    "reference": "Vanguard continuous one-frame idle is conceptual inspiration only",
+    "reviewRoute": "motion.html?procedural=serin-idle",
+    "humanVerdict": "pending"
+  },
+  "machine": {
+    "mutablePaths": [
+      "motion.html",
+      "src/procedural-review-shell.js",
+      "src/serin-idle-preview.js",
+      "public/assets/serin/idle.recipe.json",
+      "public/assets/serin/serin-idle.png",
+      "tools/campaigns/serin-liquid-idle-v1.sh",
+      "tools/test_serin_idle_runtime.mjs",
+      "campaigns/serin-liquid-idle-v1.contract.json",
+      "campaigns/serin-liquid-idle-v1.receipt.json",
+      "docs/campaigns/SERIN_LIQUID_IDLE_V1.md"
+    ],
+    "receiptPath": "campaigns/serin-liquid-idle-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin/idle.recipe.json",
+        "pointer": "/poseFrames",
+        "value": 1
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin/idle.recipe.json",
+        "pointer": "/rootMotion",
+        "value": false
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin/idle.recipe.json",
+        "pointer": "/source/sha256",
+        "value": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f"
+      },
+      {
+        "kind": "text-contains",
+        "path": "motion.html",
+        "value": "procedural === 'serin-idle'"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-review-shell.js",
+        "value": "['serin-idle','Liquid Idle']"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-idle-preview.js",
+        "value": "uLiquid"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-idle-preview.js",
+        "value": "gl_FragColor=c"
+      }
+    ]
+  }
+}
