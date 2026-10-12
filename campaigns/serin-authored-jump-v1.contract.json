@@ -117,7 +117,7 @@
       {
         "kind": "text-contains",
         "path": "src/serin-unified-authored-preview.js",
-        "value": "pow(current,7.0)*tail*violet"
+        "value": "pow(current,7.0)*liquidMask*violet"
       },
       {
         "kind": "text-contains",
