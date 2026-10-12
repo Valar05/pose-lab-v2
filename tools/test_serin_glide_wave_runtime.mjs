@@ -17,7 +17,14 @@ for(const s of ['uWavePhase','uEdgePhase','uWaveAmplitude','uCrest','uCrestCente
 assert.ok(!preview.includes('mix(idle,glide,'),'old RGBA crossfade must not return');
 assert.ok(!preview.includes('uPoseBlend<0.5?idle:glide'),'avoid speed-threshold source thrash');
 assert.ok(!preview.includes('p.x=1.0-p.x'),'do not mirror whole sprite on reverse');
-assert.ok(preview.includes('float angle=radians(-(uForwardLean+uPitch*0.2));'),'inverse warp lean forward to the right');
+assert.ok(preview.includes('float angle=radians(-(uForwardLean*0.58+uPitch*0.08));'),'reduced inverse warp lean toward the right');
+assert.ok(preview.includes('float upper=clamp(0.78*waistField+0.22*shoulderField,0.0,1.0);'),'only anatomical region tilts');
+assert.ok(preview.includes('float torso=clamp(waistField+shoulderField*0.35,0.0,1.0);'),'localized deformation');
+assert.ok(preview.includes('warp.x+=handoff*torso*(uPoseBlend<0.5?0.010:-0.010);'));
+const controller=text('src/serin-glide-wave-system.mjs');
+assert.ok(controller.includes('Math.abs(this.forwardLean)<0.12'),'source handoff requires lean settle');
+assert.ok(controller.includes('this.crest<0.006'),'source handoff requires crest settle');
+assert.ok(controller.includes('const targetLean=movingRight?(1.5+4.5*speed):0;'),'do not overtilt pre-leaning art');
 assert.ok(preview.includes('float detailMotion=uFacing<0.0?0.12:1.0;'),'reverse body motion subdued');
 // The already praised fluid shader equations MUST remain byte-equivalent.
 for(const wave of [

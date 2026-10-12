@@ -36,14 +36,21 @@ export class SerinGlideWaveController extends SerinGlideController {
    // Added lean modifies only upper sprite. The grounded puddle never rotates.
    // Only advancing right pitches toward screen-right. Reversing is a subdued
    // backwards slide without additional flips or repeated artwork selection.
-   this.forwardLean=follow(this.forwardLean,input>0.05?(3+10*speed):0,8,h);
+   // The authored glide PNG already leans forward. Add only a subtle bend,
+   // easing the return more slowly than the acceleration. Reverse stays quiet.
+   const movingRight=input>0.05;
+   const targetLean=movingRight?(1.5+4.5*speed):0;
+   this.forwardLean=follow(this.forwardLean,targetLean,movingRight?7:4,h);
    if(input<0||this.velocity<0)this.pitch=0;
    // One committed artwork handoff at start, one on settling. Reverse never
    // toggles a source even if direction or velocity passes through zero.
    let next=this.sourceMode;
    if(input>0.05)next=1;
    else if(input<0)next=this.sourceMode;
-   else if(this.mode==='idle'&&this.poseBlend===0)next=0;
+   else if(input===0&&this.mode==='idle'&&this.poseBlend===0&&
+      Math.abs(this.velocity)<12&&Math.abs(this.slosh)<0.045&&
+      Math.abs(this.wake)<0.08&&this.crest<0.006&&
+      Math.abs(this.forwardLean)<0.12)next=0;
    if(next!==this.sourceMode){this.sourceMode=next;this.sourceSwitchCount++;}
    rem-=h;
   }

@@ -9,7 +9,7 @@ assert.ok(idle.wavePhase>0,'puddle should move when idle');
 const phase=idle.wavePhase;
 const go=step(1.4,1);
 assert.ok(go.wavePhase-phase>1.4*4*2*Math.PI,'glide puddle must outrun lava lamp');
-assert.ok(go.forwardLean>8,'forward torso lean');
+assert.ok(go.forwardLean>4.5&&go.forwardLean<=6.02,'limited 6-degree forward torso lean');
 assert.ok(go.crest>0.02,'bow-wave present during movement');
 assert.ok(go.poseBlend>0.7,'moving pose authority');
 assert.equal(go.sourceMode,1,'right input must select EXACT new glide PNG');
@@ -18,6 +18,20 @@ const coast=step(.12,0);
 assert.ok(coast.velocity<go.velocity,'stop decelerates');
 assert.ok(coast.waveAmplitude>0.006,'liquid still moves during braking');
 assert.equal(coast.sourceMode,1,'braking never switches artwork prematurely');
+assert.ok(coast.forwardLean<go.forwardLean&&coast.forwardLean>0,'slow exit eases lean without snapping to zero');
+assert.equal(coast.sourceSwitchCount,1);
+let firstIdleSeen=false;
+for(let i=0;i<720;i++){
+ const v=c.update(1/120,0);
+ if(v.sourceMode===0){
+  firstIdleSeen=true;
+  assert.ok(Math.abs(v.forwardLean)<0.12,'idle handoff only after torso has recovered');
+  assert.ok(Math.abs(v.slosh)<0.045&&v.crest<0.006,'source returns after fluid settles');
+  break;
+ }
+}
+assert.ok(firstIdleSeen,'source eventually returns to idle');
+
 const stop=step(5,0);
 assert.equal(stop.mode,'idle');assert.equal(stop.poseBlend,0);assert.equal(stop.velocity,0);
 assert.equal(stop.sourceMode,0,'idle endpoint uses front idle PNG');

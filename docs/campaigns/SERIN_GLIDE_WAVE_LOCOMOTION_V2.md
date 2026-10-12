@@ -41,3 +41,11 @@ New source latch: initial front-idle, one right-glide selection when the user pr
 Forward motion now uses negative inverse-texture rotation to visually move head/shoulders toward the right. Reverse disables pronounced upper-body pitching, hair and tail detail deformation drops to 12% while the independently praised fast puddle and bow crest shader expressions and driving parameters are *unchanged*.
 
 Source PNGs, stage geometry, routing, the committed wave recipe, campaign script and original pose renderer are not changed. Green CI proves structural logic only; the updated visible phone recording and human verdict remain the acceptance boundary.
+
+## October 12 lean and exit refinement, still human-pending
+
+Following mobile video review, the additional procedural lean was judged excessive and the exit more abrupt than the entry. The existing glide illustration has its own forward lean. Target supplemental controller bend is now 1.5–6 degrees, with a faster onset and slower recovery. Inverse texture rotation is weighted to 58% of this plus 8% of existing pitch; the field is restricted to torso/shoulder landmarks rather than dragging the entire hair mass. The source switch back to front idle waits for motion, slosh, bow crest and residual lean to settle; no extra image swaps or alpha blends.
+
+**Accepted/locked:** exact two Git-owned PNGs (sha256 front `00ba472a...`, glide `8c0d9b48...`), fast current/ripple and visible bow crest, subdued reverse, no horizontal mirroring, shared native source pixels and pool root. The existing ripple/crest GLSL equations and phase/timing are unchanged.
+
+**Visual limitation:** this reduces source-switch shock but does not manufacture a true intermediate illustration; the human must evaluate whether the remaining end swap feels good. If not, an explicit landmark deformation transition will be needed rather than hiding it with longer delay or opacity crossfade. The GitHub CI cannot establish visual acceptance.
