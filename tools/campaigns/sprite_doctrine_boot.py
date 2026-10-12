@@ -136,7 +136,7 @@ def packet(task: str, contract_path: str | None, character_path: str | None) -> 
     for item in provenance["files"]:
         rel = item["path"]
         _, b = source(rel)
-        blob = hashlib.sha1(b"blob " + str(len(b)).encode() + b"\\x00" + b).hexdigest()
+        blob = hashlib.sha1(b"blob " + str(len(b)).encode() + b"\x00" + b).hexdigest()
         if blob != item["source_git_blob_sha1"]:
             raise ContextGateError("IMPORTED_DOCTRINE_TAMPERED: " + rel)
 
