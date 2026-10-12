@@ -34,5 +34,9 @@
     "idleEndpoints": true
   },
   "reviewRoute": "motion.html?procedural=serin-glide",
-  "humanVerdict": "pending"
+  "humanVerdict": "pending",
+  "presentation": {
+    "safeFrameScale": 0.84,
+    "fitAuthority": "same normalized uniform fit for both approved 1024x1536 PNG sources; no independent crop/scale"
+  }
 }

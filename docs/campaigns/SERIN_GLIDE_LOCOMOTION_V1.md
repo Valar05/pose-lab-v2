@@ -30,3 +30,9 @@ Must visibly begin idle and end idle; accelerate forward and pitch, coast smooth
 Phone campaign completed exact PNG ingress, GitHub push/readback at `b45a7111eca1225ce252f99c7912faa7260c609b`, source checks, controller tests, and build. It then stopped because the campaign launcher probed the nonexistent path `/assets/serin-glide/idle.recipe.json`. Canonical recipe and the renderer both use `/assets/serin-glide/locomotion.recipe.json`.
 
 Correction is limited to the launcher's served-recipe check, a deterministic script/recipe identity regression guard, and a GitHub Actions HTTP smoke test of the actual built artifact for recipe + both locked PNGs. The already committed glide PNG, idle PNG, physics controller, pose blending and WebGL renderer are unchanged. Human visual review is still pending. Re-run the same GitHub fetch-and-run command to create an isolated worktree for this corrected revision and serve its assets from the dedicated Serin glide tmux session.
+
+## Clipped horns: shared presentation framing (2026-10-11)
+
+Phone screenshot shows Serin Glide touching/clipping the top of the checkerboard stage. Both approved source PNGs are 1024×1536 and have nontransparent pixels at the first rows; this is a framing/headroom issue, not evidence of a larger native sprite. The only approved visual change in this patch is one `presentation.safeFrameScale=0.84` applied **identically** before shader pitch to both the idle and moving source. The outer 8% on each side of the preview renders transparent, giving pitch and long hair room. No authored art pixels are regenerated, cropped, resized independently or changed; no controller, timing, source hash, alpha, pool dynamics or pose selection changes.
+
+The source PNGs themselves approach the top pixel row, so renderer padding cannot recreate any original artwork lost during image generation. The user must review the updated phone route at actual glide and idle poses for the final clipping verdict.

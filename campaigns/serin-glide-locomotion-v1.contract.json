@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "serin-glide-locomotion-v1",
   "status": "quarantined",
-  "mission": "Implement a game-facing input-driven dynamic Serin glide system with acceleration, velocity, braking, pitch, hair drag and decaying liquid slosh. Approved back-view idle source at beginning and end; new glamorous right-facing glide pose during movement. No new frames or changes to accepted Serin renderers.",
+  "mission": "Correct clipped Serin glide horns and sprite presentation by uniform shared safe-area framing for the two approved poses; preserve source PNGs, body proportion/geometry, controller motion, shader pitch/slosh, camera orientation and idle endpoints.",
   "authority": {
     "idleSHA256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c",
     "glideSHA256": "d7cd7e8df9168b1adc774c6784fae3aad4671a68a7369d56329c18ee01ccfa40",
@@ -13,7 +13,9 @@
     ],
     "rootMotion": false,
     "reviewRoute": "motion.html?procedural=serin-glide",
-    "humanVerdict": "pending"
+    "humanVerdict": "pending",
+    "reviewedDefect": "On phone review, horn/top of glide pose clipped at stage upper edge. Both source RGBA images are 1024x1536 and artwork reaches near y=0; shader pitch has no stage headroom.",
+    "sharedSafeFrameScale": 0.84
   },
   "machine": {
     "mutablePaths": [
@@ -46,6 +48,10 @@
       {
         "path": "public/assets/serin-back/serin-back-idle.png",
         "sha256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c"
+      },
+      {
+        "path": "public/assets/serin-glide/serin-glide-right.png",
+        "sha256": "d7cd7e8df9168b1adc774c6784fae3aad4671a68a7369d56329c18ee01ccfa40"
       }
     ],
     "checks": [
@@ -91,6 +97,27 @@
         "kind": "text-contains",
         "path": "tools/campaigns/serin-glide-locomotion-v1.sh",
         "value": "curl -fsS \"$BASE/assets/serin-glide/locomotion.recipe.json\""
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-glide/locomotion.recipe.json",
+        "pointer": "/presentation/safeFrameScale",
+        "value": 0.84
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-preview.js",
+        "value": "uniform float uFrameScale;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-preview.js",
+        "value": "p=framed;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-preview.js",
+        "value": "gl.uniform1f(loc('uFrameScale'),recipe.presentation.safeFrameScale)"
       }
     ]
   }

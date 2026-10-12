@@ -25,7 +25,7 @@ app.innerHTML=[
 '<label for="throttle">Input axis</label><input type="range" id="throttle" min="-1" max="1" value="0" step="0.05">',
 '<p class="small">Arrow keys move. Space brakes. On a phone, use the buttons or slider. The demo is optional; this is not a sprite-frame animation loop.</p>',
 '<p class="status" id="status">Checking approved source hashes…</p>',
-'<p class="small">Source pixels and shader locked to this quarantine campaign. Human review determines visual acceptance.</p>',
+'<p class="small">Both poses share the same 84% safe-area fit. Source pixels are unchanged; pitch and slosh remain game-driven. Human review determines visual acceptance.</p>',
 '</aside></main>'
 ].join('');
 const q=s=>app.querySelector(s);
@@ -59,8 +59,14 @@ const fragment=[
 'uniform float uPhase;',
 'uniform float uWake;',
 'uniform float uFacing;',
+'uniform float uFrameScale;',
 'void main(){',
 ' vec2 p=vec2(vUv.x,1.0-vUv.y);',
+' // Both authored poses are nearly edge-to-edge. Reserve the same safe area',
+' // before pitch/flow so neither horn nor pool gets clipped by the stage.',
+' vec2 framed=(p-vec2(0.5,0.5))/uFrameScale+vec2(0.5,0.5);',
+' if(framed.x<0.0||framed.y<0.0||framed.x>1.0||framed.y>1.0){gl_FragColor=vec4(0.0);return;}',
+' p=framed;',
 ' if(uFacing<0.0)p.x=1.0-p.x;',
 ' // Pool is a fixed world anchor. Only anatomy above waist rotates.',
 ' float upper=1.0-smoothstep(0.50,0.77,p.y);',
@@ -103,7 +109,7 @@ async function boot(){
  const r=await fetch('./assets/serin-glide/locomotion.recipe.json'+cache,{cache:'no-store'});
  if(!r.ok)throw Error('GLIDE_RECIPE_MISSING');
  const recipe=await r.json();
- if(recipe.schema!=='pose-lab-v2-serin-glide-v1'||recipe.source.idle.sha256!=='e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c'||recipe.source.glide.sha256!=='d7cd7e8df9168b1adc774c6784fae3aad4671a68a7369d56329c18ee01ccfa40')throw Error('GLIDE_RECIPE_SOURCE_CONTRACT_MISMATCH');
+ if(recipe.schema!=='pose-lab-v2-serin-glide-v1'||recipe.source.idle.sha256!=='e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c'||recipe.source.glide.sha256!=='d7cd7e8df9168b1adc774c6784fae3aad4671a68a7369d56329c18ee01ccfa40'||recipe.presentation?.safeFrameScale!==0.84)throw Error('GLIDE_RECIPE_SOURCE_CONTRACT_MISMATCH');
  const [idle,glide]=await Promise.all([loadAuthorized(recipe.source.idle.file,recipe.source.idle.sha256,recipe.source.idle.size),loadAuthorized(recipe.source.glide.file,recipe.source.glide.sha256,recipe.source.glide.size)]);
  const gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:false});
  if(!gl)throw Error('WebGL needed for dynamic slosh');
@@ -128,6 +134,7 @@ async function boot(){
  const loc=name=>gl.getUniformLocation(prog,name);
  gl.uniform1i(loc('uIdle'),0);gl.uniform1i(loc('uGlide'),1);
  const out=Object.fromEntries(['PoseBlend','Pitch','Slosh','Phase','Wake','Facing'].map(k=>[k,loc('u'+k)]));
+ gl.uniform1f(loc('uFrameScale'),recipe.presentation.safeFrameScale);
  gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);
  function frame(now){
   if(!running)return;
