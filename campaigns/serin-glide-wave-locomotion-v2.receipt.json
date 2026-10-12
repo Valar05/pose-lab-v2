@@ -1,0 +1,27 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "serin-glide-wave-locomotion-v2",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "486c40a2199fe87a9e6f543d466075f2c6dffac0",
+  "implementationRevision": "b7005e0cfca89b0cdf63882fef53817ac906b7a9",
+  "finalRevision": null,
+  "executionLane": "phone-termux-repo-owned-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "motion.html",
+    "src/procedural-review-shell.js",
+    "src/serin-glide-wave-system.mjs",
+    "src/serin-glide-wave-preview.js",
+    "public/assets/serin-glide/wave-locomotion.recipe.json",
+    "public/assets/serin-glide/serin-glide-wave-v2.png",
+    "tools/campaigns/serin-glide-wave-locomotion-v2.sh",
+    "tools/campaigns/serin-glide-wave-authorize.mjs",
+    "tools/test_serin_glide_wave_runtime.mjs",
+    "tools/test_serin_glide_wave_system.mjs",
+    "campaigns/serin-glide-wave-locomotion-v2.contract.json",
+    "campaigns/serin-glide-wave-locomotion-v2.receipt.json",
+    "docs/campaigns/SERIN_GLIDE_WAVE_LOCOMOTION_V2.md",
+    ".github/workflows/serin-glide-wave-locomotion-v2.yml"
+  ]
+}
