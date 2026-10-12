@@ -29,3 +29,5 @@ cd /storage/emulated/0/Documents/GodotProjects/pose-lab-v2 && git fetch origin c
 GitHub green is source/build evidence, not user visual acceptance.
 Visual review must prove the pool visibly crests, head/torso lean, no double anatomy, idle return, acceptable proportional consistency, and no unintended clipping.
 Quarantine until the human verdict is accepted.
+
+Native pixel-scale registration: idle 1086x1448 and glide 1024x1536 are sampled on one 1086x1536 world pixel plane, bottom aligned, with no per-source scale multiplier. Half-width difference centers the glide by 31 pixels; idle top offset is 88 pixels. The 768x1086 display canvas maintains this aspect ratio. These are fixed native source dimensions and stage geometry, not independent source-size normalization. The first true phone review must still judge body-landmark consistency.

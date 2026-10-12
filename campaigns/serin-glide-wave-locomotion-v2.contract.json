@@ -12,7 +12,11 @@
       1536
     ],
     "reviewRoute": "motion.html?procedural=serin-glide-wave",
-    "humanVerdict": "pending"
+    "humanVerdict": "pending",
+    "sharedSourcePixelStage": [
+      1086,
+      1536
+    ]
   },
   "machine": {
     "mutablePaths": [
@@ -84,6 +88,16 @@
         "kind": "text-contains",
         "path": "tools/campaigns/serin-glide-wave-locomotion-v2.sh",
         "value": "SERIN_WAVE_TRANSPORT=PASS"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "vec2 idlePx=vec2(warp.x*1086.0,warp.y*1536.0-88.0);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "vec2 glidePx=vec2(warp.x*1086.0-31.0,warp.y*1536.0);"
       }
     ]
   }
