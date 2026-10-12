@@ -1,0 +1,41 @@
+{
+  "schema": "pose-lab-v2-serin-wave-v2",
+  "id": "serin-glide-wave",
+  "status": "quarantined",
+  "frames": 2,
+  "rootMotion": false,
+  "source": {
+    "idle": {
+      "file": "assets/serin/serin-idle.png",
+      "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
+      "size": [
+        1086,
+        1448
+      ],
+      "alpha": true
+    },
+    "glide": {
+      "file": "assets/serin-glide/serin-glide-wave-v2.png",
+      "sha256": "pending-phone-ingress",
+      "size": [
+        1024,
+        1536
+      ],
+      "alpha": true,
+      "sourcePhone": "/storage/emulated/0/Pictures/file_00000000b6ac81fbb8c9c9f85a645117.png"
+    }
+  },
+  "presentation": {
+    "safeFrameScale": 1,
+    "noOpacityBlend": true,
+    "oneScaleFamily": true
+  },
+  "wave": {
+    "idleHz": 1.9,
+    "moveHz": 5.1,
+    "edgeHz": 7,
+    "crestMax": 0.048
+  },
+  "reviewRoute": "motion.html?procedural=serin-glide-wave",
+  "humanVerdict": "pending"
+}

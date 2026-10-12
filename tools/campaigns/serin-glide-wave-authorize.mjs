@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+const [source,target]=process.argv.slice(2);
+const cp='campaigns/serin-glide-wave-locomotion-v2.contract.json';
+const rp='public/assets/serin-glide/wave-locomotion.recipe.json';
+const contract=JSON.parse(fs.readFileSync(cp,'utf8')),recipe=JSON.parse(fs.readFileSync(rp,'utf8'));
+if(source!==contract.authority.phoneSource||target!=='public/assets/serin-glide/serin-glide-wave-v2.png')throw Error('WRONG_SOURCE_OR_TARGET_PATH');
+if(fs.existsSync(target))throw Error('REJECT_OVERWRITE_EXISTING_SOURCE');
+if(contract.authority.glideSHA256!=='pending-phone-ingress'||recipe.source.glide.sha256!=='pending-phone-ingress')throw Error('INGRESS_ALREADY_BOUND');
+const b=fs.readFileSync(source),sha=crypto.createHash('sha256').update(b).digest('hex');
+if(b.subarray(0,8).toString('hex')!=='89504e470d0a1a0a'||b.readUInt32BE(16)!==1024||b.readUInt32BE(20)!==1536||b[24]!==8||b[25]!==6)throw Error('EXPECTED_1024x1536_RGBA_PNG');
+fs.mkdirSync('public/assets/serin-glide',{recursive:true});
+fs.writeFileSync(target,b,{flag:'wx'});
+contract.authority.glideSHA256=sha;recipe.source.glide.sha256=sha;
+fs.writeFileSync(cp,JSON.stringify(contract,null,2)+'\n');
+fs.writeFileSync(rp,JSON.stringify(recipe,null,2)+'\n');
+if(crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex')!==sha)throw Error('READBACK_MISMATCH');
+console.log('SERIN_WAVE_SOURCE_SHA256='+sha);
