@@ -36,7 +36,7 @@ app.innerHTML=[
 '<label for="throttle">Input axis</label><input type="range" id="throttle" min="-1" max="1" value="0" step="0.05">',
 '<p class="small">Arrow keys move, Space or ↑ jumps instantly, S brakes. Jump from idle or while gliding. On a phone, choose Glide right then Jump. Vertical motion is real physics, not frames.</p>',
 '<p class="status" id="status">Checking approved source hashes…</p>',
-'<p class="small">Existing grounded idle, eyelid blink, and wave glide remain untouched. The entire new airborne source, including hair and liquid tail, follows game-driven jump height. No sprite split, trailing floor puddle, scaling, or source crossfade. Phone human review pending.</p>',
+'<p class="small">Approved idle, blink and glide remain locked. Jump immediately squashes the full airborne sprite, releases into stretch, gathers the galaxy-liquid at apex, then compresses on landing. No detached tail, spare frame, delay, or auto-fit scale. Review the PHASE and squash indicators while jumping. Human phone verdict pending.</p>',
 '</aside></main>'
 ].join('');
 const q=s=>app.querySelector(s);

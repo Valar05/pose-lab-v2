@@ -3,9 +3,9 @@
   "campaign": "serin-authored-jump-v1",
   "status": "implemented-awaiting-human-review",
   "startRevision": "1e062063c3041c7d28dbe17a5779f1025fb47add",
-  "implementationRevision": "0103803ecfd30660ca43de8734165de7054170a3",
+  "implementationRevision": "bf352a4efe0cab49903613bd1e181aa1f7715bce",
   "finalRevision": null,
-  "executionLane": "phone exact-PNG ingress retained; GitHub connector narrow air-shader fluid correction",
+  "executionLane": "GitHub connector: phase-reactive authored image shader + deterministic effect tests; live phone preview requires refresh",
   "reviewUrl": null,
   "humanVerdict": "pending",
   "mutablePaths": [
@@ -22,18 +22,20 @@
     ".github/workflows/serin-authored-jump-v1.yml"
   ],
   "sourceIngressRevision": "e64cbbd8ed899f011d398b53c3149fc75fa84c70",
-  "visualMotionReview": "pending phone human verdict",
+  "visualMotionReview": "pending: human rejected previous static takeoff, new phase-reactive preview unreviewed",
   "verification": {
-    "ciRunId": 38303980754,
+    "ciRunId": 38308245997,
     "ciConclusion": "success",
     "sourceAssetSHA256": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453",
     "lockedGroundArt": "unchanged",
+    "lockedPhysics": "unchanged",
     "airborneEffects": [
-      "tail-wave",
-      "vertical-lag",
-      "hair-inertia",
-      "violet-currents",
-      "landing-ripple"
+      "takeoff-squash",
+      "release-stretch",
+      "apex-liquid-gather",
+      "previous-tail-currents",
+      "landing-impact-compression"
     ]
-  }
+  },
+  "lastHumanFeedback": "The jump moved the sprite but did not squash at the beginning or noticeably react to jump phases"
 }
