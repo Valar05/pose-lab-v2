@@ -1,0 +1,91 @@
+{
+  "schema": "pose-lab-animation-doctrine-index-v1",
+  "ownership": "Pose Lab V2 is the active authority for sprite animation technique; game projects own character art; Organ sources are archival provenance only.",
+  "core": [
+    "AGENTS.md",
+    "docs/POSE_LAB_CAMPAIGN_RULES.md",
+    "docs/POSE_IS_GOD.md",
+    "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+    "docs/SPRITE_AUTHORING_BOOT.md"
+  ],
+  "normative": [
+    "doctrine/animation/sparse_sprite_motion_v1.json"
+  ],
+  "taskKinds": {
+    "sprite-author": {
+      "description": "New authored sprite or pose, requires local character reference manifest and exact source hashes",
+      "additional": [
+        "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json"
+      ],
+      "exemplars": []
+    },
+    "sprite-edit": {
+      "description": "Local targeted sprite edit with canonical source preserved",
+      "additional": [
+        "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json"
+      ],
+      "exemplars": []
+    },
+    "extract": {
+      "description": "Deterministic sprite slicing, alpha, scaling and registration",
+      "additional": [
+        "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json"
+      ],
+      "exemplars": []
+    },
+    "idle": {
+      "description": "One-frame or sparse idle motion",
+      "additional": [
+        "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json"
+      ],
+      "exemplars": [
+        "doctrine/animation/april_one_frame_idle_accepted_v1.json"
+      ]
+    },
+    "run": {
+      "description": "Grounded run / jog cycles",
+      "additional": [
+        "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json"
+      ],
+      "exemplars": [
+        "doctrine/animation/april_slow_jog_accepted_v1.json",
+        "doctrine/sprite-animation/april-run-minimal-keyframes-v1.md",
+        "doctrine/sprite-animation/april-run-minimal-keyframes-v1.rules.json"
+      ]
+    },
+    "jump": {
+      "description": "Jump, glide-to-air and landing composition",
+      "additional": [
+        "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json"
+      ],
+      "exemplars": []
+    },
+    "locomotion": {
+      "description": "General locomotion including idle, glide, reverse",
+      "additional": [
+        "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json"
+      ],
+      "exemplars": []
+    },
+    "attack": {
+      "description": "Attacks, contacts and secondary motion",
+      "additional": [
+        "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json"
+      ],
+      "exemplars": []
+    },
+    "review": {
+      "description": "Read-only animation review and candidate comparison",
+      "additional": [],
+      "exemplars": []
+    }
+  },
+  "controls": {
+    "exemplarScope": "historical-character-specific-not-normative",
+    "projectAuthority": "Belly/game repo when editing that project's character",
+    "promotion": "exact human verdict only",
+    "sourceIdentity": "hash-pinned, never guessed",
+    "imageGeneration": "typed references required before invocation"
+  },
+  "provenanceFile": "doctrine/animation/import-provenance-v1.json"
+}
