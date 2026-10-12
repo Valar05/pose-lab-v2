@@ -3,7 +3,7 @@
   "campaign": "serin-authored-jump-v1",
   "status": "implemented-awaiting-human-review",
   "startRevision": "1e062063c3041c7d28dbe17a5779f1025fb47add",
-  "implementationRevision": "bf352a4efe0cab49903613bd1e181aa1f7715bce",
+  "implementationRevision": "becd662bc3cc0a67bf6a705d2299171138b5bd4c",
   "finalRevision": null,
   "executionLane": "GitHub connector: phase-reactive authored image shader + deterministic effect tests; live phone preview requires refresh",
   "reviewUrl": null,
@@ -22,20 +22,14 @@
     ".github/workflows/serin-authored-jump-v1.yml"
   ],
   "sourceIngressRevision": "e64cbbd8ed899f011d398b53c3149fc75fa84c70",
-  "visualMotionReview": "pending: human rejected previous static takeoff, new phase-reactive preview unreviewed",
+  "visualMotionReview": "user rejected whole-sprite scaling in uploaded 932928.mp4; tail-only material revision ready for phone review",
   "verification": {
-    "ciRunId": 38308245997,
+    "ciRunId": 38309676093,
     "ciConclusion": "success",
-    "sourceAssetSHA256": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453",
-    "lockedGroundArt": "unchanged",
-    "lockedPhysics": "unchanged",
-    "airborneEffects": [
-      "takeoff-squash",
-      "release-stretch",
-      "apex-liquid-gather",
-      "previous-tail-currents",
-      "landing-impact-compression"
-    ]
+    "artSHA256": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453",
+    "sourceArt": "unchanged",
+    "scope": "tail-only material-masked fluid and localized landing column",
+    "visualVerdict": "pending"
   },
   "lastHumanFeedback": "The jump moved the sprite but did not squash at the beginning or noticeably react to jump phases"
 }
