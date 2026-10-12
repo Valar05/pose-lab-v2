@@ -1,0 +1,89 @@
+{
+  "acceptance_statement": "3.8 fps ship it",
+  "accepted_by": "Drew",
+  "accepted_date": "2026-09-21",
+  "animation": "run",
+  "character": "April",
+  "id": "april-slow-jog-accepted-v1",
+  "locked": [
+    "pose order",
+    "source atlas",
+    "source rectangles",
+    "alpha cutout",
+    "deformation parameters",
+    "no root motion"
+  ],
+  "motion_program": {
+    "bridge_distortion": {
+      "continuity": "sinusoidal-no-hold",
+      "pivot_lock": "frame-pivot-ground",
+      "secondary_motion": {
+        "cloth": {
+          "amplitude_x": 10,
+          "amplitude_y": 7,
+          "anchor_u": 0.16,
+          "cycles": 2.0,
+          "release_u": 0.72,
+          "wavelength": 7.5
+        },
+        "cols": 28,
+        "hose": {
+          "amplitude_x": 7,
+          "amplitude_y": 10,
+          "anchor_u": 0.1,
+          "cycles": 2.5,
+          "release_u": 0.68,
+          "wavelength": 10.0
+        },
+        "rows": 24
+      },
+      "shear": 0.075,
+      "squash": 0.055,
+      "stretch": 0.1
+    },
+    "ground_y": 225,
+    "kind": "continuous-balance-secondary-v1",
+    "root_motion": false
+  },
+  "project": "Valkyrie Squad",
+  "role": "default locomotion; slow deliberate jog using run-oriented poses",
+  "schema": "organ-animation-exemplar-v1",
+  "sprite_lab": {
+    "accepted_recording": "910140.mp4",
+    "accepted_recording_library_id": "libfile_56c2f4ff070c81919f84feb5e06a6816",
+    "manual_revision": 16,
+    "project_sha256": "fa1fec46a30ec78ec07a9ba4504478e746f2ee6c1717821a27adfa916e54d2cf",
+    "review_url": "http://127.0.0.1:8765/?revision=16",
+    "source_atlas": "april-violet-full-sprite-sheet-alpha-v2.png",
+    "source_atlas_sha256": "7b73e72ec2d431626cea80d07d674a79b85401e6ade73dafadabab09a0db2614"
+  },
+  "status": "shipped",
+  "timing": {
+    "authored_pose_count": 6,
+    "cycle_ms": 1578.947368421053,
+    "fps": 3.8,
+    "frame_ms": 263.15789473684214,
+    "idle_frame_included": false,
+    "loop": true,
+    "static_hold_interval": false
+  },
+  "tuning_history": [
+    {
+      "cycle_ms": 1200,
+      "verdict": "too fast; reads as dash"
+    },
+    {
+      "cycle_ms": 2400,
+      "verdict": "deformation loved; timing reads as exaggerated slow motion"
+    },
+    {
+      "cycle_ms": 1800,
+      "verdict": "intermediate timing candidate"
+    },
+    {
+      "cycle_ms": 1578.947368421053,
+      "fps": 3.8,
+      "verdict": "accepted and shipped"
+    }
+  ]
+}

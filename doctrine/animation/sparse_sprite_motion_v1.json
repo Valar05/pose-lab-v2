@@ -1,0 +1,129 @@
+{
+  "accepted_reference": "april-slow-jog-accepted-v1",
+  "accepted_references": [
+    "april-slow-jog-accepted-v1",
+    "april-one-frame-idle-accepted-v1"
+  ],
+  "experiment_ledger": "april-sprite-animation-experiment-ledger-v1",
+  "id": "sparse-sprite-motion-v1",
+  "known_failure_modes": [
+    {
+      "condition": "six-pose cycle near 1.2 seconds",
+      "reading": "frantic dash"
+    },
+    {
+      "condition": "six-pose cycle near 2.4 seconds with otherwise accepted deformation",
+      "reading": "slow motion; timing exaggeration"
+    },
+    {
+      "condition": "static center hold inside every pose exposure",
+      "reading": "visible parking between pounces"
+    },
+    {
+      "condition": "whole-image unconstrained local warping",
+      "reading": "body and foot distortion instead of cloth or hose inertia"
+    },
+    {
+      "condition": "two-frame run toggle without reversed leg, hip, torso, and arm ownership",
+      "reading": "pose flicker, not gait"
+    },
+    {
+      "condition": "root translation added when articulated leg change was requested",
+      "reading": "sliding proxy for missing motion"
+    },
+    {
+      "condition": "proximity-weighted limb deformation",
+      "reading": "foot and bone segment smear"
+    },
+    {
+      "condition": "generative alpha/background removal",
+      "reading": "recoloring and background contamination"
+    },
+    {
+      "condition": "one-frame idle with excessive full-body warp",
+      "reading": "rubbery anatomy instead of restrained kinetic life"
+    },
+    {
+      "condition": "one-frame idle motion concentrated only above the hips",
+      "reading": "top-heavy sway with inert thighs"
+    },
+    {
+      "condition": "generating a new semantic key before inspecting the accepted atlas",
+      "reading": "accepted-frame bypass, wasted compute, identity drift, and duplicate pose ownership"
+    },
+    {
+      "condition": "using GIF, MP4, offline render, ChatGPT Site, or replacement viewer when the commissioned surface is the existing phone Sprite Lab / 2D Pose Lab V2 project",
+      "reading": "review-surface substitution; candidate remains undelivered"
+    },
+    {
+      "condition": "unqualified frame-zero or cell-zero reference",
+      "reading": "source-namespace collision; the wrong accepted pose can be bound while hashes and renderer checks still pass"
+    },
+    {
+      "condition": "accepted atlas opened through automatic detection instead of a project-bound saved-project route",
+      "reading": "invented animation groups and hidden accepted run/idle despite intact project data"
+    },
+    {
+      "condition": "global luminance/chroma/color-key alpha extraction on a dark character over black",
+      "reading": "foreground interiors become transparent; saturated red/purple edges survive as skeletal fragments"
+    },
+    {
+      "condition": "per-animation fit-to-box preview scaling inside one reusable character project",
+      "reading": "narrower or more compact animations are magnified and appear to change character size even when atlas pixels and frame rectangles are correct"
+    },
+    {
+      "condition": "cache-busting only the top-level browser module after changing an imported module export",
+      "reading": "browser may load new parent JavaScript with a stale dependency; named-import resolution aborts startup and the UI remains at its initial loading state"
+    },
+    {
+      "condition": "transporting Sprite Lab or Pose Lab source through Phone Hands as shell patches, heredocs, or Base64 chunks",
+      "reading": "8 KB command ceilings, malformed partial transfers, repeated calls, long latency, and unprovable runtime/source correspondence"
+    }
+  ],
+  "principle": "Store the minimum authored semantic poses and deterministic deformation parameters required to reconstruct motion; do not store generated bridge frames.",
+  "rules": [
+    "Prefer idle plus one action extremum when those poses preserve the action identity; add a loading or contact pose only when deletion changes support, load, contact, facing, timing, or state understanding.",
+    "A default locomotion cycle may use run-oriented silhouettes at a deliberate jog cadence; do not force a walk vocabulary when the commissioned identity is a run.",
+    "Treat key exposure timing and deformation amplitude as independent axes. Once deformation is accepted, timing-only tuning must byte-preserve the deformation parameter block.",
+    "When continuous motion is requested, do not insert a static hold interval. Use a continuous bridge curve that returns to the clean authored pose at the instantaneous pose cut.",
+    "Bridge deformation may use whole-sprite balance stretch, squash, and shear around a ground-locked frame pivot, while secondary cloth and hose motion must be spatially localized away from the torso and planted foot.",
+    "Do not add root motion unless explicitly commissioned.",
+    "Identity authority remains the accepted alpha-cut source atlas and source rectangles; procedural motion must not replace or redraw authored poses.",
+    "Human visual acceptance on the deployed Sprite Lab surface is required before promotion. Tests and HTTP availability are necessary evidence, not visual acceptance.",
+    "Tune accepted timing in small increments without changing pose order, source identity, or deformation.",
+    "Use one reusable transparent RGBA atlas for the character; do not create per-animation duplicate sheets or projects.",
+    "A contact sheet may establish a coherent identity and pose family, but its cells become production keys only after exact topology and landmark review.",
+    "For a run, opposite stride states must visibly reverse leg ownership, hip rotation, torso counter-rotation, and arm swing; image alternation alone is not motion.",
+    "Do not substitute root translation for requested joint or limb motion.",
+    "If a segment is rigged, move the whole bone segment rigidly and localize deformation to the joint; proximity smearing is a rejected weighting model.",
+    "For a one-frame idle, keep the motion a bounded loop rather than a transient impulse: centered base, pinned feet, intentional cyclical skew, and phase-lagged secondary materials.",
+    "When upper-body motion reads top-heavy, add a localized opposed transfer between declared hip and knee anchor lines; keep both anchors, lower legs, and feet at zero displacement.",
+    "Distinguish intentional whole-body skew from damaging local warp. Preserve a good sway while reducing anatomical deformation.",
+    "Archive useful failures as named techniques with prohibited production uses instead of deleting them from the ledger.",
+    "Run an accepted-atlas preflight before any ImageGen call, new pose, contact sheet, rig, or interpolation experiment: enumerate relevant cells and motion programs, and reuse an accepted cell whenever it already carries the requested semantic state.",
+    "Never resolve a numeric cell/frame reference against a global project order. Bind production keys by source identity tuple: source sheet or atlas SHA-256, cell index, and semantic pose. For April, combat idle is 910948.png SHA-256 7e528cec4d32aed5077e7fbb1d90d0044a150d4251308a34d273ffc219d87a90 cell 0/top-left guarded stance; frame-0001-a95071a3 is ordinary upright idle and is not combat idle.",
+    "Honor the commissioned review surface exactly. For established April work, install the animation in the existing phone-hosted Sprite Lab / 2D Pose Lab V2 project and return that live route. Do not substitute GIF, video, offline preview, ChatGPT Site, or a new viewer unless explicitly requested.",
+    "If the commissioned phone review surface is not callable, fail closed at that boundary and preserve the accepted atlas/project unchanged; a substitute preview is not delivery.",
+    "Treat animations as append-only project history: snapshot the complete pre-mutation animation ID set and project hash; after mutation require every prior ID to remain and every untouched animation to remain byte-equivalent. Never delete an animation, including detector-created or rejected work; quarantine exact bytes outside the active loader. The live save surface must fail closed when the animation-ID set shrinks.",
+    "Bind every Sprite Lab review route to the saved project source SHA-256 and requested animation ID. An animation-only URL is insufficient because newest-upload automatic detection can open a different project and hide accepted clips.",
+    "Never derive sprite opacity globally from luminance, maximum channel, chroma, saturation, or any appearance feature when foreground materials can share the background color. For black-background JPEG contact sheets, identify background by tight border sampling plus border-connected flood fill; remove only the connected exterior matte, preserve all enclosed subject RGB as opaque, and restrict any feathering to the exterior boundary.",
+    "Before promoting an alpha-cut cell, composite it over checkerboard, mid-gray, and white; compare the frozen frame with the original source at inspection zoom. Fail if anatomy, dark armor, hair, cloth, line art, or neutral interior regions become transparent. Pixel-coordinate/hash correctness and RGB preservation do not prove alpha correctness.",
+    "When two accepted/on-model sprite sheets differ only in tint, prefer a deterministic post-grade over regeneration. Measure the palette from the exact accepted frame rectangles, not the whole atlas; modify only visible RGB in the mismatched source region; byte-preserve alpha, geometry, unaffected atlas regions, animation objects, and frame records; save as a new version; and require human acceptance on the project-bound live Sprite Lab route.",
+    "For one character project, preview every animation with one canonical project-wide pixels-to-screen scale derived from the maximum dimension across all project frames (or an explicitly locked camera scale). Never recompute fit-to-box scale per animation. Preserve atlas pixels and frame rectangles; presentation scale is viewer state, not sprite correction. Add a regression test proving scale is animation-order-independent and identical for compact and wide clips.",
+    "Treat browser asset revisions as a dependency-graph contract. When an ES-module export or import changes, version the top-level script and every changed transitive import together, then test that the HTML script revision and imported-module revision match. A healthy API and HTTP 200 are insufficient; verify client startup reaches populated media state.",
+    "Use Git as the only source-code transport between authoring and the phone runtime: inspect the authoritative repository and branch, commit the bounded change, push it, then have Phone Hands fetch and fast-forward to the exact commit before phone-local tests, restart, and runtime readback. Phone Hands carries bounded Git/runtime commands and receipts, never source patches, heredocs, or Base64 chunks. Bind the receipt to previous HEAD, pulled SHA, clean/dirty status, test result, and served asset revision. If the live runtime is not a Git checkout, establish a Git-backed checkout or deterministic deployment from one; keep phone-local project JSON and accepted atlas data outside source transport unless the repository explicitly governs them."
+  ],
+  "schema": "organ-animation-doctrine-v1",
+  "status": "accepted",
+  "review_surface_contract": {
+    "project": "existing phone-hosted Sprite Lab / 2D Pose Lab V2",
+    "prohibited_substitutes": [
+      "GIF",
+      "MP4",
+      "offline render",
+      "ChatGPT Site",
+      "replacement viewer"
+    ],
+    "exception": "only when Drew explicitly requests the alternate surface"
+  }
+}

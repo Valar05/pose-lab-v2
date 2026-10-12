@@ -1,0 +1,211 @@
+{
+  "accepted_outputs": {
+    "idle": "april-one-frame-idle-accepted-v1",
+    "run": "april-slow-jog-accepted-v1",
+    "combat_idle": "910948.png (SHA-256 7e528cec4d32aed5077e7fbb1d90d0044a150d4251308a34d273ffc219d87a90), combat attack sheet cell 0 / top-left guarded stance"
+  },
+  "entries": [
+    {
+      "observation": "Store authored semantic poses plus deterministic timing/deformation parameters. Do not canonically store baked bridge frames, temporary GIFs, or review videos.",
+      "subject": "minimum reconstructible storage",
+      "verdict": "rule"
+    },
+    {
+      "observation": "Use one full transparent RGBA April atlas across animations. Do not create a separate two-frame project or per-animation sprite sheet.",
+      "subject": "reusable atlas",
+      "verdict": "rule"
+    },
+    {
+      "observation": "A contact sheet is useful identity/body-vocabulary authority and can supply a coherent multi-pose family, but topology drift makes arbitrary generated cells unsafe as automatic Key A/Key B production frames. Judge exact cells visually.",
+      "subject": "contact sheets",
+      "verdict": "mixed"
+    },
+    {
+      "observation": "Alternating images without reversing leg ownership, hips, torso, and arm swing does not read as a run.",
+      "subject": "two nearly identical run frames",
+      "verdict": "failed"
+    },
+    {
+      "observation": "Generating outside the identity sheet drifted into redesign. Preserve the accepted violet April atlas and derive animation cells from the same identity authority.",
+      "subject": "independent single-pose generation",
+      "verdict": "failed"
+    },
+    {
+      "observation": "Root motion does not substitute for articulated leg rotation and was explicitly rejected for the default run.",
+      "subject": "root translation as leg motion",
+      "verdict": "failed"
+    },
+    {
+      "observation": "Broad warping can create energetic smear or impact language elsewhere, but it deforms anatomy and feet when used as locomotion structure.",
+      "subject": "whole-image distortion",
+      "verdict": "useful failure"
+    },
+    {
+      "observation": "The foot smeared because the whole bone segment did not move rigidly. Whole segments must rotate as units and deformation belongs at joints.",
+      "subject": "proximity-weighted shin rig",
+      "verdict": "failed"
+    },
+    {
+      "observation": "A plus-or-minus twelve-degree sine was not Shank-derived choreography. A smaller rig experiment is still wrong when its source logic is invented.",
+      "subject": "arbitrary rig motion",
+      "verdict": "failed"
+    },
+    {
+      "observation": "Copy hips, shoulders, leg ownership, timing, weight, compression, and release from the observed performance; do not guess the gait from a verbal label.",
+      "subject": "Shank motion authority",
+      "verdict": "accepted source rule"
+    },
+    {
+      "observation": "It recolored the sprite and introduced a brown background. Deterministic RGBA extraction preserved accepted pixels and alpha.",
+      "subject": "generative alpha extraction",
+      "verdict": "failed"
+    },
+    {
+      "observation": "A dedicated six-pose run sheet solved the stride without a rig, body warp, generated in-betweens, or idle insertion.",
+      "subject": "six authored run poses",
+      "verdict": "accepted"
+    },
+    {
+      "observation": "The idle frame breaks continuous locomotion and reads as a stop.",
+      "subject": "idle inside run",
+      "verdict": "failed"
+    },
+    {
+      "observation": "The gait reads as a frantic dash.",
+      "subject": "1.2 second run loop",
+      "verdict": "failed"
+    },
+    {
+      "observation": "The deformation was loved, but timing made the movement read as exaggerated slow motion.",
+      "subject": "2.4 second run loop",
+      "verdict": "failed"
+    },
+    {
+      "observation": "The body visibly parks between pounces. Continuous procedural balance/deformation should occupy exposure time.",
+      "subject": "static per-pose holds",
+      "verdict": "failed"
+    },
+    {
+      "observation": "Six authored poses at 263.15789473684214 ms each produce the accepted 1578.947368421053 ms default slow jog. Preserve pose order, source rectangles, deformation, alpha, and no-root-motion state.",
+      "subject": "3.8 fps run",
+      "verdict": "accepted"
+    },
+    {
+      "observation": "Localized cloth and hose deformation plus restrained bridge squash/stretch/shear add continuity without replacing authored poses.",
+      "subject": "secondary run motion",
+      "verdict": "accepted"
+    },
+    {
+      "observation": "Idle; Brake/Pivot/Hard Plant; Reach/Brace/Manipulate; Dodge/Slide; Flip/Jump; Dash. The dedicated run sheet owns locomotion, so do not duplicate run extremes in the general sheet.",
+      "subject": "general six-cell map",
+      "verdict": "accepted"
+    },
+    {
+      "observation": "One authored idle frame can carry a complete bounded loop through deterministic deformation while keeping identity exact.",
+      "subject": "one-frame idle",
+      "verdict": "accepted direction"
+    },
+    {
+      "observation": "Ryu, Belly of Defiance, and Arcana Choir support a centered-base left-right kinetic idle: lower body anchors while hips, abdomen, shoulders, head, cloth, and hoses respond progressively.",
+      "subject": "intentional lateral skew",
+      "verdict": "accepted"
+    },
+    {
+      "observation": "The skew itself was desirable; excessive warp/deformation was the problem. Do not reduce intentional sway merely because broad warping failed.",
+      "subject": "excess idle warp",
+      "verdict": "failed"
+    },
+    {
+      "observation": "Full shoulder skew, restrained breathing, and material lag were acceptable, but motion remained visually concentrated in the upper body.",
+      "subject": "idle revision 21",
+      "verdict": "accepted rollback"
+    },
+    {
+      "observation": "Add a restrained opposed transfer only between hip and knee anchors. Hip and knee lines are hard zeros, feet and lower legs remain zero, and the thigh response trails shoulder skew by 0.24 radians. The visible difference may be slight; subtlety is intentional and human-accepted.",
+      "subject": "idle revision 22",
+      "verdict": "accepted"
+    },
+    {
+      "observation": "Tests, hashes, HTTP 200, and deterministic receipts make a candidate reviewable. Only Drew's judgment on the live Sprite Lab animation accepts it.",
+      "subject": "visual authority",
+      "verdict": "gate"
+    },
+    {
+      "verdict": "failed",
+      "subject": "generated combat-idle replacement despite accepted frame zero",
+      "observation": "ImageGen was invoked twice to create a combat-idle substitute even though the accepted reusable April atlas already contained the working combat idle in frame zero. This wasted compute, risked identity drift, and bypassed accepted art. Reject both generated candidates. Before any generation, inspect every relevant accepted atlas cell; when an accepted cell already carries the semantic state, reuse it unchanged."
+    },
+    {
+      "verdict": "gate",
+      "subject": "accepted-atlas preflight before authoring",
+      "observation": "Before ImageGen, a new contact sheet, a rig, or a new pose, enumerate the relevant accepted atlas cells and accepted motion programs. Existing accepted pixels outrank newly generated alternatives. New art is permitted only after the atlas is proven not to contain the required semantic regime and the current commission authorizes adding it."
+    },
+    {
+      "verdict": "failed",
+      "subject": "substitute GIF or video review",
+      "observation": "Drew explicitly commissioned the existing phone-hosted Sprite Lab / 2D Pose Lab V2 review surface. Do not create or save a GIF, MP4, offline preview, ChatGPT Site, or replacement viewer unless Drew specifically requests that format. Put the animation in the existing phone project and return its exact live route; if that surface is unavailable, stop with the exact blocker."
+    },
+    {
+      "verdict": "corrected rule",
+      "subject": "combat idle inheritance",
+      "observation": "April combat idle uses cell 0 of the combat attack sheet 910948.png: the top-left guarded stance with wide planted base, bent knees, and both fists raised. It does NOT use project frame frame-0001-a95071a3, which is April's ordinary upright idle. Apply the accepted one-frame deformation law to the combat-sheet pose without substituting ordinary idle pixels."
+    },
+    {
+      "verdict": "failed",
+      "subject": "unqualified frame-zero reference",
+      "observation": "'Frame zero' was resolved against the project's global frame list instead of the named combat sheet. This silently bound combat-idle to the ordinary upright idle and then duplicated its metadata. Never resolve a frame number without its source namespace. Required identity is (source sheet SHA-256, cell index, semantic pose). For this case: (910948.png / 7e528cec4d32aed5077e7fbb1d90d0044a150d4251308a34d273ffc219d87a90, cell 0, guarded combat idle)."
+    }
+  ],
+  "id": "april-sprite-animation-experiment-ledger-v1",
+  "project": "Valkyrie Squad",
+  "schema": "organ-animation-experiment-ledger-v1",
+  "status": "accepted-history",
+  "updated": "2026-09-21",
+  "experiments": [
+    {
+      "verdict": "failed",
+      "subject": "accepted project source changed without canonical saved-project identity",
+      "observation": "The accepted April project referenced atlas SHA-256 e327226415d3c3e8919238d0cf87948a0b6e10e1ef6c8b5156e3b3a81653844a while its filename retained the prior V2 hash. Sprite Lab could not resolve it through /api/project/saved, selected the newest upload, and created a new detector project. The accepted run and ordinary idle still existed byte-for-byte but were hidden from the review surface."
+    },
+    {
+      "verdict": "failed",
+      "subject": "automatic detection used as saved-project loading",
+      "observation": "Opening a reusable accepted atlas without a project-bound identity produced six uncommissioned three-frame detector animations and concealed the accepted run and idle. Never treat automatic detector output as the authoritative project when a saved project exists."
+    },
+    {
+      "verdict": "accepted",
+      "subject": "project-bound loader and append-only animation preservation",
+      "observation": "Bind Sprite Lab routes by source SHA-256 plus animation ID, verify the live project inventory, and reject every save whose animation-ID set shrinks. Preserve detector or rejected projects byte-for-byte in quarantine rather than deleting them. Repair receipt: the live phone server returned run (6 frames, 3.8 FPS), idle (1 frame), four other animations, 11 total frames, and rejected a run-deleting save with HTTP 409."
+    },
+    {
+      "verdict": "failed",
+      "subject": "appearance-derived alpha cut erased April's combat pose",
+      "observation": "The appended combat region in atlas april-violet-full-sprite-sheet-alpha-v3-combat.png (SHA-256 e327226415d3c3e8919238d0cf87948a0b6e10e1ef6c8b5156e3b3a81653844a) preserves the source RGB exactly (measured RGB MAE 0 against 910948.png crop) but contains a destructive alpha mask. In the guarded combat-idle crop, 43.8% of source pixels above the diagnostic foreground threshold are fully transparent and another 4.5% are semi-transparent. The live checkerboard view therefore shows red/purple fragments while dark armor, hair, cloth, and neutral interior detail disappear. This is baked atlas damage, not a Sprite Lab preview defect. Reject every appended combat cell in this V3 atlas until it is deterministically recut from the original 910948 source."
+    },
+    {
+      "verdict": "quarantined-awaiting-Drew",
+      "subject": "topology-aware V4 combat alpha recut",
+      "observation": "Created april-violet-full-sprite-sheet-alpha-v4-combat-recut.png from the accepted V2 atlas plus the original 910948 combat sheet. The six appended cells use a 24/255 threshold only to find border-connected exterior matte; alpha is binary and does not scale with luminance, so dark armor, cloth, hair, hoses, shadows, torso, legs, and boots remain visible. Preservation assertions proved the accepted V2 atlas pixels unchanged, all six animation objects unchanged, all eleven frame records unchanged, and rejected V3/project hashes unchanged. Sprite Lab resolved source SHA-256 9df9f3834c66b09b7736f6c6acd59b84a6d18f0bc4a882c77ef5406bbcb43675 with HTTP 200 and returned run, idle, dash, dodge-slide, flip-jump, and combat-idle. Visual machine inspection passed on checkerboard; only Drew can accept it on the live phone surface."
+    },
+    {
+      "verdict": "quarantined-awaiting-Drew",
+      "subject": "deterministic cross-sheet combat palette grade V5",
+      "observation": "The combat sheet was structurally on-model but measured hotter than the accepted run/idle rectangles: median saturation 0.527 versus 0.362, with red and violet hue offsets near five degrees. V5 grades only visible RGB in appended combat rows 2048-3071 using high-end saturation compression, value gamma 1.25, red hue +0.016 turns, and violet hue -0.014 turns. Atlas SHA-256 0d0d1079299c350fa0c95cd459965010fc02aad842b93f56fc65207bedc5f7a3. Assertions prove accepted upper-atlas pixels, full alpha channel, all six animation objects, and all eleven frame records unchanged. Phone Sprite Lab project lookup, PNG source, and project-bound combat-idle route returned HTTP 200. Await Drew's live visual verdict."
+    },
+    {
+      "verdict": "runtime-fixed-awaiting-Drew",
+      "subject": "project-wide canonical Sprite Lab preview scale R27",
+      "observation": "Drew correctly identified that combat appeared larger on screen. Source atlas geometry was not the cause: Sprite Lab independently fit each animation to 210 px using that animation’s largest crop. Run max dimension 484 yielded scale 0.433884; combat-idle max dimension 408 yielded scale 0.514706, inflating combat by 18.63% relative to run. R27 now derives one preview scale from every frame in the loaded project; the project-wide max dimension 490 yields scale 0.428571 for run, idle, dash, dodge-slide, flip-jump, and combat-idle. Atlas pixels, alpha, palette, six animation objects, and eleven frame records remain untouched. Node regression tests 3/3 and Python tests 21/21 pass; live project-bound combat-idle route returned HTTP 200. Await Drew’s live visual verdict."
+    },
+    {
+      "verdict": "fixed",
+      "subject": "Sprite Lab transitive ES-module cache mismatch R28",
+      "observation": "After R27 added projectPreviewScale to state.js, index.html cache-busted app.js but app.js still imported unversioned ./state.js. Chrome could combine the new app module with cached old state.js; the missing named export aborted JavaScript before media initialization and left the phone surface permanently at Loading media. R28 gives app.js and its state.js dependency the same explicit asset revision, adds a server regression assertion for both edges of the module graph, and was verified on the live phone: media API returned items, Node tests 3/3 passed, and Python tests 21/21 passed. No atlas, project, animation, or frame data changed."
+    },
+    {
+      "verdict": "failed-and-replaced",
+      "subject": "Phone Hands source-patch transport for Sprite Lab",
+      "observation": "A renderer change was ferried toward the phone as shell text/Base64 under an approximately 8 KB command ceiling. The result required repeated calls, invited truncation and malformed partial patches, consumed excessive time, and could not strongly prove that the served runtime matched an authoritative source revision. Reject this transport. Source changes now move only through the authoritative Git repository: bounded commit, push, exact phone fetch/fast-forward, phone-local tests, runtime restart, and served-revision readback. Phone Hands is the command-and-receipt plane, not the source byte channel. Existing phone-local project JSON and accepted atlas data remain preserved and append-only."
+    }
+  ]
+}
