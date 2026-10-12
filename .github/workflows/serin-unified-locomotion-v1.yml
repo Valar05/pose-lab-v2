@@ -1,0 +1,42 @@
+name: Serin Unified Locomotion V1 Candidate
+on:
+  push:
+    branches:
+      - codex/serin-unified-locomotion-v1
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source and physics gates
+        run: |
+          bash -n tools/campaigns/serin-unified-locomotion-v1.sh
+          node --check src/serin-unified-preview.js
+          node --check src/serin-unified-locomotion.mjs
+          node tools/test_serin_unified_locomotion.mjs
+          node tools/test_serin_unified_runtime.mjs
+          node tools/test_serin_glide_wave_system.mjs
+      - name: Pose Lab V2 sealed campaign gate
+        run: |
+          python3 tools/campaigns/campaign_core.py --root . preflight --contract campaigns/serin-unified-locomotion-v1.contract.json --skip-diff
+          python3 tools/campaigns/campaign_core.py --root . verify --contract campaigns/serin-unified-locomotion-v1.contract.json
+          python3 tools/test_pose_campaign_framework.py
+      - name: Production build
+        run: node scripts/build.mjs
+      - name: Exact HTML and source serving
+        run: |
+          python3 -m http.server 18772 --bind 127.0.0.1 --directory dist >/tmp/serin-unified-http.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          curl -fsS --retry 10 --retry-delay 1 --retry-connrefused http://127.0.0.1:18772/motion.html >/dev/null
+          curl -fsS http://127.0.0.1:18772/src/serin-unified-preview.js | cmp - dist/src/serin-unified-preview.js
+          curl -fsS http://127.0.0.1:18772/assets/serin-glide/unified-locomotion.recipe.json | cmp - dist/assets/serin-glide/unified-locomotion.recipe.json
+          curl -fsS http://127.0.0.1:18772/assets/serin/idle.recipe.json | cmp - dist/assets/serin/idle.recipe.json
+          curl -fsS http://127.0.0.1:18772/assets/serin/serin-idle.png | cmp - dist/assets/serin/serin-idle.png
+          curl -fsS http://127.0.0.1:18772/assets/serin-glide/serin-glide-wave-v2.png | cmp - dist/assets/serin-glide/serin-glide-wave-v2.png
