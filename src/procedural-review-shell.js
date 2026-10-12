@@ -7,8 +7,8 @@ const CHARACTER_ANIMATIONS = Object.freeze({
     ['vanguard-midair','Mid-Air'],['vanguard-land','Land'],['vanguard-shotgun-reload','Shotgun Reload'],
     ['vanguard-shotgun-fire','Shotgun Fire']
   ],
-  serin: [['serin-unified','Unified Locomotion'],['serin-idle','Liquid Idle']],
-  'serin-back': [['serin-back-idle','Liquid Idle'],['serin-glide','Dynamic Glide'],['serin-glide-wave','Wave Glide'],['serin-unified','Unified Locomotion']],
+  serin: [['serin-unified-authored','Authored Airborne'],['serin-unified','Unified Locomotion'],['serin-idle','Liquid Idle']],
+  'serin-back': [['serin-back-idle','Liquid Idle'],['serin-glide','Dynamic Glide'],['serin-glide-wave','Wave Glide'],['serin-unified','Unified Locomotion'],['serin-unified-authored','Authored Airborne']],
   swarmling: [['swarmling-run','Run'],['swarmling-idle','Idle'],['swarmling-aggro','Aggro / Attention'],['swarmling-damage','Damage / Hit React'],['swarmling-knockdown','Knockdown'],['swarmling-stand-up','Stand Up'],['swarmling-death','Death'],['swarmling-jab','Needle Jab'],['swarmling-rake','Low Rake'],['swarmling-scythe-bloom','Scythe Bloom']]
 });
 const DEFAULT_ANIMATION = Object.freeze({vanguard:'vanguard-idle',swarmling:'swarmling-run',serin:'serin-unified','serin-back':'serin-back-idle'});

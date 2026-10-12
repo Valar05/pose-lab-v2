@@ -1,0 +1,93 @@
+{
+  "schema": "pose-lab-v2-serin-unified-authored-v1",
+  "id": "serin-unified-authored",
+  "status": "quarantined",
+  "rootMotion": false,
+  "stages": [
+    "front-idle",
+    "ground-glide",
+    "airborne",
+    "land-recover"
+  ],
+  "source": {
+    "idle": {
+      "file": "assets/serin/serin-idle.png",
+      "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
+      "size": [
+        1086,
+        1448
+      ],
+      "alpha": true
+    },
+    "glide": {
+      "file": "assets/serin-glide/serin-glide-wave-v2.png",
+      "sha256": "8c0d9b48d9522eae67cdea4a6d0d7b0e0d83ca6bfc235254bac8d8bf8c6f1ddc",
+      "size": [
+        1024,
+        1536
+      ],
+      "alpha": true
+    },
+    "airborne": {
+      "file": "assets/serin-jump/serin-jump-airborne-v1.png",
+      "sha256": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453",
+      "size": [
+        1086,
+        1448
+      ],
+      "alpha": true
+    }
+  },
+  "frontIdleRecipe": "assets/serin/idle.recipe.json",
+  "aerialArt": {
+    "authority": "Selected exact complete Serin in-flight original, approved to move forward on Oct 12 2026",
+    "dedicatedMidairPNG": "assets/serin-jump/serin-jump-airborne-v1.png",
+    "sourcePhonePath": "/storage/emulated/0/Pictures/file_00000000d06481f5866e830f23523b51.png",
+    "sourceCount": 1,
+    "sourceSHA256": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453",
+    "renderMode": "instant hard switch entire source when inAir",
+    "runtimeVerdict": "pending"
+  },
+  "presentation": {
+    "safeFrameScale": 1,
+    "oneScaleFamily": true,
+    "noOpacityBlend": true,
+    "stageSourcePixels": [
+      1086,
+      1895
+    ],
+    "sourcePixelStage": [
+      1086,
+      1536
+    ],
+    "additionalHeadroomPixels": 359,
+    "airFrameSampling": "same 1086px width as original idle, source pixel native, translated by jumpY as whole",
+    "flightPuddle": "none"
+  },
+  "jump": {
+    "takeoffDelayMs": 0,
+    "impulsePxPerSecond": 760,
+    "gravityPxPerSecondSquared": 1260,
+    "bufferMs": 85,
+    "canJumpFrom": [
+      "idle",
+      "glide"
+    ],
+    "landingLockoutMs": 0,
+    "groundReference": "y=0",
+    "xMovementOwnedByGame": true
+  },
+  "blink": {
+    "authorityFile": "assets/serin/idle.recipe.json",
+    "implementation": "same upper-lid pixel deformation from src/serin-idle-preview.js"
+  },
+  "wave": {
+    "idleHz": 1.9,
+    "moveHz": 5.1,
+    "edgeHz": 7,
+    "crestMax": 0.048,
+    "groundedPuddle": true
+  },
+  "reviewRoute": "motion.html?procedural=serin-unified-authored",
+  "humanVerdict": "pending"
+}
