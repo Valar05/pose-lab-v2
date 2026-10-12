@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import struct
 import os
 import re
 import sys
@@ -79,8 +80,20 @@ def character_manifest(path: str) -> tuple[str, bytes, dict]:
         if not isinstance(expected, str) or not re.fullmatch("[0-9a-f]{64}", expected):
             raise ContextGateError("reference SHA-256 must be exact")
         p, original = source(rel)
-        if p.suffix.lower() not in (".png", ".webp", ".jpg", ".jpeg"):
+        kind = p.suffix.lower()
+        if kind not in (".png", ".webp", ".jpg", ".jpeg"):
             raise ContextGateError("reference must be an image file: " + str(rel))
+        if kind == ".png":
+            if (len(original) < 26 or original[:8] != b"\x89PNG\r\n\x1a\n"
+                    or original[12:16] != b"IHDR"
+                    or min(struct.unpack(">II", original[16:24])) < 32):
+                raise ContextGateError("reference PNG is not a usable source: " + str(rel))
+        elif kind in (".jpg", ".jpeg"):
+            if not original.startswith(b"\xff\xd8\xff") or not original.endswith(b"\xff\xd9"):
+                raise ContextGateError("reference JPEG signature invalid: " + str(rel))
+        elif kind == ".webp":
+            if original[:4] != b"RIFF" or original[8:12] != b"WEBP":
+                raise ContextGateError("reference WEBP signature invalid: " + str(rel))
         if sha(original) != expected:
             raise ContextGateError("source image hash mismatch: " + str(rel))
         found.add(role)
@@ -105,10 +118,27 @@ def packet(task: str, contract_path: str | None, character_path: str | None) -> 
     registry = index.get("taskKinds")
     if not isinstance(registry, dict) or task not in registry:
         raise ContextGateError("unrecognized doctrine task: " + task)
-    if task == "sprite-author" and not character_path:
-        raise ContextGateError("SOURCE_AUTHORITY_REQUIRED: --character-manifest before new art")
+    if task == "sprite-author":
+        if not contract_path:
+            raise ContextGateError("ACTIVE_CAMPAIGN_REQUIRED: --contract before new art")
+        if not character_path:
+            raise ContextGateError("SOURCE_AUTHORITY_REQUIRED: --character-manifest before new art")
+        if not isinstance(contract.get("machine", {}).get("mutablePaths"), list):
+            raise ContextGateError("ACTIVE_CAMPAIGN_REQUIRED: machine.mutablePaths")
     if character_path:
         character_manifest(character_path)
+
+    # Frozen imported documents must remain exact-byte matches to Organ's
+    # archival git blob SHA-1. Changes require a new versioned doctrine.
+    provenance, _ = json_source(index["provenanceFile"])
+    if provenance.get("schema") != "pose-lab-animation-doctrine-provenance-v1":
+        raise ContextGateError("import provenance schema mismatch")
+    for item in provenance["files"]:
+        rel = item["path"]
+        _, b = source(rel)
+        blob = hashlib.sha1(b"blob " + str(len(b)).encode() + b"\\x00" + b).hexdigest()
+        if blob != item["source_git_blob_sha1"]:
+            raise ContextGateError("IMPORTED_DOCTRINE_TAMPERED: " + rel)
 
     # Deduplicate by canonical path; never infer documents from filesystem globbing.
     candidates = [*index["core"], *index["normative"], *registry[task]["additional"],
