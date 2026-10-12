@@ -152,7 +152,7 @@ const fragment=[
 '   float descend=smoothstep(0.12,0.92,-rise);',
 '   // The tail bunches, extends behind upward motion, coils at apex, extends falling.',
 '   // 120Hz spring state tracks prior momentum rather than a canned jump clock.',
-'   float tailLength=clamp(uTailLength,0.62,1.36);'
+'   float tailLength=clamp(uTailLength,0.62,1.36);',
 '   vec2 tailUv=base;',
 '   float rootY=0.53;',
 '   tailUv.y=rootY+(base.y-rootY)/max(0.52,tailLength);',
