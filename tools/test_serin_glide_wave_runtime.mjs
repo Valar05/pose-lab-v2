@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+const text=p=>fs.readFileSync(p,'utf8');
+const recipe=JSON.parse(text('public/assets/serin-glide/wave-locomotion.recipe.json'));
+const contract=JSON.parse(text('campaigns/serin-glide-wave-locomotion-v2.contract.json'));
+const preview=text('src/serin-glide-wave-preview.js'),script=text('tools/campaigns/serin-glide-wave-locomotion-v2.sh');
+assert.equal(recipe.schema,'pose-lab-v2-serin-wave-v2');
+assert.equal(recipe.rootMotion,false);
+assert.equal(recipe.source.idle.sha256,contract.authority.idleSHA256);
+assert.equal(recipe.source.glide.sha256,contract.authority.glideSHA256);
+assert.equal(recipe.presentation.safeFrameScale,1);
+assert.equal(recipe.presentation.noOpacityBlend,true);
+assert.ok(text('motion.html').includes("procedural === 'serin-glide-wave'"));
+assert.ok(text('src/procedural-review-shell.js').includes("['serin-glide-wave','Wave Glide']"));
+for(const s of ['uWavePhase','uEdgePhase','uWaveAmplitude','uCrest','uCrestCenter','uForwardLean','uPoseBlend<0.5?idle:glide','gl.clearColor(0,0,0,0)'])assert.ok(preview.includes(s),s);
+assert.ok(!preview.includes('mix(idle,glide,'),'old RGBA crossfade must not return');
+assert.ok(script.includes('pose_campaign_boot')&&script.includes('pose_campaign_push_and_readback'));
+assert.ok(script.includes('wave-locomotion.recipe.json'));
+assert.ok(script.includes('file_00000000b6ac81fbb8c9c9f85a645117.png'));
+const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+assert.equal(hash(fs.readFileSync('public/assets/serin/serin-idle.png')),contract.authority.idleSHA256);
+const path='public/assets/serin-glide/serin-glide-wave-v2.png';
+if(!fs.existsSync(path)){
+ if(!process.argv.includes('--allow-pending-ingress'))throw Error('MISSING_AUTHORIZED_GLIDE_PNG');
+ assert.equal(recipe.source.glide.sha256,'pending-phone-ingress');
+ console.log('SERIN_WAVE_ASSET_PENDING_EXACT_PHONE_INGRESS');
+}else{
+ assert.match(recipe.source.glide.sha256,/^[a-f0-9]{64}$/);
+ const png=fs.readFileSync(path);
+ assert.equal(hash(png),recipe.source.glide.sha256);
+ assert.equal(png.readUInt32BE(16),1024);
+ assert.equal(png.readUInt32BE(20),1536);
+ assert.equal(png[25],6);
+ console.log('SERIN_WAVE_REPO_PNG_SHA256='+hash(png));
+}
+console.log('SERIN_WAVE_PREVIEW_SOURCE_CONTRACT_PASS');

@@ -1,0 +1,41 @@
+name: Serin Wave Glide V2 Candidate
+on:
+  push:
+    branches:
+      - codex/serin-glide-wave-locomotion-v2
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax, physics and source identity
+        run: |
+          bash -n tools/campaigns/serin-glide-wave-locomotion-v2.sh
+          node --check src/serin-glide-wave-preview.js
+          node --check src/serin-glide-wave-system.mjs
+          node --check tools/campaigns/serin-glide-wave-authorize.mjs
+          node tools/test_serin_glide_wave_system.mjs
+          node tools/test_serin_glide_wave_runtime.mjs --allow-pending-ingress
+      - name: Pose Lab doctrine and V2 framework tests
+        run: |
+          python3 tools/campaigns/campaign_core.py --root . preflight --contract campaigns/serin-glide-wave-locomotion-v2.contract.json --skip-diff
+          python3 tools/test_pose_campaign_framework.py
+      - name: Build
+        run: node scripts/build.mjs
+      - name: Real HTTP artifact smoke
+        run: |
+          python3 -m http.server 18766 --bind 127.0.0.1 --directory dist >/tmp/serin-wave-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          curl -fsS --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:18766/motion.html >/dev/null
+          curl -fsS http://127.0.0.1:18766/assets/serin-glide/wave-locomotion.recipe.json | cmp - dist/assets/serin-glide/wave-locomotion.recipe.json
+          curl -fsS http://127.0.0.1:18766/assets/serin/serin-idle.png | cmp - dist/assets/serin/serin-idle.png
+          if test -f dist/assets/serin-glide/serin-glide-wave-v2.png; then
+            curl -fsS http://127.0.0.1:18766/assets/serin-glide/serin-glide-wave-v2.png | cmp - dist/assets/serin-glide/serin-glide-wave-v2.png
+          fi
