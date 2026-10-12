@@ -1,13 +1,13 @@
 {
   "schema": "pose-lab-v2-campaign-receipt-v2",
   "campaign": "serin-authored-jump-v1",
-  "status": "implemented-awaiting-human-review",
-  "startRevision": "1e062063c3041c7d28dbe17a5779f1025fb47add",
-  "implementationRevision": "becd662bc3cc0a67bf6a705d2299171138b5bd4c",
+  "status": "implemented-awaiting-human-phone-review",
+  "startRevision": "e12733fff8df5cad165b7077f02cc34cd196be3e",
+  "implementationRevision": "d88fb2d3b78d8aed027e099a986ccc4fdd415cbc",
   "finalRevision": null,
-  "executionLane": "GitHub connector: phase-reactive authored image shader + deterministic effect tests; live phone preview requires refresh",
+  "executionLane": "GitHub-owned separate candidate branch; exact phone runtime remains human acceptance",
   "reviewUrl": null,
-  "humanVerdict": "pending",
+  "humanVerdict": "pending-momentum-jump",
   "mutablePaths": [
     "src/serin-unified-authored-preview.js",
     "motion.html",
@@ -31,5 +31,25 @@
     "scope": "tail-only material-masked fluid and localized landing column",
     "visualVerdict": "pending"
   },
-  "lastHumanFeedback": "The jump moved the sprite but did not squash at the beginning or noticeably react to jump phases"
+  "lastHumanFeedback": "The jump moved the sprite but did not squash at the beginning or noticeably react to jump phases",
+  "fallback": {
+    "branch": "codex/serin-authored-jump-v1",
+    "revision": "e12733fff8df5cad165b7077f02cc34cd196be3e",
+    "preserved": true
+  },
+  "momentumCandidate": {
+    "branch": "codex/serin-momentum-jump-v1",
+    "physics": "deterministic 120Hz damped tail spring; takeoff mode and horizontal momentum plus vertical velocity",
+    "checks": [
+      "source hashes and locks",
+      "original jump controls",
+      "idle-vs-glide spring trajectory",
+      "landing recoil",
+      "campaign verify",
+      "build"
+    ],
+    "ciRunId": 38316005699,
+    "ciConclusion": "success",
+    "visualVerdict": "pending"
+  }
 }
