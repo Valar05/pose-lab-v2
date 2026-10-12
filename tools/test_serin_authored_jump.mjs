@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import vm from 'node:vm';
 const read=p=>fs.readFileSync(p,'utf8');
 const config=JSON.parse(read('campaigns/serin-authored-jump-v1.contract.json'));
 const recipe=JSON.parse(read('public/assets/serin-jump/unified-airborne.recipe.json'));
@@ -62,3 +63,26 @@ if(fs.existsSync(source)){
  console.log('SERIN_AUTHORED_JUMP_INGRESS_PENDING: artwork not yet in Git, runtime NOT ready');
 }
 console.log('SERIN_AUTHORED_JUMP_STATIC_AND_LOCKED_GATES_PASS');
+
+// Test the production response curve itself, not duplicated test parameters.
+const begin=shader.indexOf('function jumpReaction(');
+const end=shader.indexOf("const app=document.querySelector",begin);
+assert.ok(begin>=0&&end>begin,'REACTIVE_JUMP_FUNCTION_MISSING');
+const react=vm.runInNewContext(shader.slice(begin,end)+'\njumpReaction;');
+const takeoff=react(0,760,760);
+const rebound=react(0.135,600,760);
+const apex=react(760/1260,0,760);
+const rise=react(0.4,700,760);
+assert.ok(takeoff.squash>0.98&&takeoff.stretch===0&&takeoff.apex<0.01,'IMMEDIATE_SQUASH_MISSING');
+assert.ok(rebound.squash<0.01&&rebound.stretch>0.30,'SPRING_RELEASE_MISSING');
+assert.ok(apex.apex>0.98&&apex.squash===0,'APEX_GATHER_MISSING');
+assert.ok(rise.apex<0.01,'GATHER_MUST_USE_VERTICAL_VELOCITY');
+for(const token of ["'uniform float uLaunchSquash;'","'uniform float uLaunchStretch;'","'uniform float uApexGather;'",
+  "gl.uniform1f(loc('uLaunchSquash'),response.squash);",
+  "gl.uniform1f(loc('uLaunchStretch'),response.stretch);",
+  "gl.uniform1f(loc('uApexGather'),response.apex);",
+  'float elasticY=1.0-0.20*squash+0.10*release;',
+  'float elasticX=1.0+0.12*squash-0.035*release;',
+  'float impact=clamp(uLanding,0.0,1.0);','const jumpPhase='])
+ assert.ok(shader.includes(token),'REACTIVE_PHASE_NOT_WIRED '+token);
+console.log('SERIN_JUMP_REACTIVE_PHASE_ENVELOPES_PASS');

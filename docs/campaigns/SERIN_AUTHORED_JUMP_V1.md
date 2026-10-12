@@ -18,3 +18,7 @@ cd /storage/emulated/0/Documents/GodotProjects/pose-lab-v2 && git fetch origin c
 ## Live-fluid jump correction
 
 The first hosted build had an image hard switch and physical jump but a completely static airborne shader; all fluid code ran only in the ground branch. This revision preserves the approved complete PNG and drives its liquid tail with layered traveling UV waves, velocity-dependent lag and tip curl, adds weaker trailing hair inertia and shifting internal violet galaxy highlights, then produces a short landing ripple on the existing pool. It adds no new art, split body sections, source-frame interpolation, or jump delay. Await human review on the real phone Pose Lab route.
+
+## Reactive jump update
+
+The prior phone build moved the single PNG but lacked a clear jump-specific response. The same sprite now compresses vertically 20% and broadens 12% on the first rising frame (no input delay), rebounds into about 10% temporary stretch, gathers its liquid near zero vertical velocity, and compresses on landing as a short non-locking impact response. The response curves are deterministic. Prior accepted artwork and ground wave remain unchanged. Human review of the new exact phone runtime is still required.

@@ -52,11 +52,14 @@
       "tail": "traveling waves, ascent-descent inertia and velocity trail, curled-tip current",
       "hair": "subtle lower-frequency wind-lag deformation",
       "internalCurrent": "violet-gated moving star streaks within source alpha",
-      "landing": "temporary contact ripple in ground pool",
+      "landing": "Brief grounded body compression and previous anchored ripple; no collision lockout.",
       "sourceArtUnchanged": true,
       "generatedFrames": 0,
       "independentSpritePieces": 0,
-      "visualVerdict": "pending"
+      "visualVerdict": "pending-new-phone-review",
+      "takeoff": "Jump impulse fires immediately; source-space whole-image compression of 20% height and 12% spread over 125 ms.",
+      "release": "10% vertical extension at peak release over 170 ms after compression.",
+      "apex": "Velocity-responsive curl gathering near zero vertical speed."
     }
   },
   "presentation": {

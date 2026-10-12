@@ -1,8 +1,8 @@
 {
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "serin-authored-jump-v1",
-  "status": "awaiting-phone-source-ingress",
-  "mission": "Animate Serin's existing approved full-body airborne source with time-varying galaxy-liquid tail currents, momentum lag, trailing hair and landing ripple while keeping jump physics, source images, idle blink and accepted ground glide fixed.",
+  "status": "implemented-awaiting-human-review",
+  "mission": "Fix Serin authored jump's visually static performance with immediate squash, spring release, velocity-linked apex gather and landing compression, preserving original artwork, grounded motion and physics.",
   "authority": {
     "baseRevision": "937797d2fb4b8e70611ae847a96d1727f1e0acb8",
     "doctrineSourceRevision": "c6244e49a764a2d382161ee5969e65129d056b20",
@@ -14,7 +14,7 @@
     ],
     "colorType": "RGBA",
     "humanArtSelection": "approved to move forward",
-    "runtimeVerdict": "pending",
+    "runtimeVerdict": "pending-reactive-jump-phone-review",
     "reviewRoute": "motion.html?procedural=serin-unified-authored",
     "rejectedApproaches": [
       "separating any sprite element from airborne body",
@@ -31,7 +31,9 @@
       "Reverse behavior stays quiet",
       "Existing old front idle and wave glide preview unchanged"
     ],
-    "animationCorrection": "Prior integration switched one image and translated it with no in-air fluid movement. Fix only procedural effects in existing authored preview; all original artwork remains byte locked."
+    "animationCorrection": "Prior integration switched one image and translated it with no in-air fluid movement. Fix only procedural effects in existing authored preview; all original artwork remains byte locked.",
+    "activeVisualDefect": "User's phone playback showed mostly sprite switching and translation; generic currents were not reactive enough.",
+    "narrowFix": "Only authored preview shader, recipe, tests, documentation and receipt; no PNG or shared motion controller changes."
   },
   "machine": {
     "mutablePaths": [
@@ -126,6 +128,26 @@
         "kind": "text-contains",
         "path": "src/serin-unified-authored-preview.js",
         "value": "gl.uniform1f(loc('uAirVelocity'),s.jumpVelocity/760);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "function jumpReaction(age,verticalVelocity,impulse)"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "gl.uniform1f(loc('uLaunchSquash'),response.squash);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "gl.uniform1f(loc('uLaunchStretch'),response.stretch);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "gl.uniform1f(loc('uApexGather'),response.apex);"
       }
     ]
   }
