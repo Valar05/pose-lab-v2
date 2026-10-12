@@ -14,6 +14,14 @@ Before consequential mutation, explicitly recover: current HEAD/runtime truth, d
 
 
 
+## Native sprite authoring doctrine (active Pose Lab authority)
+
+Any sprite authoring, sprite edit, atlas extraction or procedural animation turn MUST load the applicable task packet using `tools/campaigns/sprite_doctrine_boot.py` and its index `doctrine/animation/doctrine-index-v1.json`. Read the ACTUAL packet contents before planning/generation, not only its SHA, filename or `POSE_CONTEXT_PACKET` receipt. The sprite package includes universal laws and relevant subject doctrine; character-specific exemplars are not global anatomy mandates. Do not claim model-context injection from a shell log.
+
+For a NEW image/pose, use `--task sprite-author --character-manifest <relative-file>` to verify real original CHARACTER and STYLE references by hash. Inspect the actual canonical source pixels visually before invoking image generation. When a game owns its character art (e.g. Belly of Defiance), the game's canonical art authority wins; Pose Lab owns construction techniques. Missing visual access means stop, not substitute a generated approximation.
+
+Organ's historical sprite-animation doctrine was imported byte-for-byte to Pose Lab; the live doctrine lives HERE. Do not fetch Organ as a prerequisite for sprite authoring. Import provenance is recorded in `doctrine/animation/import-provenance-v1.json`. `docs/SPRITE_AUTHORING_BOOT.md` documents the process.
+
 ## Campaign Framework V2
 
 For any new campaign or any campaign being actively revised, also read:
