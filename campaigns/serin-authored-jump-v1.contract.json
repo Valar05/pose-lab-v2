@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "serin-authored-jump-v1",
   "status": "implemented-awaiting-human-review",
-  "mission": "Fix Serin authored jump's visually static performance with immediate squash, spring release, velocity-linked apex gather and landing compression, preserving original artwork, grounded motion and physics.",
+  "mission": "Fix Serin's reactive jump after the phone review rejected cartoonish whole-sprite scaling. Deform the blue-violet liquid tail length and curl on takeoff, release, apex and descent while keeping upper body, clothing, face, and approved sprite unscaled. Localized liquid-only landing compression; no change to physics or original source.",
   "authority": {
     "baseRevision": "937797d2fb4b8e70611ae847a96d1727f1e0acb8",
     "doctrineSourceRevision": "c6244e49a764a2d382161ee5969e65129d056b20",
@@ -32,8 +32,8 @@
       "Existing old front idle and wave glide preview unchanged"
     ],
     "animationCorrection": "Prior integration switched one image and translated it with no in-air fluid movement. Fix only procedural effects in existing authored preview; all original artwork remains byte locked.",
-    "activeVisualDefect": "User's phone playback showed mostly sprite switching and translation; generic currents were not reactive enough.",
-    "narrowFix": "Only authored preview shader, recipe, tests, documentation and receipt; no PNG or shared motion controller changes."
+    "activeVisualDefect": "Cartoonish full-sprite elastic scaling; user specifically requested lower liquid tail stretching and compressing, not the full image.",
+    "narrowFix": "Material-scoped tail UV deformation and lower liquid contact only, plus contract, recipe, tests and docs. Locked sources, physics and ground wave stay untouched."
   },
   "machine": {
     "mutablePaths": [
@@ -117,11 +117,6 @@
       {
         "kind": "text-contains",
         "path": "src/serin-unified-authored-preview.js",
-        "value": "sampleAt.x+=tail*"
-      },
-      {
-        "kind": "text-contains",
-        "path": "src/serin-unified-authored-preview.js",
         "value": "pow(current,7.0)*tail*violet"
       },
       {
@@ -148,6 +143,21 @@
         "kind": "text-contains",
         "path": "src/serin-unified-authored-preview.js",
         "value": "gl.uniform1f(loc('uApexGather'),response.apex);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "float liquidMask=clamp(max(violetStill,violetMoved)*2.2,0.0,1.0)*location;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "tailUv.y=rootY+(base.y-rootY)/max(0.52,tailLength);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "float column=smoothstep(0.54,0.71,p.y)"
       }
     ]
   }

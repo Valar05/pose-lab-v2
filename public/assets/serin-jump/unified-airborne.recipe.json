@@ -59,7 +59,19 @@
       "visualVerdict": "pending-new-phone-review",
       "takeoff": "Jump impulse fires immediately; source-space whole-image compression of 20% height and 12% spread over 125 ms.",
       "release": "10% vertical extension at peak release over 170 ms after compression.",
-      "apex": "Velocity-responsive curl gathering near zero vertical speed."
+      "apex": "Velocity-responsive curl gathering near zero vertical speed.",
+      "reactiveJump": {
+        "mode": "tail-only violet material-masked nonlinear UV deformation",
+        "tailSourceRootY": 0.53,
+        "tailLengthAtPress": 0.64,
+        "tailLengthAtRelease": 1.17,
+        "tailLengthAtApex": 0.89,
+        "tailLengthDescending": 1.15,
+        "upperBody": "original pose fixed; subtle hair movement only",
+        "landing": "lower grounded fluid column with pool locked",
+        "frames": 1,
+        "visualVerdict": "pending"
+      }
     }
   },
   "presentation": {

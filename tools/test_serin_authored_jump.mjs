@@ -37,8 +37,8 @@ for(const wire of ["gl.uniform1f(loc('uAirTime'),s.time);",
 "gl.uniform1f(loc('uAirHorizontal'),s.velocity/controller.config.maxSpeed);",
 "gl.uniform1f(loc('uAirTrail'),s.flightTrail);"])
  assert.ok(shader.includes(wire),'AIR_FLUID_UNWIRED '+wire);
-for(const expression of ["sampleAt.x+=tail*","sampleAt.y+=tail*","sampleAt.x+=hair*",
-"pow(current,7.0)*tail*violet","flying.rgb+=","uLanding*puddle*0.008"])
+for(const expression of ["tailUv.x+=tail*","tailUv.y+=tail*","sampleAt.x+=hair*",
+"pow(current,7.0)*liquidMask*violet","flying.rgb+=","uLanding*puddle*0.008"])
  assert.ok(shader.includes(expression),'NO_RENDERED_FLUID_EFFECT '+expression);
 assert.ok(shader.includes('airValid?texture2D(uAir'), 'flight must animate the one existing PNG');
 assert.ok(shader.includes('flying.a<0.003?vec4(0.0):flying'), 'glow must not escape source alpha');
@@ -81,8 +81,15 @@ for(const token of ["'uniform float uLaunchSquash;'","'uniform float uLaunchStre
   "gl.uniform1f(loc('uLaunchSquash'),response.squash);",
   "gl.uniform1f(loc('uLaunchStretch'),response.stretch);",
   "gl.uniform1f(loc('uApexGather'),response.apex);",
-  'float elasticY=1.0-0.20*squash+0.10*release;',
-  'float elasticX=1.0+0.12*squash-0.035*release;',
+  'float tailLength=1.0-0.36*press+0.17*release-0.11*apex+0.15*descend;',
+  'tailUv.y=rootY+(base.y-rootY)/max(0.52,tailLength);',
+  'float liquidMask=clamp(max(violetStill,violetMoved)*2.2,0.0,1.0)*location;',
   'float impact=clamp(uLanding,0.0,1.0);','const jumpPhase='])
  assert.ok(shader.includes(token),'REACTIVE_PHASE_NOT_WIRED '+token);
 console.log('SERIN_JUMP_REACTIVE_PHASE_ENVELOPES_PASS');
+
+assert.ok(!shader.includes('float elasticX=')&&!shader.includes('float elasticY='),'NO_WHOLE_SPRITE_RUBBER_SCALE');
+assert.ok(shader.includes('float violetStill=')&&shader.includes('float violetMoved='),'TAIL_MATERIAL_GATE_REQUIRED');
+assert.ok(shader.includes('float column=smoothstep(0.54,0.71,p.y)'),'LANDING_TAIL_ONLY_REQUIRED');
+assert.ok(!shader.includes('warp.y=mix(warp.y,0.93+'),'NO_GLOBAL_BODY_LANDING_SQUASH');
+console.log('SERIN_TAIL_ONLY_DEFORMATION_GATE_PASS');

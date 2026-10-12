@@ -22,3 +22,6 @@ The first hosted build had an image hard switch and physical jump but a complete
 ## Reactive jump update
 
 The prior phone build moved the single PNG but lacked a clear jump-specific response. The same sprite now compresses vertically 20% and broadens 12% on the first rising frame (no input delay), rebounds into about 10% temporary stretch, gathers its liquid near zero vertical velocity, and compresses on landing as a short non-locking impact response. The response curves are deterministic. Prior accepted artwork and ground wave remain unchanged. Human review of the new exact phone runtime is still required.
+
+## Tail-only second video correction, 2026-10-12
+The full-image elasticX/Y compression observed in `932928.mp4` is rejected. The approved airborne PNG stays intact; the renderer compresses and extends its lower blue-violet material around the fluid root, gates source and advected pigment, coils at apex, lengthens on descent, and compresses only the grounded lower liquid column at contact. Face, bodice, arms, jewelry, scale, jump physics and all original art bytes are unchanged. Await exact phone playback and human visual verdict.
