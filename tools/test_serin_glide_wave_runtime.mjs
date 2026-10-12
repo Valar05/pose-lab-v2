@@ -13,8 +13,21 @@ assert.equal(recipe.presentation.safeFrameScale,1);
 assert.equal(recipe.presentation.noOpacityBlend,true);
 assert.ok(text('motion.html').includes("procedural === 'serin-glide-wave'"));
 assert.ok(text('src/procedural-review-shell.js').includes("['serin-glide-wave','Wave Glide']"));
-for(const s of ['uWavePhase','uEdgePhase','uWaveAmplitude','uCrest','uCrestCenter','uForwardLean','uPoseBlend<0.5?idle:glide','gl.clearColor(0,0,0,0)'])assert.ok(preview.includes(s),s);
+for(const s of ['uWavePhase','uEdgePhase','uWaveAmplitude','uCrest','uCrestCenter','uForwardLean','uSourceMode>0.5?glide:idle','gl.clearColor(0,0,0,0)'])assert.ok(preview.includes(s),s);
 assert.ok(!preview.includes('mix(idle,glide,'),'old RGBA crossfade must not return');
+assert.ok(!preview.includes('uPoseBlend<0.5?idle:glide'),'avoid speed-threshold source thrash');
+assert.ok(!preview.includes('p.x=1.0-p.x'),'do not mirror whole sprite on reverse');
+assert.ok(preview.includes('float angle=radians(-(uForwardLean+uPitch*0.2));'),'inverse warp lean forward to the right');
+assert.ok(preview.includes('float detailMotion=uFacing<0.0?0.12:1.0;'),'reverse body motion subdued');
+// The already praised fluid shader equations MUST remain byte-equivalent.
+for(const wave of [
+'warp.y+=puddle*uWaveAmplitude*(0.65*sin(uWavePhase+p.x*20.0)+0.35*sin(uEdgePhase+p.x*37.0))-uCrest*bow;',
+'warp.x+=puddle*uWaveAmplitude*0.45*sin(uWavePhase*0.8+p.y*12.0);',
+'float bow=exp(-pow((p.x-uCrestCenter)*9.0,2.0))*smoothstep(0.78,0.85,p.y)*(1.0-smoothstep(0.97,1.0,p.y));'
+])assert.ok(preview.includes(wave),'locked-good ripple must be unmodified: '+wave);
+const glideSHA='8c0d9b48d9522eae67cdea4a6d0d7b0e0d83ca6bfc235254bac8d8bf8c6f1ddc';
+assert.equal(recipe.source.glide.sha256,glideSHA,'exact saved phone glide is the moving source');
+assert.ok(preview.includes('GLIDE 8c0d9b48'),'review HUD identifies selected source');
 assert.ok(preview.includes('vec2 idlePx=vec2(warp.x*1086.0,warp.y*1536.0-88.0);'));
 assert.ok(preview.includes('vec2 glidePx=vec2(warp.x*1086.0-31.0,warp.y*1536.0);'));
 assert.ok(preview.includes('vec4 idle=inIdle?texture2D'));

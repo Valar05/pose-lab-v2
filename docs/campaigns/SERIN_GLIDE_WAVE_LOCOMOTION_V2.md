@@ -31,3 +31,13 @@ Visual review must prove the pool visibly crests, head/torso lean, no double ana
 Quarantine until the human verdict is accepted.
 
 Native pixel-scale registration: idle 1086x1448 and glide 1024x1536 are sampled on one 1086x1536 world pixel plane, bottom aligned, with no per-source scale multiplier. Half-width difference centers the glide by 31 pixels; idle top offset is 88 pixels. The 768x1086 display canvas maintains this aspect ratio. These are fixed native source dimensions and stage geometry, not independent source-size normalization. The first true phone review must still judge body-landmark consistency.
+
+## Corrective campaign: source switching, reverse and inverse-warp lean (2026-10-11)
+
+Phone video shows a pronounced whole-body flip on Reverse (at ~5.5 seconds) and an upright/away lean when moving right. Root causes: `uPoseBlend<0.5` directly selecting a source each frame, `if(uFacing<0.0)p.x=1.0-p.x;`, and a forward-positive inverse texture rotation that visually leans away from travel.
+
+New source latch: initial front-idle, one right-glide selection when the user presses Glide Right, no selection change during forward braking, reverse freezes the already selected artwork without mirroring, and the source returns to idle once physically settled. The moving source is the committed Git-owned PNG SHA-256 `8c0d9b48d9522eae67cdea4a6d0d7b0e0d83ca6bfc235254bac8d8bf8c6f1ddc`. The review HUD exposes the actual selected source and cumulative switch count.
+
+Forward motion now uses negative inverse-texture rotation to visually move head/shoulders toward the right. Reverse disables pronounced upper-body pitching, hair and tail detail deformation drops to 12% while the independently praised fast puddle and bow crest shader expressions and driving parameters are *unchanged*.
+
+Source PNGs, stage geometry, routing, the committed wave recipe, campaign script and original pose renderer are not changed. Green CI proves structural logic only; the updated visible phone recording and human verdict remain the acceptance boundary.

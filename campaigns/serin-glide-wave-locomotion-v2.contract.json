@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "serin-glide-wave-locomotion-v2",
   "status": "quarantined",
-  "mission": "Git-owned dynamic forward-leaning Serin glide from exact named phone PNG, front idle at both ends, fast puddle ripples, visible bow crest and stop slosh, no full-image crossfade; preserve all preexisting source files",
+  "mission": "Serin Wave Glide V2 targeted runtime fix after user video: stable authoritative glide-source selection when moving right, correct inverse-texture warp so forward lean visibly goes right, and subdued reverse with no whole-sprite flip or repeated pose swaps. Preserve approved source hashes, single scale and the exact well-liked wave crest and puddle equations.",
   "authority": {
     "idleSHA256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
     "glideSHA256": "8c0d9b48d9522eae67cdea4a6d0d7b0e0d83ca6bfc235254bac8d8bf8c6f1ddc",
@@ -16,7 +16,13 @@
     "sharedSourcePixelStage": [
       1086,
       1536
-    ]
+    ],
+    "reviewedDefects": [
+      "Glide Right appears to switch source unexpectedly; rightward source must be the user-authorized wave-v2 glide PNG",
+      "Texture-space pitch moves visible torso opposite requested forward direction",
+      "Reverse mirrors sprite, activates full hair/tail warp and repeatedly swaps between idle and glide"
+    ],
+    "lockedGoodPuddle": "Preserve exact V2 wave and crest shader expressions and 1.9/5.1/7 Hz dynamic driving."
   },
   "machine": {
     "mutablePaths": [
@@ -98,6 +104,21 @@
         "kind": "text-contains",
         "path": "src/serin-glide-wave-preview.js",
         "value": "vec2 glidePx=vec2(warp.x*1086.0-31.0,warp.y*1536.0);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-system.mjs",
+        "value": "this.sourceMode=0;this.sourceSwitchCount=0;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "float angle=radians(-(uForwardLean+uPitch*0.2));"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "float detailMotion=uFacing<0.0?0.12:1.0;"
       }
     ]
   }

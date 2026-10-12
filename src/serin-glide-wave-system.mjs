@@ -6,13 +6,16 @@ export class SerinGlideWaveController extends SerinGlideController {
   super.reset();
   this.wavePhase=0;this.edgePhase=0;this.waveAmplitude=0.006;
   this.crest=0;this.crestCenter=0.75;this.wakeImpulse=0;this.forwardLean=0;
+  // Sprite authority is a latched state, not a continuous 0.5 threshold.
+  this.sourceMode=0;this.sourceSwitchCount=0;this.reverseHeldSource=0;
   return this.getState();
  }
  getState(){
   return Object.freeze({...super.getState(),wavePhase:this.wavePhase||0,
    edgePhase:this.edgePhase||0,waveAmplitude:this.waveAmplitude||0,
    crest:this.crest||0,crestCenter:this.crestCenter||0.75,
-   wakeImpulse:this.wakeImpulse||0,forwardLean:this.forwardLean||0});
+   wakeImpulse:this.wakeImpulse||0,forwardLean:this.forwardLean||0,
+   sourceMode:this.sourceMode||0,sourceSwitchCount:this.sourceSwitchCount||0});
  }
  update(dt,input=0){
   if(!Number.isFinite(dt)||dt<0||dt>0.5)throw Error('WAVE_INVALID_DELTA');
@@ -31,8 +34,17 @@ export class SerinGlideWaveController extends SerinGlideController {
    this.crest=follow(this.crest,0.048*speed+0.012*this.wakeImpulse,8,h);
    this.crestCenter=follow(this.crestCenter,this.velocity<0?0.25:0.76,8,h);
    // Added lean modifies only upper sprite. The grounded puddle never rotates.
-   this.forwardLean=follow(this.forwardLean,Math.abs(this.velocity)>0.01?
-    Math.sign(this.velocity)*(3+10*speed):0,8,h);
+   // Only advancing right pitches toward screen-right. Reversing is a subdued
+   // backwards slide without additional flips or repeated artwork selection.
+   this.forwardLean=follow(this.forwardLean,input>0.05?(3+10*speed):0,8,h);
+   if(input<0||this.velocity<0)this.pitch=0;
+   // One committed artwork handoff at start, one on settling. Reverse never
+   // toggles a source even if direction or velocity passes through zero.
+   let next=this.sourceMode;
+   if(input>0.05)next=1;
+   else if(input<0)next=this.sourceMode;
+   else if(this.mode==='idle'&&this.poseBlend===0)next=0;
+   if(next!==this.sourceMode){this.sourceMode=next;this.sourceSwitchCount++;}
    rem-=h;
   }
   return this.getState();

@@ -25,7 +25,7 @@ app.innerHTML=[
 '<label for="throttle">Input axis</label><input type="range" id="throttle" min="-1" max="1" value="0" step="0.05">',
 '<p class="small">Arrow keys move. Space brakes. On a phone, use the buttons or slider. The demo is optional; this is not a sprite-frame animation loop.</p>',
 '<p class="status" id="status">Checking approved source hashes…</p>',
-'<p class="small">Faster dynamic puddle currents, a leading bow crest, and forward torso lean. One body at a time, no arbitrary 84% shrink. Human visual verdict pending.</p>',
+'<p class="small">One stable glide sprite when moving right, a quiet backwards slide without mirroring, and signed forward lean. The accepted fast puddle/crest motion remains unchanged. Human verdict pending.</p>',
 '</aside></main>'
 ].join('');
 const q=s=>app.querySelector(s);
@@ -54,6 +54,7 @@ const fragment=[
 'uniform sampler2D uIdle;',
 'uniform sampler2D uGlide;',
 'uniform float uPoseBlend;',
+'uniform float uSourceMode;',
 'uniform float uPitch;',
 'uniform float uSlosh;',
 'uniform float uPhase;',
@@ -73,25 +74,30 @@ const fragment=[
 ' vec2 framed=(p-vec2(0.5,0.5))/uFrameScale+vec2(0.5,0.5);',
 ' if(framed.x<0.0||framed.y<0.0||framed.x>1.0||framed.y>1.0){gl_FragColor=vec4(0.0);return;}',
 ' p=framed;',
-' if(uFacing<0.0)p.x=1.0-p.x;',
+' // Never flip the entire sprite when reversing. She slides backwards.',
 ' // Pool is a fixed world anchor. Only anatomy above waist rotates.',
 ' float upper=1.0-smoothstep(0.50,0.77,p.y);',
 ' vec2 pivot=vec2(0.55,0.57);',
-' float angle=radians(uForwardLean+uPitch*0.2);',
+' // Texture-space inverse rotation: negative angle moves the visible head',
+' // to screen-right. Positive made her lean away from forward travel.',
+' float angle=radians(-(uForwardLean+uPitch*0.2));',
 ' vec2 local=p-pivot;',
 ' vec2 turned=vec2(cos(angle)*local.x-sin(angle)*local.y,sin(angle)*local.x+cos(angle)*local.y)+pivot;',
 ' vec2 warp=mix(p,turned,upper);',
 ' // Deform both source silhouettes toward each other around a single handoff.',
-' float handoff=1.0-smoothstep(0.0,0.5,abs(uPoseBlend-0.5));',
+' float handoff=(uFacing>0.0?1.0:0.0)*(1.0-smoothstep(0.0,0.5,abs(uPoseBlend-0.5)));',
 ' float torso=(1.0-smoothstep(0.42,0.72,p.y))*smoothstep(0.22,0.40,p.x);',
 ' warp.x+=handoff*torso*(uPoseBlend<0.5?0.018:-0.018);',
 ' warp.y+=handoff*torso*(uPoseBlend<0.5?0.008:-0.008);',
+' // Reverse is deliberately quiet: keep the fluid pool active but cap',
+' // hair/tail deformation instead of mirroring or wobbling the whole body.',
+' float detailMotion=uFacing<0.0?0.12:1.0;',
 ' // Hair lags in acceleration and braking; jewelry/body do not globally melt.',
 ' float hair=(1.0-smoothstep(0.64,0.85,p.x))*smoothstep(0.01,0.13,p.y)*(1.0-smoothstep(0.42,0.65,p.y));',
-' warp.x+=(0.016*uSlosh+0.003*sin(uPhase*.7+p.y*18.0)*uWake)*hair;',
+' warp.x+=detailMotion*(0.016*uSlosh+0.003*sin(uPhase*.7+p.y*18.0)*uWake)*hair;',
 ' // Liquid keeps traveling inside its silhouette, even as root speed decays.',
 ' float tail=smoothstep(0.50,0.72,p.y)*(1.0-smoothstep(0.91,0.99,p.y));',
-' warp.x+=tail*(0.016*uSlosh+0.009*sin(uPhase+p.y*9.0)*uWake);',
+' warp.x+=detailMotion*tail*(0.016*uSlosh+0.009*sin(uPhase+p.y*9.0)*uWake);',
 ' // Faster wave motion, concentrated at pool perimeter.',
 ' float puddle=smoothstep(0.75,0.88,p.y);',
 ' float bow=exp(-pow((p.x-uCrestCenter)*9.0,2.0))*smoothstep(0.78,0.85,p.y)*(1.0-smoothstep(0.97,1.0,p.y));',
@@ -107,7 +113,7 @@ const fragment=[
 ' bool inGlide=glidePx.x>=0.0&&glidePx.x<1024.0&&glidePx.y>=0.0&&glidePx.y<1536.0;',
 ' vec4 idle=inIdle?texture2D(uIdle,vec2(idlePx.x/1086.0,1.0-idlePx.y/1448.0)):vec4(0.0);',
 ' vec4 glide=inGlide?texture2D(uGlide,vec2(glidePx.x/1024.0,1.0-glidePx.y/1536.0)):vec4(0.0);',
-' vec4 result=uPoseBlend<0.5?idle:glide; // no ghosted double anatomy',
+' vec4 result=uSourceMode>0.5?glide:idle; // one latched source, no repeated threshold swaps',
 ' if(result.a<0.003)result=vec4(0.0);',
 ' gl_FragColor=result;',
 '}'
@@ -152,7 +158,7 @@ async function boot(){
  if(gl.getError()!==gl.NO_ERROR)throw Error('TEXTURE_UPLOAD_FAILED');
  const loc=name=>gl.getUniformLocation(prog,name);
  gl.uniform1i(loc('uIdle'),0);gl.uniform1i(loc('uGlide'),1);
- const out=Object.fromEntries(['PoseBlend','Pitch','Slosh','Phase','Wake','Facing','WavePhase','EdgePhase','WaveAmplitude','Crest','CrestCenter','ForwardLean'].map(k=>[k,loc('u'+k)]));
+ const out=Object.fromEntries(['PoseBlend','SourceMode','Pitch','Slosh','Phase','Wake','Facing','WavePhase','EdgePhase','WaveAmplitude','Crest','CrestCenter','ForwardLean'].map(k=>[k,loc('u'+k)]));
  gl.uniform1f(loc('uFrameScale'),recipe.presentation.safeFrameScale);
  gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);
  function frame(now){
@@ -165,9 +171,9 @@ async function boot(){
   else if(held.has('ArrowLeft'))drive=-1;
   const s=controller.update(dt,drive);
   gl.clear(gl.COLOR_BUFFER_BIT);
-  for(const k of ['PoseBlend','Pitch','Slosh','Phase','Wake','Facing','WavePhase','EdgePhase','WaveAmplitude','Crest','CrestCenter','ForwardLean']){const fields={PoseBlend:'poseBlend',Pitch:'pitch',Slosh:'slosh',Phase:'phase',Wake:'wake',Facing:'facing',WavePhase:'wavePhase',EdgePhase:'edgePhase',WaveAmplitude:'waveAmplitude',Crest:'crest',CrestCenter:'crestCenter',ForwardLean:'forwardLean'};gl.uniform1f(out[k],s[fields[k]]);}
+  for(const k of ['PoseBlend','SourceMode','Pitch','Slosh','Phase','Wake','Facing','WavePhase','EdgePhase','WaveAmplitude','Crest','CrestCenter','ForwardLean']){const fields={PoseBlend:'poseBlend',SourceMode:'sourceMode',Pitch:'pitch',Slosh:'slosh',Phase:'phase',Wake:'wake',Facing:'facing',WavePhase:'wavePhase',EdgePhase:'edgePhase',WaveAmplitude:'waveAmplitude',Crest:'crest',CrestCenter:'crestCenter',ForwardLean:'forwardLean'};gl.uniform1f(out[k],s[fields[k]]);}
   gl.drawArrays(gl.TRIANGLES,0,6);
-  q('#status').textContent='Mode '+s.mode+' | velocity '+s.velocity.toFixed(1)+' | pitch '+s.pitch.toFixed(1)+'° | slosh '+s.slosh.toFixed(3)+' | pose '+s.poseBlend.toFixed(2)+' | crest '+s.crest.toFixed(3)+' | ripple '+s.waveAmplitude.toFixed(3)+' | world X '+s.position.toFixed(1);
+  q('#status').textContent='SOURCE '+(s.sourceMode?'GLIDE 8c0d9b48':'FRONT IDLE 00ba472a')+' | changes '+s.sourceSwitchCount+' | Mode '+s.mode+' | velocity '+s.velocity.toFixed(1)+' | pitch '+s.pitch.toFixed(1)+'° | slosh '+s.slosh.toFixed(3)+' | pose '+s.poseBlend.toFixed(2)+' | crest '+s.crest.toFixed(3)+' | ripple '+s.waveAmplitude.toFixed(3)+' | world X '+s.position.toFixed(1);
   requestAnimationFrame(frame);
  }
  requestAnimationFrame(frame);
