@@ -118,14 +118,14 @@ const fragment=[
 ' // Fixed native pixel scale with 359 px camera headroom for the jump apex.',
 ' vec2 canvasP=vec2(vUv.x,1.0-vUv.y);',
 ' vec2 groundP=vec2(canvasP.x,(canvasP.y*1895.0-359.0)/1536.0);',
-' // Air frame moves as ONE whole source, never separated from its liquid body.'
-' if(uAirActive>0.5){'
-'   vec2 airPx=vec2(groundP.x*1086.0,groundP.y*1536.0-88.0+uJumpY);'
-'   bool airValid=airPx.x>=0.0&&airPx.x<1086.0&&airPx.y>=0.0&&airPx.y<1448.0;'
-'   vec4 flying=airValid?texture2D(uAir,vec2(airPx.x/1086.0,1.0-airPx.y/1448.0)):vec4(0.0);'
-'   gl_FragColor=flying.a<0.003?vec4(0.0):flying;'
-'   return;'
-' }'
+' // Air frame moves as ONE whole source, never separated from its liquid body.',
+' if(uAirActive>0.5){',
+'   vec2 airPx=vec2(groundP.x*1086.0,groundP.y*1536.0-88.0+uJumpY);',
+'   bool airValid=airPx.x>=0.0&&airPx.x<1086.0&&airPx.y>=0.0&&airPx.y<1448.0;',
+'   vec4 flying=airValid?texture2D(uAir,vec2(airPx.x/1086.0,1.0-airPx.y/1448.0)):vec4(0.0);',
+'   gl_FragColor=flying.a<0.003?vec4(0.0):flying;',
+'   return;',
+' }',
 ' vec2 p=groundP;',
 ' // Both authored poses are nearly edge-to-edge. Reserve the same safe area',
 ' // before pitch/flow so neither horn nor pool gets clipped by the stage.',
@@ -222,7 +222,7 @@ const fragment=[
 ' }',
 ' if(result.a<0.003)result=vec4(0.0);',
 ' gl_FragColor=result;',
-'}'
+'}',
 ].join('\n');
 async function loadAuthorized(path,sha,dimensions){
  const r=await fetch('./'+path+cache,{cache:'no-store'});
