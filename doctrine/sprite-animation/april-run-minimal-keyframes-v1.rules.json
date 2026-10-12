@@ -1,0 +1,194 @@
+{
+  "accepted_rules": [
+    {
+      "code": "single_identity_authority",
+      "rule": "Violet April contact sheet alone owns identity."
+    },
+    {
+      "code": "motion_reference_choreography_only",
+      "rule": "Shank and Vanguard own choreography/cadence only, never appearance."
+    },
+    {
+      "code": "whole_cycle_coherent_sheet",
+      "rule": "Author the reciprocal cycle as one sheet; separate generations drift."
+    },
+    {
+      "code": "true_full_body_reciprocal_pose",
+      "rule": "Reverse legs, feet, hips, torso, shoulders, arms, visible side/back, cloth and cables."
+    },
+    {
+      "code": "run_excludes_idle",
+      "rule": "Run loops contain run drawings only."
+    },
+    {
+      "code": "six_drawings_own_body_motion",
+      "rule": "Six authored drawings own the April run."
+    },
+    {
+      "code": "no_rig_no_body_warp_no_inbetweens_no_root_motion",
+      "rule": "For this run: no rig, body warp, inferred in-betweens, root bob or translation."
+    },
+    {
+      "code": "shank_sparse_exposure_200ms_pending_runtime_verdict",
+      "rule": "Use Shank-derived 200 ms holds pending Drew review; configured FPS is not acceptance."
+    },
+    {
+      "code": "secondary_motion_cloth_cables_only_after_body_pass",
+      "rule": "After body reads, optional restrained cloth/cable deformation may preserve body pixels/order/timing."
+    },
+    {
+      "code": "deterministic_pixel_preserving_alpha",
+      "rule": "Alpha removal must preserve character RGB and intentional ground/sole strokes."
+    },
+    {
+      "code": "one_reusable_full_atlas_and_project",
+      "rule": "Append states to one full atlas/project; no disposable animation-only duplicate."
+    },
+    {
+      "code": "verify_discovery_reload_order_timing",
+      "rule": "Verify canonical discovery, reload, name, order and timing, not file existence."
+    },
+    {
+      "code": "hash_and_byte_readback",
+      "rule": "Verify durable transfers by SHA-256 and byte count."
+    },
+    {
+      "code": "human_visual_acceptance_only",
+      "rule": "Technical gates make reviewable; only Drew accepts runtime motion."
+    }
+  ],
+  "artifacts": {
+    "alpha": {
+      "name": "april-run-six-key-alpha.png",
+      "sha256": "4cf192d9aa524f3c0538ba4480dfe6c4bf71c9e28175fc0f1387057dcdbc2476"
+    },
+    "atlas": {
+      "bytes": 3731789,
+      "name": "april-violet-full-sprite-sheet-alpha-v2.png",
+      "sha256": "7b73e72ec2d431626cea80d07d674a79b85401e6ade73dafadabab09a0db2614",
+      "size": [
+        1536,
+        2048
+      ],
+      "uri": "home-center://artifacts/thirdskin-april-violet-full-sprite-sheet-alpha-v2-20260921"
+    },
+    "project": "/data/data/com.termux/files/home/.local/share/sprite-lab/projects/april-violet-full-sprite-sheet-alpha-v2-7b73e72ec2d4.spritelab.json",
+    "rig_backup": "revision-6-rejected-rig.bak"
+  },
+  "authorities": {
+    "acceptance": "Drew",
+    "identity": "accepted violet April contact sheet",
+    "motion": "run witness; Shank cadence; Vanguard choreography-only"
+  },
+  "candidate": {
+    "contact_sheet_identity": "human-matched",
+    "mechanical_fps": 12,
+    "motion_program": null,
+    "reason": "phone overlay unreadable",
+    "run_frames": 6,
+    "runtime_visual_state": "awaiting-human-review",
+    "sprite_lab_revision": 7
+  },
+  "date": "2026-09-21",
+  "failure_modes": [
+    {
+      "code": "IDENTITY_DRIFT_SEPARATE_GENERATIONS",
+      "disposition": "reject",
+      "lesson": "Separate generations changed model identity/style."
+    },
+    {
+      "code": "FAKE_RECIPROCAL_POSE",
+      "disposition": "reject",
+      "lesson": "Opposite stride kept the same legs, hips, torso and arms."
+    },
+    {
+      "code": "ROOT_MOTION_FOR_LEG_MOTION",
+      "disposition": "reject",
+      "lesson": "Whole-sprite motion substituted for leg action."
+    },
+    {
+      "code": "WHOLE_IMAGE_RUBBER_WARP",
+      "disposition": "reject_locomotion_retain_vfx",
+      "lesson": "Bent bone segments; retain only for explicit hallucination, hit-stun, smear, supernatural, cloth-only, environment or VFX."
+    },
+    {
+      "code": "RIG_DETOUR_COUNTERPURPOSE",
+      "disposition": "reject_april_run",
+      "lesson": "LBS added machinery and failed foot weighting."
+    },
+    {
+      "code": "GENERATIVE_ALPHA_REPAINT",
+      "disposition": "reject",
+      "lesson": "ImageGen recolored April and left opaque brown."
+    },
+    {
+      "code": "GROUND_MATTE_EROSION",
+      "disposition": "reject",
+      "lesson": "Cleanup damaged boots, soles and contact strokes."
+    },
+    {
+      "code": "DISPOSABLE_RUN_ONLY_ATLAS",
+      "disposition": "reject",
+      "lesson": "Duplicated assets/project for one animation."
+    },
+    {
+      "code": "IDLE_INSIDE_RUN_LOOP",
+      "disposition": "reject",
+      "lesson": "Idle destroyed the run read."
+    },
+    {
+      "code": "CADENCE_TOO_FAST",
+      "disposition": "reject",
+      "lesson": "Playback became seizure-like; witness owns exposure."
+    },
+    {
+      "code": "MISMATCHED_FRAME_SCALE",
+      "disposition": "reject",
+      "lesson": "Crop/scale mismatch blocked motion judgment."
+    },
+    {
+      "code": "PROJECT_KEY_MISINDEX",
+      "disposition": "reject_reindex",
+      "lesson": "Wrong filename hid revision 7 from Sprite Lab."
+    },
+    {
+      "code": "VISUAL_VERIFY_BLOCKED",
+      "disposition": "unjudged",
+      "lesson": "Unreadable phone overlay blocked inspection; never pass."
+    },
+    {
+      "code": "ALPHA_PLUMBING_TIME_SINK",
+      "disposition": "process_failure",
+      "lesson": "Deterministic cut/transfer plan was chosen too late."
+    },
+    {
+      "code": "IMAGE_ONLY_PICKER_LIMIT",
+      "disposition": "superseded",
+      "lesson": "Picker lacked reusable animation-state workflow."
+    },
+    {
+      "code": "GHOST_CROSSFADE",
+      "disposition": "reject",
+      "lesson": "Blending created ghosts, not authored motion."
+    },
+    {
+      "code": "LEGACY_GIF_ENCODER_FAILURE",
+      "disposition": "retire",
+      "lesson": "Corrupted 512x512 and overflowed JS stack."
+    },
+    {
+      "code": "TERMUX_CHROMIUM_EXPORT_BLOCK",
+      "disposition": "retire",
+      "lesson": "Android child-process/ICU blocked browser export."
+    }
+  ],
+  "id": "april-run-minimal-keyframes-v1",
+  "next": "Review revision 7 on phone at Shank exposure; record Drew verdict before repair.",
+  "schema": "organ-sprite-animation-doctrine-v1",
+  "scope": {
+    "animation": "run",
+    "character": "April",
+    "no_rig_is_global": false,
+    "project": "Valkyrie Squad"
+  }
+}

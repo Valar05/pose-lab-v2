@@ -1,0 +1,46 @@
+{
+  "schema": "pose-lab-animation-doctrine-provenance-v1",
+  "source_repository": "Valar05/organ",
+  "source_revision": "bbbd5576eb02521d86edccddf953c974d019f2d1",
+  "source_ref": "master",
+  "imported_to": "Valar05/pose-lab-v2",
+  "mode": "exact-content-copy; active animation doctrine resides in Pose Lab; Organ copies remain archival evidence",
+  "files": [
+    {
+      "path": "doctrine/animation/sparse_sprite_motion_v1.json",
+      "source_git_blob_sha1": "3bc56a29364ac5ceba46680cab5d8e988449fb6b",
+      "classification": "general-lesson",
+      "status": "imported-unmodified"
+    },
+    {
+      "path": "doctrine/animation/april_one_frame_idle_accepted_v1.json",
+      "source_git_blob_sha1": "197e37f91b6116e0e25cd5dd24ac4c8e7cbd0e91",
+      "classification": "character-specific-exemplar",
+      "status": "imported-unmodified"
+    },
+    {
+      "path": "doctrine/animation/april_slow_jog_accepted_v1.json",
+      "source_git_blob_sha1": "ee823037c1b31ec66eee4bc6f966aa637b19a74e",
+      "classification": "character-specific-exemplar",
+      "status": "imported-unmodified"
+    },
+    {
+      "path": "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json",
+      "source_git_blob_sha1": "25eefb5e4e5dcfc82f9d8bdc2b0215dadf52a11e",
+      "classification": "historical-evidence",
+      "status": "imported-unmodified"
+    },
+    {
+      "path": "doctrine/sprite-animation/april-run-minimal-keyframes-v1.md",
+      "source_git_blob_sha1": "55d9f69125640dbb0c8cc62e0556baff1e11bf5a",
+      "classification": "character-specific-exemplar",
+      "status": "imported-unmodified"
+    },
+    {
+      "path": "doctrine/sprite-animation/april-run-minimal-keyframes-v1.rules.json",
+      "source_git_blob_sha1": "f55017b2b862a658ab45970211a4827ff16e3462",
+      "classification": "character-specific-exemplar",
+      "status": "imported-unmodified"
+    }
+  ]
+}
