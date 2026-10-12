@@ -79,8 +79,8 @@ with tempfile.TemporaryDirectory(prefix="pose-doctrine-", dir=ROOT) as td:
         assert len(packet) > 110000
         assert "POSE_CONTEXT_REQUIRES_MODEL_READ=TRUE" in p.stdout
         if kind == "jump":
-            assert "april_one_frame_idle_accepted_v1.json" not in packet
-            assert "april_slow_jog_accepted_v1.json" not in packet
+            assert "## Source: doctrine/animation/april_one_frame_idle_accepted_v1.json" not in packet
+            assert "## Source: doctrine/animation/april_slow_jog_accepted_v1.json" not in packet
         if kind == "idle":
             assert "EXEMPLAR-NON-NORMATIVE" in packet
             assert "april_one_frame_idle_accepted_v1.json" in packet
