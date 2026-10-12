@@ -3,9 +3,9 @@
   "campaign": "serin-authored-jump-v1",
   "status": "implemented-awaiting-human-review",
   "startRevision": "1e062063c3041c7d28dbe17a5779f1025fb47add",
-  "implementationRevision": "e64cbbd8ed899f011d398b53c3149fc75fa84c70",
+  "implementationRevision": "0103803ecfd30660ca43de8734165de7054170a3",
   "finalRevision": null,
-  "executionLane": "termux-phone-exact-source-ingress",
+  "executionLane": "phone exact-PNG ingress retained; GitHub connector narrow air-shader fluid correction",
   "reviewUrl": null,
   "humanVerdict": "pending",
   "mutablePaths": [
@@ -20,5 +20,20 @@
     "campaigns/serin-authored-jump-v1.receipt.json",
     "docs/campaigns/SERIN_AUTHORED_JUMP_V1.md",
     ".github/workflows/serin-authored-jump-v1.yml"
-  ]
+  ],
+  "sourceIngressRevision": "e64cbbd8ed899f011d398b53c3149fc75fa84c70",
+  "visualMotionReview": "pending phone human verdict",
+  "verification": {
+    "ciRunId": 38303980754,
+    "ciConclusion": "success",
+    "sourceAssetSHA256": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453",
+    "lockedGroundArt": "unchanged",
+    "airborneEffects": [
+      "tail-wave",
+      "vertical-lag",
+      "hair-inertia",
+      "violet-currents",
+      "landing-ripple"
+    ]
+  }
 }
