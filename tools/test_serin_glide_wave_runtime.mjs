@@ -17,14 +17,18 @@ for(const s of ['uWavePhase','uEdgePhase','uWaveAmplitude','uCrest','uCrestCente
 assert.ok(!preview.includes('mix(idle,glide,'),'old RGBA crossfade must not return');
 assert.ok(!preview.includes('uPoseBlend<0.5?idle:glide'),'avoid speed-threshold source thrash');
 assert.ok(!preview.includes('p.x=1.0-p.x'),'do not mirror whole sprite on reverse');
-assert.ok(preview.includes('float angle=radians(-(uForwardLean*0.58+uPitch*0.08));'),'reduced inverse warp lean toward the right');
-assert.ok(preview.includes('float upper=clamp(0.78*waistField+0.22*shoulderField,0.0,1.0);'),'only anatomical region tilts');
-assert.ok(preview.includes('float torso=clamp(waistField+shoulderField*0.35,0.0,1.0);'),'localized deformation');
-assert.ok(preview.includes('warp.x+=handoff*torso*(uPoseBlend<0.5?0.010:-0.010);'));
+assert.ok(preview.includes('float angle=radians(-(uForwardLean*0.88+uPitch*0.05-uReverseBend*0.78));'),'meaningful forward silhouette bend and restrained reverse');
+assert.ok(preview.includes('float upper=clamp(0.88*waistField+0.42*shoulderField,0.0,1.0);'),'torso bend retained');
+assert.ok(preview.includes('float torso=clamp(waistField+shoulderField*0.45,0.0,1.0);'),'localized but visible torso deformation');
+assert.ok(preview.includes('warp.x+=side*morph*(0.028*head+0.018*torso);'),'symmetric geometric source-space handoff');
+assert.ok(preview.includes('warp.x+=uReverseBend*(0.004*head+0.003*torso);'),'reverse sprite geometry changes');
 const controller=text('src/serin-glide-wave-system.mjs');
-assert.ok(controller.includes('Math.abs(this.forwardLean)<0.12'),'source handoff requires lean settle');
-assert.ok(controller.includes('this.crest<0.006'),'source handoff requires crest settle');
-assert.ok(controller.includes('const targetLean=movingRight?(1.5+4.5*speed):0;'),'do not overtilt pre-leaning art');
+assert.ok(controller.includes('this.shapeProgress=follow(this.shapeProgress,visualTarget,right?4.8:4.1,h);'));
+assert.ok(controller.includes('if(this.shapeProgress>=0.58)next=1;'));
+assert.ok(controller.includes('else if(this.shapeProgress<=0.42)next=0;'));
+assert.ok(controller.includes('this.forwardLean=follow(this.forwardLean,8.6*this.shapeProgress,10,h);'));
+assert.ok(controller.includes('this.reverseBend=follow(this.reverseBend,reverseTarget,backwards?9:7,h);'));
+assert.ok(!controller.includes('this.crest<0.006'),'do not wait for dead-still water to switch source');
 assert.ok(preview.includes('float detailMotion=uFacing<0.0?0.12:1.0;'),'reverse body motion subdued');
 // The already praised fluid shader equations MUST remain byte-equivalent.
 for(const wave of [

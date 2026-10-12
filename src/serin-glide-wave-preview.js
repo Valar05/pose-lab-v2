@@ -25,7 +25,7 @@ app.innerHTML=[
 '<label for="throttle">Input axis</label><input type="range" id="throttle" min="-1" max="1" value="0" step="0.05">',
 '<p class="small">Arrow keys move. Space brakes. On a phone, use the buttons or slider. The demo is optional; this is not a sprite-frame animation loop.</p>',
 '<p class="status" id="status">Checking approved source hashes…</p>',
-'<p class="small">One stable glide sprite when moving right, a quiet backwards slide without mirroring, and signed forward lean. The accepted fast puddle/crest motion remains unchanged. Human verdict pending.</p>',
+'<p class="small">Forward and reverse reshape Serin’s sprite silhouette. The transition bends into a middle shape while moving, then hands off once. Puddle ripples and bow crest unchanged. Human verdict pending.</p>',
 '</aside></main>'
 ].join('');
 const q=s=>app.querySelector(s);
@@ -67,6 +67,8 @@ const fragment=[
 'uniform float uCrest;',
 'uniform float uCrestCenter;',
 'uniform float uForwardLean;',
+'uniform float uShapeProgress;',
+'uniform float uReverseBend;',
 'void main(){',
 ' vec2 p=vec2(vUv.x,1.0-vUv.y);',
 ' // Both authored poses are nearly edge-to-edge. Reserve the same safe area',
@@ -79,19 +81,26 @@ const fragment=[
 ' // Rotate the anatomical center mildly, not the entire hair and silhouette.',
 ' float waistField=(1.0-smoothstep(0.48,0.70,p.y))*smoothstep(0.28,0.44,p.x);',
 ' float shoulderField=(1.0-smoothstep(0.26,0.42,p.y))*smoothstep(0.32,0.48,p.x);',
-' float upper=clamp(0.78*waistField+0.22*shoulderField,0.0,1.0);',
+' float upper=clamp(0.88*waistField+0.42*shoulderField,0.0,1.0);',
 ' vec2 pivot=vec2(0.55,0.57);',
 ' // Texture-space inverse rotation: negative angle moves the visible head',
 ' // to screen-right. Positive made her lean away from forward travel.',
-' float angle=radians(-(uForwardLean*0.58+uPitch*0.08));',
+' float angle=radians(-(uForwardLean*0.88+uPitch*0.05-uReverseBend*0.78));',
 ' vec2 local=p-pivot;',
 ' vec2 turned=vec2(cos(angle)*local.x-sin(angle)*local.y,sin(angle)*local.x+cos(angle)*local.y)+pivot;',
 ' vec2 warp=mix(p,turned,upper);',
-' // Deform both source silhouettes toward each other around a single handoff.',
-' float handoff=(uFacing>0.0?1.0:0.0)*(1.0-smoothstep(0.12,0.46,abs(uPoseBlend-0.5)));',
-' float torso=clamp(waistField+shoulderField*0.35,0.0,1.0);',
-' warp.x+=handoff*torso*(uPoseBlend<0.5?0.010:-0.010);',
-' warp.y+=handoff*torso*(uPoseBlend<0.5?0.005:-0.005);',
+' // Symmetric two-sided SOURCE-SPACE deformation toward one middle shape.',
+' // Source switches only at a 58/42 hysteretic mid-motion threshold.',
+' float morph=sin(3.14159265*clamp(uShapeProgress,0.0,1.0));',
+' float torso=clamp(waistField+shoulderField*0.45,0.0,1.0);',
+' float head=smoothstep(0.36,0.52,p.x)*(1.0-smoothstep(0.25,0.56,p.y));',
+' float side=uSourceMode>0.5?-1.0:1.0;',
+' warp.x+=side*morph*(0.028*head+0.018*torso);',
+' warp.y+=side*morph*(0.010*head+0.006*torso);',
+' // On reverse, the ACTUAL source silhouette bows back a little.',
+' // Suppress this below the waist and at the grounded pool edge.',
+' warp.x+=uReverseBend*(0.004*head+0.003*torso);',
+' warp.y-=uReverseBend*0.0015*torso;',
 ' // Reverse is deliberately quiet: keep the fluid pool active but cap',
 ' // hair/tail deformation instead of mirroring or wobbling the whole body.',
 ' float detailMotion=uFacing<0.0?0.12:1.0;',
@@ -161,7 +170,7 @@ async function boot(){
  if(gl.getError()!==gl.NO_ERROR)throw Error('TEXTURE_UPLOAD_FAILED');
  const loc=name=>gl.getUniformLocation(prog,name);
  gl.uniform1i(loc('uIdle'),0);gl.uniform1i(loc('uGlide'),1);
- const out=Object.fromEntries(['PoseBlend','SourceMode','Pitch','Slosh','Phase','Wake','Facing','WavePhase','EdgePhase','WaveAmplitude','Crest','CrestCenter','ForwardLean'].map(k=>[k,loc('u'+k)]));
+ const out=Object.fromEntries(['PoseBlend','SourceMode','Pitch','Slosh','Phase','Wake','Facing','WavePhase','EdgePhase','WaveAmplitude','Crest','CrestCenter','ForwardLean','ShapeProgress','ReverseBend'].map(k=>[k,loc('u'+k)]));
  gl.uniform1f(loc('uFrameScale'),recipe.presentation.safeFrameScale);
  gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);
  function frame(now){
@@ -174,9 +183,9 @@ async function boot(){
   else if(held.has('ArrowLeft'))drive=-1;
   const s=controller.update(dt,drive);
   gl.clear(gl.COLOR_BUFFER_BIT);
-  for(const k of ['PoseBlend','SourceMode','Pitch','Slosh','Phase','Wake','Facing','WavePhase','EdgePhase','WaveAmplitude','Crest','CrestCenter','ForwardLean']){const fields={PoseBlend:'poseBlend',SourceMode:'sourceMode',Pitch:'pitch',Slosh:'slosh',Phase:'phase',Wake:'wake',Facing:'facing',WavePhase:'wavePhase',EdgePhase:'edgePhase',WaveAmplitude:'waveAmplitude',Crest:'crest',CrestCenter:'crestCenter',ForwardLean:'forwardLean'};gl.uniform1f(out[k],s[fields[k]]);}
+  for(const k of ['PoseBlend','SourceMode','Pitch','Slosh','Phase','Wake','Facing','WavePhase','EdgePhase','WaveAmplitude','Crest','CrestCenter','ForwardLean','ShapeProgress','ReverseBend']){const fields={PoseBlend:'poseBlend',SourceMode:'sourceMode',Pitch:'pitch',Slosh:'slosh',Phase:'phase',Wake:'wake',Facing:'facing',WavePhase:'wavePhase',EdgePhase:'edgePhase',WaveAmplitude:'waveAmplitude',Crest:'crest',CrestCenter:'crestCenter',ForwardLean:'forwardLean',ShapeProgress:'shapeProgress',ReverseBend:'reverseBend'};gl.uniform1f(out[k],s[fields[k]]);}
   gl.drawArrays(gl.TRIANGLES,0,6);
-  q('#status').textContent='SOURCE '+(s.sourceMode?'GLIDE 8c0d9b48':'FRONT IDLE 00ba472a')+' | changes '+s.sourceSwitchCount+' | Mode '+s.mode+' | velocity '+s.velocity.toFixed(1)+' | pitch '+s.pitch.toFixed(1)+'° | slosh '+s.slosh.toFixed(3)+' | pose '+s.poseBlend.toFixed(2)+' | crest '+s.crest.toFixed(3)+' | ripple '+s.waveAmplitude.toFixed(3)+' | world X '+s.position.toFixed(1);
+  q('#status').textContent='SOURCE '+(s.sourceMode?'GLIDE 8c0d9b48':'FRONT IDLE 00ba472a')+' | changes '+s.sourceSwitchCount+' | bend '+s.forwardLean.toFixed(1)+'° | reverse '+s.reverseBend.toFixed(1)+'° | shape '+s.shapeProgress.toFixed(2)+' | Mode '+s.mode+' | velocity '+s.velocity.toFixed(1)+' | pitch '+s.pitch.toFixed(1)+'° | slosh '+s.slosh.toFixed(3)+' | pose '+s.poseBlend.toFixed(2)+' | crest '+s.crest.toFixed(3)+' | ripple '+s.waveAmplitude.toFixed(3)+' | world X '+s.position.toFixed(1);
   requestAnimationFrame(frame);
  }
  requestAnimationFrame(frame);

@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "serin-glide-wave-locomotion-v2",
   "status": "quarantined",
-  "mission": "Refine Serin Wave Glide V2 lean/exit in the already deployed phone candidate: cap added forward lean to 6 degrees, attenuate and localize torso deformation, settle lean and fluid before switching to idle; preserve approved entry, native registration, quiet reverse, exact source hashes, and fast ripple and bow-crest equations.",
+  "mission": "Fix over-reduced bend and abrupt dual transitions on Serin Wave Glide V2 while giving reverse a visible low-amplitude deformation of the actual idle sprite silhouette. Shape progress drives geometric handoff in and out during movement; latch source once per transition. Preserve wave physics, crest, 1.9/5.1/7 Hz phases, source hashes, scale and dedicated campaign lane.",
   "authority": {
     "idleSHA256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
     "glideSHA256": "8c0d9b48d9522eae67cdea4a6d0d7b0e0d83ca6bfc235254bac8d8bf8c6f1ddc",
@@ -21,16 +21,18 @@
       "Glide Right appears to switch source unexpectedly; rightward source must be the user-authorized wave-v2 glide PNG",
       "Texture-space pitch moves visible torso opposite requested forward direction",
       "Reverse mirrors sprite, activates full hair/tail warp and repeatedly swaps between idle and glide",
-      "Phone review 2026-10-12: forward entry visually good but overall lean is excessive; exit swap is earlier/rougher than entry."
+      "Phone review 2026-10-12: forward entry visually good but overall lean is excessive; exit swap is earlier/rougher than entry.",
+      "2026-10-12 phone video 932560.mp4: last correction removed too much visual bend, abrupt idle/glide switches in both directions, and reversing from front idle changes surface shader but not readable sprite silhouette."
     ],
     "lockedGoodPuddle": "Preserve exact V2 wave and crest shader expressions and 1.9/5.1/7 Hz dynamic driving.",
     "preservedProperties": [
-      "Puddle wave crest/ripple shader equations and numerical drive",
-      "Right-glide and front idle authoritative SHA-256 PNG bytes",
-      "Stable single source latch and subdued reverse/no mirroring",
-      "One native source pixel-scale family",
-      "Previously approved appealing entry trajectory"
-    ]
+      "exact Git-owned idle/glide PNG SHA-256",
+      "same one-pixel world scale / grounded puddle",
+      "wave/crest equations and 1.9/5.1/7Hz driver",
+      "only one source handoff per direction, no mirror",
+      "quiet reverse relative to rightward glide"
+    ],
+    "reverseSourceNote": "Only two art sources authorized. Reverse uses front idle with distinct low-amplitude geometry warp, never the unrelated battle back image or a horizontally flipped glide."
   },
   "machine": {
     "mutablePaths": [
@@ -121,22 +123,32 @@
       {
         "kind": "text-contains",
         "path": "src/serin-glide-wave-preview.js",
-        "value": "float angle=radians(-(uForwardLean*0.58+uPitch*0.08));"
-      },
-      {
-        "kind": "text-contains",
-        "path": "src/serin-glide-wave-preview.js",
         "value": "float detailMotion=uFacing<0.0?0.12:1.0;"
       },
       {
         "kind": "text-contains",
         "path": "src/serin-glide-wave-system.mjs",
-        "value": "const targetLean=movingRight?(1.5+4.5*speed):0;"
+        "value": "if(this.shapeProgress>=0.58)next=1;"
       },
       {
         "kind": "text-contains",
         "path": "src/serin-glide-wave-system.mjs",
-        "value": "Math.abs(this.forwardLean)<0.12"
+        "value": "else if(this.shapeProgress<=0.42)next=0;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-system.mjs",
+        "value": "this.reverseBend=follow(this.reverseBend,reverseTarget,backwards?9:7,h);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "warp.x+=uReverseBend*(0.004*head+0.003*torso);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "float angle=radians(-(uForwardLean*0.88+uPitch*0.05-uReverseBend*0.78));"
       }
     ]
   }

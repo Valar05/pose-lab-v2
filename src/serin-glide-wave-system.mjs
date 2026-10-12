@@ -6,6 +6,7 @@ export class SerinGlideWaveController extends SerinGlideController {
   super.reset();
   this.wavePhase=0;this.edgePhase=0;this.waveAmplitude=0.006;
   this.crest=0;this.crestCenter=0.75;this.wakeImpulse=0;this.forwardLean=0;
+  this.reverseBend=0;this.shapeProgress=0;
   // Sprite authority is a latched state, not a continuous 0.5 threshold.
   this.sourceMode=0;this.sourceSwitchCount=0;this.reverseHeldSource=0;
   return this.getState();
@@ -15,6 +16,7 @@ export class SerinGlideWaveController extends SerinGlideController {
    edgePhase:this.edgePhase||0,waveAmplitude:this.waveAmplitude||0,
    crest:this.crest||0,crestCenter:this.crestCenter||0.75,
    wakeImpulse:this.wakeImpulse||0,forwardLean:this.forwardLean||0,
+   reverseBend:this.reverseBend||0,shapeProgress:this.shapeProgress||0,
    sourceMode:this.sourceMode||0,sourceSwitchCount:this.sourceSwitchCount||0});
  }
  update(dt,input=0){
@@ -33,24 +35,27 @@ export class SerinGlideWaveController extends SerinGlideController {
    this.waveAmplitude=follow(this.waveAmplitude,0.006+0.014*speed+0.006*this.wakeImpulse,10,h);
    this.crest=follow(this.crest,0.048*speed+0.012*this.wakeImpulse,8,h);
    this.crestCenter=follow(this.crestCenter,this.velocity<0?0.25:0.76,8,h);
-   // Added lean modifies only upper sprite. The grounded puddle never rotates.
-   // Only advancing right pitches toward screen-right. Reversing is a subdued
-   // backwards slide without additional flips or repeated artwork selection.
-   // The authored glide PNG already leans forward. Add only a subtle bend,
-   // easing the return more slowly than the acceleration. Reverse stays quiet.
-   const movingRight=input>0.05;
-   const targetLean=movingRight?(1.5+4.5*speed):0;
-   this.forwardLean=follow(this.forwardLean,targetLean,movingRight?7:4,h);
-   if(input<0||this.velocity<0)this.pitch=0;
-   // One committed artwork handoff at start, one on settling. Reverse never
-   // toggles a source even if direction or velocity passes through zero.
+   // Source identity follows a continuous deformation phase, not speed or
+   // fluid settling. Enter/exit takes about 200 ms and happens during motion.
+   // 0 = authored front idle, 1 = authored forward glide. One handoff each way.
+   const right=input>0.05, backwards=input< -0.05;
+   const visualTarget=right?1:0;
+   this.shapeProgress=follow(this.shapeProgress,visualTarget,right?4.8:4.1,h);
+   if(this.shapeProgress<0.0001)this.shapeProgress=0;
+   if(this.shapeProgress>0.9999)this.shapeProgress=1;
+   // Restore the living body bend. Drive it through the *same* pose phase so
+   // it visibly unwinds on exit instead of snapping upright and switching.
+   this.forwardLean=follow(this.forwardLean,8.6*this.shapeProgress,10,h);
+   // A genuine but restrained backward SILHOUETTE pose for reverse.
+   // No new PNG, whole-body flip, or repeated sprite swapping.
+   const reverseTarget=backwards?4.5*speed:0;
+   this.reverseBend=follow(this.reverseBend,reverseTarget,backwards?9:7,h);
+   if(backwards||this.velocity<0)this.pitch=0;
+   // Hysteresis lets each source change only once per traversal.
+   // This happens *mid-motion*, not after the puddle/torso are frozen.
    let next=this.sourceMode;
-   if(input>0.05)next=1;
-   else if(input<0)next=this.sourceMode;
-   else if(input===0&&this.mode==='idle'&&this.poseBlend===0&&
-      Math.abs(this.velocity)<12&&Math.abs(this.slosh)<0.045&&
-      Math.abs(this.wake)<0.08&&this.crest<0.006&&
-      Math.abs(this.forwardLean)<0.12)next=0;
+   if(this.shapeProgress>=0.58)next=1;
+   else if(this.shapeProgress<=0.42)next=0;
    if(next!==this.sourceMode){this.sourceMode=next;this.sourceSwitchCount++;}
    rem-=h;
   }
