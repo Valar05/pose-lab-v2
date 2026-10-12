@@ -1,0 +1,38 @@
+name: Serin Authored Full-Body Jump V1
+on:
+  push:
+    branches:
+      - codex/serin-authored-jump-v1
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Script syntax, original physics, old review locks
+        run: |
+          bash -n tools/campaigns/serin-authored-jump-v1.sh
+          node --check src/serin-unified-authored-preview.js
+          node --check src/serin-unified-locomotion.mjs
+          node tools/test_serin_unified_locomotion.mjs
+          node tools/test_serin_unified_runtime.mjs
+          node tools/test_pose_campaign_framework.mjs 2>/dev/null || python3 tools/test_pose_campaign_framework.py
+      - name: New full-body source gate
+        run: |
+          node tools/test_serin_authored_jump.mjs
+          python3 tools/campaigns/campaign_core.py --root . preflight --contract campaigns/serin-authored-jump-v1.contract.json --skip-diff
+      - name: Verify complete campaign only after exact picture ingress
+        run: |
+          if [ -f public/assets/serin-jump/serin-jump-airborne-v1.png ]; then
+            python3 tools/campaigns/campaign_core.py --root . verify --contract campaigns/serin-authored-jump-v1.contract.json
+            node scripts/build.mjs
+            test -f dist/assets/serin-jump/serin-jump-airborne-v1.png
+            cmp dist/assets/serin-jump/serin-jump-airborne-v1.png public/assets/serin-jump/serin-jump-airborne-v1.png
+          else
+            echo 'SOURCE_PENDING_PHONE_INGRESS: code reviewed, full runtime not yet ready'
+          fi
