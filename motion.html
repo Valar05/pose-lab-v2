@@ -21,7 +21,9 @@
     <script type="module">
       const params = new URLSearchParams(location.search);
       const procedural = params.get('procedural');
-      const modulePath = procedural === 'serin-glide'
+      const modulePath = procedural === 'serin-glide-wave'
+        ? './src/serin-glide-wave-preview.js'
+        : procedural === 'serin-glide'
         ? './src/serin-glide-preview.js'
         : procedural === 'serin-back-idle'
         ? './src/serin-back-idle-preview.js'
