@@ -14,3 +14,7 @@ cd /storage/emulated/0/Documents/GodotProjects/pose-lab-v2 && git fetch origin c
 ```
 
 **Review:** open the returned live `motion.html?procedural=serin-unified-authored&rev=<actual sha>`, tap Jump from idle and then while gliding. Confirm all of Serin moves, pose scale remains coherent, immediate input, no detached puddle and no landing delay. Do not promote visually until human verdict.
+
+## Live-fluid jump correction
+
+The first hosted build had an image hard switch and physical jump but a completely static airborne shader; all fluid code ran only in the ground branch. This revision preserves the approved complete PNG and drives its liquid tail with layered traveling UV waves, velocity-dependent lag and tip curl, adds weaker trailing hair inertia and shifting internal violet galaxy highlights, then produces a short landing ripple on the existing pool. It adds no new art, split body sections, source-frame interpolation, or jump delay. Await human review on the real phone Pose Lab route.

@@ -46,7 +46,18 @@
     "sourceCount": 1,
     "sourceSHA256": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453",
     "renderMode": "instant hard switch entire source when inAir",
-    "runtimeVerdict": "pending"
+    "runtimeVerdict": "pending",
+    "fluidAnimation": {
+      "technique": "localized continuous UV flow and galaxy starlane in the one approved airborne RGBA image",
+      "tail": "traveling waves, ascent-descent inertia and velocity trail, curled-tip current",
+      "hair": "subtle lower-frequency wind-lag deformation",
+      "internalCurrent": "violet-gated moving star streaks within source alpha",
+      "landing": "temporary contact ripple in ground pool",
+      "sourceArtUnchanged": true,
+      "generatedFrames": 0,
+      "independentSpritePieces": 0,
+      "visualVerdict": "pending"
+    }
   },
   "presentation": {
     "safeFrameScale": 1,

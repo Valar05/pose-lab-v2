@@ -22,7 +22,7 @@ for(const z of ["'uniform sampler2D uAir;'","'uniform float uAirActive;'","' if(
 "vec2 airPx=vec2(groundP.x*1086.0,groundP.y*1536.0-88.0+uJumpY)",
 "loadAuthorized(recipe.source.airborne.file,recipe.source.airborne.sha256,recipe.source.airborne.size)",
 "gl.uniform1i(loc('uAir'),2);","gl.uniform1f(loc('uAirActive'),s.inAir?1:0);",
-"' vec2 p=groundP;'","' float flight=0.0;'"])
+"' vec2 p=groundP;'","' float flight=0.0;'","'uniform float uAirTime;'","'uniform float uAirVelocity;'","'uniform float uAirHorizontal;'","'uniform float uAirTrail;'"])
  assert.ok(shader.includes(z),'MISSING_NEW_FLIGHT_ASSERTION '+z);
 const gate=shader.indexOf("' if(uAirActive>0.5){'");
 const grounded=shader.indexOf("' // Both authored poses are nearly edge-to-edge");
@@ -30,6 +30,17 @@ assert.ok(gate>0&&grounded>gate);
 assert.ok(shader.slice(gate,grounded).includes("'   return;'"),
   'Air pixels must exit shader before ground image, floor, alpha, or body warps');
 assert.ok(!shader.includes('uFlightTrail*coil'),'rejected split-flight deformation must not operate');
+// Regression: a full-body airborne sprite without active fluid motion is NOT complete.
+for(const wire of ["gl.uniform1f(loc('uAirTime'),s.time);",
+"gl.uniform1f(loc('uAirVelocity'),s.jumpVelocity/760);",
+"gl.uniform1f(loc('uAirHorizontal'),s.velocity/controller.config.maxSpeed);",
+"gl.uniform1f(loc('uAirTrail'),s.flightTrail);"])
+ assert.ok(shader.includes(wire),'AIR_FLUID_UNWIRED '+wire);
+for(const expression of ["sampleAt.x+=tail*","sampleAt.y+=tail*","sampleAt.x+=hair*",
+"pow(current,7.0)*tail*violet","flying.rgb+=","uLanding*puddle*0.008"])
+ assert.ok(shader.includes(expression),'NO_RENDERED_FLUID_EFFECT '+expression);
+assert.ok(shader.includes('airValid?texture2D(uAir'), 'flight must animate the one existing PNG');
+assert.ok(shader.includes('flying.a<0.003?vec4(0.0):flying'), 'glow must not escape source alpha');
 assert.ok(!shader.includes('mix(idle,glide,'),'avoid image-source crossfades');
 assert.ok(shader.includes("const s=controller.update(dt,drive,pendingJump);"),
  'existing immediate jump controller must remain in use');

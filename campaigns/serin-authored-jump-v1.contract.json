@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "serin-authored-jump-v1",
   "status": "awaiting-phone-source-ingress",
-  "mission": "Take the exact human-selected Serin authored airborne PNG from the known Android Pictures path; keep the whole sprite together in flight and preserve all existing accepted grounded art, idle blink and wave glide. Jump instantly from idle or glide. Require actual phone human verdict for new runtime.",
+  "mission": "Animate Serin's existing approved full-body airborne source with time-varying galaxy-liquid tail currents, momentum lag, trailing hair and landing ripple while keeping jump physics, source images, idle blink and accepted ground glide fixed.",
   "authority": {
     "baseRevision": "937797d2fb4b8e70611ae847a96d1727f1e0acb8",
     "doctrineSourceRevision": "c6244e49a764a2d382161ee5969e65129d056b20",
@@ -30,7 +30,8 @@
       "Wave and crest math unchanged",
       "Reverse behavior stays quiet",
       "Existing old front idle and wave glide preview unchanged"
-    ]
+    ],
+    "animationCorrection": "Prior integration switched one image and translated it with no in-air fluid movement. Fix only procedural effects in existing authored preview; all original artwork remains byte locked."
   },
   "machine": {
     "mutablePaths": [
@@ -110,6 +111,21 @@
         "kind": "text-contains",
         "path": "tools/campaigns/serin-authored-jump-v1.sh",
         "value": "SERIN_AUTHORED_JUMP_TRANSPORT=PASS"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "sampleAt.x+=tail*"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "pow(current,7.0)*tail*violet"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "gl.uniform1f(loc('uAirVelocity'),s.jumpVelocity/760);"
       }
     ]
   }
