@@ -1,0 +1,27 @@
+name: Pose Lab Native Animation Doctrine
+on:
+  push:
+    branches:
+      - codex/pose-lab-native-animation-doctrine-v1
+permissions:
+  contents: read
+jobs:
+  doctrine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse scripts and require safe campaign preflight
+        run: |
+          python3 -m py_compile tools/campaigns/sprite_doctrine_boot.py tools/test_sprite_doctrine_boot.py
+          bash -n tools/campaigns/campaign_common.sh
+          python3 tools/campaigns/campaign_core.py --root . preflight --contract campaigns/pose-lab-native-animation-doctrine-v1.contract.json --skip-diff
+          python3 tools/campaigns/campaign_core.py --root . verify --contract campaigns/pose-lab-native-animation-doctrine-v1.contract.json
+      - name: Test actual doctrine import, selection and visual-authority gates
+        run: python3 tools/test_sprite_doctrine_boot.py
+      - name: Prior Pose Lab campaign framework regression
+        run: python3 tools/test_pose_campaign_framework.py
+      - name: Real bootstrap of this active campaign
+        run: |
+          source tools/campaigns/campaign_common.sh
+          pose_campaign_boot "$PWD" campaigns/pose-lab-native-animation-doctrine-v1.contract.json

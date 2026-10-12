@@ -1,0 +1,82 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "pose-lab-native-animation-doctrine-v1",
+  "status": "implementation",
+  "mission": "Move Organ's existing reusable sprite-animation doctrine and April exemplars into Pose Lab as single active animation authority, preserve original byte identities, create context-injectable deterministic task packets, enforce typed reference hashes before sprite generation, and automatically emit packets at campaign boot.",
+  "authority": {
+    "historicalSource": "Valar05/organ@bbbd5576eb02521d86edccddf953c974d019f2d1",
+    "poseLabBase": "3c9dfe92d5c4c9e61993ae58ee72a86b27b1fd25",
+    "targetRepo": "Valar05/pose-lab-v2",
+    "approvedScope": "doctrine migration and bootstrap infrastructure only",
+    "locks": [
+      "No character PNG or canonical atlas changes",
+      "No Serin animation or gameplay changes",
+      "All six Organ files byte-identical, preserved as history",
+      "Human-visible visual acceptance remains independent"
+    ],
+    "note": "Prior Organ material remains an archive. Pose Lab owns active doctrine. Appended reference-manifest is a preflight for new art only."
+  },
+  "machine": {
+    "mutablePaths": [
+      "AGENTS.md",
+      "tools/campaigns/campaign_common.sh",
+      "tools/campaigns/sprite_doctrine_boot.py",
+      "tools/test_sprite_doctrine_boot.py",
+      "docs/SPRITE_AUTHORING_BOOT.md",
+      "doctrine/animation/doctrine-index-v1.json",
+      "doctrine/animation/import-provenance-v1.json",
+      "doctrine/animation/sparse_sprite_motion_v1.json",
+      "doctrine/animation/april_one_frame_idle_accepted_v1.json",
+      "doctrine/animation/april_slow_jog_accepted_v1.json",
+      "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json",
+      "doctrine/sprite-animation/april-run-minimal-keyframes-v1.md",
+      "doctrine/sprite-animation/april-run-minimal-keyframes-v1.rules.json",
+      "campaigns/pose-lab-native-animation-doctrine-v1.contract.json",
+      "campaigns/pose-lab-native-animation-doctrine-v1.receipt.json",
+      ".github/workflows/pose-lab-native-animation-doctrine-v1.yml"
+    ],
+    "receiptPath": "campaigns/pose-lab-native-animation-doctrine-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "doctrine/animation/doctrine-index-v1.json",
+        "pointer": "/schema",
+        "value": "pose-lab-animation-doctrine-index-v1"
+      },
+      {
+        "kind": "json-equals",
+        "path": "doctrine/animation/import-provenance-v1.json",
+        "pointer": "/source_repository",
+        "value": "Valar05/organ"
+      },
+      {
+        "kind": "text-contains",
+        "path": "AGENTS.md",
+        "value": "sprite_doctrine_boot.py"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/campaign_common.sh",
+        "value": "POSE_CONTEXT_MUST_BE_READ_BY_WORKING_MODEL"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/sprite_doctrine_boot.py",
+        "value": "SOURCE_AUTHORITY_REQUIRED"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/test_sprite_doctrine_boot.py",
+        "value": "POSE_LAB_NATIVE_SPRITE_DOCTRINE_BOOT_PASS"
+      }
+    ]
+  }
+}
