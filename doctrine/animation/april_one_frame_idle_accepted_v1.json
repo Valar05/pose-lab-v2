@@ -1,0 +1,106 @@
+{
+  "acceptance": {
+    "accepted_by": "Drew",
+    "accepted_date": "2026-09-21",
+    "qualification": "The hip-to-knee addition is subtle enough that Drew saw little difference from revision 21, but the result is completely acceptable.",
+    "scope": "exact Sprite Lab revision 22 idle; acceptance changed state only, not visual parameters",
+    "statement": "completely acceptable and really freaking good; it is time we can move on"
+  },
+  "animation": "idle",
+  "character": "April",
+  "id": "april-one-frame-idle-accepted-v1",
+  "identity": {
+    "authored_frame_count": 1,
+    "frame_id": "frame-0001-a95071a3",
+    "pivot": {
+      "x": 109.5,
+      "y": 446
+    },
+    "rect": {
+      "h": 446,
+      "w": 219,
+      "x": 122,
+      "y": 17
+    },
+    "source_atlas": "april-violet-full-sprite-sheet-alpha-v2.png",
+    "source_atlas_sha256": "7b73e72ec2d431626cea80d07d674a79b85401e6ade73dafadabab09a0db2614"
+  },
+  "locked": [
+    "one authored pose",
+    "accepted violet April identity",
+    "1.90 second bounded loop",
+    "intentional cyclical shoulder skew",
+    "centered base and grounded boots",
+    "hard-zero hip and knee anchor lines",
+    "hip-to-knee-only opposed transfer",
+    "zero lower-leg and foot displacement",
+    "restrained breath, cloth, and hose lag",
+    "no generated in-betweens",
+    "no rig",
+    "no root motion"
+  ],
+  "motion_program": {
+    "cycle_ms": 1900,
+    "ground_y": 225,
+    "idle_deformation": {
+      "base_center_contract": "x displacement = 0 below normalized y 0.90",
+      "belly_counter_x": 1.8,
+      "breath_y": 4.0,
+      "center_u": 0.51,
+      "chest_expand": 0.018,
+      "cloth": {
+        "amplitude_x": 2.6,
+        "amplitude_y": 1.5,
+        "phase_lag": 0.72,
+        "wavelength": 3.4
+      },
+      "cols": 28,
+      "ground_lock": "fade-to-zero-at-boots",
+      "hose": {
+        "amplitude_x": 3.8,
+        "amplitude_y": 2.1,
+        "anchor_u": 0.12,
+        "phase_lag": 1.05,
+        "release_u": 0.72,
+        "wavelength": 4.8
+      },
+      "lateral_skew_x": 11.0,
+      "leg_center_u": 0.51,
+      "leg_separation_sharpness": 13,
+      "load_shear": 0.0008,
+      "load_shift_x": 0.35,
+      "rows": 32,
+      "skew_lock_v": 0.9,
+      "skew_start_v": 0.18,
+      "thigh_anchor_contract": "zero displacement at normalized y 0.52 and 0.82; no lower-leg or foot deformation",
+      "thigh_bottom_v": 0.82,
+      "thigh_compression_y": 2.15,
+      "thigh_phase_lag": 0.24,
+      "thigh_top_v": 0.52,
+      "thigh_transfer_x": 1.45
+    },
+    "kind": "one-frame-idle-deformation-v5-anchored-kinetic-chain",
+    "motion_inspiration": [
+      "Ryu standing strips",
+      "Belly of Defiance",
+      "Arcana Choir"
+    ],
+    "preview_scale_compensation": 2.123809523809524,
+    "source_motion_authority": "908959.gif; one authored pose; 1.90 second loop",
+    "watchdown_source": "910203.mp4"
+  },
+  "project": "Valkyrie Squad",
+  "schema": "organ-animation-exemplar-v1",
+  "sprite_lab": {
+    "accepted_candidate_sha256": "b603e52993ef8ff9699b65cb8dfe137e651a8b2c2edd5b66c665d4712ebe0a4e",
+    "accepted_project_sha256": "914d269b2a6c04de00e460ba3d73990efcbd93998d08c4f4fc8d05b903c2ff9a",
+    "accepted_rollback": {
+      "manual_revision": 21,
+      "project_sha256": "5c835035281049dc60779198679a4ea1a4f4120eed0d44b04698a468ab74e226"
+    },
+    "manual_revision": 22,
+    "review_state": "accepted-by-drew-2026-09-21",
+    "review_url": "http://127.0.0.1:8765/?animation=idle&revision=22"
+  },
+  "status": "shipped"
+}

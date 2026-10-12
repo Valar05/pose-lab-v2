@@ -1,0 +1,29 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "pose-lab-native-animation-doctrine-v1",
+  "status": "complete",
+  "startRevision": "3c9dfe92d5c4c9e61993ae58ee72a86b27b1fd25",
+  "implementationRevision": "a451cdce707ee87ec6b95f37cc6462bdc7759f70",
+  "finalRevision": null,
+  "executionLane": "GitHub connector + GitHub Actions verified; infrastructure, no sprite visual promotion",
+  "reviewUrl": null,
+  "humanVerdict": "not-applicable-infrastructure",
+  "mutablePaths": [
+    "AGENTS.md",
+    "tools/campaigns/campaign_common.sh",
+    "tools/campaigns/sprite_doctrine_boot.py",
+    "tools/test_sprite_doctrine_boot.py",
+    "docs/SPRITE_AUTHORING_BOOT.md",
+    "doctrine/animation/doctrine-index-v1.json",
+    "doctrine/animation/import-provenance-v1.json",
+    "doctrine/animation/sparse_sprite_motion_v1.json",
+    "doctrine/animation/april_one_frame_idle_accepted_v1.json",
+    "doctrine/animation/april_slow_jog_accepted_v1.json",
+    "doctrine/animation/april_sprite_animation_experiment_ledger_v1.json",
+    "doctrine/sprite-animation/april-run-minimal-keyframes-v1.md",
+    "doctrine/sprite-animation/april-run-minimal-keyframes-v1.rules.json",
+    "campaigns/pose-lab-native-animation-doctrine-v1.contract.json",
+    "campaigns/pose-lab-native-animation-doctrine-v1.receipt.json",
+    ".github/workflows/pose-lab-native-animation-doctrine-v1.yml"
+  ]
+}

@@ -14,11 +14,15 @@ pose_campaign_require_file(){
 pose_campaign_boot(){
   local root="$1" contract="$2"
   cd "$root"
-  for f in AGENTS.md docs/POSE_LAB_CAMPAIGN_RULES.md docs/POSE_IS_GOD.md "$contract"; do
+  for f in AGENTS.md docs/POSE_LAB_CAMPAIGN_RULES.md docs/POSE_IS_GOD.md docs/POSE_CAMPAIGN_FRAMEWORK.md "$contract"; do
     pose_campaign_require_file "$f"
-    cat "$f" >/dev/null
-    echo "READ=$f"
   done
+  pose_campaign_require_file tools/campaigns/sprite_doctrine_boot.py
+  local context_packet
+  context_packet="$(mktemp "${TMPDIR:-/tmp}/pose-lab-context.XXXXXXXX")" || pose_campaign_stop "context temp allocation failed"
+  python3 tools/campaigns/sprite_doctrine_boot.py --task auto --contract "$contract" --output "$context_packet" || pose_campaign_stop "sprite doctrine boot failed closed"
+  # A terminal-created context packet is NOT proof the working model consumed it.
+  echo "POSE_CONTEXT_MUST_BE_READ_BY_WORKING_MODEL=$context_packet"
   python3 tools/campaigns/campaign_core.py --root "$root" preflight --contract "$contract" --skip-diff
 }
 
