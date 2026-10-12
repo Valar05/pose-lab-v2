@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import {SerinGlideWaveController} from '../src/serin-glide-wave-system.mjs';
+const c=new SerinGlideWaveController();
+const step=(seconds,drive)=>{let result;for(let i=0;i<Math.round(seconds*120);i++)result=c.update(1/120,drive);return result;};
+const idle=step(.8,0);
+assert.equal(idle.poseBlend,0);assert.equal(idle.mode,'idle');
+assert.ok(idle.wavePhase>0,'puddle should move when idle');
+const phase=idle.wavePhase;
+const go=step(1.4,1);
+assert.ok(go.wavePhase-phase>1.4*4*2*Math.PI,'glide puddle must outrun lava lamp');
+assert.ok(go.forwardLean>8,'forward torso lean');
+assert.ok(go.crest>0.02,'bow-wave present during movement');
+assert.ok(go.poseBlend>0.7,'moving pose authority');
+const coast=step(.12,0);
+assert.ok(coast.velocity<go.velocity,'stop decelerates');
+assert.ok(coast.waveAmplitude>0.006,'liquid still moves during braking');
+const stop=step(5,0);
+assert.equal(stop.mode,'idle');assert.equal(stop.poseBlend,0);assert.equal(stop.velocity,0);
+assert.ok(stop.waveAmplitude>0,'ambient pool never freezes');
+assert.ok(stop.crest<go.crest,'crest settles');
+const x=new SerinGlideWaveController(),y=new SerinGlideWaveController();
+for(let i=0;i<720;i++){const drive=i<260?1:0;x.update(1/120,drive);y.update(1/120,drive);}
+assert.deepEqual(x.getState(),y.getState(),'determinism');
+assert.throws(()=>x.update(-1,0),/WAVE_INVALID_DELTA/);
+console.log('SERIN_WAVE_START_STOP_CREST_AND_PHYSICS_PASS');
