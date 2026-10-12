@@ -1,6 +1,15 @@
 import {SerinUnifiedLocomotion} from './serin-unified-locomotion.mjs';
 import {scheduledBlink,manualBlink,verifyBlinkSpec} from './serin-blink-timeline.mjs';
 import {demoAxis,DEMO_DURATION_SECONDS} from './serin-glide-wave-system.mjs';
+// One jump-reactive performance envelope; source frames and physics are locked.
+function jumpReaction(age,verticalVelocity,impulse){
+ const t=Math.max(0,age);
+ const squash=Math.pow(Math.max(0,1-t/0.125),1.35);
+ const releaseTime=Math.max(0,Math.min(1,(t-0.060)/0.170));
+ const stretch=Math.pow(Math.sin(Math.PI*releaseTime),2);
+ const apex=Math.pow(Math.max(0,1-Math.abs(verticalVelocity)/Math.max(1,impulse*0.60)),2);
+ return {squash,stretch,apex};
+}
 const app=document.querySelector('#app');
 app.innerHTML=[
 '<style>',
@@ -66,6 +75,9 @@ const fragment=[
 'uniform float uAirVelocity;',
 'uniform float uAirHorizontal;',
 'uniform float uAirTrail;',
+'uniform float uLaunchSquash;',
+'uniform float uLaunchStretch;',
+'uniform float uApexGather;',
 'uniform float uPoseBlend;',
 'uniform float uSourceMode;',
 'uniform float uPitch;',
@@ -126,6 +138,14 @@ const fragment=[
 ' if(uAirActive>0.5){',
 '   vec2 airPx=vec2(groundP.x*1086.0,groundP.y*1536.0-88.0+uJumpY);',
 '   vec2 base=airPx/vec2(1086.0,1448.0);',
+'   // Instant takeoff: the complete one-frame image squashes while already rising.',
+'   // Inverse source sampling keeps the body, hair and curled tail together.',
+'   float squash=clamp(uLaunchSquash,0.0,1.0);',
+'   float release=clamp(uLaunchStretch,0.0,1.0);',
+'   float elasticX=1.0+0.12*squash-0.035*release;',
+'   float elasticY=1.0-0.20*squash+0.10*release;',
+'   vec2 core=vec2(0.52,0.58);',
+'   vec2 elastic=core+(base-core)/vec2(elasticX,elasticY);',
 '   // Lower tail flows; face, torso, arms and jewelry remain pose-locked.',
 '   float tail=smoothstep(0.54,0.72,base.y)*(1.0-smoothstep(0.65,0.84,base.x));',
 '   float curl=smoothstep(0.61,0.82,base.y)*tail;',
@@ -135,7 +155,12 @@ const fragment=[
 '   float trail=clamp(uAirTrail,0.0,1.0);',
 '   float wave=sin(uAirTime*8.2-base.y*19.0+base.x*4.0);',
 '   float undertow=sin(uAirTime*4.8+base.y*10.0-base.x*14.0);',
-'   vec2 sampleAt=base;',
+'   // Near apex, the liquid gathers toward its own continuous centerline.',
+'   float apex=clamp(uApexGather,0.0,1.0);',
+'   vec2 sampleAt=elastic;',
+'   float tailCoil=smoothstep(0.54,0.76,elastic.y)*(1.0-smoothstep(0.80,0.97,elastic.y));',
+'   sampleAt.x+=apex*tailCoil*(elastic.x-0.51)*0.075;',
+'   sampleAt.y+=apex*tailCoil*0.013*sin(elastic.x*18.0+uAirTime*2.8);',
 '   // Two traveling currents, upward inertia on takeoff, recoil on falling.',
 '   sampleAt.x+=tail*(0.014*wave+0.011*undertow+0.010*wind*trail);',
 '   sampleAt.y+=tail*(-0.014*rise+0.006*sin(uAirTime*7.0+base.x*18.0));',
@@ -189,6 +214,10 @@ const fragment=[
 ' float coil=smoothstep(0.55,0.76,p.y)*(1.0-smoothstep(0.88,0.96,p.y));',
 ' warp.x=mix(warp.x,0.53+(warp.x-0.53)*0.73,coil*flight);',
 ' // The authored airborne liquid tail needs no fabricated body segmentation.',
+' // Physics contact compresses the upper slime briefly, while the pool stays grounded.',
+' float impact=clamp(uLanding,0.0,1.0);',
+' float abovePool=1.0-smoothstep(0.70,0.92,p.y);',
+' warp.y=mix(warp.y,0.93+(warp.y-0.93)/(1.0-0.12*impact),impact*abovePool);',
 ' warp.y-=uLanding*0.019*(1.0-smoothstep(0.60,0.82,p.y));',
 ' // Front idle retains her slow hair inertia and column breathing beneath',
 ' // the faster crest/wake system, without altering the accepted wave formula.',
@@ -302,6 +331,7 @@ async function boot(){
  gl.uniform2f(loc('uEyeSlants'),frontRecipe.blink.leftEye.slant,frontRecipe.blink.rightEye.slant);
  gl.uniform1f(loc('uFrameScale'),recipe.presentation.safeFrameScale);
  gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);
+ let lastJumpCount=0,jumpStartAt=0;
  function frame(now){
   if(!running)return;
   const dt=frameTime?Math.min((now-frameTime)/1000,0.05):0;frameTime=now;
@@ -311,6 +341,13 @@ async function boot(){
   else if(held.has('ArrowRight'))drive=1;
   else if(held.has('ArrowLeft'))drive=-1;
   const s=controller.update(dt,drive,pendingJump);
+   if(s.jumpCount!==lastJumpCount){lastJumpCount=s.jumpCount;jumpStartAt=s.time;}
+   const jumpAge=s.inAir?Math.max(0,s.time-jumpStartAt):0;
+   const response=s.inAir?jumpReaction(jumpAge,s.jumpVelocity,controller.jumpConfig.impulse):{squash:0,stretch:0,apex:0};
+   const jumpPhase=!s.inAir?(s.landCompression>0.08?'IMPACT':'GROUND'):response.squash>0.18?'SQUASH':response.stretch>0.12?'RELEASE':response.apex>0.25?'GATHER':s.jumpVelocity>=0?'RISE':'FALL';
+   gl.uniform1f(loc('uLaunchSquash'),response.squash);
+   gl.uniform1f(loc('uLaunchStretch'),response.stretch);
+   gl.uniform1f(loc('uApexGather'),response.apex);
    gl.uniform1f(loc('uAirActive'),s.inAir?1:0);
    gl.uniform1f(loc('uAirTime'),s.time);
    gl.uniform1f(loc('uAirVelocity'),s.jumpVelocity/760);
@@ -320,7 +357,7 @@ async function boot(){
   gl.clear(gl.COLOR_BUFFER_BIT);
   for(const k of ['PoseBlend','SourceMode','Pitch','Slosh','Phase','Wake','Facing','WavePhase','EdgePhase','WaveAmplitude','Crest','CrestCenter','ForwardLean','ShapeProgress','ReverseBend','JumpY','AirShape','FlightTrail','Landing','Blink','IdleTime']){const fields={PoseBlend:'poseBlend',SourceMode:'sourceMode',Pitch:'pitch',Slosh:'slosh',Phase:'phase',Wake:'wake',Facing:'facing',WavePhase:'wavePhase',EdgePhase:'edgePhase',WaveAmplitude:'waveAmplitude',Crest:'crest',CrestCenter:'crestCenter',ForwardLean:'forwardLean',ShapeProgress:'shapeProgress',ReverseBend:'reverseBend',JumpY:'jumpY',AirShape:'airShape',FlightTrail:'flightTrail',Landing:'landCompression',Blink:'blink',IdleTime:'idleTime'};const value=k==='Blink'?Math.max(scheduledBlink(s.time*1000,frontRecipe.blink),manualBlink(s.time*1000,manualBlinkStart,frontRecipe.blink.manual)):k==='IdleTime'?s.time*(2*Math.PI/9.8):s[fields[k]];gl.uniform1f(out[k],value);continue;}
   gl.drawArrays(gl.TRIANGLES,0,6);
-  q('#status').textContent='SOURCE '+(s.inAir?'FULL AIR dae365a6':s.sourceMode?'GLIDE 8c0d9b48':'FRONT IDLE 00ba472a')+' | changes '+s.sourceSwitchCount+' | bend '+s.forwardLean.toFixed(1)+'° | reverse '+s.reverseBend.toFixed(1)+'° | shape '+s.shapeProgress.toFixed(2)+' | Jump '+(s.inAir?'AIR':'GROUND')+' '+s.jumpY.toFixed(0)+'px | from '+s.jumpFrom+' | land '+s.landingCount+' | liquid '+s.flightTrail.toFixed(2)+' | Mode '+s.mode+' | velocity '+s.velocity.toFixed(1)+' | pitch '+s.pitch.toFixed(1)+'° | slosh '+s.slosh.toFixed(3)+' | pose '+s.poseBlend.toFixed(2)+' | crest '+s.crest.toFixed(3)+' | ripple '+s.waveAmplitude.toFixed(3)+' | world X '+s.position.toFixed(1);
+  q('#status').textContent='SOURCE '+(s.inAir?'FULL AIR dae365a6':s.sourceMode?'GLIDE 8c0d9b48':'FRONT IDLE 00ba472a')+' | changes '+s.sourceSwitchCount+' | bend '+s.forwardLean.toFixed(1)+'° | reverse '+s.reverseBend.toFixed(1)+'° | shape '+s.shapeProgress.toFixed(2)+' | Jump '+(s.inAir?'AIR':'GROUND')+' '+s.jumpY.toFixed(0)+'px | from '+s.jumpFrom+' | land '+s.landingCount+' | phase '+jumpPhase+' | squash '+response.squash.toFixed(2)+' | gather '+response.apex.toFixed(2)+' | liquid '+s.flightTrail.toFixed(2)+' | Mode '+s.mode+' | velocity '+s.velocity.toFixed(1)+' | pitch '+s.pitch.toFixed(1)+'° | slosh '+s.slosh.toFixed(3)+' | pose '+s.poseBlend.toFixed(2)+' | crest '+s.crest.toFixed(3)+' | ripple '+s.waveAmplitude.toFixed(3)+' | world X '+s.position.toFixed(1);
   requestAnimationFrame(frame);
  }
  requestAnimationFrame(frame);
