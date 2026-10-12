@@ -1,0 +1,24 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "serin-authored-jump-v1",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "1e062063c3041c7d28dbe17a5779f1025fb47add",
+  "implementationRevision": "e64cbbd8ed899f011d398b53c3149fc75fa84c70",
+  "finalRevision": null,
+  "executionLane": "termux-phone-exact-source-ingress",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "src/serin-unified-authored-preview.js",
+    "motion.html",
+    "src/procedural-review-shell.js",
+    "public/assets/serin-jump/serin-jump-airborne-v1.png",
+    "public/assets/serin-jump/unified-airborne.recipe.json",
+    "tools/campaigns/serin-authored-jump-v1.sh",
+    "tools/test_serin_authored_jump.mjs",
+    "campaigns/serin-authored-jump-v1.contract.json",
+    "campaigns/serin-authored-jump-v1.receipt.json",
+    "docs/campaigns/SERIN_AUTHORED_JUMP_V1.md",
+    ".github/workflows/serin-authored-jump-v1.yml"
+  ]
+}
