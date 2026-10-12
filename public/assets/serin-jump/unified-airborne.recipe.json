@@ -71,6 +71,20 @@
         "landing": "lower grounded fluid column with pool locked",
         "frames": 1,
         "visualVerdict": "pending"
+      },
+      "momentumSpring": {
+        "integrationHz": 120,
+        "source": "jumpFrom, horizontal takeoff velocity, signed vertical velocity, collision event",
+        "idle": "vertical fountain, gentle lateral sway",
+        "glide": "diagonal lag and longer plume",
+        "channels": [
+          "length",
+          "bend",
+          "impact"
+        ],
+        "upperBody": "unchanged",
+        "jumpArc": "unchanged",
+        "review": "pending comparison"
       }
     }
   },

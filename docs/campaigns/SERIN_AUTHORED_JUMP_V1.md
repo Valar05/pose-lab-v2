@@ -25,3 +25,7 @@ The prior phone build moved the single PNG but lacked a clear jump-specific resp
 
 ## Tail-only second video correction, 2026-10-12
 The full-image elasticX/Y compression observed in `932928.mp4` is rejected. The approved airborne PNG stays intact; the renderer compresses and extends its lower blue-violet material around the fluid root, gates source and advected pigment, coils at apex, lengthens on descent, and compresses only the grounded lower liquid column at contact. Face, bodice, arms, jewelry, scale, jump physics and all original art bytes are unchanged. Await exact phone playback and human visual verdict.
+
+## Takeoff-context liquid spring (candidate)
+
+The existing playable baseline is preserved at `e12733fff8df5cad165b7077f02cc34cd196be3e` on `codex/serin-authored-jump-v1`. This separate branch `codex/serin-momentum-jump-v1` captures takeoff speed and glide/idle source. A deterministic, clamped, damped spring drives only the liquid tail length and sideways lag. An idle jump forms a compact vertical fountain; a glide jump stretches back diagonally, keeping captured lateral inertia throughout the arc. Landing adds damped tail impact; the jump input, physical trajectory, all original PNGs, blink and ground waves remain locked. User visual review pending.

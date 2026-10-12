@@ -1,4 +1,5 @@
 import {SerinUnifiedLocomotion} from './serin-unified-locomotion.mjs';
+import {SerinTailMomentum} from './serin-tail-momentum.mjs';
 import {scheduledBlink,manualBlink,verifyBlinkSpec} from './serin-blink-timeline.mjs';
 import {demoAxis,DEMO_DURATION_SECONDS} from './serin-glide-wave-system.mjs';
 // One jump-reactive performance envelope; source frames and physics are locked.
@@ -42,14 +43,14 @@ app.innerHTML=[
 const q=s=>app.querySelector(s);
 const params=new URLSearchParams(location.search);
 const rev=params.get('rev')||'',cache=rev?'?rev='+encodeURIComponent(rev):'';
-const canvas=q('#stage'),controller=new SerinUnifiedLocomotion();
+const canvas=q('#stage'),controller=new SerinUnifiedLocomotion(),tailMomentum=new SerinTailMomentum();
 let axis=0,demo=false,demoTime=0,running=true,frameTime=0,pendingJump=false,manualBlinkStart=Number.NaN;
 const setAxis=n=>{demo=false;axis=n;q('#throttle').value=String(n);};
 q('#start').onclick=()=>setAxis(1);q('#reverse').onclick=()=>setAxis(-1);
 q('#stop').onclick=()=>setAxis(0);q('#jump').onclick=()=>{pendingJump=true;};
 q('#blink-now').onclick=()=>{manualBlinkStart=controller.time*1000;};
-q('#reset').onclick=()=>{setAxis(0);pendingJump=false;controller.reset();};
-q('#demo').onclick=()=>{controller.reset();axis=0;demo=true;demoTime=0;q('#throttle').value='0';};
+q('#reset').onclick=()=>{setAxis(0);pendingJump=false;controller.reset();tailMomentum.reset();lastJumpCount=0;};
+q('#demo').onclick=()=>{controller.reset();tailMomentum.reset();lastJumpCount=0;axis=0;demo=true;demoTime=0;q('#throttle').value='0';};
 q('#throttle').oninput=e=>setAxis(Number(e.target.value));
 q('#profiles').onclick=()=>location.assign('./motion.html');
 q('#animation').onchange=e=>location.assign('./motion.html?procedural='+encodeURIComponent(e.target.value));
@@ -75,6 +76,9 @@ const fragment=[
 'uniform float uAirVelocity;',
 'uniform float uAirHorizontal;',
 'uniform float uAirTrail;',
+'uniform float uTailLength;',
+'uniform float uTailBend;',
+'uniform float uTailImpact;',
 'uniform float uLaunchSquash;',
 'uniform float uLaunchStretch;',
 'uniform float uApexGather;',
@@ -147,11 +151,13 @@ const fragment=[
 '   float trail=clamp(uAirTrail,0.0,1.0);',
 '   float descend=smoothstep(0.12,0.92,-rise);',
 '   // The tail bunches, extends behind upward motion, coils at apex, extends falling.',
-'   float tailLength=1.0-0.36*press+0.17*release-0.11*apex+0.15*descend;',
+'   // 120Hz spring state tracks prior momentum rather than a canned jump clock.',
+'   float tailLength=clamp(uTailLength,0.62,1.36);'
 '   vec2 tailUv=base;',
 '   float rootY=0.53;',
 '   tailUv.y=rootY+(base.y-rootY)/max(0.52,tailLength);',
-'   tailUv.x=0.52+(base.x-0.52)/(1.0+0.23*press-0.08*release);',
+'   tailUv.x=0.52+(base.x-0.52)/(1.0+0.20*(1.0-tailLength));',
+'   tailUv.x-=uTailBend*smoothstep(0.55,0.93,base.y);',
 '   float tail=smoothstep(0.56,0.74,base.y)*(1.0-smoothstep(0.78,0.94,base.x));',
 '   float curl=smoothstep(0.65,0.84,base.y)*tail;',
 '   float wake=sin(uAirTime*8.2-base.y*19.0+base.x*4.0);',
@@ -228,7 +234,7 @@ const fragment=[
 ' float impact=clamp(uLanding,0.0,1.0);',
 ' float column=smoothstep(0.54,0.71,p.y)*(1.0-smoothstep(0.86,0.96,p.y));',
 ' float aroundRoot=1.0-smoothstep(0.19,0.40,abs(p.x-0.54));',
-' warp.y-=impact*0.13*column*aroundRoot;',
+' warp.y-=(impact*0.13+uTailImpact*0.038)*column*aroundRoot;',
 ' warp.x-=impact*0.045*column*aroundRoot*(p.x-0.54);',
 ' // Front idle retains her slow hair inertia and column breathing beneath',
 ' // the faster crest/wake system, without altering the accepted wave formula.',
@@ -250,7 +256,7 @@ const fragment=[
 ' float bow=exp(-pow((p.x-uCrestCenter)*9.0,2.0))*smoothstep(0.78,0.85,p.y)*(1.0-smoothstep(0.97,1.0,p.y));',
 ' warp.y+=puddle*uWaveAmplitude*(0.65*sin(uWavePhase+p.x*20.0)+0.35*sin(uEdgePhase+p.x*37.0))-uCrest*bow;',
 ' // Landing impact sends a temporary ripple through the already approved pool.',
-' warp.y+=uLanding*puddle*0.008*sin(uWavePhase*1.1+p.x*32.0);',
+' warp.y+=(uLanding*0.008+uTailImpact*0.010)*puddle*sin(uWavePhase*1.1+p.x*32.0);',
 ' warp.x+=puddle*uWaveAmplitude*0.45*sin(uWavePhase*0.8+p.y*12.0);',
 ' float radius=length(vec2(p.x-0.52,2.1*(p.y-0.94)));',
 ' warp.x+=puddle*0.004*uWake*sin(radius*43.0+uPhase);',
@@ -352,6 +358,7 @@ async function boot(){
   else if(held.has('ArrowRight'))drive=1;
   else if(held.has('ArrowLeft'))drive=-1;
   const s=controller.update(dt,drive,pendingJump);
+   const liquid=tailMomentum.advance(dt,s,controller.config.maxSpeed,controller.jumpConfig.impulse);
    if(s.jumpCount!==lastJumpCount){lastJumpCount=s.jumpCount;jumpStartAt=s.time;}
    const jumpAge=s.inAir?Math.max(0,s.time-jumpStartAt):0;
    const response=s.inAir?jumpReaction(jumpAge,s.jumpVelocity,controller.jumpConfig.impulse):{squash:0,stretch:0,apex:0};
@@ -364,11 +371,14 @@ async function boot(){
    gl.uniform1f(loc('uAirVelocity'),s.jumpVelocity/760);
    gl.uniform1f(loc('uAirHorizontal'),s.velocity/controller.config.maxSpeed);
    gl.uniform1f(loc('uAirTrail'),s.flightTrail);
+   gl.uniform1f(loc('uTailLength'),liquid.length);
+   gl.uniform1f(loc('uTailBend'),liquid.bend);
+   gl.uniform1f(loc('uTailImpact'),liquid.impact);
   pendingJump=false;
   gl.clear(gl.COLOR_BUFFER_BIT);
   for(const k of ['PoseBlend','SourceMode','Pitch','Slosh','Phase','Wake','Facing','WavePhase','EdgePhase','WaveAmplitude','Crest','CrestCenter','ForwardLean','ShapeProgress','ReverseBend','JumpY','AirShape','FlightTrail','Landing','Blink','IdleTime']){const fields={PoseBlend:'poseBlend',SourceMode:'sourceMode',Pitch:'pitch',Slosh:'slosh',Phase:'phase',Wake:'wake',Facing:'facing',WavePhase:'wavePhase',EdgePhase:'edgePhase',WaveAmplitude:'waveAmplitude',Crest:'crest',CrestCenter:'crestCenter',ForwardLean:'forwardLean',ShapeProgress:'shapeProgress',ReverseBend:'reverseBend',JumpY:'jumpY',AirShape:'airShape',FlightTrail:'flightTrail',Landing:'landCompression',Blink:'blink',IdleTime:'idleTime'};const value=k==='Blink'?Math.max(scheduledBlink(s.time*1000,frontRecipe.blink),manualBlink(s.time*1000,manualBlinkStart,frontRecipe.blink.manual)):k==='IdleTime'?s.time*(2*Math.PI/9.8):s[fields[k]];gl.uniform1f(out[k],value);continue;}
   gl.drawArrays(gl.TRIANGLES,0,6);
-  q('#status').textContent='SOURCE '+(s.inAir?'FULL AIR dae365a6':s.sourceMode?'GLIDE 8c0d9b48':'FRONT IDLE 00ba472a')+' | changes '+s.sourceSwitchCount+' | bend '+s.forwardLean.toFixed(1)+'° | reverse '+s.reverseBend.toFixed(1)+'° | shape '+s.shapeProgress.toFixed(2)+' | Jump '+(s.inAir?'AIR':'GROUND')+' '+s.jumpY.toFixed(0)+'px | from '+s.jumpFrom+' | land '+s.landingCount+' | phase '+jumpPhase+' | squash '+response.squash.toFixed(2)+' | gather '+response.apex.toFixed(2)+' | liquid '+s.flightTrail.toFixed(2)+' | Mode '+s.mode+' | velocity '+s.velocity.toFixed(1)+' | pitch '+s.pitch.toFixed(1)+'° | slosh '+s.slosh.toFixed(3)+' | pose '+s.poseBlend.toFixed(2)+' | crest '+s.crest.toFixed(3)+' | ripple '+s.waveAmplitude.toFixed(3)+' | world X '+s.position.toFixed(1);
+  q('#status').textContent='SOURCE '+(s.inAir?'FULL AIR dae365a6':s.sourceMode?'GLIDE 8c0d9b48':'FRONT IDLE 00ba472a')+' | changes '+s.sourceSwitchCount+' | bend '+s.forwardLean.toFixed(1)+'° | reverse '+s.reverseBend.toFixed(1)+'° | shape '+s.shapeProgress.toFixed(2)+' | Jump '+(s.inAir?'AIR':'GROUND')+' '+s.jumpY.toFixed(0)+'px | from '+s.jumpFrom+' | land '+s.landingCount+' | phase '+jumpPhase+' | squash '+response.squash.toFixed(2)+' | gather '+response.apex.toFixed(2)+' | liquid '+s.flightTrail.toFixed(2)+' | launch '+liquid.launchKind+' | tail '+liquid.length.toFixed(2)+' | lag '+liquid.bend.toFixed(2)+' | Mode '+s.mode+' | velocity '+s.velocity.toFixed(1)+' | pitch '+s.pitch.toFixed(1)+'° | slosh '+s.slosh.toFixed(3)+' | pose '+s.poseBlend.toFixed(2)+' | crest '+s.crest.toFixed(3)+' | ripple '+s.waveAmplitude.toFixed(3)+' | world X '+s.position.toFixed(1);
   requestAnimationFrame(frame);
  }
  requestAnimationFrame(frame);

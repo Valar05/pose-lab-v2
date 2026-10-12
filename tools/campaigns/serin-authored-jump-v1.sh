@@ -4,13 +4,13 @@ set -euo pipefail
 export PAGER=cat GIT_PAGER=cat
 stop(){ printf 'SERIN_AUTHORED_JUMP_STOP=%s\n' "$*" >&2; exit 1; }
 ROOT="${POSE_LAB_ROOT:-/storage/emulated/0/Documents/GodotProjects/pose-lab-v2}"
-BRANCH="codex/serin-authored-jump-v1"
+BRANCH="codex/serin-momentum-jump-v1"
 CONTRACT="campaigns/serin-authored-jump-v1.contract.json"
 SOURCE="/storage/emulated/0/Pictures/file_00000000d06481f5866e830f23523b51.png"
 SHA="dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453"
 ASSET="public/assets/serin-jump/serin-jump-airborne-v1.png"
-STATE="$HOME/.local/state/pose-lab-v2-serin-authored-jump-v1"
-SESSION="plv2-serin-authored-v1"
+STATE="$HOME/.local/state/pose-lab-v2-serin-momentum-jump-v1"
+SESSION="plv2-serin-momentum-v1"
 [ -d "$ROOT/.git" ] || stop "Pose Lab V2 repository unavailable at $ROOT"
 for cmd in git node python3 curl tmux sha256sum; do command -v "$cmd" >/dev/null || stop "Missing $cmd"; done
 mkdir -p "$STATE"
@@ -51,6 +51,7 @@ PY
   node tools/test_serin_unified_locomotion.mjs
   node tools/test_serin_unified_runtime.mjs
   node tools/test_serin_authored_jump.mjs
+node tools/test_serin_tail_momentum.mjs
   pose_campaign_commit "$W" "art(serin): ingest exact selected one-frame full-body airborne PNG" >/dev/null
   IMPL="$(git -C "$W" rev-parse HEAD)"
   pose_campaign_write_receipt "$W" "$CONTRACT" "$START" "$IMPL" "" "" "termux-phone-exact-source-ingress" "pending"
@@ -67,6 +68,7 @@ fi
 pose_campaign_verify "$W" "$CONTRACT"
 node --check src/serin-unified-authored-preview.js
 node tools/test_serin_authored_jump.mjs
+node tools/test_serin_tail_momentum.mjs
 node tools/test_serin_unified_locomotion.mjs
 node tools/test_serin_unified_runtime.mjs
 node scripts/build.mjs

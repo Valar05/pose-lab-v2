@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - codex/serin-authored-jump-v1
+      - codex/serin-momentum-jump-v1
 permissions:
   contents: read
 jobs:
@@ -19,12 +20,14 @@ jobs:
           bash -n tools/campaigns/serin-authored-jump-v1.sh
           node --check src/serin-unified-authored-preview.js
           node --check src/serin-unified-locomotion.mjs
+          node --check src/serin-tail-momentum.mjs
           node tools/test_serin_unified_locomotion.mjs
           node tools/test_serin_unified_runtime.mjs
           node tools/test_pose_campaign_framework.mjs 2>/dev/null || python3 tools/test_pose_campaign_framework.py
       - name: New full-body source gate
         run: |
           node tools/test_serin_authored_jump.mjs
+          node tools/test_serin_tail_momentum.mjs
           python3 tools/campaigns/campaign_core.py --root . preflight --contract campaigns/serin-authored-jump-v1.contract.json --skip-diff
       - name: Verify complete campaign only after exact picture ingress
         run: |
