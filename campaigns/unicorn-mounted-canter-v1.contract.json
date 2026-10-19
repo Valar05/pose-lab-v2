@@ -1,0 +1,56 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "unicorn-mounted-canter-v1",
+  "mission": "Stage deterministic reference-video landmark measurement for a new mounted unicorn canter rig. Do not invent canter motion from the measured walking clip. Future authoring in Pose Lab V2 requires a true canter motion authority and hosted human review.",
+  "status": "intake-only-no-rig-no-runtime",
+  "authorities": {
+    "appearance": {
+      "file": "934732.png",
+      "sha256": "282d9cd98d0f2bd01816a5a3fe6e18c9e67d375a4a29da6f9809285fb2c9a698",
+      "role": "character-art-only",
+      "ingress": "user-provided-conversation-attachment-not-repo-owned"
+    },
+    "observedWalk": {
+      "file": "934757.mp4",
+      "sha256": "b5430cdd1090e90bec22d6964817b6ae852cbb1421776433847b129c814afcba",
+      "role": "color-wrap-walking-measurement-only-not-canter"
+    },
+    "canter": {
+      "status": "not-provided",
+      "evidence": "continuous three-beat actual canter with suspension required"
+    }
+  },
+  "constraints": {
+    "target": "existing Pose Lab V2",
+    "rootMotionX": false,
+    "visualLock": "character identity from source image",
+    "approvedAnimation": "none",
+    "humanVerdict": "pending",
+    "rejected": "independent generated poses and inference of canter cadence from phone-screen walk"
+  },
+  "machine": {
+    "mutablePaths": [
+      "campaigns/unicorn-mounted-canter-v1.contract.json",
+      "campaigns/unicorn-mounted-canter-v1.receipt.json",
+      "docs/campaigns/UNICORN_COLOR_WRAP_REFERENCE_2026-10-18.md",
+      "tools/campaigns/unicorn_wrap_reference_track.py",
+      "public/assets/unicorn/**"
+    ],
+    "receiptPath": "campaigns/unicorn-mounted-canter-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "text-contains",
+        "path": "docs/campaigns/UNICORN_COLOR_WRAP_REFERENCE_2026-10-18.md",
+        "value": "not a canter performance candidate"
+      }
+    ]
+  }
+}
