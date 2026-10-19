@@ -1,0 +1,181 @@
+{
+  "schema": "pose-lab-v2-2d-animation-set-v1",
+  "character": "Mounted Unicorn [UNACCEPTED mechanical rig prototype]",
+  "defaultAnimation": "canter",
+  "frameSpace": {
+    "width": 512,
+    "height": 512,
+    "colorMode": "RGBA",
+    "background": "transparent",
+    "facing": "screen-right",
+    "camera": "fixed"
+  },
+  "authority": {
+    "appearance": "934732.png sha256 282d9cd98d0f2bd01816a5a3fe6e18c9e67d375a4a29da6f9809285fb2c9a698",
+    "motion": "provisional three-beat canter model, not reference-video derived"
+  },
+  "animations": [
+    {
+      "id": "canter",
+      "label": "Canter: mechanical candidate",
+      "loop": true,
+      "contactSheet": "canter/contact-sheet.png",
+      "sourceMetadata": "rig.json",
+      "groundGuideY": 436,
+      "contract": [
+        "quarantined",
+        "source identity preserved",
+        "in-place root",
+        "independent 4-limb IK",
+        "articulated anatomy awaiting repair",
+        "not visually accepted"
+      ],
+      "frames": [
+        {
+          "src": "canter/frames/canter_000.png",
+          "durationMs": 50,
+          "sha256": "0780f0ae2f805b6bf78104a1028b741569f87946c41fc2abd407118d16544a66",
+          "sourceFrame": 0
+        },
+        {
+          "src": "canter/frames/canter_001.png",
+          "durationMs": 50,
+          "sha256": "ea35e7b2ae5ad5c12b980e994f2f90a7632e99648d95948621d1559d15febd8d",
+          "sourceFrame": 1
+        },
+        {
+          "src": "canter/frames/canter_002.png",
+          "durationMs": 50,
+          "sha256": "df3384eca07397b977dfc961db6d75d30fb84e4a52d20494cbb5fd35deb5de50",
+          "sourceFrame": 2
+        },
+        {
+          "src": "canter/frames/canter_003.png",
+          "durationMs": 50,
+          "sha256": "6ec54c7b800d8c1552fd55173667cdd3b06f37d8c3a2f3f64d0c39a5f8fe5e5c",
+          "sourceFrame": 3
+        },
+        {
+          "src": "canter/frames/canter_004.png",
+          "durationMs": 50,
+          "sha256": "8a6ee9d308cee03841478cc3b3680921a2d64610c0ce46daf81fa54b5e9e46f1",
+          "sourceFrame": 4
+        },
+        {
+          "src": "canter/frames/canter_005.png",
+          "durationMs": 50,
+          "sha256": "1587e6df0042ab2a9b3f1d72e9cd5671151d30f382650775f127fea190f4c7d6",
+          "sourceFrame": 5
+        },
+        {
+          "src": "canter/frames/canter_006.png",
+          "durationMs": 50,
+          "sha256": "66171a76154e519c10d55a4bf36d71857e071672691af7016f2a843e1c133f04",
+          "sourceFrame": 6
+        },
+        {
+          "src": "canter/frames/canter_007.png",
+          "durationMs": 50,
+          "sha256": "7364aff54d2c540d80869abb35066343e2bf6658857abc67f5d34c161e4422b8",
+          "sourceFrame": 7
+        },
+        {
+          "src": "canter/frames/canter_008.png",
+          "durationMs": 50,
+          "sha256": "5d87d58c11b6394e7e102877a68de8fd4ae513d12f5e0378c783ac67f5e605ea",
+          "sourceFrame": 8
+        },
+        {
+          "src": "canter/frames/canter_009.png",
+          "durationMs": 50,
+          "sha256": "7d6643b57273246537491c803dccf62cc618b7d61c9f429622cdf1597020410c",
+          "sourceFrame": 9
+        },
+        {
+          "src": "canter/frames/canter_010.png",
+          "durationMs": 50,
+          "sha256": "06bc8828a8b1a0f8aa67c4b76f875ab4121e8a218f4c00ee526b7290b2d60031",
+          "sourceFrame": 10
+        },
+        {
+          "src": "canter/frames/canter_011.png",
+          "durationMs": 50,
+          "sha256": "b7cfe33c29fadf6f10854e3469e434102c0efc49221212ed7f36a6ef9949c462",
+          "sourceFrame": 11
+        },
+        {
+          "src": "canter/frames/canter_012.png",
+          "durationMs": 50,
+          "sha256": "1349007b15228d2b26024c1753c197a54f77a789bdd824949a7d429dbe9a3b3d",
+          "sourceFrame": 12
+        },
+        {
+          "src": "canter/frames/canter_013.png",
+          "durationMs": 50,
+          "sha256": "f960adca7f4e75a1c3d7e00d9099f59279c385a739d2c8b991a8dd9be9811c19",
+          "sourceFrame": 13
+        },
+        {
+          "src": "canter/frames/canter_014.png",
+          "durationMs": 50,
+          "sha256": "e1ebbc40e56178236ed3b6a2e8c19aab8cd904120ee7f32bf32d9e133f6aab71",
+          "sourceFrame": 14
+        },
+        {
+          "src": "canter/frames/canter_015.png",
+          "durationMs": 50,
+          "sha256": "17290fedcfbacc000e3aff0030732d3c16f65adf4b6abb89ad9c56caaa407e41",
+          "sourceFrame": 15
+        },
+        {
+          "src": "canter/frames/canter_016.png",
+          "durationMs": 50,
+          "sha256": "3b2e4cb63b9a13731e85525830ff9c587e60c242fb8c0ede2da219f2e7b000b6",
+          "sourceFrame": 16
+        },
+        {
+          "src": "canter/frames/canter_017.png",
+          "durationMs": 50,
+          "sha256": "dcc0f52c7b15cc0418202f1c9e42b518ec1cd46005c968d82e38d66a063dc540",
+          "sourceFrame": 17
+        },
+        {
+          "src": "canter/frames/canter_018.png",
+          "durationMs": 50,
+          "sha256": "acdcb69c9b424611682e9f29833fe2216331832501945f66dc5cd5df9b275ab7",
+          "sourceFrame": 18
+        },
+        {
+          "src": "canter/frames/canter_019.png",
+          "durationMs": 50,
+          "sha256": "1d254862ed5fbc707b9d746eaa6c3bd194c7e83b4f9a7c3f73c080ab5b698b44",
+          "sourceFrame": 19
+        },
+        {
+          "src": "canter/frames/canter_020.png",
+          "durationMs": 50,
+          "sha256": "c74d7033751bd7ea954cf61ce1a8ec86bf7ca769586f82507199f2e2fcef1976",
+          "sourceFrame": 20
+        },
+        {
+          "src": "canter/frames/canter_021.png",
+          "durationMs": 50,
+          "sha256": "ca8e34cabfed228a776528d278a5d509cdf7c2546c259db27e7d0cc9dcb1ba9f",
+          "sourceFrame": 21
+        },
+        {
+          "src": "canter/frames/canter_022.png",
+          "durationMs": 50,
+          "sha256": "04af900b974b1fb3e38e1da745575128ba57dbdd25ff6b50b1ca744889915400",
+          "sourceFrame": 22
+        },
+        {
+          "src": "canter/frames/canter_023.png",
+          "durationMs": 50,
+          "sha256": "e10f93f7b2586e85ca998e64a868e1502fa9b3ad72d5066c35713eef22beec00",
+          "sourceFrame": 23
+        }
+      ]
+    }
+  ]
+}

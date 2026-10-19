@@ -1,0 +1,17 @@
+{
+  "schema": "pose-lab-sprite-character-authority-v1",
+  "character": "Mounted Unicorn and Rider",
+  "project": "Unicorn Terrain Engineering Game",
+  "references": [
+    {
+      "role": "CHARACTER",
+      "path": "public/assets/unicorn/source/934732.png",
+      "sha256": "282d9cd98d0f2bd01816a5a3fe6e18c9e67d375a4a29da6f9809285fb2c9a698"
+    },
+    {
+      "role": "STYLE",
+      "path": "public/assets/unicorn/source/934732.png",
+      "sha256": "282d9cd98d0f2bd01816a5a3fe6e18c9e67d375a4a29da6f9809285fb2c9a698"
+    }
+  ]
+}

@@ -1,0 +1,1862 @@
+{
+  "schema": "unicorn-2d-kinematic-rig-v1",
+  "status": "quarantined-prototype",
+  "artSource": {
+    "name": "934732.png",
+    "sha256": "282d9cd98d0f2bd01816a5a3fe6e18c9e67d375a4a29da6f9809285fb2c9a698",
+    "selectedCell": [
+      0,
+      0,
+      455,
+      430
+    ]
+  },
+  "rootMotionX": false,
+  "lead": "near",
+  "leadConfirmedFromVideo": false,
+  "timingAuthority": "provisional modeled three-beat canter, not video-derived",
+  "beatSequence": "opposite hind; diagonal hind+fore; lead fore; suspension",
+  "beatPhase": {
+    "hind_far": 0.0,
+    "hind_near": 0.27,
+    "fore_far": 0.27,
+    "fore_near": 0.54
+  },
+  "groundY": 436,
+  "hierarchy": {
+    "root": {
+      "position": [
+        0,
+        0
+      ],
+      "rootXFixed": true
+    },
+    "torso": {
+      "parent": "root"
+    },
+    "neck_head": {
+      "parent": "torso"
+    },
+    "rider": {
+      "parent": "saddle",
+      "contactLocked": true
+    },
+    "rider_cloth": {
+      "parent": "rider"
+    },
+    "tail": {
+      "parent": "pelvis"
+    },
+    "hind_far": {
+      "parent": "root",
+      "hinges": [
+        "root",
+        "intermediate",
+        "fetlock/hoof"
+      ],
+      "proxy": true
+    },
+    "hind_near": {
+      "parent": "root",
+      "hinges": [
+        "root",
+        "intermediate",
+        "fetlock/hoof"
+      ],
+      "proxy": true
+    },
+    "fore_far": {
+      "parent": "root",
+      "hinges": [
+        "root",
+        "intermediate",
+        "fetlock/hoof"
+      ],
+      "proxy": true
+    },
+    "fore_near": {
+      "parent": "root",
+      "hinges": [
+        "root",
+        "intermediate",
+        "fetlock/hoof"
+      ],
+      "proxy": true
+    }
+  },
+  "boneParams": {
+    "hind_far": {
+      "base": [
+        165,
+        288
+      ],
+      "upper": 76,
+      "lower": 83,
+      "bend": -1,
+      "x": -19
+    },
+    "hind_near": {
+      "base": [
+        224,
+        280
+      ],
+      "upper": 78,
+      "lower": 81,
+      "bend": -1,
+      "x": -6
+    },
+    "fore_far": {
+      "base": [
+        326,
+        276
+      ],
+      "upper": 78,
+      "lower": 78,
+      "bend": 1,
+      "x": -9
+    },
+    "fore_near": {
+      "base": [
+        359,
+        267
+      ],
+      "upper": 82,
+      "lower": 79,
+      "bend": 1,
+      "x": 9
+    }
+  },
+  "anatomyCaveat": "Lower limbs procedurally reconstructed as explicit proxies; segmented source texture and anatomical hock/stifle joints need manual repair",
+  "renderFrames": [
+    {
+      "frame": 0,
+      "phase": 0.0,
+      "bodyPitchDeg": 0.0,
+      "bodyBobPx": -4.939,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            303.06
+          ],
+          "joint": [
+            226.17,
+            371.44
+          ],
+          "hoof": [
+            174,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            291.06
+          ],
+          "joint": [
+            291.6,
+            337.86
+          ],
+          "hoof": [
+            323.68,
+            408.95
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            295.06
+          ],
+          "joint": [
+            291.08,
+            362.56
+          ],
+          "hoof": [
+            224.68,
+            408.95
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            282.06
+          ],
+          "joint": [
+            357.83,
+            358.7
+          ],
+          "hoof": [
+            418.28,
+            409.57
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 1,
+      "phase": 0.041667,
+      "bodyPitchDeg": 0.388,
+      "bodyBobPx": -5.886,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            302.11
+          ],
+          "joint": [
+            225.42,
+            370.85
+          ],
+          "hoof": [
+            174,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            290.11
+          ],
+          "joint": [
+            293.07,
+            338.81
+          ],
+          "hoof": [
+            320.62,
+            411.78
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            294.11
+          ],
+          "joint": [
+            286.92,
+            363.86
+          ],
+          "hoof": [
+            221.62,
+            411.78
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            281.11
+          ],
+          "joint": [
+            353.42,
+            355.92
+          ],
+          "hoof": [
+            413.44,
+            407.28
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 2,
+      "phase": 0.083333,
+      "bodyPitchDeg": 0.75,
+      "bodyBobPx": -6.568,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            301.43
+          ],
+          "joint": [
+            224.88,
+            370.42
+          ],
+          "hoof": [
+            174,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            289.43
+          ],
+          "joint": [
+            295.65,
+            341.2
+          ],
+          "hoof": [
+            320.14,
+            415.26
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            293.43
+          ],
+          "joint": [
+            284.23,
+            364.46
+          ],
+          "hoof": [
+            221.14,
+            415.26
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            280.43
+          ],
+          "joint": [
+            348.24,
+            352.69
+          ],
+          "hoof": [
+            406.76,
+            405.76
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 3,
+      "phase": 0.125,
+      "bodyPitchDeg": 1.061,
+      "bodyBobPx": -6.938,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            301.06
+          ],
+          "joint": [
+            224.58,
+            370.19
+          ],
+          "hoof": [
+            174,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            289.06
+          ],
+          "joint": [
+            299.37,
+            344.73
+          ],
+          "hoof": [
+            322.3,
+            419.29
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            293.06
+          ],
+          "joint": [
+            283.06,
+            364.61
+          ],
+          "hoof": [
+            223.3,
+            419.29
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            280.06
+          ],
+          "joint": [
+            343.01,
+            349.26
+          ],
+          "hoof": [
+            398.94,
+            405.05
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 4,
+      "phase": 0.166667,
+      "bodyPitchDeg": 1.299,
+      "bodyBobPx": -6.973,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            301.03
+          ],
+          "joint": [
+            224.55,
+            370.17
+          ],
+          "hoof": [
+            174,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            289.03
+          ],
+          "joint": [
+            304.26,
+            349.11
+          ],
+          "hoof": [
+            326.87,
+            423.76
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            293.03
+          ],
+          "joint": [
+            283.13,
+            364.55
+          ],
+          "hoof": [
+            227.87,
+            423.76
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            280.03
+          ],
+          "joint": [
+            338.39,
+            346.06
+          ],
+          "hoof": [
+            390.8,
+            405.17
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 5,
+      "phase": 0.208333,
+      "bodyPitchDeg": 1.449,
+      "bodyBobPx": -6.668,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            301.33
+          ],
+          "joint": [
+            226.62,
+            369.49
+          ],
+          "hoof": [
+            175.64,
+            434.99
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            289.33
+          ],
+          "joint": [
+            310.41,
+            354.02
+          ],
+          "hoof": [
+            333.36,
+            428.57
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            293.33
+          ],
+          "joint": [
+            283.92,
+            364.5
+          ],
+          "hoof": [
+            234.36,
+            428.57
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            280.33
+          ],
+          "joint": [
+            334.87,
+            343.63
+          ],
+          "hoof": [
+            383.22,
+            406.11
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 6,
+      "phase": 0.25,
+      "bodyPitchDeg": 1.5,
+      "bodyBobPx": -6.045,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            301.95
+          ],
+          "joint": [
+            235.33,
+            365.07
+          ],
+          "hoof": [
+            183.57,
+            429.95
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            289.95
+          ],
+          "joint": [
+            317.9,
+            359.1
+          ],
+          "hoof": [
+            341.09,
+            433.57
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            293.95
+          ],
+          "joint": [
+            284.78,
+            364.73
+          ],
+          "hoof": [
+            242.09,
+            433.57
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            280.95
+          ],
+          "joint": [
+            332.72,
+            342.42
+          ],
+          "hoof": [
+            376.99,
+            407.85
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 7,
+      "phase": 0.291667,
+      "bodyPitchDeg": 1.449,
+      "bodyBobPx": -5.147,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            302.85
+          ],
+          "joint": [
+            242.57,
+            360.46
+          ],
+          "hoof": [
+            190.48,
+            425.08
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            290.85
+          ],
+          "joint": [
+            321.33,
+            361.68
+          ],
+          "hoof": [
+            345,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            294.85
+          ],
+          "joint": [
+            285.51,
+            365.29
+          ],
+          "hoof": [
+            246,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            281.85
+          ],
+          "joint": [
+            332.0,
+            342.68
+          ],
+          "hoof": [
+            372.78,
+            410.34
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 8,
+      "phase": 0.333333,
+      "bodyPitchDeg": 1.299,
+      "bodyBobPx": -4.034,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            303.97
+          ],
+          "joint": [
+            248.17,
+            356.23
+          ],
+          "hoof": [
+            195.65,
+            420.5
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            291.97
+          ],
+          "joint": [
+            319.94,
+            362.14
+          ],
+          "hoof": [
+            345,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            295.97
+          ],
+          "joint": [
+            286.57,
+            365.89
+          ],
+          "hoof": [
+            246,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            282.97
+          ],
+          "joint": [
+            332.72,
+            344.43
+          ],
+          "hoof": [
+            371.03,
+            413.51
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 9,
+      "phase": 0.375,
+      "bodyPitchDeg": 1.061,
+      "bodyBobPx": -2.782,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            305.22
+          ],
+          "joint": [
+            252.13,
+            352.97
+          ],
+          "hoof": [
+            198.52,
+            416.33
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            293.22
+          ],
+          "joint": [
+            318.46,
+            362.65
+          ],
+          "hoof": [
+            345,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            297.22
+          ],
+          "joint": [
+            287.71,
+            366.56
+          ],
+          "hoof": [
+            246,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            284.22
+          ],
+          "joint": [
+            334.88,
+            347.52
+          ],
+          "hoof": [
+            371.94,
+            417.29
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 10,
+      "phase": 0.416667,
+      "bodyPitchDeg": 0.75,
+      "bodyBobPx": -1.477,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            306.52
+          ],
+          "joint": [
+            254.5,
+            351.17
+          ],
+          "hoof": [
+            198.79,
+            412.69
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            294.52
+          ],
+          "joint": [
+            317.01,
+            363.19
+          ],
+          "hoof": [
+            345,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            298.52
+          ],
+          "joint": [
+            288.86,
+            367.27
+          ],
+          "hoof": [
+            246,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            285.52
+          ],
+          "joint": [
+            338.56,
+            351.68
+          ],
+          "hoof": [
+            375.4,
+            421.57
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 11,
+      "phase": 0.458333,
+      "bodyPitchDeg": 0.388,
+      "bodyBobPx": -0.208,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            307.79
+          ],
+          "joint": [
+            255.36,
+            351.23
+          ],
+          "hoof": [
+            196.42,
+            409.67
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            295.79
+          ],
+          "joint": [
+            315.67,
+            363.72
+          ],
+          "hoof": [
+            345,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            299.79
+          ],
+          "joint": [
+            289.93,
+            367.95
+          ],
+          "hoof": [
+            246,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            286.79
+          ],
+          "joint": [
+            343.86,
+            356.53
+          ],
+          "hoof": [
+            381.04,
+            426.23
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 12,
+      "phase": 0.5,
+      "bodyPitchDeg": 0.0,
+      "bodyBobPx": 0.939,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            308.94
+          ],
+          "joint": [
+            254.69,
+            353.33
+          ],
+          "hoof": [
+            191.68,
+            407.36
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            296.94
+          ],
+          "joint": [
+            313.74,
+            363.74
+          ],
+          "hoof": [
+            350.84,
+            432.36
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            300.94
+          ],
+          "joint": [
+            296.66,
+            364.89
+          ],
+          "hoof": [
+            251.84,
+            432.36
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            287.94
+          ],
+          "joint": [
+            350.89,
+            361.56
+          ],
+          "hoof": [
+            388.27,
+            431.15
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 13,
+      "phase": 0.541667,
+      "bodyPitchDeg": -0.388,
+      "bodyBobPx": 1.886,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            309.89
+          ],
+          "joint": [
+            252.4,
+            357.29
+          ],
+          "hoof": [
+            185.06,
+            405.81
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            297.89
+          ],
+          "joint": [
+            312.76,
+            364.09
+          ],
+          "hoof": [
+            358.34,
+            427.39
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            301.89
+          ],
+          "joint": [
+            304.13,
+            359.9
+          ],
+          "hoof": [
+            259.34,
+            427.39
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            288.89
+          ],
+          "joint": [
+            359.27,
+            366.06
+          ],
+          "hoof": [
+            396,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        }
+      }
+    },
+    {
+      "frame": 14,
+      "phase": 0.583333,
+      "bodyPitchDeg": -0.75,
+      "bodyBobPx": 2.568,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            310.57
+          ],
+          "joint": [
+            248.51,
+            362.48
+          ],
+          "hoof": [
+            177.26,
+            405.07
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            298.57
+          ],
+          "joint": [
+            312.4,
+            364.55
+          ],
+          "hoof": [
+            364.43,
+            422.65
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            302.57
+          ],
+          "joint": [
+            309.83,
+            354.91
+          ],
+          "hoof": [
+            265.43,
+            422.65
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            289.57
+          ],
+          "joint": [
+            358.51,
+            366.46
+          ],
+          "hoof": [
+            396,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        }
+      }
+    },
+    {
+      "frame": 15,
+      "phase": 0.625,
+      "bodyPitchDeg": -1.061,
+      "bodyBobPx": 2.938,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            310.94
+          ],
+          "joint": [
+            243.3,
+            367.91
+          ],
+          "hoof": [
+            169.12,
+            405.15
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            298.94
+          ],
+          "joint": [
+            311.87,
+            364.58
+          ],
+          "hoof": [
+            368.45,
+            418.27
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            302.94
+          ],
+          "joint": [
+            313.82,
+            350.5
+          ],
+          "hoof": [
+            269.45,
+            418.27
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            289.94
+          ],
+          "joint": [
+            358.11,
+            366.68
+          ],
+          "hoof": [
+            396,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        }
+      }
+    },
+    {
+      "frame": 16,
+      "phase": 0.666667,
+      "bodyPitchDeg": -1.299,
+      "bodyBobPx": 2.973,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            310.97
+          ],
+          "joint": [
+            237.46,
+            372.61
+          ],
+          "hoof": [
+            161.5,
+            406.06
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            298.97
+          ],
+          "joint": [
+            310.61,
+            363.79
+          ],
+          "hoof": [
+            369.99,
+            414.37
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            302.97
+          ],
+          "joint": [
+            316.25,
+            347.19
+          ],
+          "hoof": [
+            270.99,
+            414.37
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            289.97
+          ],
+          "joint": [
+            358.07,
+            366.7
+          ],
+          "hoof": [
+            396,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        }
+      }
+    },
+    {
+      "frame": 17,
+      "phase": 0.708333,
+      "bodyPitchDeg": -1.449,
+      "bodyBobPx": 2.668,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            310.67
+          ],
+          "joint": [
+            231.87,
+            375.97
+          ],
+          "hoof": [
+            155.2,
+            407.76
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            298.67
+          ],
+          "joint": [
+            308.31,
+            361.89
+          ],
+          "hoof": [
+            368.88,
+            411.04
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            302.67
+          ],
+          "joint": [
+            317.28,
+            345.36
+          ],
+          "hoof": [
+            269.88,
+            411.04
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            289.67
+          ],
+          "joint": [
+            358.4,
+            366.52
+          ],
+          "hoof": [
+            396,
+            436
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "contact"
+        }
+      }
+    },
+    {
+      "frame": 18,
+      "phase": 0.75,
+      "bodyPitchDeg": -1.5,
+      "bodyBobPx": 2.045,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            310.05
+          ],
+          "joint": [
+            227.33,
+            377.85
+          ],
+          "hoof": [
+            150.9,
+            410.22
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            298.05
+          ],
+          "joint": [
+            305.04,
+            358.76
+          ],
+          "hoof": [
+            365.23,
+            408.38
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            302.05
+          ],
+          "joint": [
+            316.95,
+            345.23
+          ],
+          "hoof": [
+            266.23,
+            408.38
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            289.05
+          ],
+          "joint": [
+            358.94,
+            366.09
+          ],
+          "hoof": [
+            397.96,
+            434.78
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 19,
+      "phase": 0.791667,
+      "bodyPitchDeg": -1.449,
+      "bodyBobPx": 1.147,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            309.15
+          ],
+          "joint": [
+            224.32,
+            378.39
+          ],
+          "hoof": [
+            149.05,
+            413.37
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            297.15
+          ],
+          "joint": [
+            301.2,
+            354.56
+          ],
+          "hoof": [
+            359.43,
+            406.46
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            301.15
+          ],
+          "joint": [
+            315.23,
+            346.81
+          ],
+          "hoof": [
+            260.43,
+            406.46
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            288.15
+          ],
+          "joint": [
+            359.87,
+            365.53
+          ],
+          "hoof": [
+            405.87,
+            429.75
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 20,
+      "phase": 0.833333,
+      "bodyPitchDeg": -1.299,
+      "bodyBobPx": 0.034,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            308.03
+          ],
+          "joint": [
+            222.98,
+            377.87
+          ],
+          "hoof": [
+            149.85,
+            417.13
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            296.03
+          ],
+          "joint": [
+            297.41,
+            349.71
+          ],
+          "hoof": [
+            352.1,
+            405.32
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            300.03
+          ],
+          "joint": [
+            312.07,
+            349.79
+          ],
+          "hoof": [
+            253.1,
+            405.32
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            287.03
+          ],
+          "joint": [
+            361.32,
+            364.91
+          ],
+          "hoof": [
+            412.73,
+            424.89
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 21,
+      "phase": 0.875,
+      "bodyPitchDeg": -1.061,
+      "bodyBobPx": -1.218,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            306.78
+          ],
+          "joint": [
+            223.08,
+            376.58
+          ],
+          "hoof": [
+            153.21,
+            421.39
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            294.78
+          ],
+          "joint": [
+            294.26,
+            344.94
+          ],
+          "hoof": [
+            344.02,
+            405.01
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            298.78
+          ],
+          "joint": [
+            307.56,
+            353.53
+          ],
+          "hoof": [
+            245.02,
+            405.01
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            285.78
+          ],
+          "joint": [
+            362.41,
+            364.01
+          ],
+          "hoof": [
+            417.81,
+            420.32
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 22,
+      "phase": 0.916667,
+      "bodyPitchDeg": -0.75,
+      "bodyBobPx": -2.523,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            305.48
+          ],
+          "joint": [
+            224.1,
+            374.82
+          ],
+          "hoof": [
+            158.78,
+            426.04
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            293.48
+          ],
+          "joint": [
+            292.17,
+            341.03
+          ],
+          "hoof": [
+            336.04,
+            405.52
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            297.48
+          ],
+          "joint": [
+            302.1,
+            357.26
+          ],
+          "hoof": [
+            237.04,
+            405.52
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            284.48
+          ],
+          "joint": [
+            362.43,
+            362.71
+          ],
+          "hoof": [
+            420.58,
+            416.18
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    },
+    {
+      "frame": 23,
+      "phase": 0.958333,
+      "bodyPitchDeg": -0.388,
+      "bodyBobPx": -3.792,
+      "limbs": {
+        "hind_far": {
+          "hip": [
+            193,
+            304.21
+          ],
+          "joint": [
+            225.36,
+            372.97
+          ],
+          "hoof": [
+            165.96,
+            430.95
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_far": {
+          "hip": [
+            354,
+            292.21
+          ],
+          "joint": [
+            291.28,
+            338.58
+          ],
+          "hoof": [
+            329.01,
+            406.85
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "hind_near": {
+          "hip": [
+            252,
+            296.21
+          ],
+          "joint": [
+            296.35,
+            360.37
+          ],
+          "hoof": [
+            230.01,
+            406.85
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        },
+        "fore_near": {
+          "hip": [
+            387,
+            283.21
+          ],
+          "joint": [
+            360.93,
+            360.95
+          ],
+          "hoof": [
+            420.74,
+            412.56
+          ],
+          "reachResidualPx": 0.0,
+          "phase": "swing"
+        }
+      }
+    }
+  ],
+  "contactDriftMaxPx": 0,
+  "humanVerdict": "pending"
+}
