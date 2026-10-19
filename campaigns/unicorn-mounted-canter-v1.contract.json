@@ -1,8 +1,8 @@
 {
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "unicorn-mounted-canter-v1",
-  "mission": "Stage deterministic reference-video landmark measurement for a new mounted unicorn canter rig. Do not invent canter motion from the measured walking clip. Future authoring in Pose Lab V2 requires a true canter motion authority and hosted human review.",
-  "status": "intake-only-no-rig-no-runtime",
+  "mission": "Create a hash-locked source-backed articulated 2D mounted unicorn canter candidate from original art; preserve references and all existing characters, render with the existing Pose Lab V2 2D manifest viewer, and stop at human review. This is prototype artwork extraction and a provisional three-beat model; do not claim video-derived joint angles or visual acceptance.",
+  "status": "script-ready-candidate-not-executed",
   "authorities": {
     "appearance": {
       "file": "934732.png",
@@ -63,7 +63,10 @@
     "visualLock": "character identity from source image",
     "approvedAnimation": "none",
     "humanVerdict": "pending",
-    "rejected": "independent generated poses and inference of canter cadence from phone-screen walk"
+    "rejected": "independent generated poses and inference of canter cadence from phone-screen walk",
+    "rig": "source-backed segmented body, head/neck, rider, clothing, mane/tail, hoof donors; four independent articulated provisional leg proxies",
+    "animation": "in-place three-beat canter provisional lead; planted hoof stage pin; rider seat locked",
+    "deliverySurface": "Existing Pose Lab V2 ?view=2d&manifest=./assets/unicorn/candidate/animations.json"
   },
   "machine": {
     "mutablePaths": [
@@ -71,7 +74,10 @@
       "campaigns/unicorn-mounted-canter-v1.receipt.json",
       "docs/campaigns/UNICORN_COLOR_WRAP_REFERENCE_2026-10-18.md",
       "tools/campaigns/unicorn_wrap_reference_track.py",
-      "public/assets/unicorn/**"
+      "public/assets/unicorn/**",
+      "docs/characters/unicorn-source-manifest.json",
+      "tools/campaigns/unicorn_rig_build.py",
+      "tools/campaigns/unicorn_rig_campaign.sh"
     ],
     "receiptPath": "campaigns/unicorn-mounted-canter-v1.receipt.json",
     "requiredRules": [
@@ -121,6 +127,16 @@
         "kind": "text-contains",
         "path": "docs/campaigns/UNICORN_COLOR_WRAP_REFERENCE_2026-10-18.md",
         "value": "## Third screen recording: 934765.mp4"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/unicorn_rig_campaign.sh",
+        "value": "pose_campaign_push_and_readback"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/unicorn_rig_build.py",
+        "value": "pose-lab-v2-2d-animation-set-v1"
       }
     ]
   }
