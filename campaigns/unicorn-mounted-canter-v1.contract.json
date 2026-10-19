@@ -37,7 +37,8 @@
         70,
         100
       ],
-      "source": "user-provided-conversation-attachment-not-repo-owned"
+      "source": "user-provided-conversation-attachment-not-repo-owned",
+      "measurementsPath": "public/assets/unicorn/reference/934762_wrap_measurements.json"
     }
   },
   "constraints": {
@@ -75,6 +76,18 @@
         "kind": "text-contains",
         "path": "docs/campaigns/UNICORN_COLOR_WRAP_REFERENCE_2026-10-18.md",
         "value": "## Follow-up recording 934762.mp4"
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/unicorn/reference/934762_wrap_measurements.json",
+        "pointer": "/review/canterBeatsMeasured",
+        "value": false
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/unicorn/reference/934762_wrap_measurements.json",
+        "pointer": "/source/sha256",
+        "value": "b94fa6ff1f37dc2fec2b52a73f013fbdf4192a51c258f28ae49847c7fdef9b15"
       }
     ]
   }
