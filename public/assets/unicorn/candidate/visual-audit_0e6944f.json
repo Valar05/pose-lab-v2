@@ -1,0 +1,54 @@
+{
+  "schema": "unicorn-pose-lab-authoring-visual-audit-v1",
+  "auditedRevision": "0e6944f789318deee3945dadf2444f8daab23f92",
+  "assetManifest": "public/assets/unicorn/candidate/animations.json",
+  "framesReviewed": [
+    0,
+    6,
+    12,
+    18
+  ],
+  "inspectionSource": "Exactly authored remote GitHub PNG bytes retrieved from the audited commit (not generated alternate previews)",
+  "status": "visual-authoring-rejected-quarantine",
+  "humanVerdict": "pending-not-requested",
+  "observations": [
+    {
+      "severity": "blocking",
+      "property": "four-legged appearance integration",
+      "finding": "Opaque black/proxy rod legs sit in front of the artist's original limbs. Source limb geometry is not segmented into independently textured rotating images."
+    },
+    {
+      "severity": "blocking",
+      "property": "anatomical joints",
+      "finding": "Two-bone geometric hinges lack authentic equine foreleg carpus and hindleg stifle/hock structure; poles and silhouette are visibly implausible."
+    },
+    {
+      "severity": "blocking",
+      "property": "layer occlusion",
+      "finding": "Original lower legs and proxy geometry overlap or disappear inconsistently. Rear legs and torso seams are not visually reconstructed."
+    },
+    {
+      "severity": "blocking",
+      "property": "hoof contact",
+      "finding": "Proxy hoof coordinates are asserted as planted while artwork-layer contact is not verified. Hooves float relative to source ground silhouette in inspected frames."
+    },
+    {
+      "severity": "unverified",
+      "property": "motion",
+      "finding": "Beat phase is explicitly modeled, not extracted from measured real-horse footfall timings. No hosted Pose Lab playback evidence."
+    }
+  ],
+  "requiredCorrection": [
+    "Segment source-art horse limbs from original with individual near/far fore and hind upper/lower segments and hoof textures rather than solid-color stand-ins.",
+    "Fill only newly exposed hidden anatomy, preserving the original horse and rider appearance.",
+    "Use explicitly measured or visually reviewed pivot/hoof locations on source art, keep same foot identity throughout.",
+    "Pin true hoof contact in stage space and verify against rasterized composite, not IK metadata alone.",
+    "Check rider saddle contact, seams, overlap, and motion in the exact Pose Lab V2 hosted route."
+  ],
+  "completionBoundary": {
+    "authoring": "candidate needs rework",
+    "repo": "GitHub input/render evidence verified",
+    "runtime": "not established",
+    "human": "pending"
+  }
+}
