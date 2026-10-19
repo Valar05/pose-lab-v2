@@ -23,6 +23,13 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT = "campaigns/unicorn-mounted-canter-v1.contract.json"
 EXPECTED_SHA = "b5430cdd1090e90bec22d6964817b6ae852cbb1421776433847b129c814afcba"
+FOLLOWUP_SHA = "b94fa6ff1f37dc2fec2b52a73f013fbdf4192a51c258f28ae49847c7fdef9b15"
+FOLLOWUP_SEEDS = {
+    18: {"hind_green": (936, 925), "fore_purple": (1225, 934)},
+    40: {"hind_green": (938, 923), "fore_purple": (1225, 934)},
+    70: {"hind_green": (694, 941), "fore_purple": (992, 939)},
+    100: {"hind_green": (983, 932), "fore_purple": (1283, 937)}
+}
 REGIONS = {"hind_green": (28, 95), "fore_purple": (105, 163)}
 PALETTE = {"hind_green": (80, 230, 165), "hind_red": (255, 100, 100),
            "fore_purple": (167, 118, 250), "fore_red": (252, 202, 80)}
@@ -96,7 +103,10 @@ def candidates(frame):
 
 def run(video, output):
     guard()
-    if hashlib.sha256(video.read_bytes()).hexdigest() != EXPECTED_SHA:
+    digest = hashlib.sha256(video.read_bytes()).hexdigest()
+    if digest == FOLLOWUP_SHA:
+        return followup(video, output / "followup_934762")
+    if digest != EXPECTED_SHA:
         raise SystemExit("Reference-video SHA-256 mismatch. Refusing to guess input.")
     capture = cv2.VideoCapture(str(video))
     fps, total = capture.get(cv2.CAP_PROP_FPS), int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -157,6 +167,92 @@ def run(video, output):
                    "A three-beat canter and suspension have NOT been measured here"]}
     (output/"analysis.json").write_text(json.dumps(summary, indent=2)+"\n")
     print(json.dumps(summary, indent=2))
+
+
+def followup(video, output):
+    """Hash-locked 934762 clip: measure reviewed wraps only; NOT canter keys.
+
+    This uses manually reviewed seed neighborhoods instead of unconstrained
+    color blobs, because YouTube's red progress bar corrupts red wrap masks.
+    Failure to find exactly one matching component causes a hard stop.
+    """
+    capture = cv2.VideoCapture(str(video))
+    if (int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+            int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))) != (2404, 1080):
+        raise SystemExit("Follow-up reference capture must be 2404x1080")
+    output.mkdir(parents=True, exist_ok=True)
+    result, rendered = [], []
+    for index in range(101):
+        ok, frame = capture.read()
+        if not ok:
+            raise SystemExit("Video ended before reviewed frame 100")
+        if index not in FOLLOWUP_SEEDS:
+            continue
+        t = round(float(capture.get(cv2.CAP_PROP_POS_MSEC) / 1000), 3)
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        found = {}
+        for name, (sx, sy) in FOLLOWUP_SEEDS[index].items():
+            x0, y0 = sx - 45, sy - 38
+            crop = hsv[y0:y0+76, x0:x0+90]
+            if name == "hind_green":
+                mask = cv2.inRange(crop, (29,65,50), (99,255,255))
+            else:
+                mask = cv2.inRange(crop, (103,60,50), (165,255,255))
+            n, labels, stats, centers = cv2.connectedComponentsWithStats(mask, 8)
+            choices = []
+            for k in range(1, n):
+                area = int(stats[k, cv2.CC_STAT_AREA])
+                x, y = float(centers[k,0]+x0), float(centers[k,1]+y0)
+                delta = math.hypot(x-sx, y-sy)
+                if area >= 70 and delta < 24:
+                    choices.append((x,y,area))
+            if len(choices) != 1:
+                raise SystemExit(f"Ambiguous {name} frame {index}: {choices}")
+            x, y, area = choices[0]
+            found[name] = (x,y)
+            result.append({"frame": index, "capture_time_sec": t, "marker": name,
+                           "x_px": round(x,2), "y_px": round(y,2),
+                           "color_mask_area_px": area})
+            color = (25,240,40) if name == "hind_green" else (220,80,235)
+            cv2.circle(frame, (round(x),round(y)), 9, color, 3)
+            cv2.putText(frame, "G" if name=="hind_green" else "P",
+                        (round(x)-10,round(y)-27), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.8, color, 2)
+        dx = round(found["fore_purple"][0]-found["hind_green"][0],2)
+        dy = round(found["fore_purple"][1]-found["hind_green"][1],2)
+        result.append({"frame":index, "capture_time_sec":t,
+                       "marker":"screen_delta_purple_minus_green",
+                       "x_px":dx, "y_px":dy, "color_mask_area_px":None})
+        # Crops are diagnostics; source frame coordinates above remain invariant.
+        gx = round(found["hind_green"][0])
+        left = max(250,gx-170)
+        cut = Image.fromarray(cv2.cvtColor(frame[780:970,left:left+650],
+                                           cv2.COLOR_BGR2RGB))
+        cut = cut.resize((975,285))
+        rendered.append(cut)
+    fields = ["frame","capture_time_sec","marker","x_px","y_px","color_mask_area_px"]
+    with (output/"verified_green_purple_centroids.csv").open("w",newline="") as fp:
+        writer = csv.DictWriter(fp,fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(result)
+    contact = Image.new("RGB", (1950,570), (16,16,16))
+    for i, cut in enumerate(rendered):
+        contact.paste(cut,((i%2)*975,(i//2)*285))
+    contact.save(output/"reviewed_band_centers.png")
+    metadata = {
+        "schema":"unicorn-color-wrap-followup-intake-v1",
+        "videoSha256":FOLLOWUP_SHA, "videoPixels":[2404,1080],
+        "acceptedSampleFrames":sorted(FOLLOWUP_SEEDS),
+        "observations":len(result), "phaseAuthority":"none",
+        "decision":"rising-trot-to-ask-for-canter; no verified three-beat canter",
+        "notes":["Color centroids are not hoof or anatomical joint angles",
+                 "Red wraps rejected because YouTube progress bar overlaps",
+                 "Foot contacts obscured; capture time not gait time",
+                 "Frame 18 and 40 repeat substantially the same pose",
+                 "These are local authoring diagnostics, not hosted Pose Lab review"]
+    }
+    (output/"followup_receipt.json").write_text(json.dumps(metadata,indent=2)+"\\n")
+    print(json.dumps(metadata,indent=2))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
