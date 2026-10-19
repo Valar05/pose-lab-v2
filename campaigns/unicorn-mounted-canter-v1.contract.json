@@ -17,7 +17,7 @@
     },
     "canter": {
       "status": "not-measured",
-      "evidence": "no continuous side-on canter with observed three hoof beats and suspension; new video narrates rising trot in preparation for canter"
+      "evidence": "Latest recording improves leg-wrap position evidence but does not verify full isolated 3 beats + flight and right/left lead"
     },
     "followupRisingTrot": {
       "file": "934762.mp4",
@@ -39,6 +39,22 @@
       ],
       "source": "user-provided-conversation-attachment-not-repo-owned",
       "measurementsPath": "public/assets/unicorn/reference/934762_wrap_measurements.json"
+    },
+    "thirdVideo": {
+      "file": "934765.mp4",
+      "sha256": "93586eb27565469358b9c12a81765b355eb14aea8574bc2df810b041f69549ab",
+      "measurementsPath": "public/assets/unicorn/reference/934765_wrap_measurements.json",
+      "role": "partial-color-wrap-position-and-orientation-authority-not-canter-timing",
+      "source": "user-provided-conversation-attachment-not-repo-owned",
+      "validatedFrames": [
+        500,
+        520,
+        530,
+        550,
+        570
+      ],
+      "verifiedThreeBeat": false,
+      "verifiedSuspension": false
     }
   },
   "constraints": {
@@ -88,6 +104,23 @@
         "path": "public/assets/unicorn/reference/934762_wrap_measurements.json",
         "pointer": "/source/sha256",
         "value": "b94fa6ff1f37dc2fec2b52a73f013fbdf4192a51c258f28ae49847c7fdef9b15"
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/unicorn/reference/934765_wrap_measurements.json",
+        "pointer": "/confidence/threeBeatSequence",
+        "value": "unproven"
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/unicorn/reference/934765_wrap_measurements.json",
+        "pointer": "/source/sha256",
+        "value": "93586eb27565469358b9c12a81765b355eb14aea8574bc2df810b041f69549ab"
+      },
+      {
+        "kind": "text-contains",
+        "path": "docs/campaigns/UNICORN_COLOR_WRAP_REFERENCE_2026-10-18.md",
+        "value": "## Third screen recording: 934765.mp4"
       }
     ]
   }
