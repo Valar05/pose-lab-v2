@@ -13,6 +13,8 @@ for cmd in git python3 bash; do
 done
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "STOP: launch from Pose Lab V2 checkout";exit 2; }
 cd "$ROOT"
+# Resolve caller-supplied relative source before changing to disposable worktree.
+SOURCE="$(python3 -c 'import os,sys; print(os.path.abspath(sys.argv[1]))' "$SOURCE")"
 git remote get-url origin | grep -Eq '(^|[:/])Valar05/pose-lab-v2(\.git)?$' || { echo "STOP: wrong origin";exit 2; }
 [ -f "$SOURCE" ] || { echo "STOP: exact 934732.png missing at $SOURCE";exit 2; }
 python3 - "$SOURCE" "$EXPECTED" <<'PY'
