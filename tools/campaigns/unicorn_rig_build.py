@@ -21,10 +21,10 @@ PARTS={
 "hoof_hind_donor":[(179,372),(208,350),(245,386),(244,417),(185,417)],
 "hoof_fore_donor":[(392,350),(424,346),(451,374),(453,430),(408,419)]}
 BONES={
-"hind_far":{"base":(165,288),"upper":61,"lower":74,"bend":-1,"x":-19},
-"hind_near":{"base":(224,280),"upper":61,"lower":70,"bend":-1,"x":-6},
-"fore_far":{"base":(326,276),"upper":69,"lower":71,"bend":1,"x":-9},
-"fore_near":{"base":(359,267),"upper":76,"lower":76,"bend":1,"x":9}}
+"hind_far":{"base":(165,288),"upper":76,"lower":83,"bend":-1,"x":-19},
+"hind_near":{"base":(224,280),"upper":78,"lower":81,"bend":-1,"x":-6},
+"fore_far":{"base":(326,276),"upper":78,"lower":78,"bend":1,"x":-9},
+"fore_near":{"base":(359,267),"upper":82,"lower":79,"bend":1,"x":9}}
 def fail(s):raise SystemExit("STOP unicorn: "+s)
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def shift(p):return(p[0]+OFF[0],p[1]+OFF[1])
@@ -68,10 +68,10 @@ def segment(canvas,name,hip,foot):
     for center,r in [(hip,thickness/2),(mid,thickness*.42)]:
         x,y=center;d.ellipse((x-r,y-r,x+r,y+r),fill=coat,outline=dark,width=2)
     x,y=foot
-    d.polygon([(x-12,y-6),(x+8,y-10),(x+17,y+1),(x+17,y+8),(x-14,y+9)],
+    d.polygon([(x-12,y-15),(x+8,y-19),(x+17,y-8),(x+17,y),(x-14,y)],
               fill=(40,24,30,255),outline=dark,width=2)
-    d.arc((x-12,y-21,x+11,y+2),180,357,fill=(206,136,47,255),width=3)
-    d.ellipse((x-3,y-15,x+3,y-10),fill=(230,63,67,255))
+    d.arc((x-12,y-29,x+11,y-6),180,357,fill=(206,136,47,255),width=3)
+    d.ellipse((x-3,y-24,x+3,y-19),fill=(230,63,67,255))
     return dict(hip=[round(v,2) for v in hip],joint=[round(v,2) for v in mid],
                 hoof=[round(v,2) for v in foot],reachResidualPx=round(error,3))
 def run(src,out,lead):
@@ -130,6 +130,8 @@ def run(src,out,lead):
         frames.append({"src":"canter/frames/"+f.name,"durationMs":50,"sha256":sha(f),"sourceFrame":i})
         pose.append({"frame":i,"phase":round(t,6),"bodyPitchDeg":round(pitch,3),
                      "bodyBobPx":round(bob,3),"limbs":joints})
+    if any(v["reachResidualPx"]>2.0 for entry in pose for v in entry["limbs"].values() if v["phase"]=="contact"):
+        fail("IK reach residual exceeds 2 px on a planted hoof")
     if set(contact_points)!=set(BONES) or any(len(v)>1 for v in contact_points.values()):
         fail("Planted hoof pin assertion failed")
     sheet=out/"canter"/"contact-sheet.png";cells.save(sheet)
