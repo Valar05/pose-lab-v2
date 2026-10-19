@@ -251,7 +251,7 @@ def followup(video, output):
                  "Frame 18 and 40 repeat substantially the same pose",
                  "These are local authoring diagnostics, not hosted Pose Lab review"]
     }
-    (output/"followup_receipt.json").write_text(json.dumps(metadata,indent=2)+"\\n")
+    (output/"followup_receipt.json").write_text(json.dumps(metadata,indent=2)+chr(10))
     print(json.dumps(metadata,indent=2))
 
 if __name__ == "__main__":
