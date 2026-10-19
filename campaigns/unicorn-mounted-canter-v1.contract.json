@@ -16,8 +16,28 @@
       "role": "color-wrap-walking-measurement-only-not-canter"
     },
     "canter": {
-      "status": "not-provided",
-      "evidence": "continuous three-beat actual canter with suspension required"
+      "status": "not-measured",
+      "evidence": "no continuous side-on canter with observed three hoof beats and suspension; new video narrates rising trot in preparation for canter"
+    },
+    "followupRisingTrot": {
+      "file": "934762.mp4",
+      "sha256": "b94fa6ff1f37dc2fec2b52a73f013fbdf4192a51c258f28ae49847c7fdef9b15",
+      "role": "verified-color-wrap-centroids-only-not-canter-timing",
+      "usableWraps": [
+        "hind_green",
+        "fore_purple"
+      ],
+      "unverifiedWraps": [
+        "hind_red",
+        "fore_red"
+      ],
+      "validatedSamples": [
+        18,
+        40,
+        70,
+        100
+      ],
+      "source": "user-provided-conversation-attachment-not-repo-owned"
     }
   },
   "constraints": {
@@ -50,6 +70,11 @@
         "kind": "text-contains",
         "path": "docs/campaigns/UNICORN_COLOR_WRAP_REFERENCE_2026-10-18.md",
         "value": "not a canter performance candidate"
+      },
+      {
+        "kind": "text-contains",
+        "path": "docs/campaigns/UNICORN_COLOR_WRAP_REFERENCE_2026-10-18.md",
+        "value": "## Follow-up recording 934762.mp4"
       }
     ]
   }
