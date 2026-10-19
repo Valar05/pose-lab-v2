@@ -34,3 +34,22 @@ Original 2404 x 1080 screen coordinates (origin upper-left; +x right, +y down). 
 ## Operating guard
 
 Follow `AGENTS.md`, `docs/POSE_LAB_CAMPAIGN_RULES.md`, `docs/POSE_IS_GOD.md`, `docs/POSE_CAMPAIGN_FRAMEWORK.md`, and sprite-authoring doctrine. Never overwrite locked Vanguard/Belly assets. Treat outputs as quarantined pending the exact hosted Pose Lab V2 review and Drew's verdict. Source video not committed here: the hash is a provenance identifier, not repository asset availability.
+
+
+## Follow-up recording 934762.mp4: verified colors, no validated canter
+
+- Video SHA-256 `b94fa6ff1f37dc2fec2b52a73f013fbdf4192a51c258f28ae49847c7fdef9b15`; 2404 x 1080 pixels; 359 screen-capture frames over 13.150 seconds. This recording is paused/repeated and pans from side to 3/4 view. Capture frame rates are not gait timing authority.
+- The source *also* uses colored wraps: green hind, red hind, purple fore, red fore. Red masks interfere with YouTube's progress bar, so **red automatic matches are unverified and rejected**.
+- Around YouTube time 3:59–4:01 the subtitles explicitly say "rise trot and ask for canter". No continuous, repeatable three-beat canter plus suspension can be established from this excerpt.
+- All values below are manually inspected HSV-component **colored wrap centroids in source 2404x1080 screen pixels**, *not* measured hooves, limb pivots, knee/hock angles, or stride length.
+
+| Recorded frame | capture time | green hind x,y | purple fore x,y | screen-space purple-minus-green dx,dy |
+|---|---|---|---|---|
+| 18 | 1.231 s | 936.44,925.06 | 1225.51,933.98 | 289.07, +8.91 px |
+| 40 | 1.415 s | 937.76,922.70 | 1224.91,933.52 | 287.15, +10.81 px |
+| 70 | 2.666 s | 693.55,940.87 | 991.57,939.47 | 298.02, -1.39 px |
+| 100 | 3.753 s | 983.05,931.57 | 1283.07,936.76 | 300.03, +5.18 px |
+
+Frames 18 and 40 are nearly duplicate source poses. The YouTube progress bar at y=896–903 and subtitles obscure distal hoof contacts. Colored-wrap long-axis PCA gives *wrap shape*, not hoof pitch or joint articulation; do not use those axes as rig angles. Inter-band horizontal separation (287–300 pixels in selected views) is *not* a world-space leg length. Gait lead, hoof strikes, and suspension remain **unproven**.
+
+**Result:** Reference evidence only. Existing Pose Lab V2 remains the required delivery surface, source illustration stays appearance-only, horizontal root motion remains disabled. No rig, canter animation, or hosted visual review exists on the basis of this measurement. Require a side-on continuous three-beat canter clip to populate the motion-authority track.
