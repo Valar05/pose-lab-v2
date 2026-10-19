@@ -1,0 +1,21 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "unicorn-mounted-canter-v1",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "59ef1e686d99b2998e962f243f2772033ee12674",
+  "implementationRevision": "7312804490b99552534b3a7fc1623fddd24d54cd",
+  "finalRevision": null,
+  "executionLane": "repo-owned-pose-lab-v2-unicorn",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "campaigns/unicorn-mounted-canter-v1.contract.json",
+    "campaigns/unicorn-mounted-canter-v1.receipt.json",
+    "docs/campaigns/UNICORN_COLOR_WRAP_REFERENCE_2026-10-18.md",
+    "tools/campaigns/unicorn_wrap_reference_track.py",
+    "public/assets/unicorn/**",
+    "docs/characters/unicorn-source-manifest.json",
+    "tools/campaigns/unicorn_rig_build.py",
+    "tools/campaigns/unicorn_rig_campaign.sh"
+  ]
+}
