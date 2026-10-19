@@ -1,0 +1,190 @@
+{
+  "schema": "unicorn-colored-wrap-landmarks-v1",
+  "status": "measured-reference-no-accepted-canter",
+  "source": {
+    "file": "934765.mp4",
+    "sha256": "93586eb27565469358b9c12a81765b355eb14aea8574bc2df810b041f69549ab",
+    "framePixels": [
+      1080,
+      2404
+    ],
+    "capturedFrames": 731,
+    "captureDurationSec": 19.383656,
+    "captureNominalFps": 37.712184778814226,
+    "sourceRole": "real-mounted-horse-video-gait-reference-not-character-art"
+  },
+  "coordinates": {
+    "origin": "top-left",
+    "units": "original-capture-screen-pixels",
+    "xDirection": "right",
+    "yDirection": "down",
+    "screenVideoWindow": [
+      110,
+      950,
+      777,
+      1455
+    ],
+    "segmentationROI": [
+      110,
+      1130,
+      777,
+      1460
+    ],
+    "analyzedFrameRange": [
+      480,
+      580
+    ],
+    "timeNote": "screen capture includes YouTube playback with uncertain source-time synchronization; captured time is not horse gait phase"
+  },
+  "features": {
+    "green": "hind lower-leg colored wrap center",
+    "purple": "fore lower-leg colored wrap center",
+    "axisFromVerticalDeg": "PCA of wrap-colored pixels, signed toward screen-right from vertical; NOT a hock/carpus joint angle",
+    "deltaPx": "front purple wrap centroid minus hind green centroid"
+  },
+  "samples": [
+    {
+      "captureFrame": 500,
+      "captureSec": 13.258,
+      "wraps": {
+        "hind_green": {
+          "xPx": 445.88,
+          "yPx": 1367.42,
+          "axisFromVerticalDeg": -14.1,
+          "maskAreaPx": 84,
+          "shapeAnisotropy": 3.5
+        },
+        "fore_purple": {
+          "xPx": 609.29,
+          "yPx": 1365.13,
+          "axisFromVerticalDeg": -19.3,
+          "maskAreaPx": 173,
+          "shapeAnisotropy": 4.2
+        }
+      },
+      "deltaPx": {
+        "x": 163.41,
+        "y": -2.29
+      }
+    },
+    {
+      "captureFrame": 520,
+      "captureSec": 13.789,
+      "wraps": {
+        "hind_green": {
+          "xPx": 438.29,
+          "yPx": 1357.97,
+          "axisFromVerticalDeg": -10.4,
+          "maskAreaPx": 66,
+          "shapeAnisotropy": 6.4
+        },
+        "fore_purple": {
+          "xPx": 614.66,
+          "yPx": 1382.2,
+          "axisFromVerticalDeg": 11.1,
+          "maskAreaPx": 119,
+          "shapeAnisotropy": 3.5
+        }
+      },
+      "deltaPx": {
+        "x": 176.37,
+        "y": 24.23
+      }
+    },
+    {
+      "captureFrame": 530,
+      "captureSec": 14.054,
+      "wraps": {
+        "hind_green": {
+          "xPx": 438.05,
+          "yPx": 1367.23,
+          "axisFromVerticalDeg": 7.3,
+          "maskAreaPx": 62,
+          "shapeAnisotropy": 3.5
+        },
+        "fore_purple": {
+          "xPx": 607.27,
+          "yPx": 1365.51,
+          "axisFromVerticalDeg": -20.7,
+          "maskAreaPx": 169,
+          "shapeAnisotropy": 4.1
+        }
+      },
+      "deltaPx": {
+        "x": 169.22,
+        "y": -1.72
+      }
+    },
+    {
+      "captureFrame": 550,
+      "captureSec": 14.584,
+      "wraps": {
+        "hind_green": {
+          "xPx": 476.5,
+          "yPx": 1359.47,
+          "axisFromVerticalDeg": -5.7,
+          "maskAreaPx": 60,
+          "shapeAnisotropy": 3.6
+        },
+        "fore_purple": {
+          "xPx": 631.49,
+          "yPx": 1381.27,
+          "axisFromVerticalDeg": 10.1,
+          "maskAreaPx": 142,
+          "shapeAnisotropy": 3
+        }
+      },
+      "deltaPx": {
+        "x": 154.99,
+        "y": 21.8
+      }
+    },
+    {
+      "captureFrame": 570,
+      "captureSec": 15.114,
+      "wraps": {
+        "hind_green": {
+          "xPx": 503.26,
+          "yPx": 1372.31,
+          "axisFromVerticalDeg": null,
+          "maskAreaPx": 84,
+          "shapeAnisotropy": 1.5
+        },
+        "fore_purple": {
+          "xPx": 626.29,
+          "yPx": 1368.77,
+          "axisFromVerticalDeg": -46.6,
+          "maskAreaPx": 176,
+          "shapeAnisotropy": 5.6
+        }
+      },
+      "deltaPx": {
+        "x": 123.03,
+        "y": -3.54
+      }
+    }
+  ],
+  "confidence": {
+    "twoWrapCenters": "visually reviewed sample-center overlays",
+    "greenAxisAt570": "rejected (low shape anisotropy 1.5)",
+    "redWraps": "not measured; avoid conflating saturated arena pixels or white hoof",
+    "anatomicalJointAngles": "unmeasured",
+    "trueHoofContacts": "unmeasured",
+    "canterLead": "unproven",
+    "threeBeatSequence": "unproven",
+    "flightPhase": "unproven",
+    "sourceVideoContinuousAcrossSample": "recorded sequential frames; not independently established constant source playback speed"
+  },
+  "requirements": {
+    "destination": "Pose Lab V2 existing project",
+    "sourceArt": "934732.png",
+    "horizontalRootMotion": false,
+    "visualReviewRequired": true,
+    "candidateStatus": "reference-only"
+  },
+  "notes": [
+    "Measured wrap center positions are not hoof-tip, ground contact, or anatomical pivot coordinates",
+    "Changing size and moving camera invalidate raw screen X as body-relative stride length",
+    "No animated unicorn rig was created by these measurements"
+  ]
+}
