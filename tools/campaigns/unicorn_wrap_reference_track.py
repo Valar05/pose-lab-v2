@@ -23,6 +23,8 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT = "campaigns/unicorn-mounted-canter-v1.contract.json"
 EXPECTED_SHA = "b5430cdd1090e90bec22d6964817b6ae852cbb1421776433847b129c814afcba"
+THIRD_SHA = "93586eb27565469358b9c12a81765b355eb14aea8574bc2df810b041f69549ab"
+THIRD_REVIEWED_FRAMES = (500, 520, 530, 550, 570)
 FOLLOWUP_SHA = "b94fa6ff1f37dc2fec2b52a73f013fbdf4192a51c258f28ae49847c7fdef9b15"
 FOLLOWUP_SEEDS = {
     18: {"hind_green": (936, 925), "fore_purple": (1225, 934)},
@@ -104,6 +106,8 @@ def candidates(frame):
 def run(video, output):
     guard()
     digest = hashlib.sha256(video.read_bytes()).hexdigest()
+    if digest == THIRD_SHA:
+        return measure_third(video, output / "934765")
     if digest == FOLLOWUP_SHA:
         return followup(video, output / "followup_934762")
     if digest != EXPECTED_SHA:
@@ -168,6 +172,94 @@ def run(video, output):
     (output/"analysis.json").write_text(json.dumps(summary, indent=2)+"\n")
     print(json.dumps(summary, indent=2))
 
+
+
+def measure_third(video, output):
+    """Extract real 934765 capture's colored band axes; not canter keyframes."""
+    capture = cv2.VideoCapture(str(video))
+    if (int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
+            int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))) != (1080, 2404):
+        raise SystemExit("Unexpected 934765 capture geometry")
+    output.mkdir(parents=True, exist_ok=True)
+    rows, tiles = [], []
+    for index in THIRD_REVIEWED_FRAMES:
+        capture.set(cv2.CAP_PROP_POS_FRAMES, index)
+        ok, frame = capture.read()
+        if not ok:
+            raise SystemExit(f"Unreadable 934765 frame {index}")
+        # Fixed source capture ROI; do not resize measurements or normalize poses.
+        crop = frame[1130:1460, 110:777].copy()
+        hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+        found = {}
+        for name, lo, hi, draw_color in (
+            ("hind_green", (29, 65, 48), (94, 255, 255), (70, 255, 70)),
+            ("fore_purple", (102, 54, 44), (165, 255, 255), (255, 90, 255))
+        ):
+            mask = cv2.inRange(hsv, lo, hi)
+            mask[:190] = 0
+            mask[300:] = 0
+            count, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, 8)
+            comps = []
+            for k in range(1, count):
+                x, y, width, height, area = map(int, stats[k])
+                cx, cy = centroids[k]
+                if area < 18 or not 180 < cy < 300 or not (
+                    3 <= width <= 25 and 5 <= height <= 50
+                ):
+                    continue
+                points = np.column_stack(np.where(labels[y:y+height, x:x+width] == k)).astype(float)
+                if len(points) <= 4:
+                    continue
+                eigen, vectors = np.linalg.eigh(np.cov(points, rowvar=False))
+                axis = vectors[:, np.argmax(eigen)]
+                angle = math.degrees(math.atan2(axis[1], axis[0]))
+                aspect = float(eigen.max()/max(.01, eigen.min()))
+                comps.append((area, round(float(cx), 2),
+                              round(float(cy), 2), angle, aspect))
+            if not comps:
+                raise SystemExit(f"Missing {name} color marker on frame {index}")
+            area, cx, cy, angle, aspect = max(comps)
+            axis_angle = round(((angle + 90) % 180) - 90, 1) if aspect >= 2 else None
+            found[name] = {
+                "xPx": round(cx + 110, 2), "yPx": round(cy + 1130, 2),
+                "axisFromVerticalDeg": axis_angle, "maskAreaPx": area,
+                "shapeAnisotropy": round(aspect, 1)
+            }
+            cv2.circle(crop, (round(cx), round(cy)), 8, draw_color, 2)
+            cv2.putText(crop, name, (round(cx)-45, round(cy)-14),
+                        cv2.FONT_HERSHEY_SIMPLEX, .4, draw_color, 1)
+        rows.append({
+            "captureFrame": index,
+            "captureSec": round(index/capture.get(cv2.CAP_PROP_FPS), 3),
+            "wraps": found,
+            "deltaPx": {
+                "x": round(found["fore_purple"]["xPx"] -
+                           found["hind_green"]["xPx"], 2),
+                "y": round(found["fore_purple"]["yPx"] -
+                           found["hind_green"]["yPx"], 2)
+            }
+        })
+        cv2.putText(crop, f"frame {index}", (4,18),
+                    cv2.FONT_HERSHEY_SIMPLEX, .6, (255,255,255), 2)
+        tiles.append(Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)))
+    image = Image.new("RGB", (667*3, 330*2), (15,15,15))
+    for n, tile in enumerate(tiles):
+        image.paste(tile, ((n%3)*667, (n//3)*330))
+    image.save(output/"third_verified_centroids.png")
+    receipt = {
+        "schema": "unicorn-colored-wrap-reference-measurement-v1",
+        "videoSha256": THIRD_SHA,
+        "capturedFrameIndices": list(THIRD_REVIEWED_FRAMES),
+        "measured": rows,
+        "verifiedGait": None,
+        "verifiedThreeBeat": False,
+        "verifiedSuspension": False,
+        "verifiedHockOrKneeAngles": False,
+        "acceptedPoseLabClip": None,
+        "footnote": "HSV wrap axes are not equine joint angles or canter phase timing"
+    }
+    (output/"third_reviewed_centroids.json").write_text(json.dumps(receipt, indent=2)+chr(10))
+    print(json.dumps(receipt, indent=2))
 
 def followup(video, output):
     """Hash-locked 934762 clip: measure reviewed wraps only; NOT canter keys.
