@@ -53,3 +53,24 @@ Follow `AGENTS.md`, `docs/POSE_LAB_CAMPAIGN_RULES.md`, `docs/POSE_IS_GOD.md`, `d
 Frames 18 and 40 are nearly duplicate source poses. The YouTube progress bar at y=896–903 and subtitles obscure distal hoof contacts. Colored-wrap long-axis PCA gives *wrap shape*, not hoof pitch or joint articulation; do not use those axes as rig angles. Inter-band horizontal separation (287–300 pixels in selected views) is *not* a world-space leg length. Gait lead, hoof strikes, and suspension remain **unproven**.
 
 **Result:** Reference evidence only. Existing Pose Lab V2 remains the required delivery surface, source illustration stays appearance-only, horizontal root motion remains disabled. No rig, canter animation, or hosted visual review exists on the basis of this measurement. Require a side-on continuous three-beat canter clip to populate the motion-authority track.
+
+
+## Third screen recording: 934765.mp4, clearer lateral passage
+
+New source: `934765.mp4`, SHA-256 `93586eb27565469358b9c12a81765b355eb14aea8574bc2df810b041f69549ab`. Native capture **1080 × 2404 portrait**, **731 frames**, duration **19.383656s**, reported **37.7122 captured frames/s**. The landscape horse video occupies approximately screen x=110..777, y=950..1455. It is a *screen recording*, so clock time between capture frames is **not reliable proof of motion cadence** or real source FPS.
+
+The later segment around screen-capture frames 480–580 is a substantially clearer right-facing side view of an actual ridden horse. Source has colored green hind and purple fore lower-leg wraps, plus other colored wraps. The plotted markers below are measured directly from the *video* with fixed ROI x=110..777, y=1130..1460; **not** inferred from the unicorn illustration.
+
+| Capture frame | time within screen recording | hind green center px | fore purple center px | dx px | green wrap axis° | purple wrap axis° |
+| ---: | ---: | --- | --- | ---: | ---: | ---: |
+| 500 | 13.258s | (445.88, 1367.42) | (609.29, 1365.13) | 163.41 | -14.1 | -19.3 |
+| 520 | 13.789s | (438.29, 1357.97) | (614.66, 1382.20) | 176.37 | -10.4 | +11.1 |
+| 530 | 14.054s | (438.05, 1367.23) | (607.27, 1365.51) | 169.22 | +7.3 | -20.7 |
+| 550 | 14.584s | (476.50, 1359.47) | (631.49, 1381.27) | 154.99 | -5.7 | +10.1 |
+| 570 | 15.114s | (503.26, 1372.31) | (626.29, 1368.77) | 123.03 | rejected (mask aspect 1.5) | -46.6 |
+
+Axes use PCA of colored pixels, normalized to ±90° against screenshot vertical, positive leaning right. A wrap is not the hoof or hock/carpus bone, and its colored shape orientation does not equal a true limb articulation angle. Frame 570's green shape angle is specifically discarded as underdetermined. Distances are on the captured screen, with moving subject and camera, NOT equine stride/world positions.
+
+**Visual source review:** Multiple consecutive lateral poses make support/recovery differences visible, and the distant rider/horse occupies a useful consistent part of the embedded player. However the selected sample frames do not establish the **ordered isolated three beats + airborne suspension** necessary to use this clip as a measured equine canter animation. Lead identity and hoofstrike times remain pending. Avoid declaring this *walk* or *canter* simply from the tutorial metadata: only footfall evidence can settle it.
+
+The measurable file is `public/assets/unicorn/reference/934765_wrap_measurements.json`, produced by the SHA-locked `tools/campaigns/unicorn_wrap_reference_track.py --video ...` path (diagnostic output, not hosted acceptance). Recorded source video remains outside Git. No existing artwork or accepted animations are modified. A working segmented rig, actual canter and Pose Lab V2 playback are **not delivered** by this reference step.
