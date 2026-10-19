@@ -1,0 +1,30 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "unicorn-textured-limb-v2",
+  "mission": "Correct rejected opaque proxy limbs by extracting source artwork into textured upper and lower equine limb layers. Generate quarantined V2 in existing Pose Lab 2D reviewer. Preserve prior candidate and all unrelated work.",
+  "machine": {
+    "mutablePaths": [
+      "campaigns/unicorn-textured-limb-v2.contract.json",
+      "campaigns/unicorn-textured-limb-v2.receipt.json",
+      "tools/campaigns/unicorn_textured_rig_v2.py",
+      "tools/campaigns/unicorn_v2_campaign.sh",
+      "public/assets/unicorn/candidate-v2/**"
+    ],
+    "receiptPath": "campaigns/unicorn-textured-limb-v2.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/unicorn_textured_rig_v2.py",
+        "value": "maskedPixelHolesNotInpainted"
+      }
+    ]
+  }
+}
