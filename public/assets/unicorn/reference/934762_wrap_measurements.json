@@ -1,0 +1,109 @@
+{
+  "schema": "unicorn-colored-wrap-landmarks-v1",
+  "status": "reviewed-reference-not-canter",
+  "source": {
+    "file": "934762.mp4",
+    "sha256": "b94fa6ff1f37dc2fec2b52a73f013fbdf4192a51c258f28ae49847c7fdef9b15",
+    "format": "screen-captured YouTube player",
+    "capturePixels": [
+      2404,
+      1080
+    ],
+    "captureFrames": 359,
+    "recordingLengthSec": 13.150033
+  },
+  "geometry": {
+    "space": "uncropped capture pixels",
+    "origin": "top-left",
+    "x": "right",
+    "y": "down",
+    "features": {
+      "greenHind": "HSV color-wrap blob centroid on hind leg",
+      "purpleFore": "HSV color-wrap blob centroid on foreleg",
+      "differencePx": "purple fore centroid minus green hind centroid, raw screen projection"
+    },
+    "redWrapStatus": "excluded-because-progress-bar-component-interference"
+  },
+  "samples": [
+    {
+      "frame": 18,
+      "captureTimeSec": 1.231,
+      "greenHind": [
+        936.44,
+        925.06
+      ],
+      "purpleFore": [
+        1225.51,
+        933.98
+      ],
+      "differencePx": [
+        289.07,
+        8.91
+      ]
+    },
+    {
+      "frame": 40,
+      "captureTimeSec": 1.415,
+      "greenHind": [
+        937.76,
+        922.7
+      ],
+      "purpleFore": [
+        1224.91,
+        933.52
+      ],
+      "differencePx": [
+        287.15,
+        10.81
+      ]
+    },
+    {
+      "frame": 70,
+      "captureTimeSec": 2.666,
+      "greenHind": [
+        693.55,
+        940.87
+      ],
+      "purpleFore": [
+        991.57,
+        939.47
+      ],
+      "differencePx": [
+        298.02,
+        -1.39
+      ]
+    },
+    {
+      "frame": 100,
+      "captureTimeSec": 3.753,
+      "greenHind": [
+        983.05,
+        931.57
+      ],
+      "purpleFore": [
+        1283.07,
+        936.76
+      ],
+      "differencePx": [
+        300.03,
+        5.18
+      ]
+    }
+  ],
+  "review": {
+    "measurements": "visually checked color-band center overlays",
+    "sourceMotion": "rising trot in preparation for canter",
+    "canterBeatsMeasured": false,
+    "flightPhaseMeasured": false,
+    "hoofGroundContactMeasured": false,
+    "hoofPitchMeasured": false,
+    "anatomicalJointAnglesMeasured": false,
+    "notes": [
+      "Capture frame times include repeats and pauses",
+      "Frames 18 and 40 show nearly duplicated pose, not independent gait beats",
+      "Moving/turning camera prevents physical stride inference from screen coordinates",
+      "No image is regenerated; illustration stays identity authority",
+      "Pose Lab V2 live rig, export and human verdict are not yet available"
+    ]
+  }
+}
