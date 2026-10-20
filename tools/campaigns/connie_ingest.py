@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Interactive, fail-closed Connie source ingress for Termux.
+"""Screenshot-mapped, fail-closed Connie source ingress for Termux.
 
-Selects the FOUR approved original PNGs from Android storage. No image generation.
+Finds the FOUR exact user-identified screenshot PNGs. No prompts or image generation.
 Writes hash-bound inputs and copies canonical bytes into the Pose Lab repository.
 Head boxes are measurements from this campaign's supplied art, provisional
 until human visual verification. Re-running will not overwrite existing sources.
@@ -31,40 +31,38 @@ def size(p):
     except (OSError,ValueError): return None
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--output',required=True);args=ap.parse_args()
-    candidates={}
-    for base in BASES:
-        if not base.exists(): continue
-        for folder in [base,*[d for d in base.iterdir() if d.is_dir()][:60]]:
-            try: paths=folder.glob('*.png')
-            except OSError: continue
-            for p in paths:
-                if not p.is_file(): continue
-                try: actual=size(p)
-                except OSError: continue
-                if actual in ((1152,1536),(1536,512)):
-                    candidates[str(p.resolve())]=(p,actual)
-    print('CONNIE_SOURCE_CANDIDATES:',len(candidates))
-    by_size={}
-    for path,(p,sz) in sorted(candidates.items()):
-        by_size.setdefault(sz,[]).append(p)
+    # Filenames and order were supplied explicitly in Drew's screenshot.
+    # Never prompt or substitute similar-sized files.
+    filenames={
+        'run':'file_0000000065a081f598aa79ff7209b9d1.png',
+        'dash':'file_00000000abb481f59b8ff374e3df6e8d.png',
+        'idle':'file_00000000807881f598bd2fce43c5b0f6.png',
+        'rebound':'file_000000001b8c81f5844badc8eaa7bd36.png'
+    }
     selected={}
     for role,expected in ROLES:
         dest=SOURCES/(role+'.png')
-        if dest.is_file() and size(dest)==expected:
-            print(role,'using existing',dest)
-            selected[role]=dest;continue
-        opts=by_size.get(expected,[])
-        print('\\n'+role.upper()+' (expected '+str(expected)+')')
-        for i,p in enumerate(opts,1):print(f'  {i}. {p.name}  [{p.parent}]')
-        if not opts:
-            print('No candidate detected. Enter full Android PNG path manually.')
-        reply=input('Select candidate number or full path (blank stops): ').strip()
-        if not reply:raise RuntimeError('Selection cancelled; originals unchanged')
-        chosen=opts[int(reply)-1] if reply.isdigit() and 1<=int(reply)<=len(opts) else Path(reply).expanduser()
-        if not chosen.is_file() or size(chosen)!=expected:raise RuntimeError('Wrong or missing PNG for '+role)
-        if any(sha(chosen)==sha(v) for v in selected.values()):
-            raise RuntimeError('Same PNG selected for different roles; stop')
+        if dest.is_file():
+            if size(dest)!=expected:
+                raise RuntimeError('Existing source dimension mismatch: '+str(dest))
+            selected[role]=dest
+            continue
+        matches=[]
+        for base in BASES:
+            if not base.exists(): continue
+            exact=base/filenames[role]
+            if exact.is_file(): matches.append(exact)
+            try:
+                matches += [p for p in base.glob('*/'+filenames[role]) if p.is_file()]
+            except OSError: pass
+        matches=list({str(p.resolve()):p for p in matches}.values())
+        if len(matches)!=1:
+            raise RuntimeError(f'Expected exactly one screenshot-named {role} PNG ({filenames[role]}), found {len(matches)}. No replacement selected.')
+        chosen=matches[0]
+        if size(chosen)!=expected:
+            raise RuntimeError(f'{role} source dimensions mismatch: {chosen}, expected {expected}')
         selected[role]=chosen
+        print('CONNIE_SOURCE_MATCH',role,chosen)
     SOURCES.mkdir(parents=True,exist_ok=True)
     for role,p in selected.items():
         dest=SOURCES/(role+'.png')
