@@ -97,6 +97,7 @@ def main():
     target=int(m.get("targetHeadHeight",96))
     padding=int(m.get("padding",12));limit=int(m.get("maxAtlasSize",2048))
     if target<8 or padding<2 or limit<128: raise ValueError("invalid atlas settings")
+    print("CONNIE_HEAD_CALIBRATION=PROVISIONAL_VISUAL_REVIEW")
     frames=[]
     for f in entries:
         p=Path(f["file"])
@@ -113,6 +114,12 @@ def main():
                 raise ValueError("head outside source cell: "+f["name"])
             hh=hy1-hy0
             factor=target/hh
+            # Provisional visual calibration from the actual assembled atlas.
+            # The source-image head boxes are approximations, not equivalent
+            # anatomical landmarks. Correct movement groups relative to idle.
+            group=f["name"].split("_")[0]
+            correction={"idle":1.0,"run":1.9,"rebound":1.4,"dash":1.15}[group]
+            factor*=correction
         else:
             # Headless transformations inherit a specific frame's head scale.
             ref=f.get("scaleFrom")
