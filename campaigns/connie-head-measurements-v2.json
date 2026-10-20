@@ -1,0 +1,164 @@
+{
+  "schema": "pose-lab-connie-head-measurements-v2",
+  "provenance": "Crown/top-of-head through chin landmarks visually inspected on exact source PNG pixels; October 20, 2026. Candidate pending human acceptance.",
+  "note": "All head rectangles use global source pixel coordinates [left,top,right,bottom]; selected art is never regenerated. Exclusions only remove cross-cell fragments, not pose redesign.",
+  "headTargetPx": 128,
+  "maxAtlasSize": 4096,
+  "padding": 12,
+  "originals": {
+    "idle": {
+      "file": "public/assets/connie/source/idle.png",
+      "size": [
+        1086,
+        1448
+      ],
+      "sha256": "32d3a1bd1ca0877098db02e02934ef3da5b6e995a4b51c6326a17d40a44dc134"
+    },
+    "run": {
+      "file": "public/assets/connie/source/run.png",
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "b95d6a84f0c4e410eab5c95e5f921b6f54ca1d79c91f587d1523128e94d36f03"
+    },
+    "rebound": {
+      "file": "public/assets/connie/source/rebound.png",
+      "size": [
+        2172,
+        724
+      ],
+      "sha256": "ca90a80b7ce7339b0a64efef230ce1daf6fd5fdd72f8e1933c513b99e6a41d21"
+    },
+    "dash": {
+      "file": "public/assets/connie/source/dash.png",
+      "size": [
+        2172,
+        724
+      ],
+      "sha256": "84b9a61a55f24a04fda6b25e84edff6c8252d52814eb8c7cd2390f572f37daa2"
+    }
+  },
+  "frames": [
+    {
+      "name": "idle",
+      "source": "idle",
+      "head": [
+        578,
+        64,
+        807,
+        332
+      ]
+    },
+    {
+      "name": "run_1",
+      "source": "run",
+      "third": 0,
+      "head": [
+        358,
+        188,
+        546,
+        365
+      ]
+    },
+    {
+      "name": "run_2",
+      "source": "run",
+      "third": 1,
+      "head": [
+        868,
+        186,
+        1061,
+        365
+      ],
+      "excludeRects": [
+        [
+          1080,
+          330,
+          1115,
+          941
+        ]
+      ]
+    },
+    {
+      "name": "run_3",
+      "source": "run",
+      "third": 2,
+      "head": [
+        1426,
+        184,
+        1620,
+        369
+      ]
+    },
+    {
+      "name": "rebound_1",
+      "source": "rebound",
+      "third": 0,
+      "head": [
+        318,
+        72,
+        540,
+        296
+      ],
+      "excludeRects": [
+        [
+          680,
+          440,
+          724,
+          724
+        ]
+      ]
+    },
+    {
+      "name": "rebound_2",
+      "source": "rebound",
+      "third": 1,
+      "head": [
+        1097,
+        68,
+        1305,
+        302
+      ]
+    },
+    {
+      "name": "rebound_3",
+      "source": "rebound",
+      "third": 2,
+      "head": [
+        1787,
+        78,
+        2009,
+        306
+      ]
+    },
+    {
+      "name": "dash_1",
+      "source": "dash",
+      "third": 0,
+      "head": [
+        510,
+        65,
+        713,
+        297
+      ]
+    },
+    {
+      "name": "dash_2",
+      "source": "dash",
+      "third": 1,
+      "head": [
+        1094,
+        99,
+        1316,
+        363
+      ]
+    },
+    {
+      "name": "dash_3",
+      "source": "dash",
+      "third": 2,
+      "scaleFrom": "dash_2"
+    }
+  ]
+}
