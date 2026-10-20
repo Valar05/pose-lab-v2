@@ -138,7 +138,8 @@ def main():
                              "sourceTrim":f["trimBox"],"headBox":f.get("headBox"),
                              "scale":f["scale"],"pivot":{"x":round(im.width/2,2),"y":im.height}}
         im.save(out/(f["name"]+".png"))
-    atlas.save(out/"connie_atlas.png",optimize=True)\n    print("CONNIE_PACKING_BBOX", atlas.getchannel("A").getbbox(), "CANVAS", size)
+    atlas.save(out/"connie_atlas.png",optimize=True)
+    print("CONNIE_PACKING_BBOX", atlas.getchannel("A").getbbox(), "CANVAS", size)
     (out/"connie_atlas.json").write_text(json.dumps({"size":{"w":size[0],"h":size[1]},"headHeight":target,"frames":metadata},indent=2)+"\n")
     print(json.dumps({"atlas":str(out/"connie_atlas.png"),"frameCount":len(frames),"size":size,"headHeight":target}))
 
