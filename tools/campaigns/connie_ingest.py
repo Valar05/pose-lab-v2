@@ -14,8 +14,8 @@ SOURCES=ROOT/'public/assets/connie/source'
 BASES=[Path.home()/'storage/downloads',Path.home()/'storage/pictures',
        Path('/storage/emulated/0/Download'),Path('/storage/emulated/0/Pictures'),
        Path('/storage/emulated/0/DCIM')]
-ROLES=[('idle',None),('run',(1536,512)),
-       ('rebound',(1536,512)),('dash',(1536,512))]
+ROLES=[('idle',None),('run',None),
+       ('rebound',None),('dash',None)]
 # Source-image head rectangles x1,y1,x2,y2. These are preliminary measurements
 # recorded from approved references; visually review before declaring acceptance.
 HEADS={
@@ -32,8 +32,8 @@ def size(p):
 def valid_dimensions(role,actual,expected):
     if actual is None:return False
     if role=='idle':
-        return 512<=actual[0]<=3072 and 512<=actual[1]<=4096
-    return actual==expected
+        return 512<=actual[0]<=4096 and 512<=actual[1]<=4096
+    return 900<=actual[0]<=4096 and 300<=actual[1]<=4096
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--output',required=True);args=ap.parse_args()
@@ -83,23 +83,30 @@ def main():
         assert valid_dimensions(role,size(dest),dict(ROLES)[role])
         assert sha(dest)==sha(p)
     frames=[]
-    for role,dimensions in ROLES:
+    for role,_ in ROLES:
         path=SOURCES/(role+'.png');digest=sha(path)
-        if role=='idle': dimensions=size(path)
-        if dimensions is None: raise RuntimeError('Invalid source image dimensions: '+str(path))
+        dimensions=size(path)
+        if not valid_dimensions(role,dimensions,None):
+            raise RuntimeError('Invalid source image dimensions: '+str(path))
+        w,h=dimensions
+        edges=[0,round(w/3),round(2*w/3),w] if role!='idle' else [0,w]
         for i in range(1 if role=='idle' else 3):
             name=role if role=='idle' else f'{role}_{i+1}'
-            entry={'name':name,'file':str(path.relative_to(ROOT)),
-                   'cell':[0,0,*dimensions] if role=='idle' else [i*512,0,512,512],
-                   'sha256':digest}
+            cell=[0,0,w,h] if role=='idle' else [edges[i],0,edges[i+1]-edges[i],h]
+            entry={'name':name,'file':str(path.relative_to(ROOT)),'cell':cell,'sha256':digest}
             if name in HEADS:
                 head=list(HEADS[name])
-                if role=='idle':
-                    head=[round(head[0]*dimensions[0]/1152),round(head[1]*dimensions[1]/1536),round(head[2]*dimensions[0]/1152),round(head[3]*dimensions[1]/1536)]
+                baseline_w,baseline_h=(1152,1536) if role=='idle' else (1536,512)
+                head=[round(head[0]*w/baseline_w),round(head[1]*h/baseline_h),
+                      round(head[2]*w/baseline_w),round(head[3]*h/baseline_h)]
+                # Expected head must fit precisely within the assigned triptych cell.
+                cx,cy,cw,ch=cell
+                if not(cx<=head[0]<head[2]<=cx+cw and cy<=head[1]<head[3]<=cy+ch):
+                    raise RuntimeError(f'Head estimate outside derived {name} cell; human measurement required')
                 entry['head']=head
-            else:entry['scaleFrom']='dash_2'
+            else: entry['scaleFrom']='dash_2'
             frames.append(entry)
-    manifest={'targetHeadHeight':100,'maxAtlasSize':4096,'padding':20,
+    manifest={'targetHeadHeight':100,'maxAtlasSize':8192,'padding':20,
               'measurementStatus':'provisional human visual review required',
               'frames':frames}
     out=ROOT/args.output
