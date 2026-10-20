@@ -54,23 +54,34 @@ def trim(img):
 def nextpow2(v): return 1 << (v-1).bit_length()
 
 def pack(images,padding,limit):
-    order=sorted(images,key=lambda a:(-a["image"].height,-a["image"].width,a["name"]))
-    x=y=row=0
-    positions={}
-    for entry in order:
-        w,h=entry["image"].size
-        if w+2*padding>limit or h+2*padding>limit:
-            raise ValueError("frame too large: "+entry["name"])
-        if x+w+2*padding>limit:
-            x=0;y+=row;row=0
-        if y+h+2*padding>limit:
-            raise ValueError("atlas exceeds maxAtlasSize; increase limit or reduce targetHeadHeight")
-        positions[entry["name"]]=(x+padding,y+padding)
-        x+=w+2*padding
-        row=max(row,h+2*padding)
-    atlas_w=nextpow2(max(px+e["image"].width+padding for e in order for px,py in [positions[e["name"]]]))
-    atlas_h=nextpow2(max(py+e["image"].height+padding for e in order for px,py in [positions[e["name"]]]))
-    return positions,(atlas_w,atlas_h)
+    """Choose the smallest valid power-of-two shelf layout, not a single long row."""
+    order=sorted(images,key=lambda e:(-e["image"].height,-e["image"].width,e["name"]))
+    widest=max(e["image"].width+2*padding for e in order)
+    width=nextpow2(widest)
+    options=[]
+    while width<=limit:
+        x=y=row_h=0
+        positions={}
+        valid=True
+        for e in order:
+            w,h=e["image"].size
+            if w+2*padding>width or h+2*padding>limit:
+                valid=False;break
+            if x+w+2*padding>width:
+                y+=row_h
+                x=row_h=0
+            positions[e["name"]]=(x+padding,y+padding)
+            x+=w+2*padding
+            row_h=max(row_h,h+2*padding)
+        used_height=y+row_h
+        height=nextpow2(max(1,used_height))
+        if valid and height<=limit:
+            options.append((width*height,max(width,height),width,height,positions))
+        width*=2
+    if not options:
+        raise ValueError("Atlas cannot fit configured maximum")
+    _,_,width,height,positions=min(options,key=lambda z:(z[0],z[1],z[2]))
+    return positions,(width,height)
 
 def main():
     parser=argparse.ArgumentParser()
@@ -127,7 +138,7 @@ def main():
                              "sourceTrim":f["trimBox"],"headBox":f.get("headBox"),
                              "scale":f["scale"],"pivot":{"x":round(im.width/2,2),"y":im.height}}
         im.save(out/(f["name"]+".png"))
-    atlas.save(out/"connie_atlas.png",optimize=True)
+    atlas.save(out/"connie_atlas.png",optimize=True)\n    print("CONNIE_PACKING_BBOX", atlas.getchannel("A").getbbox(), "CANVAS", size)
     (out/"connie_atlas.json").write_text(json.dumps({"size":{"w":size[0],"h":size[1]},"headHeight":target,"frames":metadata},indent=2)+"\n")
     print(json.dumps({"atlas":str(out/"connie_atlas.png"),"frameCount":len(frames),"size":size,"headHeight":target}))
 
