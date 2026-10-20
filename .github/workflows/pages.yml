@@ -16,6 +16,9 @@ concurrency:
 
 jobs:
   build:
+    permissions:
+      contents: read
+      actions: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +27,22 @@ jobs:
           node-version: 22
       - run: npm run build
       - run: npm run smoke
+      - name: Purge old Pose Lab build artifacts before publishing
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Artifacts are disposable. Git history, releases, and run logs remain.
+          # Delete only within the current repository.
+          ids="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '.artifacts[].id')"
+          deleted=0
+          while IFS= read -r artifact_id; do
+            [[ -n "$artifact_id" ]] || continue
+            gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}" >/dev/null
+            ((deleted += 1))
+          done <<< "$ids"
+          echo "Purged ${deleted} stale Pose Lab artifacts."
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
