@@ -80,7 +80,9 @@
       "public/assets/connie/atlas/**",
       "campaigns/connie-head-normalized-atlas-v1.contract.json",
       "campaigns/connie-head-normalized-atlas-v1.receipt.json",
-      "tools/campaigns/connie_head_atlas.py"
+      "tools/campaigns/connie_head_atlas.py",
+      "tools/campaigns/run_connie_head_atlas.sh",
+      "campaigns/connie-head-atlas.inputs.json"
     ],
     "receiptPath": "campaigns/connie-head-normalized-atlas-v1.receipt.json",
     "requiredRules": [
