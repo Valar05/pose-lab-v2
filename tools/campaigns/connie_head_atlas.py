@@ -97,13 +97,10 @@ def main():
     target=int(m.get("targetHeadHeight",96))
     padding=int(m.get("padding",12));limit=int(m.get("maxAtlasSize",2048))
     if target<8 or padding<2 or limit<128: raise ValueError("invalid atlas settings")
-    print("CONNIE_HEAD_CALIBRATION=PROVISIONAL_VISUAL_REVIEW")
-    # Visual calibration of anatomical head scale from the user's actual
-    # October 20 atlas review. The original nominal "head" rectangles were
-    # not equivalent across source sheets, so target/head_height alone
-    # produced tiny run figures relative to idle. These are explicit,
-    # revisable candidate multipliers, NOT validated anatomical landmarks.
-    visual_scale={"idle":1.0,"run":2.15,"rebound":1.5,"dash":1.25}
+    print("CONNIE_HEAD_CALIBRATION=SINGLE_PASS_CANDIDATE")
+    # Source-head boxes remain provisional. Never compound visual multipliers.
+    # One reviewable factor per animation group, applied exactly once.
+    visual_scale={"idle":1.0,"run":1.9,"rebound":1.4,"dash":1.15}
     frames=[]
     for f in entries:
         p=Path(f["file"])
@@ -120,12 +117,6 @@ def main():
                 raise ValueError("head outside source cell: "+f["name"])
             hh=hy1-hy0
             factor=target/hh
-            # Provisional visual calibration from the actual assembled atlas.
-            # The source-image head boxes are approximations, not equivalent
-            # anatomical landmarks. Correct movement groups relative to idle.
-            group=f["name"].split("_")[0]
-            correction={"idle":1.0,"run":1.9,"rebound":1.4,"dash":1.15}[group]
-            factor*=correction
         else:
             # Headless transformations inherit a specific frame's head scale.
             ref=f.get("scaleFrom")
@@ -133,7 +124,7 @@ def main():
             if parent is None: raise ValueError(f"headless frame {f['name']} must scaleFrom earlier headed frame")
             factor=parent["scale"]
         group=f["name"].split("_")[0]
-        factor*=visual_scale.get(group,1.0)
+        factor*=visual_scale[group]
         rgba=make_alpha(crop)
         trimmed,bounds=trim(rgba)
         nw=max(1,round(trimmed.width*factor));nh=max(1,round(trimmed.height*factor))
@@ -143,6 +134,12 @@ def main():
             rec["headBox"]=hb
             rec["headTopPx"]=(hy0-cy-bounds[1])*factor
         frames.append(rec)
+    for frame in frames:
+        hb=frame.get("headBox")
+        if hb:
+            normalized=(hb[3]-hb[1])*frame["scale"]
+            print("CONNIE_HEAD_AUDIT",frame["name"],round(normalized,2),
+                  "px; provisional landmarks")
     locations,size=pack(frames,padding,limit)
     atlas=Image.new("RGBA",size,(0,0,0,0));metadata={}
     for f in frames:
