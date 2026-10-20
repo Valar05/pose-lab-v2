@@ -98,6 +98,12 @@ def main():
     padding=int(m.get("padding",12));limit=int(m.get("maxAtlasSize",2048))
     if target<8 or padding<2 or limit<128: raise ValueError("invalid atlas settings")
     print("CONNIE_HEAD_CALIBRATION=PROVISIONAL_VISUAL_REVIEW")
+    # Visual calibration of anatomical head scale from the user's actual
+    # October 20 atlas review. The original nominal "head" rectangles were
+    # not equivalent across source sheets, so target/head_height alone
+    # produced tiny run figures relative to idle. These are explicit,
+    # revisable candidate multipliers, NOT validated anatomical landmarks.
+    visual_scale={"idle":1.0,"run":2.15,"rebound":1.5,"dash":1.25}
     frames=[]
     for f in entries:
         p=Path(f["file"])
@@ -126,11 +132,13 @@ def main():
             parent=next((z for z in frames if z["name"]==ref),None)
             if parent is None: raise ValueError(f"headless frame {f['name']} must scaleFrom earlier headed frame")
             factor=parent["scale"]
+        group=f["name"].split("_")[0]
+        factor*=visual_scale.get(group,1.0)
         rgba=make_alpha(crop)
         trimmed,bounds=trim(rgba)
         nw=max(1,round(trimmed.width*factor));nh=max(1,round(trimmed.height*factor))
         resized=trimmed.resize((nw,nh),Image.Resampling.LANCZOS)
-        rec={"name":f["name"],"image":resized,"sourceSha256":expected,"sourceCell":f["cell"],"trimBox":list(bounds),"scale":factor}
+        rec={"name":f["name"],"image":resized,"sourceSha256":expected,"sourceCell":f["cell"],"trimBox":list(bounds),"scale":factor,"visualCalibration":visual_scale.get(group,1.0)}
         if hb:
             rec["headBox"]=hb
             rec["headTopPx"]=(hy0-cy-bounds[1])*factor
