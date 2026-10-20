@@ -115,7 +115,7 @@ def main():
         if old!=manifest:raise RuntimeError('Refusing to overwrite differing existing manifest '+str(out))
     else:
         out.parent.mkdir(parents=True,exist_ok=True)
-        out.write_text(json.dumps(manifest,indent=2)+'\\n')
+        out.write_text(json.dumps(manifest,indent=2)+'\n')
     print('CONNIE_INGRESS_OK=4; SOURCE_HASHES_VERIFIED=4')
     print('CONNIE_HEAD_MEASUREMENTS=PROVISIONAL (visual review required)')
     print('MANIFEST='+str(out))
