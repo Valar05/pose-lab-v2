@@ -1,0 +1,102 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "connie-head-normalized-atlas-v1",
+  "mission": "Produce a crisp head-normalized Connie idle/run/rebound/dash atlas from the four exact accepted source images, via Pose Lab V2. Preserve accepted pixels and poses; avoid image regeneration and independent per-frame bbox scaling. Verify padding, head size, all fragments, and runtime display before human acceptance.",
+  "status": "blocked-source-ingress",
+  "sourceAuthority": {
+    "originals": [
+      {
+        "role": "idle",
+        "description": "Approved 1152x1536 standing Connie PNG",
+        "expectedDimensions": [
+          1152,
+          1536
+        ],
+        "sha256": null,
+        "repoPath": "public/assets/connie/source/idle.png"
+      },
+      {
+        "role": "run",
+        "description": "Approved 1536x512 three-frame ninja run PNG",
+        "expectedDimensions": [
+          1536,
+          512
+        ],
+        "sha256": null,
+        "repoPath": "public/assets/connie/source/run.png"
+      },
+      {
+        "role": "rebound",
+        "description": "Approved 1536x512 three-frame rebound/air PNG",
+        "expectedDimensions": [
+          1536,
+          512
+        ],
+        "sha256": null,
+        "repoPath": "public/assets/connie/source/rebound.png"
+      },
+      {
+        "role": "dash",
+        "description": "Approved 1536x512 three-frame pinwheel transformation PNG",
+        "expectedDimensions": [
+          1536,
+          512
+        ],
+        "sha256": null,
+        "repoPath": "public/assets/connie/source/dash.png"
+      }
+    ],
+    "provenance": "Four user-supplied images in October 19, 2026 conversation. Must be ingressed as exact binaries and SHA-verified through authorized Git transport before building.",
+    "inpaintOrRegenAllowed": false
+  },
+  "headScale": {
+    "authority": "measured forehead/crown-to-chin head bounds for each frame where visible",
+    "headlessFrame": "dash_3 inherits dash_2 scale",
+    "targetHeadHeightPx": null,
+    "headBoxes": "PENDING MEASUREMENT ON CANONICAL SOURCES",
+    "perFrameArbitraryFit": false
+  },
+  "atlas": {
+    "alpha": "transparent with verified antialiasing, no black fringe",
+    "quality": "crisp with no Vanguard blur/detail collapse",
+    "paddingPx": 16,
+    "layout": "non-overlapping and clip-free; binary PNG and JSON metadata",
+    "expectedFrames": [
+      "idle",
+      "run_1",
+      "run_2",
+      "run_3",
+      "rebound_1",
+      "rebound_2",
+      "rebound_3",
+      "dash_1",
+      "dash_2",
+      "dash_3"
+    ]
+  },
+  "machine": {
+    "mutablePaths": [
+      "public/assets/connie/source/**",
+      "public/assets/connie/atlas/**",
+      "campaigns/connie-head-normalized-atlas-v1.contract.json",
+      "campaigns/connie-head-normalized-atlas-v1.receipt.json",
+      "tools/campaigns/connie_head_atlas.py"
+    ],
+    "receiptPath": "campaigns/connie-head-normalized-atlas-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [],
+    "checks": []
+  },
+  "acceptance": {
+    "candidateMustShow": "10 sprites, aligned measured heads, no clipping/bleeding, transparent background, stable scale and frame order; inspect assembled image and exact Pose Lab runtime",
+    "acceptanceSurface": "Drew's visible hosted Pose Lab V2 review",
+    "verdict": "pending",
+    "completed": false
+  }
+}
