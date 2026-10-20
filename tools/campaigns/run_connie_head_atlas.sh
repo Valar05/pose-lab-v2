@@ -15,9 +15,11 @@ PACKET="$(mktemp "${TMPDIR:-/tmp}/connie-pose-packet.XXXXXXXX")"
 trap 'rm -f "$PACKET"' EXIT
 python3 tools/campaigns/sprite_doctrine_boot.py --task extract --contract "$CONTRACT" --output "$PACKET"
 cat "$PACKET"
-for file in public/assets/connie/source/idle.png public/assets/connie/source/run.png public/assets/connie/source/rebound.png public/assets/connie/source/dash.png; do
-  pose_campaign_require_file "$file"
-done
+# User-approved ingress from Android shared storage. No hallucinated image sources.
+# When inputs are absent, run the interactive, fail-closed importer.
+if [ ! -s "$INPUTS" ] || [ ! -s public/assets/connie/source/idle.png ] || [ ! -s public/assets/connie/source/run.png ] || [ ! -s public/assets/connie/source/rebound.png ] || [ ! -s public/assets/connie/source/dash.png ]; then
+  python3 tools/campaigns/connie_ingest.py --output "$INPUTS" || pose_campaign_stop "Connie source ingress incomplete"
+fi
 pose_campaign_require_file "$INPUTS"
 python3 -c 'from PIL import Image; print("CONNIE_PILLOW_OK")' || pose_campaign_stop "Pillow missing: pkg install python; python -m pip install Pillow"
 python3 tools/campaigns/connie_head_atlas.py --manifest "$INPUTS" --output "$OUT"
