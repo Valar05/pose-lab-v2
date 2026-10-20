@@ -56,9 +56,14 @@ def main():
                 matches += [p for p in base.glob('*/'+filenames[role]) if p.is_file()]
             except OSError: pass
         matches=list({str(p.resolve()):p for p in matches}.values())
-        if len(matches)!=1:
-            raise RuntimeError(f'Expected exactly one screenshot-named {role} PNG ({filenames[role]}), found {len(matches)}. No replacement selected.')
-        chosen=matches[0]
+        if not matches:
+            raise RuntimeError(f'Missing screenshot-named {role} PNG ({filenames[role]}). No replacement selected.')
+        hashes={sha(p) for p in matches}
+        if len(hashes)!=1:
+            raise RuntimeError(f'Conflicting same-named {role} PNGs ({filenames[role]}): {len(hashes)} distinct SHA-256 hashes. No replacement selected.')
+        chosen=sorted(matches,key=lambda p:str(p.resolve()))[0]
+        if len(matches)>1:
+            print('CONNIE_IDENTICAL_DUPLICATES',role,len(matches),'SHA256',next(iter(hashes)))
         if size(chosen)!=expected:
             raise RuntimeError(f'{role} source dimensions mismatch: {chosen}, expected {expected}')
         selected[role]=chosen
