@@ -14,7 +14,7 @@ SOURCES=ROOT/'public/assets/connie/source'
 BASES=[Path.home()/'storage/downloads',Path.home()/'storage/pictures',
        Path('/storage/emulated/0/Download'),Path('/storage/emulated/0/Pictures'),
        Path('/storage/emulated/0/DCIM')]
-ROLES=[('idle',(1152,1536)),('run',(1536,512)),
+ROLES=[('idle',None),('run',(1536,512)),
        ('rebound',(1536,512)),('dash',(1536,512))]
 # Source-image head rectangles x1,y1,x2,y2. These are preliminary measurements
 # recorded from approved references; visually review before declaring acceptance.
@@ -29,6 +29,12 @@ def size(p):
     try:
         with Image.open(p) as img: return img.size if img.format=='PNG' else None
     except (OSError,ValueError): return None
+def valid_dimensions(role,actual,expected):
+    if actual is None:return False
+    if role=='idle':
+        return 512<=actual[0]<=3072 and 512<=actual[1]<=4096
+    return actual==expected
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--output',required=True);args=ap.parse_args()
     # Filenames and order were supplied explicitly in Drew's screenshot.
@@ -43,7 +49,7 @@ def main():
     for role,expected in ROLES:
         dest=SOURCES/(role+'.png')
         if dest.is_file():
-            if size(dest)!=expected:
+            if not valid_dimensions(role,size(dest),expected):
                 raise RuntimeError('Existing source dimension mismatch: '+str(dest))
             selected[role]=dest
             continue
@@ -64,8 +70,8 @@ def main():
         chosen=sorted(matches,key=lambda p:str(p.resolve()))[0]
         if len(matches)>1:
             print('CONNIE_IDENTICAL_DUPLICATES',role,len(matches),'SHA256',next(iter(hashes)))
-        if size(chosen)!=expected:
-            raise RuntimeError(f'{role} source dimensions mismatch: {chosen}, expected {expected}')
+        if not valid_dimensions(role,size(chosen),expected):
+            raise RuntimeError(f'{role} source dimensions mismatch: {chosen}, actual {size(chosen)}, expected {expected}')
         selected[role]=chosen
         print('CONNIE_SOURCE_MATCH',role,chosen)
     SOURCES.mkdir(parents=True,exist_ok=True)
@@ -74,17 +80,23 @@ def main():
         if p.resolve()!=dest.resolve():
             if dest.exists():raise RuntimeError('Refusing to replace existing source '+str(dest))
             shutil.copyfile(p,dest)
-        assert size(dest)==dict(ROLES)[role]
+        assert valid_dimensions(role,size(dest),dict(ROLES)[role])
         assert sha(dest)==sha(p)
     frames=[]
     for role,dimensions in ROLES:
         path=SOURCES/(role+'.png');digest=sha(path)
+        if role=='idle': dimensions=size(path)
+        if dimensions is None: raise RuntimeError('Invalid source image dimensions: '+str(path))
         for i in range(1 if role=='idle' else 3):
             name=role if role=='idle' else f'{role}_{i+1}'
             entry={'name':name,'file':str(path.relative_to(ROOT)),
                    'cell':[0,0,*dimensions] if role=='idle' else [i*512,0,512,512],
                    'sha256':digest}
-            if name in HEADS:entry['head']=list(HEADS[name])
+            if name in HEADS:
+                head=list(HEADS[name])
+                if role=='idle':
+                    head=[round(head[0]*dimensions[0]/1152),round(head[1]*dimensions[1]/1536),round(head[2]*dimensions[0]/1152),round(head[3]*dimensions[1]/1536)]
+                entry['head']=head
             else:entry['scaleFrom']='dash_2'
             frames.append(entry)
     manifest={'targetHeadHeight':100,'maxAtlasSize':4096,'padding':20,
