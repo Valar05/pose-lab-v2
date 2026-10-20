@@ -1,0 +1,731 @@
+{
+  "schema": "pose-lab-connie-measurements-v3",
+  "status": "measurement-candidate-awaiting-human-review",
+  "scope": "DATA ONLY: original source bounds and head measurements; no animation, atlas or image regeneration",
+  "coordinateSystem": "Top-left source pixel coordinates, [x,y,width,height] rects, right/bottom exclusive",
+  "foregroundDetection": {
+    "threshold": "max(R,G,B)>20",
+    "connectivity": 8,
+    "minimumComponentAreaPx": 64
+  },
+  "targetHeadPx": 128,
+  "normalization": "128 / each measured crown-to-chin head height, applied once; dash_3 inherits dash_2",
+  "sourcePixelAuthority": "black-backed originals with exact SHA-256",
+  "sources": {
+    "idle": {
+      "repoPath": "public/assets/connie/source/idle.png",
+      "sha256": "32d3a1bd1ca0877098db02e02934ef3da5b6e995a4b51c6326a17d40a44dc134",
+      "dimensionsPx": [
+        1086,
+        1448
+      ],
+      "seamsBlankAtX": []
+    },
+    "run": {
+      "repoPath": "public/assets/connie/source/run.png",
+      "sha256": "b95d6a84f0c4e410eab5c95e5f921b6f54ca1d79c91f587d1523128e94d36f03",
+      "dimensionsPx": [
+        1672,
+        941
+      ],
+      "seamsBlankAtX": [
+        {
+          "x": 557,
+          "foregroundIntersections": 0,
+          "cutVector": [
+            [
+              557,
+              0
+            ],
+            [
+              557,
+              941
+            ]
+          ]
+        },
+        {
+          "x": 1080,
+          "foregroundIntersections": 0,
+          "cutVector": [
+            [
+              1080,
+              0
+            ],
+            [
+              1080,
+              941
+            ]
+          ]
+        }
+      ]
+    },
+    "rebound": {
+      "repoPath": "public/assets/connie/source/rebound.png",
+      "sha256": "ca90a80b7ce7339b0a64efef230ce1daf6fd5fdd72f8e1933c513b99e6a41d21",
+      "dimensionsPx": [
+        2172,
+        724
+      ],
+      "seamsBlankAtX": [
+        {
+          "x": 675,
+          "foregroundIntersections": 0,
+          "cutVector": [
+            [
+              675,
+              0
+            ],
+            [
+              675,
+              724
+            ]
+          ]
+        },
+        {
+          "x": 1448,
+          "foregroundIntersections": 0,
+          "cutVector": [
+            [
+              1448,
+              0
+            ],
+            [
+              1448,
+              724
+            ]
+          ]
+        }
+      ]
+    },
+    "dash": {
+      "repoPath": "public/assets/connie/source/dash.png",
+      "sha256": "84b9a61a55f24a04fda6b25e84edff6c8252d52814eb8c7cd2390f572f37daa2",
+      "dimensionsPx": [
+        2172,
+        724
+      ],
+      "seamsBlankAtX": [
+        {
+          "x": 760,
+          "foregroundIntersections": 0,
+          "cutVector": [
+            [
+              760,
+              0
+            ],
+            [
+              760,
+              724
+            ]
+          ]
+        },
+        {
+          "x": 1448,
+          "foregroundIntersections": 0,
+          "cutVector": [
+            [
+              1448,
+              0
+            ],
+            [
+              1448,
+              724
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "frames": {
+    "idle": {
+      "source": "idle",
+      "regionPx": [
+        0,
+        0,
+        1086,
+        1448
+      ],
+      "cropPx": [
+        20,
+        46,
+        993,
+        1351
+      ],
+      "nativeSizePx": [
+        993,
+        1351
+      ],
+      "sourceBoundsPx": [
+        20,
+        46,
+        1013,
+        1397
+      ],
+      "sourcePartitionPolygonPx": [
+        [
+          0,
+          0
+        ],
+        [
+          1086,
+          0
+        ],
+        [
+          1086,
+          1448
+        ],
+        [
+          0,
+          1448
+        ]
+      ],
+      "head": {
+        "boundsSourcePx": [
+          606,
+          51,
+          803,
+          321
+        ],
+        "heightPx": 270,
+        "widthPx": 197,
+        "scaleTo128Px": 0.4740741
+      },
+      "projectedSizeAt128PxHeadPx": [
+        471,
+        640
+      ]
+    },
+    "run_1": {
+      "source": "run",
+      "regionPx": [
+        0,
+        0,
+        557,
+        941
+      ],
+      "cropPx": [
+        14,
+        197,
+        538,
+        498
+      ],
+      "nativeSizePx": [
+        538,
+        498
+      ],
+      "sourceBoundsPx": [
+        14,
+        197,
+        552,
+        695
+      ],
+      "sourcePartitionPolygonPx": [
+        [
+          0,
+          0
+        ],
+        [
+          557,
+          0
+        ],
+        [
+          557,
+          941
+        ],
+        [
+          0,
+          941
+        ]
+      ],
+      "head": {
+        "boundsSourcePx": [
+          370,
+          198,
+          548,
+          370
+        ],
+        "heightPx": 172,
+        "widthPx": 178,
+        "scaleTo128Px": 0.744186
+      },
+      "projectedSizeAt128PxHeadPx": [
+        400,
+        371
+      ]
+    },
+    "run_2": {
+      "source": "run",
+      "regionPx": [
+        557,
+        0,
+        523,
+        941
+      ],
+      "cropPx": [
+        564,
+        199,
+        502,
+        511
+      ],
+      "nativeSizePx": [
+        502,
+        511
+      ],
+      "sourceBoundsPx": [
+        564,
+        199,
+        1066,
+        710
+      ],
+      "sourcePartitionPolygonPx": [
+        [
+          557,
+          0
+        ],
+        [
+          1080,
+          0
+        ],
+        [
+          1080,
+          941
+        ],
+        [
+          557,
+          941
+        ]
+      ],
+      "head": {
+        "boundsSourcePx": [
+          888,
+          200,
+          1062,
+          369
+        ],
+        "heightPx": 169,
+        "widthPx": 174,
+        "scaleTo128Px": 0.7573964
+      },
+      "projectedSizeAt128PxHeadPx": [
+        380,
+        387
+      ]
+    },
+    "run_3": {
+      "source": "run",
+      "regionPx": [
+        1080,
+        0,
+        592,
+        941
+      ],
+      "cropPx": [
+        1096,
+        193,
+        561,
+        516
+      ],
+      "nativeSizePx": [
+        561,
+        516
+      ],
+      "sourceBoundsPx": [
+        1096,
+        193,
+        1657,
+        709
+      ],
+      "sourcePartitionPolygonPx": [
+        [
+          1080,
+          0
+        ],
+        [
+          1672,
+          0
+        ],
+        [
+          1672,
+          941
+        ],
+        [
+          1080,
+          941
+        ]
+      ],
+      "head": {
+        "boundsSourcePx": [
+          1451,
+          194,
+          1626,
+          367
+        ],
+        "heightPx": 173,
+        "widthPx": 175,
+        "scaleTo128Px": 0.7398844
+      },
+      "projectedSizeAt128PxHeadPx": [
+        415,
+        382
+      ]
+    },
+    "rebound_1": {
+      "source": "rebound",
+      "regionPx": [
+        0,
+        0,
+        675,
+        724
+      ],
+      "cropPx": [
+        26,
+        42,
+        604,
+        626
+      ],
+      "nativeSizePx": [
+        604,
+        626
+      ],
+      "sourceBoundsPx": [
+        26,
+        42,
+        630,
+        668
+      ],
+      "sourcePartitionPolygonPx": [
+        [
+          0,
+          0
+        ],
+        [
+          675,
+          0
+        ],
+        [
+          675,
+          724
+        ],
+        [
+          0,
+          724
+        ]
+      ],
+      "head": {
+        "boundsSourcePx": [
+          310,
+          78,
+          541,
+          302
+        ],
+        "heightPx": 224,
+        "widthPx": 231,
+        "scaleTo128Px": 0.5714286
+      },
+      "projectedSizeAt128PxHeadPx": [
+        345,
+        358
+      ]
+    },
+    "rebound_2": {
+      "source": "rebound",
+      "regionPx": [
+        675,
+        0,
+        773,
+        724
+      ],
+      "cropPx": [
+        704,
+        64,
+        680,
+        577
+      ],
+      "nativeSizePx": [
+        680,
+        577
+      ],
+      "sourceBoundsPx": [
+        704,
+        64,
+        1384,
+        641
+      ],
+      "sourcePartitionPolygonPx": [
+        [
+          675,
+          0
+        ],
+        [
+          1448,
+          0
+        ],
+        [
+          1448,
+          724
+        ],
+        [
+          675,
+          724
+        ]
+      ],
+      "head": {
+        "boundsSourcePx": [
+          1090,
+          77,
+          1303,
+          312
+        ],
+        "heightPx": 235,
+        "widthPx": 213,
+        "scaleTo128Px": 0.5446809
+      },
+      "projectedSizeAt128PxHeadPx": [
+        370,
+        314
+      ]
+    },
+    "rebound_3": {
+      "source": "rebound",
+      "regionPx": [
+        1448,
+        0,
+        724,
+        724
+      ],
+      "cropPx": [
+        1525,
+        84,
+        603,
+        580
+      ],
+      "nativeSizePx": [
+        603,
+        580
+      ],
+      "sourceBoundsPx": [
+        1525,
+        84,
+        2128,
+        664
+      ],
+      "sourcePartitionPolygonPx": [
+        [
+          1448,
+          0
+        ],
+        [
+          2172,
+          0
+        ],
+        [
+          2172,
+          724
+        ],
+        [
+          1448,
+          724
+        ]
+      ],
+      "head": {
+        "boundsSourcePx": [
+          1780,
+          84,
+          2005,
+          318
+        ],
+        "heightPx": 234,
+        "widthPx": 225,
+        "scaleTo128Px": 0.5470085
+      },
+      "projectedSizeAt128PxHeadPx": [
+        330,
+        317
+      ]
+    },
+    "dash_1": {
+      "source": "dash",
+      "regionPx": [
+        0,
+        0,
+        760,
+        724
+      ],
+      "cropPx": [
+        47,
+        74,
+        706,
+        583
+      ],
+      "nativeSizePx": [
+        706,
+        583
+      ],
+      "sourceBoundsPx": [
+        47,
+        74,
+        753,
+        657
+      ],
+      "sourcePartitionPolygonPx": [
+        [
+          0,
+          0
+        ],
+        [
+          760,
+          0
+        ],
+        [
+          760,
+          724
+        ],
+        [
+          0,
+          724
+        ]
+      ],
+      "head": {
+        "boundsSourcePx": [
+          549,
+          74,
+          714,
+          280
+        ],
+        "heightPx": 206,
+        "widthPx": 165,
+        "scaleTo128Px": 0.6213592
+      },
+      "projectedSizeAt128PxHeadPx": [
+        439,
+        362
+      ]
+    },
+    "dash_2": {
+      "source": "dash",
+      "regionPx": [
+        760,
+        0,
+        688,
+        724
+      ],
+      "cropPx": [
+        790,
+        59,
+        627,
+        587
+      ],
+      "nativeSizePx": [
+        627,
+        587
+      ],
+      "sourceBoundsPx": [
+        790,
+        59,
+        1417,
+        646
+      ],
+      "sourcePartitionPolygonPx": [
+        [
+          760,
+          0
+        ],
+        [
+          1448,
+          0
+        ],
+        [
+          1448,
+          724
+        ],
+        [
+          760,
+          724
+        ]
+      ],
+      "head": {
+        "boundsSourcePx": [
+          1182,
+          112,
+          1355,
+          353
+        ],
+        "heightPx": 241,
+        "widthPx": 173,
+        "scaleTo128Px": 0.5311203
+      },
+      "projectedSizeAt128PxHeadPx": [
+        333,
+        312
+      ]
+    },
+    "dash_3": {
+      "source": "dash",
+      "regionPx": [
+        1448,
+        0,
+        724,
+        724
+      ],
+      "cropPx": [
+        1510,
+        101,
+        601,
+        550
+      ],
+      "nativeSizePx": [
+        601,
+        550
+      ],
+      "sourceBoundsPx": [
+        1510,
+        101,
+        2111,
+        651
+      ],
+      "sourcePartitionPolygonPx": [
+        [
+          1448,
+          0
+        ],
+        [
+          2172,
+          0
+        ],
+        [
+          2172,
+          724
+        ],
+        [
+          1448,
+          724
+        ]
+      ],
+      "headlessScaleFrom": "dash_2",
+      "projectedSizeAt128PxHeadPx": [
+        319,
+        292
+      ]
+    }
+  },
+  "frameOrder": [
+    "idle",
+    "run_1",
+    "run_2",
+    "run_3",
+    "rebound_1",
+    "rebound_2",
+    "rebound_3",
+    "dash_1",
+    "dash_2",
+    "dash_3"
+  ],
+  "evidence": {
+    "sourceSha256Matched": 4,
+    "framesMeasured": 10,
+    "seamIntersections": 0,
+    "approxSilhouetteVectorsAvailableInCompanionJson": true,
+    "vectorCompanionSha256": "43819d05f42051c4e15cd3c8d365f222081578aebef0d81bd729d21ceb2511f1",
+    "noAtlasProduced": true
+  }
+}
