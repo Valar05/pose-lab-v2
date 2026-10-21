@@ -81,7 +81,7 @@ pose_campaign_stage "$WORK" "$CONTRACT" \
   "${SOURCES[@]}" "$CALIBRATION" "$REPORT"
 git -C "$WORK" diff --cached --check
 IMPLEMENTATION="$(pose_campaign_commit "$WORK" \
-  "Import four SHA-verified Connie phone source PNGs")"
+  "Import four SHA-verified Connie phone source PNGs" | tail -n 1)"
 
 python3 - "$WORK" <<'PY'
 import hashlib,json,subprocess,sys
@@ -101,7 +101,7 @@ pose_campaign_write_receipt "$WORK" "$CONTRACT" "$REMOTE" \
 pose_campaign_stage "$WORK" "$CONTRACT" \
   campaigns/connie-phone-source-ingress-v1.receipt.json
 FINAL="$(pose_campaign_commit "$WORK" \
-  "Receipt: Connie phone source ingress, visual review pending")"
+  "Receipt: Connie phone source ingress, visual review pending" | tail -n 1)"
 
 pose_campaign_push_and_readback "$WORK" "$BRANCH" "$FINAL"
 python3 tools/campaigns/connie_phone_source_ingress.py verify-import
