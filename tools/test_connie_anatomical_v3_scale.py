@@ -1,81 +1,78 @@
 #!/usr/bin/env python3
-"""Connie V3 actual anatomical scale regression, not atlas packing.
-
-Requires saved exact source anatomy; checks that after ONE whole-family scale
-the reliable crown/chin measurements match canonical standing head within
-explicit tolerance. A metadata-only bbox pass is not acceptance.
-"""
+"""Run-first physical scale guard; never certify unrelated torso/head ratios."""
 from __future__ import annotations
-import json, math, hashlib, sys
+import json,math,statistics,sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent/"campaigns"))
+sys.path.insert(0,str(Path(__file__).resolve().parent/"campaigns"))
 from connie_v3_cloud_preview import source_authority,scale_analysis
 
 ROOT=Path(__file__).resolve().parents[1]
 CAL=ROOT/"campaigns/connie-anatomical-v3-calibration-v1.json"
 
-
-def measure(d):
-    if d["crownSourcePx"] is None or d["chinSourcePx"] is None:
-        return None
-    return math.dist(d["crownSourcePx"],d["chinSourcePx"])
-
+def span(rec,kind):
+    keys=("shoulderSourcePx","hipSourcePx") if kind=="body" else ("crownSourcePx","chinSourcePx")
+    a,b=(rec.get(k) for k in keys)
+    return math.dist(a,b) if a is not None and b is not None else None
 
 def verify():
-    source=source_authority()
-    cfg=json.loads(CAL.read_text())
-    group=scale_analysis(source)
-    assert cfg["schema"]=="pose-lab-v3-anatomical-calibration-v1"
-    assert cfg["policy"]["oneFactorPerGroup"] is True
-    assert cfg["policy"]["doNotMeasureFromAlphaBounds"] is True
-    assert cfg["status"].startswith("provisional")
-    assert set(cfg["frames"])==set(source["frameOrder"])
-    assert {k:cfg["authority"]["sourceSHA256"][k] for k in ("idle","run","rebound","dash")}=={
-        k:source["sources"][k]["sha256"] for k in ("idle","run","rebound","dash")}
-    canonical=measure(cfg["frames"]["idle"])
-    assert canonical and 100<canonical<200
-    assert abs(canonical-group["idle"]["anatomicalTargetPx"])<.0001
-    normalized={}
-    worst=0
-    for role, spec in cfg["groups"].items():
-        actual_group=group[role]
-        factor=actual_group["singleSequenceFactor"]
-        assert math.isfinite(factor) and factor>0
-        assert actual_group["scaleAuthority"].startswith("manually calibrated crown")
-        measured=[]
-        for frame in spec["frames"]:
-            entry=cfg["frames"][frame]
-            length=measure(entry)
-            if frame in spec["measurementFrames"]:
-                assert length is not None
-                assert entry["confidence"]>=cfg["policy"]["confidenceFloor"]
-                resulting=length*factor
-                error=abs(resulting/canonical-1)
-                assert error <= cfg["policy"]["maximumRelativeAnatomicalResidual"], (
-                    frame,resulting,canonical,error)
-                worst=max(error,worst)
-                measured.append({"frame":frame,"beforePx":round(length,3),
-                                 "afterPx":round(resulting,3),
-                                 "deviationPct":round(error*100,3)})
-            if role=="dash":
-                assert actual_group["artisticReviewRequired"] is True
-        assert measured
-        normalized[role]={"uniformFactor":factor,"reliableFrames":measured}
-    assert cfg["frames"]["dash_3"]["crownSourcePx"] is None
-    assert cfg["frames"]["dash_3"]["chinSourcePx"] is None
-    assert cfg["groups"]["dash"]["transformKind"]=="uniform-deliberate-transformation"
-    assert group["dash"]["singleSequenceFactor"]!=1.0
-    assert cfg["frames"]["rebound_1"]["confidence"]<cfg["policy"]["confidenceFloor"]
-    assert cfg["frames"]["dash_2"]["confidence"]<cfg["policy"]["confidenceFloor"]
-    # Historic mistaken envelope factors are not anatomical scale authority.
-    assert abs(group["run"]["singleSequenceFactor"]-group["run"]["oldBoundingBoxProxyFactor"])>.1
-    assert abs(group["rebound"]["singleSequenceFactor"]-group["rebound"]["oldBoundingBoxProxyFactor"])>.1
-    print("CONNIE_ANATOMICAL_TARGET_PX=%.4f"%canonical)
-    print("CONNIE_ANATOMICAL_MEASUREMENT_REPORT="+json.dumps(normalized,sort_keys=True))
-    print("CONNIE_ANATOMICAL_MAX_DEVIATION=%.3f%%"%(worst*100))
-    print("CONNIE_ANATOMICAL_UNIFORM_SEQUENCE_SCALE_PASS=4")
-    print("CONNIE_ARTISTIC_VERDICT=PENDING")
-
+    original=source_authority()
+    c=json.loads(CAL.read_text())
+    groups=scale_analysis(original)
+    assert c["schema"]=="pose-lab-v3-anatomical-calibration-v1"
+    assert c["canonical"]=="run" and c["canonicalFrameAuthority"]==["run_1","run_2","run_3"]
+    assert c["metric"]=="shoulder-to-hip-body-core-physical-distance"
+    assert c["policy"]["oneFactorPerGroup"] and c["policy"]["doNotMeasureFromAlphaBounds"]
+    assert c["status"].startswith("provisional")
+    assert set(c["frames"])==set(original["frameOrder"])
+    assert all(c["authority"]["sourceSHA256"][role]==source["sha256"]
+               for role,source in original["sources"].items())
+    run_span=statistics.median([span(c["frames"][fid],"body") for fid in c["canonicalFrameAuthority"]])
+    assert 100<run_span<150,run_span
+    assert groups["run"]["singleSequenceFactor"]==1.0
+    assert groups["run"]["canonicalCharacterScale"]=="run"
+    assert groups["idle"]["singleSequenceFactor"]<.6, "oversized idle not shrunk"
+    assert .25<groups["idle"]["singleSequenceFactor"]<.6
+    assert groups["rebound"]["singleSequenceFactor"]<1.0
+    assert groups["dash"]["singleSequenceFactor"]<1.0
+    results={}
+    maxerror=0
+    for role,spec in c["groups"].items():
+        scale=groups[role]["singleSequenceFactor"]
+        reliable=spec["measurementFrames"]
+        assert scale>0 and math.isfinite(scale)
+        assert groups[role]["physicalScaleMetric"]=="shoulder-to-hip-body-core"
+        observed=[]
+        for fid in spec["frames"]:
+            r=c["frames"][fid]
+            if fid in reliable:
+                assert r["bodyCoreConfidence"]>=c["policy"]["confidenceFloor"]
+                raw=span(r,"body")
+                assert raw and raw>0
+                scaled=raw*scale
+                deviation=abs(scaled/run_span-1)
+                assert deviation<=c["policy"]["maximumRelativeAnatomicalResidual"], (fid,deviation)
+                maxerror=max(maxerror,deviation)
+                observed.append({"id":fid,"rawBodyPx":round(raw,3),
+                                 "scaledBodyPx":round(scaled,3),
+                                 "relativeDifferencePct":round(deviation*100,3)})
+        assert observed
+        results[role]={"scale":scale,"measured":observed,
+                       "headVsRun":groups[role]["postScaledHeadToRunRatio"],
+                       "headProportionMismatch":groups[role]["headProportionMismatchFlag"]}
+    assert span(c["frames"]["dash_3"],"body") is None
+    assert c["groups"]["dash"]["transformKind"]=="uniform-deliberate-transformation"
+    assert groups["dash"]["artisticReviewRequired"]
+    assert c["frames"]["rebound_1"]["bodyCoreConfidence"]<c["policy"]["confidenceFloor"]
+    assert c["frames"]["dash_2"]["bodyCoreConfidence"]<c["policy"]["confidenceFloor"]
+    assert groups["idle"]["headProportionMismatchFlag"], "report expected idle head/body mismatch"
+    print("CONNIE_CANONICAL_RUN=LOCKED_1X")
+    print("CONNIE_RUN_BODY_TARGET_PX=%.4f"%run_span)
+    print("CONNIE_RUN_FIRST_SCALE_REPORT="+json.dumps(results,sort_keys=True))
+    print("CONNIE_MAX_BODY_CORE_RESIDUAL=%.3f%%"%(maxerror*100))
+    print("CONNIE_IDLE_SHRINK_CONFIRMED=TRUE")
+    print("CONNIE_ALL_FAMILIES_RUN_REFERENCED=TRUE")
+    print("CONNIE_HEAD_PROPORTIONS=INDEPENDENT_DIAGNOSTIC_HUMAN_REVIEW")
+    print("CONNIE_HUMAN_VERDICT=PENDING")
 
 if __name__=="__main__":
     verify()
