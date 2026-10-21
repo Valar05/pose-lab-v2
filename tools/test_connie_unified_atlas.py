@@ -94,6 +94,12 @@ def assert_atlas(out, doc, groups, sources):
     assert report["singleSpriteSheetFrameCount"] == 10
     assert report["singleSpriteSheetSha256"] == meta["sha256"]
     assert "connie-unified-sprite-sheet.png" in (out / "index.html").read_text()
+    proof=out/"connie-anatomical-head-audit.png"
+    assert proof.is_file()
+    with Image.open(proof) as diagnostic:
+        assert diagnostic.size == (1700,710)
+        diagnostic.verify()
+    assert "connie-anatomical-head-audit.png" in (out/"index.html").read_text()
     print("CONNIE_UNIFIED_ATLAS_CELLS_OK=10")
     print("CONNIE_UNIFIED_ATLAS_PIXEL_EQUIVALENCE_OK=10")
     print("CONNIE_UNIFIED_ATLAS_AREA_REDUCTION=%.2f%%" %
