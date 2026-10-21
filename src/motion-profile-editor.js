@@ -272,8 +272,11 @@ function renderStage(){
         const time=playhead*2*Math.PI;
         const angle=working.id==='connie-transform'&&playhead>.305 ? 2*Math.PI*((playhead-.305)/.695)**2 :
           working.id==='connie-untransform' ? -2*Math.PI*(1-(1-playhead)**2) : 0;
-        cx.save();cx.translate(250,410);cx.rotate(angle);
-        const destX=-w/2,destY=-h;
+        cx.save();
+        const spinning=working.id==='connie-transform'||working.id==='connie-untransform';
+        cx.translate(250,spinning?220:410);
+        cx.rotate(angle);
+        const destX=-w/2,destY=spinning?-h/2:-h;
         if(working.id==='connie-idle'){
           // Horizontal displacement per scanline; never scale the whole character.
           for(let y=0;y<h;y+=2){
