@@ -285,9 +285,16 @@ function renderStage(){
         const spinProgress=playhead<.3
           ? 1.5*(playhead/.3)**2
           : 1.5+3.5*((playhead-.3)/.7);
-        const angle=spinning?2*Math.PI*spinProgress:0;
+        const spinActive=spinning&&id!=='idle'&&playhead>.025&&playhead<.875;
+        const angle=spinActive?2*Math.PI*spinProgress:0;
         cx.save();
-        cx.translate(300,spinning?300:550);
+        const runBounce=working.id==='connie-run'?-Math.round(9*Math.pow(Math.sin(Math.PI*5*playhead),2)):0;
+        const rebound=working.id==='connie-aerial'?Math.sin(6*Math.PI*playhead):0;
+        cx.translate(300,spinning?300:550+runBounce);
+        if(working.id==='connie-aerial'){
+          const squash=Math.max(0,rebound),stretch=Math.max(0,-rebound);
+          cx.scale(1+.055*squash-.035*stretch,1-.055*squash+.075*stretch);
+        }
         cx.rotate(angle);
         // Anchor visible artwork, not arbitrary atlas crop margins.
         // The source and destination widths/heights remain exactly identical.
@@ -302,6 +309,9 @@ function renderStage(){
           const original=srcCtx.getImageData(x0,y0,w,h);
           const src=original.data,dst=source.data;
           const crouch=(1-Math.cos(time))*.5;
+          const blinkPhase=(playhead*3)%1;
+          const blink=Math.pow(Math.max(0,1-Math.abs(blinkPhase-.52)/.095),1.5);
+          const eyeX=w*.82,eyeY=h*.235,eyeRX=14,eyeRY=9;
           const knee=h*.70,ankle=h*.87;
           for(let y=0;y<h;y++){
             const v=y/h;
@@ -314,7 +324,13 @@ function renderStage(){
             const sy=Math.max(0,Math.min(h-1,Math.round(y-vertical)));
             for(let x=0;x<w;x++){
               const sx=Math.max(0,Math.min(w-1,Math.round(x-bend)));
-              const si=(sy*w+sx)*4,di=(y*w+x)*4;
+              let eyeSampleY=sy;
+              const ex=(x-eyeX)/eyeRX,ey=(sy-eyeY)/eyeRY;
+              if(blink>0&&ex*ex+ey*ey<1){
+                const falloff=(1-ex*ex)*(1-ey*ey);
+                eyeSampleY=Math.max(0,Math.min(h-1,Math.round(eyeY+(sy-eyeY)/(1+blink*5*falloff))));
+              }
+              const si=(eyeSampleY*w+sx)*4,di=(y*w+x)*4;
               dst[di]=src[si];dst[di+1]=src[si+1];
               dst[di+2]=src[si+2];dst[di+3]=src[si+3];
             }
