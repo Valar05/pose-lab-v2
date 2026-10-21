@@ -199,7 +199,7 @@ def analyze(config, root):
         if len({m["anchorLabel"] for m in measured}) != 1:
             fail("inconsistent anatomical anchor labels: " + group_id)
         if any(type(m["durationMs"]) is not int or m["durationMs"] < 1 for m in measured):
-            fail("invalid frame duration: " + group_id)
+            fail("durationMs required as a positive integer for every frame: " + group_id)
         ratios = []
         exceptions = []
         for m in measured:
