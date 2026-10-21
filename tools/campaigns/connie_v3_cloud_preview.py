@@ -216,9 +216,9 @@ def produce(doc, src, groups, out, revision):
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Connie scale review · Pose Lab V2</title>
 <style>body{font:16px system-ui,sans-serif;background:#131319;color:#f8f6fa;margin:auto;padding:1.4rem;max-width:1300px}img{display:block;width:100%;height:auto;object-fit:contain;background:#0b0b0c;margin:12px 0 22px;border:1px solid #555;border-radius:8px}h1,h2{color:#ffc5dc}section{padding:18px 0;border-top:1px solid #555}a{color:#9bd9ff}</style>
 <h1>Connie · all 10 poses in one sprite sheet</h1>
-<p>One transparent sprite sheet with a shared fixed cell size. Standing + run + wall impact + dash. No generated poses and no invented timing.</p>
+<p>One real transparent sprite sheet with tightly packed irregular cells and an exact source frame map. Standing + run + wall impact + dash, with no frame-by-frame fit or invented timing.</p>
 <p><a href="connie-unified-sprite-sheet.png" download>View / save complete transparent sprite sheet</a> · <a href="connie-unified-sprite-sheet.json">Atlas cells + scales (JSON)</a></p>
-<img alt="Connie ten-frame unified sprite atlas with standing, run, wall-impact, and dash poses on one transparent sheet" src="connie-unified-sprite-sheet.png">
+<img alt="Connie compact ten-frame unified sprite atlas with standing, run, wall-impact, and dash poses in three tightly packed rows" src="connie-unified-sprite-sheet.png">
 <h2>Separate sequence comparisons (diagnostic only)</h2>
 <p>GitHub source revision: '''+html.escape(revision)+'''</p>
 <p>Head-envelope measurements are a proxy. These static sheets preserve poses and do not invent animation timing.
