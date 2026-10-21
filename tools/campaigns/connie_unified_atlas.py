@@ -30,9 +30,11 @@ def build_atlas(doc, sources, groups, out, revision, frame_art):
     if len(ids) != 10 or len(set(ids)) != 10 or set(ids) != set(doc["frameOrder"]):
         fail("sheet must include each of ten authored poses exactly once")
 
-    scales = {"idle": 1.0, "run": groups["run"]["singleSequenceFactor"],
+    scales = {"idle": groups["idle"]["singleSequenceFactor"], "run": groups["run"]["singleSequenceFactor"],
               "rebound": groups["rebound"]["singleSequenceFactor"],
               "dash": groups["dash"]["singleSequenceFactor"]}
+    if scales["run"] != 1.0 or not (.25 < scales["idle"] < .60):
+        fail("RUN must remain 1x and oversized IDLE must actually shrink")
     if any(not isinstance(f, (float, int)) or not math.isfinite(f) or f <= 0
            for f in scales.values()):
         fail("missing or invalid sequence-uniform physical scale")
