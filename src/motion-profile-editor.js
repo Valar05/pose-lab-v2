@@ -288,12 +288,17 @@ function renderStage(){
         const spinActive=spinning&&id!=='idle'&&playhead>.025&&playhead<.875;
         const angle=spinActive?2*Math.PI*spinProgress:0;
         cx.save();
-        const runBounce=working.id==='connie-run'?-Math.round(9*Math.pow(Math.sin(Math.PI*5*playhead),2)):0;
-        const rebound=working.id==='connie-aerial'?Math.sin(6*Math.PI*playhead):0;
+        const runBounce=working.id==='connie-run'?-4*(1-Math.cos(4*Math.PI*playhead))*.5:0;
+        const rebound=working.id==='connie-aerial'?playhead:0;
         cx.translate(300,spinning?300:550+runBounce);
         if(working.id==='connie-aerial'){
-          const squash=Math.max(0,rebound),stretch=Math.max(0,-rebound);
-          cx.scale(1+.055*squash-.035*stretch,1-.055*squash+.075*stretch);
+          const kickCompress=rebound<.34?Math.sin(Math.PI*rebound/.34):0;
+          const launchStretch=rebound>=.34&&rebound<.72?Math.sin(Math.PI*(rebound-.34)/.38):0;
+          // Compression follows the diagonal kick, then releases into flight.
+          cx.transform(1-.075*kickCompress+.035*launchStretch,
+            -.06*kickCompress, -.06*kickCompress,
+            1-.075*kickCompress+.045*launchStretch,
+            0,0);
         }
         cx.rotate(angle);
         // Anchor visible artwork, not arbitrary atlas crop margins.
@@ -309,9 +314,9 @@ function renderStage(){
           const original=srcCtx.getImageData(x0,y0,w,h);
           const src=original.data,dst=source.data;
           const crouch=(1-Math.cos(time))*.5;
-          const blinkPhase=(playhead*3)%1;
+          const blinkPhase=(playhead*1.0)%1;
           const blink=Math.pow(Math.max(0,1-Math.abs(blinkPhase-.52)/.095),1.5);
-          const eyeX=w*.82,eyeY=h*.235,eyeRX=14,eyeRY=9;
+          const eyeX=w*.67,eyeY=h*.22,eyeRX=20,eyeRY=13;
           const knee=h*.70,ankle=h*.87;
           for(let y=0;y<h;y++){
             const v=y/h;
@@ -328,7 +333,7 @@ function renderStage(){
               const ex=(x-eyeX)/eyeRX,ey=(sy-eyeY)/eyeRY;
               if(blink>0&&ex*ex+ey*ey<1){
                 const falloff=(1-ex*ex)*(1-ey*ey);
-                eyeSampleY=Math.max(0,Math.min(h-1,Math.round(eyeY+(sy-eyeY)/(1+blink*5*falloff))));
+                eyeSampleY=Math.max(0,Math.min(h-1,Math.round(eyeY+(sy-eyeY)*(1+blink*3*falloff))));
               }
               const si=(eyeSampleY*w+sx)*4,di=(y*w+x)*4;
               dst[di]=src[si];dst[di+1]=src[si+1];
