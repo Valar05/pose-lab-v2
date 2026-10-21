@@ -266,9 +266,9 @@ function renderStage(){
     const sequence=working.id==='connie-run'
       ? ['run_1','run_2','run_3','run_2','run_1']
       : (working.id==='connie-transform'||working.id==='connie-dash-spin')
-      ? ['idle','spin_1','spin_2','spin_3','spin_3','spin_3','spin_2','spin_1','idle']
+      ? ['spin_1','spin_2','spin_3','spin_3','spin_3','spin_2','spin_1']
       : working.id==='connie-untransform'
-      ? ['spin_3','spin_2','spin_1','idle']
+      ? ['spin_3','spin_2','spin_1']
       : null;
     const sequenceIndex=sequence?Math.min(sequence.length-1,Math.floor(playhead*sequence.length)):0;
     const id=sequence?sequence[sequenceIndex]:(CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id);
@@ -282,13 +282,12 @@ function renderStage(){
         const spinning=working.id==='connie-transform'||working.id==='connie-dash-spin'||working.id==='connie-untransform';
         // One-way spin: angular speed rises into the dash and remains positive
         // through the return. No reverse rotation or ease-out deceleration.
-        const spinProgress=playhead<.3
-          ? 1.5*(playhead/.3)**2
-          : 1.5+3.5*((playhead-.3)/.7);
-        const spinActive=spinning&&id!=='idle'&&playhead>.025&&playhead<.875;
-        const angle=spinActive?2*Math.PI*spinProgress:0;
+        // Smooth continuous spin, slow on transformation and fast on pinwheel.
+        const t=playhead;
+        const integral=.4*t+2.6*(3*t/8-Math.sin(2*Math.PI*t)/(4*Math.PI)+Math.sin(4*Math.PI*t)/(32*Math.PI));
+        const angle=spinning?6*Math.PI*integral/(.4+2.6*3/8):0;
         cx.save();
-        const runBounce=working.id==='connie-run'?-4*(1-Math.cos(4*Math.PI*playhead))*.5:0;
+        const runBounce=0;
         const rebound=working.id==='connie-aerial'?playhead:0;
         cx.translate(300,spinning?300:550+runBounce);
         if(working.id==='connie-aerial'){
@@ -316,7 +315,7 @@ function renderStage(){
           const crouch=(1-Math.cos(time))*.5;
           const blinkPhase=(playhead*1.0)%1;
           const blink=Math.pow(Math.max(0,1-Math.abs(blinkPhase-.52)/.095),1.5);
-          const eyeX=w*.67,eyeY=h*.22,eyeRX=20,eyeRY=13;
+          const eyeX=230,eyeY=88,eyeRX=8,eyeRY=5;
           const knee=h*.70,ankle=h*.87;
           for(let y=0;y<h;y++){
             const v=y/h;
@@ -333,7 +332,7 @@ function renderStage(){
               const ex=(x-eyeX)/eyeRX,ey=(sy-eyeY)/eyeRY;
               if(blink>0&&ex*ex+ey*ey<1){
                 const falloff=(1-ex*ex)*(1-ey*ey);
-                eyeSampleY=Math.max(0,Math.min(h-1,Math.round(eyeY+(sy-eyeY)*(1+blink*3*falloff))));
+                eyeSampleY=Math.max(0,Math.min(h-1,Math.round(eyeY+(sy-eyeY)/(Math.max(.12,1-blink*.88*falloff)))));
               }
               const si=(eyeSampleY*w+sx)*4,di=(y*w+x)*4;
               dst[di]=src[si];dst[di+1]=src[si+1];
