@@ -49,7 +49,7 @@ jobs:
       - name: Checkout Connie exact source and rendering implementation
         uses: actions/checkout@v4
         with:
-          ref: 81253e0f6bc1ab03bff59ea7b94698a03a80970a
+          ref: 1f8b45bc8f2fd4def16a338bbb7fba7fe9e40359
           path: .connie-source
           persist-credentials: false
       - uses: actions/setup-python@v5
@@ -60,7 +60,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m pip install --disable-pip-version-check pillow==11.3.0
-          target="dist/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79"
+          target="dist/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/compact-v2"
           python3 .connie-source/tools/campaigns/connie_v3_cloud_preview.py \
             --revision "56f000831aecdde15fc3588effd93aa822ebdb79" \
             --output "$target"
@@ -70,7 +70,7 @@ jobs:
           from PIL import Image
           sha="56f000831aecdde15fc3588effd93aa822ebdb79"
           candidate=Path(".connie-source")
-          target=Path("dist/review/connie")/sha
+          target=Path("dist/review/connie")/sha/"compact-v2"
           report=json.loads((target/"report.json").read_text())
           assert report["sourceRevision"]==sha
           assert report["status"]=="quarantined-awaiting-human-review"
@@ -94,9 +94,12 @@ jobs:
           atlas=json.loads((target/"connie-unified-sprite-sheet.json").read_text())
           picture=target/"connie-unified-sprite-sheet.png"
           assert atlas["frameCount"]==10 and len(atlas["frames"])==10
+          assert atlas["canvasPx"]==[3712,2952] # Exact real-source candidate geometry
           assert atlas["status"].startswith("quarantined")
           assert atlas["sourceCommit"]==sha
-          assert atlas["grid"]["columns"]==4 and atlas["grid"]["rows"]==3
+          assert atlas["layout"]["kind"]=="irregular-row-packed"
+          assert atlas["layout"]["rowCount"]==3
+          assert atlas["canvasAreaReduction"]>=0.25
           assert atlas["uniformSequenceFactors"]["dash"]==1.0
           assert not atlas["gameReady"] and atlas["timeStatus"].startswith("No authored")
           assert hashlib.sha256(picture.read_bytes()).hexdigest()==atlas["sha256"]
