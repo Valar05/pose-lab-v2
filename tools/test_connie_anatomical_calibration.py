@@ -7,6 +7,8 @@ absence of canonical source bytes as successful pixel verification.
 from __future__ import annotations
 import json
 import math
+import hashlib
+from PIL import Image
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,8 +47,24 @@ def main():
     cfg = json.loads(CALIBRATION.read_text())
     r = json.loads(REPORT.read_text())
     require(cfg["schema"] == "pose-lab-sprite-calibration-v1", "incorrect calibration schema")
-    require(r["status"] == "provisional-measured-not-ingressed", "must preserve incomplete status")
-    require(cfg["sourceAuthority"]["sourceExistsInGitHub"] is False, "false source-ingress claim")
+    source_files = {role: ROOT / cfg["sourceAuthority"]["sourceDigests"][role]["file"]
+                    for role in SOURCE_HASHES}
+    present_roles = {role for role, p in source_files.items() if p.is_file()}
+    require(len(present_roles) in (0, 4), "partial original PNG ingress is forbidden")
+    ingressed = len(present_roles) == 4
+    expected_status = ("provisional-measured-source-ingressed" if ingressed
+                       else "provisional-measured-not-ingressed")
+    require(r["status"] == expected_status, "source transport status disagrees with measured files")
+    require(cfg["sourceAuthority"]["sourceExistsInGitHub"] is ingressed,
+            "source ingress claim disagrees with actual image availability")
+    if ingressed:
+        for role, source_file in source_files.items():
+            require(hashlib.sha256(source_file.read_bytes()).hexdigest() == SOURCE_HASHES[role],
+                    role + " Git source SHA mismatch")
+            with Image.open(source_file) as png:
+                require(png.format == "PNG" and png.size == SOURCE_SIZES[role],
+                        role + " Git PNG dimensions / format mismatch")
+                png.verify()
     require(r["overview"]["safeToApply"] is False, "must not treat annotations as approval")
     require(cfg["measurement"]["minimumConfidence"] == 0.8, "confidence policy changed")
     require(cfg["measurement"]["maximumSequenceSpread"] == 0.08, "sequence spread policy changed")
@@ -120,14 +138,18 @@ def main():
             "static image cannot provide a trusted animation duration")
     require(all("artisticException" not in g and "transformation" not in g
                 for g in cfg["sequences"]), "unapproved artistic scaling shortcut")
-    require(not (ROOT / "public/assets/connie/source/idle.png").is_file(),
-            "source ingress status must be revisited if images become available")
+    assert cfg["sourceAuthority"]["phoneUploadOrder"] == ["run", "pinwheel", "idle", "aerial"]
+    assert [Path(cfg["sourceAuthority"]["sourceDigests"][role]["file"]).name
+            for role in ("run","pinwheel","idle","aerial")] == (
+                ["run.png", "dash.png", "idle.png", "rebound.png"])
+    print("SOURCE_PNG_VERIFICATION=" + ("ALL_FOUR_GIT_PNGS_SHA_VERIFIED"
+          if ingressed else "PENDING_PHONE_INGRESS"))
     print("CONNIE_LANDMARK_DATA_VALID=10")
     print("CANONICAL_HEAD_PX=%.4f" % ref_head)
     print("SEQUENCE_CANDIDATE_SCALES=" + json.dumps(
         {g["id"]: g["candidateUniformScaleRatio"] for g in r["sequences"]},
         sort_keys=True))
-    print("SOURCE_PNG_VERIFICATION=NOT_PERFORMED_IN_GITHUB_CI; SOURCE_INGRESS_MISSING=TRUE")
+
     print("RUNTIME_NORMALIZATION=BLOCKED; NO_ARTWORK_MODIFIED")
 
 
