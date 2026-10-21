@@ -20,6 +20,9 @@ on:
       - tools/campaigns/connie_ingest.py
       - tools/campaigns/connie_v3_cloud_preview.py
       - tools/test_connie_v3_cloud_preview.py
+      - tools/campaigns/connie_unified_atlas.py
+      - tools/test_connie_unified_atlas.py
+      - campaigns/connie-unified-atlas-v1.contract.json
       - public/assets/connie/source/**
   push:
     branches:
@@ -41,6 +44,9 @@ on:
       - tools/campaigns/connie_ingest.py
       - tools/campaigns/connie_v3_cloud_preview.py
       - tools/test_connie_v3_cloud_preview.py
+      - tools/campaigns/connie_unified_atlas.py
+      - tools/test_connie_unified_atlas.py
+      - campaigns/connie-unified-atlas-v1.contract.json
       - public/assets/connie/source/**
 
 permissions:
@@ -82,6 +88,11 @@ jobs:
           python3 -m py_compile tools/campaigns/connie_v3_cloud_preview.py
           python3 tools/campaigns/connie_v3_cloud_preview.py --verify-manifest-only
           python3 tools/test_connie_v3_cloud_preview.py
+      - name: Test combined Connie sprite atlas and campaign contract
+        run: |
+          python3 tools/campaigns/campaign_core.py preflight --contract campaigns/connie-unified-atlas-v1.contract.json --skip-diff
+          python3 tools/campaigns/campaign_core.py verify --contract campaigns/connie-unified-atlas-v1.contract.json
+          python3 tools/test_connie_unified_atlas.py
       - name: Existing campaign and 2D review regression
         run: |
           npm run test:campaign-framework
@@ -129,6 +140,7 @@ jobs:
           python3 tools/campaigns/connie_v3_cloud_preview.py \
             --revision "$GITHUB_SHA" \
             --output generated/connie-review
+          python3 tools/test_connie_unified_atlas.py --real
       - name: Verify generated HTML and PNGs in GitHub runner
         if: steps.sources.outputs.ready == 'true'
         run: |
@@ -150,6 +162,12 @@ jobs:
                   normalized=root/g["candidateContactSheet"]
                   assert normalized.is_file(),g["id"]
                   with Image.open(normalized) as im: im.verify()
+          atlas=json.loads((root/"connie-unified-sprite-sheet.json").read_text())
+          assert atlas["frameCount"]==10
+          with Image.open(root/"connie-unified-sprite-sheet.png") as im:
+              assert im.mode=="RGBA"
+              assert list(im.size)==atlas["canvasPx"]
+              im.verify()
           assert (root/"index.html").is_file()
           print("GITHUB_CONNIE_CANDIDATE_CONTACT_SHEETS_OK")
           PY
