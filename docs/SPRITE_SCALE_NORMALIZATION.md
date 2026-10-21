@@ -137,12 +137,12 @@ The four new chat images are **different binaries** from the historical
 campaigns/connie-source-measurements-v3.json authority, and the old
 public/assets/connie/source directory is missing from GitHub main.
 
-| Role | Uploaded | Historical V3 |
-| --- | --- | --- |
-| idle | 1152x1536 | 1086x1448 |
-| ninja run | 1536x864 | 1672x941 |
-| rebound/aerial | 1536x512 | 2172x724 |
-| pinwheel | 1536x512 | 2172x724 |
+| Role | Uploaded | Historical V3 | Exact attached SHA-256 |
+| --- | --- | --- | --- |
+| idle | 1152x1536 | 1086x1448 | 7fb56a75e6e02d0bb256469845bbfd57a5aff0e925b1a5216ac1828debec827b |
+| ninja run | 1536x864 | 1672x941 | a8a5acfc9eab5c61b3b060e933ec9f91807b463cefd10ed0b5927ad420500b12 |
+| rebound/aerial | 1536x512 | 2172x724 | e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0 |
+| pinwheel | 1536x512 | 2172x724 | 32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf |
 
 The old annotated head boxes, source partitions, and normalization ratios
 must NOT be used on the new art. The attached images need exact, permitted
