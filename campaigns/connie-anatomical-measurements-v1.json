@@ -525,7 +525,7 @@
               421
             ],
             "foot": [
-              1262,
+              1279,
               457
             ]
           },
@@ -541,7 +541,7 @@
           "anchorLabel": "hip",
           "confidence": 0.84,
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
-          "landmarkNotes": "Bent legs overlap; foot location is an estimated anatomical marker, not a stage pivot",
+          "landmarkNotes": "Bent legs overlap; foot location is an estimated anatomical marker, not a stage pivot The visible foot endpoint was pixel-audited and moved to foreground at (1279,457).",
           "reviewFlag": "PROVISIONAL visually measured"
         }
       ]
