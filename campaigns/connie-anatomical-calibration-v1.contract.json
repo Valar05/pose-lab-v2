@@ -2,7 +2,7 @@
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "connie-anatomical-calibration-v1",
   "mission": "Measure Connie's exact October 20 2026 standing, running, aerial and pinwheel PNGs, preserve source hashes, 10 frame partitions, manually inspected anatomical landmarks, confidence/occlusions and candidate sequence-wide ratios, and commit DATA ONLY into Pose Lab. No invented timings, artwork, normalized sprites or human acceptance.",
-  "status": "measurements-provisional-source-ingress-pending",
+  "status": "measurements-provisional-source-ingress-enabled",
   "sourceAuthority": {
     "standing": "7fb56a75e6e02d0bb256469845bbfd57a5aff0e925b1a5216ac1828debec827b",
     "run": "a8a5acfc9eab5c61b3b060e933ec9f91807b463cefd10ed0b5927ad420500b12",
@@ -42,8 +42,8 @@
       {
         "kind": "json-equals",
         "path": "campaigns/connie-anatomical-measurements-v1.json",
-        "pointer": "/status",
-        "value": "provisional-measured-not-ingressed"
+        "pointer": "/schema",
+        "value": "pose-lab-connie-anatomical-measurement-report-v1"
       },
       {
         "kind": "text-contains",
@@ -60,7 +60,7 @@
   "acceptance": {
     "deliverable": "Measurements and calibration committed and SHA read back",
     "connieNormalizedOutput": false,
-    "artworkIngress": false,
+    "artworkIngress": "pending native Git transport, not a human-verdict",
     "humanVisualVerdict": "pending",
     "poseLabRunning": false
   }
