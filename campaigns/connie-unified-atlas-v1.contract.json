@@ -1,23 +1,25 @@
 {
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "connie-unified-atlas-v1",
-  "mission": "Correct Connie's anatomical character scale across standing, run, airborne wall impact, and dash transformation using manually reviewed crown-to-chin coordinates on the exact SHA-locked original V3 PNGs; then rebuild the single combined, source-faithful, tightly packed ten-pose sprite sheet through GitHub Actions, with explicit whole-group transformations and quantitative anatomical-scale regression gates.",
-  "status": "reopened-anatomical-scale-repair-human-verdict-pending",
+  "mission": "Normalize Connie's 10 original SHA-locked sprites as a single reusable Pose Lab atlas at RUN's native physical body scale, never at oversized IDLE's scale. Run is an unchanged 1× anchor. Uniformly scale idle DOWN, wall-impact and dash to the run body's shoulder-hip reference. Preserve all authored poses, fragments and pinwheel transformation, report uncorrectable head/body proportion differences explicitly and publish exact GitHub Pages human comparison.",
+  "status": "run-canonical-body-scale-candidate-review-pending",
   "authority": {
     "originalSourceCommit": "56f000831aecdde15fc3588effd93aa822ebdb79",
     "originalSourceManifest": "campaigns/connie-source-measurements-v3.json",
     "frameCount": 10,
     "perSequenceRules": {
-      "idle": "standing canonical crown-to-chin physical reference",
-      "run": "one factor derived from median calibrated crown-to-chin across three run frames",
-      "rebound": "one factor derived from reliable calibrated cranial landmarks across wall-impact poses",
-      "dash": "uniform transformation scale inherited from first body-visible dash pose; others deliberately preserve authored changing silhouette; all remain human pending"
+      "run": "LOCKED 1.000000× physical size authority; all 3 original run cells preserved",
+      "idle": "must downscale whole frame based on torso to run body scale; source immutable",
+      "rebound": "uniform one-factor whole group body-to-run calibration; foreshortened frame excluded from metric",
+      "dash": "uniform one-factor body-to-run, inherited through headless pinwheel with human review"
     },
     "renderLane": "GitHub Actions",
     "deliverySurface": "Existing Pose Lab GitHub Pages /review/connie/<sourceCommit>/index.html",
     "originalArtworkImmutable": true,
     "atlasLayout": "tightly row-packed irregular rectangles with precise metadata, no per-frame scaling",
-    "scaleCalibration": "campaigns/connie-anatomical-v3-calibration-v1.json"
+    "scaleCalibration": "campaigns/connie-anatomical-v3-calibration-v1.json",
+    "runIsCanonical": true,
+    "idleIsOutlier": true
   },
   "machine": {
     "mutablePaths": [
@@ -78,6 +80,13 @@
     "canvasAreaReductionAtLeast": 0.25,
     "anatomicalCrownChinMatchWithin": 0.08,
     "approximateLandmarksRequireHumanVerification": true,
-    "notSatisfiedByPacking": true
+    "notSatisfiedByPacking": true,
+    "runScaleExactly": 1,
+    "idleScaleRange": [
+      0.25,
+      0.6
+    ],
+    "maximumRunReferencedBodyCoreResidual": 0.08,
+    "headProportionsAuditedNotForced": true
   }
 }
