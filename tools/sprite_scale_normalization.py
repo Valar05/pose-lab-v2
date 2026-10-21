@@ -254,8 +254,13 @@ def render(config, report, root, out, approval=None):
             sorted(approval.get("approvedSequences", [])) != sorted(g["id"] for g in report["sequences"])):
             fail("human approval does not match exact analysis")
     out = out.resolve()
-    if out == root.resolve() or root.resolve() in out.parents and "source" in out.parts:
-        fail("refusing to render over a source directory")
+    if out == root.resolve():
+        fail("refusing to render into repository root")
+    originals = [locate(root, r["file"]) for r in [config["canonical"]] +
+                 [f for g in config["sequences"] for f in g["frames"]]]
+    if any(out == src or out.is_relative_to(src.parent) or src.is_relative_to(out)
+           for src in originals):
+        fail("output overlaps canonical source directory")
     if out.exists() and any(out.iterdir()):
         fail("output must be a fresh empty directory; never overwrite existing assets")
     if out.is_relative_to(root):
