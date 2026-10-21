@@ -1,0 +1,68 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "connie-phone-source-ingress-v1",
+  "mission": "Import four original exact SHA-authorized Connie sprite sheet PNGs from the user's Android phone into Pose Lab's existing Git-owned canonical source directory. Bind to reviewed run, dash/pinwheel, idle, wall-impact/rebound source identities. Preserve originals, source order, existing characters and all unrelated dirty work; commit only four source PNGs plus precise source-availability statuses and receipt. Do not invent timings, normalize or claim visual approval.",
+  "status": "ready-for-android-user-execution",
+  "machine": {
+    "mutablePaths": [
+      "public/assets/connie/source/idle.png",
+      "public/assets/connie/source/run.png",
+      "public/assets/connie/source/dash.png",
+      "public/assets/connie/source/rebound.png",
+      "campaigns/connie-anatomical-calibration-v1.json",
+      "campaigns/connie-anatomical-measurements-v1.json",
+      "campaigns/connie-phone-source-ingress-v1.receipt.json"
+    ],
+    "receiptPath": "campaigns/connie-phone-source-ingress-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "campaigns/connie-anatomical-calibration-v1.json",
+        "pointer": "/schema",
+        "value": "pose-lab-sprite-calibration-v1"
+      },
+      {
+        "kind": "json-equals",
+        "path": "campaigns/connie-anatomical-measurements-v1.json",
+        "pointer": "/schema",
+        "value": "pose-lab-connie-anatomical-measurement-report-v1"
+      },
+      {
+        "kind": "json-equals",
+        "path": "campaigns/connie-anatomical-calibration-v1.json",
+        "pointer": "/sourceAuthority/phoneUploadOrder",
+        "value": [
+          "run",
+          "pinwheel",
+          "idle",
+          "aerial"
+        ]
+      }
+    ]
+  },
+  "authority": {
+    "sourceNames": [
+      "file_0000000065a081f598aa79ff7209b9d1.png",
+      "file_00000000abb481f59b8ff374e3df6e8d.png",
+      "file_00000000807881f598bd2fce43c5b0f6.png",
+      "file_000000001b8c81f5844badc8eaa7bd36.png"
+    ],
+    "sourceHashAuthority": "campaigns/connie-anatomical-calibration-v1.json/sourceAuthority/sourceDigests",
+    "sourcePixelPolicy": "Exact SHA only. Any mismatch stops; never assume a different PNG is accepted merely from filename/thumbnail.",
+    "lockedExistingCharacters": true,
+    "normalization": false
+  },
+  "acceptance": {
+    "required": "Git pushed and exact readback of committed binary PNGs; all four SHA and image dimensions pass; calibration statuses updated; no unrelated changes",
+    "visualVerdict": "pending",
+    "frameTiming": "not authored"
+  }
+}
