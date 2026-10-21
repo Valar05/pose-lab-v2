@@ -49,13 +49,13 @@ jobs:
       - name: Checkout Connie exact source and rendering implementation
         uses: actions/checkout@v4
         with:
-          ref: 56f000831aecdde15fc3588effd93aa822ebdb79
+          ref: 81253e0f6bc1ab03bff59ea7b94698a03a80970a
           path: .connie-source
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Generate separate quarantined Connie comparison
+      - name: Generate one quarantined Connie ten-pose sprite sheet and comparisons
         shell: bash
         run: |
           set -euo pipefail
@@ -91,6 +91,19 @@ jobs:
                   path=target/group["candidateContactSheet"]
                   assert path.exists()
                   with Image.open(path) as im: im.verify()
+          atlas=json.loads((target/"connie-unified-sprite-sheet.json").read_text())
+          picture=target/"connie-unified-sprite-sheet.png"
+          assert atlas["frameCount"]==10 and len(atlas["frames"])==10
+          assert atlas["status"].startswith("quarantined")
+          assert atlas["sourceCommit"]==sha
+          assert atlas["grid"]["columns"]==4 and atlas["grid"]["rows"]==3
+          assert atlas["uniformSequenceFactors"]["dash"]==1.0
+          assert not atlas["gameReady"] and atlas["timeStatus"].startswith("No authored")
+          assert hashlib.sha256(picture.read_bytes()).hexdigest()==atlas["sha256"]
+          with Image.open(picture) as im:
+              assert im.mode=="RGBA" and list(im.size)==atlas["canvasPx"]
+              im.verify()
+          assert "connie-unified-sprite-sheet.png" in (target/"index.html").read_text()
           assert (target/"index.html").is_file()
           print("PAGES_CONNIE_QUARANTINED_SHA_REVIEW_OK", sha)
           PY
