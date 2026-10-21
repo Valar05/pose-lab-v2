@@ -32,7 +32,9 @@ def assert_atlas(out, doc, groups, sources):
     assert set(ids) == set(doc["frameOrder"])
     assert meta["uniformSequenceFactors"]["dash"] == groups["dash"]["singleSequenceFactor"]
     assert 0 < meta["uniformSequenceFactors"]["dash"] and meta["uniformSequenceFactors"]["dash"] != 1.0
-    assert meta["uniformSequenceFactors"]["run"] == groups["run"]["singleSequenceFactor"]
+    assert meta["uniformSequenceFactors"]["run"] == groups["run"]["singleSequenceFactor"] == 1.0
+    assert .25 < meta["uniformSequenceFactors"]["idle"] < .60
+    assert meta["uniformSequenceFactors"]["idle"] == groups["idle"]["singleSequenceFactor"]
     assert meta["uniformSequenceFactors"]["rebound"] == groups["rebound"]["singleSequenceFactor"]
     assert meta["layout"]["kind"] == "irregular-row-packed"
     assert meta["layout"]["rowCount"] == len(LAYOUT) == 3
@@ -94,10 +96,10 @@ def assert_atlas(out, doc, groups, sources):
     assert report["singleSpriteSheetFrameCount"] == 10
     assert report["singleSpriteSheetSha256"] == meta["sha256"]
     assert "connie-unified-sprite-sheet.png" in (out / "index.html").read_text()
-    proof=out/"connie-anatomical-head-audit.png"
+    proof=out/"connie-run-body-scale-audit.png"
     assert proof.is_file()
     with Image.open(proof) as diagnostic:
-        assert diagnostic.size == (1700,710)
+        assert diagnostic.size == (1750,760)
         diagnostic.verify()
     assert "connie-anatomical-head-audit.png" in (out/"index.html").read_text()
     print("CONNIE_UNIFIED_ATLAS_CELLS_OK=10")
