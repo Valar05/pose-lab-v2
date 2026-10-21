@@ -125,6 +125,58 @@ jobs:
           assert (target/"index.html").is_file()
           print("PAGES_CONNIE_QUARANTINED_SHA_REVIEW_OK", sha)
           PY
+      - name: Checkout actual anatomical calibration revision
+        uses: actions/checkout@v4
+        with:
+          ref: 03f1173f2a7a50acaf53bcecca2ae42ee18a3b87
+          path: .connie-anatomical-v3
+          persist-credentials: false
+      - name: Generate anatomically scale-normalized Connie sheet and head comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="dist/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/anatomical-v3"
+          python3 .connie-anatomical-v3/tools/campaigns/connie_v3_cloud_preview.py \
+            --revision "56f000831aecdde15fc3588effd93aa822ebdb79" \
+            --output "$target"
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          from PIL import Image
+          root=Path("dist/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/anatomical-v3")
+          source=Path(".connie-anatomical-v3")
+          report=json.loads((root/"report.json").read_text())
+          atlas=json.loads((root/"connie-unified-sprite-sheet.json").read_text())
+          calib=json.loads((source/"campaigns/connie-anatomical-v3-calibration-v1.json").read_text())
+          assert report["status"]=="quarantined-awaiting-human-review"
+          assert not report["gameReady"] and atlas["gameReady"] is False
+          assert atlas["frameCount"]==10 and len(atlas["frames"])==10
+          assert atlas["canvasPx"]==[3258,2923]
+          assert len(report["groups"])==4
+          factors=atlas["uniformSequenceFactors"]
+          assert abs(factors["run"]-1.29218916)<.000001
+          assert abs(factors["rebound"]-.99947171)<.000001
+          assert abs(factors["dash"]-1.08848718)<.000001
+          assert calib["canonical"]=="idle"
+          assert calib["policy"]["maximumRelativeAnatomicalResidual"]==.08
+          assert all(g["maximumAnatomicalResidual"]<=.08 for g in report["groups"])
+          assert "connie-anatomical-head-audit.png" in (root/"index.html").read_text()
+          with Image.open(root/"connie-anatomical-head-audit.png") as proof:
+              assert proof.size==(1700,710)
+              proof.verify()
+          image=root/"connie-unified-sprite-sheet.png"
+          with Image.open(image) as im:
+              assert im.mode=="RGBA" and list(im.size)==atlas["canvasPx"]
+              im.verify()
+          assert hashlib.sha256(image.read_bytes()).hexdigest()==atlas["sha256"]
+          original=json.loads((source/"campaigns/connie-source-measurements-v3.json").read_text())
+          for role,info in original["sources"].items():
+              src=source/info["repoPath"]
+              assert hashlib.sha256(src.read_bytes()).hexdigest()==info["sha256"]
+          print("GITHUB_PAGES_CONNIE_ANATOMICAL_SCALE_MATCH_OK=4")
+          print("GITHUB_PAGES_CONNIE_ALL_TEN_NORMALIZED_OK=10")
+          print("GITHUB_PAGES_CONNIE_NOVEL_HEADLESS_FRAME_UNINVENTED=TRUE")
+          PY
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
