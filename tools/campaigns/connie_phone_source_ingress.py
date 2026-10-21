@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Ingress only the four approved Connie PNG sheets from Android storage.
+"""Phone ingress for Connie's original V3 four-sheet source family.
 
-Uses existing Connie ingress sha/dims/locate helpers; no guess-by-order, no
-transformation, no re-encoding or binary/base64 shuttle through chat.
+Only verifies and copies exact originals to the Git authoring worktree.
+Never normalizes, edits pixels, rewrites annotations or invents timing.
 """
 from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -13,212 +14,131 @@ import sys
 from pathlib import Path
 
 from PIL import Image
-from connie_ingest import FILENAMES, locate, sha, verify
+from connie_ingest import FILENAMES, locate
 
 ROOT = Path(__file__).resolve().parents[2]
-CFG = ROOT / "campaigns/connie-anatomical-calibration-v1.json"
-REPORT = ROOT / "campaigns/connie-anatomical-measurements-v1.json"
-
-# Screenshot order is run, dash, idle, wall impact. Internal measured groups
-# are run, pinwheel, idle, aerial respectively, consistent with existing
-# Pose Lab source folder names. No meaning inferred from filenames alone.
+SOURCE_AUTHORITY = ROOT / "campaigns/connie-source-measurements-v3.json"
+# Phone screenshot order, not alphabetical order. Canonical Pose Lab V3 roles.
 ORDER = (
-    ("run", "run", "run.png", "file_0000000065a081f598aa79ff7209b9d1.png"),
-    ("pinwheel", "dash", "dash.png", "file_00000000abb481f59b8ff374e3df6e8d.png"),
-    ("idle", "idle", "idle.png", "file_00000000807881f598bd2fce43c5b0f6.png"),
-    ("aerial", "rebound", "rebound.png", "file_000000001b8c81f5844badc8eaa7bd36.png"),
+    ("run", "run", "file_0000000065a081f598aa79ff7209b9d1.png"),
+    ("dash", "dash", "file_00000000abb481f59b8ff374e3df6e8d.png"),
+    ("idle", "idle", "file_00000000807881f598bd2fce43c5b0f6.png"),
+    ("rebound", "rebound", "file_000000001b8c81f5844badc8eaa7bd36.png"),
 )
+EXPECTED_SOURCE_HASHES = {
+    "run": "b95d6a84f0c4e410eab5c95e5f921b6f54ca1d79c91f587d1523128e94d36f03",
+    "dash": "84b9a61a55f24a04fda6b25e84edff6c8252d52814eb8c7cd2390f572f37daa2",
+    "idle": "32d3a1bd1ca0877098db02e02934ef3da5b6e995a4b51c6326a17d40a44dc134",
+    "rebound": "ca90a80b7ce7339b0a64efef230ce1daf6fd5fdd72f8e1933c513b99e6a41d21",
+}
 
 
-def stop(msg):
-    raise ValueError("CONNIE_INGRESS_STOP: " + msg)
+def stop(message):
+    raise ValueError("CONNIE_INGRESS_STOP: " + message)
 
 
-def read_json(p):
-    return json.loads(p.read_text(encoding="utf-8"))
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def write_json(p, obj):
-    p.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+def specifications():
+    doc = json.loads(SOURCE_AUTHORITY.read_text(encoding="utf-8"))
+    if doc.get("schema") != "pose-lab-connie-measurements-v3":
+        stop("historical source manifest schema changed")
+    items = doc["sources"]
+    if set(items) != set(EXPECTED_SOURCE_HASHES):
+        stop("expected one V3 original for each of the four roles")
+    for role, name, filename in ORDER:
+        info = items[role]
+        if FILENAMES[name] != filename:
+            stop("phone filename mapping changed: " + role)
+        if (info["sha256"] != EXPECTED_SOURCE_HASHES[role] or
+            info["repoPath"] != "public/assets/connie/source/" + role + ".png"):
+            stop("V3 original source authority changed: " + role)
+        if (len(info["dimensionsPx"]) != 2 or
+            not all(type(v) is int and v > 0 for v in info["dimensionsPx"])):
+            stop("source dimensions invalid: " + role)
+    return items
 
 
-def check_config(cfg, report):
-    if cfg.get("schema") != "pose-lab-sprite-calibration-v1":
-        stop("unexpected calibration schema")
-    if report.get("schema") != "pose-lab-connie-anatomical-measurement-report-v1":
-        stop("unexpected measurement schema")
-    if report.get("overview", {}).get("safeToApply") is not False:
-        stop("normalization safety lock changed")
-    authority = cfg["sourceAuthority"]
-    if authority.get("phoneUploadOrder") != [role for role, *_ in ORDER]:
-        stop("phone role order changed")
-    if not authority.get("sourceDigests"):
-        stop("Connie measurements missing")
-    seen = set()
-    for role, filename_role, dest_name, exact_name in ORDER:
-        spec = authority["sourceDigests"][role]
-        path = "public/assets/connie/source/" + dest_name
-        if spec.get("file") != path:
-            stop("source role path mismatch: " + role)
-        if authority.get("phoneFilenames", {}).get(role) != exact_name:
-            stop("screenshot filename identity mismatch: " + role)
-        if FILENAMES[filename_role] != exact_name:
-            stop("existing Connie locator disagrees: " + role)
-        if (not isinstance(spec.get("sha256"), str) or len(spec["sha256"]) != 64
-                or not isinstance(spec.get("canvasPx"), list)
-                or len(spec["canvasPx"]) != 2):
-            stop("missing expected source hash/dimensions: " + role)
-        if path in seen:
-            stop("duplicate destination")
-        seen.add(path)
-    all_records = [cfg["canonical"]] + [
-        frame for seq in cfg["sequences"] for frame in seq["frames"]
-    ]
-    if len(all_records) != 10:
-        stop("expected exactly 10 authored poses")
-    for rec in all_records:
-        path = rec["file"]
-        role = next((name for name, _, dest, _ in ORDER
-                     if path == "public/assets/connie/source/" + dest), None)
-        if role is None or rec["sha256"] != authority["sourceDigests"][role]["sha256"]:
-            stop("annotation source not consistent with exact phone PNG: " + rec["name"])
-    if set(report["sourceAuthority"]) != set(authority["sourceDigests"]):
-        stop("measurement report source set mismatch")
-    for role in authority["sourceDigests"]:
-        if report["sourceAuthority"][role]["sha256"] != authority["sourceDigests"][role]["sha256"]:
-            stop("report SHA vs calibration mismatch: " + role)
-    return authority
+def verify_png(path, info):
+    if path.is_symlink():
+        stop("source is a symlink: " + str(path))
+    actual = digest(path)
+    if actual != info["sha256"]:
+        stop("source SHA mismatch: " + str(path) + "; got " + actual +
+             "; expected " + info["sha256"])
+    with Image.open(path) as image:
+        if image.format != "PNG" or list(image.size) != info["dimensionsPx"]:
+            stop("unexpected image dimensions/format: " + str(path))
+        image.verify()
 
 
-def verified_png(path, spec):
-    verify(path, {"size": spec["canvasPx"], "sha256": spec["sha256"]})
-    with Image.open(path) as im:
-        im.verify()
-
-
-def find_source(role, role_key, expected_spec):
+def source_path(role, info):
+    target = ROOT / info["repoPath"]
+    if target.exists():
+        verify_png(target, info)
+        return target
     try:
-        return locate(role_key, {"size": expected_spec["canvasPx"],
-                                 "sha256": expected_spec["sha256"]})
+        path = locate(role, {"sha256": info["sha256"], "size": info["dimensionsPx"]})
     except FileNotFoundError:
-        file_name = FILENAMES[role_key]
-        locations = [
-            Path.home() / "storage/downloads" / file_name,
-            Path("/storage/emulated/0/Download") / file_name,
-            Path.home() / "storage/pictures" / file_name,
-            Path("/storage/emulated/0/Pictures") / file_name,
-        ]
-        observed = []
-        for p in locations:
-            if p.is_file():
-                try:
-                    with Image.open(p) as im:
-                        dimensions = list(im.size)
-                    observed.append(f"{p}: SHA256={sha(p)}, dimensions={dimensions}")
-                except OSError as exc:
-                    observed.append(f"{p}: unreadable image ({exc})")
-        stop("No SHA-matching original for " + role + "; expected "
-             + expected_spec["sha256"] + " and dimensions "
-             + str(expected_spec["canvasPx"]) + "; observed:\n"
-             + ("\n".join(observed) if observed else "no matching filenames in Downloads/Pictures"))
-
-
-def verify_git_sources(authority):
-    for role, _, _, _ in ORDER:
-        spec = authority["sourceDigests"][role]
-        path = ROOT / spec["file"]
-        if not path.is_file() or path.is_symlink():
-            stop("Git source missing or symlinked: " + str(path))
-        verified_png(path, spec)
-        print("CONNIE_GIT_SOURCE_VERIFIED", role, spec["sha256"])
-
-
-def prepare():
-    cfg = read_json(CFG)
-    report = read_json(REPORT)
-    authority = check_config(cfg, report)
-    print("PHONE_SOURCE_ORDER=run,dash/pinwheel,idle,wall-impact/rebound")
-    # All source identities verified before any write.
-    candidates = {}
-    for role, finder, _, _ in ORDER:
-        spec = authority["sourceDigests"][role]
-        existing = ROOT / spec["file"]
-        if existing.is_file():
-            if existing.is_symlink():
-                stop("canonical source path is symlinked: " + str(existing))
-            verified_png(existing, spec)
-            candidates[role] = existing
-            print("SOURCE_ALREADY_PRESENT", role, spec["sha256"])
-        else:
-            candidates[role] = find_source(role, finder, spec)
-            verified_png(candidates[role], spec)
-            print("PHONE_SOURCE_VERIFIED", role, spec["sha256"])
-
-    # No original PNG in Downloads is modified or deleted.
-    for role, _, _, _ in ORDER:
-        spec = authority["sourceDigests"][role]
-        target = ROOT / spec["file"]
-        target.parent.mkdir(parents=True, exist_ok=True)
-        if not target.exists():
-            shutil.copyfile(candidates[role], target)
-        verified_png(target, spec)
-
-    cfg["sourceAuthority"]["sourceExistsInGitHub"] = True
-    cfg["sourceAuthority"]["sourceAvailability"] = "four exact PNGs staged for Git commit and readback"
-    cfg["status"] = "source-ingressed-measurements-provisional"
-    cfg["humanReview"]["sourceNotInRepo"] = False
-    cfg["humanReview"]["normalizationAllowed"] = False
-
-    report["status"] = "provisional-measured-source-ingressed"
-    report["reportKind"] = (
-        "Annotation report over original, SHA-locked source PNGs. "
-        "Committing source bytes enables repository verification; anatomical "
-        "measurements remain provisional until reviewed."
-    )
-    report["caveats"] = [
-        x for x in report["caveats"]
-        if not ("source PNGs are not in Git" in x or
-                "Source PNGs are absent" in x or
-                "Original PNGs are absent" in x)
-    ]
-    report["caveats"].append(
-        "Exact four canonical PNGs have been staged for Git transport. "
-        "Hosted delivery and human visual acceptance require separate evidence."
-    )
-    report["overview"]["safeToApply"] = False
-    write_json(CFG, cfg)
-    write_json(REPORT, report)
-
-    verify_git_sources(authority)
-    # Critical: status only describes source ingress, NOT normalized animation.
-    print("CONNIE_INGRESS_PREPARED=4")
-    print("ANATOMICAL_MEASUREMENTS=PROVISIONAL; ANIMATIONS=UNMODIFIED")
-    print("HUMAN_VISUAL_VERDICT=PENDING")
+        name = dict((r, f) for r, _, f in ORDER)[role]
+        seen = []
+        for base in (Path.home() / "storage/downloads", Path("/storage/emulated/0/Download"),
+                     Path.home() / "storage/pictures", Path("/storage/emulated/0/Pictures")):
+            item = base / name
+            if item.is_file():
+                with Image.open(item) as im:
+                    dimensions = list(im.size)
+                seen.append(str(item) + " SHA256=" + digest(item) +
+                            " dimensions=" + str(dimensions))
+        stop("original not found for " + role + "; expected " + info["sha256"] +
+             "; found:\n" + ("\n".join(seen) if seen else "none under expected filenames"))
+    verify_png(path, info)
+    return path
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=("check-manifest", "prepare", "verify-import"))
-    args = parser.parse_args()
-    cfg, report = read_json(CFG), read_json(REPORT)
-    authority = check_config(cfg, report)
-    if args.action == "check-manifest":
+    action = parser.parse_args().action
+    source = specifications()
+    if action == "check-manifest":
         print("CONNIE_PHONE_MAPPING_MANIFEST_OK=4")
         print("PHONE_SOURCE_ORDER=run,dash/pinwheel,idle,wall-impact/rebound")
-    elif args.action == "prepare":
-        prepare()
-    elif args.action == "verify-import":
-        if not cfg["sourceAuthority"].get("sourceExistsInGitHub"):
-            stop("calibration doesn't declare imported sources")
-        if report["status"] != "provisional-measured-source-ingressed":
-            stop("measurement report ingress status absent")
-        verify_git_sources(authority)
-        print("CONNIE_SOURCE_IMPORT_VERIFIED=4; HUMAN_VERDICT=PENDING")
+        print("SOURCE_FAMILY=ORIGINAL_V3")
+        return
+    if action == "verify-import":
+        for role, _, _ in ORDER:
+            dest = ROOT / source[role]["repoPath"]
+            if not dest.is_file():
+                stop("Git source missing: " + str(dest))
+            verify_png(dest, source[role])
+            print("CONNIE_GIT_SOURCE_VERIFIED", role, source[role]["sha256"])
+        print("CONNIE_SOURCE_IMPORT_VERIFIED=4")
+        return
+    # Preflight ALL four before writing any file. Never mix source revisions.
+    selected = {role: source_path(role, source[role]) for role, _, _ in ORDER}
+    for role, _, _ in ORDER:
+        dest = ROOT / source[role]["repoPath"]
+        if dest.is_file():
+            verify_png(dest, source[role])
+            continue
+        if dest.exists():
+            stop("existing source path is not a regular PNG: " + str(dest))
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(selected[role], dest)
+        verify_png(dest, source[role])
+    for role, _, _ in ORDER:
+        print("ORIGINAL_V3_GIT_SOURCE", role, source[role]["sha256"])
+    print("CONNIE_INGRESS_PREPARED=4")
+    print("PHONE_TASK=SOURCE_UPLOAD_ONLY")
+    print("NORMALIZATION=GITHUB_ONLY_AFTER_PUSH")
 
 
 if __name__ == "__main__":
     try:
         main()
-    except (OSError, ValueError, KeyError, TypeError) as exc:
+    except (KeyError, TypeError, OSError, ValueError) as exc:
         print(str(exc), file=sys.stderr)
         sys.exit(2)
