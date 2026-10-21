@@ -1,3 +1,4 @@
+import { CONNIE_ATLAS, CONNIE_RECTS } from './motion/connie-profiles.js';
 import { MOTION_PROFILES, getMotionProfile } from './motion/profiles.js';
 import { copyProfile, instantiateProfile, resolveProfileTiming } from './motion/profile-core.js';
 import { serializeMotionInstance, candidateRepoPath } from './motion/plmp-serializer.js';
@@ -178,8 +179,10 @@ app.innerHTML = `
   </section>
 </section>`;
 
-let active = getMotionProfile('jab', 1);
+const connieRequested=new URLSearchParams(location.search).get('character')==='connie';
+let active = connieRequested ? getMotionProfile('connie-idle',1) : getMotionProfile('jab', 1);
 let working = active;
+const connieAtlas=new Image();connieAtlas.src=CONNIE_ATLAS;
 let selectedKeyId = working.keys[0]?.id;
 let playhead = 0;
 let playing = false;
@@ -237,6 +240,34 @@ function renderStage(){
   const role = currentFrameRole();
   const src = frameValues[role]?.trim();
   stage.innerHTML = '';
+  if(working.family==='connie-atlas'){
+    const id=CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id;
+    const rect=CONNIE_RECTS[id];
+    if(rect){
+      const c=document.createElement('canvas');c.width=500;c.height=440;c.style.maxWidth='100%';c.style.maxHeight='100%';
+      const cx=c.getContext('2d');
+      if(connieAtlas.complete&&connieAtlas.naturalWidth){
+        const [x0,y0,x1,y1]=rect,w=x1-x0,h=y1-y0;
+        const time=playhead*2*Math.PI;
+        const angle=working.id==='connie-transform'&&playhead>.305 ? 2*Math.PI*((playhead-.305)/.695)**2 :
+          working.id==='connie-untransform' ? -2*Math.PI*(1-(1-playhead)**2) : 0;
+        cx.save();cx.translate(250,410);cx.rotate(angle);
+        const destX=-w/2,destY=-h;
+        if(working.id==='connie-idle'){
+          // Horizontal displacement per scanline; never scale the whole character.
+          for(let y=0;y<h;y+=2){
+            const band=Math.min(2,h-y),v=y/h;
+            const displacement=Math.sin(time+v*4)*Math.sin(Math.PI*v)*4;
+            cx.drawImage(connieAtlas,x0,y0+y,w,band,destX+displacement,destY+y,w,band);
+          }
+        }else cx.drawImage(connieAtlas,x0,y0,w,h,destX,destY,w,h);
+        cx.restore();
+      }else connieAtlas.onload=()=>renderStage();
+      stage.append(c);
+      qa('.frame-card').forEach(el=>el.classList.toggle('active',el.dataset.role===role));
+      return;
+    }
+  }
   if (src && /^(https?:|data:|blob:|\/|\.\/|\.\.\/)/.test(src)) {
     const img = document.createElement('img');
     img.src = src;
@@ -454,6 +485,7 @@ function buildInstance(){
   }
   const timingOverrides={};
   keyState().forEach((k)=>timingOverrides[k.id]=k.at);
+  if(working.family==='connie-atlas')for(const role of working.frameRoles)frameMap[role.id]=CONNIE_ATLAS+'#'+role.id;
   return instantiateProfile(working,{
     id:q('[data-id]').value.trim() || 'motion',
     character:q('[data-character]').value.trim() || 'unknown',
@@ -518,9 +550,10 @@ function stepKey(dir){
   renderTimeline(); updatePlayhead();
 }
 
+if(connieRequested){profileSelect.value='connie-idle@1';q('[data-character]').value='connie';q('[data-id]').value='connie-idle';q('[data-duration]').value='1900';}
 profileSelect.addEventListener('change',()=>{
   const [id,version]=profileSelect.value.split('@');
-  active=getMotionProfile(id,Number(version)); working=active; render();
+  active=getMotionProfile(id,Number(version)); working=active; if(working.family==='connie-atlas'){q('[data-character]').value='connie';q('[data-id]').value=id;q('[data-duration]').value=id==='connie-idle'?1900:id==='connie-run'?720:id==='connie-aerial'?780:950;for(const role of working.frameRoles)frameValues[role.id]=CONNIE_ATLAS+'#'+role.id;} render();
 });
 q('[data-copy]').addEventListener('click',()=>{
   working=copyProfile(working,{id:`${working.id}-copy`,label:`${working.label} Copy`});
