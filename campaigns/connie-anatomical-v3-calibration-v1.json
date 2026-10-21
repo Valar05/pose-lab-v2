@@ -1,0 +1,213 @@
+{
+  "schema": "pose-lab-v3-anatomical-calibration-v1",
+  "status": "provisional-human-visual-approval-pending",
+  "character": "Connie",
+  "canonical": "idle",
+  "metric": "crown-to-chin-visible-facial-plane",
+  "measurementMethod": "Manually inspected source-faithful V3 GH Actions original-frame previews at source pixels, disambiguated cranial face markers from trailing paper hair, gold tiara and rose; coordinates initially aligned from equivalent user-provided scaled review, then checked visually against original V3 source. These coordinates remain approximate, not perfect skeletal ground truth.",
+  "authority": {
+    "sourceManifest": "campaigns/connie-source-measurements-v3.json",
+    "sourceSHA256": {
+      "idle": "32d3a1bd1ca0877098db02e02934ef3da5b6e995a4b51c6326a17d40a44dc134",
+      "run": "b95d6a84f0c4e410eab5c95e5f921b6f54ca1d79c91f587d1523128e94d36f03",
+      "rebound": "ca90a80b7ce7339b0a64efef230ce1daf6fd5fdd72f8e1933c513b99e6a41d21",
+      "dash": "84b9a61a55f24a04fda6b25e84edff6c8252d52814eb8c7cd2390f572f37daa2"
+    },
+    "originalGitRevision": "56f000831aecdde15fc3588effd93aa822ebdb79",
+    "originalArtImmutable": true
+  },
+  "policy": {
+    "confidenceFloor": 0.8,
+    "maximumRelativeAnatomicalResidual": 0.08,
+    "oneFactorPerGroup": true,
+    "doNotMeasureFromAlphaBounds": true,
+    "doNotAlterIndividualLimbsOrPoses": true,
+    "doNotDeriveGameplayRootFromFace": true
+  },
+  "groups": {
+    "idle": {
+      "frames": [
+        "idle"
+      ],
+      "measurementFrames": [
+        "idle"
+      ],
+      "transformKind": "canonical-reference"
+    },
+    "run": {
+      "frames": [
+        "run_1",
+        "run_2",
+        "run_3"
+      ],
+      "measurementFrames": [
+        "run_1",
+        "run_2",
+        "run_3"
+      ],
+      "transformKind": "one-uniform-sequence-scale"
+    },
+    "rebound": {
+      "frames": [
+        "rebound_1",
+        "rebound_2",
+        "rebound_3"
+      ],
+      "measurementFrames": [
+        "rebound_2",
+        "rebound_3"
+      ],
+      "transformKind": "one-uniform-sequence-scale",
+      "exception": "rebound_1 ambiguous foreshortening, leave authored relative size unchanged"
+    },
+    "dash": {
+      "frames": [
+        "dash_1",
+        "dash_2",
+        "dash_3"
+      ],
+      "measurementFrames": [
+        "dash_1"
+      ],
+      "transformKind": "uniform-deliberate-transformation",
+      "exception": "All 3 authored transformation silhouettes inherit exactly the same scale calibrated from human-visible dash_1; dash_2 is occluded and dash_3 has no anatomy; no separate body reconstruction or scaling per frame",
+      "artisticStatus": "quarantined until Drew approves pinwheel-to-body physical relationship"
+    }
+  },
+  "frames": {
+    "idle": {
+      "source": "idle",
+      "crownSourcePx": [
+        709,
+        137
+      ],
+      "chinSourcePx": [
+        711,
+        281
+      ],
+      "confidence": 0.91,
+      "note": "standing crown at front bangs below tiara; chin at jaw tip",
+      "pose": "standing"
+    },
+    "run_1": {
+      "source": "run",
+      "crownSourcePx": [
+        520,
+        246
+      ],
+      "chinSourcePx": [
+        515,
+        356
+      ],
+      "confidence": 0.87,
+      "note": "right-profile bangs base to chin",
+      "pose": "running"
+    },
+    "run_2": {
+      "source": "run",
+      "crownSourcePx": [
+        1020,
+        246
+      ],
+      "chinSourcePx": [
+        1010,
+        357
+      ],
+      "confidence": 0.85,
+      "note": "matching right-profile reference points",
+      "pose": "running"
+    },
+    "run_3": {
+      "source": "run",
+      "crownSourcePx": [
+        1590,
+        246
+      ],
+      "chinSourcePx": [
+        1578,
+        363
+      ],
+      "confidence": 0.84,
+      "note": "matching front bangs to jaw tip",
+      "pose": "running"
+    },
+    "rebound_1": {
+      "source": "rebound",
+      "crownSourcePx": [
+        508,
+        184
+      ],
+      "chinSourcePx": [
+        494,
+        305
+      ],
+      "confidence": 0.61,
+      "note": "head rotated/downturned; jaw partly uncertain; diagnostic only",
+      "pose": "airborne-wall-impact"
+    },
+    "rebound_2": {
+      "source": "rebound",
+      "crownSourcePx": [
+        1318,
+        150
+      ],
+      "chinSourcePx": [
+        1314,
+        293
+      ],
+      "confidence": 0.86,
+      "note": "visible head top and jaw",
+      "pose": "airborne-wall-impact"
+    },
+    "rebound_3": {
+      "source": "rebound",
+      "crownSourcePx": [
+        2028,
+        148
+      ],
+      "chinSourcePx": [
+        2022,
+        293
+      ],
+      "confidence": 0.84,
+      "note": "visible head top and jaw",
+      "pose": "airborne-wall-impact"
+    },
+    "dash_1": {
+      "source": "dash",
+      "crownSourcePx": [
+        693,
+        153
+      ],
+      "chinSourcePx": [
+        684,
+        285
+      ],
+      "confidence": 0.85,
+      "note": "last clearly visible body/head of turn; uniform scale anchor for entire dash transformation",
+      "pose": "intentional-transformation"
+    },
+    "dash_2": {
+      "source": "dash",
+      "crownSourcePx": [
+        1308,
+        209
+      ],
+      "chinSourcePx": [
+        1301,
+        346
+      ],
+      "confidence": 0.65,
+      "note": "occluded crown/jaw; diagnostic only",
+      "pose": "intentional-transformation"
+    },
+    "dash_3": {
+      "source": "dash",
+      "crownSourcePx": null,
+      "chinSourcePx": null,
+      "confidence": 0,
+      "note": "headless pinwheel, physically transformed silhouette; inherit entire dash sequence scale, never hallucinate landmarks",
+      "pose": "intentional-transformation"
+    }
+  }
+}
