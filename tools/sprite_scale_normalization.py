@@ -132,6 +132,9 @@ def inspect(root, record, background):
     for name, (px, py) in points.items():
         if not (x <= px < x + w and y <= py < y + h):
             fail("landmark outside cell: " + name)
+    edge_sides = [side for side, hit in (("left", box[0] == 0), ("top", box[1] == 0),
+                  ("right", box[2] == w), ("bottom", box[3] == h)) if hit]
+    edge_review = record.get("edgeContactReview")
     conf = record.get("confidence")
     if not isinstance(conf, (int, float)) or not (0 <= conf <= 1):
         fail("every frame requires a recorded confidence from 0 to 1")
@@ -151,6 +154,8 @@ def inspect(root, record, background):
         "facing": record.get("facing", "unspecified"), "anchorSourcePx": anchor,
         "anchorLabel": record.get("anchorLabel", "unspecified"),
         "durationMs": record.get("durationMs", 100),
+        "edgeContactSides": edge_sides,
+        "edgeContactReview": edge_review,
         "inheritMeasurementFrom": record.get("inheritMeasurementFrom"),
     }
 
@@ -198,6 +203,8 @@ def analyze(config, root):
         ratios = []
         exceptions = []
         for m in measured:
+            if m["edgeContactSides"] and not (isinstance(m["edgeContactReview"], str) and m["edgeContactReview"].strip()):
+                exceptions.append(m["name"] + ": foreground touches cell edge without reviewed source partition")
             ref = reference_metrics.get(m["metric"])
             if ref is None:
                 exceptions.append(m["name"] + ": canonical " + m["metric"] + " missing")
@@ -251,7 +258,9 @@ def render(config, report, root, out, approval=None):
         if (approval.get("schema") != APPROVAL_SCHEMA or
             approval.get("verdict") != "approved" or
             approval.get("analysisSha256") != digest(canonical_json(report).encode("utf-8")) or
-            sorted(approval.get("approvedSequences", [])) != sorted(g["id"] for g in report["sequences"])):
+            sorted(approval.get("approvedSequences", [])) != sorted(g["id"] for g in report["sequences"]) or
+            not isinstance(approval.get("reviewer"), str) or not approval["reviewer"].strip() or
+            not isinstance(approval.get("reviewUrl"), str) or not approval["reviewUrl"].startswith(("https://", "http://"))):
             fail("human approval does not match exact analysis")
     out = out.resolve()
     if out == root.resolve():
