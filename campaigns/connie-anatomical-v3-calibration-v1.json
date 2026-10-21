@@ -1,10 +1,10 @@
 {
   "schema": "pose-lab-v3-anatomical-calibration-v1",
-  "status": "provisional-human-visual-approval-pending",
+  "status": "provisional-run-body-core-reference-human-approval-pending",
   "character": "Connie",
-  "canonical": "idle",
-  "metric": "crown-to-chin-visible-facial-plane",
-  "measurementMethod": "Manually inspected source-faithful V3 GH Actions original-frame previews at source pixels, disambiguated cranial face markers from trailing paper hair, gold tiara and rose; coordinates initially aligned from equivalent user-provided scaled review, then checked visually against original V3 source. These coordinates remain approximate, not perfect skeletal ground truth.",
+  "canonical": "run",
+  "metric": "shoulder-to-hip-body-core-physical-distance",
+  "measurementMethod": "Connie body-core shoulder/hip landmarks projected from the same original-sourced user-reviewed 2026-10-20 source-layout images onto exact V3 source dimensions. These are approximate anatomical selections; head/hair and bounding-box extents are diagnostic only. The full 3-pose run family establishes scale 1.0. Idle is deliberately corrected downward, not treated as size authority.",
   "authority": {
     "sourceManifest": "campaigns/connie-source-measurements-v3.json",
     "sourceSHA256": {
@@ -22,7 +22,13 @@
     "oneFactorPerGroup": true,
     "doNotMeasureFromAlphaBounds": true,
     "doNotAlterIndividualLimbsOrPoses": true,
-    "doNotDeriveGameplayRootFromFace": true
+    "doNotDeriveGameplayRootFromFace": true,
+    "bodyMetricIsCanonical": true,
+    "runIsFixedAtOne": true,
+    "respectPoseAwareUncertainty": true,
+    "forceIdleShrink": true,
+    "bodyComparedAtFixedVisualZoom": true,
+    "headLandmarksDoNotDetermineScale": true
   },
   "groups": {
     "idle": {
@@ -32,7 +38,8 @@
       "measurementFrames": [
         "idle"
       ],
-      "transformKind": "canonical-reference"
+      "transformKind": "whole-idle-outlier-downscale",
+      "exception": "Oversized idle must be physically scaled down to match the body core of authored run; preserve its appearance and exact proportions; do not change the source."
     },
     "run": {
       "frames": [
@@ -45,7 +52,7 @@
         "run_2",
         "run_3"
       ],
-      "transformKind": "one-uniform-sequence-scale"
+      "transformKind": "canonical-run-physical-reference"
     },
     "rebound": {
       "frames": [
@@ -87,7 +94,17 @@
       ],
       "confidence": 0.91,
       "note": "standing crown at front bangs below tiara; chin at jaw tip",
-      "pose": "standing"
+      "pose": "standing",
+      "shoulderSourcePx": [
+        589,
+        344
+      ],
+      "hipSourcePx": [
+        648,
+        608
+      ],
+      "bodyCoreConfidence": 0.91,
+      "bodyCoreAnnotationProvenance": "projected-from-matched-V3-layout-visual-source, provisional"
     },
     "run_1": {
       "source": "run",
@@ -101,7 +118,17 @@
       ],
       "confidence": 0.87,
       "note": "right-profile bangs base to chin",
-      "pose": "running"
+      "pose": "running",
+      "shoulderSourcePx": [
+        416,
+        351
+      ],
+      "hipSourcePx": [
+        373,
+        462
+      ],
+      "bodyCoreConfidence": 0.9,
+      "bodyCoreAnnotationProvenance": "projected-from-matched-V3-layout-visual-source, provisional"
     },
     "run_2": {
       "source": "run",
@@ -115,7 +142,17 @@
       ],
       "confidence": 0.85,
       "note": "matching right-profile reference points",
-      "pose": "running"
+      "pose": "running",
+      "shoulderSourcePx": [
+        927,
+        349
+      ],
+      "hipSourcePx": [
+        873,
+        462
+      ],
+      "bodyCoreConfidence": 0.88,
+      "bodyCoreAnnotationProvenance": "projected-from-matched-V3-layout-visual-source, provisional"
     },
     "run_3": {
       "source": "run",
@@ -129,7 +166,17 @@
       ],
       "confidence": 0.84,
       "note": "matching front bangs to jaw tip",
-      "pose": "running"
+      "pose": "running",
+      "shoulderSourcePx": [
+        1512,
+        353
+      ],
+      "hipSourcePx": [
+        1458,
+        463
+      ],
+      "bodyCoreConfidence": 0.86,
+      "bodyCoreAnnotationProvenance": "projected-from-matched-V3-layout-visual-source, provisional"
     },
     "rebound_1": {
       "source": "rebound",
@@ -143,7 +190,17 @@
       ],
       "confidence": 0.61,
       "note": "head rotated/downturned; jaw partly uncertain; diagnostic only",
-      "pose": "airborne-wall-impact"
+      "pose": "airborne-wall-impact",
+      "shoulderSourcePx": [
+        417,
+        301
+      ],
+      "hipSourcePx": [
+        373,
+        450
+      ],
+      "bodyCoreConfidence": 0.66,
+      "bodyCoreAnnotationProvenance": "projected-from-matched-V3-layout-visual-source, provisional"
     },
     "rebound_2": {
       "source": "rebound",
@@ -157,7 +214,17 @@
       ],
       "confidence": 0.86,
       "note": "visible head top and jaw",
-      "pose": "airborne-wall-impact"
+      "pose": "airborne-wall-impact",
+      "shoulderSourcePx": [
+        1240,
+        297
+      ],
+      "hipSourcePx": [
+        1148,
+        420
+      ],
+      "bodyCoreConfidence": 0.83,
+      "bodyCoreAnnotationProvenance": "projected-from-matched-V3-layout-visual-source, provisional"
     },
     "rebound_3": {
       "source": "rebound",
@@ -171,7 +238,17 @@
       ],
       "confidence": 0.84,
       "note": "visible head top and jaw",
-      "pose": "airborne-wall-impact"
+      "pose": "airborne-wall-impact",
+      "shoulderSourcePx": [
+        1950,
+        298
+      ],
+      "hipSourcePx": [
+        1847,
+        426
+      ],
+      "bodyCoreConfidence": 0.83,
+      "bodyCoreAnnotationProvenance": "projected-from-matched-V3-layout-visual-source, provisional"
     },
     "dash_1": {
       "source": "dash",
@@ -185,7 +262,17 @@
       ],
       "confidence": 0.85,
       "note": "last clearly visible body/head of turn; uniform scale anchor for entire dash transformation",
-      "pose": "intentional-transformation"
+      "pose": "intentional-transformation",
+      "shoulderSourcePx": [
+        601,
+        280
+      ],
+      "hipSourcePx": [
+        529,
+        421
+      ],
+      "bodyCoreConfidence": 0.8,
+      "bodyCoreAnnotationProvenance": "projected-from-matched-V3-layout-visual-source, provisional"
     },
     "dash_2": {
       "source": "dash",
@@ -199,7 +286,17 @@
       ],
       "confidence": 0.65,
       "note": "occluded crown/jaw; diagnostic only",
-      "pose": "intentional-transformation"
+      "pose": "intentional-transformation",
+      "shoulderSourcePx": [
+        1249,
+        345
+      ],
+      "hipSourcePx": [
+        1160,
+        448
+      ],
+      "bodyCoreConfidence": 0.61,
+      "bodyCoreAnnotationProvenance": "projected-from-matched-V3-layout-visual-source, provisional"
     },
     "dash_3": {
       "source": "dash",
@@ -207,7 +304,17 @@
       "chinSourcePx": null,
       "confidence": 0,
       "note": "headless pinwheel, physically transformed silhouette; inherit entire dash sequence scale, never hallucinate landmarks",
-      "pose": "intentional-transformation"
+      "pose": "intentional-transformation",
+      "shoulderSourcePx": null,
+      "hipSourcePx": null,
+      "bodyCoreConfidence": 0,
+      "bodyCoreAnnotationProvenance": "projected-from-matched-V3-layout-visual-source, provisional"
     }
-  }
+  },
+  "canonicalFrameAuthority": [
+    "run_1",
+    "run_2",
+    "run_3"
+  ],
+  "comparisonNotes": "Visual candidate authority is matching body core, not matching oversized standing head. If cranial vs body sizing disagrees after uniform scaling, report the artwork proportion mismatch rather than compensating with per-limb scaling."
 }
