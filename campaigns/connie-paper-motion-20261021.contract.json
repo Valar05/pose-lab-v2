@@ -1,89 +1,94 @@
-{
-  "schema": "pose-lab-v2-campaign-contract-v2",
-  "id": "connie-paper-motion-20261021",
-  "mission": "Import exact user-approved 10-frame composite as new Connie character, slice nine authored poses, animate one-frame idle, 3-frame run, 3-frame aerial, and 3-frame spin transformation with angular acceleration on second/third frame and reverse untransform, using Vanguard-inspired squash, impact pop and grounded phase motion. Never replace authored poses with generative frames.",
-  "source": {
-    "path": "public/assets/connie/connie-approved-composite.png",
-    "sha256": "1862aaa232426324cb9c698c878411922b7e8bcd649ff042dd5a8a870265abe3",
-    "dimensions": [
-      1536,
-      1294
-    ],
-    "alpha": "opaque black canvas; must extract foreground with validated masks; never naive global color-key",
-    "userImage": "connie_composited_top_second_bottom_first.png",
-    "sourceAvailableInGitHub": false
-  },
-  "machine": {
-    "mutablePaths": [
-      "campaigns/connie-paper-motion-20261021.contract.json",
-      "campaigns/connie-paper-motion-20261021.receipt.json",
-      "public/assets/connie/**",
-      "public/reviews/connie-paper-motion/**",
-      "tools/campaigns/connie_paper_motion.py",
-      "tools/test_connie_paper_motion.py"
-    ],
-    "receiptPath": "campaigns/connie-paper-motion-20261021.receipt.json",
-    "requiredRules": [
-      "AGENTS.md",
-      "docs/POSE_LAB_CAMPAIGN_RULES.md",
-      "docs/POSE_IS_GOD.md",
-      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
-      "doctrine/animation/sparse_sprite_motion_v1.json"
-    ],
-    "lockedFiles": [],
-    "checks": []
-  },
-  "animation": {
-    "idle": {
-      "frames": [
-        "idle"
-      ],
-      "durationMs": 1900,
-      "mode": "single-source-kinetic-idle",
-      "noRootMotion": true
-    },
-    "run": {
-      "frames": [
-        "run_1",
-        "run_2",
-        "run_3"
-      ],
-      "durationMs": 720,
-      "mode": "three-frame-procedural-phase-bridge",
-      "noRootMotion": true
-    },
-    "aerial": {
-      "frames": [
-        "aerial_1",
-        "aerial_2",
-        "aerial_3"
-      ],
-      "durationMs": 780,
-      "mode": "3-authored-frames-bounded-stretch",
-      "noRootMotion": true
-    },
-    "transform": {
-      "frames": [
-        "spin_1",
-        "spin_2",
-        "spin_3"
-      ],
-      "durationMs": 950,
-      "mode": "cumulative-angular-acceleration",
-      "startRotationOn": "spin_2",
-      "peakAngularVelocityOn": "spin_3",
-      "noRootMotion": true
-    },
-    "untransform": {
-      "frames": [
-        "spin_3",
-        "spin_2",
-        "spin_1"
-      ],
-      "durationMs": 950,
-      "mode": "reverse-continuous-rotation-deceleration",
-      "noRootMotion": true
-    }
-  },
-  "status": "source-ingress-blocked; implementation candidate only; no runtime acceptance"
+﻿{
+    "schema":  "pose-lab-v2-campaign-contract-v2",
+    "id":  "connie-paper-motion-20261021",
+    "mission":  "Import exact user-approved 10-frame composite as new Connie character, slice nine authored poses, animate one-frame idle, 3-frame run, 3-frame aerial, and 3-frame spin transformation with angular acceleration on second/third frame and reverse untransform, using Vanguard-inspired squash, impact pop and grounded phase motion. Never replace authored poses with generative frames.",
+    "source":  {
+                   "path":  "public/assets/connie/connie-approved-composite.png",
+                   "sha256":  "1862aaa232426324cb9c698c878411922b7e8bcd649ff042dd5a8a870265abe3",
+                   "dimensions":  [
+                                      1536,
+                                      1294
+                                  ],
+                   "alpha":  "opaque black canvas; must extract foreground with validated masks; never naive global color-key",
+                   "userImage":  "connie_composited_top_second_bottom_first.png",
+                   "sourceAvailableInGitHub":  true
+               },
+    "machine":  {
+                    "mutablePaths":  [
+                                         "campaigns/connie-paper-motion-20261021.contract.json",
+                                         "campaigns/connie-paper-motion-20261021.receipt.json",
+                                         "public/assets/connie/**",
+                                         "public/reviews/connie-paper-motion/**",
+                                         "tools/campaigns/connie_paper_motion.py",
+                                         "tools/test_connie_paper_motion.py",
+                                         "docs/DRIVE_COMPUTER_HANDS_GITHUB_TRANSPORT.md"
+                                     ],
+                    "receiptPath":  "campaigns/connie-paper-motion-20261021.receipt.json",
+                    "requiredRules":  [
+                                          "AGENTS.md",
+                                          "docs/POSE_LAB_CAMPAIGN_RULES.md",
+                                          "docs/POSE_IS_GOD.md",
+                                          "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+                                          "doctrine/animation/sparse_sprite_motion_v1.json"
+                                      ],
+                    "lockedFiles":  [
+
+                                    ],
+                    "checks":  [
+
+                               ]
+                },
+    "animation":  {
+                      "idle":  {
+                                   "frames":  [
+                                                  "idle"
+                                              ],
+                                   "durationMs":  1900,
+                                   "mode":  "single-source-kinetic-idle",
+                                   "noRootMotion":  true
+                               },
+                      "run":  {
+                                  "frames":  [
+                                                 "run_1",
+                                                 "run_2",
+                                                 "run_3"
+                                             ],
+                                  "durationMs":  720,
+                                  "mode":  "three-frame-procedural-phase-bridge",
+                                  "noRootMotion":  true
+                              },
+                      "aerial":  {
+                                     "frames":  [
+                                                    "aerial_1",
+                                                    "aerial_2",
+                                                    "aerial_3"
+                                                ],
+                                     "durationMs":  780,
+                                     "mode":  "3-authored-frames-bounded-stretch",
+                                     "noRootMotion":  true
+                                 },
+                      "transform":  {
+                                        "frames":  [
+                                                       "spin_1",
+                                                       "spin_2",
+                                                       "spin_3"
+                                                   ],
+                                        "durationMs":  950,
+                                        "mode":  "cumulative-angular-acceleration",
+                                        "startRotationOn":  "spin_2",
+                                        "peakAngularVelocityOn":  "spin_3",
+                                        "noRootMotion":  true
+                                    },
+                      "untransform":  {
+                                          "frames":  [
+                                                         "spin_3",
+                                                         "spin_2",
+                                                         "spin_1"
+                                                     ],
+                                          "durationMs":  950,
+                                          "mode":  "reverse-continuous-rotation-deceleration",
+                                          "noRootMotion":  true
+                                      }
+                  },
+    "status":  "source-ingested; extraction and runtime visual acceptance pending"
 }
