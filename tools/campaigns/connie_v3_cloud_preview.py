@@ -92,7 +92,7 @@ def scale_analysis(doc):
             "maximumHeadEnvelopeDeviation": round(spread, 5) if spread is not None else None,
             "status": "BLOCKED manual artistic review" if blocked else "QUARANTINED uniform preview",
             "reasons": (["Deliberate shape transformation and headless frame",
-                         "Per-frame anatomical/head envelope variation is not consistent enough"]
+                         "Headless pinwheel cannot be assigned reliable anatomical scale"]
                         if blocked and role == "dash" else []),
         }
     return groups
@@ -135,10 +135,14 @@ def display_frame(art, anchor, scale):
     return dest, (pad+refx,pad+refy)
 
 
-def mini_card(art, label):
+def mini_card(art, label, factor=1.0):
     canvas = Image.new("RGB", (560,520), (23,23,26))
-    thumb = art.copy()
-    thumb.thumbnail((530,445), Image.Resampling.LANCZOS)
+    # Fixed optical zoom across every animation, never per-frame fit-to-box.
+    zoom = 0.31 * factor
+    tw,th=max(1,round(art.width*zoom)),max(1,round(art.height*zoom))
+    if tw > 530 or th > 445:
+        stop("comparison would clip at fixed global optical zoom: " + label)
+    thumb = art.resize((tw,th), Image.Resampling.LANCZOS)
     x,y=(560-thumb.width)//2,(466-thumb.height)//2
     canvas.paste(thumb, (x,y), thumb.getchannel("A"))
     draw = ImageDraw.Draw(canvas)
@@ -172,7 +176,7 @@ def produce(doc, src, groups, out, revision):
             after,_=display_frame(im,anchor,group["singleSequenceFactor"])
             (out/"candidate").mkdir(exist_ok=True)
             after.save(out/"candidate"/(fid+".png"))
-            scaled_cards.append(mini_card(after, fid + " uniform scale candidate"))
+            scaled_cards.append(mini_card(im, fid + " uniform scale candidate", group["singleSequenceFactor"]))
         sheet=Image.new("RGB",(560*len(scaled_cards),520),(23,23,26))
         for i,card in enumerate(scaled_cards):
             sheet.paste(card,(560*i,0))
