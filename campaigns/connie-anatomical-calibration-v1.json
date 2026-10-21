@@ -12,7 +12,8 @@
         "canvasPx": [
           1152,
           1536
-        ]
+        ],
+        "phoneFileRole": "idle"
       },
       "run": {
         "file": "public/assets/connie/source/run.png",
@@ -20,28 +21,43 @@
         "canvasPx": [
           1536,
           864
-        ]
+        ],
+        "phoneFileRole": "run"
       },
       "aerial": {
-        "file": "public/assets/connie/source/aerial.png",
+        "file": "public/assets/connie/source/rebound.png",
         "sha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
         "canvasPx": [
           1536,
           512
-        ]
+        ],
+        "phoneFileRole": "wall-impact / rebound"
       },
       "pinwheel": {
-        "file": "public/assets/connie/source/pinwheel.png",
+        "file": "public/assets/connie/source/dash.png",
         "sha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
         "canvasPx": [
           1536,
           512
-        ]
+        ],
+        "phoneFileRole": "dash / pinwheel"
       }
     },
     "sourceExistsInGitHub": false,
     "oldConnieV3PixelsDoNotMatch": true,
-    "sourceEditAllowed": false
+    "sourceEditAllowed": false,
+    "phoneUploadOrder": [
+      "run",
+      "pinwheel",
+      "idle",
+      "aerial"
+    ],
+    "phoneFilenames": {
+      "run": "file_0000000065a081f598aa79ff7209b9d1.png",
+      "pinwheel": "file_00000000abb481f59b8ff374e3df6e8d.png",
+      "idle": "file_00000000807881f598bd2fce43c5b0f6.png",
+      "aerial": "file_000000001b8c81f5844badc8eaa7bd36.png"
+    }
   },
   "measurement": {
     "background": "black",
@@ -309,7 +325,7 @@
       "frames": [
         {
           "name": "aerial_1",
-          "file": "public/assets/connie/source/aerial.png",
+          "file": "public/assets/connie/source/rebound.png",
           "sha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
           "cell": [
             0,
@@ -363,11 +379,12 @@
             472
           ],
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
-          "landmarkNotes": "Feet and knees partly obscured by paper skirt; head stronger calibration cue"
+          "landmarkNotes": "Feet and knees partly obscured by paper skirt; head stronger calibration cue",
+          "sequenceLabel": "wall impact"
         },
         {
           "name": "aerial_2",
-          "file": "public/assets/connie/source/aerial.png",
+          "file": "public/assets/connie/source/rebound.png",
           "sha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
           "cell": [
             470,
@@ -421,11 +438,12 @@
             454
           ],
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
-          "landmarkNotes": "Rearward leg extended while torso tilts; no grounding requirement"
+          "landmarkNotes": "Rearward leg extended while torso tilts; no grounding requirement",
+          "sequenceLabel": "wall impact"
         },
         {
           "name": "aerial_3",
-          "file": "public/assets/connie/source/aerial.png",
+          "file": "public/assets/connie/source/rebound.png",
           "sha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
           "cell": [
             1030,
@@ -479,9 +497,11 @@
             470
           ],
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
-          "landmarkNotes": "Bent legs overlap; foot location is an estimated anatomical marker, not a stage pivot The visible foot endpoint was pixel-audited and moved to foreground at (1279,457)."
+          "landmarkNotes": "Bent legs overlap; foot location is an estimated anatomical marker, not a stage pivot The visible foot endpoint was pixel-audited and moved to foreground at (1279,457).",
+          "sequenceLabel": "wall impact"
         }
-      ]
+      ],
+      "displayLabel": "Wall impact"
     },
     {
       "id": "pinwheel",
@@ -496,7 +516,7 @@
       "frames": [
         {
           "name": "pinwheel_1",
-          "file": "public/assets/connie/source/pinwheel.png",
+          "file": "public/assets/connie/source/dash.png",
           "sha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
           "cell": [
             0,
@@ -550,11 +570,12 @@
             465
           ],
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
-          "landmarkNotes": "Body remains partly distinguishable. Rotation center is NOT a grounded foot"
+          "landmarkNotes": "Body remains partly distinguishable. Rotation center is NOT a grounded foot",
+          "sequenceLabel": "dash / pinwheel"
         },
         {
           "name": "pinwheel_2",
-          "file": "public/assets/connie/source/pinwheel.png",
+          "file": "public/assets/connie/source/dash.png",
           "sha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
           "cell": [
             545,
@@ -596,11 +617,12 @@
             457
           ],
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
-          "landmarkNotes": "Scalp crown hidden by roses/petals and legs cannot be isolated reliably; DO NOT APPLY SCALE"
+          "landmarkNotes": "Scalp crown hidden by roses/petals and legs cannot be isolated reliably; DO NOT APPLY SCALE",
+          "sequenceLabel": "dash / pinwheel"
         },
         {
           "name": "pinwheel_3",
-          "file": "public/assets/connie/source/pinwheel.png",
+          "file": "public/assets/connie/source/dash.png",
           "sha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
           "cell": [
             1030,
@@ -626,9 +648,11 @@
           ],
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
           "landmarkNotes": "Pure rose/paper vortex; no visible anatomy. Do not infer head, torso, knees, ankles or feet",
-          "inheritMeasurementFrom": "pinwheel_1"
+          "inheritMeasurementFrom": "pinwheel_1",
+          "sequenceLabel": "dash / pinwheel"
         }
-      ]
+      ],
+      "displayLabel": "Dash / pinwheel"
     }
   ],
   "humanReview": {
