@@ -101,7 +101,8 @@ def assert_atlas(out, doc, groups, sources):
     with Image.open(proof) as diagnostic:
         assert diagnostic.size == (1750,760)
         diagnostic.verify()
-    assert "connie-anatomical-head-audit.png" in (out/"index.html").read_text()
+    assert 'src="connie-run-body-scale-audit.png"' in (out/"index.html").read_text()
+    assert 'src="connie-anatomical-head-audit.png"' not in (out/"index.html").read_text()
     print("CONNIE_UNIFIED_ATLAS_CELLS_OK=10")
     print("CONNIE_UNIFIED_ATLAS_PIXEL_EQUIVALENCE_OK=10")
     print("CONNIE_UNIFIED_ATLAS_AREA_REDUCTION=%.2f%%" %
