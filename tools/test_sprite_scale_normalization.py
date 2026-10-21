@@ -140,6 +140,21 @@ class ScaleNormalizationTests(unittest.TestCase):
         report = analyze(config, self.root)
         self.assertTrue(report["blocked"])
 
+    def test_source_edge_contact_requires_manual_review(self):
+        config = copy.deepcopy(self.config)
+        image_path = self.root / "sources" / "run_b.png"
+        image = Image.open(image_path)
+        ImageDraw.Draw(image).rectangle((image.width - 3, 2, image.width - 1, 6),
+                                       fill=(255, 50, 50))
+        image.save(image_path)
+        config["sequences"][0]["frames"][1]["sha256"] = digest(image_path.read_bytes())
+        report = analyze(config, self.root)
+        self.assertTrue(report["blocked"])
+        self.assertIn("right", report["sequences"][0]["frames"][1]["edgeContactSides"])
+        config["sequences"][0]["frames"][1]["edgeContactReview"] = "Reviewed authored right edge"
+        report = analyze(config, self.root)
+        self.assertFalse(report["blocked"])
+
     def test_source_hash_mismatch_fails_closed(self):
         config = copy.deepcopy(self.config)
         config["sequences"][0]["frames"][0]["sha256"] = "0" * 64
@@ -150,7 +165,8 @@ class ScaleNormalizationTests(unittest.TestCase):
         report = analyze(self.config, self.root)
         approval = {"schema": APPROVAL_SCHEMA, "verdict": "approved",
                     "analysisSha256": digest(canonical_json(report).encode("utf-8")),
-                    "approvedSequences": ["run"], "reviewer": "Human"}
+                    "approvedSequences": ["run"], "reviewer": "Human",
+                    "reviewUrl": "https://example.test/pose-lab?view=2d&manifest=candidate"}
         generated = render(self.config, report, self.root, self.root / "approved", approval)
         self.assertEqual(generated["normalization"]["status"], "human-approved")
         altered = dict(approval, analysisSha256="0" * 64)
