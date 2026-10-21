@@ -5,103 +5,103 @@
   "frames": {
     "idle": {
       "rect": [
-        0,
-        60,
-        300,
-        445
+        10,
+        95,
+        310,
+        500
       ],
-      "removedExteriorDarkPixels": 66468,
-      "sha256": "f8bd7b007139b929dff695294f5120b8901f149f8b93751ec27257d947ecc919"
+      "removedExteriorDarkPixels": 69015,
+      "sha256": "3855ac85d230063865523708f5f824204a36901a90c015f9256a2307a689bc9d"
     },
     "run_1": {
       "rect": [
-        305,
-        75,
-        660,
-        445
+        360,
+        110,
+        750,
+        490
       ],
-      "removedExteriorDarkPixels": 85209,
-      "sha256": "91055955d1a1075d6ca7032b3fdd2d56ee08c89274802ce1c141d77d63cebe09"
+      "removedExteriorDarkPixels": 91948,
+      "sha256": "71ea77d10a5be47fc3bce3843f8ce55b022ec1b0629e1fba74d44bc1dc45f280"
     },
     "run_2": {
       "rect": [
-        660,
-        75,
-        980,
-        445
+        745,
+        110,
+        1110,
+        490
       ],
-      "removedExteriorDarkPixels": 74107,
-      "sha256": "a4524a53e2b055c8d4d46cc95037c52a3bd7d7bf4c7faf41ff57683d5cc28123"
+      "removedExteriorDarkPixels": 86959,
+      "sha256": "c9a3147dab252afca0cea7bb4ba44385f8453b86e0c327a2e79a3987ad33f5bb"
     },
     "run_3": {
       "rect": [
-        980,
-        75,
-        1536,
-        445
+        1110,
+        110,
+        1520,
+        490
       ],
-      "removedExteriorDarkPixels": 131506,
-      "sha256": "d0dd1ed35d7b32062c0d5d6ee81508b8b2fc2e8241f8b340c611962bd0fcd198"
+      "removedExteriorDarkPixels": 95142,
+      "sha256": "d987e7d46596f609c4c6bd2dcc6bf9e4ddb8f5afe69419bfb9b6219cbf024dc0"
     },
     "aerial_1": {
       "rect": [
-        190,
-        460,
-        515,
-        790
+        270,
+        585,
+        585,
+        905
       ],
-      "removedExteriorDarkPixels": 74920,
-      "sha256": "008e597b9e7fc8f58d5444b763f8bd6fb732cd31bc6798289965d6fb239b0215"
+      "removedExteriorDarkPixels": 52898,
+      "sha256": "e0db2900b6476c9203663200c52c52c2d24cb1f1123f49cd0dbd67143078b78e"
     },
     "aerial_2": {
       "rect": [
-        510,
-        460,
-        855,
-        790
+        595,
+        585,
+        950,
+        895
       ],
-      "removedExteriorDarkPixels": 79979,
-      "sha256": "c00060e48672e1984742da4509b4faea5ca5f70b6e3c3dcbc771a0c77a79f8e7"
+      "removedExteriorDarkPixels": 60347,
+      "sha256": "76ab97bb9ce935a4e1e4814ff89a2a4347e2f56c759d1df18e39456cf68df8d8"
     },
     "aerial_3": {
       "rect": [
-        850,
-        460,
-        1220,
-        790
+        950,
+        595,
+        1280,
+        900
       ],
-      "removedExteriorDarkPixels": 75068,
-      "sha256": "b2adaa3780761863717f9fb393d57b0bc6895a4600fa4119f16ddf1e03510f2c"
+      "removedExteriorDarkPixels": 52897,
+      "sha256": "2d8b0f8dd25200439f366fbfe758f14b059e71419866e7f7ac2bcaa4b8c4f238"
     },
     "spin_1": {
       "rect": [
-        185,
-        795,
-        570,
-        1130
+        250,
+        950,
+        635,
+        1270
       ],
-      "removedExteriorDarkPixels": 84086,
-      "sha256": "5872e4c0aa9ba47ce458eb43be7c11fbc23f9889f7c7140d43bf87eac4e3f40e"
+      "removedExteriorDarkPixels": 69167,
+      "sha256": "0d1edb0d3cfca62c16a0ba6a6fb18a016d5cf315a46c56c0545d5548be1c0464"
     },
     "spin_2": {
       "rect": [
-        565,
-        790,
-        860,
-        1130
+        630,
+        930,
+        975,
+        1250
       ],
-      "removedExteriorDarkPixels": 63584,
-      "sha256": "6469a065034fd723376de6ee7f90334b52d1f318ac0f38920360fb8874930b1c"
+      "removedExteriorDarkPixels": 62673,
+      "sha256": "fdc5c5c668f9e24335d7488eddcff1436338bb877cf233230da0c0ab5b7e4e54"
     },
     "spin_3": {
       "rect": [
-        855,
-        750,
-        1220,
-        1130
+        965,
+        900,
+        1295,
+        1220
       ],
-      "removedExteriorDarkPixels": 70949,
-      "sha256": "51300ef86dfe8b5c77d45f8cdacc1112bc8f74871cb7248b49c72f3d6e113d65"
+      "removedExteriorDarkPixels": 61874,
+      "sha256": "617b82f06ed6e88bc0fc738922a4e5b5b5b606967e0498197e28324510cf804f"
     }
   }
 }

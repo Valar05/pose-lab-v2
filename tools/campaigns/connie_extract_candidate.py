@@ -5,7 +5,7 @@ import hashlib,json
 R=Path(__file__).resolve().parents[2]
 src=R/'public/assets/connie/connie-approved-composite.png'
 assert hashlib.sha256(src.read_bytes()).hexdigest()=='1862aaa232426324cb9c698c878411922b7e8bcd649ff042dd5a8a870265abe3'
-rects={'idle':(0,60,300,445),'run_1':(305,75,660,445),'run_2':(660,75,980,445),'run_3':(980,75,1536,445),'aerial_1':(190,460,515,790),'aerial_2':(510,460,855,790),'aerial_3':(850,460,1220,790),'spin_1':(185,795,570,1130),'spin_2':(565,790,860,1130),'spin_3':(855,750,1220,1130)}
+rects={'idle':(10,95,310,500),'run_1':(360,110,750,490),'run_2':(745,110,1110,490),'run_3':(1110,110,1520,490),'aerial_1':(270,585,585,905),'aerial_2':(595,585,950,895),'aerial_3':(950,595,1280,900),'spin_1':(250,950,635,1270),'spin_2':(630,930,975,1250),'spin_3':(965,900,1295,1220)}
 im=Image.open(src).convert('RGBA');out=R/'public/assets/connie/frames';out.mkdir(exist_ok=True);ledger={}
 for name,rect in rects.items():
  f=im.crop(rect);w,h=f.size;p=f.load();seen=bytearray(w*h);q=deque()
