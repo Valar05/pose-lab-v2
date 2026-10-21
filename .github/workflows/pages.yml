@@ -1,4 +1,4 @@
-name: Deploy GitHub Pages
+﻿name: Deploy GitHub Pages
 
 on:
   push:
@@ -238,7 +238,7 @@ jobs:
       - name: Checkout Connie native motion campaign
         uses: actions/checkout@v4
         with:
-          ref: 1626e4d
+          ref: 1626e4df16285e31627f4d60a2630b3b9ca03ec9
           path: .connie-motion-campaign
           persist-credentials: false
       - name: Publish Connie native motion review
@@ -266,3 +266,4 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
