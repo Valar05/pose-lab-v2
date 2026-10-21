@@ -1,0 +1,66 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "connie-unified-atlas-v1",
+  "mission": "Deliver ONE true fixed-cell transparent RGBA sprite sheet containing Connie's exact ten authored idle/run/wall impact/dash poses together at sequence-consistent scales, with native atlas frame metadata; generated and tested by GitHub Actions from SHA-verified original V3 PNGs, visibly reviewed through existing Pose Lab GitHub Pages; never invent motion, redesign poses, or silently approve dash physical scale.",
+  "status": "quarantined-in-review",
+  "authority": {
+    "originalSourceCommit": "56f000831aecdde15fc3588effd93aa822ebdb79",
+    "originalSourceManifest": "campaigns/connie-source-measurements-v3.json",
+    "frameCount": 10,
+    "perSequenceRules": {
+      "idle": "original",
+      "run": "one V3 head-envelope factor across three",
+      "rebound": "one V3 head-envelope factor across three",
+      "dash": "keep original whole-group scale pending review"
+    },
+    "renderLane": "GitHub Actions",
+    "deliverySurface": "Existing Pose Lab GitHub Pages /review/connie/<sourceCommit>/index.html",
+    "originalArtworkImmutable": true
+  },
+  "machine": {
+    "mutablePaths": [
+      "tools/campaigns/connie_unified_atlas.py",
+      "tools/campaigns/connie_v3_cloud_preview.py",
+      "tools/test_connie_unified_atlas.py",
+      ".github/workflows/sprite-scale-normalization.yml",
+      "campaigns/connie-unified-atlas-v1.contract.json",
+      "campaigns/connie-unified-atlas-v1.receipt.json"
+    ],
+    "receiptPath": "campaigns/connie-unified-atlas-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/connie_unified_atlas.py",
+        "value": "CONNIE_SINGLE_SHEET_EXPORTED=10"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/connie_v3_cloud_preview.py",
+        "value": "connie-unified-sprite-sheet.png"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/test_connie_unified_atlas.py",
+        "value": "CONNIE_UNIFIED_ATLAS_CELLS_OK=10"
+      }
+    ]
+  },
+  "acceptance": {
+    "fullAtlasPNG": true,
+    "equalCellGeometry": true,
+    "frameMapping": true,
+    "allTenFrames": true,
+    "sourcePreserved": true,
+    "noTimingGuess": true,
+    "hostedVisualJudgment": "pending",
+    "runtimeGameImport": "not yet commissioned"
+  }
+}
