@@ -88,6 +88,7 @@
     "build:swarmling": "node scripts/run-blender-tool.mjs tools/import_swarmling/export_swarmling_glb.py --",
     "export:swarmling-idle": "node scripts/export-swarmling-idle.mjs",
     "audit:swarmling-actions": "node scripts/run-blender-tool.mjs tools/render_swarmling_action_audit_blender.py -- --blend authoring/swarmling/Swarmling.blend --out-dir generated/swarmling/action-audit",
+    "test:vanguard-attack1-registration": "python3 tools/test_vanguard_attack1_registration.py",
     "test:vanguard-muramasa-canary": "node tools/test_vanguard_muramasa_canary.mjs",
     "test:thirdskin-sprite": "node tools/test_thirdskin_sprite_runtime.mjs",
     "test:playback-preferences": "node tools/test_playback_preferences.mjs",
