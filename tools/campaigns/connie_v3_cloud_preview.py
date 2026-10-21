@@ -352,14 +352,14 @@ def produce(doc, src, groups, out, revision):
     page='''<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Connie scale review · Pose Lab V2</title>
 <style>body{font:16px system-ui,sans-serif;background:#131319;color:#f8f6fa;margin:auto;padding:1.4rem;max-width:1300px}img{display:block;width:100%;height:auto;object-fit:contain;background:#0b0b0c;margin:12px 0 22px;border:1px solid #555;border-radius:8px}h1,h2{color:#ffc5dc}section{padding:18px 0;border-top:1px solid #555}a{color:#9bd9ff}</style>
-<h1>Connie · all 10 poses in one sprite sheet</h1>
-<p>One real transparent sprite sheet with tightly packed irregular cells and an exact source frame map. Standing + run + wall impact + dash, with no frame-by-frame fit or invented timing.</p>
+<h1>Connie · RUN scale is 1.0× · oversized IDLE resized</h1>
+<p>The three run poses set the canonical character size. Idle is uniformly scaled DOWN; wall impact and dash are calibrated to the same physical body reference. All ten original poses share one sprite sheet, with no independent body-part edits or invented timing.</p>
 <p><a href="connie-unified-sprite-sheet.png" download>View / save complete transparent sprite sheet</a> · <a href="connie-unified-sprite-sheet.json">Atlas cells + scales (JSON)</a></p>
 <img alt="Connie compact ten-frame unified sprite atlas with standing, run, wall-impact, and dash poses in three tightly packed rows" src="connie-unified-sprite-sheet.png">
 <h2>Physical BODY scale compared to canonical RUN</h2>
 <p>The green segments measure shoulder-to-hip body-core spans at one optical pixel scale. Run is 1×. Idle shrinks to match run. Face measurements are shown independently as diagnostics, not silently forced to match.</p>
 <p><a href="connie-run-body-scale-audit.png">Open the run-reference body-scale comparison</a></p>
-<img alt="Connie body-core and face sizes at identical optical zoom, with run establishing size" src="connie-anatomical-head-audit.png">
+<img alt="Connie body-core and face sizes at identical optical zoom, with run establishing size" src="connie-run-body-scale-audit.png">
 <h2>Separate sequence comparisons (diagnostic only)</h2>
 <p>GitHub source revision: '''+html.escape(revision)+'''</p>
 <p>Run torso establishes physical scale; entire other animation sequences are uniformly resized. These static sheets preserve poses and do not invent animation timing.
