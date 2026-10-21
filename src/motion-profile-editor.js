@@ -263,15 +263,17 @@ function renderStage(){
   const src = frameValues[role]?.trim();
   stage.innerHTML = '';
   if(working.family==='connie-atlas'){
+    const isDash=working.id==='connie-transform'||working.id==='connie-dash-spin';
+    const isReturn=working.id==='connie-untransform';
     const sequence=working.id==='connie-run'
       ? ['run_1','run_2','run_3','run_2','run_1']
-      : (working.id==='connie-transform'||working.id==='connie-dash-spin')
-      ? ['spin_1','spin_2','spin_3','spin_3','spin_3','spin_2','spin_1']
-      : working.id==='connie-untransform'
-      ? ['spin_3','spin_2','spin_1']
-      : null;
+      : isDash ? ['spin_1','spin_2','spin_3','spin_3','spin_3','spin_2','spin_1']
+      : isReturn ? ['spin_3','spin_2','spin_1'] : null;
     const sequenceIndex=sequence?Math.min(sequence.length-1,Math.floor(playhead*sequence.length)):0;
-    const id=sequence?sequence[sequenceIndex]:(CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id);
+    // Stationary crouched aerial pose at BOTH endpoints of the complete dash.
+    const id=isDash
+      ? (playhead<.16||playhead>=.84?'spin_1':playhead<.35?'spin_2':playhead<.65?'spin_3':'spin_2')
+      : sequence?sequence[sequenceIndex]:(CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id);
     const rect=CONNIE_RECTS[id];
     if(rect){
       const c=document.createElement('canvas');c.width=600;c.height=600;c.style.width='100%';c.style.height='auto';c.style.aspectRatio='1 / 1';
@@ -280,12 +282,13 @@ function renderStage(){
         const [x0,y0,x1,y1]=rect,w=x1-x0,h=y1-y0;
         const time=playhead*2*Math.PI;
         const spinning=working.id==='connie-transform'||working.id==='connie-dash-spin'||working.id==='connie-untransform';
-        // One-way spin: angular speed rises into the dash and remains positive
-        // through the return. No reverse rotation or ease-out deceleration.
-        // Smooth continuous spin, slow on transformation and fast on pinwheel.
-        const t=playhead;
-        const integral=.4*t+2.6*(3*t/8-Math.sin(2*Math.PI*t)/(4*Math.PI)+Math.sin(4*Math.PI*t)/(32*Math.PI));
-        const angle=spinning?6*Math.PI*integral/(.4+2.6*3/8):0;
+        // The full crouched sprite never rotates. Rotation begins only after
+        // transformation, accelerates into pinwheel, and decelerates symmetrically.
+        // Exactly three positive turns ensure the transformed pose returns upright.
+        const phase=Math.max(0,Math.min(1,(playhead-.16)/.68));
+        const smooth=phase*phase*(3-2*phase);
+        const angle=isDash?6*Math.PI*smooth
+          : working.id==='connie-untransform'?2*Math.PI*playhead:0;
         cx.save();
         const runBounce=0;
         const rebound=working.id==='connie-aerial'?playhead:0;
@@ -344,26 +347,16 @@ function renderStage(){
           deformed.getContext('2d').putImageData(source,0,0);
           cx.drawImage(deformed,destX,destY);
         }else if(working.id==='connie-run'){
-          // Joint-driven gait: planted feet, no global bounce.
-          const original=connieMasked.getContext('2d').getImageData(x0,y0,w,h);
-          const out=cx.createImageData(w,h),src=original.data,dst=out.data;
-          const stride=Math.sin(4*Math.PI*playhead);
-          for(let y=0;y<h;y++){
-            const v=y/h;
-            const knee=Math.max(0,1-Math.abs(v-.72)/.18);
-            const ankle=Math.max(0,1-Math.abs(v-.84)/.13);
-            const shift=3*stride*knee-2*stride*ankle;
-            const sy=Math.max(0,Math.min(h-1,Math.round(y-2*knee*(1-Math.cos(4*Math.PI*playhead))*.5)));
-            for(let x=0;x<w;x++){
-              const sx=Math.max(0,Math.min(w-1,Math.round(x-shift)));
-              const si=(sy*w+sx)*4,di=(y*w+x)*4;
-              dst[di]=src[si];dst[di+1]=src[si+1];
-              dst[di+2]=src[si+2];dst[di+3]=src[si+3];
-            }
-          }
-          const warped=document.createElement('canvas');warped.width=w;warped.height=h;
-          warped.getContext('2d').putImageData(out,0,0);
-          cx.drawImage(warped,destX,destY);
+          // Port Vanguard's recipe-based signed shear, not pixel-space liquid
+          // displacement. No vertical bob, no root translation, no leg resampling.
+          const shearKeys=[.0375,-.0475,.0375,-.0475,.0375];
+          const u=Math.max(0,Math.min(4,playhead*5));
+          const k=Math.min(3,Math.floor(u));
+          const f=Math.max(0,Math.min(1,u-k));
+          const eased=f*f*(3-2*f);
+          const shear=shearKeys[k]+(shearKeys[k+1]-shearKeys[k])*eased;
+          cx.transform(1,0,shear,1,0,0);
+          cx.drawImage(connieMasked,x0,y0,w,h,destX,destY,w,h);
         }else{
           // Authoritative poses are copied unscaled and unwarped.
           // Avoid fractional scanline re-sampling and accidental silhouette squash.
