@@ -10,6 +10,10 @@ on:
       - package.json
       - tools/sprite_scale_normalization.py
       - tools/test_sprite_scale_normalization.py
+      - tools/test_connie_anatomical_calibration.py
+      - campaigns/connie-anatomical-calibration-v1.json
+      - campaigns/connie-anatomical-measurements-v1.json
+      - campaigns/connie-anatomical-calibration-v1.contract.json
   push:
     branches:
       - feature/deterministic-sprite-scale-normalization-20261020
@@ -20,6 +24,10 @@ on:
       - package.json
       - tools/sprite_scale_normalization.py
       - tools/test_sprite_scale_normalization.py
+      - tools/test_connie_anatomical_calibration.py
+      - campaigns/connie-anatomical-calibration-v1.json
+      - campaigns/connie-anatomical-measurements-v1.json
+      - campaigns/connie-anatomical-calibration-v1.contract.json
 
 permissions:
   contents: read
@@ -45,6 +53,11 @@ jobs:
           python3 tools/campaigns/campaign_core.py verify --contract campaigns/sprite-scale-normalization-v1.contract.json
       - name: Test anatomical scale, locks, transformations and determinism
         run: npm run test:sprite-scale
+      - name: Validate Connie annotated head/body measurements and irregular frame partitions
+        run: |
+          python3 tools/campaigns/campaign_core.py preflight --contract campaigns/connie-anatomical-calibration-v1.contract.json --skip-diff
+          python3 tools/campaigns/campaign_core.py verify --contract campaigns/connie-anatomical-calibration-v1.contract.json
+          npm run test:connie-measurements
       - name: Existing campaign and 2D review regression
         run: |
           npm run test:campaign-framework
