@@ -266,7 +266,7 @@ function renderStage(){
     const sequence=working.id==='connie-run'
       ? ['run_1','run_2','run_3','run_2','run_1']
       : (working.id==='connie-transform'||working.id==='connie-dash-spin')
-      ? ['spin_1','spin_2','spin_3','spin_3','spin_3','spin_2','spin_1','idle']
+      ? ['idle','spin_1','spin_2','spin_3','spin_3','spin_3','spin_2','spin_1','idle']
       : working.id==='connie-untransform'
       ? ['spin_3','spin_2','spin_1','idle']
       : null;
