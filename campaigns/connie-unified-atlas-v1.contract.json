@@ -1,22 +1,23 @@
 {
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "connie-unified-atlas-v1",
-  "mission": "Deliver ONE compact, production-extractable, irregular-cell transparent RGBA sprite sheet with Connie's exact ten authored original poses at uniform per-animation physical scales, as Github-run authored output to existing Pose Lab Pages, with no per-frame fit or clipping. Review the fully packed composition at phone size before any artistic acceptance.",
-  "status": "layout-repair-quarantined-awaiting-visual-review",
+  "mission": "Correct Connie's anatomical character scale across standing, run, airborne wall impact, and dash transformation using manually reviewed crown-to-chin coordinates on the exact SHA-locked original V3 PNGs; then rebuild the single combined, source-faithful, tightly packed ten-pose sprite sheet through GitHub Actions, with explicit whole-group transformations and quantitative anatomical-scale regression gates.",
+  "status": "reopened-anatomical-scale-repair-human-verdict-pending",
   "authority": {
     "originalSourceCommit": "56f000831aecdde15fc3588effd93aa822ebdb79",
     "originalSourceManifest": "campaigns/connie-source-measurements-v3.json",
     "frameCount": 10,
     "perSequenceRules": {
-      "idle": "original",
-      "run": "one V3 head-envelope factor across three",
-      "rebound": "one V3 head-envelope factor across three",
-      "dash": "keep original whole-group scale pending review"
+      "idle": "standing canonical crown-to-chin physical reference",
+      "run": "one factor derived from median calibrated crown-to-chin across three run frames",
+      "rebound": "one factor derived from reliable calibrated cranial landmarks across wall-impact poses",
+      "dash": "uniform transformation scale inherited from first body-visible dash pose; others deliberately preserve authored changing silhouette; all remain human pending"
     },
     "renderLane": "GitHub Actions",
     "deliverySurface": "Existing Pose Lab GitHub Pages /review/connie/<sourceCommit>/index.html",
     "originalArtworkImmutable": true,
-    "atlasLayout": "tightly row-packed irregular rectangles with precise metadata, no per-frame scaling"
+    "atlasLayout": "tightly row-packed irregular rectangles with precise metadata, no per-frame scaling",
+    "scaleCalibration": "campaigns/connie-anatomical-v3-calibration-v1.json"
   },
   "machine": {
     "mutablePaths": [
@@ -25,7 +26,9 @@
       "tools/test_connie_unified_atlas.py",
       ".github/workflows/sprite-scale-normalization.yml",
       "campaigns/connie-unified-atlas-v1.contract.json",
-      "campaigns/connie-unified-atlas-v1.receipt.json"
+      "campaigns/connie-unified-atlas-v1.receipt.json",
+      "campaigns/connie-anatomical-v3-calibration-v1.json",
+      "tools/test_connie_anatomical_v3_scale.py"
     ],
     "receiptPath": "campaigns/connie-unified-atlas-v1.receipt.json",
     "requiredRules": [
@@ -51,6 +54,12 @@
         "kind": "text-contains",
         "path": "tools/test_connie_unified_atlas.py",
         "value": "CONNIE_UNIFIED_ATLAS_CELLS_OK=10"
+      },
+      {
+        "kind": "json-equals",
+        "path": "campaigns/connie-anatomical-v3-calibration-v1.json",
+        "pointer": "/schema",
+        "value": "pose-lab-v3-anatomical-calibration-v1"
       }
     ]
   },
@@ -65,6 +74,9 @@
     "runtimeGameImport": "not yet commissioned",
     "irregularCellsMeasured": true,
     "noClipping": true,
-    "canvasAreaReductionAtLeast": 0.25
+    "canvasAreaReductionAtLeast": 0.25,
+    "anatomicalCrownChinMatchWithin": 0.08,
+    "approximateLandmarksRequireHumanVerification": true,
+    "notSatisfiedByPacking": true
   }
 }
