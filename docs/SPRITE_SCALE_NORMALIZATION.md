@@ -53,7 +53,9 @@ records contain:
 
 A sequence is an object containing id and frames in authored order. The
 anchorLabel must be consistent throughout each sequence, with per-frame exact
-anchor coordinates. Missing anatomy may name an earlier measured frame through
+anchor coordinates. If foreground touches any source-cell edge, analysis blocks
+until that frame declares a nonempty edgeContactReview reason confirming the
+canonical partition was inspected; silent seam clipping is forbidden. Missing anatomy may name an earlier measured frame through
 inheritMeasurementFrom; no anatomy is fabricated for that frame.
 
 Optional global policy: measurement.background = alpha or black;
