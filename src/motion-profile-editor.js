@@ -182,7 +182,28 @@ app.innerHTML = `
 const connieRequested=new URLSearchParams(location.search).get('character')==='connie';
 let active = connieRequested ? getMotionProfile('connie-idle',1) : getMotionProfile('jab', 1);
 let working = active;
-const connieAtlas=new Image();connieAtlas.src=CONNIE_ATLAS;
+const connieAtlas=new Image();
+const connieMasked=document.createElement('canvas');
+let connieReady=false;
+connieAtlas.onload=()=>{
+ connieMasked.width=connieAtlas.naturalWidth;connieMasked.height=connieAtlas.naturalHeight;
+ const c=connieMasked.getContext('2d',{willReadFrequently:true});
+ c.drawImage(connieAtlas,0,0);
+ const data=c.getImageData(0,0,connieMasked.width,connieMasked.height);
+ const d=data.data,w=connieMasked.width,h=connieMasked.height;
+ // Flood only black pixels connected to the image border, preserving dark interior details.
+ const visited=new Uint8Array(w*h),queue=new Int32Array(w*h);
+ let head=0,tail=0;
+ const offer=(i)=>{if(visited[i])return;visited[i]=1;const k=i*4;if(d[k]<20&&d[k+1]<20&&d[k+2]<20)queue[tail++]=i;};
+ for(let x=0;x<w;x++){offer(x);offer((h-1)*w+x);}
+ for(let y=0;y<h;y++){offer(y*w);offer(y*w+w-1);}
+ while(head<tail){const i=queue[head++],k=i*4;d[k+3]=0;
+ const x=i%w;if(x>0)offer(i-1);if(x<w-1)offer(i+1);
+ if(i>=w)offer(i-w);if(i<(h-1)*w)offer(i+w);
+ }
+ c.putImageData(data,0,0);connieReady=true;renderStage();
+};
+connieAtlas.src=CONNIE_ATLAS;
 let selectedKeyId = working.keys[0]?.id;
 let playhead = 0;
 let playing = false;
@@ -246,7 +267,7 @@ function renderStage(){
     if(rect){
       const c=document.createElement('canvas');c.width=500;c.height=440;c.style.maxWidth='100%';c.style.maxHeight='100%';
       const cx=c.getContext('2d');
-      if(connieAtlas.complete&&connieAtlas.naturalWidth){
+      if(connieReady){
         const [x0,y0,x1,y1]=rect,w=x1-x0,h=y1-y0;
         const time=playhead*2*Math.PI;
         const angle=working.id==='connie-transform'&&playhead>.305 ? 2*Math.PI*((playhead-.305)/.695)**2 :
@@ -258,11 +279,21 @@ function renderStage(){
           for(let y=0;y<h;y+=2){
             const band=Math.min(2,h-y),v=y/h;
             const displacement=Math.sin(time+v*4)*Math.sin(Math.PI*v)*4;
-            cx.drawImage(connieAtlas,x0,y0+y,w,band,destX+displacement,destY+y,w,band);
+            cx.drawImage(connieMasked,x0,y0+y,w,band,destX+displacement,destY+y,w,band);
           }
-        }else cx.drawImage(connieAtlas,x0,y0,w,h,destX,destY,w,h);
+        }else if(working.id==='connie-run'||working.id==='connie-aerial'){
+          const phase=(playhead*3)%1;
+          const pop=working.id==='connie-run'?Math.sin(Math.PI*phase)*3:Math.sin(Math.PI*phase)*5;
+          const lean=working.id==='connie-run'?Math.sin(2*Math.PI*playhead)*.025:Math.sin(2*Math.PI*playhead)*.045;
+          cx.rotate(lean);
+          for(let y=0;y<h;y+=2){
+            const band=Math.min(2,h-y),v=y/h;
+            const warp=Math.sin(Math.PI*v)*pop*Math.sin(Math.PI*phase+v*2);
+            cx.drawImage(connieMasked,x0,y0+y,w,band,destX+warp,destY+y,w,band);
+          }
+        }else cx.drawImage(connieMasked,x0,y0,w,h,destX,destY,w,h);
         cx.restore();
-      }else connieAtlas.onload=()=>renderStage();
+      }
       stage.append(c);
       qa('.frame-card').forEach(el=>el.classList.toggle('active',el.dataset.role===role));
       return;
