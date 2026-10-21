@@ -213,9 +213,51 @@ def mini_card(art, label, factor=1.0):
     return canvas
 
 
+def make_anatomical_audit(doc, sources, groups, out):
+    """Diagnostic only: exact same optical zoom for post-scale head landmarks."""
+    calibration=json.loads((ROOT/"campaigns/connie-anatomical-v3-calibration-v1.json").read_text())
+    names=["idle","run_1","run_2","run_3","rebound_1","rebound_2","rebound_3","dash_1","dash_2","dash_3"]
+    width,height=340,355
+    result=Image.new("RGB",(width*5,height*2),(20,20,26))
+    pen=ImageDraw.Draw(result)
+    for idx,fid in enumerate(names):
+        r=calibration["frames"][fid]
+        factor=groups[r["source"]]["singleSequenceFactor"]
+        offset_x,offset_y=(idx%5)*width,(idx//5)*height
+        pts=[r["crownSourcePx"],r["chinSourcePx"]]
+        if any(pt is None for pt in pts):
+            pen.text((offset_x+12,offset_y+145),"dash_3: no visible head",fill=(255,175,205))
+            pen.text((offset_x+12,offset_y+166),"whole dash scale inherited",fill=(255,255,255))
+            continue
+        art,_=frame_art(doc,sources,fid)
+        scaled=art.resize((max(1,round(art.width*factor)),max(1,round(art.height*factor))),Image.Resampling.LANCZOS) if factor!=1 else art
+        sx,sy,sw,sh=doc["frames"][fid]["regionPx"]
+        rgba=alpha_artwork(sources[r["source"]].crop((sx,sy,sx+sw,sy+sh)),"black")
+        lx,ly,_,_=rgba.getchannel("A").getbbox()
+        a=((pts[0][0]-sx-lx)*factor,(pts[0][1]-sy-ly)*factor)
+        b=((pts[1][0]-sx-lx)*factor,(pts[1][1]-sy-ly)*factor)
+        center_x,center_y=(a[0]+b[0])/2,(a[1]+b[1])/2
+        crop_x,crop_y=round(center_x-155),round(center_y-155)
+        portrait=scaled.crop((crop_x,crop_y,crop_x+310,crop_y+310))
+        bg=Image.new("RGBA",(310,310),(20,20,26,255))
+        bg.alpha_composite(portrait)
+        result.paste(bg.convert("RGB"),(offset_x+15,offset_y+25))
+        aa=(offset_x+15+round(a[0]-crop_x),offset_y+25+round(a[1]-crop_y))
+        bb=(offset_x+15+round(b[0]-crop_x),offset_y+25+round(b[1]-crop_y))
+        pen.line([aa,bb],fill=(64,245,103),width=3)
+        for mx,my in (aa,bb):
+            pen.ellipse((mx-4,my-4,mx+4,my+4),fill=(255,235,74),outline=(15,15,15),width=1)
+        pen.text((offset_x+10,offset_y+339),
+                 "%s: %.1f px | conf %.2f"%(fid,math.dist(*pts)*factor,r["confidence"]),
+                 fill=(255,230,244))
+    result.save(out/"connie-anatomical-head-audit.png")
+    print("CONNIE_ANATOMICAL_HEAD_AUDIT_CREATED=9")
+
+
 def produce(doc, src, groups, out, revision):
     out.mkdir(parents=True, exist_ok=False)
     unified=build_atlas(doc,src,groups,out,revision,frame_art)
+    make_anatomical_audit(doc,src,groups,out)
     entries = []
     for role in ORDER:
         group = groups[role]
@@ -281,6 +323,10 @@ def produce(doc, src, groups, out, revision):
 <p>One real transparent sprite sheet with tightly packed irregular cells and an exact source frame map. Standing + run + wall impact + dash, with no frame-by-frame fit or invented timing.</p>
 <p><a href="connie-unified-sprite-sheet.png" download>View / save complete transparent sprite sheet</a> · <a href="connie-unified-sprite-sheet.json">Atlas cells + scales (JSON)</a></p>
 <img alt="Connie compact ten-frame unified sprite atlas with standing, run, wall-impact, and dash poses in three tightly packed rows" src="connie-unified-sprite-sheet.png">
+<h2>Physical head-size calibration, not hair bounding boxes</h2>
+<p>The green segments mark visible crown-to-chin landmarks after the single whole-animation scale. Nine visible faces use the same display zoom; the final headless pinwheel is explicitly marked as inherited from the dash sequence.</p>
+<p><a href="connie-anatomical-head-audit.png">Open the anatomical head-size comparison</a></p>
+<img alt="Connie measured anatomical head sizes with consistent display zoom across poses" src="connie-anatomical-head-audit.png">
 <h2>Separate sequence comparisons (diagnostic only)</h2>
 <p>GitHub source revision: '''+html.escape(revision)+'''</p>
 <p>Calibrated facial anatomy determines whole-sequence scale. These static sheets preserve poses and do not invent animation timing.
