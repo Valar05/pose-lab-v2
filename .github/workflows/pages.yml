@@ -43,6 +43,57 @@ jobs:
             ((deleted += 1))
           done <<< "$ids"
           echo "Purged ${deleted} stale Pose Lab artifacts."
+      # Publish Connie's unapproved candidate as a SHA-locked *review only*.
+      # This GitHub Pages deployment runs on main's existing authorized lane,
+      # but does not merge or promote the feature branch into the live app.
+      - name: Checkout Connie exact source and rendering implementation
+        uses: actions/checkout@v4
+        with:
+          ref: 56f000831aecdde15fc3588effd93aa822ebdb79
+          path: .connie-source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Generate separate quarantined Connie comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check pillow==11.3.0
+          target="dist/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79"
+          python3 .connie-source/tools/campaigns/connie_v3_cloud_preview.py \
+            --revision "56f000831aecdde15fc3588effd93aa822ebdb79" \
+            --output "$target"
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          from PIL import Image
+          sha="56f000831aecdde15fc3588effd93aa822ebdb79"
+          candidate=Path(".connie-source")
+          target=Path("dist/review/connie")/sha
+          report=json.loads((target/"report.json").read_text())
+          assert report["sourceRevision"]==sha
+          assert report["status"]=="quarantined-awaiting-human-review"
+          assert report["pinwheelBlocked"] and not report["gameReady"]
+          assert len(report["groups"])==4
+          sources=json.loads((candidate/"campaigns/connie-source-measurements-v3.json").read_text())["sources"]
+          for role,info in sources.items():
+              src=candidate/info["repoPath"]
+              assert src.is_file() and hashlib.sha256(src.read_bytes()).hexdigest()==info["sha256"]
+              assert report["originalSHA256"][role]==info["sha256"]
+          for group in report["groups"]:
+              path=target/group["originalContactSheet"]
+              assert path.exists()
+              with Image.open(path) as im: im.verify()
+              if group["status"].startswith("BLOCKED"):
+                  assert "candidateContactSheet" not in group
+              else:
+                  path=target/group["candidateContactSheet"]
+                  assert path.exists()
+                  with Image.open(path) as im: im.verify()
+          assert (target/"index.html").is_file()
+          print("PAGES_CONNIE_QUARANTINED_SHA_REVIEW_OK", sha)
+          PY
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
