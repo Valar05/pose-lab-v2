@@ -273,7 +273,7 @@ function renderStage(){
     const id=sequence?sequence[sequenceIndex]:(CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id);
     const rect=CONNIE_RECTS[id];
     if(rect){
-      const c=document.createElement('canvas');c.width=500;c.height=440;c.style.maxWidth='100%';c.style.maxHeight='100%';
+      const c=document.createElement('canvas');c.width=600;c.height=600;c.style.maxWidth='100%';c.style.maxHeight='100%';
       const cx=c.getContext('2d');
       if(connieReady){
         const [x0,y0,x1,y1]=rect,w=x1-x0,h=y1-y0;
@@ -286,7 +286,7 @@ function renderStage(){
           : 1.5+3.5*((playhead-.3)/.7);
         const angle=spinning?2*Math.PI*spinProgress:0;
         cx.save();
-        cx.translate(250,spinning?220:410);
+        cx.translate(300,spinning?300:550);
         cx.rotate(angle);
         const destX=-w/2,destY=spinning?-h/2:-h;
         if(working.id==='connie-idle'){
