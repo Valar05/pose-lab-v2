@@ -22,6 +22,8 @@ on:
       - tools/test_connie_v3_cloud_preview.py
       - tools/campaigns/connie_unified_atlas.py
       - tools/test_connie_unified_atlas.py
+      - tools/test_connie_anatomical_v3_scale.py
+      - campaigns/connie-anatomical-v3-calibration-v1.json
       - campaigns/connie-unified-atlas-v1.contract.json
       - public/assets/connie/source/**
   push:
@@ -46,6 +48,8 @@ on:
       - tools/test_connie_v3_cloud_preview.py
       - tools/campaigns/connie_unified_atlas.py
       - tools/test_connie_unified_atlas.py
+      - tools/test_connie_anatomical_v3_scale.py
+      - campaigns/connie-anatomical-v3-calibration-v1.json
       - campaigns/connie-unified-atlas-v1.contract.json
       - public/assets/connie/source/**
 
@@ -87,6 +91,7 @@ jobs:
           python3 tools/campaigns/connie_phone_source_ingress.py check-manifest
           python3 -m py_compile tools/campaigns/connie_v3_cloud_preview.py
           python3 tools/campaigns/connie_v3_cloud_preview.py --verify-manifest-only
+          python3 tools/test_connie_anatomical_v3_scale.py
           python3 tools/test_connie_v3_cloud_preview.py
       - name: Test combined Connie sprite atlas and campaign contract
         run: |
@@ -141,6 +146,7 @@ jobs:
             --revision "$GITHUB_SHA" \
             --output generated/connie-review
           python3 tools/test_connie_unified_atlas.py --real
+          python3 tools/test_connie_anatomical_v3_scale.py
       - name: Verify generated HTML and PNGs in GitHub runner
         if: steps.sources.outputs.ready == 'true'
         run: |
@@ -164,6 +170,10 @@ jobs:
                   with Image.open(normalized) as im: im.verify()
           atlas=json.loads((root/"connie-unified-sprite-sheet.json").read_text())
           assert atlas["frameCount"]==10
+          assert report["groups"][1]["anatomicalTargetPx"]>100
+          assert report["groups"][1]["singleSequenceFactor"]<1.4
+          assert report["groups"][2]["singleSequenceFactor"]<1.1
+          assert report["groups"][3]["singleSequenceFactor"]!=1.0
           with Image.open(root/"connie-unified-sprite-sheet.png") as im:
               assert im.mode=="RGBA"
               assert list(im.size)==atlas["canvasPx"]
