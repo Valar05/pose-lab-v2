@@ -30,7 +30,8 @@ def assert_atlas(out, doc, groups, sources):
     ids = [fid for row in LAYOUT for fid in row]
     assert meta["frameOrder"] == ids
     assert set(ids) == set(doc["frameOrder"])
-    assert meta["uniformSequenceFactors"]["dash"] == 1.0
+    assert meta["uniformSequenceFactors"]["dash"] == groups["dash"]["singleSequenceFactor"]
+    assert 0 < meta["uniformSequenceFactors"]["dash"] and meta["uniformSequenceFactors"]["dash"] != 1.0
     assert meta["uniformSequenceFactors"]["run"] == groups["run"]["singleSequenceFactor"]
     assert meta["uniformSequenceFactors"]["rebound"] == groups["rebound"]["singleSequenceFactor"]
     assert meta["layout"]["kind"] == "irregular-row-packed"
