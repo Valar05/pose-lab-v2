@@ -1,15 +1,15 @@
 {
   "schema": "pose-lab-v2-campaign-receipt-v2",
   "campaign": "connie-unified-atlas-v1",
-  "status": "implemented-awaiting-human-review",
+  "status": "compact-unified-sprite-sheet-published-awaiting-human-review",
   "startRevision": "56f000831aecdde15fc3588effd93aa822ebdb79",
-  "implementationRevision": "81253e0f6bc1ab03bff59ea7b94698a03a80970a",
+  "implementationRevision": "1f8b45bc8f2fd4def16a338bbb7fba7fe9e40359",
   "finalRevision": null,
   "executionLane": "GitHub source and CI only, existing main-branch GitHub Pages deploy",
   "humanVerdict": "pending",
-  "reviewUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/index.html",
-  "imageUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/connie-unified-sprite-sheet.png",
-  "metadataUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/connie-unified-sprite-sheet.json",
+  "reviewUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/compact-v2/index.html",
+  "imageUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/compact-v2/connie-unified-sprite-sheet.png",
+  "metadataUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/compact-v2/connie-unified-sprite-sheet.json",
   "sourceAuthority": {
     "originalSourceCommit": "56f000831aecdde15fc3588effd93aa822ebdb79",
     "sourceFilesVerified": 4,
@@ -19,15 +19,12 @@
     "file": "connie-unified-sprite-sheet.png",
     "format": "PNG RGBA",
     "dimensionsPx": [
-      4608,
-      4800
+      3712,
+      2952
     ],
-    "sha256": "d1ad1ed10dde47c8f929360f5a3f0c943b714a5d5e34d86e1d0e3a6e09ef96ca",
+    "sha256": "c99cfbd7a1675a72197f708d1611ded926242c9db20a88a66d13772205afcb10",
     "frameCount": 10,
-    "grid": [
-      4,
-      3
-    ],
+    "grid": null,
     "emptyCells": 2,
     "factors": {
       "idle": 1,
@@ -37,28 +34,40 @@
     },
     "dashScale": "review needed; original scale preserved",
     "durationMs": null,
-    "groundPivot": "review head midpoint only, not accepted physical anchor"
+    "groundPivot": "review head midpoint only, not accepted physical anchor",
+    "layout": "3 compact irregular rows with explicit source-mapped cell rectangles",
+    "areaReductionVsPrevious": 0.5046,
+    "framesPerRow": [
+      4,
+      3,
+      3
+    ]
   },
   "verification": {
     "feature": {
-      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39530797369",
+      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39535222861",
       "conclusion": "success",
-      "tests": "real original ten-pose atlas exported; source pixels hash-verified; two repeat outputs identical; all 10 cells filled, two intentional blank slots; metadata and alpha checked"
+      "tests": "Real original 10 frames and pixel-for-pixel transformed source equivalence, irregular source-cell rectangles, no clipping, determinism, 50.46% smaller, old source preserved"
     },
     "pages": {
-      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39531040946",
+      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39535675377",
       "conclusion": "success",
-      "mainRevision": "7f5a1adc56eb7c9882dd208ad33799db3c662c5f",
-      "observed": "GitHub runner SHA-checked original PNGs and 4608x4800 RGBA atlas; Pages deployment reported success"
+      "mainRevision": "6d0ab1f59b731970e9e31a159c24d432dc2d2e14",
+      "observed": "GitHub runner verified 3712x2952 atlas, original sources and old review preservation, Pages deploy completed successfully"
     },
-    "httpBrowserDirect": "unverified via web reader; Github deployment and content artifact positive"
+    "httpBrowserDirect": "unverified via web reader; Github deployment and content artifact positive",
+    "visualInspection": {
+      "status": "inspected-generated-Github-artifact",
+      "notes": "Inspected GitHub Actions artifact PNG visually as a complete 3-row atlas: idle/run across top, three wall impacts, three dash pinwheel frames below. Source body shapes and paper fragments visible; no apparent cross-cell overlaps. Not human approval of physical scale."
+    }
   },
   "originalsUnchanged": true,
   "requireUserJudgment": true,
   "outstanding": [
-    "Drew must inspect the combined atlas on the hosted page, not only sheet coordinates.",
-    "Pinwheel intentional scale remains at 1.0 pending approval.",
-    "Authored frame timings absent; no guessed animation cadence or accepted game runtime import.",
-    "Verify appearance and dark interior alpha on checkerboard during human review."
-  ]
+    "Drew to visually inspect actual compact-v2 Pages PNG and approve or reject.",
+    "Dash/pinwheel remains at original 1.0x pending explicit physical-proportion approval.",
+    "Animation timing unavailable; no invented timing or gameplay integration.",
+    "Hosted deployment and artefact were verified via GitHub; human still controls visual approval."
+  ],
+  "priorReviewUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/index.html"
 }
