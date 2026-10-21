@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """GitHub-owned Connie V3 source review with sequence-uniform candidate scaling.
 
-Uses the original V3 measured head envelopes. Renders *quarantined static*
+Uses manually calibrated physical face landmarks, not V3 silhouette bounds. Renders *quarantined static*
 comparisons only, not animation with invented timing or an accepted atlas.
 Intended to run on GitHub Actions AFTER four exact PNGs arrive via native Git.
 """
@@ -65,37 +65,99 @@ def verify_sources(doc):
     return source
 
 
-def head_height(frame):
-    return frame.get("head", {}).get("heightPx")
-
-
 def scale_analysis(doc):
-    ref = doc["frames"]["idle"]
-    h = head_height(ref)
-    if not h or h <= 0:
-        stop("no standing head measurement")
+    """Use explicit crown-to-chin anatomy, never a rose/hair bounding rectangle."""
+    import statistics
+    calib_path = ROOT / "campaigns/connie-anatomical-v3-calibration-v1.json"
+    calib = json.loads(calib_path.read_text(encoding="utf-8"))
+    if calib.get("schema") != "pose-lab-v3-anatomical-calibration-v1":
+        stop("calibration schema mismatch")
+    if calib["authority"]["originalGitRevision"] != "56f000831aecdde15fc3588effd93aa822ebdb79":
+        stop("Connie anatomy calibrated against unexpected source revision")
+    if calib["canonical"] != "idle":
+        stop("standing reference must remain canonical")
+    if set(calib["frames"]) != set(doc["frameOrder"]):
+        stop("anatomical annotation must cover exactly ten source-authoritative frames")
+    if set(calib["groups"]) != set(ORDER):
+        stop("one and only one calibrated group per original animation")
+    for role in ORDER:
+        if calib["authority"]["sourceSHA256"][role] != doc["sources"][role]["sha256"]:
+            stop("anatomy was calibrated on different source PNGs: " + role)
+    def length(fid):
+        record = calib["frames"][fid]
+        source = doc["frames"][fid]
+        if record["source"] != source["source"]:
+            stop("anatomical point source mismatch: " + fid)
+        points = (record.get("crownSourcePx"), record.get("chinSourcePx"))
+        if any(p is None for p in points):
+            return None
+        x, y, w, h = source["regionPx"]
+        for point in points:
+            if (not isinstance(point, list) or len(point) != 2 or
+                not (x <= point[0] < x + w and y <= point[1] < y + h)):
+                stop("anatomical point falls outside exact source cell: " + fid)
+        dist = math.dist(*points)
+        if dist < 10 or not math.isfinite(dist):
+            stop("degenerate anatomical measurement: " + fid)
+        return dist
+    ref = length("idle")
+    if ref is None or calib["frames"]["idle"]["confidence"] < calib["policy"]["confidenceFloor"]:
+        stop("canonical standing anatomy unreliable")
     groups = {}
     for role in ORDER:
+        family = calib["groups"][role]
         ids = [fid for fid in doc["frameOrder"] if doc["frames"][fid]["source"] == role]
-        measured = [head_height(doc["frames"][i]) for i in ids if head_height(doc["frames"][i])]
-        ordered = sorted(measured)
-        median = ((ordered[len(ordered)//2] if len(ordered) % 2 else
-                   (ordered[len(ordered)//2-1] + ordered[len(ordered)//2]) / 2)
-                  if ordered else None)
-        factor = h / median if median else None
-        spread = max((abs(v / median - 1) for v in measured), default=0) if median else None
-        blocked = role == "dash" or median is None or spread > .08
+        if ids != family["frames"]:
+            stop("authored animation frame order diverges from calibration: " + role)
+        reliable = family["measurementFrames"]
+        if not reliable:
+            stop("sequence lacks an explicit anatomical scale anchor: " + role)
+        if any(fid not in ids for fid in reliable):
+            stop("calibration measure subset outside sequence: " + role)
+        values = []
+        measured = {}
+        for fid in ids:
+            v = length(fid)
+            conf = calib["frames"][fid]["confidence"]
+            measured[fid] = {"crownChinPx": round(v, 4) if v else None,
+                             "confidence": conf,
+                             "contributesToScale": fid in reliable,
+                             "notes": calib["frames"][fid]["note"]}
+            if fid in reliable:
+                if v is None or conf < calib["policy"]["confidenceFloor"]:
+                    stop("chosen anatomical scale landmark unreliable: " + fid)
+                values.append(v)
+        median = statistics.median(values)
+        factor = ref / median
+        residuals = {fid: abs(v * factor / ref - 1)
+                     for fid in reliable
+                     for v in [length(fid)]}
+        max_error = max(residuals.values())
+        if max_error > calib["policy"]["maximumRelativeAnatomicalResidual"]:
+            stop("anatomical sequence variance is too high: " + role)
+        if role == "dash" and family["transformKind"] != "uniform-deliberate-transformation":
+            stop("headless dash relationship must be recorded explicitly")
         groups[role] = {
             "id": role, "label": LABELS[role], "frames": ids,
-            "observedHeadEnvelopePx": measured,
-            "medianHeadEnvelopePx": median,
-            "singleSequenceFactor": round(factor, 8) if factor else None,
-            "maximumHeadEnvelopeDeviation": round(spread, 5) if spread is not None else None,
-            "status": "BLOCKED manual artistic review" if blocked else "QUARANTINED uniform preview",
-            "reasons": (["Deliberate shape transformation and headless frame",
-                         "Headless pinwheel cannot be assigned reliable anatomical scale"]
-                        if blocked and role == "dash" else []),
+            "anatomicalTargetPx": round(ref, 4),
+            "medianReliableCrownChinPx": round(median, 4),
+            "singleSequenceFactor": round(factor, 8),
+            "anatomicalMeasurement": measured,
+            "maximumAnatomicalResidual": round(max_error, 6),
+            "observedHeadEnvelopePx": [doc["frames"][fid].get("head", {}).get("heightPx") for fid in ids],
+            "oldBoundingBoxProxyFactor": round(
+                doc["frames"]["idle"]["head"]["heightPx"] /
+                statistics.median([doc["frames"][fid]["head"]["heightPx"]
+                                   for fid in ids if doc["frames"][fid].get("head")]), 8),
+            "status": ("QUARANTINED transformation-scale candidate; human approval required"
+                       if role == "dash" else "QUARANTINED anatomical-scale candidate"),
+            "artisticReviewRequired": role == "dash",
+            "scaleAuthority": "manually calibrated crown/chin from source-faithful original V3 PNGs",
+            "reasons": [family.get("exception", "")] if family.get("exception") else [],
         }
+    print("CONNIE_ANATOMICAL_CANONICAL_PX=%.4f" % ref)
+    print("CONNIE_ANATOMICAL_SEQUENCE_FACTORS=" + json.dumps(
+        {k: v["singleSequenceFactor"] for k, v in groups.items()}))
     return groups
 
 
@@ -189,8 +251,8 @@ def produce(doc, src, groups, out, revision):
       "schema":"pose-lab-connie-v3-cloud-preview-v1",
       "status":"quarantined-awaiting-human-review",
       "sourceRevision":revision,
-      "canonicalHeadEnvelopePx":270,
-      "measurementKind":"V3 manually recorded head bounding envelope; NOT anatomical crown-to-chin ground truth",
+      "canonicalCrownChinPx":groups["idle"]["anatomicalTargetPx"],
+      "measurementKind":"V3 original-source calibrated crown-to-chin facial plane distance; hair/roses excluded",
       "originalSHA256":{k:doc["sources"][k]["sha256"] for k in ORDER},
       "groups":entries,
       "noInventedTiming":True,
@@ -221,8 +283,8 @@ def produce(doc, src, groups, out, revision):
 <img alt="Connie compact ten-frame unified sprite atlas with standing, run, wall-impact, and dash poses in three tightly packed rows" src="connie-unified-sprite-sheet.png">
 <h2>Separate sequence comparisons (diagnostic only)</h2>
 <p>GitHub source revision: '''+html.escape(revision)+'''</p>
-<p>Head-envelope measurements are a proxy. These static sheets preserve poses and do not invent animation timing.
-Dash / pinwheel is blocked. No original source art was changed or promoted.</p>
+<p>Calibrated facial anatomy determines whole-sequence scale. These static sheets preserve poses and do not invent animation timing.
+Dash/pinwheel uses one recorded whole-sequence anatomical factor from its visible first frame. Its human approval remains pending. No original source art was changed or promoted.</p>
 '''+ "\n".join(cards)+'''<p><a href="report.json">Measurement report (JSON)</a></p></html>'''
     (out/"index.html").write_text(page)
     print("CONNIE_V3_GITHUB_PREVIEW_OK=10")
