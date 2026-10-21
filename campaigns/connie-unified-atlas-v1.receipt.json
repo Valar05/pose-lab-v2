@@ -1,0 +1,64 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "connie-unified-atlas-v1",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "56f000831aecdde15fc3588effd93aa822ebdb79",
+  "implementationRevision": "81253e0f6bc1ab03bff59ea7b94698a03a80970a",
+  "finalRevision": null,
+  "executionLane": "GitHub source and CI only, existing main-branch GitHub Pages deploy",
+  "humanVerdict": "pending",
+  "reviewUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/index.html",
+  "imageUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/connie-unified-sprite-sheet.png",
+  "metadataUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/connie-unified-sprite-sheet.json",
+  "sourceAuthority": {
+    "originalSourceCommit": "56f000831aecdde15fc3588effd93aa822ebdb79",
+    "sourceFilesVerified": 4,
+    "originalFileModified": false
+  },
+  "generated": {
+    "file": "connie-unified-sprite-sheet.png",
+    "format": "PNG RGBA",
+    "dimensionsPx": [
+      4608,
+      4800
+    ],
+    "sha256": "d1ad1ed10dde47c8f929360f5a3f0c943b714a5d5e34d86e1d0e3a6e09ef96ca",
+    "frameCount": 10,
+    "grid": [
+      4,
+      3
+    ],
+    "emptyCells": 2,
+    "factors": {
+      "idle": 1,
+      "run": 1.56976744,
+      "rebound": 1.15384615,
+      "dash": 1
+    },
+    "dashScale": "review needed; original scale preserved",
+    "durationMs": null,
+    "groundPivot": "review head midpoint only, not accepted physical anchor"
+  },
+  "verification": {
+    "feature": {
+      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39530797369",
+      "conclusion": "success",
+      "tests": "real original ten-pose atlas exported; source pixels hash-verified; two repeat outputs identical; all 10 cells filled, two intentional blank slots; metadata and alpha checked"
+    },
+    "pages": {
+      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39531040946",
+      "conclusion": "success",
+      "mainRevision": "7f5a1adc56eb7c9882dd208ad33799db3c662c5f",
+      "observed": "GitHub runner SHA-checked original PNGs and 4608x4800 RGBA atlas; Pages deployment reported success"
+    },
+    "httpBrowserDirect": "unverified via web reader; Github deployment and content artifact positive"
+  },
+  "originalsUnchanged": true,
+  "requireUserJudgment": true,
+  "outstanding": [
+    "Drew must inspect the combined atlas on the hosted page, not only sheet coordinates.",
+    "Pinwheel intentional scale remains at 1.0 pending approval.",
+    "Authored frame timings absent; no guessed animation cadence or accepted game runtime import.",
+    "Verify appearance and dark interior alpha on checkerboard during human review."
+  ]
+}
