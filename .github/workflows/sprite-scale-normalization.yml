@@ -19,6 +19,7 @@ on:
       - tools/campaigns/connie_phone_ingress.sh
       - tools/campaigns/connie_ingest.py
       - tools/campaigns/connie_v3_cloud_preview.py
+      - tools/test_connie_v3_cloud_preview.py
       - public/assets/connie/source/**
   push:
     branches:
@@ -39,6 +40,7 @@ on:
       - tools/campaigns/connie_phone_ingress.sh
       - tools/campaigns/connie_ingest.py
       - tools/campaigns/connie_v3_cloud_preview.py
+      - tools/test_connie_v3_cloud_preview.py
       - public/assets/connie/source/**
 
 permissions:
@@ -79,6 +81,7 @@ jobs:
           python3 tools/campaigns/connie_phone_source_ingress.py check-manifest
           python3 -m py_compile tools/campaigns/connie_v3_cloud_preview.py
           python3 tools/campaigns/connie_v3_cloud_preview.py --verify-manifest-only
+          python3 tools/test_connie_v3_cloud_preview.py
       - name: Existing campaign and 2D review regression
         run: |
           npm run test:campaign-framework
