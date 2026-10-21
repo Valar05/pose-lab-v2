@@ -1,107 +1,152 @@
 #!/usr/bin/env python3
-"""One-sheet export, reusing Connie's approved V3 source partitions.
+"""Dense single-sheet atlas for Connie's original, SHA-locked ten poses.
 
-Full transparent RGBA atlas of ALL TEN authored poses in fixed-size cells.
-Head-envelope-based sequence factors apply identically to every frame of
-one regular animation. Dash/pinwheel retains its original authored scale
-until the artist approves the transformation-to-body relationship.
+Irregular cells have exact map coordinates; all authored art is transformed by
+one uniform factor per animation. The layout changes only cell placement, not
+pose pixels, shape, intended sequence scale, or movement timing.
 """
 from __future__ import annotations
+
 import hashlib
 import json
 import math
-from pathlib import Path
+
 from PIL import Image
 
-LAYOUT=(
+LAYOUT = (
     ("idle", "run_1", "run_2", "run_3"),
-    ("rebound_1", "rebound_2", "rebound_3", None),
-    ("dash_1", "dash_2", "dash_3", None),
+    ("rebound_1", "rebound_2", "rebound_3"),
+    ("dash_1", "dash_2", "dash_3"),
 )
+PADDING = 18
 
-def fail(msg):
-    raise ValueError("CONNIE_SINGLE_SHEET_STOP: "+msg)
+
+def fail(message):
+    raise ValueError("CONNIE_SINGLE_SHEET_STOP: " + message)
+
 
 def build_atlas(doc, sources, groups, out, revision, frame_art):
-    order=[fid for line in LAYOUT for fid in line if fid]
-    if len(order)!=10 or len(set(order))!=10 or set(order)!=set(doc["frameOrder"]):
-        fail("one atlas must preserve all 10 exact authored frames")
-    scales={"idle":1.0,"run":groups["run"]["singleSequenceFactor"],
-            "rebound":groups["rebound"]["singleSequenceFactor"],"dash":1.0}
-    if any(not isinstance(f,(float,int)) or not math.isfinite(f) or f<=0 for f in scales.values()):
-        fail("undefined or invalid family scale")
-    prepared={}
-    for fid in order:
-        record=doc["frames"][fid]
-        art, anchor=frame_art(doc,sources,fid)
-        scale=scales[record["source"]]
-        scaled_w=max(1,round(art.width*scale))
-        scaled_h=max(1,round(art.height*scale))
-        scaled_anchor=(round(anchor[0]*scale),round(anchor[1]*scale))
-        prepared[fid]={"art":art,"anchor":anchor,"scaledAnchor":scaled_anchor,
-                       "width":scaled_w,"height":scaled_h,
-                       "scale":scale,"role":record["source"],
-                       "pivotKind":"head-envelope-comparison" if record.get("head") else "silhouette-fallback"}
-    # One fixed optical comparison pivot across the complete character atlas.
-    # Bounds computed from every authored pose, not from a per-frame fit-to-box.
-    pad=36
-    pivot_x=pad+max(z["scaledAnchor"][0] for z in prepared.values())
-    pivot_y=pad+max(z["scaledAnchor"][1] for z in prepared.values())
-    cell_w=pivot_x+pad+max(z["width"]-z["scaledAnchor"][0] for z in prepared.values())
-    cell_h=pivot_y+pad+max(z["height"]-z["scaledAnchor"][1] for z in prepared.values())
-    cell_w=math.ceil(cell_w/64)*64
-    cell_h=math.ceil(cell_h/64)*64
-    canvas=Image.new("RGBA",(cell_w*4,cell_h*3),(0,0,0,0))
-    atlas_records=[]
-    for row, ids in enumerate(LAYOUT):
-        for column,fid in enumerate(ids):
-            if fid is None: continue
-            z=prepared[fid]
-            image=(z["art"].resize((z["width"],z["height"]),Image.Resampling.LANCZOS)
-                   if z["scale"]!=1 else z["art"])
-            local_x=pivot_x-z["scaledAnchor"][0]
-            local_y=pivot_y-z["scaledAnchor"][1]
-            if (local_x<pad or local_y<pad or
-                local_x+image.width>cell_w-pad or local_y+image.height>cell_h-pad):
-                fail("whole authored silhouette would clip: "+fid)
-            canvas.alpha_composite(image,(column*cell_w+local_x,row*cell_h+local_y))
-            record=doc["frames"][fid]
-            atlas_records.append({
-                "id":fid,"sequence":z["role"],
-                "sourceSha256":doc["sources"][z["role"]]["sha256"],
-                "sourceCellPx":record["regionPx"],
-                "atlasCellPx":[column*cell_w,row*cell_h,cell_w,cell_h],
-                "visibleRectInCellPx":[local_x,local_y,image.width,image.height],
-                "sequenceUniformScale":round(z["scale"],8),
-                "opticalPivotInCellPx":[pivot_x,pivot_y],
-                "opticalPivotType":z["pivotKind"],
-                "groundAnchor":None,"durationMs":None,
-                "artisticScaleApprovalRequired":z["role"]=="dash"})
-    filename="connie-unified-sprite-sheet.png"
-    canvas.save(out/filename,optimize=False)
-    metadata={
-        "schema":"pose-lab-v2-unified-atlas-candidate-v1",
-        "status":"quarantined-human-visual-verdict-pending",
-        "character":"Connie",
-        "sourceCommit":revision,"sourceAuthority":"campaigns/connie-source-measurements-v3.json",
-        "image":filename,"sha256":hashlib.sha256((out/filename).read_bytes()).hexdigest(),
-        "canvasPx":list(canvas.size),"grid":{"columns":4,"rows":3,
-          "cellWidth":cell_w,"cellHeight":cell_h},
-        "emptySlots":[[3,1],[3,2]],
-        "frameOrder":order,"frameCount":10,"frames":atlas_records,
-        "sequences":{"idle":["idle"],"run":["run_1","run_2","run_3"],
-          "wall-impact":["rebound_1","rebound_2","rebound_3"],
-          "dash":["dash_1","dash_2","dash_3"]},
-        "uniformSequenceFactors":scales,
-        "dashStatus":"UNAPPROVED physical scale; original 1.0x preserved",
-        "registrationStatus":"Shared optical head pivot for sheet comparison only; no grounded-foot registration claim",
-        "timeStatus":"No authored frame timing available; none manufactured",
-        "noIntermediateFrames":True,"noLimbsAltered":True,"sourcesUnmodified":True,
-        "atlasReadyForHumanReview":True,"gameReady":False
+    ids = [fid for row in LAYOUT for fid in row]
+    if len(ids) != 10 or len(set(ids)) != 10 or set(ids) != set(doc["frameOrder"]):
+        fail("sheet must include each of ten authored poses exactly once")
+
+    scales = {"idle": 1.0, "run": groups["run"]["singleSequenceFactor"],
+              "rebound": groups["rebound"]["singleSequenceFactor"], "dash": 1.0}
+    if any(not isinstance(f, (float, int)) or not math.isfinite(f) or f <= 0
+           for f in scales.values()):
+        fail("missing or invalid sequence-uniform physical scale")
+
+    frames = {}
+    for fid in ids:
+        entry = doc["frames"][fid]
+        role = entry["source"]
+        art, anchor = frame_art(doc, sources, fid)
+        factor = scales[role]
+        width = max(1, round(art.width * factor))
+        height = max(1, round(art.height * factor))
+        scaled_anchor = (round(anchor[0] * factor), round(anchor[1] * factor))
+        frames[fid] = {"art": art, "source": entry, "role": role,
+                       "scale": factor, "width": width, "height": height,
+                       "anchor": scaled_anchor,
+                       "opticalPivotType": ("head-envelope-comparison" if entry.get("head")
+                                           else "silhouette-center-fallback")}
+
+    # Pack rows tightly at their REAL pixel scale. Cells are deliberately
+    # irregular because the full-body idle and crouched authored poses have
+    # very different intrinsic silhouettes. Per-frame fit-to-box is forbidden.
+    # Each row shares an optical head Y for preview only; no gameplay root pin.
+    row_sizes = []
+    for row in LAYOUT:
+        top = max(frames[fid]["anchor"][1] for fid in row)
+        bottom = max(frames[fid]["height"] - frames[fid]["anchor"][1] for fid in row)
+        row_height = top + bottom + PADDING * 2
+        row_width = sum(frames[fid]["width"] + PADDING * 2 for fid in row)
+        row_sizes.append({"height": row_height, "width": row_width, "opticalY": top})
+    sheet_w = max(row["width"] for row in row_sizes)
+    sheet_h = sum(row["height"] for row in row_sizes)
+    if sheet_w <= 0 or sheet_h <= 0:
+        fail("invalid packed dimensions")
+
+    atlas = Image.new("RGBA", (sheet_w, sheet_h), (0, 0, 0, 0))
+    records, y = [], 0
+    for row_index, (row, dimensions) in enumerate(zip(LAYOUT, row_sizes)):
+        # Shorter rows are centered horizontally as complete rows.
+        x = (sheet_w - dimensions["width"]) // 2
+        for column, fid in enumerate(row):
+            item = frames[fid]
+            cell_w = item["width"] + 2 * PADDING
+            cell_h = dimensions["height"]
+            local_x = PADDING
+            local_y = PADDING + dimensions["opticalY"] - item["anchor"][1]
+            if (local_y < PADDING or local_y + item["height"] > cell_h - PADDING):
+                fail("packed cell would clip original detail: " + fid)
+            resized = (item["art"].resize((item["width"], item["height"]),
+                                         Image.Resampling.LANCZOS)
+                       if item["scale"] != 1 else item["art"])
+            atlas.alpha_composite(resized, (x + local_x, y + local_y))
+            rec = item["source"]
+            records.append({
+                "id": fid, "sequence": item["role"],
+                "sourceSha256": doc["sources"][item["role"]]["sha256"],
+                "sourceCellPx": rec["regionPx"],
+                "atlasCellPx": [x, y, cell_w, cell_h],
+                "visibleRectInCellPx": [local_x, local_y,
+                                        item["width"], item["height"]],
+                "sequenceUniformScale": round(item["scale"], 8),
+                "opticalPivotInCellPx": [local_x + item["anchor"][0],
+                                        local_y + item["anchor"][1]],
+                "opticalPivotType": item["opticalPivotType"],
+                "groundAnchor": None, "durationMs": None,
+                "artisticScaleApprovalRequired": item["role"] == "dash",
+                "row": row_index, "column": column,
+            })
+            x += cell_w
+        if x > sheet_w:
+            fail("packed row exceeds atlas canvas")
+        y += dimensions["height"]
+    if len(records) != 10 or y != sheet_h:
+        fail("packed source-frame count or height wrong")
+
+    filename = "connie-unified-sprite-sheet.png"
+    atlas.save(out / filename, optimize=False)
+    original_area = 4608 * 4800
+    compact_area = atlas.width * atlas.height
+    if compact_area >= original_area * 0.75:
+        fail("review atlas still has excessive unused canvas (must shrink >=25%)")
+    metadata = {
+        "schema": "pose-lab-v2-unified-atlas-candidate-v1",
+        "status": "quarantined-human-visual-verdict-pending",
+        "character": "Connie",
+        "sourceCommit": revision,
+        "sourceAuthority": "campaigns/connie-source-measurements-v3.json",
+        "image": filename,
+        "sha256": hashlib.sha256((out / filename).read_bytes()).hexdigest(),
+        "canvasPx": [atlas.width, atlas.height],
+        "layout": {"kind": "irregular-row-packed", "rowCount": len(LAYOUT),
+                   "rowFrameIds": [list(row) for row in LAYOUT],
+                   "rowHeightPx": [r["height"] for r in row_sizes],
+                   "paddingPx": PADDING, "noPerFrameFit": True},
+        "frameOrder": ids, "frameCount": len(records), "frames": records,
+        "sequences": {"idle": ["idle"], "run": ["run_1", "run_2", "run_3"],
+                      "wall-impact": ["rebound_1", "rebound_2", "rebound_3"],
+                      "dash": ["dash_1", "dash_2", "dash_3"]},
+        "uniformSequenceFactors": scales,
+        "dashStatus": "UNAPPROVED physical scale; original 1.0x preserved",
+        "registrationStatus": ("Row-comparison optical head pivot only; exact authored "
+                               "gameplay foot/root registration not assumed"),
+        "timeStatus": "No authored frame timing available; none manufactured",
+        "noIntermediateFrames": True, "noLimbsAltered": True,
+        "sourcesUnmodified": True, "gameReady": False,
+        "atlasReadyForHumanReview": True,
+        "previousCanvasPx": [4608, 4800],
+        "canvasAreaReduction": round(1 - compact_area / original_area, 6),
     }
-    (out/"connie-unified-sprite-sheet.json").write_text(
-        json.dumps(metadata,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+    (out / "connie-unified-sprite-sheet.json").write_text(
+        json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print("CONNIE_SINGLE_SHEET_EXPORTED=10")
-    print("CONNIE_SINGLE_SHEET_SIZE=%dx%d"%canvas.size)
-    print("CONNIE_SINGLE_SHEET_SHA256="+metadata["sha256"])
+    print("CONNIE_SINGLE_SHEET_PACKED_ROWS=3")
+    print("CONNIE_SINGLE_SHEET_SIZE=%dx%d" % atlas.size)
+    print("CONNIE_SINGLE_SHEET_AREA_SAVED=%.2f%%" %
+          (100 * metadata["canvasAreaReduction"]))
+    print("CONNIE_SINGLE_SHEET_SHA256=" + metadata["sha256"])
     return metadata
