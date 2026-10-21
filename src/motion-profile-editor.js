@@ -1,4 +1,4 @@
-import { CONNIE_ATLAS, CONNIE_RECTS } from './motion/connie-profiles.js';
+import { CONNIE_ATLAS, CONNIE_RECTS, CONNIE_CONTENT_BOUNDS } from './motion/connie-profiles.js';
 import { MOTION_PROFILES, getMotionProfile } from './motion/profiles.js';
 import { copyProfile, instantiateProfile, resolveProfileTiming } from './motion/profile-core.js';
 import { serializeMotionInstance, candidateRepoPath } from './motion/plmp-serializer.js';
@@ -288,7 +288,11 @@ function renderStage(){
         cx.save();
         cx.translate(300,spinning?300:550);
         cx.rotate(angle);
-        const destX=-w/2,destY=spinning?-h/2:-h;
+        // Anchor visible artwork, not arbitrary atlas crop margins.
+        // The source and destination widths/heights remain exactly identical.
+        const visible=CONNIE_CONTENT_BOUNDS[id];
+        const destX=-(visible[0]+visible[2])/2;
+        const destY=spinning?-(visible[1]+visible[3])/2:-visible[3];
         if(working.id==='connie-idle'){
           // Pixel-space joint displacement. Every output pixel copies one
           // original atlas pixel: no canvas scaling, slice gaps or scanlines.

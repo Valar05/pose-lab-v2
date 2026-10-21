@@ -4,6 +4,14 @@ export const CONNIE_RECTS = Object.freeze({
  aerial_1:[270,585,585,905],aerial_2:[595,585,950,895],aerial_3:[950,595,1280,900],
  spin_1:[250,950,635,1270],spin_2:[630,930,975,1250],spin_3:[965,900,1295,1220]
 });
+// Pixel-content bounds measured from the immutable atlas, relative to each crop.
+// Used only for anchoring. Never normalize width/height or rescale poses.
+export const CONNIE_CONTENT_BOUNDS=Object.freeze({
+ idle:[9,14,280,393],
+ run_1:[14,19,379,358],run_2:[10,22,349,365],run_3:[15,17,397,365],
+ aerial_1:[9,12,302,311],aerial_2:[10,12,347,294],aerial_3:[13,10,315,296],
+ spin_1:[13,15,376,304],spin_2:[12,16,345,299],spin_3:[0,10,315,294]
+});
 const role=(id)=>({id,label:id,required:true});
 const base=(id,label,roles,keys,transitions,parameters={})=>({
  schema:'pose-lab.motion-profile.v1',id,version:1,label,family:'connie-atlas',
