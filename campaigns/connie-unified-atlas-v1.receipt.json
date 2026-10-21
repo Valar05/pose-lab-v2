@@ -1,15 +1,15 @@
 {
   "schema": "pose-lab-v2-campaign-receipt-v2",
   "campaign": "connie-unified-atlas-v1",
-  "status": "actual-anatomical-scale-normalization-published-human-verdict-pending",
+  "status": "run-canonical-scaled-sprite-sheet-published-human-review-pending",
   "startRevision": "56f000831aecdde15fc3588effd93aa822ebdb79",
-  "implementationRevision": "e0cb2d11cde8df0b262ce865913cbbe50552567d",
+  "implementationRevision": "87dfb84135c996bce7354958d69306cfaa502d09",
   "finalRevision": null,
   "executionLane": "GitHub source and CI only, existing main-branch GitHub Pages deploy",
   "humanVerdict": "pending",
-  "reviewUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/anatomical-v3/index.html",
-  "imageUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/anatomical-v3/connie-unified-sprite-sheet.png",
-  "metadataUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/anatomical-v3/connie-unified-sprite-sheet.json",
+  "reviewUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/run-canonical-v4/index.html",
+  "imageUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/run-canonical-v4/connie-unified-sprite-sheet.png",
+  "metadataUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/run-canonical-v4/connie-unified-sprite-sheet.json",
   "sourceAuthority": {
     "originalSourceCommit": "56f000831aecdde15fc3588effd93aa822ebdb79",
     "sourceFilesVerified": 4,
@@ -19,20 +19,20 @@
     "file": "connie-unified-sprite-sheet.png",
     "format": "PNG RGBA",
     "dimensionsPx": [
-      3258,
-      2923
+      2234,
+      1822
     ],
-    "sha256": "cdb5be9e696ced487dc1b4635d3d7dac09ae1a97b0b2013719a274d64c0615f1",
+    "sha256": "1c0f3fd6ab4de58eb634ecb39c3c3588cf636d6e76467414d41c06c9d7a711e1",
     "frameCount": 10,
     "grid": null,
     "emptyCells": 2,
     "factors": {
-      "idle": 1,
-      "run": 1.29218916,
-      "rebound": 0.99947171,
-      "dash": 1.08848718
+      "run": 1,
+      "idle": 0.45299127,
+      "rebound": 0.77094361,
+      "dash": 0.77400413
     },
-    "dashScale": "one explicitly inherited factor from dash_1 applied uniformly to dash_1/2/3, including headless pinwheel, artistic approval pending",
+    "dashScale": "All 3 dash frames inherit 0.77400413×, including headless pinwheel; human verdict pending",
     "durationMs": null,
     "groundPivot": "review head midpoint only, not accepted physical anchor",
     "layout": "3 compact irregular rows with explicit source-mapped cell rectangles",
@@ -43,35 +43,36 @@
       3
     ],
     "calibration": "campaigns/connie-anatomical-v3-calibration-v1.json",
-    "anatomicalReferenceCrownChinPx": 144.0139,
-    "maxReliableCrownChinDeviationPercent": 5.531
+    "physicalReference": "RUN 3-frame shoulder-to-hip body-core median 122.5398 source px",
+    "headProportionFlag": "idle normalized visible face ≈58.5% of canonical run face, unresolved source-art proportion mismatch",
+    "maxReliableBodyCoreDeviationPercent": 3.364
   },
   "verification": {
     "feature": {
-      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39538455339",
+      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39592310359",
       "conclusion": "success",
-      "tests": "Saved source SHA-pinned facial crown-to-chin anatomy, 10 frame payloads; 4 uniform scale factors; maximum cranial deviation 5.531%; source pixel equivalence; no clipping; same-zoom nine-head diagnostic; deterministic repeat on real PNGs"
+      "tests": "Core source anatomy tests and actual-asset atlas export with RUN fixed at 1×, idle shrunk to 0.45299127×, source pixels and 10 cell equivalence checks, actual in-page body audit image"
     },
     "pages": {
-      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39538774149",
+      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39592326572",
       "conclusion": "success",
-      "mainRevision": "98ec7f349476777b7d91902815ffc8c922e26ba9",
-      "observed": "GitHub Pages built 4 source SHA-verified anatomically adjusted sequences, 10 frames, 3258x2923 RGBA atlas, checked head audit and published both prior reviews and new anatomical-v3 route"
+      "mainRevision": "3902b2d39377ea34824d0556e8ac723df6d5f082",
+      "observed": "GitHub main Pages build verified original SHA-lock, real-source 2234x1822 RGBA sprite atlas, exact 4 group factors, actual idle downscale, and published review."
     },
-    "httpBrowserDirect": "unverified via web reader; Github deployment and content artifact positive",
+    "httpBrowserDirect": "not available from this runner; GitHub Pages build and deployment succeeded",
     "visualInspection": {
-      "status": "inspected-GitHub-run-real-source-artifact",
-      "notes": "Visual inspection of new 3258x2923 real-source PNG and same-zoom anatomical head audit. Confirmed nine visible heads at similar apparent face sizes and tenth pinwheel lacks anatomy. Body silhouettes retain authored pose/crouch. Pending Drew's artistic verdict."
+      "status": "awaiting Drew hosted visual verdict",
+      "notes": "Operator could not directly retrieve the deployed image via external reader; GitHub artifact and Pages job verified actual generated image bytes. No visual acceptance claimed."
     }
   },
   "originalsUnchanged": true,
   "requireUserJudgment": true,
   "outstanding": [
-    "Drew must open and judge hosted anatomical-v3 combined sheet for desired character size, especially crouching and intentional pinwheel.",
-    "Crown and chin coordinates are human-inspected approximations and require approval, not claims of mathematical absolute anatomy.",
-    "Pinwheel is scaled uniformly from dash_1 but transformation-to-body relationship remains pending human approval.",
-    "No authored animation timings or gameplay runtime import; no fictitious frame rates."
+    "Drew inspect actual run-canonical Pages comparison and accept/reject physical relative size.",
+    "Body landmarks are approximate source-projected points; head/body mismatch in idle after run body matching is explicitly flagged, not silently stretched.",
+    "Do not declare pinwheel physical transformation accepted until Drew judges it.",
+    "No authored frame timings or runtime import. Original source unchanged."
   ],
-  "priorReviewUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/compact-v2/index.html",
-  "measurementAuditUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/anatomical-v3/connie-anatomical-head-audit.png"
+  "priorReviewUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/anatomical-v3/index.html",
+  "measurementAuditUrl": "https://valar05.github.io/pose-lab-v2/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/run-canonical-v4/connie-run-body-scale-audit.png"
 }
