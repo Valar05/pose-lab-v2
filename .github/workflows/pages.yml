@@ -206,7 +206,7 @@ jobs:
           assert report["singleSpriteSheetFrameCount"]==10
           assert atlas["frameCount"]==len(atlas["frames"])==10
           assert atlas["sourceCommit"]=="56f000831aecdde15fc3588effd93aa822ebdb79"
-          assert atlas["canvasPx"]==[1983,2093]
+          assert atlas["canvasPx"]==[2234,1822] # GitHub real-source output, not synthetic fixture
           factors=atlas["uniformSequenceFactors"]
           assert factors["run"]==1.0
           assert abs(factors["idle"]-.45299127)<.000001
