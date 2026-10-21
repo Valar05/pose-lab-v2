@@ -21,7 +21,8 @@
                                          "public/reviews/connie-paper-motion/**",
                                          "tools/campaigns/connie_paper_motion.py",
                                          "tools/test_connie_paper_motion.py",
-                                         "docs/DRIVE_COMPUTER_HANDS_GITHUB_TRANSPORT.md"
+                                         "docs/DRIVE_COMPUTER_HANDS_GITHUB_TRANSPORT.md",
+                                         "tools/campaigns/connie_extract_candidate.py"
                                      ],
                     "receiptPath":  "campaigns/connie-paper-motion-20261021.receipt.json",
                     "requiredRules":  [
@@ -90,5 +91,5 @@
                                           "noRootMotion":  true
                                       }
                   },
-    "status":  "source-ingested; extraction and runtime visual acceptance pending"
+    "status":  "10 extracted candidate frames and five motion previews; visual acceptance pending"
 }

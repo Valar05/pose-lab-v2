@@ -1,0 +1,107 @@
+{
+  "sourceSha256": "1862aaa232426324cb9c698c878411922b7e8bcd649ff042dd5a8a870265abe3",
+  "method": "exterior connected RGB max 28, no interior key",
+  "status": "quarantined pending visual review",
+  "frames": {
+    "idle": {
+      "rect": [
+        0,
+        60,
+        300,
+        445
+      ],
+      "removedExteriorDarkPixels": 66468,
+      "sha256": "f8bd7b007139b929dff695294f5120b8901f149f8b93751ec27257d947ecc919"
+    },
+    "run_1": {
+      "rect": [
+        305,
+        75,
+        660,
+        445
+      ],
+      "removedExteriorDarkPixels": 85209,
+      "sha256": "91055955d1a1075d6ca7032b3fdd2d56ee08c89274802ce1c141d77d63cebe09"
+    },
+    "run_2": {
+      "rect": [
+        660,
+        75,
+        980,
+        445
+      ],
+      "removedExteriorDarkPixels": 74107,
+      "sha256": "a4524a53e2b055c8d4d46cc95037c52a3bd7d7bf4c7faf41ff57683d5cc28123"
+    },
+    "run_3": {
+      "rect": [
+        980,
+        75,
+        1536,
+        445
+      ],
+      "removedExteriorDarkPixels": 131506,
+      "sha256": "d0dd1ed35d7b32062c0d5d6ee81508b8b2fc2e8241f8b340c611962bd0fcd198"
+    },
+    "aerial_1": {
+      "rect": [
+        190,
+        460,
+        515,
+        790
+      ],
+      "removedExteriorDarkPixels": 74920,
+      "sha256": "008e597b9e7fc8f58d5444b763f8bd6fb732cd31bc6798289965d6fb239b0215"
+    },
+    "aerial_2": {
+      "rect": [
+        510,
+        460,
+        855,
+        790
+      ],
+      "removedExteriorDarkPixels": 79979,
+      "sha256": "c00060e48672e1984742da4509b4faea5ca5f70b6e3c3dcbc771a0c77a79f8e7"
+    },
+    "aerial_3": {
+      "rect": [
+        850,
+        460,
+        1220,
+        790
+      ],
+      "removedExteriorDarkPixels": 75068,
+      "sha256": "b2adaa3780761863717f9fb393d57b0bc6895a4600fa4119f16ddf1e03510f2c"
+    },
+    "spin_1": {
+      "rect": [
+        185,
+        795,
+        570,
+        1130
+      ],
+      "removedExteriorDarkPixels": 84086,
+      "sha256": "5872e4c0aa9ba47ce458eb43be7c11fbc23f9889f7c7140d43bf87eac4e3f40e"
+    },
+    "spin_2": {
+      "rect": [
+        565,
+        790,
+        860,
+        1130
+      ],
+      "removedExteriorDarkPixels": 63584,
+      "sha256": "6469a065034fd723376de6ee7f90334b52d1f318ac0f38920360fb8874930b1c"
+    },
+    "spin_3": {
+      "rect": [
+        855,
+        750,
+        1220,
+        1130
+      ],
+      "removedExteriorDarkPixels": 70949,
+      "sha256": "51300ef86dfe8b5c77d45f8cdacc1112bc8f74871cb7248b49c72f3d6e113d65"
+    }
+  }
+}

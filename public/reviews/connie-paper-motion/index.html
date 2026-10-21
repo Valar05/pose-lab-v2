@@ -20,11 +20,11 @@ const rect={
  spin_1:[185,795,570,1130],spin_2:[565,790,860,1130],spin_3:[855,750,1220,1130]
 };
 const canvas=document.querySelector("#stage"),ctx=canvas.getContext("2d");
-const source=new Image();source.src=SOURCE;let ready=false,clip="idle",started=performance.now(),last=started;
+const frames={};let ready=false,clip="idle",started=performance.now(),last=started;
 const status=document.querySelector("#status"),controls=document.querySelector("#controls");
 for(const name of Object.keys(clips)){const b=document.createElement("button");b.textContent=name;b.onclick=()=>{clip=name;started=performance.now();document.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))};b.setAttribute("aria-pressed",String(name==="idle"));controls.append(b)}
-source.onload=()=>{ready=true;status.textContent="Source loaded. Inspect all poses and timing before human acceptance."};
-source.onerror=()=>{status.textContent="SOURCE MISSING: approved composite PNG is not in GitHub. No placeholder artwork will be substituted.";};
+for(const name of Object.keys(rect)){const image=new Image();image.src="../../assets/connie/frames/"+name+".png";image.onload=()=>{frames[name]=image;if(Object.keys(frames).length===Object.keys(rect).length){ready=true;status.textContent="Ten candidate alpha frames loaded. Review source bounds, contact and timing.";}};image.onerror=()=>{status.textContent="Missing extracted frame: "+name;};}
+
 function smooth(x){x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)}
 function render(t){
  requestAnimationFrame(render);ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -60,8 +60,8 @@ function render(t){
  ctx.save();ctx.translate(500+tx,500+ty);ctx.transform(1,0,skew,1,0,0);ctx.rotate(rot);ctx.scale(scale*sx,scale*sy);
  // Source is on an opaque black canvas. 'screen' visually removes black for preview
  // but is NOT valid transparent sprite extraction. Actual masks must be audited.
- ctx.globalCompositeOperation="screen";
- ctx.drawImage(source,x0,y0,w,h,-w/2,-h,w,h);
+ ctx.globalCompositeOperation="source-over";
+ ctx.drawImage(frames[id],-w/2,-h,w,h);
  ctx.restore();
  ctx.fillStyle="#f3bfd9";ctx.font="17px system-ui";ctx.fillText(clip+" · "+id+" · "+Math.round(ms)+" ms",22,34);
 }
