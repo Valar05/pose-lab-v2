@@ -343,6 +343,27 @@ function renderStage(){
           deformed.width=w;deformed.height=h;
           deformed.getContext('2d').putImageData(source,0,0);
           cx.drawImage(deformed,destX,destY);
+        }else if(working.id==='connie-run'){
+          // Joint-driven gait: planted feet, no global bounce.
+          const original=connieMasked.getContext('2d').getImageData(x0,y0,w,h);
+          const out=cx.createImageData(w,h),src=original.data,dst=out.data;
+          const stride=Math.sin(4*Math.PI*playhead);
+          for(let y=0;y<h;y++){
+            const v=y/h;
+            const knee=Math.max(0,1-Math.abs(v-.72)/.18);
+            const ankle=Math.max(0,1-Math.abs(v-.84)/.13);
+            const shift=3*stride*knee-2*stride*ankle;
+            const sy=Math.max(0,Math.min(h-1,Math.round(y-2*knee*(1-Math.cos(4*Math.PI*playhead))*.5)));
+            for(let x=0;x<w;x++){
+              const sx=Math.max(0,Math.min(w-1,Math.round(x-shift)));
+              const si=(sy*w+sx)*4,di=(y*w+x)*4;
+              dst[di]=src[si];dst[di+1]=src[si+1];
+              dst[di+2]=src[si+2];dst[di+3]=src[si+3];
+            }
+          }
+          const warped=document.createElement('canvas');warped.width=w;warped.height=h;
+          warped.getContext('2d').putImageData(out,0,0);
+          cx.drawImage(warped,destX,destY);
         }else{
           // Authoritative poses are copied unscaled and unwarped.
           // Avoid fractional scanline re-sampling and accidental silhouette squash.
