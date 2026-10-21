@@ -153,7 +153,7 @@ def inspect(root, record, background):
         "confidence": conf, "pose": record.get("pose", "unspecified"),
         "facing": record.get("facing", "unspecified"), "anchorSourcePx": anchor,
         "anchorLabel": record.get("anchorLabel", "unspecified"),
-        "durationMs": record.get("durationMs", 100),
+        "durationMs": record.get("durationMs"),  # Never manufacture animation timing from still PNGs.
         "edgeContactSides": edge_sides,
         "edgeContactReview": edge_review,
         "inheritMeasurementFrom": record.get("inheritMeasurementFrom"),
