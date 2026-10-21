@@ -180,7 +180,7 @@ jobs:
       - name: Checkout RUN-canonical Connie correction
         uses: actions/checkout@v4
         with:
-          ref: b42507312286078b7621c589651e6aed49b5fdfe
+          ref: 87dfb84135c996bce7354958d69306cfaa502d09
           path: .connie-run-canonical
           persist-credentials: false
       - name: Build one corrected Connie sheet using unchanged 1x run
