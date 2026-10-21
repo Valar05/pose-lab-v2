@@ -238,7 +238,7 @@ jobs:
       - name: Checkout Connie native motion campaign
         uses: actions/checkout@v4
         with:
-          ref: 62268e0c061577659d5aa25a60ea775f7328041a
+          ref: 52e1cd428ae862abec759168589abf71e09420d0
           path: .connie-motion-campaign
           persist-credentials: false
       - name: Publish Connie native motion review
