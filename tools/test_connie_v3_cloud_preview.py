@@ -21,7 +21,9 @@ def test():
     assert len(groups["run"]["frames"]) == 3
     assert len(groups["rebound"]["frames"]) == 3
     assert len(groups["dash"]["frames"]) == 3
-    assert groups["dash"]["status"].startswith("BLOCKED")
+    assert groups["dash"]["status"].startswith("QUARANTINED")
+    assert groups["dash"]["artisticReviewRequired"] is True
+    assert groups["dash"]["singleSequenceFactor"] != 1.0
     assert all(groups[k]["singleSequenceFactor"] > 0 for k in groups)
     if not (Path(__file__).resolve().parents[1] / "public/assets/connie/source/run.png").is_file():
         try:
@@ -53,11 +55,8 @@ def test():
         for role in ("idle","run","rebound","dash"):
             assert (out/("original-"+role+".png")).is_file()
             assert (out/"original"/(groups[role]["frames"][0]+".png")).is_file()
-            if role != "dash":
-                assert (out/("candidate-"+role+".png")).is_file()
-                assert (out/"candidate"/(groups[role]["frames"][0]+".png")).is_file()
-            else:
-                assert not (out/"candidate-dash.png").exists()
+            assert (out/("candidate-"+role+".png")).is_file()
+            assert (out/"candidate"/(groups[role]["frames"][0]+".png")).is_file()
         print("CONNIE_CLOUD_RENDER_MECHANICS_TEST_OK=10")
         print("REAL_ORIGINAL_SOURCE_PROOF=NOT_YET_AVAILABLE")
 
