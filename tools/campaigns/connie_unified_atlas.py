@@ -2,7 +2,7 @@
 """Dense single-sheet atlas for Connie's original, SHA-locked ten poses.
 
 Irregular cells have exact map coordinates; all authored art is transformed by
-one uniform factor per animation. The layout changes only cell placement, not
+one uniform factor per animation, including intentional pinwheel transformation. The layout changes only cell placement, not
 pose pixels, shape, intended sequence scale, or movement timing.
 """
 from __future__ import annotations
@@ -31,7 +31,8 @@ def build_atlas(doc, sources, groups, out, revision, frame_art):
         fail("sheet must include each of ten authored poses exactly once")
 
     scales = {"idle": 1.0, "run": groups["run"]["singleSequenceFactor"],
-              "rebound": groups["rebound"]["singleSequenceFactor"], "dash": 1.0}
+              "rebound": groups["rebound"]["singleSequenceFactor"],
+              "dash": groups["dash"]["singleSequenceFactor"]}
     if any(not isinstance(f, (float, int)) or not math.isfinite(f) or f <= 0
            for f in scales.values()):
         fail("missing or invalid sequence-uniform physical scale")
@@ -131,7 +132,7 @@ def build_atlas(doc, sources, groups, out, revision, frame_art):
                       "wall-impact": ["rebound_1", "rebound_2", "rebound_3"],
                       "dash": ["dash_1", "dash_2", "dash_3"]},
         "uniformSequenceFactors": scales,
-        "dashStatus": "UNAPPROVED physical scale; original 1.0x preserved",
+        "dashStatus": "PROVISIONAL whole-group physical scale derived from dash_1 anatomy; headless transformation continuity retained; explicit human approval required",
         "registrationStatus": ("Row-comparison optical head pivot only; exact authored "
                                "gameplay foot/root registration not assumed"),
         "timeStatus": "No authored frame timing available; none manufactured",
