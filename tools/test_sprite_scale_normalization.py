@@ -93,7 +93,7 @@ class ScaleNormalizationTests(unittest.TestCase):
         report = analyze(self.config, self.root)
         generated = render(self.config, report, self.root, self.root / "c")
         picture = Image.open(self.root / "c" / generated["animations"][0]["frames"][0]["src"])
-        self.assertGreater(picture.getchannel("A").getbbox()[2], 200)
+        self.assertGreater(picture.getchannel("A").getbbox()[2] - picture.getchannel("A").getbbox()[0], 100)
 
     def test_low_confidence_is_blocked_without_override(self):
         config = copy.deepcopy(self.config)
