@@ -290,17 +290,34 @@ function renderStage(){
         cx.rotate(angle);
         const destX=-w/2,destY=spinning?-h/2:-h;
         if(working.id==='connie-idle'){
-          // Vanguard-style knee displacement, not Serin's whole-body sway.
-          // Head/torso travel as a rigid upper mass, knees absorb the drop,
-          // and the foot segment stays locked to the original ground line.
-          const drop=Math.round((1-Math.cos(time))*3);
-          const upper=Math.round(h*.69),ankle=Math.round(h*.86);
-          cx.drawImage(connieMasked,x0,y0,w,upper,destX,destY+drop,w,upper);
-          // Do not rescale the knee region: overlap displaced segments at a joint.
-          cx.drawImage(connieMasked,x0,y0+upper,w,ankle-upper,
-            destX,destY+upper+drop,w,ankle-upper);
-          cx.drawImage(connieMasked,x0,y0+ankle,w,h-ankle,
-            destX,destY+ankle,w,h-ankle);
+          // Pixel-space joint displacement. Every output pixel copies one
+          // original atlas pixel: no canvas scaling, slice gaps or scanlines.
+          const source=cx.createImageData(w,h);
+          const srcCtx=connieMasked.getContext('2d');
+          const original=srcCtx.getImageData(x0,y0,w,h);
+          const src=original.data,dst=source.data;
+          const crouch=(1-Math.cos(time))*.5;
+          const knee=h*.70,ankle=h*.87;
+          for(let y=0;y<h;y++){
+            const v=y/h;
+            // Upper body translates down; displacement smoothly fades at
+            // the ankle while feet stay fixed to their atlas positions.
+            const vertical=v<.66 ? 3*crouch
+              : v<.87 ? 3*crouch*(.87-v)/.21 : 0;
+            const bend=v>.55&&v<.87
+              ? Math.sin(Math.PI*(v-.55)/.32)*2*crouch : 0;
+            const sy=Math.max(0,Math.min(h-1,Math.round(y-vertical)));
+            for(let x=0;x<w;x++){
+              const sx=Math.max(0,Math.min(w-1,Math.round(x-bend)));
+              const si=(sy*w+sx)*4,di=(y*w+x)*4;
+              dst[di]=src[si];dst[di+1]=src[si+1];
+              dst[di+2]=src[si+2];dst[di+3]=src[si+3];
+            }
+          }
+          const deformed=document.createElement('canvas');
+          deformed.width=w;deformed.height=h;
+          deformed.getContext('2d').putImageData(source,0,0);
+          cx.drawImage(deformed,destX,destY);
         }else{
           // Authoritative poses are copied unscaled and unwarped.
           // Avoid fractional scanline re-sampling and accidental silhouette squash.
