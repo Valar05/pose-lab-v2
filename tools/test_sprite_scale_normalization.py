@@ -155,6 +155,12 @@ class ScaleNormalizationTests(unittest.TestCase):
         report = analyze(config, self.root)
         self.assertFalse(report["blocked"])
 
+    def test_missing_timing_from_static_sheet_cannot_invent_duration(self):
+        config = copy.deepcopy(self.config)
+        del config["sequences"][0]["frames"][0]["durationMs"]
+        with self.assertRaisesRegex(ValueError, "duration"):
+            analyze(config, self.root)
+
     def test_source_hash_mismatch_fails_closed(self):
         config = copy.deepcopy(self.config)
         config["sequences"][0]["frames"][0]["sha256"] = "0" * 64
