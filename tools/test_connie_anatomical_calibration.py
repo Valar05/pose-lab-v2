@@ -50,21 +50,33 @@ def main():
     source_files = {role: ROOT / cfg["sourceAuthority"]["sourceDigests"][role]["file"]
                     for role in SOURCE_HASHES}
     present_roles = {role for role, p in source_files.items() if p.is_file()}
-    require(len(present_roles) in (0, 4), "partial original PNG ingress is forbidden")
-    ingressed = len(present_roles) == 4
+    require(len(present_roles) in (0, 4), "partial source upload not allowed")
+    original_v3 = json.loads((ROOT / "campaigns/connie-source-measurements-v3.json").read_text())
+    original_by_role = {"idle":"idle", "run":"run", "aerial":"rebound", "pinwheel":"dash"}
+    has_new_art = False
+    if present_roles:
+        actual_hashes = {role: hashlib.sha256(p.read_bytes()).hexdigest()
+                         for role, p in source_files.items()}
+        matches_new = all(actual_hashes[role] == SOURCE_HASHES[role] for role in SOURCE_HASHES)
+        matches_v3 = all(actual_hashes[role] == original_v3["sources"][original_by_role[role]]["sha256"]
+                         for role in SOURCE_HASHES)
+        require(matches_new or matches_v3, "mixed or unknown Connie source revision")
+        has_new_art = matches_new
+        for role, source_file in source_files.items():
+            info = (cfg["sourceAuthority"]["sourceDigests"][role] if matches_new else
+                    original_v3["sources"][original_by_role[role]])
+            with Image.open(source_file) as png:
+                expected = (info["canvasPx"] if matches_new else info["dimensionsPx"])
+                require(png.format == "PNG" and list(png.size) == expected,
+                        role + " PNG dimensions / format mismatch")
+                png.verify()
+    ingressed = has_new_art
     expected_status = ("provisional-measured-source-ingressed" if ingressed
                        else "provisional-measured-not-ingressed")
-    require(r["status"] == expected_status, "source transport status disagrees with measured files")
+    require(r["status"] == expected_status, "annotation source transport status mismatch")
     require(cfg["sourceAuthority"]["sourceExistsInGitHub"] is ingressed,
-            "source ingress claim disagrees with actual image availability")
-    if ingressed:
-        for role, source_file in source_files.items():
-            require(hashlib.sha256(source_file.read_bytes()).hexdigest() == SOURCE_HASHES[role],
-                    role + " Git source SHA mismatch")
-            with Image.open(source_file) as png:
-                require(png.format == "PNG" and png.size == SOURCE_SIZES[role],
-                        role + " Git PNG dimensions / format mismatch")
-                png.verify()
+            "newer-art annotation status must not be inferred from original V3 upload")
+    print("ACTIVE_ORIGINAL_V3=" + str(bool(present_roles and not ingressed)))
     require(r["overview"]["safeToApply"] is False, "must not treat annotations as approval")
     require(cfg["measurement"]["minimumConfidence"] == 0.8, "confidence policy changed")
     require(cfg["measurement"]["maximumSequenceSpread"] == 0.08, "sequence spread policy changed")
