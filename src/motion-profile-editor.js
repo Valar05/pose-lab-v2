@@ -38,7 +38,8 @@ app.innerHTML = `
       #0b0f12;
     background-size:32px 32px}
   .stage::after{content:"";position:absolute;left:10%;right:10%;bottom:18%;border-top:1px solid #ffffff1c}
-  .stage-card{position:relative;z-index:1;width:min(72vw,520px);height:min(62vh,420px);display:grid;place-items:center}
+  .stage-card{position:relative;z-index:1;width:min(72vw,62vh,520px,420px);aspect-ratio:1/1;height:auto;display:grid;place-items:center}
+  .stage-card canvas{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;max-width:100%;max-height:none}
   .stage-placeholder{color:#73808a;text-align:center;line-height:1.5;border:1px dashed #33404a;border-radius:10px;padding:28px;max-width:360px}
   .stage img{max-width:100%;max-height:100%;image-rendering:auto;object-fit:contain}
   .transport{height:54px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;justify-content:center;background:#0e1317}
@@ -273,7 +274,7 @@ function renderStage(){
     const id=sequence?sequence[sequenceIndex]:(CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id);
     const rect=CONNIE_RECTS[id];
     if(rect){
-      const c=document.createElement('canvas');c.width=600;c.height=600;c.style.maxWidth='100%';c.style.maxHeight='100%';
+      const c=document.createElement('canvas');c.width=600;c.height=600;c.style.width='100%';c.style.height='auto';c.style.aspectRatio='1 / 1';
       const cx=c.getContext('2d');
       if(connieReady){
         const [x0,y0,x1,y1]=rect,w=x1-x0,h=y1-y0;
