@@ -234,6 +234,26 @@ jobs:
           print("CONNIE_PAGES_ALL_TEN_RUN_REFERENCED=TRUE")
           print("CONNIE_HEAD_BODY_MISMATCH_EXPLICITLY_REPORTED=TRUE")
           PY
+      # Quarantined native Motion Profile Lab preview. Does not merge Connie into main.
+      - name: Checkout Connie native motion campaign
+        uses: actions/checkout@v4
+        with:
+          ref: 1626e4d
+          path: .connie-motion-campaign
+          persist-credentials: false
+      - name: Publish Connie native motion review
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="dist/review/connie-motion"
+          mkdir -p "$target/assets"
+          cp .connie-motion-campaign/motion.html "$target/motion.html"
+          cp -R .connie-motion-campaign/src "$target/src"
+          cp -R .connie-motion-campaign/vendor "$target/vendor"
+          cp -R .connie-motion-campaign/public/assets/connie "$target/assets/connie"
+          test -f "$target/src/motion/connie-profiles.js"
+          test -f "$target/assets/connie/connie-approved-composite.png"
+          grep -q 'motion-profile-editor' "$target/motion.html"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
