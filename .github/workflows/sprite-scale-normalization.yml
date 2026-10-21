@@ -161,54 +161,5 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  additive-github-pages-preview:
-    needs: github-owned-connie-preview
-    if: needs.github-owned-connie-preview.outputs.source_ready == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    concurrency:
-      group: pages
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout current canonical main site source
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          path: canonical
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - name: Rebuild canonical Pages site without changing existing app sources
-        working-directory: canonical
-        run: |
-          npm run build
-          npm run smoke
-      - name: Download quarantined Connie review artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: connie-review-${{ github.sha }}
-          path: connie-review
-      - name: Add review under SHA-specific Pages path
-        shell: bash
-        run: |
-          set -euo pipefail
-          dest="canonical/dist/review/connie/$GITHUB_SHA"
-          mkdir -p "$dest"
-          cp -a connie-review/. "$dest/"
-          test -f "$dest/index.html"
-          test -f "$dest/report.json"
-          echo "CONNIE_PAGES_REVIEW_PATH=review/connie/$GITHUB_SHA/index.html"
-          echo "REVIEW_IS_QUARANTINED=true"
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: canonical/dist
-      - uses: actions/deploy-pages@v4
-        id: deployment
+  # GitHub Pages publication is owned by main's existing pages.yml workflow.
+  # Feature-branch execution never touches the protected github-pages environment.
