@@ -10,7 +10,8 @@
       "canvasPx": [
         1152,
         1536
-      ]
+      ],
+      "phoneFileRole": "idle"
     },
     "run": {
       "file": "public/assets/connie/source/run.png",
@@ -18,23 +19,26 @@
       "canvasPx": [
         1536,
         864
-      ]
+      ],
+      "phoneFileRole": "run"
     },
     "aerial": {
-      "file": "public/assets/connie/source/aerial.png",
+      "file": "public/assets/connie/source/rebound.png",
       "sha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
       "canvasPx": [
         1536,
         512
-      ]
+      ],
+      "phoneFileRole": "wall-impact / rebound"
     },
     "pinwheel": {
-      "file": "public/assets/connie/source/pinwheel.png",
+      "file": "public/assets/connie/source/dash.png",
       "sha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
       "canvasPx": [
         1536,
         512
-      ]
+      ],
+      "phoneFileRole": "dash / pinwheel"
     }
   },
   "canonical": {
@@ -103,7 +107,8 @@
     "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
     "landmarkNotes": "Crown at scalp excluding gold tiara; foot and knee approximate through paper skirt; full-body physical-proportion authority",
     "reviewFlag": "PROVISIONAL visually measured",
-    "bodyProportionAuthority": true
+    "bodyProportionAuthority": true,
+    "file": "public/assets/connie/source/idle.png"
   },
   "sequences": [
     {
@@ -188,7 +193,8 @@
           "confidence": 0.87,
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
           "landmarkNotes": "Forward folded leg chosen; trailing leg extends far backward. No plant lock assigned",
-          "reviewFlag": "PROVISIONAL visually measured"
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/run.png"
         },
         {
           "name": "run_2",
@@ -255,7 +261,8 @@
           "confidence": 0.85,
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
           "landmarkNotes": "Foreshortened overlapping legs; do not infer scale from silhouette height",
-          "reviewFlag": "PROVISIONAL visually measured"
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/run.png"
         },
         {
           "name": "run_3",
@@ -322,7 +329,8 @@
           "confidence": 0.86,
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
           "landmarkNotes": "Extended running stride, broad horizontal envelope does not determine physical scale",
-          "reviewFlag": "PROVISIONAL visually measured"
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/run.png"
         }
       ]
     },
@@ -345,7 +353,7 @@
       "frames": [
         {
           "name": "aerial_1",
-          "sourceFile": "public/assets/connie/source/aerial.png",
+          "sourceFile": "public/assets/connie/source/rebound.png",
           "sourceSha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
           "canvasPx": [
             1536,
@@ -408,11 +416,13 @@
           "confidence": 0.83,
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
           "landmarkNotes": "Feet and knees partly obscured by paper skirt; head stronger calibration cue",
-          "reviewFlag": "PROVISIONAL visually measured"
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/rebound.png",
+          "sequenceLabel": "wall impact"
         },
         {
           "name": "aerial_2",
-          "sourceFile": "public/assets/connie/source/aerial.png",
+          "sourceFile": "public/assets/connie/source/rebound.png",
           "sourceSha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
           "canvasPx": [
             1536,
@@ -475,11 +485,13 @@
           "confidence": 0.85,
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
           "landmarkNotes": "Rearward leg extended while torso tilts; no grounding requirement",
-          "reviewFlag": "PROVISIONAL visually measured"
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/rebound.png",
+          "sequenceLabel": "wall impact"
         },
         {
           "name": "aerial_3",
-          "sourceFile": "public/assets/connie/source/aerial.png",
+          "sourceFile": "public/assets/connie/source/rebound.png",
           "sourceSha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
           "canvasPx": [
             1536,
@@ -542,9 +554,12 @@
           "confidence": 0.84,
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
           "landmarkNotes": "Bent legs overlap; foot location is an estimated anatomical marker, not a stage pivot The visible foot endpoint was pixel-audited and moved to foreground at (1279,457).",
-          "reviewFlag": "PROVISIONAL visually measured"
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/rebound.png",
+          "sequenceLabel": "wall impact"
         }
-      ]
+      ],
+      "displayLabel": "Wall impact"
     },
     {
       "id": "pinwheel",
@@ -565,7 +580,7 @@
       "frames": [
         {
           "name": "pinwheel_1",
-          "sourceFile": "public/assets/connie/source/pinwheel.png",
+          "sourceFile": "public/assets/connie/source/dash.png",
           "sourceSha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
           "canvasPx": [
             1536,
@@ -628,11 +643,13 @@
           "confidence": 0.83,
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
           "landmarkNotes": "Body remains partly distinguishable. Rotation center is NOT a grounded foot",
-          "reviewFlag": "PROVISIONAL visually measured"
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/dash.png",
+          "sequenceLabel": "dash / pinwheel"
         },
         {
           "name": "pinwheel_2",
-          "sourceFile": "public/assets/connie/source/pinwheel.png",
+          "sourceFile": "public/assets/connie/source/dash.png",
           "sourceSha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
           "canvasPx": [
             1536,
@@ -683,11 +700,13 @@
           "confidence": 0.62,
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
           "landmarkNotes": "Scalp crown hidden by roses/petals and legs cannot be isolated reliably; DO NOT APPLY SCALE",
-          "reviewFlag": "LOW CONFIDENCE / manual correction required"
+          "reviewFlag": "LOW CONFIDENCE / manual correction required",
+          "file": "public/assets/connie/source/dash.png",
+          "sequenceLabel": "dash / pinwheel"
         },
         {
           "name": "pinwheel_3",
-          "sourceFile": "public/assets/connie/source/pinwheel.png",
+          "sourceFile": "public/assets/connie/source/dash.png",
           "sourceSha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
           "canvasPx": [
             1536,
@@ -722,9 +741,12 @@
           "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
           "landmarkNotes": "Pure rose/paper vortex; no visible anatomy. Do not infer head, torso, knees, ankles or feet",
           "reviewFlag": "ANATOMY ABSENT / no direct measurement",
-          "anatomyScaleInheritanceCandidate": "pinwheel_1"
+          "anatomyScaleInheritanceCandidate": "pinwheel_1",
+          "file": "public/assets/connie/source/dash.png",
+          "sequenceLabel": "dash / pinwheel"
         }
-      ]
+      ],
+      "displayLabel": "Dash / pinwheel"
     }
   ],
   "frameCount": 10,
@@ -734,7 +756,8 @@
     "No approved source frame duration is available from the attached PNGs, so no frame timing has been guessed.",
     "Head and torso measurements rely on visually annotated pixel points; their arithmetic is reproducible but anatomical choices remain provisional.",
     "Pinwheel frame two has uncertain scalp/crown, frame three contains no body; transformation scale requires human judgment.",
-    "Original images untouched and no normalized candidates, atlas, or hosted Connie review produced."
+    "Original images untouched and no normalized candidates, atlas, or hosted Connie review produced.",
+    "Phone filename mapping confirmed October 20: run, dash/pinwheel, idle, wall-impact/rebound. Canonical destinations use run.png, dash.png, idle.png, rebound.png."
   ],
   "overview": {
     "standingHeadPx": 153.0294,
