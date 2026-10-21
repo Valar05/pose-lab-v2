@@ -1,0 +1,60 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "connie-anatomical-calibration-v1",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "57cc39051353f7e15f1ca016bcdf0da36a6b47c3",
+  "implementationRevision": "cec91af656d09e4b2af2ce2b816bad01493cfd4c",
+  "finalRevision": null,
+  "executionLane": "GitHub connector source commit plus GitHub-hosted Actions validation",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "campaigns/connie-anatomical-calibration-v1.contract.json",
+    "campaigns/connie-anatomical-calibration-v1.json",
+    "campaigns/connie-anatomical-measurements-v1.json",
+    "campaigns/connie-anatomical-calibration-v1.receipt.json",
+    "tools/test_connie_anatomical_calibration.py",
+    "tools/sprite_scale_normalization.py",
+    "tools/test_sprite_scale_normalization.py",
+    "package.json",
+    ".github/workflows/sprite-scale-normalization.yml"
+  ],
+  "deliverables": [
+    "campaigns/connie-anatomical-calibration-v1.json",
+    "campaigns/connie-anatomical-measurements-v1.json"
+  ],
+  "sourcePixels": {
+    "sourceInGitHub": false,
+    "sourceImageFilesModified": false,
+    "sourceHashMatchesAttachments": true,
+    "sourcePixelInspection": "user-attached four PNGs, coordinate grid and threshold audit; not reproducible on hosted GitHub until PNG ingress"
+  },
+  "verification": {
+    "scaleNormalizationV1": {
+      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39523075424",
+      "commit": "cec91af656d09e4b2af2ce2b816bad01493cfd4c",
+      "conclusion": "success",
+      "scope": "12 generic normalization tests, 10-frame Connie annotated-data parity, campaign contracts, existing 2D test, build and smoke"
+    },
+    "spriteVisualQa": {
+      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39523075412",
+      "commit": "cec91af656d09e4b2af2ce2b816bad01493cfd4c",
+      "conclusion": "success",
+      "scope": "existing sprite review workflow, not direct Connie hosted review"
+    }
+  },
+  "measured": {
+    "frameCount": 10,
+    "canonicalHeadPx": 153.0294,
+    "runCandidateScale": 1.494482,
+    "aerialCandidateScale": 1.514475,
+    "pinwheelTentativeScale": 1.441366,
+    "pinwheelScaleBlocked": true
+  },
+  "outstanding": [
+    "Canonical four PNGs must be ingressed as exact SHA-verified binaries before reusable core can calculate directly from Git-owned sources",
+    "Authored per-frame timing is unavailable from static attachments",
+    "Pinwheel_2 scalp/crown occluded, pinwheel_3 headless; human to approve transformation relationship",
+    "No normalized sprite output, pinwheel approval, or exact-hosted Connie visual verdict"
+  ]
+}
