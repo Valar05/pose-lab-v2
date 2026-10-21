@@ -52,9 +52,24 @@ jobs:
           ref: 1f8b45bc8f2fd4def16a338bbb7fba7fe9e40359
           path: .connie-source
           persist-credentials: false
+      - name: Checkout original Connie atlas implementation for prior review link
+        uses: actions/checkout@v4
+        with:
+          ref: 81253e0f6bc1ab03bff59ea7b94698a03a80970a
+          path: .connie-original-review
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Preserve previously published original Connie review route
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check pillow==11.3.0
+          python3 .connie-original-review/tools/campaigns/connie_v3_cloud_preview.py \
+            --revision "56f000831aecdde15fc3588effd93aa822ebdb79" \
+            --output dist/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79
+          test -f dist/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/index.html
       - name: Generate one quarantined Connie ten-pose sprite sheet and comparisons
         shell: bash
         run: |
