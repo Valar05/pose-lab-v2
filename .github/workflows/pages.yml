@@ -177,6 +177,63 @@ jobs:
           print("GITHUB_PAGES_CONNIE_ALL_TEN_NORMALIZED_OK=10")
           print("GITHUB_PAGES_CONNIE_NOVEL_HEADLESS_FRAME_UNINVENTED=TRUE")
           PY
+      - name: Checkout RUN-canonical Connie correction
+        uses: actions/checkout@v4
+        with:
+          ref: b42507312286078b7621c589651e6aed49b5fdfe
+          path: .connie-run-canonical
+          persist-credentials: false
+      - name: Build one corrected Connie sheet using unchanged 1x run
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="dist/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/run-canonical-v4"
+          python3 .connie-run-canonical/tools/campaigns/connie_v3_cloud_preview.py \
+            --revision "56f000831aecdde15fc3588effd93aa822ebdb79" \
+            --output "$target"
+          python3 - <<'PY'
+          import hashlib,json,math,statistics
+          from pathlib import Path
+          from PIL import Image
+          base=Path("dist/review/connie/56f000831aecdde15fc3588effd93aa822ebdb79/run-canonical-v4")
+          source=Path(".connie-run-canonical")
+          report=json.loads((base/"report.json").read_text())
+          atlas=json.loads((base/"connie-unified-sprite-sheet.json").read_text())
+          cfg=json.loads((source/"campaigns/connie-anatomical-v3-calibration-v1.json").read_text())
+          assert cfg["canonical"]=="run" and cfg["canonicalFrameAuthority"]==["run_1","run_2","run_3"]
+          assert cfg["metric"]=="shoulder-to-hip-body-core-physical-distance"
+          assert report["status"]=="quarantined-awaiting-human-review"
+          assert report["singleSpriteSheetFrameCount"]==10
+          assert atlas["frameCount"]==len(atlas["frames"])==10
+          assert atlas["sourceCommit"]=="56f000831aecdde15fc3588effd93aa822ebdb79"
+          assert atlas["canvasPx"]==[1983,2093]
+          factors=atlas["uniformSequenceFactors"]
+          assert factors["run"]==1.0
+          assert abs(factors["idle"]-.45299127)<.000001
+          assert abs(factors["rebound"]-.77094361)<.000001
+          assert abs(factors["dash"]-.77400413)<.000001
+          assert factors["idle"]<factors["run"]
+          assert all(group["canonicalCharacterScale"]=="run" for group in report["groups"])
+          assert all(group["maximumAnatomicalResidual"]<=.08 for group in report["groups"])
+          assert next(g for g in report["groups"] if g["id"]=="idle")["headProportionMismatchFlag"] is True
+          image=base/"connie-unified-sprite-sheet.png"
+          assert hashlib.sha256(image.read_bytes()).hexdigest()==atlas["sha256"]
+          with Image.open(image) as im:
+              assert im.mode=="RGBA" and list(im.size)==atlas["canvasPx"]
+              im.verify()
+          proof=base/"connie-run-body-scale-audit.png"
+          with Image.open(proof) as im:
+              assert im.size==(1750,760)
+              im.verify()
+          assert "connie-run-body-scale-audit.png" in (base/"index.html").read_text()
+          src=json.loads((source/"campaigns/connie-source-measurements-v3.json").read_text())
+          for role,item in src["sources"].items():
+              assert hashlib.sha256((source/item["repoPath"]).read_bytes()).hexdigest()==item["sha256"]
+          print("CONNIE_PAGES_RUN_FIXED_AT_1X=TRUE")
+          print("CONNIE_PAGES_IDLE_ACTUALLY_SHRUNK_TO_0_453=TRUE")
+          print("CONNIE_PAGES_ALL_TEN_RUN_REFERENCED=TRUE")
+          print("CONNIE_HEAD_BODY_MISMATCH_EXPLICITLY_REPORTED=TRUE")
+          PY
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
