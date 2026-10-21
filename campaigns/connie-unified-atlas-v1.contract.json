@@ -1,8 +1,8 @@
 {
   "schema": "pose-lab-v2-campaign-contract-v2",
   "id": "connie-unified-atlas-v1",
-  "mission": "Deliver ONE true fixed-cell transparent RGBA sprite sheet containing Connie's exact ten authored idle/run/wall impact/dash poses together at sequence-consistent scales, with native atlas frame metadata; generated and tested by GitHub Actions from SHA-verified original V3 PNGs, visibly reviewed through existing Pose Lab GitHub Pages; never invent motion, redesign poses, or silently approve dash physical scale.",
-  "status": "quarantined-in-review",
+  "mission": "Deliver ONE compact, production-extractable, irregular-cell transparent RGBA sprite sheet with Connie's exact ten authored original poses at uniform per-animation physical scales, as Github-run authored output to existing Pose Lab Pages, with no per-frame fit or clipping. Review the fully packed composition at phone size before any artistic acceptance.",
+  "status": "layout-repair-quarantined-awaiting-visual-review",
   "authority": {
     "originalSourceCommit": "56f000831aecdde15fc3588effd93aa822ebdb79",
     "originalSourceManifest": "campaigns/connie-source-measurements-v3.json",
@@ -15,7 +15,8 @@
     },
     "renderLane": "GitHub Actions",
     "deliverySurface": "Existing Pose Lab GitHub Pages /review/connie/<sourceCommit>/index.html",
-    "originalArtworkImmutable": true
+    "originalArtworkImmutable": true,
+    "atlasLayout": "tightly row-packed irregular rectangles with precise metadata, no per-frame scaling"
   },
   "machine": {
     "mutablePaths": [
@@ -55,12 +56,15 @@
   },
   "acceptance": {
     "fullAtlasPNG": true,
-    "equalCellGeometry": true,
+    "equalCellGeometry": false,
     "frameMapping": true,
     "allTenFrames": true,
     "sourcePreserved": true,
     "noTimingGuess": true,
     "hostedVisualJudgment": "pending",
-    "runtimeGameImport": "not yet commissioned"
+    "runtimeGameImport": "not yet commissioned",
+    "irregularCellsMeasured": true,
+    "noClipping": true,
+    "canvasAreaReductionAtLeast": 0.25
   }
 }
