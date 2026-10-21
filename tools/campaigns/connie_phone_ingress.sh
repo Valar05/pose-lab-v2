@@ -7,8 +7,6 @@ export PAGER=cat GIT_PAGER=cat PYTHONDONTWRITEBYTECODE=1
 STOP(){ echo "CONNIE_PHONE_STOP: $*" >&2; exit 2; }
 BRANCH="feature/deterministic-sprite-scale-normalization-20261020"
 CONTRACT="campaigns/connie-phone-source-ingress-v1.contract.json"
-CALIBRATION="campaigns/connie-anatomical-calibration-v1.json"
-REPORT="campaigns/connie-anatomical-measurements-v1.json"
 SOURCES=(
   public/assets/connie/source/run.png
   public/assets/connie/source/dash.png
@@ -62,38 +60,35 @@ cat "$PACKET"
 python3 tools/campaigns/connie_phone_source_ingress.py check-manifest
 python3 tools/campaigns/connie_phone_source_ingress.py prepare
 python3 tools/campaigns/connie_phone_source_ingress.py verify-import
-python3 tools/test_connie_anatomical_calibration.py
 pose_campaign_verify "$WORK" "$CONTRACT"
 pose_campaign_check_worktree "$WORK" "$CONTRACT"
 
-if git -C "$WORK" diff --quiet HEAD -- \
-  "$CALIBRATION" "$REPORT" && \
-  ! git -C "$WORK" ls-files --others --exclude-standard \
-  -- "${SOURCES[@]}" | grep -q .; then
+if [ -z "$(git -C "$WORK" ls-files --others --exclude-standard -- "${SOURCES[@]}")" ]; then
+  python3 tools/campaigns/connie_phone_source_ingress.py verify-import
   echo "CONNIE_PHONE_IMPORT=ALREADY_PRESENT; NO_NEW_COMMIT"
   echo "REMOTE_GIT_REVISION=$REMOTE"
-  echo "HUMAN_VISUAL_VERDICT=PENDING"
+  echo "PHONE_TASK=COMPLETE_SOURCE_UPLOAD_ONLY"
   exit 0
 fi
 
 # Stage implementation before receipt, with the campaign allowlist as authority.
 pose_campaign_stage "$WORK" "$CONTRACT" \
-  "${SOURCES[@]}" "$CALIBRATION" "$REPORT"
+  "${SOURCES[@]}"
 git -C "$WORK" diff --cached --check
 IMPLEMENTATION="$(pose_campaign_commit "$WORK" \
-  "Import four SHA-verified Connie phone source PNGs" | tail -n 1)"
+  "Upload four SHA-verified original V3 Connie PNGs from phone" | tail -n 1)"
 
 python3 - "$WORK" <<'PY'
 import hashlib,json,subprocess,sys
 from pathlib import Path
 root=Path(sys.argv[1])
-cfg=json.loads((root/"campaigns/connie-anatomical-calibration-v1.json").read_text())
-for role, info in cfg["sourceAuthority"]["sourceDigests"].items():
-    blob=subprocess.check_output(["git","-C",str(root),"show","HEAD:"+info["file"]])
+cfg=json.loads((root/'campaigns/connie-source-measurements-v3.json').read_text())
+for role, info in cfg['sources'].items():
+    blob=subprocess.check_output(['git','-C',str(root),'show','HEAD:'+info['repoPath']])
     actual=hashlib.sha256(blob).hexdigest()
-    if actual!=info["sha256"]:
-        raise SystemExit("STOP: committed Git blob mismatch for "+role)
-    print("COMMITTED_GIT_BLOB_SHA_OK",role,actual)
+    if actual!=info['sha256']:
+        raise SystemExit('STOP: committed V3 Git blob mismatch '+role)
+    print('COMMITTED_GIT_BLOB_SHA_OK',role,actual)
 PY
 
 pose_campaign_write_receipt "$WORK" "$CONTRACT" "$REMOTE" \
@@ -109,6 +104,6 @@ echo "CONNIE_PHONE_INGRESS_COMMITTED=4"
 echo "SOURCE_SHA_256_VERIFIED=4"
 echo "GITHUB_REVISION=$FINAL"
 echo "GITHUB_SOURCE_BASE=https://github.com/Valar05/pose-lab-v2/tree/$FINAL/public/assets/connie/source"
-echo "CONNIE_NORMALIZATION=NOT_APPLIED"
+echo "PHONE_NORMALIZATION=NOT_APPLIED; GITHUB_ACTIONS_OWNS_NEXT_PHASE"
 echo "HUMAN_VISUAL_VERDICT=PENDING"
 echo "ORIGINAL_LOCAL_HEAD_PRESERVED=$LOCAL_HEAD"
