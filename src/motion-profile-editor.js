@@ -262,7 +262,15 @@ function renderStage(){
   const src = frameValues[role]?.trim();
   stage.innerHTML = '';
   if(working.family==='connie-atlas'){
-    const id=CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id;
+    const sequence=working.id==='connie-run'
+      ? ['run_1','run_2','run_3','run_2','run_1']
+      : (working.id==='connie-transform'||working.id==='connie-dash-spin')
+      ? ['spin_1','spin_2','spin_3','spin_3','spin_3','spin_2','spin_1','idle']
+      : working.id==='connie-untransform'
+      ? ['spin_3','spin_2','spin_1','idle']
+      : null;
+    const sequenceIndex=sequence?Math.min(sequence.length-1,Math.floor(playhead*sequence.length)):0;
+    const id=sequence?sequence[sequenceIndex]:(CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id);
     const rect=CONNIE_RECTS[id];
     if(rect){
       const c=document.createElement('canvas');c.width=500;c.height=440;c.style.maxWidth='100%';c.style.maxHeight='100%';
@@ -270,10 +278,14 @@ function renderStage(){
       if(connieReady){
         const [x0,y0,x1,y1]=rect,w=x1-x0,h=y1-y0;
         const time=playhead*2*Math.PI;
-        const angle=working.id==='connie-transform'&&playhead>.305 ? 2*Math.PI*((playhead-.305)/.695)**2 :
-          working.id==='connie-untransform' ? -2*Math.PI*(1-(1-playhead)**2) : 0;
+        const spinning=working.id==='connie-transform'||working.id==='connie-dash-spin'||working.id==='connie-untransform';
+        // One-way spin: angular speed rises into the dash and remains positive
+        // through the return. No reverse rotation or ease-out deceleration.
+        const spinProgress=playhead<.3
+          ? 1.5*(playhead/.3)**2
+          : 1.5+3.5*((playhead-.3)/.7);
+        const angle=spinning?2*Math.PI*spinProgress:0;
         cx.save();
-        const spinning=working.id==='connie-transform'||working.id==='connie-untransform';
         cx.translate(250,spinning?220:410);
         cx.rotate(angle);
         const destX=-w/2,destY=spinning?-h/2:-h;
@@ -284,8 +296,9 @@ function renderStage(){
           const drop=Math.round((1-Math.cos(time))*3);
           const upper=Math.round(h*.69),ankle=Math.round(h*.86);
           cx.drawImage(connieMasked,x0,y0,w,upper,destX,destY+drop,w,upper);
+          // Do not rescale the knee region: overlap displaced segments at a joint.
           cx.drawImage(connieMasked,x0,y0+upper,w,ankle-upper,
-            destX,destY+upper+drop,w,ankle-upper-drop);
+            destX,destY+upper+drop,w,ankle-upper);
           cx.drawImage(connieMasked,x0,y0+ankle,w,h-ankle,
             destX,destY+ankle,w,h-ankle);
         }else{
