@@ -66,99 +66,123 @@ def verify_sources(doc):
 
 
 def scale_analysis(doc):
-    """Use explicit crown-to-chin anatomy, never a rose/hair bounding rectangle."""
+    """Match whole-character physical BODY scale to the RUN, never to idle.
+
+    These source-space shoulder/hip landmark selections are provisional.
+    A single factor applies to each authored animation including transformed
+    poses. Heads are independently reported as a ratio warning, not used as
+    scale authority or silently changed.
+    """
     import statistics
-    calib_path = ROOT / "campaigns/connie-anatomical-v3-calibration-v1.json"
-    calib = json.loads(calib_path.read_text(encoding="utf-8"))
+    calib = json.loads(
+        (ROOT / "campaigns/connie-anatomical-v3-calibration-v1.json").read_text(encoding="utf-8"))
     if calib.get("schema") != "pose-lab-v3-anatomical-calibration-v1":
-        stop("calibration schema mismatch")
+        stop("unexpected anatomical calibration schema")
     if calib["authority"]["originalGitRevision"] != "56f000831aecdde15fc3588effd93aa822ebdb79":
-        stop("Connie anatomy calibrated against unexpected source revision")
-    if calib["canonical"] != "idle":
-        stop("standing reference must remain canonical")
-    if set(calib["frames"]) != set(doc["frameOrder"]):
-        stop("anatomical annotation must cover exactly ten source-authoritative frames")
-    if set(calib["groups"]) != set(ORDER):
-        stop("one and only one calibrated group per original animation")
+        stop("body landmarks not bound to canonical Connie source revision")
+    if calib["canonical"] != "run" or calib["canonicalFrameAuthority"] != ["run_1","run_2","run_3"]:
+        stop("RUN MUST BE THE CANONICAL CHARACTER SCALE")
+    if calib["metric"] != "shoulder-to-hip-body-core-physical-distance":
+        stop("body core rather than head envelope must determine scale")
+    if set(calib["frames"]) != set(doc["frameOrder"]) or set(calib["groups"]) != set(ORDER):
+        stop("calibration coverage or animation family mismatch")
     for role in ORDER:
         if calib["authority"]["sourceSHA256"][role] != doc["sources"][role]["sha256"]:
-            stop("anatomy was calibrated on different source PNGs: " + role)
-    def length(fid):
-        record = calib["frames"][fid]
-        source = doc["frames"][fid]
-        if record["source"] != source["source"]:
-            stop("anatomical point source mismatch: " + fid)
-        points = (record.get("crownSourcePx"), record.get("chinSourcePx"))
+            stop("calibration PNG hash differs from original V3: "+role)
+
+    def length(fid, kind):
+        record=calib["frames"][fid]
+        frame=doc["frames"][fid]
+        if frame["source"] != record["source"]:
+            stop("frame source changed: "+fid)
+        keys=(("shoulderSourcePx","hipSourcePx") if kind=="body"
+              else ("crownSourcePx","chinSourcePx"))
+        points=[record.get(name) for name in keys]
         if any(p is None for p in points):
             return None
-        x, y, w, h = source["regionPx"]
+        x,y,w,h=frame["regionPx"]
         for point in points:
-            if (not isinstance(point, list) or len(point) != 2 or
-                not (x <= point[0] < x + w and y <= point[1] < y + h)):
-                stop("anatomical point falls outside exact source cell: " + fid)
-        dist = math.dist(*points)
-        if dist < 10 or not math.isfinite(dist):
-            stop("degenerate anatomical measurement: " + fid)
+            if not isinstance(point,list) or len(point)!=2 or not (
+                x<=point[0]<x+w and y<=point[1]<y+h):
+                stop("invalid "+kind+" landmark outside source frame: "+fid)
+        dist=math.dist(*points)
+        if not math.isfinite(dist) or dist<10:
+            stop("invalid "+kind+" anatomical span: "+fid)
         return dist
-    ref = length("idle")
-    if ref is None or calib["frames"]["idle"]["confidence"] < calib["policy"]["confidenceFloor"]:
-        stop("canonical standing anatomy unreliable")
-    groups = {}
+
+    canon_ids=calib["groups"]["run"]["measurementFrames"]
+    if canon_ids != calib["canonicalFrameAuthority"]:
+        stop("run measurement set cannot move away from canonical run")
+    floor=calib["policy"]["confidenceFloor"]
+    for fid in canon_ids:
+        if calib["frames"][fid]["bodyCoreConfidence"] < floor:
+            stop("canonical run body core unreliable: "+fid)
+    run_target=statistics.median([length(fid,"body") for fid in canon_ids])
+    if not 80<run_target<220:
+        stop("run canonical body scale outside expected measured source envelope")
+    run_face=statistics.median([length(fid,"head") for fid in canon_ids])
+    result={}
     for role in ORDER:
-        family = calib["groups"][role]
-        ids = [fid for fid in doc["frameOrder"] if doc["frames"][fid]["source"] == role]
-        if ids != family["frames"]:
-            stop("authored animation frame order diverges from calibration: " + role)
-        reliable = family["measurementFrames"]
-        if not reliable:
-            stop("sequence lacks an explicit anatomical scale anchor: " + role)
-        if any(fid not in ids for fid in reliable):
-            stop("calibration measure subset outside sequence: " + role)
-        values = []
-        measured = {}
+        family=calib["groups"][role]
+        ids=[fid for fid in doc["frameOrder"] if doc["frames"][fid]["source"]==role]
+        reliable=family["measurementFrames"]
+        if ids!=family["frames"] or not reliable or any(fid not in ids for fid in reliable):
+            stop("group frames or calibration anchor invalid: "+role)
+        measurements={}
+        spans=[]
         for fid in ids:
-            v = length(fid)
-            conf = calib["frames"][fid]["confidence"]
-            measured[fid] = {"crownChinPx": round(v, 4) if v else None,
-                             "confidence": conf,
-                             "contributesToScale": fid in reliable,
-                             "notes": calib["frames"][fid]["note"]}
+            record=calib["frames"][fid]
+            body=length(fid,"body")
+            head=length(fid,"head")
+            conf=record["bodyCoreConfidence"]
             if fid in reliable:
-                if v is None or conf < calib["policy"]["confidenceFloor"]:
-                    stop("chosen anatomical scale landmark unreliable: " + fid)
-                values.append(v)
-        median = statistics.median(values)
-        factor = ref / median
-        residuals = {fid: abs(v * factor / ref - 1)
-                     for fid in reliable
-                     for v in [length(fid)]}
-        max_error = max(residuals.values())
-        if max_error > calib["policy"]["maximumRelativeAnatomicalResidual"]:
-            stop("anatomical sequence variance is too high: " + role)
-        if role == "dash" and family["transformKind"] != "uniform-deliberate-transformation":
-            stop("headless dash relationship must be recorded explicitly")
-        groups[role] = {
-            "id": role, "label": LABELS[role], "frames": ids,
-            "anatomicalTargetPx": round(ref, 4),
-            "medianReliableCrownChinPx": round(median, 4),
-            "singleSequenceFactor": round(factor, 8),
-            "anatomicalMeasurement": measured,
-            "maximumAnatomicalResidual": round(max_error, 6),
-            "observedHeadEnvelopePx": [doc["frames"][fid].get("head", {}).get("heightPx") for fid in ids],
-            "oldBoundingBoxProxyFactor": round(
-                doc["frames"]["idle"]["head"]["heightPx"] /
-                statistics.median([doc["frames"][fid]["head"]["heightPx"]
-                                   for fid in ids if doc["frames"][fid].get("head")]), 8),
-            "status": ("QUARANTINED transformation-scale candidate; human approval required"
-                       if role == "dash" else "QUARANTINED anatomical-scale candidate"),
-            "artisticReviewRequired": role == "dash",
-            "scaleAuthority": "manually calibrated crown/chin from source-faithful original V3 PNGs",
-            "reasons": [family.get("exception", "")] if family.get("exception") else [],
+                if body is None or conf<floor:
+                    stop("unreliable physical body-core size: "+fid)
+                spans.append(body)
+            measurements[fid]={
+                "shoulderHipPx":round(body,4) if body is not None else None,
+                "crownChinPx":round(head,4) if head is not None else None,
+                "bodyConfidence":conf,
+                "headConfidence":record["confidence"],
+                "contributesToPhysicalScale":fid in reliable,
+                "notes":record["note"]}
+        measured_median=statistics.median(spans)
+        factor=1.0 if role=="run" else run_target/measured_median
+        body_error=max(abs((value*factor/run_target)-1) for value in spans)
+        if body_error>calib["policy"]["maximumRelativeAnatomicalResidual"]:
+            stop("body scale disagreement within "+role+": %.3f"%body_error)
+        if role=="idle" and not (.25<factor<.65):
+            stop("idle should shrink to run body size, not become reference")
+        if role=="dash" and family["transformKind"]!="uniform-deliberate-transformation":
+            stop("headless dash body scale must be inherited from body-visible frame")
+        head_values=[length(fid,"head") for fid in reliable if length(fid,"head") is not None]
+        head_after=statistics.median(head_values)*factor if head_values else None
+        head_ratio=head_after/run_face if head_after is not None else None
+        result[role]={
+            "id":role,"label":LABELS[role],"frames":ids,
+            "canonicalCharacterScale":"run",
+            "physicalScaleMetric":"shoulder-to-hip-body-core",
+            "anatomicalTargetPx":round(run_target,4),
+            "medianReliableBodyCorePx":round(measured_median,4),
+            "singleSequenceFactor":round(factor,8),
+            "anatomicalMeasurement":measurements,
+            "maximumAnatomicalResidual":round(body_error,6),
+            "postScaledHeadToRunRatio":round(head_ratio,5) if head_ratio else None,
+            "headProportionMismatchFlag":bool(head_ratio and abs(head_ratio-1)>.15),
+            "status":("QUARANTINED run-reference body scale; dash artistic review required"
+                     if role=="dash" else "QUARANTINED run-reference body-scale candidate"),
+            "artisticReviewRequired":role=="dash",
+            "scaleAuthority":"measured shoulder-to-hip body core relative to canonical RUN",
+            "reasons":[family.get("exception","")] if family.get("exception") else [],
         }
-    print("CONNIE_ANATOMICAL_CANONICAL_PX=%.4f" % ref)
-    print("CONNIE_ANATOMICAL_SEQUENCE_FACTORS=" + json.dumps(
-        {k: v["singleSequenceFactor"] for k, v in groups.items()}))
-    return groups
+    if result["run"]["singleSequenceFactor"]!=1.0:
+        stop("run reference changed scale")
+    print("CONNIE_RUN_CANONICAL_BODY_CORE_PX=%.4f"%run_target)
+    print("CONNIE_RUN_REFERENCE_GROUP_SCALES="+json.dumps({
+        k:g["singleSequenceFactor"] for k,g in result.items()},sort_keys=True))
+    print("CONNIE_POST_SCALE_HEAD_RATIOS_DIAGNOSTIC_ONLY="+json.dumps({
+        k:g["postScaledHeadToRunRatio"] for k,g in result.items()},sort_keys=True))
+    return result
 
 
 def frame_art(doc, source, fid):
@@ -214,44 +238,53 @@ def mini_card(art, label, factor=1.0):
 
 
 def make_anatomical_audit(doc, sources, groups, out):
-    """Diagnostic only: exact same optical zoom for post-scale head landmarks."""
-    calibration=json.loads((ROOT/"campaigns/connie-anatomical-v3-calibration-v1.json").read_text())
-    names=["idle","run_1","run_2","run_3","rebound_1","rebound_2","rebound_3","dash_1","dash_2","dash_3"]
-    width,height=340,355
-    result=Image.new("RGB",(width*5,height*2),(20,20,26))
+    """One optical zoom, shoulders-to-hips, all ten frame slots."""
+    calibration=json.loads(
+        (ROOT/"campaigns/connie-anatomical-v3-calibration-v1.json").read_text())
+    names=["idle","run_1","run_2","run_3","rebound_1",
+           "rebound_2","rebound_3","dash_1","dash_2","dash_3"]
+    tile_w,tile_h=350,380
+    result=Image.new("RGB",(tile_w*5,tile_h*2),(20,20,26))
     pen=ImageDraw.Draw(result)
-    for idx,fid in enumerate(names):
-        r=calibration["frames"][fid]
-        factor=groups[r["source"]]["singleSequenceFactor"]
-        offset_x,offset_y=(idx%5)*width,(idx//5)*height
-        pts=[r["crownSourcePx"],r["chinSourcePx"]]
-        if any(pt is None for pt in pts):
-            pen.text((offset_x+12,offset_y+145),"dash_3: no visible head",fill=(255,175,205))
-            pen.text((offset_x+12,offset_y+166),"whole dash scale inherited",fill=(255,255,255))
+    for index,fid in enumerate(names):
+        record=calibration["frames"][fid]
+        factor=groups[record["source"]]["singleSequenceFactor"]
+        tx,ty=(index%5)*tile_w,(index//5)*tile_h
+        shoulder=record["shoulderSourcePx"]
+        hip=record["hipSourcePx"]
+        if shoulder is None or hip is None:
+            pen.text((tx+10,ty+160),fid+": no visible anatomy",fill=(255,170,195))
+            pen.text((tx+10,ty+183),"sequence-wide scale inherited",fill=(255,255,255))
             continue
-        art,_=frame_art(doc,sources,fid)
-        scaled=art.resize((max(1,round(art.width*factor)),max(1,round(art.height*factor))),Image.Resampling.LANCZOS) if factor!=1 else art
+        original,anchor=frame_art(doc,sources,fid)
+        scaled=original.resize((max(1,round(original.width*factor)),
+                                max(1,round(original.height*factor))),
+                               Image.Resampling.LANCZOS) if factor!=1 else original
         sx,sy,sw,sh=doc["frames"][fid]["regionPx"]
-        rgba=alpha_artwork(sources[r["source"]].crop((sx,sy,sx+sw,sy+sh)),"black")
-        lx,ly,_,_=rgba.getchannel("A").getbbox()
-        a=((pts[0][0]-sx-lx)*factor,(pts[0][1]-sy-ly)*factor)
-        b=((pts[1][0]-sx-lx)*factor,(pts[1][1]-sy-ly)*factor)
-        center_x,center_y=(a[0]+b[0])/2,(a[1]+b[1])/2
-        crop_x,crop_y=round(center_x-155),round(center_y-155)
-        portrait=scaled.crop((crop_x,crop_y,crop_x+310,crop_y+310))
-        bg=Image.new("RGBA",(310,310),(20,20,26,255))
-        bg.alpha_composite(portrait)
-        result.paste(bg.convert("RGB"),(offset_x+15,offset_y+25))
-        aa=(offset_x+15+round(a[0]-crop_x),offset_y+25+round(a[1]-crop_y))
-        bb=(offset_x+15+round(b[0]-crop_x),offset_y+25+round(b[1]-crop_y))
-        pen.line([aa,bb],fill=(64,245,103),width=3)
-        for mx,my in (aa,bb):
-            pen.ellipse((mx-4,my-4,mx+4,my+4),fill=(255,235,74),outline=(15,15,15),width=1)
-        pen.text((offset_x+10,offset_y+339),
-                 "%s: %.1f px | conf %.2f"%(fid,math.dist(*pts)*factor,r["confidence"]),
-                 fill=(255,230,244))
-    result.save(out/"connie-anatomical-head-audit.png")
-    print("CONNIE_ANATOMICAL_HEAD_AUDIT_CREATED=9")
+        # Same foreground crop logic as the exporter; no per-card fit-to-box.
+        original_rgba=alpha_artwork(sources[record["source"]].crop((sx,sy,sx+sw,sy+sh)),"black")
+        bx,by,_,_=original_rgba.getchannel("A").getbbox()
+        a=((shoulder[0]-sx-bx)*factor,(shoulder[1]-sy-by)*factor)
+        b=((hip[0]-sx-bx)*factor,(hip[1]-sy-by)*factor)
+        center=((a[0]+b[0])/2,(a[1]+b[1])/2)
+        cx,cy=round(center[0]-158),round(center[1]-158)
+        portrait=scaled.crop((cx,cy,cx+316,cy+316))
+        panel=Image.new("RGBA",(316,316),(20,20,26,255))
+        panel.alpha_composite(portrait)
+        result.paste(panel.convert("RGB"),(tx+17,ty+24))
+        x1,y1=tx+17+round(a[0]-cx),ty+24+round(a[1]-cy)
+        x2,y2=tx+17+round(b[0]-cx),ty+24+round(b[1]-cy)
+        pen.line([(x1,y1),(x2,y2)],fill=(70,240,105),width=3)
+        for px,py in [(x1,y1),(x2,y2)]:
+            pen.ellipse((px-4,py-4,px+4,py+4),fill=(252,232,72))
+        body=math.dist(shoulder,hip)*factor
+        head=math.dist(record["crownSourcePx"],record["chinSourcePx"])*factor if record.get("crownSourcePx") and record.get("chinSourcePx") else None
+        pen.text((tx+8,ty+348),
+                 "%s  body %.0f px  face %s"%(fid,body,("%.0f"%head if head is not None else "?")),
+                 fill=(255,232,245))
+        pen.text((tx+8,ty+364),"conf %.2f"%record["bodyCoreConfidence"],fill=(192,192,211))
+    result.save(out/"connie-run-body-scale-audit.png")
+    print("CONNIE_RUN_BODY_CORE_COMPARISON_CREATED=10")
 
 
 def produce(doc, src, groups, out, revision):
@@ -293,8 +326,8 @@ def produce(doc, src, groups, out, revision):
       "schema":"pose-lab-connie-v3-cloud-preview-v1",
       "status":"quarantined-awaiting-human-review",
       "sourceRevision":revision,
-      "canonicalCrownChinPx":groups["idle"]["anatomicalTargetPx"],
-      "measurementKind":"V3 original-source calibrated crown-to-chin facial plane distance; hair/roses excluded",
+      "canonicalRunShoulderHipPx":groups["run"]["anatomicalTargetPx"],
+      "measurementKind":"RUN physical reference; approximate original-source shoulder-to-hip body-core spans. Face lengths diagnostic only; no independent limb normalization.",
       "originalSHA256":{k:doc["sources"][k]["sha256"] for k in ORDER},
       "groups":entries,
       "noInventedTiming":True,
@@ -323,13 +356,13 @@ def produce(doc, src, groups, out, revision):
 <p>One real transparent sprite sheet with tightly packed irregular cells and an exact source frame map. Standing + run + wall impact + dash, with no frame-by-frame fit or invented timing.</p>
 <p><a href="connie-unified-sprite-sheet.png" download>View / save complete transparent sprite sheet</a> · <a href="connie-unified-sprite-sheet.json">Atlas cells + scales (JSON)</a></p>
 <img alt="Connie compact ten-frame unified sprite atlas with standing, run, wall-impact, and dash poses in three tightly packed rows" src="connie-unified-sprite-sheet.png">
-<h2>Physical head-size calibration, not hair bounding boxes</h2>
-<p>The green segments mark visible crown-to-chin landmarks after the single whole-animation scale. Nine visible faces use the same display zoom; the final headless pinwheel is explicitly marked as inherited from the dash sequence.</p>
-<p><a href="connie-anatomical-head-audit.png">Open the anatomical head-size comparison</a></p>
-<img alt="Connie measured anatomical head sizes with consistent display zoom across poses" src="connie-anatomical-head-audit.png">
+<h2>Physical BODY scale compared to canonical RUN</h2>
+<p>The green segments measure shoulder-to-hip body-core spans at one optical pixel scale. Run is 1×. Idle shrinks to match run. Face measurements are shown independently as diagnostics, not silently forced to match.</p>
+<p><a href="connie-run-body-scale-audit.png">Open the run-reference body-scale comparison</a></p>
+<img alt="Connie body-core and face sizes at identical optical zoom, with run establishing size" src="connie-anatomical-head-audit.png">
 <h2>Separate sequence comparisons (diagnostic only)</h2>
 <p>GitHub source revision: '''+html.escape(revision)+'''</p>
-<p>Calibrated facial anatomy determines whole-sequence scale. These static sheets preserve poses and do not invent animation timing.
+<p>Run torso establishes physical scale; entire other animation sequences are uniformly resized. These static sheets preserve poses and do not invent animation timing.
 Dash/pinwheel uses one recorded whole-sequence anatomical factor from its visible first frame. Its human approval remains pending. No original source art was changed or promoted.</p>
 '''+ "\n".join(cards)+'''<p><a href="report.json">Measurement report (JSON)</a></p></html>'''
     (out/"index.html").write_text(page)
