@@ -18,6 +18,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
 from sprite_scale_normalization import alpha_artwork
+from connie_unified_atlas import build_atlas
 
 AUTH = ROOT / "campaigns/connie-source-measurements-v3.json"
 ORDER = ("idle", "run", "rebound", "dash")
@@ -152,6 +153,7 @@ def mini_card(art, label, factor=1.0):
 
 def produce(doc, src, groups, out, revision):
     out.mkdir(parents=True, exist_ok=False)
+    unified=build_atlas(doc,src,groups,out,revision,frame_art)
     entries = []
     for role in ORDER:
         group = groups[role]
@@ -195,6 +197,10 @@ def produce(doc, src, groups, out, revision):
       "pinwheelBlocked":True,
       "gameReady":False,
       "sourceImagesUnchanged":True,
+      "singleSpriteSheet":"connie-unified-sprite-sheet.png",
+      "singleSpriteSheetMetadata":"connie-unified-sprite-sheet.json",
+      "singleSpriteSheetSha256":unified["sha256"],
+      "singleSpriteSheetFrameCount":10,
     }
     (out/"report.json").write_text(json.dumps(report,indent=2)+"\n")
     cards=[]
@@ -209,7 +215,11 @@ def produce(doc, src, groups, out, revision):
     page='''<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Connie scale review · Pose Lab V2</title>
 <style>body{font:16px system-ui,sans-serif;background:#131319;color:#f8f6fa;margin:auto;padding:1.4rem;max-width:1300px}img{display:block;width:100%;height:auto;object-fit:contain;background:#0b0b0c;margin:12px 0 22px;border:1px solid #555;border-radius:8px}h1,h2{color:#ffc5dc}section{padding:18px 0;border-top:1px solid #555}a{color:#9bd9ff}</style>
-<h1>Connie · quarantined deterministic scale candidates</h1>
+<h1>Connie · all 10 poses in one sprite sheet</h1>
+<p>One transparent sprite sheet with a shared fixed cell size. Standing + run + wall impact + dash. No generated poses and no invented timing.</p>
+<p><a href="connie-unified-sprite-sheet.png" download>View / save complete transparent sprite sheet</a> · <a href="connie-unified-sprite-sheet.json">Atlas cells + scales (JSON)</a></p>
+<img alt="Connie ten-frame unified sprite atlas with standing, run, wall-impact, and dash poses on one transparent sheet" src="connie-unified-sprite-sheet.png">
+<h2>Separate sequence comparisons (diagnostic only)</h2>
 <p>GitHub source revision: '''+html.escape(revision)+'''</p>
 <p>Head-envelope measurements are a proxy. These static sheets preserve poses and do not invent animation timing.
 Dash / pinwheel is blocked. No original source art was changed or promoted.</p>
