@@ -28,7 +28,8 @@
       "campaigns/connie-unified-atlas-v1.contract.json",
       "campaigns/connie-unified-atlas-v1.receipt.json",
       "campaigns/connie-anatomical-v3-calibration-v1.json",
-      "tools/test_connie_anatomical_v3_scale.py"
+      "tools/test_connie_anatomical_v3_scale.py",
+      "tools/test_connie_v3_cloud_preview.py"
     ],
     "receiptPath": "campaigns/connie-unified-atlas-v1.receipt.json",
     "requiredRules": [
