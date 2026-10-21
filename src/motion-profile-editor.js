@@ -278,23 +278,21 @@ function renderStage(){
         cx.rotate(angle);
         const destX=-w/2,destY=spinning?-h/2:-h;
         if(working.id==='connie-idle'){
-          // Horizontal displacement per scanline; never scale the whole character.
-          for(let y=0;y<h;y+=2){
-            const band=Math.min(2,h-y),v=y/h;
-            const displacement=Math.sin(time+v*4)*Math.sin(Math.PI*v)*4;
-            cx.drawImage(connieMasked,x0,y0+y,w,band,destX+displacement,destY+y,w,band);
-          }
-        }else if(working.id==='connie-run'||working.id==='connie-aerial'){
-          const phase=(playhead*3)%1;
-          const pop=working.id==='connie-run'?Math.sin(Math.PI*phase)*3:Math.sin(Math.PI*phase)*5;
-          const lean=working.id==='connie-run'?Math.sin(2*Math.PI*playhead)*.025:Math.sin(2*Math.PI*playhead)*.045;
-          cx.rotate(lean);
-          for(let y=0;y<h;y+=2){
-            const band=Math.min(2,h-y),v=y/h;
-            const warp=Math.sin(Math.PI*v)*pop*Math.sin(Math.PI*phase+v*2);
-            cx.drawImage(connieMasked,x0,y0+y,w,band,destX+warp,destY+y,w,band);
-          }
-        }else cx.drawImage(connieMasked,x0,y0,w,h,destX,destY,w,h);
+          // Vanguard-style knee displacement, not Serin's whole-body sway.
+          // Head/torso travel as a rigid upper mass, knees absorb the drop,
+          // and the foot segment stays locked to the original ground line.
+          const drop=Math.round((1-Math.cos(time))*3);
+          const upper=Math.round(h*.69),ankle=Math.round(h*.86);
+          cx.drawImage(connieMasked,x0,y0,w,upper,destX,destY+drop,w,upper);
+          cx.drawImage(connieMasked,x0,y0+upper,w,ankle-upper,
+            destX,destY+upper+drop,w,ankle-upper-drop);
+          cx.drawImage(connieMasked,x0,y0+ankle,w,h-ankle,
+            destX,destY+ankle,w,h-ankle);
+        }else{
+          // Authoritative poses are copied unscaled and unwarped.
+          // Avoid fractional scanline re-sampling and accidental silhouette squash.
+          cx.drawImage(connieMasked,x0,y0,w,h,destX,destY,w,h);
+        }
         cx.restore();
       }
       stage.append(c);
