@@ -266,13 +266,13 @@ function renderStage(){
     const isDash=working.id==='connie-transform'||working.id==='connie-dash-spin';
     const isReturn=working.id==='connie-untransform';
     const sequence=working.id==='connie-run'
-      ? ['run_1','run_2','run_3','run_2','run_1']
+      ? ['run_1','run_2','run_3','run_2']
       : isDash ? ['spin_1','spin_2','spin_3','spin_3','spin_3','spin_2','spin_1']
       : isReturn ? ['spin_3','spin_2','spin_1'] : null;
     const sequenceIndex=sequence?Math.min(sequence.length-1,Math.floor(playhead*sequence.length)):0;
     // Stationary crouched aerial pose at BOTH endpoints of the complete dash.
     const id=isDash
-      ? (playhead<.16||playhead>=.84?'spin_1':playhead<.35?'spin_2':playhead<.65?'spin_3':'spin_2')
+      ? (playhead<.045||playhead>=.955?'spin_1':playhead<.29?'spin_2':playhead<.71?'spin_3':'spin_2')
       : sequence?sequence[sequenceIndex]:(CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id);
     const rect=CONNIE_RECTS[id];
     if(rect){
@@ -285,7 +285,7 @@ function renderStage(){
         // The full crouched sprite never rotates. Rotation begins only after
         // transformation, accelerates into pinwheel, and decelerates symmetrically.
         // Exactly three positive turns ensure the transformed pose returns upright.
-        const phase=Math.max(0,Math.min(1,(playhead-.16)/.68));
+        const phase=Math.max(0,Math.min(1,(playhead-.045)/.91));
         const smooth=phase*phase*(3-2*phase);
         const angle=isDash?6*Math.PI*smooth
           : working.id==='connie-untransform'?2*Math.PI*playhead:0;
@@ -350,7 +350,7 @@ function renderStage(){
           // Port Vanguard's recipe-based signed shear, not pixel-space liquid
           // displacement. No vertical bob, no root translation, no leg resampling.
           const shearKeys=[.0375,-.0475,.0375,-.0475,.0375];
-          const u=Math.max(0,Math.min(4,playhead*5));
+          const u=Math.max(0,Math.min(4,playhead*4));
           const k=Math.min(3,Math.floor(u));
           const f=Math.max(0,Math.min(1,u-k));
           const eased=f*f*(3-2*f);
