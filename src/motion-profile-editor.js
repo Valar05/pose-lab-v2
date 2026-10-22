@@ -295,13 +295,12 @@ function renderStage(){
           return total;};
         const angle=isDash&&id!=='spin_1'?4*Math.PI*integrate(u)/integrate(1)
           :working.id==='connie-untransform'?2*Math.PI*playhead:0;
-        // Only character sprites shrink/grow. The pinwheel is NEVER scaled.
+        // Scale ONLY the first aerial character pose. The intermediate
+        // transformation sprite and pinwheel always retain native dimensions.
         let humanScale=1;
-        if(isDash&&id!=='spin_3'){
+        if(isDash&&id==='spin_1'){
           if(playhead<.13)humanScale=1-.22*ease((playhead-.045)/.085);
-          else if(playhead<.29)humanScale=.78-.24*ease((playhead-.13)/.16);
-          else if(playhead<.87)humanScale=.54+.24*ease((playhead-.71)/.16);
-          else humanScale=.78+.22*ease((playhead-.87)/.085);
+          else if(playhead>=.87)humanScale=.78+.22*ease((playhead-.87)/.085);
         }
         cx.save();
         const runBounce=0;
@@ -317,7 +316,7 @@ function renderStage(){
             0,0);
         }
         cx.rotate(angle);
-        if(isDash&&id!=='spin_3')cx.scale(humanScale,humanScale);
+        if(isDash&&id==='spin_1')cx.scale(humanScale,humanScale);
         // Anchor visible artwork, not arbitrary atlas crop margins.
         // The source and destination widths/heights remain exactly identical.
         const visible=CONNIE_CONTENT_BOUNDS[id];
