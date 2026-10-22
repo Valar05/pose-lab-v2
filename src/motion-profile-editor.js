@@ -272,7 +272,7 @@ function renderStage(){
     const sequenceIndex=sequence?Math.min(sequence.length-1,Math.floor(playhead*sequence.length)):0;
     // Stationary crouched aerial pose at BOTH endpoints of the complete dash.
     const id=isDash
-      ? (playhead<.045||playhead>=.955?'spin_1':playhead<.29?'spin_2':playhead<.71?'spin_3':'spin_2')
+      ? (playhead<.13||playhead>=.87?'spin_1':playhead<.29?'spin_2':playhead<.71?'spin_3':'spin_2')
       : sequence?sequence[sequenceIndex]:(CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id);
     const rect=CONNIE_RECTS[id];
     if(rect){
@@ -282,33 +282,27 @@ function renderStage(){
         const [x0,y0,x1,y1]=rect,w=x1-x0,h=y1-y0;
         const time=playhead*2*Math.PI;
         const spinning=working.id==='connie-transform'||working.id==='connie-dash-spin'||working.id==='connie-untransform';
-        // Hold the aerial body still at the endpoints. The intermediate
-        // transformation rotates slowly; the pinwheel carries most of the turns.
-        // Symmetric angular-velocity envelope, integrated continuously.
-        const spinStart=.045,spinEnd=.955;
+        // The upright aerial sprite remains unrotated. The intermediate
+        // character accelerates gently; the pinwheel has the highest speed.
+        // On return the angular velocity decelerates by the same envelope.
+        const ease=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v);};
+        const spinStart=.13,spinEnd=.87;
         const u=Math.max(0,Math.min(1,(playhead-spinStart)/(spinEnd-spinStart)));
-        const ease=v=>v*v*(3-2*v);
-        const speed=v=>v<.27?(.12+.88*ease(v/.27))
-          :v<.73?1: .12+.88*ease((1-v)/.27);
-        // Deterministic numerical integral of speed, normalized to two full turns.
-        const integrate=(end)=>{let total=0;const n=120;const step=end/n;
+        const speed=v=>v<.216?(.08+.92*ease(v/.216))
+          :v<.784?1:(.08+.92*ease((1-v)/.216));
+        const integrate=end=>{let total=0;const n=120,step=end/n;
           for(let i=0;i<n;i++)total+=speed((i+.5)*step)*step;
           return total;};
-        const angle=isDash?4*Math.PI*integrate(u)/integrate(1)
+        const angle=isDash&&id!=='spin_1'?4*Math.PI*integrate(u)/integrate(1)
           :working.id==='connie-untransform'?2*Math.PI*playhead:0;
-        // Human body contracts into the transformation and expands from the
-        // pinwheel on return; never resize the source atlas or the pinwheel.
-        // Continuous size envelope across *all* source poses. The pinwheel
-        // stays compact on entry, then expands as the body reforms.
-        let transformScale=1;
-        if(isDash&&playhead>=.045&&playhead<.29)
-          transformScale=1-.28*ease((playhead-.045)/.245);
-        else if(isDash&&playhead>=.29&&playhead<.60)
-          transformScale=.72;
-        else if(isDash&&playhead>=.60&&playhead<.71)
-          transformScale=.72+.10*ease((playhead-.60)/.11);
-        else if(isDash&&playhead>=.71&&playhead<.955)
-          transformScale=.82+.18*ease((playhead-.71)/.245);
+        // Only character sprites shrink/grow. The pinwheel is NEVER scaled.
+        let humanScale=1;
+        if(isDash&&id!=='spin_3'){
+          if(playhead<.13)humanScale=1-.22*ease((playhead-.045)/.085);
+          else if(playhead<.29)humanScale=.78-.24*ease((playhead-.13)/.16);
+          else if(playhead<.87)humanScale=.54+.24*ease((playhead-.71)/.16);
+          else humanScale=.78+.22*ease((playhead-.87)/.085);
+        }
         cx.save();
         const runBounce=0;
         const rebound=working.id==='connie-aerial'?playhead:0;
@@ -322,17 +316,8 @@ function renderStage(){
             1-.075*kickCompress+.045*launchStretch,
             0,0);
         }
-        if(isDash){
-          // Human sprite contracts into the flower before the pinwheel;
-          // return to full size through the reverse transformation.
-          const ease=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v)};
-          const contraction=playhead<.36?ease((playhead-.045)/.315)
-            :playhead<.64?1:1-ease((playhead-.64)/.315);
-          const scale=1-.22*contraction;
-          cx.scale(scale,scale);
-        }
         cx.rotate(angle);
-        if(isDash)cx.scale(transformScale,transformScale);
+        if(isDash&&id!=='spin_3')cx.scale(humanScale,humanScale);
         // Anchor visible artwork, not arbitrary atlas crop margins.
         // The source and destination widths/heights remain exactly identical.
         const visible=CONNIE_CONTENT_BOUNDS[id];
