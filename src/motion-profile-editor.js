@@ -285,9 +285,13 @@ function renderStage(){
         // The full crouched sprite never rotates. Rotation begins only after
         // transformation, accelerates into pinwheel, and decelerates symmetrically.
         // Exactly three positive turns ensure the transformed pose returns upright.
+        // Integrate a velocity envelope, rather than easing the angle itself:
+        // slow while human, accelerate through transformation, fastest only
+        // during pinwheel, then symmetrically decelerate before the final hold.
         const phase=Math.max(0,Math.min(1,(playhead-.045)/.91));
-        const smooth=phase*phase*(3-2*phase);
-        const angle=isDash?6*Math.PI*smooth
+        const rampIntegral=x=>x<=0?0:x>=1?x-.5:x*x*x-.5*x*x*x*x;
+        const spinDistance=p=>.12*p+3*.12*(rampIntegral((p-.25)/.12)-rampIntegral((p-.63)/.12));
+        const angle=isDash?6*Math.PI*spinDistance(phase)/spinDistance(1)
           : working.id==='connie-untransform'?2*Math.PI*playhead:0;
         cx.save();
         const runBounce=0;
@@ -301,6 +305,15 @@ function renderStage(){
             -.06*kickCompress, -.06*kickCompress,
             1-.075*kickCompress+.045*launchStretch,
             0,0);
+        }
+        if(isDash){
+          // Human sprite contracts into the flower before the pinwheel;
+          // return to full size through the reverse transformation.
+          const ease=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v)};
+          const contraction=playhead<.36?ease((playhead-.045)/.315)
+            :playhead<.64?1:1-ease((playhead-.64)/.315);
+          const scale=1-.22*contraction;
+          cx.scale(scale,scale);
         }
         cx.rotate(angle);
         // Anchor visible artwork, not arbitrary atlas crop margins.
@@ -356,7 +369,21 @@ function renderStage(){
           const eased=f*f*(3-2*f);
           const shear=shearKeys[k]+(shearKeys[k+1]-shearKeys[k])*eased;
           cx.transform(1,0,shear,1,0,0);
+          // Last segment transitions back to run_1 without holding it.
+          // The first frame is seen once per loop, never duplicated.
+          const returnPhase=Math.max(0,Math.min(1,(playhead-.75)/.25));
+          const fade=returnPhase*returnPhase*(3-2*returnPhase);
+          cx.globalAlpha=1-fade;
           cx.drawImage(connieMasked,x0,y0,w,h,destX,destY,w,h);
+          if(fade>0){
+            const first=CONNIE_RECTS.run_1;
+            const firstVisible=CONNIE_CONTENT_BOUNDS.run_1;
+            const fw=first[2]-first[0],fh=first[3]-first[1];
+            cx.globalAlpha=fade;
+            cx.drawImage(connieMasked,first[0],first[1],fw,fh,
+              -(firstVisible[0]+firstVisible[2])/2,-firstVisible[3],fw,fh);
+          }
+          cx.globalAlpha=1;
         }else{
           // Authoritative poses are copied unscaled and unwarped.
           // Avoid fractional scanline re-sampling and accidental silhouette squash.
