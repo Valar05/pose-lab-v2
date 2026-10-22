@@ -318,7 +318,7 @@ function renderStage(){
           const crouch=(1-Math.cos(time))*.5;
           const blinkPhase=(playhead*1.0)%1;
           const blink=Math.pow(Math.max(0,1-Math.abs(blinkPhase-.52)/.095),1.5);
-          const eyeX=230,eyeY=88,eyeRX=8,eyeRY=5;
+          const eyeX=183,eyeY=103,eyeRX=8,eyeRY=5;
           const knee=h*.70,ankle=h*.87;
           for(let y=0;y<h;y++){
             const v=y/h;
