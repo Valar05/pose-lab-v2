@@ -293,14 +293,11 @@ function renderStage(){
         const integrate=end=>{let total=0;const n=120,step=end/n;
           for(let i=0;i<n;i++)total+=speed((i+.5)*step)*step;
           return total;};
-        // First and final aerial sprite each rotate just 30 degrees.
-        // Keep the intermediate and pinwheel spin curve untouched.
-        const edgeTurn=Math.PI/6;
-        const angle=isDash&&id==='spin_1'
-          ? (playhead<spinStart
-              ? -edgeTurn*(1-ease(playhead/spinStart))
-              : 4*Math.PI+edgeTurn*ease((playhead-spinEnd)/(1-spinEnd)))
-          : isDash?4*Math.PI*integrate(u)/integrate(1)
+        // The first and last aerial sprites are exactly neutral: zero rotation.
+        // Only intermediate transformation and pinwheel sprites rotate.
+        // Two full turns preserve the original upright orientation at the end.
+        const angle=isDash&&id==='spin_1'?0
+          :isDash?4*Math.PI*integrate(u)/integrate(1)
           :working.id==='connie-untransform'?2*Math.PI*playhead:0;
         // Scale ONLY the first aerial character pose. The intermediate
         // transformation sprite and pinwheel always retain native dimensions.
