@@ -1,4 +1,4 @@
-export const CONNIE_ATLAS = './assets/connie/connie-approved-composite.png';
+export const CONNIE_ATLAS = './assets/connie/connie-arm-v2-composite.png';
 export const CONNIE_RECTS = Object.freeze({
  idle:[10,95,310,500],run_1:[360,110,750,490],run_2:[745,110,1110,490],run_3:[1110,110,1520,490],
  aerial_1:[270,585,585,905],aerial_2:[595,585,950,895],aerial_3:[950,595,1280,900],
