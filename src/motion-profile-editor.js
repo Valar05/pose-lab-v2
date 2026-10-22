@@ -298,10 +298,17 @@ function renderStage(){
           :working.id==='connie-untransform'?2*Math.PI*playhead:0;
         // Human body contracts into the transformation and expands from the
         // pinwheel on return; never resize the source atlas or the pinwheel.
-        const shrinkIn=playhead>=.045&&playhead<.29?ease((playhead-.045)/.245):0;
-        const growOut=playhead>=.71&&playhead<.955?ease((.955-playhead)/.245):0;
-        const transformScale=isDash&&id==='spin_2'
-          ?1-.20*(playhead<.5?shrinkIn:growOut):1;
+        // Continuous size envelope across *all* source poses. The pinwheel
+        // stays compact on entry, then expands as the body reforms.
+        let transformScale=1;
+        if(isDash&&playhead>=.045&&playhead<.29)
+          transformScale=1-.28*ease((playhead-.045)/.245);
+        else if(isDash&&playhead>=.29&&playhead<.60)
+          transformScale=.72;
+        else if(isDash&&playhead>=.60&&playhead<.71)
+          transformScale=.72+.10*ease((playhead-.60)/.11);
+        else if(isDash&&playhead>=.71&&playhead<.955)
+          transformScale=.82+.18*ease((playhead-.71)/.245);
         cx.save();
         const runBounce=0;
         const rebound=working.id==='connie-aerial'?playhead:0;
@@ -325,7 +332,7 @@ function renderStage(){
           cx.scale(scale,scale);
         }
         cx.rotate(angle);
-        if(isDash&&id==='spin_2')cx.scale(transformScale,transformScale);
+        if(isDash)cx.scale(transformScale,transformScale);
         // Anchor visible artwork, not arbitrary atlas crop margins.
         // The source and destination widths/heights remain exactly identical.
         const visible=CONNIE_CONTENT_BOUNDS[id];
