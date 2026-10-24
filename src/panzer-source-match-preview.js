@@ -5,18 +5,18 @@ style.textContent='*{box-sizing:border-box}body{margin:0;background:#111a22;colo
 app.append(style);
 const main=document.createElement('main');app.append(main);
 const heading=document.createElement('h1');heading.textContent='Panzer · Sprite-First Matching Study';main.append(heading);
-const text=document.createElement('p');text.textContent='Source-only review. Eight measured alpha silhouettes. The original hull and turret sheets remain locked. One uniform turret scale candidate (59%) and an independently optional hull palette study. No composition, barrel, or deformation is performed here.';main.append(text);
+const text=document.createElement('p');text.textContent='Source-only review, not a new tank animation. The brighter hull redraw is compared against its matching turret reference with two deterministic lighting grades (65% and 94%). Original sheet geometry, alpha, and all existing Pose Lab animations are preserved. No barrel or three-layer composition is attempted.';main.append(text);
 const nav=document.createElement('nav');main.append(nav);
 const fig=document.createElement('figure');main.append(fig);
 const pic=document.createElement('img');fig.append(pic);
 const cap=document.createElement('figcaption');fig.append(cap);
-const files=[['isolated-angle-comparison.png','Measured source geometry · each hull and turret isolated, never stacked'],['palette-comparison.png','Hue/brightness matching candidate · hull only; no new painting']];
+const files=[['postprocess-v1/panzer-side-by-side-lighting-review.jpg','All eight angles · new hull redraw ungraded, two non-generative lighting grades, and the unchanged turret reference'],['postprocess-v1/panzer-three-pose-phone-review.jpg','Three diagnostic directions at portable review scale · original, 65% post-process candidate, turret reference'],['isolated-angle-comparison.png','Older first-generation hull source geometry · eight isolated hulls and turrets'],['palette-comparison.png','Earlier hue/brightness comparison for the original hull, not the new redraw']];
 const revision=new URLSearchParams(location.search).get('rev')||'source-match-v1';
 const asset=file=>'./assets/panzer-pose-experiment/matching-study-v1/'+file+'?rev='+encodeURIComponent(revision);
 const buttons=[];
 for(let i=0;i<files.length;i++){
   const button=document.createElement('button');
-  button.textContent=i===0?'Silhouette / scale':'Palette alternatives';
+  button.textContent=['Lighting · all 8','Phone-size check','Older scale study','Older color study'][i];
   button.addEventListener('click',()=>activate(i));
   nav.append(button);buttons.push(button);
 }
@@ -25,7 +25,7 @@ function activate(index){
   cap.textContent=files[index][1];
   buttons.forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));
 }
-const link=document.createElement('a');link.textContent='Measurement manifest and exact source hashes';
+const intro=document.createElement('p');intro.textContent='The candidates reduce excess highlights and lift deep shadows. Lighting direction, baked specular shapes, perspective and overlapping source silhouettes remain separate art/segmentation problems. Human review decides whether color post-processing is enough.';main.append(intro);const newLinks=document.createElement('p');main.append(newLinks);for(const [name,label] of [['postprocess-v1/panzer-hulls-tone-matched-65.png','65% RGBA hull candidate'],['postprocess-v1/panzer-hulls-tone-matched-94.png','94% RGBA hull candidate'],['postprocess-v1/panzer-postprocess-manifest.json','Post-processing manifest']]){const a=document.createElement('a');a.href=asset(name);a.textContent=label;a.target='_blank';a.rel='noopener';newLinks.append(a,document.createTextNode(' · '));}const link=document.createElement('a');link.textContent='Original measurement manifest and exact source hashes';
 link.href=asset('source-match-manifest.json');link.target='_blank';link.rel='noopener';
 main.append(link);
 activate(0);
