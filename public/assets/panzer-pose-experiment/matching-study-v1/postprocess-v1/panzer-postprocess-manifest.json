@@ -1,0 +1,79 @@
+{
+  "schema": "panzer-postprocess-v1",
+  "source_hull_file": "weathered_panzer_hull_8_view_sprite_sheet.png",
+  "source_hull_sha256": "b24f39e1dc0dc5e728b642264768a167f547a204059795630b6377b23f19a95a",
+  "source_turret_file": "936708.png",
+  "source_turret_sha256": "5cb397eda3a86de2584fc57d55c45e8d3480d0d2a845d4767ede963f0281f4c0",
+  "technique": "deterministic LAB L quantile mapping to turret distribution, with slight chroma offset; preserve unmodified alpha",
+  "lighting_limit": "Cannot relocate painted highlights, move shadow casting, reconstruct missing silhouette pixels or reconcile different material response by global grade alone",
+  "params": [
+    {
+      "file": "panzer-hulls-tone-matched-65.png",
+      "L_strength": 0.65,
+      "Lab_a_shift": 1.17,
+      "Lab_b_shift": 0.91
+    },
+    {
+      "file": "panzer-hulls-tone-matched-94.png",
+      "L_strength": 0.94,
+      "Lab_a_shift": 1.69,
+      "Lab_b_shift": 1.32
+    }
+  ],
+  "L_quantiles": {
+    "percentiles": [
+      0.0,
+      2.0,
+      5.0,
+      10.0,
+      20.0,
+      30.0,
+      40.0,
+      50.0,
+      60.0,
+      70.0,
+      80.0,
+      90.0,
+      95.0,
+      98.0,
+      99.9
+    ],
+    "redraw": [
+      0.0,
+      0.0,
+      1.0,
+      3.0,
+      15.0,
+      38.0,
+      62.0,
+      80.0,
+      92.0,
+      106.0,
+      126.0,
+      169.0,
+      201.0,
+      223.0,
+      251.0
+    ],
+    "turret": [
+      0.0,
+      0.0,
+      2.0,
+      7.0,
+      24.0,
+      45.0,
+      62.0,
+      78.0,
+      90.0,
+      101.0,
+      117.0,
+      159.0,
+      188.0,
+      207.0,
+      237.0
+    ]
+  },
+  "no_composition": true,
+  "approval": "pending",
+  "clipping_boundary_issues_present": true
+}

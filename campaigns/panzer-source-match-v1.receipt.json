@@ -23,6 +23,28 @@
     "public/assets/panzer-pose-experiment/matching-study-v1/palette-comparison.png",
     "public/assets/panzer-pose-experiment/matching-study-v1/turrets-uniform-059.png",
     "public/assets/panzer-pose-experiment/matching-study-v1/hulls-warmth-candidate.png",
-    "public/assets/panzer-pose-experiment/matching-study-v1/source-match-manifest.json"
-  ]
+    "public/assets/panzer-pose-experiment/matching-study-v1/source-match-manifest.json",
+    "public/assets/panzer-pose-experiment/matching-study-v1/postprocess-v1/panzer-hull-redraw-unmodified.png",
+    "public/assets/panzer-pose-experiment/matching-study-v1/postprocess-v1/panzer-hulls-tone-matched-65.png",
+    "public/assets/panzer-pose-experiment/matching-study-v1/postprocess-v1/panzer-hulls-tone-matched-94.png",
+    "public/assets/panzer-pose-experiment/matching-study-v1/postprocess-v1/panzer-side-by-side-lighting-review.jpg",
+    "public/assets/panzer-pose-experiment/matching-study-v1/postprocess-v1/panzer-three-pose-phone-review.jpg",
+    "public/assets/panzer-pose-experiment/matching-study-v1/postprocess-v1/panzer-postprocess-manifest.json"
+  ],
+  "postprocessStudy": {
+    "status": "quarantined-pending-human-review",
+    "implementationCommit": "6bd6675f4eb459c9ccf39daa7ddbb28dcb650b1f",
+    "newHullRedrawSha256": "b24f39e1dc0dc5e728b642264768a167f547a204059795630b6377b23f19a95a",
+    "candidateSha256": {
+      "65percent": "046c066a0b6340872c957d297f2a560c86e5a085425d7ff443b2a7704c12717a",
+      "94percent": "7c0d7c82d0a477e26496be968df4157b75c3abd1b73f8e99cf7a7d5b0076f1f1"
+    },
+    "reviewUI": "motion.html?procedural=panzer-source-match",
+    "candidateOnly": true,
+    "originalPanzerSourcesUnchanged": true,
+    "redrawNotApproved": true,
+    "sourceClippingNotSolved": true,
+    "barrelNotTouched": true,
+    "renderingStillAwaitingHostVerification": true
+  }
 }
