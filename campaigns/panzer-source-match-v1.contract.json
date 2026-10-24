@@ -1,0 +1,40 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "panzer-source-match-v1",
+  "mission": "Match eight authored Panzer hull and turret source silhouettes in scale/color prior to compositing, without altering originals, barrel behavior or accepted Motion Lab.",
+  "machine": {
+    "mutablePaths": [
+      "tools/campaigns/panzer_sprite_match_v1.py",
+      "campaigns/panzer-source-match-v1.contract.json",
+      "campaigns/panzer-source-match-v1.receipt.json",
+      "src/panzer-source-match-preview.js",
+      "motion.html",
+      "public/assets/panzer-pose-experiment/matching-study-v1/**"
+    ],
+    "receiptPath": "campaigns/panzer-source-match-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/panzer-pose-experiment/hulls.png",
+        "sha256": "1ff30eb44b0eb2f469ee0d5dc1aade793ae75691b35ac1c7e2ed1c56d85a378a"
+      },
+      {
+        "path": "public/assets/panzer-pose-experiment/turrets.png",
+        "sha256": "5cb397eda3a86de2584fc57d55c45e8d3480d0d2a845d4767ede963f0281f4c0"
+      }
+    ],
+    "checks": [
+      {
+        "kind": "text-contains",
+        "path": "src/panzer-source-match-preview.js",
+        "value": "isolated-angle-comparison.png"
+      }
+    ]
+  }
+}

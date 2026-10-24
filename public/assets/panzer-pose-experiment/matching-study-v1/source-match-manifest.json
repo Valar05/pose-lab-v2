@@ -1,0 +1,285 @@
+{
+  "schema": "panzer-source-match-study-v1",
+  "status": "quarantined-pending-human-verdict",
+  "originalsPreserved": true,
+  "sourceSha256": {
+    "hulls.png": "1ff30eb44b0eb2f469ee0d5dc1aade793ae75691b35ac1c7e2ed1c56d85a378a",
+    "turrets.png": "5cb397eda3a86de2584fc57d55c45e8d3480d0d2a845d4767ede963f0281f4c0"
+  },
+  "angleOrderDegrees": [
+    0,
+    45,
+    90,
+    135,
+    180,
+    225,
+    270,
+    315
+  ],
+  "turretScaleCandidate": 0.59,
+  "scaleAppliedUniformly": true,
+  "hullAlphaConnectedCoverage": 0.9991924,
+  "turretAlphaConnectedCoverage": 0.9983428,
+  "hullSourceSilhouettes": [
+    {
+      "direction": "Front",
+      "degrees": 0,
+      "sourceBounds": [
+        206,
+        107,
+        450,
+        253
+      ],
+      "silhouette": [
+        450,
+        253
+      ],
+      "opaqueArea": 92895
+    },
+    {
+      "direction": "Front-right",
+      "degrees": 45,
+      "sourceBounds": [
+        996,
+        103,
+        585,
+        260
+      ],
+      "silhouette": [
+        585,
+        260
+      ],
+      "opaqueArea": 111356
+    },
+    {
+      "direction": "Right",
+      "degrees": 90,
+      "sourceBounds": [
+        109,
+        542,
+        643,
+        210
+      ],
+      "silhouette": [
+        643,
+        210
+      ],
+      "opaqueArea": 115375
+    },
+    {
+      "direction": "Rear-right",
+      "degrees": 135,
+      "sourceBounds": [
+        964,
+        519,
+        597,
+        239
+      ],
+      "silhouette": [
+        597,
+        239
+      ],
+      "opaqueArea": 106529
+    },
+    {
+      "direction": "Rear",
+      "degrees": 180,
+      "sourceBounds": [
+        221,
+        905,
+        419,
+        237
+      ],
+      "silhouette": [
+        419,
+        237
+      ],
+      "opaqueArea": 81262
+    },
+    {
+      "direction": "Rear-left",
+      "degrees": 225,
+      "sourceBounds": [
+        988,
+        908,
+        618,
+        243
+      ],
+      "silhouette": [
+        618,
+        243
+      ],
+      "opaqueArea": 110732
+    },
+    {
+      "direction": "Left",
+      "degrees": 270,
+      "sourceBounds": [
+        102,
+        1303,
+        658,
+        218
+      ],
+      "silhouette": [
+        658,
+        218
+      ],
+      "opaqueArea": 120530
+    },
+    {
+      "direction": "Front-left",
+      "degrees": 315,
+      "sourceBounds": [
+        950,
+        1282,
+        614,
+        253
+      ],
+      "silhouette": [
+        614,
+        253
+      ],
+      "opaqueArea": 114981
+    }
+  ],
+  "turretSourceSilhouettes": [
+    {
+      "direction": "Front",
+      "degrees": 0,
+      "sourceBounds": [
+        173,
+        40,
+        461,
+        239
+      ],
+      "silhouette": [
+        461,
+        239
+      ],
+      "opaqueArea": 75905
+    },
+    {
+      "direction": "Front-right",
+      "degrees": 45,
+      "sourceBounds": [
+        807,
+        48,
+        502,
+        242
+      ],
+      "silhouette": [
+        502,
+        242
+      ],
+      "opaqueArea": 83148
+    },
+    {
+      "direction": "Right",
+      "degrees": 90,
+      "sourceBounds": [
+        107,
+        316,
+        584,
+        235
+      ],
+      "silhouette": [
+        584,
+        235
+      ],
+      "opaqueArea": 95510
+    },
+    {
+      "direction": "Rear-right",
+      "degrees": 135,
+      "sourceBounds": [
+        805,
+        309,
+        545,
+        244
+      ],
+      "silhouette": [
+        545,
+        244
+      ],
+      "opaqueArea": 92508
+    },
+    {
+      "direction": "Rear",
+      "degrees": 180,
+      "sourceBounds": [
+        147,
+        571,
+        491,
+        243
+      ],
+      "silhouette": [
+        491,
+        243
+      ],
+      "opaqueArea": 82630
+    },
+    {
+      "direction": "Rear-left",
+      "degrees": 225,
+      "sourceBounds": [
+        801,
+        568,
+        535,
+        249
+      ],
+      "silhouette": [
+        535,
+        249
+      ],
+      "opaqueArea": 88648
+    },
+    {
+      "direction": "Left",
+      "degrees": 270,
+      "sourceBounds": [
+        98,
+        810,
+        615,
+        244
+      ],
+      "silhouette": [
+        615,
+        244
+      ],
+      "opaqueArea": 99703
+    },
+    {
+      "direction": "Front-left",
+      "degrees": 315,
+      "sourceBounds": [
+        827,
+        806,
+        546,
+        253
+      ],
+      "silhouette": [
+        546,
+        253
+      ],
+      "opaqueArea": 92204
+    }
+  ],
+  "colorStudy": {
+    "source": "hulls.png",
+    "goal": "approximate turret warmth",
+    "LAB": {
+      "LMultiplier": 1.025,
+      "aOffset": 4,
+      "bOffset": 5
+    },
+    "status": "candidate-only"
+  },
+  "notAttempted": [
+    "hull/turret composition",
+    "barrel matching",
+    "elevation",
+    "inpainting",
+    "perspective repair",
+    "runtime modification"
+  ]
+}

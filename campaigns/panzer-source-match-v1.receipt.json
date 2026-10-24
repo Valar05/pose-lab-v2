@@ -1,0 +1,28 @@
+{
+  "schema": "panzer-source-match-v1-receipt",
+  "stage": "implementation-verified-candidate-pending-visual-acceptance",
+  "source": "matching study generated from user-supplied canonical source sheets; original PNG bytes unchanged",
+  "implementationCommit": "b232871ee5288cfccb04d55dbbc87c04c9c9337b",
+  "sourceSha256": {
+    "hulls": "1ff30eb44b0eb2f469ee0d5dc1aade793ae75691b35ac1c7e2ed1c56d85a378a",
+    "turrets": "5cb397eda3a86de2584fc57d55c45e8d3480d0d2a845d4767ede963f0281f4c0"
+  },
+  "validation": {
+    "directionCount": 8,
+    "sourceCuts": "connected-component alpha masks, source-rectangular slices rejected",
+    "hullForegroundCoverage": 0.9991924,
+    "turretForegroundCoverage": 0.9983428,
+    "sharedScaleCandidate": 0.59,
+    "composited": false,
+    "originalsModified": false
+  },
+  "hostedReview": "not-yet-deployed",
+  "humanApproved": false,
+  "artifacts": [
+    "public/assets/panzer-pose-experiment/matching-study-v1/isolated-angle-comparison.png",
+    "public/assets/panzer-pose-experiment/matching-study-v1/palette-comparison.png",
+    "public/assets/panzer-pose-experiment/matching-study-v1/turrets-uniform-059.png",
+    "public/assets/panzer-pose-experiment/matching-study-v1/hulls-warmth-candidate.png",
+    "public/assets/panzer-pose-experiment/matching-study-v1/source-match-manifest.json"
+  ]
+}
