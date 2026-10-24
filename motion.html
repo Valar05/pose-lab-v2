@@ -30,7 +30,7 @@
             : procedural
               ? './src/procedural-motion-preview.js'
               : './src/motion-profile-editor.js';
-      const rev = params.get('rev');
+      const rev = params.get('rev') || params.get('revision') || 'connie-motion-v3';
       const importPath = rev ? modulePath + '?rev=' + encodeURIComponent(rev) : modulePath;
       import(importPath).catch((error) => {
         const app = document.querySelector('#app');

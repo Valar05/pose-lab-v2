@@ -1,3 +1,4 @@
+import { CONNIE_ATLAS, CONNIE_RECTS, CONNIE_CONTENT_BOUNDS } from './motion/connie-profiles.js';
 import { MOTION_PROFILES, getMotionProfile } from './motion/profiles.js';
 import { copyProfile, instantiateProfile, resolveProfileTiming } from './motion/profile-core.js';
 import { serializeMotionInstance, candidateRepoPath } from './motion/plmp-serializer.js';
@@ -37,7 +38,8 @@ app.innerHTML = `
       #0b0f12;
     background-size:32px 32px}
   .stage::after{content:"";position:absolute;left:10%;right:10%;bottom:18%;border-top:1px solid #ffffff1c}
-  .stage-card{position:relative;z-index:1;width:min(72vw,520px);height:min(62vh,420px);display:grid;place-items:center}
+  .stage-card{position:relative;z-index:1;width:min(72vw,62vh,520px,420px);aspect-ratio:1/1;height:auto;display:grid;place-items:center}
+  .stage-card canvas{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;max-width:100%;max-height:none}
   .stage-placeholder{color:#73808a;text-align:center;line-height:1.5;border:1px dashed #33404a;border-radius:10px;padding:28px;max-width:360px}
   .stage img{max-width:100%;max-height:100%;image-rendering:auto;object-fit:contain}
   .transport{height:54px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;justify-content:center;background:#0e1317}
@@ -178,8 +180,31 @@ app.innerHTML = `
   </section>
 </section>`;
 
-let active = getMotionProfile('jab', 1);
+const connieRequested=new URLSearchParams(location.search).get('character')==='connie';
+let active = connieRequested ? getMotionProfile('connie-idle',1) : getMotionProfile('jab', 1);
 let working = active;
+const connieAtlas=new Image();
+const connieMasked=document.createElement('canvas');
+let connieReady=false;
+connieAtlas.onload=()=>{
+ connieMasked.width=connieAtlas.naturalWidth;connieMasked.height=connieAtlas.naturalHeight;
+ const c=connieMasked.getContext('2d',{willReadFrequently:true});
+ c.drawImage(connieAtlas,0,0);
+ const data=c.getImageData(0,0,connieMasked.width,connieMasked.height);
+ const d=data.data,w=connieMasked.width,h=connieMasked.height;
+ // Flood only black pixels connected to the image border, preserving dark interior details.
+ const visited=new Uint8Array(w*h),queue=new Int32Array(w*h);
+ let head=0,tail=0;
+ const offer=(i)=>{if(visited[i])return;visited[i]=1;const k=i*4;if(d[k]<20&&d[k+1]<20&&d[k+2]<20)queue[tail++]=i;};
+ for(let x=0;x<w;x++){offer(x);offer((h-1)*w+x);}
+ for(let y=0;y<h;y++){offer(y*w);offer(y*w+w-1);}
+ while(head<tail){const i=queue[head++],k=i*4;d[k+3]=0;
+ const x=i%w;if(x>0)offer(i-1);if(x<w-1)offer(i+1);
+ if(i>=w)offer(i-w);if(i<(h-1)*w)offer(i+w);
+ }
+ c.putImageData(data,0,0);connieReady=true;renderStage();
+};
+connieAtlas.src=CONNIE_ATLAS;
 let selectedKeyId = working.keys[0]?.id;
 let playhead = 0;
 let playing = false;
@@ -237,6 +262,145 @@ function renderStage(){
   const role = currentFrameRole();
   const src = frameValues[role]?.trim();
   stage.innerHTML = '';
+  if(working.family==='connie-atlas'){
+    const isDash=working.id==='connie-transform'||working.id==='connie-dash-spin';
+    const isReturn=working.id==='connie-untransform';
+    const sequence=working.id==='connie-run'
+      ? ['run_1','run_2','run_3','run_2']
+      : isDash ? ['spin_1','spin_2','spin_3','spin_3','spin_3','spin_2','spin_1']
+      : isReturn ? ['spin_3','spin_2','spin_1'] : null;
+    const sequenceIndex=sequence?Math.min(sequence.length-1,Math.floor(playhead*sequence.length)):0;
+    // Stationary crouched aerial pose at BOTH endpoints of the complete dash.
+    const id=isDash
+      ? (playhead<.13||playhead>=.87?'spin_1':playhead<.29?'spin_2':playhead<.71?'spin_3':'spin_2')
+      : sequence?sequence[sequenceIndex]:(CONNIE_RECTS[role] ? role : working.frameRoles[0]?.id);
+    const rect=CONNIE_RECTS[id];
+    if(rect){
+      const c=document.createElement('canvas');c.width=600;c.height=600;c.style.width='100%';c.style.height='auto';c.style.aspectRatio='1 / 1';
+      const cx=c.getContext('2d');
+      if(connieReady){
+        const [x0,y0,x1,y1]=rect,w=x1-x0,h=y1-y0;
+        const time=playhead*2*Math.PI;
+        const spinning=working.id==='connie-transform'||working.id==='connie-dash-spin'||working.id==='connie-untransform';
+        // The upright aerial sprite remains unrotated. The intermediate
+        // character accelerates gently; the pinwheel has the highest speed.
+        // On return the angular velocity decelerates by the same envelope.
+        const ease=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v);};
+        const spinStart=.13,spinEnd=.87;
+        const u=Math.max(0,Math.min(1,(playhead-spinStart)/(spinEnd-spinStart)));
+        const speed=v=>v<.216?(.08+.92*ease(v/.216))
+          :v<.784?1:(.08+.92*ease((1-v)/.216));
+        const integrate=end=>{let total=0;const n=120,step=end/n;
+          for(let i=0;i<n;i++)total+=speed((i+.5)*step)*step;
+          return total;};
+        // The first and last aerial sprites are exactly neutral: zero rotation.
+        // Only intermediate transformation and pinwheel sprites rotate.
+        // Two full turns preserve the original upright orientation at the end.
+        const angle=isDash&&id==='spin_1'?0
+          :isDash?4*Math.PI*integrate(u)/integrate(1)
+          :working.id==='connie-untransform'?2*Math.PI*playhead:0;
+        // Scale ONLY the first aerial character pose. The intermediate
+        // transformation sprite and pinwheel always retain native dimensions.
+        let humanScale=1;
+        if(isDash&&id==='spin_1'){
+          if(playhead<.13)humanScale=1-.22*ease((playhead-.045)/.085);
+          else if(playhead>=.87)humanScale=.78+.22*ease((playhead-.87)/.085);
+        }
+        cx.save();
+        const runBounce=0;
+        const rebound=working.id==='connie-aerial'?playhead:0;
+        cx.translate(300,spinning?300:550+runBounce);
+        if(working.id==='connie-aerial'){
+          const kickCompress=rebound<.34?Math.sin(Math.PI*rebound/.34):0;
+          const launchStretch=rebound>=.34&&rebound<.72?Math.sin(Math.PI*(rebound-.34)/.38):0;
+          // Compression follows the diagonal kick, then releases into flight.
+          cx.transform(1-.075*kickCompress+.035*launchStretch,
+            -.06*kickCompress, -.06*kickCompress,
+            1-.075*kickCompress+.045*launchStretch,
+            0,0);
+        }
+        cx.rotate(angle);
+        if(isDash&&id==='spin_1')cx.scale(humanScale,humanScale);
+        // Anchor visible artwork, not arbitrary atlas crop margins.
+        // The source and destination widths/heights remain exactly identical.
+        const visible=CONNIE_CONTENT_BOUNDS[id];
+        const destX=-(visible[0]+visible[2])/2;
+        const destY=spinning?-(visible[1]+visible[3])/2:-visible[3];
+        if(working.id==='connie-idle'){
+          // Pixel-space joint displacement. Every output pixel copies one
+          // original atlas pixel: no canvas scaling, slice gaps or scanlines.
+          const source=cx.createImageData(w,h);
+          const srcCtx=connieMasked.getContext('2d');
+          const original=srcCtx.getImageData(x0,y0,w,h);
+          const src=original.data,dst=source.data;
+          const crouch=(1-Math.cos(time))*.5;
+          const blinkPhase=(playhead*1.0)%1;
+          const blink=Math.pow(Math.max(0,1-Math.abs(blinkPhase-.52)/.095),1.5);
+          const eyeX=183,eyeY=103,eyeRX=8,eyeRY=5;
+          const knee=h*.70,ankle=h*.87;
+          for(let y=0;y<h;y++){
+            const v=y/h;
+            // Upper body translates down; displacement smoothly fades at
+            // the ankle while feet stay fixed to their atlas positions.
+            const vertical=v<.66 ? 3*crouch
+              : v<.87 ? 3*crouch*(.87-v)/.21 : 0;
+            const bend=v>.55&&v<.87
+              ? Math.sin(Math.PI*(v-.55)/.32)*2*crouch : 0;
+            const sy=Math.max(0,Math.min(h-1,Math.round(y-vertical)));
+            for(let x=0;x<w;x++){
+              const sx=Math.max(0,Math.min(w-1,Math.round(x-bend)));
+              let eyeSampleY=sy;
+              const ex=(x-eyeX)/eyeRX,ey=(sy-eyeY)/eyeRY;
+              if(blink>0&&ex*ex+ey*ey<1){
+                const falloff=(1-ex*ex)*(1-ey*ey);
+                eyeSampleY=Math.max(0,Math.min(h-1,Math.round(eyeY+(sy-eyeY)/(Math.max(.12,1-blink*.88*falloff)))));
+              }
+              const si=(eyeSampleY*w+sx)*4,di=(y*w+x)*4;
+              dst[di]=src[si];dst[di+1]=src[si+1];
+              dst[di+2]=src[si+2];dst[di+3]=src[si+3];
+            }
+          }
+          const deformed=document.createElement('canvas');
+          deformed.width=w;deformed.height=h;
+          deformed.getContext('2d').putImageData(source,0,0);
+          cx.drawImage(deformed,destX,destY);
+        }else if(working.id==='connie-run'){
+          // Port Vanguard's recipe-based signed shear, not pixel-space liquid
+          // displacement. No vertical bob, no root translation, no leg resampling.
+          const shearKeys=[.0375,-.0475,.0375,-.0475,.0375];
+          const u=Math.max(0,Math.min(4,playhead*4));
+          const k=Math.min(3,Math.floor(u));
+          const f=Math.max(0,Math.min(1,u-k));
+          const eased=f*f*(3-2*f);
+          const shear=shearKeys[k]+(shearKeys[k+1]-shearKeys[k])*eased;
+          cx.transform(1,0,shear,1,0,0);
+          // Last segment transitions back to run_1 without holding it.
+          // The first frame is seen once per loop, never duplicated.
+          const returnPhase=Math.max(0,Math.min(1,(playhead-.75)/.25));
+          const fade=returnPhase*returnPhase*(3-2*returnPhase);
+          cx.globalAlpha=1-fade;
+          cx.drawImage(connieMasked,x0,y0,w,h,destX,destY,w,h);
+          if(fade>0){
+            const first=CONNIE_RECTS.run_1;
+            const firstVisible=CONNIE_CONTENT_BOUNDS.run_1;
+            const fw=first[2]-first[0],fh=first[3]-first[1];
+            cx.globalAlpha=fade;
+            cx.drawImage(connieMasked,first[0],first[1],fw,fh,
+              -(firstVisible[0]+firstVisible[2])/2,-firstVisible[3],fw,fh);
+          }
+          cx.globalAlpha=1;
+        }else{
+          // Authoritative poses are copied unscaled and unwarped.
+          // Avoid fractional scanline re-sampling and accidental silhouette squash.
+          cx.drawImage(connieMasked,x0,y0,w,h,destX,destY,w,h);
+        }
+        cx.restore();
+      }
+      stage.append(c);
+      qa('.frame-card').forEach(el=>el.classList.toggle('active',el.dataset.role===role));
+      return;
+    }
+  }
   if (src && /^(https?:|data:|blob:|\/|\.\/|\.\.\/)/.test(src)) {
     const img = document.createElement('img');
     img.src = src;
@@ -454,6 +618,7 @@ function buildInstance(){
   }
   const timingOverrides={};
   keyState().forEach((k)=>timingOverrides[k.id]=k.at);
+  if(working.family==='connie-atlas')for(const role of working.frameRoles)frameMap[role.id]=CONNIE_ATLAS+'#'+role.id;
   return instantiateProfile(working,{
     id:q('[data-id]').value.trim() || 'motion',
     character:q('[data-character]').value.trim() || 'unknown',
@@ -518,9 +683,10 @@ function stepKey(dir){
   renderTimeline(); updatePlayhead();
 }
 
+if(connieRequested){profileSelect.value='connie-idle@1';q('[data-character]').value='connie';q('[data-id]').value='connie-idle';q('[data-duration]').value='1900';}
 profileSelect.addEventListener('change',()=>{
   const [id,version]=profileSelect.value.split('@');
-  active=getMotionProfile(id,Number(version)); working=active; render();
+  active=getMotionProfile(id,Number(version)); working=active; if(working.family==='connie-atlas'){q('[data-character]').value='connie';q('[data-id]').value=id;q('[data-duration]').value=id==='connie-idle'?1900:id==='connie-run'?720:id==='connie-aerial'?780:950;for(const role of working.frameRoles)frameValues[role.id]=CONNIE_ATLAS+'#'+role.id;} render();
 });
 q('[data-copy]').addEventListener('click',()=>{
   working=copyProfile(working,{id:`${working.id}-copy`,label:`${working.label} Copy`});

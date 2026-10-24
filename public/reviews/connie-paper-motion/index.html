@@ -1,0 +1,67 @@
+﻿<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pose Lab V2 Â· Connie Â· quarantined motion authoring</title>
+<style>body{margin:0;background:#101018;color:#f5e7f0;font:15px system-ui;text-align:center}header{padding:18px}h1{font-size:22px}#stage{display:block;margin:auto;max-width:96vw;background:radial-gradient(ellipse at 50% 65%,#27202e,#09090e 70%);border:1px solid #4d374c}button{background:#302336;color:#fff;border:1px solid #a7799c;padding:10px 14px;margin:5px;border-radius:8px;cursor:pointer}button[aria-pressed=true]{background:#7d426d}.note{max-width:820px;margin:12px auto;color:#e9bdcc}code{color:#fff}</style>
+<header><h1>Connie Â· paper kinetic motion lab</h1><p class="note">QUARANTINED. New character, exact source pose ownership. No generated in-betweens or root motion. Run is the physical scale authority.</p><div id="controls"></div><p id="status" aria-live="polite"></p></header><canvas id="stage" width="1000" height="650"></canvas>
+<script type="module">
+const SOURCE="../../assets/connie/connie-approved-composite.png";
+const clips={
+ idle:{duration:1900,loop:true,keys:[["idle",0]]},
+ run:{duration:720,loop:true,keys:[["run_1",0],["run_2",240],["run_3",480]]},
+ aerial:{duration:780,loop:true,keys:[["aerial_1",0],["aerial_2",260],["aerial_3",520]]},
+ transform:{duration:950,loop:false,keys:[["spin_1",0],["spin_2",290],["spin_3",590]]},
+ untransform:{duration:950,loop:false,keys:[["spin_3",0],["spin_2",360],["spin_1",660]]}
+};
+// Measured source regions are deliberately explicit, not a guessed equal-cell grid.
+// Review exact alpha masks before promoting this candidate.
+const rect={
+ idle:[10,95,310,500],run_1:[360,110,750,490],run_2:[745,110,1110,490],run_3:[1110,110,1520,490],
+ aerial_1:[270,585,585,905],aerial_2:[595,585,950,895],aerial_3:[950,595,1280,900],
+ spin_1:[250,950,635,1270],spin_2:[630,930,975,1250],spin_3:[965,900,1295,1220]
+};
+const canvas=document.querySelector("#stage"),ctx=canvas.getContext("2d");
+const atlas=new Image();let ready=false,clip="idle",started=performance.now(),last=started;
+const status=document.querySelector("#status"),controls=document.querySelector("#controls");
+for(const name of Object.keys(clips)){const b=document.createElement("button");b.textContent=name;b.onclick=()=>{clip=name;started=performance.now();document.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))};b.setAttribute("aria-pressed",String(name==="idle"));controls.append(b)}
+atlas.src=SOURCE;atlas.onload=()=>{ready=true;status.textContent="Canonical atlas loaded; review required"};atlas.onerror=()=>{status.textContent="Atlas missing"};function smooth(x){x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)}
+function render(t){
+ requestAnimationFrame(render);ctx.clearRect(0,0,canvas.width,canvas.height);
+ ctx.fillStyle="#12111a";ctx.fillRect(0,0,canvas.width,canvas.height);
+ ctx.strokeStyle="#55404f";ctx.beginPath();ctx.moveTo(0,525);ctx.lineTo(1000,525);ctx.stroke();
+ if(!ready)return;
+ const c=clips[clip],elapsed=t-started,ms=c.loop?elapsed%c.duration:Math.min(elapsed,c.duration);
+ let i=c.keys.length-1;for(let k=0;k<c.keys.length;k++)if(ms<c.keys[k][1]){i=Math.max(0,k-1);break}
+ const [id,begin]=c.keys[i],end=i+1<c.keys.length?c.keys[i+1][1]:c.duration,phase=Math.max(0,Math.min(1,(ms-begin)/(end-begin)));
+ const [x0,y0,x1,y1]=rect[id],w=x1-x0,h=y1-y0;
+ // No per-cell fit-to-box: one uniform character presentation scale.
+ const scale=1.28,angle=2*Math.PI*elapsed/c.duration;
+ let tx=0,ty=0,sx=1,sy=1,rot=0,skew=0;
+ if(clip==="idle"){
+   const breath=Math.sin(angle),sway=Math.sin(angle-.7);
+   sx=1;sy=1;skew=.018*sway;ty=0;
+ }else if(clip==="run"){
+   const spring=Math.sin(2*Math.PI*ms/240),load=Math.sin(2*Math.PI*phase);
+   sx=1+.024*load;sy=1-.027*load;ty=-5*Math.max(0,spring);
+   skew=.015*Math.sin(2*Math.PI*ms/c.duration);
+ }else if(clip==="aerial"){
+   sx=1+.018*Math.sin(Math.PI*phase);sy=1-.018*Math.sin(Math.PI*phase);ty=-4*Math.sin(Math.PI*phase);
+ }else if(clip==="transform"){
+   // Spin begins only at authored frame 2; angular velocity rises through frame 3.
+   const spinStart=290,p=Math.max(0,(ms-spinStart)/(c.duration-spinStart));
+   rot=2*Math.PI*(.15*p+.85*p*p);sx=1+.04*Math.sin(Math.PI*p);sy=1-.04*Math.sin(Math.PI*p);
+ }else if(clip==="untransform"){
+   // Exact inverse spin envelope with decreasing angular velocity, resolves at rest.
+   const p=ms/c.duration;rot=2*Math.PI*(1-(.15*(1-p)+.85*(1-p)*(1-p)));
+   sx=1+.035*Math.sin(Math.PI*p);sy=1-.035*Math.sin(Math.PI*p);
+ }
+ const centerX=(x0+x1)/2,centerY=(y0+y1)/2;
+ ctx.save();ctx.translate(500+tx,500+ty);ctx.transform(1,0,skew,1,0,0);ctx.rotate(rot);ctx.scale(scale*sx,scale*sy);
+ // Source is on an opaque black canvas. 'screen' visually removes black for preview
+ // but is NOT valid transparent sprite extraction. Actual masks must be audited.
+ ctx.globalCompositeOperation="screen";
+ ctx.drawImage(atlas,x0,y0,w,h,-w/2,-h,w,h);
+ ctx.restore();
+ ctx.fillStyle="#f3bfd9";ctx.font="17px system-ui";ctx.fillText(clip+" Â· "+id+" Â· "+Math.round(ms)+" ms",22,34);
+}
+requestAnimationFrame(render);
+</script>
