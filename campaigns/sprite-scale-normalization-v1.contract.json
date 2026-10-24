@@ -1,0 +1,59 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "sprite-scale-normalization-v1",
+  "mission": "Introduce a reusable, deterministic, hash-pinned anatomical sprite measurement and whole-sequence uniform scale normalization system, integrated through existing Pose Lab 2D review without modifying canonical artwork. Connie is the first intended demonstration; no invented or uncommitted source assets are allowed.",
+  "status": "implementation-candidate-human-review-pending",
+  "sourceAuthority": {
+    "policy": "Exact Git-owned PNG and SHA256; user-provided October 20 Connie attachments must be ingressed and recalibrated before their normalized derivatives are generated.",
+    "lockedCharacterArt": true
+  },
+  "machine": {
+    "mutablePaths": [
+      ".github/workflows/sprite-scale-normalization.yml",
+      "campaigns/sprite-scale-normalization-v1.contract.json",
+      "campaigns/sprite-scale-normalization-v1.receipt.json",
+      "docs/SPRITE_SCALE_NORMALIZATION.md",
+      "package.json",
+      "tools/sprite_scale_normalization.py",
+      "tools/test_sprite_scale_normalization.py"
+    ],
+    "receiptPath": "campaigns/sprite-scale-normalization-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "text-contains",
+        "path": "tools/sprite_scale_normalization.py",
+        "value": "APPROVAL_SCHEMA ="
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/sprite_scale_normalization.py",
+        "value": "\"pose-lab-v2-2d-animation-set-v1\""
+      },
+      {
+        "kind": "text-contains",
+        "path": "package.json",
+        "value": "test:sprite-scale"
+      },
+      {
+        "kind": "text-contains",
+        "path": "docs/SPRITE_SCALE_NORMALIZATION.md",
+        "value": "Connie input collision"
+      }
+    ]
+  },
+  "acceptance": {
+    "sourceHashPreservation": true,
+    "uniformScalePerSequence": true,
+    "photoPixelBoundsNotAnatomicalScale": true,
+    "connieSourceIngress": "blocked-until-exact-new-bytes-in-Git",
+    "humanVerdict": "pending"
+  }
+}

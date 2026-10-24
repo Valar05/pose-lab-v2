@@ -1,0 +1,193 @@
+name: Sprite Scale Normalization V1
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/sprite-scale-normalization.yml
+      - campaigns/sprite-scale-normalization-v1.contract.json
+      - docs/SPRITE_SCALE_NORMALIZATION.md
+      - package.json
+      - tools/sprite_scale_normalization.py
+      - tools/test_sprite_scale_normalization.py
+      - tools/test_connie_anatomical_calibration.py
+      - campaigns/connie-anatomical-calibration-v1.json
+      - campaigns/connie-anatomical-measurements-v1.json
+      - campaigns/connie-anatomical-calibration-v1.contract.json
+      - campaigns/connie-phone-source-ingress-v1.contract.json
+      - tools/campaigns/connie_phone_source_ingress.py
+      - tools/campaigns/connie_phone_ingress.sh
+      - tools/campaigns/connie_ingest.py
+      - tools/campaigns/connie_v3_cloud_preview.py
+      - tools/test_connie_v3_cloud_preview.py
+      - tools/campaigns/connie_unified_atlas.py
+      - tools/test_connie_unified_atlas.py
+      - tools/test_connie_anatomical_v3_scale.py
+      - campaigns/connie-anatomical-v3-calibration-v1.json
+      - campaigns/connie-unified-atlas-v1.contract.json
+      - public/assets/connie/source/**
+  push:
+    branches:
+      - feature/deterministic-sprite-scale-normalization-20261020
+    paths:
+      - .github/workflows/sprite-scale-normalization.yml
+      - campaigns/sprite-scale-normalization-v1.contract.json
+      - docs/SPRITE_SCALE_NORMALIZATION.md
+      - package.json
+      - tools/sprite_scale_normalization.py
+      - tools/test_sprite_scale_normalization.py
+      - tools/test_connie_anatomical_calibration.py
+      - campaigns/connie-anatomical-calibration-v1.json
+      - campaigns/connie-anatomical-measurements-v1.json
+      - campaigns/connie-anatomical-calibration-v1.contract.json
+      - campaigns/connie-phone-source-ingress-v1.contract.json
+      - tools/campaigns/connie_phone_source_ingress.py
+      - tools/campaigns/connie_phone_ingress.sh
+      - tools/campaigns/connie_ingest.py
+      - tools/campaigns/connie_v3_cloud_preview.py
+      - tools/test_connie_v3_cloud_preview.py
+      - tools/campaigns/connie_unified_atlas.py
+      - tools/test_connie_unified_atlas.py
+      - tools/test_connie_anatomical_v3_scale.py
+      - campaigns/connie-anatomical-v3-calibration-v1.json
+      - campaigns/connie-unified-atlas-v1.contract.json
+      - public/assets/connie/source/**
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-core-and-native-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install exact sprite measurement dependency
+        run: python3 -m pip install --disable-pip-version-check pillow==11.3.0
+      - name: Static syntax and campaign structure
+        run: |
+          python3 -m py_compile tools/sprite_scale_normalization.py tools/test_sprite_scale_normalization.py
+          python3 tools/campaigns/campaign_core.py preflight --contract campaigns/sprite-scale-normalization-v1.contract.json --skip-diff
+          python3 tools/campaigns/campaign_core.py verify --contract campaigns/sprite-scale-normalization-v1.contract.json
+      - name: Test anatomical scale, locks, transformations and determinism
+        run: npm run test:sprite-scale
+      - name: Validate Connie annotated head/body measurements and irregular frame partitions
+        run: |
+          python3 tools/campaigns/campaign_core.py preflight --contract campaigns/connie-anatomical-calibration-v1.contract.json --skip-diff
+          python3 tools/campaigns/campaign_core.py verify --contract campaigns/connie-anatomical-calibration-v1.contract.json
+          npm run test:connie-measurements
+      - name: Validate phone importer and script preflight against current source authorities
+        run: |
+          bash -n tools/campaigns/connie_phone_ingress.sh
+          python3 -m py_compile tools/campaigns/connie_phone_source_ingress.py tools/campaigns/connie_ingest.py
+          python3 tools/campaigns/campaign_core.py preflight --contract campaigns/connie-phone-source-ingress-v1.contract.json --skip-diff
+          python3 tools/campaigns/campaign_core.py verify --contract campaigns/connie-phone-source-ingress-v1.contract.json
+          python3 tools/campaigns/connie_phone_source_ingress.py check-manifest
+          python3 -m py_compile tools/campaigns/connie_v3_cloud_preview.py
+          python3 tools/campaigns/connie_v3_cloud_preview.py --verify-manifest-only
+          python3 tools/test_connie_anatomical_v3_scale.py
+          python3 tools/test_connie_v3_cloud_preview.py
+      - name: Test combined Connie sprite atlas and campaign contract
+        run: |
+          python3 tools/campaigns/campaign_core.py preflight --contract campaigns/connie-unified-atlas-v1.contract.json --skip-diff
+          python3 tools/campaigns/campaign_core.py verify --contract campaigns/connie-unified-atlas-v1.contract.json
+          python3 tools/test_connie_unified_atlas.py
+      - name: Existing campaign and 2D review regression
+        run: |
+          npm run test:campaign-framework
+          npm run test:2d
+          npm run build
+          npm run smoke
+          git diff --check
+
+
+  github-owned-connie-preview:
+    needs: deterministic-core-and-native-review
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      source_ready: ${{ steps.sources.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Determine whether exactly four V3 originals were imported
+        id: sources
+        shell: bash
+        run: |
+          count=0
+          for file in run.png dash.png idle.png rebound.png; do
+            test ! -f "public/assets/connie/source/$file" || count=$((count+1))
+          done
+          if [ "$count" -eq 4 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          elif [ "$count" -eq 0 ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Connie source ingress pending; cloud application not attempted."
+          else
+            echo "STOP: partial Connie originals ($count/4)" >&2
+            exit 2
+          fi
+      - uses: actions/setup-python@v5
+        if: steps.sources.outputs.ready == 'true'
+        with:
+          python-version: "3.11"
+      - name: Install Pillow on GitHub runner
+        if: steps.sources.outputs.ready == 'true'
+        run: python3 -m pip install pillow==11.3.0
+      - name: Apply uniform sequence scaling for quarantined static review
+        if: steps.sources.outputs.ready == 'true'
+        run: |
+          python3 tools/campaigns/connie_v3_cloud_preview.py \
+            --revision "$GITHUB_SHA" \
+            --output generated/connie-review
+          python3 tools/test_connie_unified_atlas.py --real
+          python3 tools/test_connie_anatomical_v3_scale.py
+      - name: Verify generated HTML and PNGs in GitHub runner
+        if: steps.sources.outputs.ready == 'true'
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import json
+          root=Path("generated/connie-review")
+          report=json.loads((root/"report.json").read_text())
+          assert report["pinwheelBlocked"] and not report["gameReady"]
+          assert len(report["groups"])==4
+          for g in report["groups"]:
+              original=root/g["originalContactSheet"]
+              assert original.is_file(),g["id"]
+              with Image.open(original) as im: im.verify()
+              if g["status"].startswith("BLOCKED"):
+                  assert "candidateContactSheet" not in g
+              else:
+                  normalized=root/g["candidateContactSheet"]
+                  assert normalized.is_file(),g["id"]
+                  with Image.open(normalized) as im: im.verify()
+          atlas=json.loads((root/"connie-unified-sprite-sheet.json").read_text())
+          assert atlas["frameCount"]==10
+          assert report["groups"][1]["anatomicalTargetPx"]>100
+          assert report["groups"][1]["singleSequenceFactor"]<1.4
+          assert report["groups"][2]["singleSequenceFactor"]<1.1
+          assert report["groups"][3]["singleSequenceFactor"]!=1.0
+          with Image.open(root/"connie-unified-sprite-sheet.png") as im:
+              assert im.mode=="RGBA"
+              assert list(im.size)==atlas["canvasPx"]
+              im.verify()
+          assert (root/"index.html").is_file()
+          print("GITHUB_CONNIE_CANDIDATE_CONTACT_SHEETS_OK")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: steps.sources.outputs.ready == 'true'
+        with:
+          name: connie-review-${{ github.sha }}
+          path: generated/connie-review/
+          if-no-files-found: error
+          retention-days: 30
+
+  # GitHub Pages publication is owned by main's existing pages.yml workflow.
+  # Feature-branch execution never touches the protected github-pages environment.

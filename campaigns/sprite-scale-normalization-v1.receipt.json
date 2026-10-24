@@ -1,0 +1,41 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "sprite-scale-normalization-v1",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "be574e6ffd3793ba7c65802b2ce3e625a96d0991",
+  "implementationRevision": "27be66fcd2192ad6ce663e6f2a48add93535ec0f",
+  "finalRevision": null,
+  "executionLane": "GitHub connector source commits and GitHub Actions runner validation",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    ".github/workflows/sprite-scale-normalization.yml",
+    "campaigns/sprite-scale-normalization-v1.contract.json",
+    "campaigns/sprite-scale-normalization-v1.receipt.json",
+    "docs/SPRITE_SCALE_NORMALIZATION.md",
+    "package.json",
+    "tools/sprite_scale_normalization.py",
+    "tools/test_sprite_scale_normalization.py"
+  ],
+  "verification": {
+    "dedicatedWorkflow": {
+      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39520735779",
+      "conclusion": "success",
+      "sha": "27be66fcd2192ad6ce663e6f2a48add93535ec0f"
+    },
+    "existingSpriteVisualQa": {
+      "url": "https://github.com/Valar05/pose-lab-v2/actions/runs/39520735843",
+      "conclusion": "success",
+      "sha": "27be66fcd2192ad6ce663e6f2a48add93535ec0f",
+      "scope": "existing Pose Lab sprite review regressions, not Connie visual approval"
+    }
+  },
+  "openRequirements": [
+    "Ingest exact four new Connie PNG source binaries in authorized Git source lane and verify hashes",
+    "Produce human-reviewed source cell partitions, anatomical landmarks, confidence, explicit frame anchors",
+    "Run analyze and preview on Connie's standing, ninja, aerial and pinwheel sequences",
+    "Generate and inspect source/normalized Connie comparison sheets and exact hosted Pose Lab playback",
+    "Obtain Drew's human approval before apply/promotion"
+  ],
+  "sourceArtworkModified": false
+}
