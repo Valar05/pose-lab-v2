@@ -24,6 +24,33 @@ def extract(image):
    for n in (k-1 if x else -1,k+1 if x+1<w else -1,k-w if y else -1,k+w if y+1<h else -1):
     if n>=0 and not seen[n] and a[n]>4:seen[n]=1;stack.append(n)
   if len(points)>5000:parts.append((points,(x0,y0,x1+1,y1+1),(sumx/len(points),sumy/len(points))))
+ # The newer hull redraw has two touching alpha silhouettes. Partition only
+ # the joined component by nearest authored atlas-slot center, retaining the
+ # original pixels and testing coverage. This is mask ownership, not square crops.
+ if len(parts)==7:
+  slot_centers=[((col+.5)*w/2,(row+.5)*h/4) for row in range(4) for col in range(2)]
+  counts=[0]*8
+  for points,box,center in parts:
+   distances=[((center[0]-sx)/max(w/2,1))**2+((center[1]-sy)/max(h/4,1))**2 for sx,sy in slot_centers]
+   counts[min(range(8),key=lambda i:distances[i])]+=1
+  missing=[i for i,c in enumerate(counts) if c==0]
+  assert len(missing)==1,('ambiguous merged hull',counts)
+  missing_index=missing[0]
+  candidate=min(range(len(parts)),key=lambda i:min(
+   ((parts[i][2][0]-slot_centers[missing_index][0])/max(w/2,1))**2+((parts[i][2][1]-slot_centers[missing_index][1])/max(h/4,1))**2,
+   99))
+  pixels,box,center=parts.pop(candidate)
+  owner_index=min(range(8),key=lambda i:((center[0]-slot_centers[i][0])/max(w/2,1))**2+((center[1]-slot_centers[i][1])/max(h/4,1))**2)
+  def distance(k,i):
+   yy,xx=divmod(k,w);sx,sy=slot_centers[i]
+   return ((xx-sx)/max(w/2,1))**2+((yy-sy)/max(h/4,1))**2
+  chunks=[[],[]]
+  for k in pixels:chunks[int(distance(k,missing_index)<distance(k,owner_index))].append(k)
+  assert min(map(len,chunks))>5000,('merged hull split unsafe',list(map(len,chunks)))
+  for group in chunks:
+   xs=[k%w for k in group];ys=[k//w for k in group]
+   parts.append((group,(min(xs),min(ys),max(xs)+1,max(ys)+1),(sum(xs)/len(xs),sum(ys)/len(ys))))
+  print('HULL_CONNECTED_ALPHA_SPLIT=one touching pair, original pixels preserved; static visual review required',counts)
  assert len(parts)==8,f'expected 8 hull islands, got {len(parts)}'
  byy=sorted(parts,key=lambda v:v[2][1]);ordered=[]
  for row in range(4):ordered.extend(sorted(byy[row*2:row*2+2],key=lambda v:v[2][0]))
