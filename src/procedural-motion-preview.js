@@ -859,7 +859,7 @@ try{
      : isUndercut
        ? './assets/vanguard/procedural/undercut-strike.recipe.json'
        : './assets/vanguard/procedural/overhand-strike.recipe.json';
- recipe=await fetch(recipePath,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('recipe HTTP '+r.status);return r.json()});q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;phases=recipe.phases;total=phases.reduce((n,p)=>n+Number(p.durationMs),0);canvas.width=recipe.canvas.size[0];canvas.height=recipe.canvas.size[1];
+ recipe=await (async()=>{const absolute=new URL(recipePath,location.href);let response=await fetch(absolute,{cache:'no-store'});if(!response.ok&&response.status===404){const retry=new URL(absolute);retry.searchParams.set('recipe-retry',String(Date.now()));response=await fetch(retry,{cache:'reload'});}if(!response.ok)throw new Error('recipe HTTP '+response.status+' '+absolute.href+' (deployment/assets may be out of sync)');return response.json();})();q('[data-recipe]').textContent=JSON.stringify(recipe,null,2);q('[data-title]').textContent=recipe.id;phases=recipe.phases;total=phases.reduce((n,p)=>n+Number(p.durationMs),0);canvas.width=recipe.canvas.size[0];canvas.height=recipe.canvas.size[1];
  const spec=recipe.atlases['vanguard-canonical'];
  const atlasPath=spec.path.startsWith('./')?spec.path:'./'+spec.path;
  const effectSource=recipe.sources[recipe.effect.source];
