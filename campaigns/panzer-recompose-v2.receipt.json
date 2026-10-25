@@ -1,0 +1,15 @@
+{
+  "schema": "panzer-recompose-v2-receipt",
+  "campaignId": "panzer-recompose-v2",
+  "status": "implementation-committed-pending-human-review",
+  "startRevision": "b1bad353b67805fd6a075d39f8dfdc35026e4db5",
+  "implementationRevision": "ca87b7d66ae6ad76ddec28611daff01c74a25b3c",
+  "branch": "campaign/panzer-recompose-v2-20261025",
+  "route": "panzer-turntable-v2",
+  "reviewUrl": "https://valar05.github.io/pose-lab-v2/motion.html?procedural=panzer-turntable-v2&rev=ca87b7d66ae6ad76ddec28611daff01c74a25b3c",
+  "notes": [
+    "Measured visually in ChatGPT against authored hull/turret/barrel sheets.",
+    "94% tone-matched hull candidate promoted as working hull source.",
+    "This receipt covers snapped directional composition only; deformation/elevation deferred."
+  ]
+}
