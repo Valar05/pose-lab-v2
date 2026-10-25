@@ -1,0 +1,197 @@
+{
+  "schema": "panzer-registration-v1",
+  "workId": "panzer-recompose-v2",
+  "route": "panzer-turntable-v2",
+  "turretScale": 0.59,
+  "directionOrder": [
+    "front",
+    "front-right",
+    "right",
+    "rear-right",
+    "rear",
+    "rear-left",
+    "left",
+    "front-left"
+  ],
+  "sheetLayout": {
+    "cols": 2,
+    "rows": 4
+  },
+  "sourceFiles": {
+    "hull": "source/panzer-hulls-working.png",
+    "turret": "source/panzer-turrets-working.png",
+    "barrel": "source/panzer-barrels-working.png"
+  },
+  "hullFrameSize": [
+    561,
+    350
+  ],
+  "hullRingCenters": [
+    [
+      280,
+      130
+    ],
+    [
+      306,
+      121
+    ],
+    [
+      281,
+      101
+    ],
+    [
+      258,
+      102
+    ],
+    [
+      279,
+      106
+    ],
+    [
+      300,
+      104
+    ],
+    [
+      280,
+      103
+    ],
+    [
+      252,
+      120
+    ]
+  ],
+  "turretBaseAnchorsFullCell": [
+    [
+      418,
+      228
+    ],
+    [
+      405,
+      228
+    ],
+    [
+      410,
+      226
+    ],
+    [
+      420,
+      224
+    ],
+    [
+      418,
+      224
+    ],
+    [
+      416,
+      224
+    ],
+    [
+      410,
+      224
+    ],
+    [
+      425,
+      228
+    ]
+  ],
+  "turretGunAnchorsFullCell": [
+    [
+      418,
+      166
+    ],
+    [
+      652,
+      162
+    ],
+    [
+      760,
+      151
+    ],
+    [
+      745,
+      145
+    ],
+    [
+      418,
+      128
+    ],
+    [
+      86,
+      145
+    ],
+    [
+      70,
+      151
+    ],
+    [
+      184,
+      162
+    ]
+  ],
+  "barrelRootAnchorsFullCell": [
+    [
+      362,
+      35
+    ],
+    [
+      40,
+      121
+    ],
+    [
+      56,
+      136
+    ],
+    [
+      65,
+      136
+    ],
+    [
+      362,
+      35
+    ],
+    [
+      638,
+      136
+    ],
+    [
+      668,
+      131
+    ],
+    [
+      670,
+      120
+    ]
+  ],
+  "barrelDrawBehindTurret": [
+    3,
+    4,
+    5
+  ],
+  "timing": {
+    "stepMs": 650
+  },
+  "notes": [
+    "Measured visually from authored hull, turret and barrel sheets.",
+    "This campaign validates snapped directional composition first; deformation and barrel elevation remain deferred.",
+    "The 94% post-process hull candidate is treated as the working hull source."
+  ],
+  "sourceSha256": {
+    "hull": "7c0d7c82d0a477e26496be968df4157b75c3abd1b73f8e99cf7a7d5b0076f1f1",
+    "turret": "f080e620bcd189e20022f992cf9da685aa255f30d0c019fe8be7bb0aac334e1e",
+    "barrel": "42026fafbbc61da3030cc03b8ad439f4140c60f096677f856b723d51ee33aa72"
+  },
+  "sourcePixelSize": {
+    "hull": [
+      1122,
+      1402
+    ],
+    "turret": [
+      1672,
+      941
+    ],
+    "barrel": [
+      1448,
+      1086
+    ]
+  }
+}
