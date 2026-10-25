@@ -7,9 +7,11 @@ const CHARACTER_ANIMATIONS = Object.freeze({
     ['vanguard-midair','Mid-Air'],['vanguard-land','Land'],['vanguard-shotgun-reload','Shotgun Reload'],
     ['vanguard-shotgun-fire','Shotgun Fire']
   ],
+  connie: [['connie-idle','Idle'],['connie-run','Run'],['connie-aerial','Aerial'],['connie-spin','Spin']],
+  panzer: [['panzer-turntable-v2','Eight-direction turntable']],
   swarmling: [['swarmling-run','Run'],['swarmling-idle','Idle'],['swarmling-aggro','Aggro / Attention'],['swarmling-damage','Damage / Hit React'],['swarmling-knockdown','Knockdown'],['swarmling-stand-up','Stand Up'],['swarmling-death','Death'],['swarmling-jab','Needle Jab'],['swarmling-rake','Low Rake'],['swarmling-scythe-bloom','Scythe Bloom']]
 });
-const DEFAULT_ANIMATION = Object.freeze({vanguard:'vanguard-idle',swarmling:'swarmling-run'});
+const DEFAULT_ANIMATION = Object.freeze({vanguard:'vanguard-idle',swarmling:'swarmling-run',connie:'connie-idle',panzer:'panzer-turntable-v2'});
 
 export function createProceduralReviewShell({title,animation,accent='#59d5e8',character=null}){
   const app=document.querySelector('#app');
@@ -58,7 +60,7 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8',ch
   const zoomInput=q('[data-zoom]'), zoomReadout=q('[data-zoom-readout]'), select=q('[data-animation]'), characterSelect=q('[data-character]');
   const activeCharacter=character || (String(animation).startsWith('swarmling-')?'swarmling':'vanguard');
   for(const id of Object.keys(CHARACTER_ANIMATIONS)){
-    const o=document.createElement('option');o.value=id;o.textContent=id==='vanguard'?'Vanguard':'Swarmling';characterSelect.append(o);
+    const o=document.createElement('option');o.value=id;o.textContent=({vanguard:'Vanguard',swarmling:'Swarmling',connie:'Connie',panzer:'Panzer'})[id];characterSelect.append(o);
   }
   characterSelect.value=activeCharacter;
   for(const [id,label] of CHARACTER_ANIMATIONS[activeCharacter]){
@@ -67,7 +69,8 @@ export function createProceduralReviewShell({title,animation,accent='#59d5e8',ch
   select.value=animation;
   const go=(next)=>{
     const p=new URLSearchParams(location.search),rev=p.get('rev'),nocache=p.get('nocache');
-    location.href='./motion.html?procedural='+encodeURIComponent(next)
+    const route=next.startsWith('connie-')?'./motion.html?character=connie&profile='+encodeURIComponent(next):'./motion.html?procedural='+encodeURIComponent(next);
+    location.href=route
       +(rev?'&rev='+encodeURIComponent(rev):'')
       +(nocache?'&nocache='+encodeURIComponent(nocache):'');
   };
