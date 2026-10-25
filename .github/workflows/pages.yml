@@ -27,6 +27,28 @@ jobs:
           node-version: 22
       - run: npm run build
       - run: npm run smoke
+      - name: Generate Panzer hull and turret static review on GitHub runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check Pillow==11.3.0
+          python3 tools/campaigns/panzer_hull_turret_static_v1.py
+          source_dir=public/assets/panzer-pose-experiment/hull-turret-static-v1
+          destination=dist/assets/panzer-pose-experiment/hull-turret-static-v1
+          mkdir -p "$destination"
+          cp "$source_dir"/hull-*.png "$destination/"
+          cp "$source_dir"/registration.json "$source_dir"/eight-static-poses.jpg "$destination/"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          base=Path("dist/assets/panzer-pose-experiment/hull-turret-static-v1")
+          d=json.loads((base/"registration.json").read_text())
+          assert len(d["angles"])==8 and d["barrel"] is False
+          for entry in d["angles"]:
+              assert (base/entry["hull"]).is_file()
+          assert (base/"eight-static-poses.jpg").is_file()
+          print("PANZER_STATIC_REVIEW_CI_READY=8")
+          PY
       - name: Purge old Pose Lab build artifacts before publishing
         shell: bash
         env:
