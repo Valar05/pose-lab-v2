@@ -82,14 +82,29 @@ def main():
   Hname=f'hull-{i:02d}.png';native.save(OUT/Hname)
   turret=Image.open(TURRET/f'{i:02d}-{NAMES[i]}.png').convert('RGBA')
   ts=[round(turret.width*.59),round(turret.height*.59)]
+  # Eight independent registration measurements from the full-resolution
+  # eight-pose review, 2026-10-25. Units are 561x350 native hull-cell pixels.
+  # Corrections are relative to the initial uniform 81%-depth mount and were
+  # reviewed per pose, NOT derived from a single front-facing anchor.
+  PER_VIEW_OFFSET=[
+    (0,0),       # 000 front: accepted reference, preserve
+    (-14,-16),   # 045 front-right: move rearward and seat above fender
+    (0,-42),     # 090 right: lift turret clear of the side armor rail
+    (-8,-30),    # 135 rear-right: shift inward and lift above stowage
+    (0,-13),     # 180 rear: lift roof base but preserve centerline
+    (-18,-32),   # 225 rear-left: shift inward and lift over rear deck
+    (9,-43),     # 270 left: raise turret silhouette above side armor
+    (-13,-22),   # 315 front-left: shift inward and lift out of glacis
+  ]
   anchor=[round(ts[0]/2),round(ts[1]*.81)]
-  pos=[RINGS[i][0]-anchor[0],RINGS[i][1]-anchor[1]]
+  dx,dy=PER_VIEW_OFFSET[i]
+  pos=[RINGS[i][0]-anchor[0]+dx,RINGS[i][1]-anchor[1]+dy]
   native.alpha_composite(turret.resize(tuple(ts),Image.Resampling.LANCZOS),tuple(pos))
   sc=min(380/native.width,385/native.height)
   composite=native.resize((round(native.width*sc),round(native.height*sc)),Image.Resampling.LANCZOS)
   x=(i%4)*400+(400-composite.width)//2;y=(i//4)*450+23
   review.alpha_composite(composite,(x,y))
-  manifest['angles'].append({'index':i,'degrees':i*45,'hull':Hname,'turret':f'{i:02d}-{NAMES[i]}.png','canvas':[native.width,native.height],'hullRing':RINGS[i],'turretTopLeft':pos,'turretSize':ts,'turretAnchorCandidate':anchor})
+  manifest['angles'].append({'index':i,'degrees':i*45,'hull':Hname,'turret':f'{i:02d}-{NAMES[i]}.png','canvas':[native.width,native.height],'hullRing':RINGS[i],'turretTopLeft':pos,'turretSize':ts,'turretAnchorCandidate':anchor,'manualViewCorrection':list(PER_VIEW_OFFSET[i]),'registrationSource':'8-pose enlarged phone screenshot audit on 2026-10-25'})
  review.convert('RGB').save(OUT/'eight-static-poses.jpg',quality=94)
  (OUT/'registration.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf8')
  print('STATIC_COMPOSITION_EXPORTED=8; PENDING_VISUAL_REVIEW')
