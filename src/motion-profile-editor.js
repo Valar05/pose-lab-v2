@@ -180,8 +180,10 @@ app.innerHTML = `
   </section>
 </section>`;
 
-const connieRequested=new URLSearchParams(location.search).get('character')==='connie';
-let active = connieRequested ? getMotionProfile('connie-idle',1) : getMotionProfile('jab', 1);
+const profileParams=new URLSearchParams(location.search);
+const connieRequested=profileParams.get('character')==='connie';
+const namedProfile=profileParams.get('profile');
+let active = connieRequested ? (namedProfile?.startsWith('connie-') ? getMotionProfile(namedProfile,1) : null) || getMotionProfile('connie-idle',1) : getMotionProfile('jab', 1);
 let working = active;
 const connieAtlas=new Image();
 const connieMasked=document.createElement('canvas');
