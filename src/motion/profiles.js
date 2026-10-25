@@ -1,4 +1,6 @@
+import { CONNIE_PROFILES } from './connie-profiles.js';
 export const MOTION_PROFILES = Object.freeze({
+  ...CONNIE_PROFILES,
   'jab@1': {
     schema:'pose-lab.motion-profile.v1',
     id:'jab', version:1, label:'Jab',
