@@ -1,0 +1,112 @@
+{
+  "schema": "panzer-turret-extraction-v1",
+  "sourceSha256": "5cb397eda3a86de2584fc57d55c45e8d3480d0d2a845d4767ede963f0281f4c0",
+  "alphaCoverage": 0.9976273306767308,
+  "angles": [
+    {
+      "index": 0,
+      "name": "front",
+      "degrees": 0,
+      "sourceBounds": [
+        173,
+        40,
+        460,
+        239
+      ],
+      "opaqueArea": 75821,
+      "file": "00-front.png"
+    },
+    {
+      "index": 1,
+      "name": "front-right",
+      "degrees": 45,
+      "sourceBounds": [
+        808,
+        48,
+        501,
+        241
+      ],
+      "opaqueArea": 83074,
+      "file": "01-front-right.png"
+    },
+    {
+      "index": 2,
+      "name": "right",
+      "degrees": 90,
+      "sourceBounds": [
+        107,
+        316,
+        584,
+        235
+      ],
+      "opaqueArea": 95449,
+      "file": "02-right.png"
+    },
+    {
+      "index": 3,
+      "name": "rear-right",
+      "degrees": 135,
+      "sourceBounds": [
+        805,
+        309,
+        545,
+        244
+      ],
+      "opaqueArea": 92442,
+      "file": "03-rear-right.png"
+    },
+    {
+      "index": 4,
+      "name": "rear",
+      "degrees": 180,
+      "sourceBounds": [
+        147,
+        572,
+        491,
+        242
+      ],
+      "opaqueArea": 82578,
+      "file": "04-rear.png"
+    },
+    {
+      "index": 5,
+      "name": "rear-left",
+      "degrees": 225,
+      "sourceBounds": [
+        801,
+        568,
+        535,
+        249
+      ],
+      "opaqueArea": 88578,
+      "file": "05-rear-left.png"
+    },
+    {
+      "index": 6,
+      "name": "left",
+      "degrees": 270,
+      "sourceBounds": [
+        99,
+        810,
+        613,
+        244
+      ],
+      "opaqueArea": 99638,
+      "file": "06-left.png"
+    },
+    {
+      "index": 7,
+      "name": "front-left",
+      "degrees": 315,
+      "sourceBounds": [
+        827,
+        806,
+        545,
+        253
+      ],
+      "opaqueArea": 92167,
+      "file": "07-front-left.png"
+    }
+  ],
+  "status": "source-preserved-pending-human-approval"
+}
