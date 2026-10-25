@@ -211,3 +211,7 @@ rewrite while steadily shrinking the brittle surface.
 The old hardcoded `tools/campaigns/pose_campaign_guard.py` remains legacy
 Attack-5 infrastructure until that campaign is next reopened. New campaigns
 must use V2.
+
+## Self-locating repo-owned entrypoints (2026-10-25)
+
+Every campaign runner must be safe when invoked from an arbitrary current working directory. The owner often has multiple campaigns open simultaneously. A repo-owned script MUST resolve its own real location (including symlinks where applicable), derive and verify the intended repository/worktree root or a validated explicit override, and `cd` into that root **before** running any repository-relative reads, Git commands, tests, or mutations. Never assume `pwd`, `$HOME`, an interactive shell's previous directory, or a single active campaign. If resolution is ambiguous or does not identify the intended repository, fail closed without touching files. Log `RESOLVED_REPO`, `EXECUTION_DIR`, `BRANCH`, and `HEAD` at preflight. Keep logs, receipts, locks, and worktrees campaign-specific so parallel execution cannot clobber adjacent work. The owner's decision to navigate manually for one run does not waive this rule for future scripts. Verify this behavior from an unrelated directory as a required acceptance test.
