@@ -21,7 +21,7 @@
     <script type="module">
       const params = new URLSearchParams(location.search);
       const procedural = params.get('procedural');
-      const modulePath = procedural === 'panzer-source-match' ? './src/panzer-source-match-preview.js' : procedural === 'panzer-turntable-v2' ? './src/procedural-panzer-turntable-v2.js' : procedural === 'panzer-turntable' ? './src/procedural-panzer-turntable.js' : procedural?.startsWith('swarmling-')
+      const modulePath = procedural === 'panzer-turret-only-v1' ? './src/panzer-turret-only-preview.js' : procedural === 'panzer-source-match' ? './src/panzer-source-match-preview.js' : procedural === 'panzer-turntable-v2' ? './src/procedural-panzer-turntable-v2.js' : procedural === 'panzer-turntable' ? './src/procedural-panzer-turntable.js' : procedural?.startsWith('swarmling-')
         ? './src/procedural-swarmling-preview.js'
         : procedural === 'vesper-run'
           ? './src/procedural-vesper-run-preview.js'
