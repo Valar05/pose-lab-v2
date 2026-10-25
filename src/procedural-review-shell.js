@@ -7,7 +7,7 @@ const CHARACTER_ANIMATIONS = Object.freeze({
     ['vanguard-midair','Mid-Air'],['vanguard-land','Land'],['vanguard-shotgun-reload','Shotgun Reload'],
     ['vanguard-shotgun-fire','Shotgun Fire']
   ],
-  connie: [['connie-idle','Idle'],['connie-run','Run'],['connie-aerial','Aerial'],['connie-spin','Spin']],
+  connie: [['connie-idle','Idle'],['connie-run','Run'],['connie-aerial','Aerial'],['connie-dash-spin','Dash Spin']],
   panzer: [['panzer-turntable-v2','Eight-direction turntable']],
   swarmling: [['swarmling-run','Run'],['swarmling-idle','Idle'],['swarmling-aggro','Aggro / Attention'],['swarmling-damage','Damage / Hit React'],['swarmling-knockdown','Knockdown'],['swarmling-stand-up','Stand Up'],['swarmling-death','Death'],['swarmling-jab','Needle Jab'],['swarmling-rake','Low Rake'],['swarmling-scythe-bloom','Scythe Bloom']]
 });
