@@ -55,6 +55,21 @@ for _ in range(350):
     except cv2.error:pass
 ci=np.percentile(np.asarray(boots),[2.5,97.5],axis=0)
 assert rms<5 and np.max(ci[1]-ci[0])<7,"geometric residual/CI threshold failed"
+# Independent silhouette-axis test: row-wise observed shaft edges, not a guessed axis.
+rows=[]
+for y in range(605,646):
+    opaque=np.flatnonzero(rgba[y,350:450,3]>180)+350
+    if len(opaque)>=35:
+        left,right=int(opaque.min()),int(opaque.max())
+        rows.append([y,left,right,(left+right)/2])
+assert len(rows)>=35,"insufficient shaft edge support"
+yy=np.asarray([v[0] for v in rows],float)
+xx=np.asarray([v[3] for v in rows],float)
+slope,intercept=np.polyfit(yy,xx,1)
+shaft_at_face=float(slope*center[1]+intercept)
+axis_face_dx=float(shaft_at_face-center[0])
+axis_residual=float(np.sqrt(np.mean((xx-(slope*yy+intercept))**2)))
+
 payload={
  "schema":"panzer-proximal-pixel-contour-v1","source_sha256":sha,"image_size":[1448,1086],
  "view_id":4,"direction":"rear","feature":"visible rear-facing proximal end plate RIM only",
@@ -64,9 +79,12 @@ payload={
  "observed_support_points_xy":points.astype(int).tolist(),"edge_bin_ids":[p[2] for p in raw],
  "center_native_xy":center.tolist(),"local_to_alpha_region_xy":(center-[337,568]).tolist(),
  "ellipse_full_axes_px":diam.tolist(),"angle_deg":angle,
- "rms_radial_residual_px":rms,"bootstrap_center_CI95_native_xy":[ci[0].tolist(),ci[1].tolist()],
+ "rms_radial_residual_px":rms,
+ "observed_shaft_scanlines_y_left_right_midpoint":rows,
+ "shaft_axis_x_as_function_of_y":{"slope":float(slope),"intercept":float(intercept),"rms_px":axis_residual},
+ "shaft_axis_x_at_face_y":shaft_at_face,"axis_minus_face_x_px":axis_face_dx,"bootstrap_center_CI95_native_xy":[ci[0].tolist(),ci[1].tolist()],
  "bootstrap_seed":20261026,"bootstrap_resamples":350,
- "status":"FACE_CONTOUR_MEASURED; MOUNT_PIVOT_NOT_APPROVED",
+ "status":"FACE_CONTOUR_MEASURED; PIVOT_REJECTED: INDEPENDENT SHAFT AXIS DISAGREES",
  "other_views":"BLOCKED: root face hidden or face arc contaminated by bolts/collar",
  "runtime_transform":"BLOCKED: existing 2x4 slicer cuts through source image for indices 0,1,2,6"
 }
