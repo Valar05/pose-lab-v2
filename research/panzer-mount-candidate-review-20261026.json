@@ -1,0 +1,124 @@
+{
+  "schema": "pose-lab-panzer-visual-mount-candidate-v0",
+  "status": "REVIEW_ONLY_NOT_APPROVED",
+  "purpose": "Human visual first-pass proximal barrel and visible turret socket hypotheses; not model-inferred coordinates or mechanical registration",
+  "source_sha256": {
+    "barrels.png": "42026fafbbc61da3030cc03b8ad439f4140c60f096677f856b723d51ee33aa72",
+    "turrets.png": "5cb397eda3a86de2584fc57d55c45e8d3480d0d2a845d4767ede963f0281f4c0"
+  },
+  "coordinate_space": "native original sheet x/y from upper-left",
+  "direction_labels": "VISUAL HYPOTHESIS ONLY. Must reconcile with canonical Pose Lab direction mapping",
+  "views": [
+    {
+      "index": 0,
+      "provisional_direction": "F",
+      "barrel_proximal_candidate_xy": [
+        383,
+        107
+      ],
+      "turret_socket_candidate_xy": [
+        403,
+        205
+      ],
+      "turret_visibility": "observed_visible_opening",
+      "coordinate_quality": "approximate human visually selected: not curve-fit and not acceptable for pinning"
+    },
+    {
+      "index": 1,
+      "provisional_direction": "FR",
+      "barrel_proximal_candidate_xy": [
+        900,
+        157
+      ],
+      "turret_socket_candidate_xy": [
+        1199,
+        214
+      ],
+      "turret_visibility": "observed_visible_opening",
+      "coordinate_quality": "approximate human visually selected: not curve-fit and not acceptable for pinning"
+    },
+    {
+      "index": 2,
+      "provisional_direction": "R",
+      "barrel_proximal_candidate_xy": [
+        115,
+        447
+      ],
+      "turret_socket_candidate_xy": [
+        662,
+        460
+      ],
+      "turret_visibility": "observed_visible_opening",
+      "coordinate_quality": "approximate human visually selected: not curve-fit and not acceptable for pinning"
+    },
+    {
+      "index": 3,
+      "provisional_direction": "BR",
+      "barrel_proximal_candidate_xy": [
+        973,
+        450
+      ],
+      "turret_socket_candidate_xy": null,
+      "turret_visibility": "occluded_no_measured_position",
+      "coordinate_quality": "approximate human visually selected: not curve-fit and not acceptable for pinning"
+    },
+    {
+      "index": 4,
+      "provisional_direction": "B",
+      "barrel_proximal_candidate_xy": [
+        393,
+        692
+      ],
+      "turret_socket_candidate_xy": null,
+      "turret_visibility": "occluded_no_measured_position",
+      "coordinate_quality": "approximate human visually selected: not curve-fit and not acceptable for pinning"
+    },
+    {
+      "index": 5,
+      "provisional_direction": "BL",
+      "barrel_proximal_candidate_xy": [
+        1236,
+        701
+      ],
+      "turret_socket_candidate_xy": null,
+      "turret_visibility": "occluded_no_measured_position",
+      "coordinate_quality": "approximate human visually selected: not curve-fit and not acceptable for pinning"
+    },
+    {
+      "index": 6,
+      "provisional_direction": "L",
+      "barrel_proximal_candidate_xy": [
+        749,
+        910
+      ],
+      "turret_socket_candidate_xy": [
+        106,
+        950
+      ],
+      "turret_visibility": "observed_visible_opening",
+      "coordinate_quality": "approximate human visually selected: not curve-fit and not acceptable for pinning"
+    },
+    {
+      "index": 7,
+      "provisional_direction": "FL",
+      "barrel_proximal_candidate_xy": [
+        1273,
+        876
+      ],
+      "turret_socket_candidate_xy": [
+        883,
+        963
+      ],
+      "turret_visibility": "observed_visible_opening",
+      "coordinate_quality": "approximate human visually selected: not curve-fit and not acceptable for pinning"
+    }
+  ],
+  "review_requirements": [
+    "independent actual landmark identity review",
+    "measure the visible circular face physical contour not muzzle or silhouette bounds",
+    "determine physical contact-plane centers, not apparent decorative cap center",
+    "hidden rear-facing turret mount requires occlusion-aware authored geometry or user-authorized inference",
+    "verify true Pose Lab direction order, shared scale and per-view pairing",
+    "no source art transforms, pins or runtime changes permitted by this packet"
+  ]
+}
