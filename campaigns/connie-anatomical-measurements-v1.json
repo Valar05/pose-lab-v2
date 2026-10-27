@@ -1,0 +1,778 @@
+{
+  "schema": "pose-lab-connie-anatomical-measurement-report-v1",
+  "status": "provisional-measured-not-ingressed",
+  "reportKind": "Deterministic arithmetic over saved manually selected anatomical coordinates; source pixel bounds verified against uploaded images before Git commit but unverified by GitHub CI because source PNGs are not in Git.",
+  "sourceReference": "campaigns/connie-anatomical-calibration-v1.json",
+  "sourceAuthority": {
+    "idle": {
+      "file": "public/assets/connie/source/idle.png",
+      "sha256": "7fb56a75e6e02d0bb256469845bbfd57a5aff0e925b1a5216ac1828debec827b",
+      "canvasPx": [
+        1152,
+        1536
+      ],
+      "phoneFileRole": "idle"
+    },
+    "run": {
+      "file": "public/assets/connie/source/run.png",
+      "sha256": "a8a5acfc9eab5c61b3b060e933ec9f91807b463cefd10ed0b5927ad420500b12",
+      "canvasPx": [
+        1536,
+        864
+      ],
+      "phoneFileRole": "run"
+    },
+    "aerial": {
+      "file": "public/assets/connie/source/rebound.png",
+      "sha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
+      "canvasPx": [
+        1536,
+        512
+      ],
+      "phoneFileRole": "wall-impact / rebound"
+    },
+    "pinwheel": {
+      "file": "public/assets/connie/source/dash.png",
+      "sha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
+      "canvasPx": [
+        1536,
+        512
+      ],
+      "phoneFileRole": "dash / pinwheel"
+    }
+  },
+  "canonical": {
+    "name": "idle",
+    "sourceFile": "public/assets/connie/source/idle.png",
+    "sourceSha256": "7fb56a75e6e02d0bb256469845bbfd57a5aff0e925b1a5216ac1828debec827b",
+    "canvasPx": [
+      1152,
+      1536
+    ],
+    "sourceCellPx": [
+      0,
+      0,
+      1152,
+      1536
+    ],
+    "visibleBoundsSourcePx": [
+      21,
+      48,
+      1075,
+      1482
+    ],
+    "pose": "standing",
+    "facing": "right-profile",
+    "landmarksSourcePx": {
+      "crown": [
+        751,
+        145
+      ],
+      "chin": [
+        754,
+        298
+      ],
+      "shoulder": [
+        625,
+        365
+      ],
+      "hip": [
+        687,
+        645
+      ],
+      "knee": [
+        540,
+        1080
+      ],
+      "ankle": [
+        525,
+        1310
+      ],
+      "foot": [
+        580,
+        1468
+      ]
+    },
+    "distancesPx": {
+      "crownToChin": 153.0294,
+      "shoulderToHip": 286.7821
+    },
+    "directHeadRatioToStanding": 1,
+    "anchorSourcePx": [
+      687,
+      645
+    ],
+    "anchorLabel": "hip",
+    "confidence": 0.91,
+    "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
+    "landmarkNotes": "Crown at scalp excluding gold tiara; foot and knee approximate through paper skirt; full-body physical-proportion authority",
+    "reviewFlag": "PROVISIONAL visually measured",
+    "bodyProportionAuthority": true,
+    "file": "public/assets/connie/source/idle.png"
+  },
+  "sequences": [
+    {
+      "id": "run",
+      "frameCount": 3,
+      "reliableHeadMeasurementsPx": [
+        101.1237,
+        102.3963,
+        107.5639
+      ],
+      "medianReliableHeadPx": 102.3963,
+      "candidateUniformScaleRatio": 1.494482,
+      "maximumRelativeHeadRatioDeviation": 0.048042,
+      "normalizationStatus": "MEASUREMENT-ONLY candidate; inputs/timing unavailable for normalize",
+      "factorsAreApplied": false,
+      "observedIssues": [
+        "No reliable physical planted foot identity from static frames; hip-based registration remains provisional"
+      ],
+      "frames": [
+        {
+          "name": "run_1",
+          "sourceFile": "public/assets/connie/source/run.png",
+          "sourceSha256": "a8a5acfc9eab5c61b3b060e933ec9f91807b463cefd10ed0b5927ad420500b12",
+          "canvasPx": [
+            1536,
+            864
+          ],
+          "sourceCellPx": [
+            0,
+            0,
+            512,
+            864
+          ],
+          "visibleBoundsSourcePx": [
+            12,
+            180,
+            507,
+            638
+          ],
+          "pose": "long-stride-run",
+          "facing": "right-profile",
+          "landmarksSourcePx": {
+            "crown": [
+              478,
+              226
+            ],
+            "chin": [
+              473,
+              327
+            ],
+            "shoulder": [
+              382,
+              322
+            ],
+            "hip": [
+              343,
+              424
+            ],
+            "knee": [
+              415,
+              451
+            ],
+            "ankle": [
+              371,
+              578
+            ],
+            "foot": [
+              420,
+              622
+            ]
+          },
+          "distancesPx": {
+            "crownToChin": 101.1237,
+            "shoulderToHip": 109.2016
+          },
+          "directHeadRatioToStanding": 1.513289,
+          "anchorSourcePx": [
+            343,
+            424
+          ],
+          "anchorLabel": "hip",
+          "confidence": 0.87,
+          "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
+          "landmarkNotes": "Forward folded leg chosen; trailing leg extends far backward. No plant lock assigned",
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/run.png"
+        },
+        {
+          "name": "run_2",
+          "sourceFile": "public/assets/connie/source/run.png",
+          "sourceSha256": "a8a5acfc9eab5c61b3b060e933ec9f91807b463cefd10ed0b5927ad420500b12",
+          "canvasPx": [
+            1536,
+            864
+          ],
+          "sourceCellPx": [
+            512,
+            0,
+            482,
+            864
+          ],
+          "visibleBoundsSourcePx": [
+            517,
+            182,
+            980,
+            653
+          ],
+          "pose": "compressed-run",
+          "facing": "right-profile",
+          "landmarksSourcePx": {
+            "crown": [
+              937,
+              226
+            ],
+            "chin": [
+              928,
+              328
+            ],
+            "shoulder": [
+              852,
+              320
+            ],
+            "hip": [
+              802,
+              424
+            ],
+            "knee": [
+              872,
+              478
+            ],
+            "ankle": [
+              701,
+              599
+            ],
+            "foot": [
+              728,
+              635
+            ]
+          },
+          "distancesPx": {
+            "crownToChin": 102.3963,
+            "shoulderToHip": 115.395
+          },
+          "directHeadRatioToStanding": 1.494482,
+          "anchorSourcePx": [
+            802,
+            424
+          ],
+          "anchorLabel": "hip",
+          "confidence": 0.85,
+          "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
+          "landmarkNotes": "Foreshortened overlapping legs; do not infer scale from silhouette height",
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/run.png"
+        },
+        {
+          "name": "run_3",
+          "sourceFile": "public/assets/connie/source/run.png",
+          "sourceSha256": "a8a5acfc9eab5c61b3b060e933ec9f91807b463cefd10ed0b5927ad420500b12",
+          "canvasPx": [
+            1536,
+            864
+          ],
+          "sourceCellPx": [
+            994,
+            0,
+            542,
+            864
+          ],
+          "visibleBoundsSourcePx": [
+            1007,
+            177,
+            1523,
+            652
+          ],
+          "pose": "extended-run",
+          "facing": "right-profile",
+          "landmarksSourcePx": {
+            "crown": [
+              1461,
+              226
+            ],
+            "chin": [
+              1450,
+              333
+            ],
+            "shoulder": [
+              1389,
+              324
+            ],
+            "hip": [
+              1339,
+              425
+            ],
+            "knee": [
+              1390,
+              476
+            ],
+            "ankle": [
+              1466,
+              596
+            ],
+            "foot": [
+              1490,
+              637
+            ]
+          },
+          "distancesPx": {
+            "crownToChin": 107.5639,
+            "shoulderToHip": 112.6987
+          },
+          "directHeadRatioToStanding": 1.422684,
+          "anchorSourcePx": [
+            1339,
+            425
+          ],
+          "anchorLabel": "hip",
+          "confidence": 0.86,
+          "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
+          "landmarkNotes": "Extended running stride, broad horizontal envelope does not determine physical scale",
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/run.png"
+        }
+      ]
+    },
+    {
+      "id": "aerial",
+      "frameCount": 3,
+      "reliableHeadMeasurementsPx": [
+        94.5304,
+        101.0445,
+        102.0784
+      ],
+      "medianReliableHeadPx": 101.0445,
+      "candidateUniformScaleRatio": 1.514475,
+      "maximumRelativeHeadRatioDeviation": 0.06891,
+      "normalizationStatus": "MEASUREMENT-ONLY candidate; inputs/timing unavailable for normalize",
+      "factorsAreApplied": false,
+      "observedIssues": [
+        "Aerial/airborne frames intentionally lack ground pins"
+      ],
+      "frames": [
+        {
+          "name": "aerial_1",
+          "sourceFile": "public/assets/connie/source/rebound.png",
+          "sourceSha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
+          "canvasPx": [
+            1536,
+            512
+          ],
+          "sourceCellPx": [
+            0,
+            0,
+            470,
+            512
+          ],
+          "visibleBoundsSourcePx": [
+            17,
+            29,
+            445,
+            472
+          ],
+          "pose": "tucked-aerial",
+          "facing": "right-three-quarter",
+          "landmarksSourcePx": {
+            "crown": [
+              359,
+              130
+            ],
+            "chin": [
+              349,
+              224
+            ],
+            "shoulder": [
+              295,
+              213
+            ],
+            "hip": [
+              264,
+              318
+            ],
+            "knee": [
+              342,
+              313
+            ],
+            "ankle": [
+              308,
+              391
+            ],
+            "foot": [
+              305,
+              421
+            ]
+          },
+          "distancesPx": {
+            "crownToChin": 94.5304,
+            "shoulderToHip": 109.4806
+          },
+          "directHeadRatioToStanding": 1.618838,
+          "anchorSourcePx": [
+            264,
+            318
+          ],
+          "anchorLabel": "hip",
+          "confidence": 0.83,
+          "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
+          "landmarkNotes": "Feet and knees partly obscured by paper skirt; head stronger calibration cue",
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/rebound.png",
+          "sequenceLabel": "wall impact"
+        },
+        {
+          "name": "aerial_2",
+          "sourceFile": "public/assets/connie/source/rebound.png",
+          "sourceSha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
+          "canvasPx": [
+            1536,
+            512
+          ],
+          "sourceCellPx": [
+            470,
+            0,
+            560,
+            512
+          ],
+          "visibleBoundsSourcePx": [
+            497,
+            44,
+            980,
+            454
+          ],
+          "pose": "extended-aerial",
+          "facing": "right-three-quarter",
+          "landmarksSourcePx": {
+            "crown": [
+              932,
+              106
+            ],
+            "chin": [
+              929,
+              207
+            ],
+            "shoulder": [
+              877,
+              210
+            ],
+            "hip": [
+              812,
+              297
+            ],
+            "knee": [
+              873,
+              331
+            ],
+            "ankle": [
+              761,
+              366
+            ],
+            "foot": [
+              739,
+              398
+            ]
+          },
+          "distancesPx": {
+            "crownToChin": 101.0445,
+            "shoulderToHip": 108.6002
+          },
+          "directHeadRatioToStanding": 1.514475,
+          "anchorSourcePx": [
+            812,
+            297
+          ],
+          "anchorLabel": "hip",
+          "confidence": 0.85,
+          "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
+          "landmarkNotes": "Rearward leg extended while torso tilts; no grounding requirement",
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/rebound.png",
+          "sequenceLabel": "wall impact"
+        },
+        {
+          "name": "aerial_3",
+          "sourceFile": "public/assets/connie/source/rebound.png",
+          "sourceSha256": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
+          "canvasPx": [
+            1536,
+            512
+          ],
+          "sourceCellPx": [
+            1030,
+            0,
+            506,
+            512
+          ],
+          "visibleBoundsSourcePx": [
+            1078,
+            59,
+            1506,
+            470
+          ],
+          "pose": "recovery-aerial",
+          "facing": "right-three-quarter",
+          "landmarksSourcePx": {
+            "crown": [
+              1434,
+              105
+            ],
+            "chin": [
+              1430,
+              207
+            ],
+            "shoulder": [
+              1379,
+              211
+            ],
+            "hip": [
+              1306,
+              301
+            ],
+            "knee": [
+              1379,
+              347
+            ],
+            "ankle": [
+              1280,
+              421
+            ],
+            "foot": [
+              1279,
+              457
+            ]
+          },
+          "distancesPx": {
+            "crownToChin": 102.0784,
+            "shoulderToHip": 115.8836
+          },
+          "directHeadRatioToStanding": 1.499136,
+          "anchorSourcePx": [
+            1306,
+            301
+          ],
+          "anchorLabel": "hip",
+          "confidence": 0.84,
+          "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
+          "landmarkNotes": "Bent legs overlap; foot location is an estimated anatomical marker, not a stage pivot The visible foot endpoint was pixel-audited and moved to foreground at (1279,457).",
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/rebound.png",
+          "sequenceLabel": "wall impact"
+        }
+      ],
+      "displayLabel": "Wall impact"
+    },
+    {
+      "id": "pinwheel",
+      "frameCount": 3,
+      "reliableHeadMeasurementsPx": [
+        106.1697
+      ],
+      "medianReliableHeadPx": 106.1697,
+      "candidateUniformScaleRatio": 1.441366,
+      "maximumRelativeHeadRatioDeviation": 0,
+      "normalizationStatus": "BLOCKED awaiting artistic/calibration correction",
+      "factorsAreApplied": false,
+      "observedIssues": [
+        "Face/cranial top occluded in pinwheel_2",
+        "Entire head and human anatomy absent in pinwheel_3",
+        "Transformation-to-canonical body scale relationship unapproved"
+      ],
+      "frames": [
+        {
+          "name": "pinwheel_1",
+          "sourceFile": "public/assets/connie/source/dash.png",
+          "sourceSha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
+          "canvasPx": [
+            1536,
+            512
+          ],
+          "sourceCellPx": [
+            0,
+            0,
+            545,
+            512
+          ],
+          "visibleBoundsSourcePx": [
+            32,
+            52,
+            533,
+            465
+          ],
+          "pose": "transformation-tuck",
+          "facing": "right-profile",
+          "landmarksSourcePx": {
+            "crown": [
+              490,
+              108
+            ],
+            "chin": [
+              484,
+              214
+            ],
+            "shoulder": [
+              425,
+              198
+            ],
+            "hip": [
+              374,
+              298
+            ],
+            "knee": [
+              412,
+              328
+            ],
+            "ankle": [
+              255,
+              398
+            ],
+            "foot": [
+              207,
+              448
+            ]
+          },
+          "distancesPx": {
+            "crownToChin": 106.1697,
+            "shoulderToHip": 112.2542
+          },
+          "directHeadRatioToStanding": 1.441366,
+          "anchorSourcePx": [
+            321,
+            244
+          ],
+          "anchorLabel": "rotation-center",
+          "confidence": 0.83,
+          "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
+          "landmarkNotes": "Body remains partly distinguishable. Rotation center is NOT a grounded foot",
+          "reviewFlag": "PROVISIONAL visually measured",
+          "file": "public/assets/connie/source/dash.png",
+          "sequenceLabel": "dash / pinwheel"
+        },
+        {
+          "name": "pinwheel_2",
+          "sourceFile": "public/assets/connie/source/dash.png",
+          "sourceSha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
+          "canvasPx": [
+            1536,
+            512
+          ],
+          "sourceCellPx": [
+            545,
+            0,
+            485,
+            512
+          ],
+          "visibleBoundsSourcePx": [
+            558,
+            41,
+            1002,
+            457
+          ],
+          "pose": "transformation-spiral",
+          "facing": "right-three-quarter-occluded",
+          "landmarksSourcePx": {
+            "crown": [
+              925,
+              148
+            ],
+            "chin": [
+              920,
+              251
+            ],
+            "shoulder": [
+              883,
+              244
+            ],
+            "hip": [
+              820,
+              317
+            ]
+          },
+          "distancesPx": {
+            "crownToChin": 103.1213,
+            "shoulderToHip": 96.4261
+          },
+          "directHeadRatioToStanding": 1.483975,
+          "anchorSourcePx": [
+            787,
+            262
+          ],
+          "anchorLabel": "rotation-center",
+          "confidence": 0.62,
+          "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
+          "landmarkNotes": "Scalp crown hidden by roses/petals and legs cannot be isolated reliably; DO NOT APPLY SCALE",
+          "reviewFlag": "LOW CONFIDENCE / manual correction required",
+          "file": "public/assets/connie/source/dash.png",
+          "sequenceLabel": "dash / pinwheel"
+        },
+        {
+          "name": "pinwheel_3",
+          "sourceFile": "public/assets/connie/source/dash.png",
+          "sourceSha256": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
+          "canvasPx": [
+            1536,
+            512
+          ],
+          "sourceCellPx": [
+            1030,
+            0,
+            506,
+            512
+          ],
+          "visibleBoundsSourcePx": [
+            1067,
+            71,
+            1493,
+            460
+          ],
+          "pose": "pinwheel-headless",
+          "facing": "none",
+          "landmarksSourcePx": {},
+          "distancesPx": {
+            "crownToChin": null,
+            "shoulderToHip": null
+          },
+          "directHeadRatioToStanding": null,
+          "anchorSourcePx": [
+            1270,
+            255
+          ],
+          "anchorLabel": "rotation-center",
+          "confidence": 0,
+          "landmarkMethod": "visual point selections on exact attached PNG, not inferred from bounding-box height",
+          "landmarkNotes": "Pure rose/paper vortex; no visible anatomy. Do not infer head, torso, knees, ankles or feet",
+          "reviewFlag": "ANATOMY ABSENT / no direct measurement",
+          "anatomyScaleInheritanceCandidate": "pinwheel_1",
+          "file": "public/assets/connie/source/dash.png",
+          "sequenceLabel": "dash / pinwheel"
+        }
+      ],
+      "displayLabel": "Dash / pinwheel"
+    }
+  ],
+  "frameCount": 10,
+  "sourceCellAllocation": "Irregular blank-seam partitions measured from four attached images; not equal-width heuristics",
+  "caveats": [
+    "Original PNGs are absent from GitHub source lane. Existing generic Pose Lab normalize command cannot operate until identical image bytes are Git-ingressed.",
+    "No approved source frame duration is available from the attached PNGs, so no frame timing has been guessed.",
+    "Head and torso measurements rely on visually annotated pixel points; their arithmetic is reproducible but anatomical choices remain provisional.",
+    "Pinwheel frame two has uncertain scalp/crown, frame three contains no body; transformation scale requires human judgment.",
+    "Original images untouched and no normalized candidates, atlas, or hosted Connie review produced.",
+    "Phone filename mapping confirmed October 20: run, dash/pinwheel, idle, wall-impact/rebound. Canonical destinations use run.png, dash.png, idle.png, rebound.png."
+  ],
+  "overview": {
+    "standingHeadPx": 153.0294,
+    "sequenceScaleRatios": {
+      "run": 1.494482,
+      "aerial": 1.514475,
+      "pinwheel": 1.441366
+    },
+    "safeToApply": false,
+    "estimatedScaleReference": "standing 153.03px manually selected cranial landmark separation; hair/tiara excluded",
+    "sourceChecksumConsistency": {
+      "idle": "7fb56a75e6e02d0bb256469845bbfd57a5aff0e925b1a5216ac1828debec827b",
+      "run": "a8a5acfc9eab5c61b3b060e933ec9f91807b463cefd10ed0b5927ad420500b12",
+      "aerial": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
+      "pinwheel": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf"
+    }
+  }
+}

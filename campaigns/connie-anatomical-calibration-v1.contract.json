@@ -1,0 +1,67 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "connie-anatomical-calibration-v1",
+  "mission": "Measure Connie's exact October 20 2026 standing, running, aerial and pinwheel PNGs, preserve source hashes, 10 frame partitions, manually inspected anatomical landmarks, confidence/occlusions and candidate sequence-wide ratios, and commit DATA ONLY into Pose Lab. No invented timings, artwork, normalized sprites or human acceptance.",
+  "status": "measurements-provisional-source-ingress-enabled",
+  "sourceAuthority": {
+    "standing": "7fb56a75e6e02d0bb256469845bbfd57a5aff0e925b1a5216ac1828debec827b",
+    "run": "a8a5acfc9eab5c61b3b060e933ec9f91807b463cefd10ed0b5927ad420500b12",
+    "aerial": "e8796c2de42fef4cdf4265cdfc6d69e90a4409071175e0b98c4bb6b9d1e1fee0",
+    "pinwheel": "32cab3b7e7deebc2f7607e189fa5790771b6d7bbd942ba27cc442edccbf753cf",
+    "sourceLane": "Original chat attachments inspected for data; no Git-owned source binary ingress. Images must be ingressed before mechanical normalization.",
+    "provenance": "User-supplied October 20 2026 chat attachments; fixed source SHA-256. Older Connie V3 data is a different art revision."
+  },
+  "machine": {
+    "mutablePaths": [
+      "campaigns/connie-anatomical-calibration-v1.contract.json",
+      "campaigns/connie-anatomical-calibration-v1.json",
+      "campaigns/connie-anatomical-measurements-v1.json",
+      "campaigns/connie-anatomical-calibration-v1.receipt.json",
+      "tools/test_connie_anatomical_calibration.py",
+      "tools/sprite_scale_normalization.py",
+      "tools/test_sprite_scale_normalization.py",
+      "package.json",
+      ".github/workflows/sprite-scale-normalization.yml"
+    ],
+    "receiptPath": "campaigns/connie-anatomical-calibration-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "campaigns/connie-anatomical-calibration-v1.json",
+        "pointer": "/schema",
+        "value": "pose-lab-sprite-calibration-v1"
+      },
+      {
+        "kind": "json-equals",
+        "path": "campaigns/connie-anatomical-measurements-v1.json",
+        "pointer": "/schema",
+        "value": "pose-lab-connie-anatomical-measurement-report-v1"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/test_connie_anatomical_calibration.py",
+        "value": "SOURCE_HASHES"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/sprite_scale_normalization.py",
+        "value": "durationMs required"
+      }
+    ]
+  },
+  "acceptance": {
+    "deliverable": "Measurements and calibration committed and SHA read back",
+    "connieNormalizedOutput": false,
+    "artworkIngress": "pending native Git transport, not a human-verdict",
+    "humanVisualVerdict": "pending",
+    "poseLabRunning": false
+  }
+}

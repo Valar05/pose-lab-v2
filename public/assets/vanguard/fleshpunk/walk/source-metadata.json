@@ -1,0 +1,746 @@
+{
+  "schema": "pose-lab-v2-vanguard-walk-v1",
+  "timingMs": [
+    110,
+    90,
+    100,
+    110,
+    110,
+    90,
+    100,
+    110
+  ],
+  "poseOrder": [
+    "left-contact",
+    "left-compression",
+    "passing-left-support",
+    "right-reach",
+    "right-contact",
+    "right-compression",
+    "passing-right-support",
+    "left-reach"
+  ],
+  "contract": {
+    "poseCount": 8,
+    "poseOrder": [
+      "left-contact",
+      "left-compression",
+      "passing-left-support",
+      "right-reach",
+      "right-contact",
+      "right-compression",
+      "passing-right-support",
+      "left-reach"
+    ],
+    "screenFacing": "right",
+    "camera": "one invariant orthographic camera",
+    "cameraMatrixWorld": [
+      7.5e-08,
+      7.5e-08,
+      -1.0,
+      -14.339230537,
+      -1.0,
+      0.0,
+      -7.5e-08,
+      -0.180705339,
+      0.0,
+      1.0,
+      7.5e-08,
+      0.731362104,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "cameraOrthoScale": 4.016759872,
+    "perFrameStabilization": false,
+    "reframing": false,
+    "rootMotionSuppressed": true,
+    "retargeting": false,
+    "mirroring": false,
+    "timingMs": [
+      110,
+      90,
+      100,
+      110,
+      110,
+      90,
+      100,
+      110
+    ]
+  },
+  "frames": [
+    {
+      "index": 0,
+      "pose": "left-contact",
+      "supportLeg": "left",
+      "durationMs": 110,
+      "image": "walk_0000.png",
+      "sha256": "1b152cb8278c80153af6e178b6f8ed298b49e3825fef3c60078e7b978dd99556",
+      "joints": {
+        "leftFoot": {
+          "x": 246.8042,
+          "y": 334.1612,
+          "depth": 14.551555
+        },
+        "leftKnee": {
+          "x": 222.1295,
+          "y": 267.3212,
+          "depth": 14.489115
+        },
+        "rightFoot": {
+          "x": 204.8711,
+          "y": 334.1612,
+          "depth": 14.126906
+        },
+        "rightKnee": {
+          "x": 242.4994,
+          "y": 266.8725,
+          "depth": 14.208104
+        },
+        "pelvis": {
+          "x": 240.7487,
+          "y": 222.1379,
+          "depth": 14.339231
+        },
+        "head": {
+          "x": 255.0799,
+          "y": 168.4216,
+          "depth": 14.350235
+        },
+        "leftHand": {
+          "x": 278.4608,
+          "y": 184.2376,
+          "depth": 14.048076
+        },
+        "rightHand": {
+          "x": 252.2945,
+          "y": 170.3553,
+          "depth": 13.991274
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 278.0894,
+          "y": 188.7814,
+          "depth": 13.92802143
+        },
+        "tip": {
+          "x": 187.7147,
+          "y": 476.6768,
+          "depth": 14.50989056
+        },
+        "leftHandHiltDistancePx": 4.559,
+        "rightHandHiltDistancePx": 31.7001,
+        "handDepthDelta": 0.056802
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.339230537,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        -0.180705339,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.731362104,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.016759872
+    },
+    {
+      "index": 1,
+      "pose": "left-compression",
+      "supportLeg": "left",
+      "durationMs": 90,
+      "image": "walk_0001.png",
+      "sha256": "c248e00ac14f0a78502917d2d9750f6decc58f204e2c8d303846fe6419890d5a",
+      "joints": {
+        "leftFoot": {
+          "x": 246.8042,
+          "y": 334.1612,
+          "depth": 14.551555
+        },
+        "leftKnee": {
+          "x": 234.5541,
+          "y": 275.2086,
+          "depth": 14.482482
+        },
+        "rightFoot": {
+          "x": 204.8711,
+          "y": 334.1612,
+          "depth": 14.126906
+        },
+        "rightKnee": {
+          "x": 240.823,
+          "y": 273.0097,
+          "depth": 14.224373
+        },
+        "pelvis": {
+          "x": 240.7487,
+          "y": 222.1379,
+          "depth": 14.339231
+        },
+        "head": {
+          "x": 255.0799,
+          "y": 168.4216,
+          "depth": 14.350235
+        },
+        "leftHand": {
+          "x": 278.4608,
+          "y": 184.2376,
+          "depth": 14.048076
+        },
+        "rightHand": {
+          "x": 252.2945,
+          "y": 170.3553,
+          "depth": 13.991274
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 278.0894,
+          "y": 188.7814,
+          "depth": 13.92802143
+        },
+        "tip": {
+          "x": 187.7147,
+          "y": 476.6768,
+          "depth": 14.50989056
+        },
+        "leftHandHiltDistancePx": 4.559,
+        "rightHandHiltDistancePx": 31.7001,
+        "handDepthDelta": 0.056802
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.339230537,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        -0.180705339,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.731362104,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.016759872
+    },
+    {
+      "index": 2,
+      "pose": "passing-left-support",
+      "supportLeg": "left",
+      "durationMs": 100,
+      "image": "walk_0002.png",
+      "sha256": "d279ed258203bb948d706004e773c980af4d2e1366847345d141871ceab510ab",
+      "joints": {
+        "leftFoot": {
+          "x": 246.8042,
+          "y": 334.1612,
+          "depth": 14.551555
+        },
+        "leftKnee": {
+          "x": 256.0634,
+          "y": 275.3158,
+          "depth": 14.470986
+        },
+        "rightFoot": {
+          "x": 204.8711,
+          "y": 334.1612,
+          "depth": 14.126906
+        },
+        "rightKnee": {
+          "x": 235.6106,
+          "y": 276.9034,
+          "depth": 14.243297
+        },
+        "pelvis": {
+          "x": 240.7487,
+          "y": 222.1379,
+          "depth": 14.339231
+        },
+        "head": {
+          "x": 255.0799,
+          "y": 168.4216,
+          "depth": 14.350235
+        },
+        "leftHand": {
+          "x": 278.4608,
+          "y": 184.2376,
+          "depth": 14.048076
+        },
+        "rightHand": {
+          "x": 252.2945,
+          "y": 170.3553,
+          "depth": 13.991274
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 278.0894,
+          "y": 188.7814,
+          "depth": 13.92802143
+        },
+        "tip": {
+          "x": 187.7147,
+          "y": 476.6768,
+          "depth": 14.50989056
+        },
+        "leftHandHiltDistancePx": 4.559,
+        "rightHandHiltDistancePx": 31.7001,
+        "handDepthDelta": 0.056802
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.339230537,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        -0.180705339,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.731362104,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.016759872
+    },
+    {
+      "index": 3,
+      "pose": "right-reach",
+      "supportLeg": "left",
+      "durationMs": 110,
+      "image": "walk_0003.png",
+      "sha256": "2cfafada10bd6bfb98262bfee08ffbedf39bb47158b593ce5ae3b95cb9c9167f",
+      "joints": {
+        "leftFoot": {
+          "x": 246.8042,
+          "y": 334.1612,
+          "depth": 14.551555
+        },
+        "leftKnee": {
+          "x": 259.196,
+          "y": 269.9675,
+          "depth": 14.432173
+        },
+        "rightFoot": {
+          "x": 204.8711,
+          "y": 334.1612,
+          "depth": 14.126906
+        },
+        "rightKnee": {
+          "x": 218.8847,
+          "y": 272.6954,
+          "depth": 14.268134
+        },
+        "pelvis": {
+          "x": 240.7487,
+          "y": 222.1379,
+          "depth": 14.339231
+        },
+        "head": {
+          "x": 255.0799,
+          "y": 168.4216,
+          "depth": 14.350235
+        },
+        "leftHand": {
+          "x": 278.4608,
+          "y": 184.2376,
+          "depth": 14.048076
+        },
+        "rightHand": {
+          "x": 252.2945,
+          "y": 170.3553,
+          "depth": 13.991274
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 278.0894,
+          "y": 188.7814,
+          "depth": 13.92802143
+        },
+        "tip": {
+          "x": 187.7147,
+          "y": 476.6768,
+          "depth": 14.50989056
+        },
+        "leftHandHiltDistancePx": 4.559,
+        "rightHandHiltDistancePx": 31.7001,
+        "handDepthDelta": 0.056802
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.339230537,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        -0.180705339,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.731362104,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.016759872
+    },
+    {
+      "index": 4,
+      "pose": "right-contact",
+      "supportLeg": "right",
+      "durationMs": 110,
+      "image": "walk_0004.png",
+      "sha256": "956cdabc8cb6a1f400b31160d8d6a4227cc3f7bf909a805a582d241f30224d7b",
+      "joints": {
+        "leftFoot": {
+          "x": 246.8042,
+          "y": 334.1612,
+          "depth": 14.551555
+        },
+        "leftKnee": {
+          "x": 252.9744,
+          "y": 270.2183,
+          "depth": 14.426142
+        },
+        "rightFoot": {
+          "x": 204.8711,
+          "y": 334.1612,
+          "depth": 14.126906
+        },
+        "rightKnee": {
+          "x": 216.1859,
+          "y": 269.6202,
+          "depth": 14.268682
+        },
+        "pelvis": {
+          "x": 240.7487,
+          "y": 222.1379,
+          "depth": 14.339231
+        },
+        "head": {
+          "x": 255.0799,
+          "y": 168.4216,
+          "depth": 14.350235
+        },
+        "leftHand": {
+          "x": 278.4608,
+          "y": 184.2376,
+          "depth": 14.048076
+        },
+        "rightHand": {
+          "x": 252.2945,
+          "y": 170.3553,
+          "depth": 13.991274
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 278.0894,
+          "y": 188.7814,
+          "depth": 13.92802143
+        },
+        "tip": {
+          "x": 187.7147,
+          "y": 476.6768,
+          "depth": 14.50989056
+        },
+        "leftHandHiltDistancePx": 4.559,
+        "rightHandHiltDistancePx": 31.7001,
+        "handDepthDelta": 0.056802
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.339230537,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        -0.180705339,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.731362104,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.016759872
+    },
+    {
+      "index": 5,
+      "pose": "right-compression",
+      "supportLeg": "right",
+      "durationMs": 90,
+      "image": "walk_0005.png",
+      "sha256": "85a7b8b50526eebf7fbb6da80e811d5fac8b155e3b747ecee8caa28276bf1160",
+      "joints": {
+        "leftFoot": {
+          "x": 246.8042,
+          "y": 334.1612,
+          "depth": 14.551555
+        },
+        "leftKnee": {
+          "x": 249.1296,
+          "y": 276.178,
+          "depth": 14.421922
+        },
+        "rightFoot": {
+          "x": 204.8711,
+          "y": 334.1612,
+          "depth": 14.126906
+        },
+        "rightKnee": {
+          "x": 228.3486,
+          "y": 276.3425,
+          "depth": 14.215163
+        },
+        "pelvis": {
+          "x": 240.7487,
+          "y": 222.1379,
+          "depth": 14.339231
+        },
+        "head": {
+          "x": 255.0799,
+          "y": 168.4216,
+          "depth": 14.350235
+        },
+        "leftHand": {
+          "x": 278.4608,
+          "y": 184.2376,
+          "depth": 14.048076
+        },
+        "rightHand": {
+          "x": 252.2945,
+          "y": 170.3553,
+          "depth": 13.991274
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 278.0894,
+          "y": 188.7814,
+          "depth": 13.92802143
+        },
+        "tip": {
+          "x": 187.7147,
+          "y": 476.6768,
+          "depth": 14.50989056
+        },
+        "leftHandHiltDistancePx": 4.559,
+        "rightHandHiltDistancePx": 31.7001,
+        "handDepthDelta": 0.056802
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.339230537,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        -0.180705339,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.731362104,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.016759872
+    },
+    {
+      "index": 6,
+      "pose": "passing-right-support",
+      "supportLeg": "right",
+      "durationMs": 100,
+      "image": "walk_0006.png",
+      "sha256": "465bb6d969743833a23943b2b65452e816c6304e3b277a2018c9c3087bbec031",
+      "joints": {
+        "leftFoot": {
+          "x": 246.8042,
+          "y": 334.1612,
+          "depth": 14.551555
+        },
+        "leftKnee": {
+          "x": 239.6783,
+          "y": 278.2728,
+          "depth": 14.441079
+        },
+        "rightFoot": {
+          "x": 204.8711,
+          "y": 334.1612,
+          "depth": 14.126906
+        },
+        "rightKnee": {
+          "x": 244.1814,
+          "y": 274.8626,
+          "depth": 14.178517
+        },
+        "pelvis": {
+          "x": 240.7487,
+          "y": 222.1379,
+          "depth": 14.339231
+        },
+        "head": {
+          "x": 255.0799,
+          "y": 168.4216,
+          "depth": 14.350235
+        },
+        "leftHand": {
+          "x": 278.4608,
+          "y": 184.2376,
+          "depth": 14.048076
+        },
+        "rightHand": {
+          "x": 252.2945,
+          "y": 170.3553,
+          "depth": 13.991274
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 278.0894,
+          "y": 188.7814,
+          "depth": 13.92802143
+        },
+        "tip": {
+          "x": 187.7147,
+          "y": 476.6768,
+          "depth": 14.50989056
+        },
+        "leftHandHiltDistancePx": 4.559,
+        "rightHandHiltDistancePx": 31.7001,
+        "handDepthDelta": 0.056802
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.339230537,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        -0.180705339,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.731362104,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.016759872
+    },
+    {
+      "index": 7,
+      "pose": "left-reach",
+      "supportLeg": "right",
+      "durationMs": 110,
+      "image": "walk_0007.png",
+      "sha256": "f0947391284d70b0c8d7f9dcbbbcf109e99585121a6bff64fea6d854f4708843",
+      "joints": {
+        "leftFoot": {
+          "x": 246.8042,
+          "y": 334.1612,
+          "depth": 14.551555
+        },
+        "leftKnee": {
+          "x": 225.9312,
+          "y": 271.8783,
+          "depth": 14.477487
+        },
+        "rightFoot": {
+          "x": 204.8711,
+          "y": 334.1612,
+          "depth": 14.126906
+        },
+        "rightKnee": {
+          "x": 246.7706,
+          "y": 268.222,
+          "depth": 14.18664
+        },
+        "pelvis": {
+          "x": 240.7487,
+          "y": 222.1379,
+          "depth": 14.339231
+        },
+        "head": {
+          "x": 255.0799,
+          "y": 168.4216,
+          "depth": 14.350235
+        },
+        "leftHand": {
+          "x": 278.4608,
+          "y": 184.2376,
+          "depth": 14.048076
+        },
+        "rightHand": {
+          "x": 252.2945,
+          "y": 170.3553,
+          "depth": 13.991274
+        }
+      },
+      "weapon": {
+        "hilt": {
+          "x": 278.0894,
+          "y": 188.7814,
+          "depth": 13.92802143
+        },
+        "tip": {
+          "x": 187.7147,
+          "y": 476.6768,
+          "depth": 14.50989056
+        },
+        "leftHandHiltDistancePx": 4.559,
+        "rightHandHiltDistancePx": 31.7001,
+        "handDepthDelta": 0.056802
+      },
+      "cameraMatrixWorld": [
+        7.5e-08,
+        7.5e-08,
+        -1.0,
+        -14.339230537,
+        -1.0,
+        0.0,
+        -7.5e-08,
+        -0.180705339,
+        0.0,
+        1.0,
+        7.5e-08,
+        0.731362104,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "cameraOrthoScale": 4.016759872
+    }
+  ]
+}

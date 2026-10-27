@@ -1,0 +1,79 @@
+{
+  "schema": "pose-lab-v2-serin-unified-v1",
+  "id": "serin-unified",
+  "status": "quarantined",
+  "rootMotion": false,
+  "stages": [
+    "front-idle",
+    "ground-glide",
+    "airborne",
+    "land-recover"
+  ],
+  "source": {
+    "idle": {
+      "file": "assets/serin/serin-idle.png",
+      "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
+      "size": [
+        1086,
+        1448
+      ],
+      "alpha": true
+    },
+    "glide": {
+      "file": "assets/serin-glide/serin-glide-wave-v2.png",
+      "sha256": "8c0d9b48d9522eae67cdea4a6d0d7b0e0d83ca6bfc235254bac8d8bf8c6f1ddc",
+      "size": [
+        1024,
+        1536
+      ],
+      "alpha": true
+    }
+  },
+  "frontIdleRecipe": "assets/serin/idle.recipe.json",
+  "aerialArt": {
+    "authority": "procedural in-place deformation of whichever single accepted pose was active at takeoff",
+    "dedicatedMidairPNG": null,
+    "sourceCount": 0,
+    "humanVerdict": "pending"
+  },
+  "presentation": {
+    "safeFrameScale": 1,
+    "oneScaleFamily": true,
+    "noOpacityBlend": true,
+    "stageSourcePixels": [
+      1086,
+      1895
+    ],
+    "sourcePixelStage": [
+      1086,
+      1536
+    ],
+    "additionalHeadroomPixels": 359
+  },
+  "jump": {
+    "takeoffDelayMs": 0,
+    "impulsePxPerSecond": 760,
+    "gravityPxPerSecondSquared": 1260,
+    "bufferMs": 85,
+    "canJumpFrom": [
+      "idle",
+      "glide"
+    ],
+    "landingLockoutMs": 0,
+    "groundReference": "y=0",
+    "xMovementOwnedByGame": true
+  },
+  "blink": {
+    "authorityFile": "assets/serin/idle.recipe.json",
+    "implementation": "same upper-lid pixel deformation from src/serin-idle-preview.js"
+  },
+  "wave": {
+    "idleHz": 1.9,
+    "moveHz": 5.1,
+    "edgeHz": 7,
+    "crestMax": 0.048,
+    "groundedPuddle": true
+  },
+  "reviewRoute": "motion.html?procedural=serin-unified",
+  "humanVerdict": "pending"
+}

@@ -1,0 +1,56 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "connie-phone-source-ingress-v1",
+  "mission": "Upload precisely four original SHA-verified historical Connie V3 PNG sheets from Android to the existing Pose Lab feature branch using native Git. Phone has no authority to normalize, reinterpret measurements, change frame timings, or create preview derivatives. After confirmed remote Git readback, GitHub Actions owns every subsequent calculation and review output.",
+  "status": "phone-git-transport-only",
+  "machine": {
+    "mutablePaths": [
+      "public/assets/connie/source/run.png",
+      "public/assets/connie/source/dash.png",
+      "public/assets/connie/source/idle.png",
+      "public/assets/connie/source/rebound.png",
+      "campaigns/connie-phone-source-ingress-v1.receipt.json"
+    ],
+    "receiptPath": "campaigns/connie-phone-source-ingress-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "campaigns/connie-source-measurements-v3.json",
+        "pointer": "/schema",
+        "value": "pose-lab-connie-measurements-v3"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/connie_phone_source_ingress.py",
+        "value": "SOURCE_FAMILY=ORIGINAL_V3"
+      }
+    ]
+  },
+  "authority": {
+    "sourceNames": [
+      "file_0000000065a081f598aa79ff7209b9d1.png",
+      "file_00000000abb481f59b8ff374e3df6e8d.png",
+      "file_00000000807881f598bd2fce43c5b0f6.png",
+      "file_000000001b8c81f5844badc8eaa7bd36.png"
+    ],
+    "sourceHashAuthority": "campaigns/connie-source-measurements-v3.json/sources; exact original PNGs identified by the phone's reported run hash b95d6a84...",
+    "sourcePixelPolicy": "Exact SHA only. Any mismatch stops; never assume a different PNG is accepted merely from filename/thumbnail.",
+    "lockedExistingCharacters": true,
+    "normalization": false,
+    "noDerivativeOnPhone": true
+  },
+  "acceptance": {
+    "required": "GitHub remote has all four exact historical original V3 PNG bytes, hash-verified against campaign V3 source manifest and checked by native Git readback. No other edits.",
+    "visualVerdict": "pending",
+    "frameTiming": "not authored",
+    "normalization": "Deferred to GitHub Actions triggered by uploaded source assets"
+  }
+}

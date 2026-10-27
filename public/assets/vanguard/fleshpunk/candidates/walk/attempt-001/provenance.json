@@ -1,0 +1,65 @@
+{
+  "schema": "pose-lab-v2-fleshpunk-transfer-attempt-v1",
+  "state": "candidate",
+  "batch": "vanguard-fleshpunk-001",
+  "clip": "walk",
+  "attempt": 1,
+  "createdAt": "2026-07-23T17:38:05-05:00",
+  "provider": {
+    "name": "ChatGPT image generation",
+    "model": "undeclared"
+  },
+  "authorities": {
+    "posePacket": {
+      "name": "Vanguard Steel Walk v1",
+      "repository": "Valar05/pose-lab-v2",
+      "commit": "605e8f128c9be8f586526517945e6747db44df7a",
+      "frameCount": 8,
+      "timingMs": [
+        110,
+        90,
+        100,
+        110,
+        110,
+        90,
+        100,
+        110
+      ]
+    },
+    "concept": {
+      "path": "public/assets/vanguard/concepts/fleshpunk-vanguard-v1.jpg",
+      "originalName": "upload/01-562930.png",
+      "sha256": "a81310b22ed537ec0aac39133bcf810d965ff2f2d00d7f9a8a56472c04c6878e"
+    }
+  },
+  "files": {
+    "rawStyledSheet": {
+      "path": "raw-styled-sheet.png",
+      "sha256": "f0374adf0326203304baf8844e20fefe11b95b6e27e4f43a4532b13291671702",
+      "width": 1774,
+      "height": 887,
+      "preservedUnchanged": true
+    },
+    "mechanicalContactSheet": {
+      "path": "contact-sheet.png",
+      "sha256": "7d8a80152a0309621f8361428cf221989764e369b5a5891d4a9832f54a049229",
+      "width": 2048,
+      "height": 1024,
+      "operations": [
+        "whole-sheet resize to the required 4x2 cell grid",
+        "magenta chroma removal",
+        "mechanical 512x512 cell split"
+      ]
+    }
+  },
+  "constraints": {
+    "poseCorrection": false,
+    "cameraChange": false,
+    "mirroring": false,
+    "perCellReframing": false,
+    "stabilization": false,
+    "interpolation": false,
+    "frameInvention": false
+  },
+  "approval": null
+}
