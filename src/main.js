@@ -25,6 +25,7 @@ const ASSETS = {
   vanguard: assetUrl('vanguard/vanguard_rigged_animations.glb'),
   fpsplayer: assetUrl('fpsplayer/FPSPlayer.glb'),
   fpsplayerAriesV8: assetUrl('fpsplayer-aries-v8/FPSPlayer_ARIES_ORM_v8_runtime.glb'),
+  boneforgeTitan: assetUrl('boneforge-titan/boneforge_titan_rigged_pbr.glb'),
 };
 const MIXAMO_BONE_MAP = Object.freeze({
   Hips: 'mixamorig:Hips',
@@ -71,6 +72,20 @@ const VANGUARD_BONE_MAP = Object.freeze({
   RightFoot: 'foot.fk.R',
 });
 const CHARACTER_ASSETS = Object.freeze({
+  'boneforge-titan': {
+    key: 'boneforge-titan',
+    label: 'Boneforge Titan',
+    asset: ASSETS.boneforgeTitan,
+    source: '/storage/emulated/0/Download/Meshy_AI_Boneforge_Titan_All_Animations (1).glb',
+    role: 'Fleshpunk protagonist, rigged and textured, first-person full-body occlusion visibility test',
+    boneMap: {},
+    supportsSaber: false,
+    supportsBakedPoseStates: false,
+    supportsFistHands: false,
+    supportsAnimationClips: true,
+    autoPlayAnimation: false,
+    defaultClip: null,
+  },
   davin: {
     key: 'davin',
     label: 'Davin Wingsworth',
@@ -151,6 +166,8 @@ const CHARACTER_ASSETS = Object.freeze({
 });
 const CHARACTER_KEY_ALIASES = Object.freeze({
   default: 'davin',
+  boneforge: 'boneforge-titan',
+  'boneforge-titan': 'boneforge-titan',
   davin: 'davin',
   'davin-wingsworth': 'davin',
   wingsworth: 'davin',
@@ -909,7 +926,8 @@ function createFpvArmMask(skinnedMesh) {
 }
 
 function updateFpvBodyMasks() {
-  const fpv = viewMode === 'firstPerson';
+  // Boneforge visibility experiment: preserve entire body in FPV; no inferred foot occlusion from masking.
+  const fpv = viewMode === 'firstPerson' && ACTIVE_CHARACTER.key !== 'boneforge-titan';
   for (const entry of fpvBodyMasks) {
     entry.source.visible = !fpv;
     entry.mask.visible = fpv;
