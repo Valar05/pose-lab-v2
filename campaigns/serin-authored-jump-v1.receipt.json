@@ -1,0 +1,55 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "serin-authored-jump-v1",
+  "status": "implemented-awaiting-human-phone-review",
+  "startRevision": "e12733fff8df5cad165b7077f02cc34cd196be3e",
+  "implementationRevision": "d88fb2d3b78d8aed027e099a986ccc4fdd415cbc",
+  "finalRevision": null,
+  "executionLane": "GitHub-owned separate candidate branch; exact phone runtime remains human acceptance",
+  "reviewUrl": null,
+  "humanVerdict": "pending-momentum-jump",
+  "mutablePaths": [
+    "src/serin-unified-authored-preview.js",
+    "motion.html",
+    "src/procedural-review-shell.js",
+    "public/assets/serin-jump/serin-jump-airborne-v1.png",
+    "public/assets/serin-jump/unified-airborne.recipe.json",
+    "tools/campaigns/serin-authored-jump-v1.sh",
+    "tools/test_serin_authored_jump.mjs",
+    "campaigns/serin-authored-jump-v1.contract.json",
+    "campaigns/serin-authored-jump-v1.receipt.json",
+    "docs/campaigns/SERIN_AUTHORED_JUMP_V1.md",
+    ".github/workflows/serin-authored-jump-v1.yml"
+  ],
+  "sourceIngressRevision": "e64cbbd8ed899f011d398b53c3149fc75fa84c70",
+  "visualMotionReview": "user rejected whole-sprite scaling in uploaded 932928.mp4; tail-only material revision ready for phone review",
+  "verification": {
+    "ciRunId": 38309676093,
+    "ciConclusion": "success",
+    "artSHA256": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453",
+    "sourceArt": "unchanged",
+    "scope": "tail-only material-masked fluid and localized landing column",
+    "visualVerdict": "pending"
+  },
+  "lastHumanFeedback": "The jump moved the sprite but did not squash at the beginning or noticeably react to jump phases",
+  "fallback": {
+    "branch": "codex/serin-authored-jump-v1",
+    "revision": "e12733fff8df5cad165b7077f02cc34cd196be3e",
+    "preserved": true
+  },
+  "momentumCandidate": {
+    "branch": "codex/serin-momentum-jump-v1",
+    "physics": "deterministic 120Hz damped tail spring; takeoff mode and horizontal momentum plus vertical velocity",
+    "checks": [
+      "source hashes and locks",
+      "original jump controls",
+      "idle-vs-glide spring trajectory",
+      "landing recoil",
+      "campaign verify",
+      "build"
+    ],
+    "ciRunId": 38316005699,
+    "ciConclusion": "success",
+    "visualVerdict": "pending"
+  }
+}

@@ -1,0 +1,38 @@
+import assert from 'node:assert/strict';
+import {SerinUnifiedLocomotion,JUMP_DEFAULTS} from '../src/serin-unified-locomotion.mjs';
+const c=new SerinUnifiedLocomotion(), h=1/120;
+const step=(time,input,jump=false)=>{let s;for(let i=0;i<Math.round(time/h);i++)s=c.update(h,input,jump&&i===0);return s;};
+const idle=step(0.4,0);
+assert.equal(idle.inAir,false);
+const immediate=c.update(h,0,true);
+assert.ok(immediate.jumpY>0,'jump starts on the input tick, not after anticipation');
+assert.ok(immediate.jumpVelocity>0);
+assert.equal(immediate.jumpFrom,'idle');
+assert.equal(immediate.jumpCount,1);
+let apex=0;
+for(let i=0;i<200&&c.inAir;i++){const s=c.update(h,0,false);apex=Math.max(apex,s.jumpY);}
+assert.ok(apex>190&&apex<270, 'plausible game jump arc');
+assert.equal(c.inAir,false,'land on stage ground');
+assert.equal(c.jumpY,0);
+assert.equal(c.landingCount,1);
+assert.ok(c.landCompression>0,'landing response without control lockout');
+const rapid=c.update(h,0,true);
+assert.equal(rapid.jumpCount,2,'can jump while landing squash still plays');
+step(2,0);c.update(h,0,false);
+step(0.8,1);const glideBefore=c.getState();
+assert.ok(glideBefore.sourceMode===1&&glideBefore.velocity>100);
+const glideJump=c.update(h,1,true);
+assert.equal(glideJump.jumpFrom,'glide');
+assert.equal(glideJump.jumpCount,3);
+assert.ok(glideJump.jumpY>0);
+assert.ok(glideJump.velocity>=glideBefore.velocity,'jump retains glide velocity');
+const xa=c.position;
+step(0.2,1);
+assert.ok(c.position>xa,'horizontal travel continues in midair');
+assert.ok(c.flightTrail>0.1,'airborne hair and liquid lag activate');
+assert.equal(JUMP_DEFAULTS.impulse,760);
+const p=new SerinUnifiedLocomotion(),q=new SerinUnifiedLocomotion();
+for(let i=0;i<340;i++){const axis=i>50&&i<220?1:0;const jump=i===26||i===230;p.update(h,axis,jump);q.update(h,axis,jump);}
+assert.deepEqual(p.getState(),q.getState(),'deterministic mechanics');
+assert.throws(()=>p.update(-0.01,0),/INVALID_DELTA/);
+console.log('SERIN_UNIFIED_IDLE_GLIDE_JUMP_NO_LATENCY_PASS');

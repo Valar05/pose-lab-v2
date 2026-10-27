@@ -1,0 +1,40 @@
+// Runtime identity/route guard; run on the phone AFTER source ingress.
+// Also supports syntax/route-only guard while the branch is still a quarantined scaffold.
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+const root=new URL('../',import.meta.url);
+const text=path=>fs.readFileSync(new URL(path,root),'utf8');
+const recipe=JSON.parse(text('public/assets/serin-back/idle.recipe.json'));
+const contract=JSON.parse(text('campaigns/serin-back-liquid-idle-v1.contract.json'));
+const sha=recipe.source.sha256;
+assert.equal(recipe.schema,'pose-lab-v2-serin-idle-v1');
+assert.equal(recipe.poseFrames,1);assert.equal(recipe.rootMotion,false);
+assert.equal(recipe.source.alpha,true);assert.deepEqual(recipe.source.size,[1024,1536]);
+assert.equal(sha,contract.authority.imageSha256);
+assert.match(text('motion.html'),/procedural === 'serin-back-idle'/);
+assert.ok(text('src/procedural-review-shell.js').includes("['serin-back-idle','Liquid Idle']"));
+const src=text('src/serin-back-idle-preview.js');
+const renderedShaLiteral=src.match(/const SERIN_BACK_SOURCE_SHA256='([0-9a-f]{64})';/);
+assert.ok(renderedShaLiteral,'runtime must contain one valid 64-digit source SHA declaration');
+assert.equal(renderedShaLiteral[1],recipe.source.sha256,'runtime SHA must match the actual recipe');
+assert.ok(src.includes('recipe.source.sha256!==SERIN_BACK_SOURCE_SHA256'),'the runtime must check the source SHA, not bypass the guard');
+assert.ok(!src.includes('91515360bab7918e94afab307f'),'reject previously broken SHA literal');
+assert.ok(src.includes("recipe.schema!=='pose-lab-v2-serin-idle-v1'"),'schema must still be validated');
+for(const key of ['uHair','uLiquid','uCurrents','uGlow','uBlink','uEyeLeft','uEyeRight','gl.clearColor(0,0,0,0)','prefers-reduced-motion'])assert.ok(src.includes(key),key);
+assert.ok(recipe.blink&&recipe.blink.periodMs===22000);
+assert.ok(src.includes('id="serin-blink-now"'));
+assert.ok(src.includes('applyBlinkDeform'));
+assert.ok(!src.includes('cheekUv'));
+const image=new URL('public/'+recipe.source.file,root);
+if(!fs.existsSync(image)){
+ if(process.argv.includes('--allow-missing-asset')){console.log('SERIN_CODE_ONLY=PASS (image ingress pending)');process.exit(0);}
+ throw Error('MISSING_AUTHORITY: exact Serin PNG has not yet been ingested from phone');
+}
+const b=fs.readFileSync(image);
+assert.equal(crypto.createHash('sha256').update(b).digest('hex'),sha,'Serin PNG hash mismatch');
+assert.equal(b.toString('hex',0,8),'89504e470d0a1a0a','PNG signature');
+assert.equal(b.readUInt32BE(16),1024);assert.equal(b.readUInt32BE(20),1536);
+assert.equal(b[25],6,'PNG RGBA required');
+console.log('SERIN_SOURCE_IDENTITY=PASS SHA256='+sha);
+console.log('SERIN_ROUTE_SHADER_CONTRACT=PASS');

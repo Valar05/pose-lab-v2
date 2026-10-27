@@ -1,0 +1,24 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "serin-liquid-idle-v1",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "93cea0298c24a681f610d4d346dfb9ab7ca2b9a0",
+  "implementationRevision": "66e686a486a67557288ccb172087df134190c0ef",
+  "finalRevision": null,
+  "executionLane": "phone-termux-repo-owned-campaign",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "motion.html",
+    "src/procedural-review-shell.js",
+    "src/serin-idle-preview.js",
+    "public/assets/serin/idle.recipe.json",
+    "public/assets/serin/serin-idle.png",
+    "tools/campaigns/serin-liquid-idle-v1.sh",
+    "tools/test_serin_idle_runtime.mjs",
+    "campaigns/serin-liquid-idle-v1.contract.json",
+    "campaigns/serin-liquid-idle-v1.receipt.json",
+    "docs/campaigns/SERIN_LIQUID_IDLE_V1.md",
+    ".github/workflows/serin-liquid-idle.yml"
+  ]
+}
