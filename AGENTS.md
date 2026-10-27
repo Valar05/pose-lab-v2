@@ -63,3 +63,14 @@ The invocation phrase is **Pose is God**. The explicit skill invocation is
 - Cleanup must distinguish phantom fragments from legitimate separated geometry; use explicit masks when necessary.
 - Prefer inclusion over premature dedupe; exact duplicates may go, meaningful near-duplicates stay.
 - Static atlas structure and animation behavior require separate visual review.
+
+## MANDATORY LIVE CAMPAIGN ETIQUETTE BOOT GATE (all turns)
+
+Before **every** owner request/turn about this Git-owned repository, Pose Lab, scripts, Phone Hands, Computer Hands, or a campaign, freshly read the **entire current** authoritative Google Drive document:
+
+**CAMPAIGN_ETIQUETTE — Git Script Campaign Operating Rules**
+https://docs.google.com/document/d/1wntegQjw7238dmGqbvs9TQmlsp4uXdXw7_wPciNx6sI/edit
+
+Read using authenticated Google Drive/Docs tools before planning, source mutation, command recommendation, handoff, or claimed completion. Re-read for each new turn and after context/worker changes. Record the document's current modified time/revision when available. This checked-in pointer is **not** a replacement for the live document. If the document cannot be fetched, report the exact authority blocker and do not improvise a campaign from stale instructions.
+
+Apply its latest owner precedence including: code and campaign scripts must be authored **in Git first**, exact pinned Git revision, self-locating repo-owned entrypoint, one short phone bootstrap from any directory, dirty-tree protection and isolated checkout, no downloaded helper scripts, bounded background process with explicit PID/log/receipt, Git readback, hosted review and separate human acceptance. Existing Pose Lab doctrine, campaign contracts and locked artwork remain binding. For a user-requested physical-phone local preview, execute the committed phone runner locally; do not confuse CI with phone display.
