@@ -1,0 +1,92 @@
+{
+  "schema": "pose-lab-v2-serin-idle-v1",
+  "id": "serin-idle",
+  "status": "quarantined",
+  "rootMotion": false,
+  "source": {
+    "file": "assets/serin/serin-idle.png",
+    "sourcePhone": "/storage/emulated/0/Pictures/file_00000000c48481f5a63e37968c17dffe.png",
+    "size": [
+      1086,
+      1448
+    ],
+    "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
+    "alpha": true
+  },
+  "cycleMs": 9800,
+  "loop": true,
+  "poseFrames": 1,
+  "procedural": {
+    "backend": "webgl1-fragment-deformation",
+    "hairInertia": 1,
+    "liquidColumn": 1,
+    "surfaceCurrents": 1,
+    "starlightPulse": 1,
+    "poolRootPinned": true
+  },
+  "reviewRoute": "motion.html?procedural=serin-idle",
+  "humanVerdict": "pending",
+  "blink": {
+    "periodMs": 22000,
+    "events": [
+      {
+        "atMs": 2150,
+        "closeMs": 85,
+        "holdMs": 40,
+        "openMs": 155
+      },
+      {
+        "atMs": 5500,
+        "closeMs": 85,
+        "holdMs": 40,
+        "openMs": 165
+      },
+      {
+        "atMs": 9300,
+        "closeMs": 90,
+        "holdMs": 40,
+        "openMs": 150
+      },
+      {
+        "atMs": 9690,
+        "closeMs": 75,
+        "holdMs": 28,
+        "openMs": 135
+      },
+      {
+        "atMs": 14100,
+        "closeMs": 90,
+        "holdMs": 48,
+        "openMs": 170
+      },
+      {
+        "atMs": 18400,
+        "closeMs": 83,
+        "holdMs": 36,
+        "openMs": 162
+      }
+    ],
+    "manual": {
+      "atMs": 0,
+      "closeMs": 90,
+      "holdMs": 65,
+      "openMs": 170
+    },
+    "leftEye": {
+      "x": 668,
+      "y": 110,
+      "rx": 25,
+      "ry": 11,
+      "slant": 0.11
+    },
+    "rightEye": {
+      "x": 713,
+      "y": 126,
+      "rx": 19,
+      "ry": 9,
+      "slant": 0.12
+    },
+    "artAuthority": "Original one-frame image; upper-lid pixel deformation, no redraw or invented frame; lower lid stationary",
+    "method": "upper-lid-vertexless-inverse-pixel-deformation"
+  }
+}

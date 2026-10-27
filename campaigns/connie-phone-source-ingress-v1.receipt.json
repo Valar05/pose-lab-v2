@@ -1,0 +1,18 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "connie-phone-source-ingress-v1",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "588fa77959f89e2f5ac37734a84cc9c21c4a15d9",
+  "implementationRevision": "42bbbe611f580246348681a00c9ac9453037225f",
+  "finalRevision": null,
+  "executionLane": "android-termux-git-binary-ingress",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "public/assets/connie/source/run.png",
+    "public/assets/connie/source/dash.png",
+    "public/assets/connie/source/idle.png",
+    "public/assets/connie/source/rebound.png",
+    "campaigns/connie-phone-source-ingress-v1.receipt.json"
+  ]
+}

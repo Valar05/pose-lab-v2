@@ -1,0 +1,92 @@
+{
+  "schema": "pose-lab-v2-serin-idle-v1",
+  "id": "serin-back-idle",
+  "status": "quarantined",
+  "rootMotion": false,
+  "source": {
+    "file": "assets/serin-back/serin-back-idle.png",
+    "sourcePhone": "/storage/emulated/0/Pictures/file_000000004e1081f5b22a4ef0ddd717a5.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "sha256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c",
+    "alpha": true
+  },
+  "cycleMs": 9800,
+  "loop": true,
+  "poseFrames": 1,
+  "procedural": {
+    "backend": "webgl1-fragment-deformation",
+    "hairInertia": 1,
+    "liquidColumn": 1,
+    "surfaceCurrents": 1,
+    "starlightPulse": 1,
+    "poolRootPinned": true
+  },
+  "reviewRoute": "motion.html?procedural=serin-back-idle",
+  "humanVerdict": "pending",
+  "blink": {
+    "periodMs": 22000,
+    "events": [
+      {
+        "atMs": 2150,
+        "closeMs": 85,
+        "holdMs": 40,
+        "openMs": 155
+      },
+      {
+        "atMs": 5500,
+        "closeMs": 85,
+        "holdMs": 40,
+        "openMs": 165
+      },
+      {
+        "atMs": 9300,
+        "closeMs": 90,
+        "holdMs": 40,
+        "openMs": 150
+      },
+      {
+        "atMs": 9690,
+        "closeMs": 75,
+        "holdMs": 28,
+        "openMs": 135
+      },
+      {
+        "atMs": 14100,
+        "closeMs": 90,
+        "holdMs": 48,
+        "openMs": 170
+      },
+      {
+        "atMs": 18400,
+        "closeMs": 83,
+        "holdMs": 36,
+        "openMs": 162
+      }
+    ],
+    "manual": {
+      "atMs": 0,
+      "closeMs": 90,
+      "holdMs": 65,
+      "openMs": 170
+    },
+    "leftEye": {
+      "x": 551,
+      "y": 124,
+      "rx": 25,
+      "ry": 12,
+      "slant": 0.12
+    },
+    "rightEye": {
+      "x": 604,
+      "y": 147,
+      "rx": 18,
+      "ry": 11,
+      "slant": 0.13
+    },
+    "artAuthority": "Rear three-quarter approved PNG; eye regions manually located in 1024x1536 source; no paint-over",
+    "method": "upper-lid-vertexless-inverse-pixel-deformation"
+  }
+}
