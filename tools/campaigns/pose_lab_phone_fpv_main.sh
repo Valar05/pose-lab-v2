@@ -25,7 +25,7 @@ ASSET=public/assets/boneforge-titan/boneforge_titan_rigged_pbr.glb
 grep -Fq "'boneforge-titan'" src/main.js || { echo BLOCKED=MODEL_UNREGISTERED; exit 5; }
 node scripts/build.mjs
 [[ -s dist/motion.html && -s dist/src/main.js && -s "dist/$ASSET" ]] || { echo BLOCKED=BUILD_INCOMPLETE; exit 5; }
-PORT=4173
+PORT=4189
 STATE="$HOME/.local/state/pose-lab-fpv-main"
 mkdir -p "$STATE"
 PIDFILE="$STATE/server.pid"
