@@ -1,0 +1,155 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "serin-glide-wave-locomotion-v2",
+  "status": "quarantined",
+  "mission": "Fix over-reduced bend and abrupt dual transitions on Serin Wave Glide V2 while giving reverse a visible low-amplitude deformation of the actual idle sprite silhouette. Shape progress drives geometric handoff in and out during movement; latch source once per transition. Preserve wave physics, crest, 1.9/5.1/7 Hz phases, source hashes, scale and dedicated campaign lane.",
+  "authority": {
+    "idleSHA256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
+    "glideSHA256": "8c0d9b48d9522eae67cdea4a6d0d7b0e0d83ca6bfc235254bac8d8bf8c6f1ddc",
+    "phoneSource": "/storage/emulated/0/Pictures/file_00000000b6ac81fbb8c9c9f85a645117.png",
+    "phoneDimensions": [
+      1024,
+      1536
+    ],
+    "reviewRoute": "motion.html?procedural=serin-glide-wave",
+    "humanVerdict": "pending",
+    "sharedSourcePixelStage": [
+      1086,
+      1536
+    ],
+    "reviewedDefects": [
+      "Glide Right appears to switch source unexpectedly; rightward source must be the user-authorized wave-v2 glide PNG",
+      "Texture-space pitch moves visible torso opposite requested forward direction",
+      "Reverse mirrors sprite, activates full hair/tail warp and repeatedly swaps between idle and glide",
+      "Phone review 2026-10-12: forward entry visually good but overall lean is excessive; exit swap is earlier/rougher than entry.",
+      "2026-10-12 phone video 932560.mp4: last correction removed too much visual bend, abrupt idle/glide switches in both directions, and reversing from front idle changes surface shader but not readable sprite silhouette."
+    ],
+    "lockedGoodPuddle": "Preserve exact V2 wave and crest shader expressions and 1.9/5.1/7 Hz dynamic driving.",
+    "preservedProperties": [
+      "exact Git-owned idle/glide PNG SHA-256",
+      "same one-pixel world scale / grounded puddle",
+      "wave/crest equations and 1.9/5.1/7Hz driver",
+      "only one source handoff per direction, no mirror",
+      "quiet reverse relative to rightward glide"
+    ],
+    "reverseSourceNote": "Only two art sources authorized. Reverse uses front idle with distinct low-amplitude geometry warp, never the unrelated battle back image or a horizontally flipped glide."
+  },
+  "machine": {
+    "mutablePaths": [
+      "motion.html",
+      "src/procedural-review-shell.js",
+      "src/serin-glide-wave-system.mjs",
+      "src/serin-glide-wave-preview.js",
+      "public/assets/serin-glide/wave-locomotion.recipe.json",
+      "public/assets/serin-glide/serin-glide-wave-v2.png",
+      "tools/campaigns/serin-glide-wave-locomotion-v2.sh",
+      "tools/campaigns/serin-glide-wave-authorize.mjs",
+      "tools/test_serin_glide_wave_runtime.mjs",
+      "tools/test_serin_glide_wave_system.mjs",
+      "campaigns/serin-glide-wave-locomotion-v2.contract.json",
+      "campaigns/serin-glide-wave-locomotion-v2.receipt.json",
+      "docs/campaigns/SERIN_GLIDE_WAVE_LOCOMOTION_V2.md",
+      ".github/workflows/serin-glide-wave-locomotion-v2.yml"
+    ],
+    "receiptPath": "campaigns/serin-glide-wave-locomotion-v2.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/serin/serin-idle.png",
+        "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f"
+      },
+      {
+        "path": "public/assets/serin-back/serin-back-idle.png",
+        "sha256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c"
+      },
+      {
+        "path": "public/assets/serin-glide/serin-glide-right.png",
+        "sha256": "d7cd7e8df9168b1adc774c6784fae3aad4671a68a7369d56329c18ee01ccfa40"
+      }
+    ],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-glide/wave-locomotion.recipe.json",
+        "pointer": "/rootMotion",
+        "value": false
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-glide/wave-locomotion.recipe.json",
+        "pointer": "/source/idle/sha256",
+        "value": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f"
+      },
+      {
+        "kind": "text-contains",
+        "path": "motion.html",
+        "value": "procedural === 'serin-glide-wave'"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/procedural-review-shell.js",
+        "value": "['serin-glide-wave','Wave Glide']"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "uCrest"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/serin-glide-wave-locomotion-v2.sh",
+        "value": "SERIN_WAVE_TRANSPORT=PASS"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "vec2 idlePx=vec2(warp.x*1086.0,warp.y*1536.0-88.0);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "vec2 glidePx=vec2(warp.x*1086.0-31.0,warp.y*1536.0);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-system.mjs",
+        "value": "this.sourceMode=0;this.sourceSwitchCount=0;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "float detailMotion=uFacing<0.0?0.12:1.0;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-system.mjs",
+        "value": "if(this.shapeProgress>=0.58)next=1;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-system.mjs",
+        "value": "else if(this.shapeProgress<=0.42)next=0;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-system.mjs",
+        "value": "this.reverseBend=follow(this.reverseBend,reverseTarget,backwards?9:7,h);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "warp.x+=uReverseBend*(0.004*head+0.003*torso);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-glide-wave-preview.js",
+        "value": "float angle=radians(-(uForwardLean*0.88+uPitch*0.05-uReverseBend*0.78));"
+      }
+    ]
+  }
+}

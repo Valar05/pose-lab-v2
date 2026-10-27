@@ -1,0 +1,110 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "serin-unified-locomotion-v1",
+  "status": "quarantined",
+  "mission": "Single phone Pose Lab V2 locomotion scene combining canonical front idle with scheduled/manual upper-lid blink, accepted Wave Glide and ground pool, immediate in-place jump from idle or glide, airborne tail and landing squash, without new picture source or rewriting existing accepted preview.",
+  "authority": {
+    "baseRevision": "8508e19c41b0a6930c60f28fc411d30be1186e05",
+    "idleSHA256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f",
+    "glideSHA256": "8c0d9b48d9522eae67cdea4a6d0d7b0e0d83ca6bfc235254bac8d8bf8c6f1ddc",
+    "blinkRecipe": "public/assets/serin/idle.recipe.json",
+    "blinkTimeline": "src/serin-blink-timeline.mjs",
+    "airPose": "In-place procedural deformation of the already approved pose used at takeoff. No distinct authored midair PNG claimed or substituted.",
+    "reviewRoute": "motion.html?procedural=serin-unified",
+    "humanVerdict": "pending",
+    "acceptedLocks": [
+      "Source image bytes unchanged",
+      "Source family one scale",
+      "Grounded forward sprite handoff intact",
+      "Wave and crest math unchanged",
+      "Reverse behavior stays quiet",
+      "Existing old front idle and wave glide preview unchanged"
+    ]
+  },
+  "machine": {
+    "mutablePaths": [
+      "motion.html",
+      "src/procedural-review-shell.js",
+      "src/serin-unified-preview.js",
+      "src/serin-unified-locomotion.mjs",
+      "public/assets/serin-glide/unified-locomotion.recipe.json",
+      "tools/campaigns/serin-unified-locomotion-v1.sh",
+      "tools/test_serin_unified_locomotion.mjs",
+      "tools/test_serin_unified_runtime.mjs",
+      "campaigns/serin-unified-locomotion-v1.contract.json",
+      "campaigns/serin-unified-locomotion-v1.receipt.json",
+      "docs/campaigns/SERIN_UNIFIED_LOCOMOTION_V1.md",
+      ".github/workflows/serin-unified-locomotion-v1.yml"
+    ],
+    "receiptPath": "campaigns/serin-unified-locomotion-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/serin/serin-idle.png",
+        "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f"
+      },
+      {
+        "path": "public/assets/serin-back/serin-back-idle.png",
+        "sha256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c"
+      },
+      {
+        "path": "public/assets/serin-glide/serin-glide-right.png",
+        "sha256": "d7cd7e8df9168b1adc774c6784fae3aad4671a68a7369d56329c18ee01ccfa40"
+      },
+      {
+        "path": "public/assets/serin-glide/serin-glide-wave-v2.png",
+        "sha256": "8c0d9b48d9522eae67cdea4a6d0d7b0e0d83ca6bfc235254bac8d8bf8c6f1ddc"
+      }
+    ],
+    "checks": [
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-glide/unified-locomotion.recipe.json",
+        "pointer": "/schema",
+        "value": "pose-lab-v2-serin-unified-v1"
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-glide/unified-locomotion.recipe.json",
+        "pointer": "/jump/takeoffDelayMs",
+        "value": 0
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-glide/unified-locomotion.recipe.json",
+        "pointer": "/rootMotion",
+        "value": false
+      },
+      {
+        "kind": "text-contains",
+        "path": "motion.html",
+        "value": "procedural === 'serin-unified'"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-preview.js",
+        "value": "applyBlinkDeform"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-preview.js",
+        "value": "controller.update(dt,drive,pendingJump)"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-locomotion.mjs",
+        "value": "this.jumpVelocity=this.jumpConfig.impulse;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/serin-unified-locomotion-v1.sh",
+        "value": "SERIN_UNIFIED_TRANSPORT=PASS"
+      }
+    ]
+  }
+}

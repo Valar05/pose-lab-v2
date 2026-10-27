@@ -1,0 +1,25 @@
+{
+  "schema": "pose-lab-v2-campaign-receipt-v2",
+  "campaign": "serin-unified-locomotion-v1",
+  "status": "implemented-awaiting-human-review",
+  "startRevision": "8508e19c41b0a6930c60f28fc411d30be1186e05",
+  "implementationRevision": "e830079768a70d594ca9589c1edb86847e552cb2",
+  "finalRevision": null,
+  "executionLane": "github-connector-authoring + GitHub Actions verification; awaiting phone Termux preview",
+  "reviewUrl": null,
+  "humanVerdict": "pending",
+  "mutablePaths": [
+    "motion.html",
+    "src/procedural-review-shell.js",
+    "src/serin-unified-preview.js",
+    "src/serin-unified-locomotion.mjs",
+    "public/assets/serin-glide/unified-locomotion.recipe.json",
+    "tools/campaigns/serin-unified-locomotion-v1.sh",
+    "tools/test_serin_unified_locomotion.mjs",
+    "tools/test_serin_unified_runtime.mjs",
+    "campaigns/serin-unified-locomotion-v1.contract.json",
+    "campaigns/serin-unified-locomotion-v1.receipt.json",
+    "docs/campaigns/SERIN_UNIFIED_LOCOMOTION_V1.md",
+    ".github/workflows/serin-unified-locomotion-v1.yml"
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "serin-authored-jump-v1",
+  "status": "candidate-awaiting-phone-review",
+  "mission": "Add momentum-responsive tail physics so idle and glide jumps have distinctly different liquid responses. Preserve the previously shippable jump branch and every accepted source, upper-body identity, grounded animation, vertical trajectory and input latency.",
+  "authority": {
+    "baseRevision": "937797d2fb4b8e70611ae847a96d1727f1e0acb8",
+    "doctrineSourceRevision": "c6244e49a764a2d382161ee5969e65129d056b20",
+    "selectedOriginalPhonePath": "/storage/emulated/0/Pictures/file_00000000d06481f5866e830f23523b51.png",
+    "sourceSHA256": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453",
+    "size": [
+      1086,
+      1448
+    ],
+    "colorType": "RGBA",
+    "humanArtSelection": "approved to move forward",
+    "runtimeVerdict": "pending-momentum-review",
+    "reviewRoute": "motion.html?procedural=serin-unified-authored",
+    "rejectedApproaches": [
+      "separating any sprite element from airborne body",
+      "floor residual puddle",
+      "generated in-between frame",
+      "per-frame scale fitting",
+      "replacement of prior idle or glide art"
+    ],
+    "groundLocks": [
+      "Source image bytes unchanged",
+      "Source family one scale",
+      "Grounded forward sprite handoff intact",
+      "Wave and crest math unchanged",
+      "Reverse behavior stays quiet",
+      "Existing old front idle and wave glide preview unchanged"
+    ],
+    "animationCorrection": "Prior integration switched one image and translated it with no in-air fluid movement. Fix only procedural effects in existing authored preview; all original artwork remains byte locked.",
+    "activeVisualDefect": "Cartoonish full-sprite elastic scaling; user specifically requested lower liquid tail stretching and compressing, not the full image.",
+    "narrowFix": "Material-scoped tail UV deformation and lower liquid contact only, plus contract, recipe, tests and docs. Locked sources, physics and ground wave stay untouched.",
+    "fallbackRevision": "e12733fff8df5cad165b7077f02cc34cd196be3e",
+    "candidateBranch": "codex/serin-momentum-jump-v1"
+  },
+  "machine": {
+    "mutablePaths": [
+      "src/serin-unified-authored-preview.js",
+      "motion.html",
+      "src/procedural-review-shell.js",
+      "public/assets/serin-jump/serin-jump-airborne-v1.png",
+      "public/assets/serin-jump/unified-airborne.recipe.json",
+      "tools/campaigns/serin-authored-jump-v1.sh",
+      "tools/test_serin_authored_jump.mjs",
+      "campaigns/serin-authored-jump-v1.contract.json",
+      "campaigns/serin-authored-jump-v1.receipt.json",
+      "docs/campaigns/SERIN_AUTHORED_JUMP_V1.md",
+      ".github/workflows/serin-authored-jump-v1.yml",
+      "src/serin-tail-momentum.mjs",
+      "tools/test_serin_tail_momentum.mjs"
+    ],
+    "receiptPath": "campaigns/serin-authored-jump-v1.receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "docs/SPRITE_AUTHORING_BOOT.md"
+    ],
+    "lockedFiles": [
+      {
+        "path": "public/assets/serin/serin-idle.png",
+        "sha256": "00ba472a4ee922a0840a3d63a71deafd054a3f91514480bab7918e94afab307f"
+      },
+      {
+        "path": "public/assets/serin-back/serin-back-idle.png",
+        "sha256": "e666cd65570ee7485f8c5e6c422fb0172883a317e0bea466477e201d45f6c79c"
+      },
+      {
+        "path": "public/assets/serin-glide/serin-glide-right.png",
+        "sha256": "d7cd7e8df9168b1adc774c6784fae3aad4671a68a7369d56329c18ee01ccfa40"
+      },
+      {
+        "path": "public/assets/serin-glide/serin-glide-wave-v2.png",
+        "sha256": "8c0d9b48d9522eae67cdea4a6d0d7b0e0d83ca6bfc235254bac8d8bf8c6f1ddc"
+      }
+    ],
+    "checks": [
+      {
+        "kind": "sha256",
+        "path": "public/assets/serin-jump/serin-jump-airborne-v1.png",
+        "value": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453"
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-jump/unified-airborne.recipe.json",
+        "pointer": "/source/airborne/sha256",
+        "value": "dae365a6adf33bb3961df2a5cbeb21f53c37f1043124765511c7b8ef8015e453"
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-jump/unified-airborne.recipe.json",
+        "pointer": "/presentation/safeFrameScale",
+        "value": 1
+      },
+      {
+        "kind": "json-equals",
+        "path": "public/assets/serin-jump/unified-airborne.recipe.json",
+        "pointer": "/jump/takeoffDelayMs",
+        "value": 0
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "gl_FragColor=flying"
+      },
+      {
+        "kind": "text-contains",
+        "path": "motion.html",
+        "value": "procedural === 'serin-unified-authored'"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/serin-authored-jump-v1.sh",
+        "value": "SERIN_AUTHORED_JUMP_TRANSPORT=PASS"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "pow(current,7.0)*liquidMask*violet"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "gl.uniform1f(loc('uAirVelocity'),s.jumpVelocity/760);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "function jumpReaction(age,verticalVelocity,impulse)"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "gl.uniform1f(loc('uLaunchSquash'),response.squash);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "gl.uniform1f(loc('uLaunchStretch'),response.stretch);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "gl.uniform1f(loc('uApexGather'),response.apex);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "float liquidMask=clamp(max(violetStill,violetMoved)*2.2,0.0,1.0)*location;"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "tailUv.y=rootY+(base.y-rootY)/max(0.52,tailLength);"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "float column=smoothstep(0.54,0.71,p.y)"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "tailMomentum.advance(dt,s,controller.config.maxSpeed,controller.jumpConfig.impulse)"
+      },
+      {
+        "kind": "text-contains",
+        "path": "src/serin-unified-authored-preview.js",
+        "value": "tailUv.x-=uTailBend*smoothstep(0.55,0.93,base.y);"
+      }
+    ]
+  }
+}
