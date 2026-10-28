@@ -1,0 +1,22 @@
+{
+  "campaign_id": "HEADY_GROUNDED_IK",
+  "version": "03.1.0",
+  "predecessor": "03.0",
+  "mission": "Publish already-computed, viewable grounded IK evidence to Android Pictures and Downloads and request opening it",
+  "source_glb_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "installed_baseline": "tools/heady/campaigns/grounded_ik_v03",
+  "mutable_repo_paths": [
+    "tools/heady/campaigns/grounded_ik_v03/review_v03_1/**",
+    "tools/campaigns/heady_grounded_runtime_v03_1.sh"
+  ],
+  "no_recompute": true,
+  "no_v07": true,
+  "no_remote_push": true,
+  "public_files": [
+    "Heady_GroundedIK_v03_1_ReviewBoard.png",
+    "Foot_Lock_13_Ticks_v03.png",
+    "Rest_and_Three_Poses_v02.png",
+    "Ground_Collider_Foot_Map_v02.png"
+  ],
+  "final_review": "NEEDS_HUMAN_ACCEPTANCE"
+}
