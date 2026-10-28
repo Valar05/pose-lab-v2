@@ -1,0 +1,65 @@
+{
+  "animation_created": false,
+  "campaign": "HEADY_GROUNDED_IK",
+  "corrects": "v03.2.0 ignored host_run.log interrupted git add",
+  "human_accepted": false,
+  "ignored_log": "retained in original complete zip and physical checkout, not added to git",
+  "implementation_commit": {
+    "head": "90d9cb33761ed2ada19e3f43d7c8650393397536",
+    "status": "COMMITTED"
+  },
+  "model_regenerated": false,
+  "open": "REQUESTED_NOT_CONFIRMED",
+  "original_v03_2_source_zip_sha256": "035a2974a1adc966f5afaa982e535ea90830fd94acf323db23e80dc1bd612212",
+  "previous_v03_commit": "532d24f984aac9b792744e9b27eb7af9baf36408",
+  "published": [
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_GroundedIK_v03_2_1_WorldAnchored.gif",
+      "sha256": "2e5639535583b111d625dcedd2380f052233bd2443f0ffde652155b2d3c11862"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_GroundedIK_v03_2_1_ThreePoses.jpg",
+      "sha256": "b4d6567b23434956d20f7fa9daf97bb31ae082f4fd0d7558b4eed3a2f80c914a"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_GroundedIK_v03_2_1_FootDrift.png",
+      "sha256": "2e541630b57bb52ab9788916bea13d3e6284f3c02a83c96498030951becb170e"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_GroundedIK_v03_2_1_FinalPose.png",
+      "sha256": "0bfa313b62d348174708c6e8a4e32f2a6b2ef7f8f7aa01d13da39640322959e3"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_GroundedIK_v03_2_1_WorldAnchored.gif",
+      "sha256": "2e5639535583b111d625dcedd2380f052233bd2443f0ffde652155b2d3c11862"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_GroundedIK_v03_2_1_ThreePoses.jpg",
+      "sha256": "b4d6567b23434956d20f7fa9daf97bb31ae082f4fd0d7558b4eed3a2f80c914a"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_GroundedIK_v03_2_1_FootDrift.png",
+      "sha256": "2e541630b57bb52ab9788916bea13d3e6284f3c02a83c96498030951becb170e"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_GroundedIK_v03_2_1_FinalPose.png",
+      "sha256": "0bfa313b62d348174708c6e8a4e32f2a6b2ef7f8f7aa01d13da39640322959e3"
+    }
+  ],
+  "remote_push": false,
+  "repair_zip_sha256": "b0a2509d645a7427cbc09dad5db77c66f3fe2aad95c7fc249eefa47e95adaf34",
+  "scan": [
+    "REQUESTED",
+    "REQUESTED"
+  ],
+  "source_glb_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "version": "03.2.1"
+}
