@@ -1,0 +1,26 @@
+{
+  "acceptance": "human pending",
+  "campaign": "HEADY_GROUNDED_IK",
+  "git": {
+    "allowed_paths": [
+      "tools/heady/campaigns/grounded_ik_v03/review_v03_2/**",
+      "tools/heady/campaigns/grounded_ik_v03/review_v03_2_1/**"
+    ],
+    "commit": "local only",
+    "github_push": false
+  },
+  "ignored_log_rule": "Runtime .log preserved within complete ZIP but not forced into Git index",
+  "immutability": "Do not modify source GLB or already extracted v03.2 payload files",
+  "mission": "Resume verified partial install, avoid ignored runtime log staging, commit campaign-owned complete packet, publish readable images",
+  "original_packet_sha256": "035a2974a1adc966f5afaa982e535ea90830fd94acf323db23e80dc1bd612212",
+  "parent_version": "03.2.0",
+  "publication": {
+    "downloads": true,
+    "open_requested": true,
+    "pictures": true,
+    "sha256_readback": true
+  },
+  "receipt": "ANDROID_V03_2_1_DELIVERY_RECEIPT.json",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "version": "03.2.1"
+}

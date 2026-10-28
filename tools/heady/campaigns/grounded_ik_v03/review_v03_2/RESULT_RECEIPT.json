@@ -1,0 +1,34 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "version": "03.2.0",
+  "status": "PROVISIONAL_PASS",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "source_preserved": true,
+  "mesh_animation_channels": 0,
+  "not_a_gait": true,
+  "not_physics_engine": true,
+  "test_body_motion": [
+    0.12,
+    0.0,
+    0.025
+  ],
+  "steps": 11,
+  "max_skinned_toe_median_drift": 0.00014044593885887302,
+  "min_deformed_mesh_y": -0.0009528652279407955,
+  "largest_joint_adjustment_deg": 23.023391954860703,
+  "artifact_names": [
+    "GROUND_IK_WorldAnchored_BodyMotion.gif",
+    "WorldFixed_ThreeStep_Comparison.jpg",
+    "Foot_Lock_Residuals_Zoom.png",
+    "Static_Pose_Tick_00.png",
+    "Static_Pose_Tick_05.png",
+    "Static_Pose_Tick_10.png"
+  ],
+  "limitations": [
+    "provisional bone local X/Z constraints",
+    "toe anchor is sample median not load-bearing pad",
+    "Y=0 raycast ground not an engine rigid-body physics simulation",
+    "no swinging or new gait",
+    "human visible acceptance pending"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "campaign_id": "HEADY_GROUNDED_IK",
+  "version": "03.2.0",
+  "predecessor": "03.1.0",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "writable_paths": [
+    "tools/heady/campaigns/grounded_ik_v03/review_v03_2/**"
+  ],
+  "distribution_public_media": [
+    "Pictures",
+    "Downloads"
+  ],
+  "computation": "already-complete-offdevice",
+  "no_phone_recomputation": true,
+  "no_remote_push": true,
+  "human_review": "pending"
+}
