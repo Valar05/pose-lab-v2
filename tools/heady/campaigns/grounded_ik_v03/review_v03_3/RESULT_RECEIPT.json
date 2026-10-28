@@ -1,0 +1,43 @@
+{
+  "animation_channels_in_source": 0,
+  "body_translation": [
+    0.095,
+    0.0,
+    0.02
+  ],
+  "campaign": "HEADY_GROUNDED_IK",
+  "five_planted_anchor_drift_max": 2.4751112066498612e-05,
+  "foot_selected": "right_middle",
+  "frame_count": 19,
+  "limitations": [
+    "Mathematical flat Y=0 collision plane, not engine physics",
+    "Provisional local X/Z bone-axis degrees, not calibrated mechanical joint limits",
+    "Tip anchored to skinned vertex median rather than validated physical contact patch",
+    "No claw gait, no recurrent scheduler, no hip weight edits",
+    "Human visual review controls acceptance"
+  ],
+  "min_mesh_y": -0.0002812555410938563,
+  "no_repeat_gait": true,
+  "original_52_joint_rig_unchanged": true,
+  "peak_foot_lift": 0.06799318418326623,
+  "physical_engine_raycast": "NOT_RUN",
+  "selected_bones": [
+    "Bone_010",
+    "Bone_009",
+    "Bone_008"
+  ],
+  "source_preserved": true,
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "stage": "ONE_DELIBERATE_STEP_CANDIDATE",
+  "step_delta": [
+    0.125,
+    0.0,
+    0.014
+  ],
+  "step_foot_replant_error": 3.657976499769743e-06,
+  "step_foot_target_error_max": 1.0859822644406433e-05,
+  "step_horizontal_distance": 0.1249981139553823,
+  "step_state": "CANDIDATE_PENDING_HUMAN_REVIEW",
+  "toe_witness": "median of source skinned lowest owned vertices",
+  "version": "03.3.0"
+}

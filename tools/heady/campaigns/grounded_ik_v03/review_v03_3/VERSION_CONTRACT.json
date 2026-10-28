@@ -1,0 +1,15 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "version": "03.3.0",
+  "predecessor": "03.2.1",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "full_packet_in_repo": true,
+  "local_git_checkpoint_count": 2,
+  "no_github_push": true,
+  "one_step_only": true,
+  "foot": "right_middle",
+  "five_other_feet_anchored": true,
+  "human_verdict": "PENDING",
+  "pose_lab_repo": "Valar05/pose-lab-v2",
+  "policy": "Git add must not include ignored host_run.log"
+}
