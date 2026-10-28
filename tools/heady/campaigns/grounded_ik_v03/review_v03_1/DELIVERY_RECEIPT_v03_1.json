@@ -1,0 +1,80 @@
+{
+  "animation_created": false,
+  "campaign": "HEADY_GROUNDED_IK",
+  "checkpoint_packet": {
+    "head": "1f64c79a92381e25500e3ecbe3c6265d86848b17",
+    "status": "COMMITTED"
+  },
+  "human_acceptance": "PENDING",
+  "media_scan": [
+    {
+      "exit_code": 0,
+      "status": "REQUESTED",
+      "stderr": "",
+      "target": "/data/data/com.termux/files/home/storage/pictures/Heady_GroundedIK_v03_1_ReviewBoard.png"
+    },
+    {
+      "exit_code": 0,
+      "status": "REQUESTED",
+      "stderr": "",
+      "target": "/data/data/com.termux/files/home/storage/downloads/Heady_GroundedIK_v03_1_ReviewBoard.png"
+    }
+  ],
+  "model_mutation": false,
+  "packet_sha256": "df23eed822f92ab2e270a6791bc57c9482a053d56b4932f24a5f481527f1eed5",
+  "previous_v03_commit_expected": "532d24f984aac9b792744e9b27eb7af9baf36408",
+  "previous_v03_commit_preserved": true,
+  "published": [
+    {
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_GroundedIK_v03_1_ReviewBoard.png",
+      "sha256": "d004e685342fdddd479cb3b0f65f0e46da2ae6938be9399a5b581836f73f271d",
+      "status": "COPIED_VERIFIED"
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/pictures/Rest_and_Three_Poses_v02.png",
+      "sha256": "58202b18f5e3a1a66cb612354b41bea6a9c88317588fa8f77c7d0f3553e2fcc4",
+      "status": "COPIED_VERIFIED"
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/pictures/Foot_Lock_13_Ticks_v03.png",
+      "sha256": "4a59fc61a22e1b84ad4e1eee941d3f8a3b2e6d6d06553c181f25d396e3632541",
+      "status": "COPIED_VERIFIED"
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/pictures/Ground_Collider_Foot_Map_v02.png",
+      "sha256": "de7f9f058319bcbe136a91ebd9f2d81d79d58851be44715a3f5535af70022022",
+      "status": "COPIED_VERIFIED"
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_GroundedIK_v03_1_ReviewBoard.png",
+      "sha256": "d004e685342fdddd479cb3b0f65f0e46da2ae6938be9399a5b581836f73f271d",
+      "status": "COPIED_VERIFIED"
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/downloads/Rest_and_Three_Poses_v02.png",
+      "sha256": "58202b18f5e3a1a66cb612354b41bea6a9c88317588fa8f77c7d0f3553e2fcc4",
+      "status": "COPIED_VERIFIED"
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/downloads/Foot_Lock_13_Ticks_v03.png",
+      "sha256": "4a59fc61a22e1b84ad4e1eee941d3f8a3b2e6d6d06553c181f25d396e3632541",
+      "status": "COPIED_VERIFIED"
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/downloads/Ground_Collider_Foot_Map_v02.png",
+      "sha256": "de7f9f058319bcbe136a91ebd9f2d81d79d58851be44715a3f5535af70022022",
+      "status": "COPIED_VERIFIED"
+    }
+  ],
+  "repo_review_dir": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/tools/heady/campaigns/grounded_ik_v03/review_v03_1",
+  "source_original_untouched": true,
+  "status": "PUBLISHED_VERIFIED_NEEDS_HUMAN_REVIEW",
+  "timestamp_utc": "2026-10-28T21:50:19.550258+00:00",
+  "version": "03.1.0",
+  "viewer": {
+    "exit_code": 0,
+    "path": "/data/data/com.termux/files/home/storage/pictures/Heady_GroundedIK_v03_1_ReviewBoard.png",
+    "status": "OPEN_REQUESTED",
+    "stderr": ""
+  }
+}
