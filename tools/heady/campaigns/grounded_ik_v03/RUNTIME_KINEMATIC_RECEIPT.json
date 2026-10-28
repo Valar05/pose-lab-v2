@@ -1,0 +1,27 @@
+{
+  "status": "PROVISIONAL_DYNAMIC_KINEMATIC_PASS",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "test": "13 sequential per-tick IK evaluations, root moves diagonally X+0.030 Z+0.012, six foot-world locks, explicit 2-triangle surface",
+  "not_claimed": [
+    "not a game engine physics simulation",
+    "no forces/friction/true COM",
+    "no gait animation, no swing or touchdown",
+    "joint local X/Z axes provisional",
+    "no toe pads/contact normals calibration",
+    "no actual on-phone installation"
+  ],
+  "steps": 13,
+  "tick_dt_sec": 0.03333333333333333,
+  "body_final_shift": [
+    0.03,
+    0.0,
+    0.012
+  ],
+  "max_foot_drift": 5.179925180538348e-05,
+  "final_foot_drift": 5.179925180538348e-05,
+  "max_control_drift": 0.032310989514428345,
+  "worst_floor_y": -0.0001289438114035618,
+  "largest_joint_angle_delta_deg": 4.952549148620218,
+  "elapsed_wall_sec": 2.6786,
+  "original_source_preserved": true
+}

@@ -1,0 +1,21 @@
+{
+  "campaign": "heady_grounded_ik_v03",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "root_agnostic": true,
+  "requires_previous_campaigns": false,
+  "allowed_repo_paths": [
+    "tools/heady/campaigns/grounded_ik_v03/",
+    "tools/campaigns/heady_grounded_runtime_v03.sh"
+  ],
+  "prohibited": [
+    "modify source GLB",
+    "alter original skin weights",
+    "add animation channels",
+    "write Github",
+    "assume installed on user phone"
+  ],
+  "mode": "evidence_install_and_local_git_commit_only",
+  "measured_status": "PROVISIONAL_DYNAMIC_KINEMATIC_PASS",
+  "visual_acceptance": "PENDING",
+  "real_game_physics": "NOT_RUN"
+}
