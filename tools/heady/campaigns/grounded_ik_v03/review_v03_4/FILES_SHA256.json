@@ -1,0 +1,22 @@
+{
+  "FiveStates_WorldFixed.png": "a5b169e5d6536861bd7100f8cd33a95d1f018de29a21e107c98374a12bd1f8e9",
+  "Frame_00_PLANTED_OLD.png": "efbcd5f3d8753bfd8b7e74328419d9484fc62e334903d31ce6ef7159da810ff9",
+  "Frame_08_SWING_OUT.png": "5991ed406297febf967a5b37fe1dc223fb3ea50308967c1e9c05329db5ff46e8",
+  "Frame_16_PLANTED_NEW.png": "18c10d2477e9861a9b98c8c1c306a5cdd33946aa1a81acad96d3ec4c98beb5b7",
+  "Frame_24_SWING_BACK.png": "b9890d02e80486d5009029b94cf33a5d8a509fdbf369818e42103fca3d086712",
+  "Frame_29_PLANTED_OLD_RETURNED.png": "77abaf05f5ca5ce1b9478607227972a8f90d7a045860fbf3cfa16360a0d04e20",
+  "Frame_36_PLANTED_OLD_RETURNED.png": "721dca13d59be27c21077f1465359b50191a9e5f8552d1ff8c3714b0ff75ab57",
+  "HEADY_GroundedIK_OutAndBack_v03_4.gif": "60a1fcd0cf1c2a470f70041b743dbd84db8da382d6295e3915af1137e7618da1",
+  "INSTALL_AND_RUN_v03_4.py": "83b026972e23ba055b41f0b63dfb6c8c03631604405db74ad1644f6c45853efc",
+  "Meshy_AI_Character_output (1).glb": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "OutAndBack_37Ticks.csv": "673a43d5f24f6dd3391883ce75317c473a94685bd946a33668d84e1bd3c572fd",
+  "OutAndBack_LiftEvidence.png": "6dd8f56459eb000f816ebc9f27082ae7d0853a2a12e6a142de2bc819706187f9",
+  "README.md": "64156c2d09f2a8c31d7b4306b5038144085729bb0e87ef3ed621331426cc5478",
+  "RESULT_RECEIPT.json": "ec27ba57b4ccd41631f7f1c2a3bca637327a6f205237dd280873810507cd9cad",
+  "VERSION_CONTRACT.json": "7ac3b474592aa7f9b971fbf36b67fc8ea47d6f8d20f71bb9bdff68cc492ba954",
+  "grounded_out_and_back.py": "ad490233dc5f6780867bb674abd83e99b5bf302b5fed4f78e3f8d5aac9e4db5b",
+  "host_run.log": "c136df6bff3f336e3714cf3395f76a2c3af51ee5ec8c0bc1e900fc03b81d479b",
+  "renderer_accelerated_v034.py": "9e1c426c6ea1378543bec7e2bea3a9e500e4c33827f739e7f0a5a38dbe48a756",
+  "renderer_readonly_reference.py": "8d5191a3476753fe00ff388ece80f5cf7815b7f38dbbb9f008e19603f23c5b3f",
+  "verify_candidate.py": "4456d2aa93a1c51ace1cc0fb2cb89b2692b690ac62f79a3e5b331c069d4b6258"
+}

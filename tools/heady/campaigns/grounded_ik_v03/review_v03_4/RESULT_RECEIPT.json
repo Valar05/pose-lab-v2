@@ -1,0 +1,78 @@
+{
+  "animation_channels_in_source": 0,
+  "body_translation_peak": [
+    0.095,
+    0.0,
+    0.02
+  ],
+  "campaign": "HEADY_GROUNDED_IK",
+  "final_body_offset_error": 0.0,
+  "five_planted_anchor_drift_max": 2.4751112066498612e-05,
+  "frames": 37,
+  "human_visual_verdict": "PENDING",
+  "limitations": [
+    "Provisional local X/Z joint axes and solver regularization, not validated anatomical limits",
+    "Foot anchors are skin vertex medians, not author-approved contact patches",
+    "Flat mathematical Y=0 floor, not collision impulses or dynamics",
+    "No accepted recurring gait, claws or other leg swing schedules"
+  ],
+  "max_provisional_joint_rotation_deg": 12.670458870402056,
+  "min_mesh_y": -0.0002812555410938563,
+  "not_a_repeating_gait": true,
+  "original_52_joint_rig_unchanged": true,
+  "outbound_world_anchor_error": 3.657976447261714e-06,
+  "physical_engine_contact": "NOT_RUN",
+  "return_original_world_anchor_error": 8.654591169999711e-12,
+  "right_middle_chain_per_bone_angle_variation_deg_xy": [
+    [
+      16.738868747509688,
+      3.2466255796545203
+    ],
+    [
+      7.034528982576113,
+      15.94015009810083
+    ],
+    [
+      10.455513057012531,
+      12.51424638693334
+    ]
+  ],
+  "selected_bones": [
+    "Bone_010",
+    "Bone_009",
+    "Bone_008"
+  ],
+  "selected_leg": "right_middle",
+  "source_preserved": true,
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "stage": "OUT_AND_BACK_STEP_CANDIDATE",
+  "step_delta": [
+    0.125,
+    0.0,
+    0.014
+  ],
+  "step_foot_target_error_max": 9.993730841262868e-06,
+  "swing_back_peak_lift": 0.06798132809224654,
+  "swing_back_ticks": [
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28
+  ],
+  "swing_out_peak_lift": 0.06798168444676038,
+  "swing_out_ticks": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "version": "03.4.0"
+}

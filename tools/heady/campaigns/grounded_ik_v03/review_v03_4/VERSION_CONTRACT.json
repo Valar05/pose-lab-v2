@@ -1,0 +1,36 @@
+{
+  "animated_bones_in_calculation": [
+    "Bone_010",
+    "Bone_009",
+    "Bone_008"
+  ],
+  "campaign": "HEADY_GROUNDED_IK",
+  "github_writes": false,
+  "human_acceptance": "PENDING",
+  "locks": [
+    "original_GLTF_bytes",
+    "52_joint_hierarchy",
+    "original_skin_weights",
+    "materials",
+    "textures",
+    "v03_3_outputs"
+  ],
+  "mutations": [
+    "tools/heady/campaigns/grounded_ik_v03/review_v03_4/**",
+    "tools/campaigns/heady_grounded_ik_v03_4.sh"
+  ],
+  "other_five_anchors": "FIXED_WORLD",
+  "phone_requires_recompute": false,
+  "previous": "03.3.0",
+  "review": [
+    "HEADY_GroundedIK_OutAndBack_v03_4.gif",
+    "FiveStates_WorldFixed.png",
+    "Frame_24_SWING_BACK.png",
+    "OutAndBack_LiftEvidence.png"
+  ],
+  "source_gltf_animation_channels": 0,
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "stage": "OUT_AND_BACK_TWO_STEP_CANDIDATE",
+  "target_leg": "right_middle",
+  "version": "03.4.0"
+}
