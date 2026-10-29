@@ -1,0 +1,43 @@
+{
+  "approval": "PENDING",
+  "base_engine_sha256": "fcadee825ce5591e9b47f54d839e72dd3709aa4fd4359ca1637346f04ccb7d20",
+  "baseline_commit": "afcf6a7ab2e2eaadeab572f5fea6dd66f9e83eff",
+  "campaign": "HEADY_GROUNDED_IK",
+  "canonical_glb": "tools/heady/campaigns/grounded_ik_v03/review_v03_8/Meshy_AI_Character_output (1).glb",
+  "canonical_glb_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "changed_surface": [
+    "PHASE timing offsets",
+    "candidate version labels",
+    "preview frame sampling"
+  ],
+  "expected_histogram": {
+    "2": 50,
+    "3": 35
+  },
+  "git_push": "NEVER",
+  "locked": [
+    "original GLB",
+    "v03.4 approved gait",
+    "v03.8 candidate",
+    "52-joint skin and mesh",
+    "all IK equations",
+    "foot trajectory shape",
+    "stride/lift/root",
+    "claws and hair"
+  ],
+  "minimum_planned_support_margin": 0.19782154243638675,
+  "new_model_copies": 0,
+  "phases": {
+    "left_front": 0.0,
+    "left_middle": 0.6,
+    "left_rear": 0.2,
+    "right_front": 0.5,
+    "right_middle": 0.1,
+    "right_rear": 0.7
+  },
+  "remote_mutations": false,
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "swing_fraction": 0.39,
+  "v0391_regression": "UNSAFE_SUPPORT_MARGIN_4_0.004318861035641184",
+  "version": "03.9.3"
+}
