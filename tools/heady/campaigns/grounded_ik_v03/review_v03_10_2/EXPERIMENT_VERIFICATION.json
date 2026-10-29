@@ -1,0 +1,43 @@
+{
+  "blender": "NOT_EXECUTED",
+  "campaign": "HEADY_GROUNDED_IK",
+  "git_remote_writes": "NOT_ATTEMPTED",
+  "human_verdict": "PENDING",
+  "physics": "NOT_EXECUTED",
+  "runs": [
+    {
+      "direction": "left",
+      "gif_sha256": "2d5d5ce8b72666bc4281c723a37e0e47cdcb17e7477587a902dcbcd2a8d0d31e",
+      "max_stance_drift": 1.7222483620245073e-05,
+      "min_support_margin": 0.15521990955311427,
+      "root_x": -0.56,
+      "variant": "straight"
+    },
+    {
+      "direction": "right",
+      "gif_sha256": "a3277f5645d9946fc021c716c8bc5a5c3b1eed7896f47aebc78eb94a2155a03c",
+      "max_stance_drift": 2.0979220731756885e-05,
+      "min_support_margin": 0.18505656451398778,
+      "root_x": 0.56,
+      "variant": "straight"
+    },
+    {
+      "direction": "left",
+      "gif_sha256": "ff9bd410f80fb23e585951420e980ec45b270ee34e4ffa9800480f863aa8e1ab",
+      "max_stance_drift": 3.246828825989843e-05,
+      "min_support_margin": 0.15521990955311427,
+      "root_x": -0.56,
+      "variant": "dynamic"
+    },
+    {
+      "direction": "right",
+      "gif_sha256": "00a203225454902fb4ddb855a531ee7fad6916d30c90d0913fb9874796418bcb",
+      "max_stance_drift": 4.025544896582031e-05,
+      "min_support_margin": 0.18505656451398778,
+      "root_x": 0.56,
+      "variant": "dynamic"
+    }
+  ],
+  "source_glb_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "version": "03.10.2"
+}
