@@ -1,0 +1,74 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "github_push": "NOT_ATTEMPTED",
+  "human_acceptance": "PENDING",
+  "implementation_commit": "74f3cfe91e94caa2ce1d337dc7f15ba1905287b6",
+  "open": "REQUESTED_NOT_CONFIRMED",
+  "original_source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "pub": [
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_8_OverlappingTripod.gif",
+      "sha256": "e0a3e587060b23c13e7f3c14f91c97c9552021876f91c0f53843aea7096e5615"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_8_SixStates.png",
+      "sha256": "a8fe32d81ae71ea38c467a349c9b4f62f9d01492a3c71145267b834d984ced9a"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_8_TrueConcurrentLiftProof.png",
+      "sha256": "f710a23b6249a4291e6354d9ff6950211076ae08f928747cf61d2ea808ff8248"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_8_ThreeSimultaneouslySwinging.png",
+      "sha256": "e184990ada950755d82cebcf91b110bacea2bef60840360eea06e8204119cbfc"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_8_EndPose.png",
+      "sha256": "45cf4b3f3861e11d05ec0087b09eae406c86f459b6b2bd612a69a62b3ba9eb71"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_8_ProtectedBaseline.png",
+      "sha256": "c2e4e33817fe75fb511215d44d795dce70220f61720643ab678f2c17e076feb7"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_8_OverlappingTripod.gif",
+      "sha256": "e0a3e587060b23c13e7f3c14f91c97c9552021876f91c0f53843aea7096e5615"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_8_SixStates.png",
+      "sha256": "a8fe32d81ae71ea38c467a349c9b4f62f9d01492a3c71145267b834d984ced9a"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_8_TrueConcurrentLiftProof.png",
+      "sha256": "f710a23b6249a4291e6354d9ff6950211076ae08f928747cf61d2ea808ff8248"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_8_ThreeSimultaneouslySwinging.png",
+      "sha256": "e184990ada950755d82cebcf91b110bacea2bef60840360eea06e8204119cbfc"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_8_EndPose.png",
+      "sha256": "45cf4b3f3861e11d05ec0087b09eae406c86f459b6b2bd612a69a62b3ba9eb71"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_8_ProtectedBaseline.png",
+      "sha256": "c2e4e33817fe75fb511215d44d795dce70220f61720643ab678f2c17e076feb7"
+    }
+  ],
+  "release_sha256": "e19fa141e93a51aefdbcf292438af4a1c425a8204e84c08c9a479230d2b4b036",
+  "scanner": "REQUESTED",
+  "scope": "STAGGERED_TRIPOD_OFFDEVICE_AND_BLENDER_BAKER",
+  "version": "03.8.0"
+}
