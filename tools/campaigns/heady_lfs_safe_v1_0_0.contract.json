@@ -1,0 +1,64 @@
+{
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "id": "heady-lfs-safe-v1.0.0",
+  "mission": "Prepare a content-verified Git LFS candidate for the phone's unpublished Heady binary commits without editing phone main, changing any accepted asset, publishing automatically, force-pushing, or rewriting GitHub history.",
+  "machine": {
+    "mutablePaths": [
+      "tools/campaigns/heady_lfs_safe_v1_0_0.py",
+      "tools/campaigns/heady_lfs_safe_v1_0_0.contract.json"
+    ],
+    "receiptPath": "$HOME/.local/share/heady-lfs-campaign-v1/<run-id>/receipt.json",
+    "requiredRules": [
+      "AGENTS.md",
+      "docs/POSE_LAB_CAMPAIGN_RULES.md",
+      "docs/POSE_IS_GOD.md",
+      "docs/POSE_CAMPAIGN_FRAMEWORK.md",
+      "live Campaign Etiquette in Google Drive"
+    ],
+    "lockedFiles": [],
+    "checks": [
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/heady_lfs_safe_v1_0_0.py",
+        "value": "CANDIDATE_READY_NOT_PUSHED"
+      },
+      {
+        "kind": "text-contains",
+        "path": "tools/campaigns/heady_lfs_safe_v1_0_0.py",
+        "value": "--exclude-ref=refs/remotes/origin/main"
+      }
+    ]
+  },
+  "externalExecution": {
+    "authorizedHost": "Android Termux phone only",
+    "entrypoint": "tools/campaigns/heady_lfs_safe_v1_0_0.py",
+    "expectedRepo": "Valar05/pose-lab-v2",
+    "sourceBranch": "main",
+    "allowedRefRefresh": "refs/remotes/origin/main (fetch-only)",
+    "candidateLocation": "$HOME/.local/share/heady-lfs-campaign-v1/<run-id>/candidate-repo",
+    "sourceMainMutation": false,
+    "sourceMainHistoryRewrite": false,
+    "gitRemoteWrite": false,
+    "credentialHandling": "Use existing origin auth. Never print tokens or introduce alternate remote.",
+    "publicArtifactSubmission": false,
+    "success": "Candidate is fast-forward from latest origin/main; all original Heady binary SHA256 match candidate working files; all candidate paths are LFS pointers; original HEAD/worktree unchanged; local JSON receipt.",
+    "exclusions": [
+      "No LFS migrate --everything",
+      "No force push, remote push, GitHub main change, PR creation or automatic merge",
+      "No deleting, conflating or symlinking unequal-source GLBs",
+      "No Computer Hands, alternate device or Home Center",
+      "No full historical cleanup of previously published oversized Git objects"
+    ]
+  },
+  "release": {
+    "status": "source published on dedicated campaign branch; phone invocation unverified",
+    "version": "1.0.0",
+    "expectedOutputs": [
+      "audit of sizes and exact duplicate SHA groups",
+      "isolated candidate branch",
+      "LFS pointer and content SHA validation",
+      "durable JSON receipt"
+    ],
+    "publishRequires": "Separately authorized remote operation from candidate clone; no force push."
+  }
+}
