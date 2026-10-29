@@ -171,8 +171,6 @@ def main():
     base = git(repo, "rev-parse", "refs/remotes/origin/main")
     if base != advertised:
         raise Blocked("REMOTE_CHANGED_DURING_FETCH")
-    if cmd(["git", "-C", repo, "merge-base", "--is-ancestor", base, original], check=False) != "":
-        pass
     if subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", base, original]).returncode:
         raise Blocked("LOCAL_MAIN_DIVERGED: no rebase or force push attempted")
     ahead = int(git(repo, "rev-list", "--count", base + ".." + original))
@@ -199,7 +197,7 @@ def main():
         raise Blocked("ALREADY_PUBLISHED_OR_NO_LOCAL_COMMITS: history rewrite not approved")
     bootstrap_lfs()
     STATE.mkdir(parents=True, exist_ok=True)
-    run_id = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + original[:8]
+    run_id = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + original[:8] + "-" + str(os.getpid())
     run_dir = STATE / run_id
     run_dir.mkdir(exist_ok=False)
     receipt_path = run_dir / "receipt.json"
