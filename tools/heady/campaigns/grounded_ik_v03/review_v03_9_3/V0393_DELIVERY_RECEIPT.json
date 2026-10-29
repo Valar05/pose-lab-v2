@@ -1,0 +1,128 @@
+{
+  "blender": "NOT_EXECUTED",
+  "campaign": "HEADY_GROUNDED_IK",
+  "delivery": {
+    "media_scan": "REQUESTED=10/10; NOT_FILES_UI_VERIFIED",
+    "per_file_scans": [
+      {
+        "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_9_3_TetrapodPhase_Candidate.gif",
+        "state": "REQUESTED_NOT_INDEX_CONFIRMED"
+      },
+      {
+        "path": "/data/data/com.termux/files/home/storage/pictures/Overlap_SixStates_Review_v03_9_3.png",
+        "state": "REQUESTED_NOT_INDEX_CONFIRMED"
+      },
+      {
+        "path": "/data/data/com.termux/files/home/storage/pictures/Overlap_Actual_LiftCurves_And_BodyMotion_v03_9_3.png",
+        "state": "REQUESTED_NOT_INDEX_CONFIRMED"
+      },
+      {
+        "path": "/data/data/com.termux/files/home/storage/pictures/Overlap_Contact_Drift_Stability_v03_9_3.png",
+        "state": "REQUESTED_NOT_INDEX_CONFIRMED"
+      },
+      {
+        "path": "/data/data/com.termux/files/home/storage/pictures/Overlap_Frame_016_v03_9_3.png",
+        "state": "REQUESTED_NOT_INDEX_CONFIRMED"
+      },
+      {
+        "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_9_3_TetrapodPhase_Candidate.gif",
+        "state": "REQUESTED_NOT_INDEX_CONFIRMED"
+      },
+      {
+        "path": "/data/data/com.termux/files/home/storage/downloads/Overlap_SixStates_Review_v03_9_3.png",
+        "state": "REQUESTED_NOT_INDEX_CONFIRMED"
+      },
+      {
+        "path": "/data/data/com.termux/files/home/storage/downloads/Overlap_Actual_LiftCurves_And_BodyMotion_v03_9_3.png",
+        "state": "REQUESTED_NOT_INDEX_CONFIRMED"
+      },
+      {
+        "path": "/data/data/com.termux/files/home/storage/downloads/Overlap_Contact_Drift_Stability_v03_9_3.png",
+        "state": "REQUESTED_NOT_INDEX_CONFIRMED"
+      },
+      {
+        "path": "/data/data/com.termux/files/home/storage/downloads/Overlap_Frame_016_v03_9_3.png",
+        "state": "REQUESTED_NOT_INDEX_CONFIRMED"
+      }
+    ],
+    "published": [
+      {
+        "bytes": 6699357,
+        "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_9_3_TetrapodPhase_Candidate.gif",
+        "sha256": "a311340fa393ce06f1e39bb263c1e65b74d96209a9c522c4db75c00a0e96d3e2"
+      },
+      {
+        "bytes": 2098207,
+        "path": "/data/data/com.termux/files/home/storage/pictures/Overlap_SixStates_Review_v03_9_3.png",
+        "sha256": "49bae8f994d2908a87aa66f1d471bc912afaab2f7dc8ce460c6641b99378e787"
+      },
+      {
+        "bytes": 181787,
+        "path": "/data/data/com.termux/files/home/storage/pictures/Overlap_Actual_LiftCurves_And_BodyMotion_v03_9_3.png",
+        "sha256": "5307f3d24fca98fb190728037732be8e7c4d64190eedc0eb1128a5e53336d3a8"
+      },
+      {
+        "bytes": 90680,
+        "path": "/data/data/com.termux/files/home/storage/pictures/Overlap_Contact_Drift_Stability_v03_9_3.png",
+        "sha256": "ee8e40e0e2d4d4fe1ab99c1b172156246478512627475f05b7bb33d7f3e647ac"
+      },
+      {
+        "bytes": 372650,
+        "path": "/data/data/com.termux/files/home/storage/pictures/Overlap_Frame_016_v03_9_3.png",
+        "sha256": "8607c7a35835068c8a95dcaf0d02c0a3fec38747c9c372a78f8adb20f6804c3c"
+      },
+      {
+        "bytes": 6699357,
+        "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_9_3_TetrapodPhase_Candidate.gif",
+        "sha256": "a311340fa393ce06f1e39bb263c1e65b74d96209a9c522c4db75c00a0e96d3e2"
+      },
+      {
+        "bytes": 2098207,
+        "path": "/data/data/com.termux/files/home/storage/downloads/Overlap_SixStates_Review_v03_9_3.png",
+        "sha256": "49bae8f994d2908a87aa66f1d471bc912afaab2f7dc8ce460c6641b99378e787"
+      },
+      {
+        "bytes": 181787,
+        "path": "/data/data/com.termux/files/home/storage/downloads/Overlap_Actual_LiftCurves_And_BodyMotion_v03_9_3.png",
+        "sha256": "5307f3d24fca98fb190728037732be8e7c4d64190eedc0eb1128a5e53336d3a8"
+      },
+      {
+        "bytes": 90680,
+        "path": "/data/data/com.termux/files/home/storage/downloads/Overlap_Contact_Drift_Stability_v03_9_3.png",
+        "sha256": "ee8e40e0e2d4d4fe1ab99c1b172156246478512627475f05b7bb33d7f3e647ac"
+      },
+      {
+        "bytes": 372650,
+        "path": "/data/data/com.termux/files/home/storage/downloads/Overlap_Frame_016_v03_9_3.png",
+        "sha256": "8607c7a35835068c8a95dcaf0d02c0a3fec38747c9c372a78f8adb20f6804c3c"
+      }
+    ],
+    "viewer_open": "REQUESTED_NOT_VIEWER_CONFIRMED"
+  },
+  "git_commit": "LOCAL_ONLY",
+  "github_write": "NOT_ATTEMPTED",
+  "implementation_commit": "06690a34620f48b85ce639f67f45dfdda1d39e54",
+  "original_source_intact": true,
+  "physics": "NOT_EXECUTED",
+  "real_phone_run": true,
+  "run_id": "20261029T121830Z-10839",
+  "status": "CANDIDATE_DELIVERED_VISUAL_ACCEPTANCE_PENDING",
+  "verified": {
+    "model_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+    "output_sha256": {
+      "Heady_v03_9_3_TetrapodPhase_Candidate.gif": "a311340fa393ce06f1e39bb263c1e65b74d96209a9c522c4db75c00a0e96d3e2",
+      "OVERLAP_RESULT_RECEIPT.json": "48e69378c06a7c92beb9c1f88b4424169016673c012fde42ab0fe83af1b7a9f1",
+      "Overlap_Actual_LiftCurves_And_BodyMotion.png": "5307f3d24fca98fb190728037732be8e7c4d64190eedc0eb1128a5e53336d3a8",
+      "Overlap_Contact_Drift_Stability.png": "ee8e40e0e2d4d4fe1ab99c1b172156246478512627475f05b7bb33d7f3e647ac",
+      "Overlap_Frame_016.png": "8607c7a35835068c8a95dcaf0d02c0a3fec38747c9c372a78f8adb20f6804c3c",
+      "Overlap_SixStates_Review.png": "49bae8f994d2908a87aa66f1d471bc912afaab2f7dc8ce460c6641b99378e787",
+      "overlap_85ticks.csv": "e81f60be2d5ec7afb765c9d35633b84a61332ff0c5e33b32ec17e33f4f1619c0",
+      "overlap_bone_tracks.json": "cffb4eeaac64fba008121caa7bf1a2479f13278d726fe1894f34a41c329ed265"
+    },
+    "swing_histogram": {
+      "2": 50,
+      "3": 35
+    }
+  },
+  "version": "03.9.3"
+}
