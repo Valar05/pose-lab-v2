@@ -105,6 +105,20 @@ def is_lfs_pointer(repo, revision, path):
     ) and b"oid sha256:" in p.stdout
 
 
+
+def remaining_large_plain_blobs(repo, base, revision, limit=8 * 1024 * 1024):
+    """Unmigrated large blobs introduced by local-only commits, other projects too."""
+    found = []
+    for line in git(repo, "rev-list", "--objects", base + ".." + revision).splitlines():
+        oid, _, path = line.partition(" ")
+        if git(repo, "cat-file", "-t", oid) != "blob":
+            continue
+        n = int(git(repo, "cat-file", "-s", oid))
+        if n >= limit:
+            found.append({"object": oid, "bytes": n, "path": path or "(unmapped)"})
+    return sorted(found, key=lambda row: row["bytes"], reverse=True)
+
+
 def write_receipt(path, receipt):
     path.parent.mkdir(parents=True, exist_ok=True)
     staging = path.with_suffix(".json.tmp")
@@ -243,6 +257,13 @@ def main():
                     h.update(chunk)
             if h.hexdigest() != f["sha256"]:
                 raise Blocked("MIGRATED_ASSET_HASH_MISMATCH: " + f["path"])
+        remaining = remaining_large_plain_blobs(clone, base, rewritten)
+        receipt["remaining_plain_git_blobs_over_8mib"] = remaining
+        for row in remaining:
+            print("UNMIGRATED_LARGE_BLOB bytes=" + str(row["bytes"]) +
+                  " path=" + row["path"])
+        if remaining:
+            raise Blocked("UNMIGRATED_LARGE_BLOBS: inspect before any push")
         if git(repo, "rev-parse", "HEAD") != original:
             raise Blocked("SOURCE_HEAD_CHANGED_DURING_RUN")
         if git(repo, "status", "--porcelain=v1"):
