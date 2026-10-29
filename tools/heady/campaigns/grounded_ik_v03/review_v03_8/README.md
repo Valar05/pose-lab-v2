@@ -1,0 +1,15 @@
+# HEADY_GROUNDED_IK v03.8.0 | Staggered overlapping tripod candidate
+
+Human request: previous asynchronous ripple still *felt serial* despite numerical pair overlap. Correction prioritizes simultaneous high-lift windows rather than mere consecutive foot events.
+
+**Motion**: original 52-joint source GLB unchanged. Six leg chains (LF 007/006/005; LM 013/012/011; LR 021/020/019/018; RF 024/023/022; RM 010/009/008; RR 017/016/015/014), original skinned foot-patch numerical IK, forward-moving world root +X0.420 over 3.5 cycles. 85 numerically solved frames; 43 downsampled preview frames. One full cycle comprises 24 solver samples. Staggered tripod A=(LF,LR,RM) at phases 0.00,0.05,0.10; B=(RF,RR,LM) at 0.50,0.55,0.60. Swing duration 0.39 of each period, stance 0.61. Up to 3 legs swing together with substantially overlapping peaks, minimum 3 support feet. Group offsets intentionally not perfectly synchronous. No one-at-a-time scheduler.
+
+**Truth limits**: world-root moves continuously, source rig topology and textures preserved; no real-time Blender IK/physics test, no measured center of mass, current body-origin support polygon is a proxy. Skinning validation from original GLB; provisional local X/Z joint axes only. v03.4 one-foot result remains protected. Earlier v03.5 wave and v03.7.1 minimal-overlap ripple NOT accepted as full gaits.
+
+**Evidence**: GIF (actual skinned mesh 43-frame playback, not key pose collage), overlap phase/lift graph, six contact-state review poses, measured 85 tick CSV and 85 tick editable bone tracks JSON, numeric receipt. Some side claws/legs can occlude each other, and accepted motion still requires owner's verdict. Blender baker script is provided but Blender import/export not executed on this host.
+
+**Run source again on a PC** (only if desired): Python 3 with numpy scipy pillow matplotlib and a compiled raster accelerator (numba optional). `python six_leg_overlap_engine.py 'Meshy_AI_Character_output (1).glb' OUTPUT_DIR`, then `python render_approved_source_tracks.py 'Meshy_AI_Character_output (1).glb' OUTPUT_DIR`. The two command lines are for independent development/reproduction; the *phone installer* needs no re-simulation and is one invocation with ready-made evidence.
+
+**Blender**: `bash RUN_BLENDER_OVERLAP.sh` or Windows `RUN_BLENDER_OVERLAP.bat` on Blender-installed machine. Bakes precomputed transforms into an editable .blend and animated GLB candidate; not a real-time constrained IK implementation. Confirm resulting source character, mesh deformation and world-lock independently before accepting.
+
+**Termux**: canonical first-paste command in accompanying response; archive contains complete immutable packet + repo-owned runner + versioned installer. Install staged only scoped paths (do not force ignored logs), locally commit implementation, publish six review images in each of Pictures and Downloads with SHA readback, attempt termux-open and media scan, commit delivery receipt, print same-invocation result. GitHub push is deliberately excluded. The original source model is never modified.

@@ -1,0 +1,14 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "version": "03.8.0",
+  "kind": "STAGGERED_ALTERNATING_TRIPOD",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "frames_solved": 85,
+  "swing_count_max": 3,
+  "at_least_triple_swing_frames": 40,
+  "root_advance": 0.42,
+  "acceptance": "PENDING",
+  "owner_approved_v03_4_unchanged": true,
+  "deliverable": "ONE_ZIP_SAME_ENTRYPOINT_LOCAL_GIT_AND_PUBLIC_MEDIA",
+  "github_push": "NEVER"
+}

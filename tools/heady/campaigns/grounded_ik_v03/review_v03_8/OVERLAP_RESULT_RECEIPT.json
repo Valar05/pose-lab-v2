@@ -1,0 +1,62 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "version": "03.8.0",
+  "status": "STAGGERED_TRIPOD_OVERLAP_CANDIDATE_GENERATED",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "source_preserved": true,
+  "active_leg_count": 6,
+  "two_rear_four_joint_chains": true,
+  "gait": "STAGGERED_ALTERNATING_TRIPOD",
+  "phase_groups": [
+    [
+      "left_front",
+      "left_rear",
+      "right_middle"
+    ],
+    [
+      "right_front",
+      "right_rear",
+      "left_middle"
+    ]
+  ],
+  "group_internal_offsets_cycles": [
+    0.0,
+    0.05,
+    0.1
+  ],
+  "swing_fraction": 0.39,
+  "stance_fraction": 0.61,
+  "wave_predecessor": "v03.7.1 predominantly perceived serial (2 swinging, staggered peaks)",
+  "frames_solved": 85,
+  "gif_preview_frames": 43,
+  "cycles": 3.5,
+  "max_simultaneous_swing": 3,
+  "swing_frame_histogram": {
+    "0": 0,
+    "1": 22,
+    "2": 14,
+    "3": 49,
+    "4": 0,
+    "5": 0,
+    "6": 0
+  },
+  "triple_swing_frames": 49,
+  "body_advance": 0.42,
+  "maximum_stance_drift": 1.2096153540917655e-05,
+  "minimum_support_polygon_origin_proxy_margin": 0.1978215424363868,
+  "minimum_skinned_mesh_y": -0.0001893575056973329,
+  "maximum_local_joint_adjustment_deg": 22.030922171935273,
+  "original_source_glb_animations": 0,
+  "blender_bake": "NOT_EXECUTED",
+  "physics_engine": "NOT_EXECUTED",
+  "actual_center_of_mass": "NOT_MEASURED",
+  "visual_acceptance": "PENDING",
+  "notes": [
+    "Source GLB unchanged, no vertex weights or anatomy changed",
+    "All six real leg chains solved from source LBS toe witnesses",
+    "Actual triple-lift overlap occurs for > half of solver ticks",
+    "World root translates at every tick; no returning-to-origin",
+    "This is a hypothesized crab-inspired pattern, not a universal biological law",
+    "Rendering replay reconstructs the 85-tick solved pose data without a second solver run"
+  ]
+}
