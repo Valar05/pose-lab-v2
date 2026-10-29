@@ -1,0 +1,347 @@
+{
+  "animated_bone_nodes": [
+    52,
+    51
+  ],
+  "body_base_protected": true,
+  "bone_034_animation_removed": true,
+  "campaign": "heady_3d_v04",
+  "edited_vertex_count": 29,
+  "foot_witness_x_range": [
+    0.3357925237466369,
+    0.40508526617203
+  ],
+  "foreign_weight_removed_total": 4.038955875555985,
+  "gif": {
+    "frames": 18,
+    "height": 355,
+    "sha256": "f831529ce78044e35d3c117b81911f080225d91e42d32d35aa314d37cee5b116",
+    "width": 1180
+  },
+  "gif_path": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/tools/heady/output/Heady_two_link_shaft_isolation_v04_three_angle.gif",
+  "human_review": "PENDING",
+  "ik": {
+    "fixed_socket_xyz": [
+      0.25566406707568534,
+      0.5080078250530304,
+      0.4814452528130693
+    ],
+    "old_toe_x_range": [
+      0.3221693496326164,
+      0.4296614584947052
+    ],
+    "old_toe_y_range": [
+      -0.008843187690456071,
+      0.08841476221981687
+    ],
+    "stance_fraction": 0.64,
+    "swing_fraction": 0.36,
+    "target_toe_xy": [
+      {
+        "reachable_distance": 0.5164308442572721,
+        "t": 0.0,
+        "x": 0.39945924914532643,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5157156109108142,
+        "t": 0.0333,
+        "x": 0.3968689849194937,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5149373749094114,
+        "t": 0.0667,
+        "x": 0.3939996646807778,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.514070309354803,
+        "t": 0.1,
+        "x": 0.3907363456760897,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5130924212206284,
+        "t": 0.1333,
+        "x": 0.3869655148978973,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5120966684865711,
+        "t": 0.1667,
+        "x": 0.3830188289073791,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5111331470048496,
+        "t": 0.2,
+        "x": 0.37908745000308514,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.510208573524034,
+        "t": 0.2333,
+        "x": 0.3752007810324946,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5093217102825018,
+        "t": 0.2667,
+        "x": 0.3713569452110963,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5084706373037118,
+        "t": 0.3,
+        "x": 0.36755073512065467,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5076536762993609,
+        "t": 0.3333,
+        "x": 0.363777399030716,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.506869427953458,
+        "t": 0.3667,
+        "x": 0.360032905720312,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5061167705671645,
+        "t": 0.4,
+        "x": 0.3563140692391144,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5053947716608549,
+        "t": 0.4333,
+        "x": 0.3526182454708941,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.50470266369009,
+        "t": 0.4667,
+        "x": 0.3489433049694116,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.50403978487552,
+        "t": 0.5,
+        "x": 0.3452874023378973,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5034055793958309,
+        "t": 0.5333,
+        "x": 0.3416490358377574,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5027995677642318,
+        "t": 0.5667,
+        "x": 0.33802693996183886,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5022213247640013,
+        "t": 0.6,
+        "x": 0.3344199972261875,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.5016704670956162,
+        "t": 0.6333,
+        "x": 0.3308271899624852,
+        "y": 0.012
+      },
+      {
+        "reachable_distance": 0.48715949061898234,
+        "t": 0.6667,
+        "x": 0.3313235402563973,
+        "y": 0.02675943449139595
+      },
+      {
+        "reachable_distance": 0.4708361765953383,
+        "t": 0.7,
+        "x": 0.33556052043387063,
+        "y": 0.04399999976158142
+      },
+      {
+        "reachable_distance": 0.45769335239949416,
+        "t": 0.7333,
+        "x": 0.34210828686442446,
+        "y": 0.05855192989110947
+      },
+      {
+        "reachable_distance": 0.44889773789827425,
+        "t": 0.7667,
+        "x": 0.35026999767283457,
+        "y": 0.06919249147176743
+      },
+      {
+        "reachable_distance": 0.4452319280770952,
+        "t": 0.8,
+        "x": 0.3593929673832729,
+        "y": 0.0750277042388916
+      },
+      {
+        "reachable_distance": 0.44701283013062093,
+        "t": 0.8333,
+        "x": 0.3688701991119028,
+        "y": 0.07556726038455963
+      },
+      {
+        "reachable_distance": 0.45406987636237967,
+        "t": 0.8667,
+        "x": 0.378134026191635,
+        "y": 0.07076583057641983
+      },
+      {
+        "reachable_distance": 0.46577926733188313,
+        "t": 0.9,
+        "x": 0.3866539119175752,
+        "y": 0.06102685630321503
+      },
+      {
+        "reachable_distance": 0.48114113581641527,
+        "t": 0.9333,
+        "x": 0.3939535154356085,
+        "y": 0.04716856777667999
+      },
+      {
+        "reachable_distance": 0.49887447638028165,
+        "t": 0.9667,
+        "x": 0.39962213963422205,
+        "y": 0.03035542368888855
+      }
+    ],
+    "toe_witness_vertex": 287,
+    "two_link_length_xy": [
+      0.2799321489973599,
+      0.24854951868418948
+    ]
+  },
+  "leg_ownership_islands": [
+    {
+      "component": 8,
+      "edited_vertex_count": 20,
+      "foreign_weight_before": 3.5390357971191406,
+      "name": "front_neighbor",
+      "nodes": [
+        26,
+        25,
+        24
+      ],
+      "ownership_fraction": 0.836573600769043,
+      "protected_body_base_distance": 0.23,
+      "root_xyz": [
+        0.16933596550952545,
+        0.7869142343121873,
+        0.12285157207008782
+      ],
+      "shaft_radius": 0.12,
+      "shaft_t_first": [
+        0.55,
+        0.92
+      ],
+      "shaft_t_second": [
+        0.18,
+        0.88
+      ],
+      "size": 272
+    },
+    {
+      "component": 9,
+      "edited_vertex_count": 9,
+      "foreign_weight_before": 0.49991992115974426,
+      "name": "second_neighbor",
+      "nodes": [
+        47,
+        46,
+        45
+      ],
+      "ownership_fraction": 0.876012000259088,
+      "protected_body_base_distance": 0.23,
+      "root_xyz": [
+        0.1759765762835741,
+        0.6208985562143131,
+        0.07636718507704113
+      ],
+      "shaft_radius": 0.12,
+      "shaft_t_first": [
+        0.55,
+        0.92
+      ],
+      "shaft_t_second": [
+        0.18,
+        0.88
+      ],
+      "size": 245
+    }
+  ],
+  "max_other_leg_shaft_displacement": 0.0,
+  "no_hair_or_claw_edits": true,
+  "no_original_assets_modified": true,
+  "original_source_sha256": "02535ebecaaf2431c1d79baa4ef9f95580e349c879bf27a9368f92586f973fbd",
+  "output_glb": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/tools/heady/output/Heady_two_link_shaft_isolation_v04.glb",
+  "output_glb_action": "CREATED",
+  "output_glb_sha256": "47f5c21ec6734bfc63844ad818648165280721dd57405724d640686d8418cf73",
+  "protected_regions": [
+    "body",
+    "socket",
+    "root cap",
+    "ambiguous islands",
+    "hair",
+    "claws"
+  ],
+  "publication": {
+    "copies": {
+      "Downloads": {
+        "bytes": 3507913,
+        "path": "/data/data/com.termux/files/home/storage/downloads/Heady_two_link_shaft_isolation_v04_three_angle.gif",
+        "sha256": "f831529ce78044e35d3c117b81911f080225d91e42d32d35aa314d37cee5b116",
+        "status": "VERIFIED_NEW"
+      },
+      "Pictures": {
+        "bytes": 3507913,
+        "path": "/data/data/com.termux/files/home/storage/pictures/Heady_two_link_shaft_isolation_v04_three_angle.gif",
+        "sha256": "f831529ce78044e35d3c117b81911f080225d91e42d32d35aa314d37cee5b116",
+        "status": "VERIFIED_NEW"
+      }
+    },
+    "frames": 18,
+    "media_index_requests": {
+      "Downloads": {
+        "exit": 0,
+        "status": "REQUESTED",
+        "stderr": ""
+      },
+      "Pictures": {
+        "exit": 0,
+        "status": "REQUESTED",
+        "stderr": ""
+      }
+    },
+    "open": {
+      "exit": 0,
+      "status": "REQUESTED",
+      "stderr": ""
+    },
+    "source_gif": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/tools/heady/output/Heady_two_link_shaft_isolation_v04_three_angle.gif",
+    "source_sha256": "f831529ce78044e35d3c117b81911f080225d91e42d32d35aa314d37cee5b116",
+    "status": "PUBLICATION_VERIFIED",
+    "viewer_visible": "UNVERIFIED_REQUIRES_OWNER"
+  },
+  "socket_displacement_max": 0.0,
+  "source_v02_sha256": "eb274dbaad676c6aa35f7fb9922cef78fa4cbc1598a9a68bb4d2b529b2f37bd1",
+  "stage": "fixed_socket_two_link_shaft_weight_isolation",
+  "status": "CANDIDATE_AWAITING_HUMAN_REVIEW",
+  "timestamp_utc": "2026-10-28T15:01:09Z",
+  "toe_witness_position_y_range": [
+    0.011822935274179089,
+    0.07622038606148608
+  ]
+}

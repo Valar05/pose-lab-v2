@@ -1,0 +1,128 @@
+{
+  "animation_channels_preserved": true,
+  "bone_mapping": {
+    "distal_node": 51,
+    "hip_node": 53,
+    "middle_node": 52,
+    "parent_node": 54
+  },
+  "campaign": "heady_3d_v1",
+  "edited_vertex_count": 48,
+  "first_skipped": [
+    [
+      399,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      402,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      404,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      405,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      408,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      878,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      879,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      880,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      881,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      1742,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      1743,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      2591,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      4048,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      4050,
+      "NO_SAFE_SLOT"
+    ],
+    [
+      4051,
+      "NO_SAFE_SLOT"
+    ]
+  ],
+  "gif": {
+    "frames": 18,
+    "height": 355,
+    "sha256": "d0069f51e81bb50bb16e5c60ef86ee153e698ac95e7eb7e8f7e1d30d2a165d46",
+    "width": 1180
+  },
+  "gif_path": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/tools/heady/output/Heady_hiptrim_v03_three_angle.gif",
+  "max_removed_per_vertex": 0.029485474546151146,
+  "no_hair_or_claw_edits": true,
+  "open": {
+    "exit": 0,
+    "status": "REQUESTED",
+    "stderr": ""
+  },
+  "original_model_untouched": true,
+  "original_sha256": "02535ebecaaf2431c1d79baa4ef9f95580e349c879bf27a9368f92586f973fbd",
+  "output_action": "CREATED",
+  "output_glb": "/storage/emulated/0/Documents/GodotProjects/pose-lab-v2/tools/heady/output/Heady_hiptrim_v03_animated.glb",
+  "output_glb_sha256": "86ba6633089354d88970039c216f6b129bc1e04ce642f9e8adbcfed59a656dac",
+  "skipped_unsafe_slot_count": 41,
+  "stage": "hip_trim_one_leg_v03",
+  "status": "CANDIDATE_AWAITING_HUMAN_REVIEW",
+  "timestamp_utc": "2026-10-28T13:43:15Z",
+  "v02_sha256": "eb274dbaad676c6aa35f7fb9922cef78fa4cbc1598a9a68bb4d2b529b2f37bd1",
+  "weight_diagnostics": {
+    "axis_xyz": [
+      0.424746753575653,
+      -0.3129715392721328,
+      0.849493384866872
+    ],
+    "hip_node": 53,
+    "hip_skin_index": 54,
+    "mask_bounds_xyz": [
+      [
+        -0.04051750525832176,
+        0.4382888972759247,
+        0.04531070590019226
+      ],
+      [
+        0.2226296365261078,
+        0.7615583539009094,
+        0.23003533482551575
+      ]
+    ],
+    "mask_size": 89,
+    "max_cut": 0.25,
+    "origin_xyz": [
+      0.12949221022427082,
+      0.6009766351008676,
+      0.22910157543507143
+    ],
+    "parent_node": 54,
+    "proximity_high": -0.042891174860370196,
+    "proximity_low": -0.1252578405046417
+  }
+}

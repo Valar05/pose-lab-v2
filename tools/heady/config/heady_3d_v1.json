@@ -1,0 +1,21 @@
+{
+  "schema": "heady-3d-campaign-v1",
+  "source_sha256": "02535ebecaaf2431c1d79baa4ef9f95580e349c879bf27a9368f92586f973fbd",
+  "v02_sha256": "eb274dbaad676c6aa35f7fb9922cef78fa4cbc1598a9a68bb4d2b529b2f37bd1",
+  "hip_trim": {
+    "min_hip_weight": 0.025,
+    "body_quantile_low": 0.02,
+    "body_quantile_high": 0.35,
+    "max_weight_reduction_fraction": 0.25,
+    "max_safe_slot_replacement": 0.015,
+    "max_affected_vertices": 230,
+    "min_edited_vertices": 12,
+    "max_skipped_vertices": 200
+  },
+  "gif_frames": 18,
+  "cameras": [
+    {"label": "FULL FIGURE  |  3/4", "eye": [2.4, 1.55, 3.4], "center": [0.0,0.86,0.0], "scale": 166, "w": 380, "h": 306},
+    {"label": "TARGET LEG  |  3/4", "eye": [2.4,1.55,3.4], "center": [0.32,0.53,0.25], "scale": 375, "w": 380, "h": 306},
+    {"label": "TARGET LEG  |  SIDE", "eye": [3.5,1.33,0.25], "center": [0.32,0.53,0.25], "scale": 380, "w": 380, "h": 306}
+  ]
+}

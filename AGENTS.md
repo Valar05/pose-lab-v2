@@ -14,6 +14,9 @@ Before consequential mutation, explicitly recover: current HEAD/runtime truth, d
 
 
 
+## MANDATORY 3D RIGGING BOOT GATE (all 3D turns)
+Before ANY Pose Lab V2 3D, GLB, armature, skin weighting, IK, claw, gait, VR or 3D-to-sprite task, read `docs/POSE_3D_CAMPAIGN_RULES.md` AND its current canonical Google Drive document https://docs.google.com/document/d/1BNXVfowZWQSSA0Nk0OK4jP7_K-ysHnM5vTPV_EB8EWU/edit in addition to every existing Pose Lab rule and live Campaign Etiquette. Keep original 3D sources and accepted animation locks.
+
 ## Native sprite authoring doctrine (active Pose Lab authority)
 
 Any sprite authoring, sprite edit, atlas extraction or procedural animation turn MUST load the applicable task packet using `tools/campaigns/sprite_doctrine_boot.py` and its index `doctrine/animation/doctrine-index-v1.json`. Read the ACTUAL packet contents before planning/generation, not only its SHA, filename or `POSE_CONTEXT_PACKET` receipt. The sprite package includes universal laws and relevant subject doctrine; character-specific exemplars are not global anatomy mandates. Do not claim model-context injection from a shell log.

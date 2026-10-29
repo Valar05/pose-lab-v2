@@ -1,0 +1,8 @@
+{
+  "campaign": "heady_3d_v04",
+  "pid": 9468,
+  "script_sha256": "323ccb5acdb11d69f6a2f8ed76d4e501bbc99779424353a7d37e7d47ce46a8c6",
+  "utc_started": "2026-10-28T15:00:12Z",
+  "log": "/data/data/com.termux/files/home/storage/documents/GodotProjects/pose-lab-v2/tools/heady/output/heady_fixed_socket_v04_phone.log",
+  "status": "LAUNCHED_ONLY_NOT_COMPLETED"
+}

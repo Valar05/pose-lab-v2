@@ -1,0 +1,16 @@
+{
+ "schema":"pose-lab-v2-campaign-contract-v2",
+ "id":"heady-3d-hiptrim-v03",
+ "mission":"Preserve Meshy first-pass SmartRig; one-sided body-facing hip weight reduction for Bone_034, same v02 one-leg animation, three-view GIF and termux-open request on phone",
+ "machine":{
+  "mutablePaths":["AGENTS.md","docs/POSE_3D_CAMPAIGN_RULES.md","tools/campaigns/heady_3d_weighting.py","tools/campaigns/heady_3d_campaign.sh","tools/campaigns/heady_3d_contract.json","tools/heady/assets/**","tools/heady/config/**","tools/heady/reference/**","tools/heady/output/**"],
+  "receiptPath":"tools/heady/output/heady_hiptrim_v03_receipt.json",
+  "requiredRules":["AGENTS.md","docs/POSE_LAB_CAMPAIGN_RULES.md","docs/POSE_IS_GOD.md","docs/POSE_CAMPAIGN_FRAMEWORK.md","docs/POSE_3D_CAMPAIGN_RULES.md"],
+  "lockedFiles":[{"path":"tools/heady/assets/Meshy_AI_Character_output.glb","sha256":"02535ebecaaf2431c1d79baa4ef9f95580e349c879bf27a9368f92586f973fbd"},{"path":"tools/heady/assets/Heady_SmartRig_visible_leg_scuttle_v02.glb","sha256":"eb274dbaad676c6aa35f7fb9922cef78fa4cbc1598a9a68bb4d2b529b2f37bd1"}],
+  "checks":[{"kind":"text-contains","path":"AGENTS.md","value":"POSE_3D_CAMPAIGN_RULES.md"}]
+ },
+ "futurePhases":["hair-mask-foot-influence-cleanup","two-bone-pincer-claws","six-leg-phase-orchestrated-gait","arm-swing-and-eyestalks","hug","2d-sprite-and-ar-export"],
+ "futurePhasesStatus":"NOT_IMPLEMENTED_OR_ACCEPTED",
+ "executionLane":"Termux/physical phone, no GitHub writes, no computer hands",
+ "driveRules":"https://docs.google.com/document/d/1BNXVfowZWQSSA0Nk0OK4jP7_K-ysHnM5vTPV_EB8EWU/edit"
+}
