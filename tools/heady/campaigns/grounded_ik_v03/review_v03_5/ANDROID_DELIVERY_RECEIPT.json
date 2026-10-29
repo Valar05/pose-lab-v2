@@ -1,0 +1,64 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "github_push": "NOT_ATTEMPTED",
+  "human_acceptance": "PENDING",
+  "implementation_commit": "67058c366299928627d347265d45c34924a29e15",
+  "open": "REQUESTED_NOT_CONFIRMED",
+  "original_source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "pub": [
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_5_SixLeg_Wave.gif",
+      "sha256": "4548bd41f0ca3b433243e4f853d6179e5622371e63c20bfb2b53542d2a010193"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_5_SixStates.png",
+      "sha256": "16c647157139aa2a79fc82cee58050937f80e4ea206d7651d6f950641e039d04"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_5_ContactChecks.png",
+      "sha256": "77132a1f158793360d1464c5cd7102bb505296cf2adf3bc8d5d33b141ac23e40"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_5_MiddleLeg.png",
+      "sha256": "5baaf5235bf0ac6dd704a86e3dd331557afeb82a4e1d16abce1ade7e7053f135"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_5_PreviousApproved.png",
+      "sha256": "c2e4e33817fe75fb511215d44d795dce70220f61720643ab678f2c17e076feb7"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_5_SixLeg_Wave.gif",
+      "sha256": "4548bd41f0ca3b433243e4f853d6179e5622371e63c20bfb2b53542d2a010193"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_5_SixStates.png",
+      "sha256": "16c647157139aa2a79fc82cee58050937f80e4ea206d7651d6f950641e039d04"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_5_ContactChecks.png",
+      "sha256": "77132a1f158793360d1464c5cd7102bb505296cf2adf3bc8d5d33b141ac23e40"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_5_MiddleLeg.png",
+      "sha256": "5baaf5235bf0ac6dd704a86e3dd331557afeb82a4e1d16abce1ade7e7053f135"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_5_PreviousApproved.png",
+      "sha256": "c2e4e33817fe75fb511215d44d795dce70220f61720643ab678f2c17e076feb7"
+    }
+  ],
+  "release_sha256": "888915cf27d5b28688a4a3e4cf0455e4d55de736483ce9f5c22c4eaf197311f5",
+  "scanner": "REQUESTED",
+  "scope": "SIX_LEG_WAVE_OFFDEVICE_AND_BLENDER_SCRIPTS",
+  "version": "03.5.0"
+}
