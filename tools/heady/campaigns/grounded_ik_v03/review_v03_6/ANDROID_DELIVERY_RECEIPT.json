@@ -1,0 +1,74 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "github_push": "NOT_ATTEMPTED",
+  "human_acceptance": "PENDING",
+  "implementation_commit": "fbadac21a6acb69d42962191340e6aca030a8216",
+  "open": "REQUESTED_NOT_CONFIRMED",
+  "original_source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "pub": [
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_6_SynchronizedTripod.gif",
+      "sha256": "4a7185ea89d1cb0364574cd3644aaa376aa54900257437d5c0e023acf54156b1"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_6_Tripod_SixStates.png",
+      "sha256": "9b83aade36697d3be5558227afadda540dbc7f9d2be0a558b4d2811c991db235"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_6_Synchrony_BodyTravel.png",
+      "sha256": "3256db4a7750dc4851972c427c8783c8a14101dac2f08e67bf9789b743a6b10b"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_6_ThreeLegOverlap.png",
+      "sha256": "c674b035d3f4faca5603ad9971c0985d75ff0292ae268fc862cc4932c9be8899"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_6_FixedWorld_BodyMovement.png",
+      "sha256": "3038277f15178f246663a299faff9d928f336e6d10a550e3b1ad766eac6bdb30"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_6_PreviousApproved.png",
+      "sha256": "c2e4e33817fe75fb511215d44d795dce70220f61720643ab678f2c17e076feb7"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_6_SynchronizedTripod.gif",
+      "sha256": "4a7185ea89d1cb0364574cd3644aaa376aa54900257437d5c0e023acf54156b1"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_6_Tripod_SixStates.png",
+      "sha256": "9b83aade36697d3be5558227afadda540dbc7f9d2be0a558b4d2811c991db235"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_6_Synchrony_BodyTravel.png",
+      "sha256": "3256db4a7750dc4851972c427c8783c8a14101dac2f08e67bf9789b743a6b10b"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_6_ThreeLegOverlap.png",
+      "sha256": "c674b035d3f4faca5603ad9971c0985d75ff0292ae268fc862cc4932c9be8899"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_6_FixedWorld_BodyMovement.png",
+      "sha256": "3038277f15178f246663a299faff9d928f336e6d10a550e3b1ad766eac6bdb30"
+    },
+    {
+      "action": "CREATED",
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_6_PreviousApproved.png",
+      "sha256": "c2e4e33817fe75fb511215d44d795dce70220f61720643ab678f2c17e076feb7"
+    }
+  ],
+  "release_sha256": "947c38c538cc9ece308d99fcd25e959786bb305d12c3b93f994ac2396d01a53e",
+  "scanner": "REQUESTED",
+  "scope": "SYNCHRONIZED_TRIPOD_OFFDEVICE_AND_BLENDER_SCRIPTS",
+  "version": "03.6.0"
+}
