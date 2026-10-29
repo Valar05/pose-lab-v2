@@ -1,0 +1,37 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "version": "03.5.0",
+  "status": "MECHANICAL_WAVE_CANDIDATE_GENERATED",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "source_preserved": true,
+  "gltf_original_animations": 0,
+  "active_leg_count": 6,
+  "rear_four_joint_chains": [
+    "left_rear",
+    "right_rear"
+  ],
+  "wave_order": [
+    "left_rear",
+    "right_rear",
+    "left_middle",
+    "right_middle",
+    "left_front",
+    "right_front"
+  ],
+  "frames": 73,
+  "cycles": 2,
+  "body_advance": 0.19,
+  "max_stance_drift": 6.901047853256945e-06,
+  "minimum_proxy_margin": 0.19869081446784634,
+  "minimum_mesh_y": -0.0002307982373627948,
+  "max_rotation_deg": 22.420035125954143,
+  "physical_engine": "NOT_RUN",
+  "blender_bake": "NOT_RUN",
+  "visual_acceptance": "PENDING",
+  "caveat": [
+    "Provisional X/Z local joint axes",
+    "Skinned toe medians, not calibrated foot pads",
+    "Plane Y=0 with no contact forces",
+    "No claw motion, turns, or speed blend"
+  ]
+}

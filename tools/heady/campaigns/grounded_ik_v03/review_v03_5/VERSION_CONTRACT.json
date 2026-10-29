@@ -1,0 +1,14 @@
+{
+  "campaign_id": "HEADY_GROUNDED_IK",
+  "version": "03.5.0",
+  "campaign_stage": "SIX_LEG_WAVE_BLENDER_SCRIPT_RELEASE",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "previous_approved": "v03.4 single right-middle out-and-back",
+  "results": {
+    "wave_two_cycles": "OFFDEVICE_VERIFIED",
+    "blender_4_5_export": "NOT_RUN",
+    "real_Android": "NOT_RUN"
+  },
+  "human_verdict": "PENDING",
+  "remote_git_write": "PROHIBITED"
+}
