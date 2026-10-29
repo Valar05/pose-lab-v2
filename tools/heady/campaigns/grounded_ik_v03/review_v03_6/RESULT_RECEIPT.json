@@ -1,0 +1,42 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "version": "03.6.0",
+  "status": "SYNCHRONIZED_TRIPOD_CANDIDATE_GENERATED",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "source_preserved": true,
+  "gltf_original_animations": 0,
+  "active_leg_count": 6,
+  "rear_four_joint_chains": [
+    "left_rear",
+    "right_rear"
+  ],
+  "tripod_groups": {
+    "A": [
+      "left_front",
+      "left_rear",
+      "right_middle"
+    ],
+    "B": [
+      "right_front",
+      "right_rear",
+      "left_middle"
+    ]
+  },
+  "swing_fraction": 0.42,
+  "frames": 49,
+  "cycles": 2,
+  "body_advance": 0.28,
+  "max_stance_drift": 1.3292772590797508e-05,
+  "minimum_proxy_margin": 0.18982392800447392,
+  "minimum_mesh_y": -0.00025759203659922713,
+  "max_rotation_deg": 22.46444279462399,
+  "physical_engine": "NOT_RUN",
+  "blender_bake": "NOT_RUN",
+  "visual_acceptance": "PENDING",
+  "caveat": [
+    "Provisional X/Z local joint axes",
+    "Skinned toe medians, not calibrated foot pads",
+    "Plane Y=0 with no contact forces",
+    "No claw motion, turns, or speed blend"
+  ]
+}

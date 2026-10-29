@@ -1,0 +1,27 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "version": "03.6.0",
+  "kind": "REJECTED_V03_5_REPLACEMENT_TRIPOD_CANDIDATE",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "user_approved_reference": "v03.4 one-leg out/back; v03.5 full-body wave rejected",
+  "required_gait": "THREE_SIMULTANEOUS_SWINGS",
+  "tripod_groups": {
+    "A": [
+      "left_front",
+      "left_rear",
+      "right_middle"
+    ],
+    "B": [
+      "right_front",
+      "right_rear",
+      "left_middle"
+    ]
+  },
+  "cycles": 2,
+  "frames": 49,
+  "body_advance_x": 0.28,
+  "human_acceptance": "PENDING",
+  "Blender": "BAKER_CODE_ONLY_NOT_EXECUTED",
+  "github_push": "NEVER",
+  "installer": "INSTALL_AND_RUN_v03_6.py"
+}
