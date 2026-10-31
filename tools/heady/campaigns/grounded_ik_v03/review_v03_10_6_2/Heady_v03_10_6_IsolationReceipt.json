@@ -1,0 +1,213 @@
+{
+  "version": "03.10.6.2",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "derived_sha256": "af063bd3c465b38e161a7ee917097e2a6c1922b0a8cf63e3e135383a38a647dc",
+  "selected_hair_vertices": 1081,
+  "hair_movement_from_six_leg_isolation_max": 0.0,
+  "old_hair_movement_max": 0.5661854624916444,
+  "full_approved_scuttle_replay": "NOT_EXECUTED",
+  "physics_live_browser": "NOT_EXECUTED",
+  "selected_mask_complete": "NOT_PROVEN",
+  "frames": [
+    {
+      "frame": 0,
+      "leg": 1,
+      "angle_radians": 0.0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 1,
+      "leg": 1,
+      "angle_radians": 0.3897114317029974,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.6091488059811893
+    },
+    {
+      "frame": 2,
+      "leg": 1,
+      "angle_radians": 0.38971143170299744,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.6091488059811893
+    },
+    {
+      "frame": 3,
+      "leg": 1,
+      "angle_radians": 5.5109105961630896e-17,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 1.6653345369377348e-16
+    },
+    {
+      "frame": 4,
+      "leg": 2,
+      "angle_radians": 0.0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 5,
+      "leg": 2,
+      "angle_radians": 0.3897114317029974,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.016211129810900327,
+      "nonhair_leg_displacement": 0.5310718642028972
+    },
+    {
+      "frame": 6,
+      "leg": 2,
+      "angle_radians": 0.38971143170299744,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.016211129810900327,
+      "nonhair_leg_displacement": 0.5310718642028972
+    },
+    {
+      "frame": 7,
+      "leg": 2,
+      "angle_radians": 5.5109105961630896e-17,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 1.1102230246251565e-16,
+      "nonhair_leg_displacement": 2.387624894196368e-16
+    },
+    {
+      "frame": 8,
+      "leg": 3,
+      "angle_radians": 0.0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 9,
+      "leg": 3,
+      "angle_radians": 0.3897114317029974,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.5661854624916444,
+      "nonhair_leg_displacement": 0.5684992412390212
+    },
+    {
+      "frame": 10,
+      "leg": 3,
+      "angle_radians": 0.38971143170299744,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.5661854624916444,
+      "nonhair_leg_displacement": 0.5684992412390212
+    },
+    {
+      "frame": 11,
+      "leg": 3,
+      "angle_radians": 5.5109105961630896e-17,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 2.7194799110210365e-16,
+      "nonhair_leg_displacement": 2.5438405243138006e-16
+    },
+    {
+      "frame": 12,
+      "leg": 4,
+      "angle_radians": 0.0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 13,
+      "leg": 4,
+      "angle_radians": 0.3897114317029974,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.4885839170297538
+    },
+    {
+      "frame": 14,
+      "leg": 4,
+      "angle_radians": 0.38971143170299744,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.4885839170297538
+    },
+    {
+      "frame": 15,
+      "leg": 4,
+      "angle_radians": 5.5109105961630896e-17,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 1.7554167342883506e-16
+    },
+    {
+      "frame": 16,
+      "leg": 5,
+      "angle_radians": 0.0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 17,
+      "leg": 5,
+      "angle_radians": 0.3897114317029974,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.019227176355117847,
+      "nonhair_leg_displacement": 0.4736180794551354
+    },
+    {
+      "frame": 18,
+      "leg": 5,
+      "angle_radians": 0.38971143170299744,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.019227176355117847,
+      "nonhair_leg_displacement": 0.4736180794551355
+    },
+    {
+      "frame": 19,
+      "leg": 5,
+      "angle_radians": 5.5109105961630896e-17,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 6.206335383118183e-17,
+      "nonhair_leg_displacement": 1.2412670766236366e-16
+    },
+    {
+      "frame": 20,
+      "leg": 6,
+      "angle_radians": 0.0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 21,
+      "leg": 6,
+      "angle_radians": 0.3897114317029974,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.5591300420676021,
+      "nonhair_leg_displacement": 0.560191563040249
+    },
+    {
+      "frame": 22,
+      "leg": 6,
+      "angle_radians": 0.38971143170299744,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.5591300420676021,
+      "nonhair_leg_displacement": 0.5601915630402491
+    },
+    {
+      "frame": 23,
+      "leg": 6,
+      "angle_radians": 5.5109105961630896e-17,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 2.3055512673781017e-16,
+      "nonhair_leg_displacement": 1.6653345369377348e-16
+    },
+    {
+      "frame": 24,
+      "leg": 1,
+      "angle_radians": 0.0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    }
+  ]
+}

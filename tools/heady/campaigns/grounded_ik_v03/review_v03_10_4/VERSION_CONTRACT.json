@@ -1,0 +1,46 @@
+{
+  "accepted_baseline": "03.9.3",
+  "bank_deg": 10.0,
+  "campaign": "HEADY_GROUNDED_IK",
+  "counter_deg": 18.0,
+  "derived_engine_sha256": "4154a3e2f5edfef5407caca950ba647f0c03ffc782d1e56c45d48a96d39e36dc",
+  "footprint_safety": {
+    "left": 0.1552199095531143,
+    "right": 0.18505656451398778
+  },
+  "head_level_target_deg": 0.0,
+  "locks": [
+    "original GLB",
+    "v03.4 human accepted right-middle step",
+    "v03.9.3 approved full six leg gait",
+    "phase timing",
+    "source rig and skin",
+    "claws and hair"
+  ],
+  "no_new_glb": true,
+  "no_remote_writes": true,
+  "phase_offsets": {
+    "left_front": 0.0,
+    "left_middle": 0.6,
+    "left_rear": 0.2,
+    "right_front": 0.5,
+    "right_middle": 0.1,
+    "right_rear": 0.7
+  },
+  "pitch_back_deg": 6.0,
+  "previous": "03.10.2 rigid-body failed visual acceptance; retained unchanged",
+  "rig_bake": "NOT_DONE",
+  "schema": "pose-lab-v2-campaign-contract-v2",
+  "skinspace_visual_only": true,
+  "source_engine_sha256": "fcadee825ce5591e9b47f54d839e72dd3709aa4fd4359ca1637346f04ccb7d20",
+  "source_glb_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "status": "UNACCEPTED_COUNTERBEND_EXPERIMENT",
+  "stride": 0.16,
+  "total_travel": 0.56,
+  "variants": [
+    "dynamic_left",
+    "dynamic_right"
+  ],
+  "version": "03.10.4",
+  "yaw_deg": 15.0
+}

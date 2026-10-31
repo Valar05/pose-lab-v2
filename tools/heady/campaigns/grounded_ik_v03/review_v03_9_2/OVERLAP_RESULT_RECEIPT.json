@@ -1,0 +1,52 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "version": "03.9.2",
+  "status": "SUPPORT_SAFE_ROLLING_CANDIDATE_GENERATED",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "source_preserved": true,
+  "gltf_original_animations": 0,
+  "active_leg_count": 6,
+  "rear_four_joint_chains": [
+    "left_rear",
+    "right_rear"
+  ],
+  "phase_groups": [
+    [
+      "left_front",
+      "left_rear",
+      "right_middle"
+    ],
+    [
+      "right_front",
+      "right_rear",
+      "left_middle"
+    ]
+  ],
+  "phase_offsets": {
+    "left_front": 0.0,
+    "left_middle": 0.61,
+    "left_rear": 0.22,
+    "right_front": 0.5,
+    "right_middle": 0.11,
+    "right_rear": 0.72
+  },
+  "swing_fraction": 0.39,
+  "frames": 85,
+  "cycles": 3.5,
+  "maximum_simultaneous_swings": 3,
+  "triple_swing_frames": 28,
+  "body_advance": 0.42,
+  "max_stance_drift": 1.2096152881880106e-05,
+  "minimum_proxy_margin": 0.1978215424363868,
+  "minimum_mesh_y": -0.00018935754919291917,
+  "max_rotation_deg": 21.76195729185746,
+  "physical_engine": "NOT_RUN",
+  "blender_bake": "NOT_RUN",
+  "visual_acceptance": "PENDING",
+  "caveat": [
+    "Provisional X/Z local joint axes",
+    "Skinned toe medians, not calibrated foot pads",
+    "Plane Y=0 with no contact forces",
+    "No claw motion, turns, or speed blend"
+  ]
+}

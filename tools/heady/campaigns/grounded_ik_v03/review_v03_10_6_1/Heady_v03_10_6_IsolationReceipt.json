@@ -1,0 +1,188 @@
+{
+  "version": "03.10.6",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "derived_sha256": "af063bd3c465b38e161a7ee917097e2a6c1922b0a8cf63e3e135383a38a647dc",
+  "selected_hair_vertices": 1081,
+  "hair_movement_from_six_leg_isolation_max": 0.0,
+  "old_hair_movement_max": 0.3318780806071496,
+  "full_approved_scuttle_replay": "NOT_EXECUTED",
+  "physics_live_browser": "NOT_EXECUTED",
+  "selected_mask_complete": "NOT_PROVEN",
+  "frames": [
+    {
+      "frame": 0,
+      "leg": 0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 1,
+      "leg": 0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.35288167327926784
+    },
+    {
+      "frame": 2,
+      "leg": 0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.35288167327926784
+    },
+    {
+      "frame": 3,
+      "leg": 0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 1.6653345369377348e-16
+    },
+    {
+      "frame": 4,
+      "leg": 1,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 5,
+      "leg": 1,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.009406066429616767,
+      "nonhair_leg_displacement": 0.30951406253234215
+    },
+    {
+      "frame": 6,
+      "leg": 1,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.009406066429616767,
+      "nonhair_leg_displacement": 0.30951406253234215
+    },
+    {
+      "frame": 7,
+      "leg": 1,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 2.220446049250313e-16
+    },
+    {
+      "frame": 8,
+      "leg": 2,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 9,
+      "leg": 2,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.3318780806071496,
+      "nonhair_leg_displacement": 0.3383202593143877
+    },
+    {
+      "frame": 10,
+      "leg": 2,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.3318780806071496,
+      "nonhair_leg_displacement": 0.3383202593143877
+    },
+    {
+      "frame": 11,
+      "leg": 2,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 1.5700924586837752e-16,
+      "nonhair_leg_displacement": 2.2887833992611187e-16
+    },
+    {
+      "frame": 12,
+      "leg": 3,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 13,
+      "leg": 3,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.30069829020102035
+    },
+    {
+      "frame": 14,
+      "leg": 3,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.30069829020102035
+    },
+    {
+      "frame": 15,
+      "leg": 3,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 1.1102230246251565e-16
+    },
+    {
+      "frame": 16,
+      "leg": 4,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 17,
+      "leg": 4,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.011156045216068392,
+      "nonhair_leg_displacement": 0.2888383569402399
+    },
+    {
+      "frame": 18,
+      "leg": 4,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.011156045216068392,
+      "nonhair_leg_displacement": 0.2888383569402399
+    },
+    {
+      "frame": 19,
+      "leg": 4,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 5.551115123125783e-17,
+      "nonhair_leg_displacement": 1.1188630228279524e-16
+    },
+    {
+      "frame": 20,
+      "leg": 5,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    },
+    {
+      "frame": 21,
+      "leg": 5,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.32931978172947196,
+      "nonhair_leg_displacement": 0.33665938918657584
+    },
+    {
+      "frame": 22,
+      "leg": 5,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.32931978172947196,
+      "nonhair_leg_displacement": 0.33665938918657584
+    },
+    {
+      "frame": 23,
+      "leg": 5,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 1.2719202621569003e-16,
+      "nonhair_leg_displacement": 1.2719202621569003e-16
+    },
+    {
+      "frame": 24,
+      "leg": 0,
+      "hair_fixed_displacement": 0.0,
+      "old_hair_leg_displacement": 0.0,
+      "nonhair_leg_displacement": 0.0
+    }
+  ]
+}

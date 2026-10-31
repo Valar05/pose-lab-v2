@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Heady v03.10.6 WebXR Momentum Hair Lab</title>
+<style>body{margin:0;background:#0b1018;color:#eee;font:14px system-ui}#panel{position:absolute;top:12px;left:12px;z-index:2;background:#152030df;padding:12px;border-radius:10px;max-width:300px}label{display:block;margin:9px 0}button,select{padding:8px;margin:4px;background:#31465c;color:white;border:0;border-radius:6px}small{display:block;color:#cad2dd}#view{width:100vw;height:100vh}#stat{white-space:pre-wrap;font:11px monospace}</style></head>
+<body><section id="panel"><strong>Heady 03.10.6 · Real hair bones</strong><small>Left/right gait + inertia · no bind-pose restoring spring</small>
+<label>Hair length <select id="taper"><option value="off">Original chain</option><option value="on">Tapered physics lengths</option></select></label>
+<label>Rear leg collisions <input id="legs" type="checkbox"></label><label>Animation <select id="motion"><option value="gait">Left/right reversal</option><option value="still">Still</option></select></label>
+<button id="reset">Reset physics</button><button id="xr">Enter VR (if supported)</button><pre id="stat">Loading...</pre></section><div id="view"></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three'; import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';import {VRButton} from 'three/addons/webxr/VRButton.js';import {HeadyHairMomentum} from './heady-hair-momentum.js';
+const view=document.getElementById('view'),stats=document.getElementById('stat');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x0b1018);const camera=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,.01,100);camera.position.set(2.35,1.5,3.6);camera.lookAt(0,.9,0);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.xr.enabled=true;view.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x42536e,2.8));const sun=new THREE.DirectionalLight(0xffdfc0,3);sun.position.set(2,4,4);scene.add(sun);scene.add(new THREE.GridHelper(6,24,0x46546c,0x223344));
+let root,skin,sim,bones,elapsed=0,prior=performance.now();let mode='gait';let collisionBones=[];
+document.getElementById('taper').addEventListener('change',e=>{if(sim){sim.taper=e.target.value==='on';sim.reset();}});
+document.getElementById('legs').addEventListener('change',e=>{if(sim)sim.enableLegCollisions=e.target.checked;});
+document.getElementById('motion').addEventListener('change',e=>mode=e.target.value);
+document.getElementById('reset').addEventListener('click',()=>sim?.reset());
+document.getElementById('xr').addEventListener('click',()=>{const b=VRButton.createButton(renderer);document.body.appendChild(b);b.click()});
+new GLTFLoader().load('./Heady_v03_10_5_SevenBoneHairRig_Candidate.glb',gl=>{
+ root=gl.scene;scene.add(root);skin=root.getObjectByProperty('type','SkinnedMesh');if(!skin)skin=root.getObjectsByProperty('isSkinnedMesh',true)[0];
+ if(!skin)throw Error('SKINNED_MESH_MISSING');bones=skin.skeleton.bones;
+ collisionBones=['Bone_021','Bone_020','Bone_017','Bone_016'].map(name=>({name,radius:.085}));
+ sim=new HeadyHairMomentum(THREE,skin,{colliders:collisionBones,legCollisions:false,groundY:0.03});
+ stats.textContent='READY · derived GLB loaded\nHair root: '+sim.root.name+'\nLeg collisions: optional';
+},undefined,e=>stats.textContent='LOAD_FAILED: '+e.message+'\nRequires local HTTP and network for Three.js module CDN.');
+renderer.setAnimationLoop(()=>{let now=performance.now(),dt=Math.min(.05,(now-prior)/1000);prior=now;elapsed+=dt;
+ if(root&&bones){const t=elapsed;const vel=mode==='gait'?Math.sin(t*.75):0;
+  root.position.x=mode==='gait'?.24*Math.sin(t*.75):0;
+  // Diagnostic leg articulation; independent of hair weights and motion controller.
+  const legNames=['Bone_007','Bone_013','Bone_021','Bone_024','Bone_010','Bone_017'];
+  legNames.forEach((name,i)=>{const b=bones.find(b=>b.name===name);if(b)b.rotation.z=.15*Math.sin(t*4+[0,2.1,4.2,3.14,5.24,1.05][i]);});
+  sim?.update(dt);
+  if(Math.floor(t*2)!==Math.floor((t-dt)*2))stats.textContent=`RUNNING · ${mode}\nHair length ${sim?.taper?'tapered':'original'}\nRear legs ${sim?.enableLegCollisions?'ON':'OFF'}\nPhysics: fixed 90Hz, zero bind-pose restoring spring\nNote: demo leg cycle, not imported v03.10.4 gait clip\nActual XR hardware validation pending`;
+ }renderer.render(scene,camera);
+});window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script></body></html>

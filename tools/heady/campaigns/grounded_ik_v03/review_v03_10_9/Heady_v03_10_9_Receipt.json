@@ -1,0 +1,30 @@
+{
+  "campaign": "HEADY_SEMANTIC_CLASSIFIER",
+  "version": "03.10.9",
+  "source_glb": "/data/data/com.termux/files/home/storage/documents/GodotProjects/pose-lab-v2/tools/heady/campaigns/grounded_ik_v03/Meshy_AI_Character_output (1).glb",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "derived_glb": "/data/data/com.termux/files/home/storage/documents/GodotProjects/pose-lab-v2/tools/heady/campaigns/grounded_ik_v03/review_v03_10_5/Heady_v03_10_5_SevenBoneHairRig_Candidate.glb",
+  "derived_sha256": "af063bd3c465b38e161a7ee917097e2a6c1922b0a8cf63e3e135383a38a647dc",
+  "source_joint_count": 52,
+  "derived_joint_count": 59,
+  "vertex_count": 9021,
+  "triangle_count": 7277,
+  "hair_bone_vertex_count": 1081,
+  "semantic_counts": {
+    "body": 135,
+    "hair_existing": 1081,
+    "hair_candidate": 4095,
+    "face": 816,
+    "ambiguous": 2894
+  },
+  "notes": [
+    "Read-only semantic classification only; no skin weights modified.",
+    "Image-space labels are heuristics combining texture color, spatial priors, and existing hair-bone ownership.",
+    "Primary acceptance target is whether visible hair and face can be isolated credibly for later rigging and expression work."
+  ],
+  "outputs": [
+    "Heady_v03_10_9_Semantic6Views.png",
+    "Heady_v03_10_9_FaceUVOverlay.png",
+    "Heady_v03_10_9_Receipt.json"
+  ]
+}

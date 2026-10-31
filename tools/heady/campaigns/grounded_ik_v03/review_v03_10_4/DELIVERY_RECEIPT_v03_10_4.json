@@ -1,0 +1,38 @@
+{
+  "files": [
+    {
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_10_4_dynamic_left.gif",
+      "sha256": "4112e3fca057c347123f4600412be26d413871d7207267a5644aced6dcbc2c04",
+      "size": 6163478
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_10_4_dynamic_right.gif",
+      "sha256": "a7d9f8ec18dde0d3bf5338ecf211f006d1cada35b189338c1f3c20d6a7dfeed1",
+      "size": 6821872
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/pictures/Heady_v03_10_4_ComparisonSheet.png",
+      "sha256": "289f82eee09b1496f47776d853dc1523d9ff4e8d1a111f1a3c2d0d7e8a5bda93",
+      "size": 1238560
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_10_4_dynamic_left.gif",
+      "sha256": "4112e3fca057c347123f4600412be26d413871d7207267a5644aced6dcbc2c04",
+      "size": 6163478
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_10_4_dynamic_right.gif",
+      "sha256": "a7d9f8ec18dde0d3bf5338ecf211f006d1cada35b189338c1f3c20d6a7dfeed1",
+      "size": 6821872
+    },
+    {
+      "path": "/data/data/com.termux/files/home/storage/downloads/Heady_v03_10_4_ComparisonSheet.png",
+      "sha256": "289f82eee09b1496f47776d853dc1523d9ff4e8d1a111f1a3c2d0d7e8a5bda93",
+      "size": 1238560
+    }
+  ],
+  "human_verdict": "PENDING",
+  "implementation_commit": "SKIPPED_VERSION_CONTROL_OPTIONAL_OWNER_AUTHORITY",
+  "media_scan": "REQUESTED_PER_FILE_NOT_FILES_UI_CONFIRMED",
+  "original_glb_intact": true
+}

@@ -1,0 +1,425 @@
+#!/usr/bin/env python3
+"""Heady 52-joint rest-model: synchronized tripod locomotion with moving body.
+
+Run: python six_leg_tripod_engine.py /absolute/source.glb /absolute/output/dir
+Performs consecutive continuous forward body translations while six legs scuttle, NEVER creates
+animation tracks, and does not modify the source. Six joint families are fitted
+against actual LINEAR-BLEND-SKINNED toe vertex witnesses. Solver joint axes are
+PROVISIONAL: local X/Z only, no twist; no anatomical mechanical limits validated.
+"""
+from __future__ import annotations
+import sys, json, struct, hashlib, csv
+from pathlib import Path
+from functools import lru_cache
+import numpy as np
+from scipy.spatial.transform import Rotation as Rot
+from scipy.optimize import least_squares
+import os
+DIRECTION=os.environ['HEADY_DIRECTION']
+VARIANT=os.environ['HEADY_VARIANT']
+assert DIRECTION in ('left','right') and VARIANT in ('straight','dynamic')
+DIR_SIGN=-1.0 if DIRECTION=='left' else 1.0
+BODY_YAW_DEG=15.0; BODY_BANK_DEG=10.0; TORSO_COUNTER_DEG=0.0
+MESH_TORSO_COUNTER_DEG=18.0; MESH_TORSO_BACKPITCH_DEG=-6.0
+MESH_HEAD_LEVEL_ROLL_DEG=8.0; MESH_HEAD_PITCH_DEG=6.0
+POSE_ACTIVE=False
+
+src=Path(sys.argv[1]); out=Path(sys.argv[2]);out.mkdir(parents=True,exist_ok=True)
+data=src.read_bytes(); sourcehash=hashlib.sha256(data).hexdigest()
+EXPECTED='8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27'
+assert sourcehash==EXPECTED, 'SOURCE_HASH_MISMATCH'
+assert data[:4]==b'glTF'
+json_len,json_ty=struct.unpack_from('<II',data,12);assert json_ty==0x4e4f534a
+J=json.loads(data[20:20+json_len]);binhead=20+json_len
+binlen,bintype=struct.unpack_from('<II',data,binhead);assert bintype==0x004e4942
+binb=data[binhead+8:binhead+8+binlen]
+N=len(J['nodes']);orig_nodes=J['nodes']
+parents={c:i for i,n in enumerate(orig_nodes) for c in n.get('children',[])}
+names={n.get('name'):i for i,n in enumerate(orig_nodes)}
+worldroot=names['SmartRigArmature'];mesh_n=names['Mesh_0']
+torso_node=names.get('Bone_001')
+links={'left_front':['Bone_007','Bone_006','Bone_005'],
+       'left_middle':['Bone_013','Bone_012','Bone_011'],
+       'left_rear':['Bone_021','Bone_020','Bone_019','Bone_018'],
+       'right_front':['Bone_024','Bone_023','Bone_022'],
+       'right_middle':['Bone_010','Bone_009','Bone_008'],
+       'right_rear':['Bone_017','Bone_016','Bone_015','Bone_014']}
+keys=list(links)
+chains={label:[names[s] for s in b] for label,b in links.items()}
+skinJ=J['skins'][0]['joints'];skin2node=np.asarray(skinJ,int)
+node2skin={node:i for i,node in enumerate(skinJ)}
+view_types={5120:'i1',5121:'u1',5122:'i2',5123:'u2',5125:'u4',5126:'f4'}
+shapes={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4,'MAT4':16}
+def readacc(i):
+ a=J['accessors'][i];v=J['bufferViews'][a['bufferView']];t=np.dtype('<'+view_types[a['componentType']]);count=shapes[a['type']];off=v.get('byteOffset',0)+a.get('byteOffset',0)
+ stride=v.get('byteStride',count*t.itemsize)
+ if stride==count*t.itemsize:
+  ar=np.frombuffer(binb,dtype=t,offset=off,count=a['count']*count).reshape(-1,count).copy()
+ else:ar=np.ndarray((a['count'],count),dtype=t,buffer=binb,offset=off,strides=(stride,t.itemsize)).copy()
+ if a.get('normalized'):ar=ar.astype(float)/np.iinfo(t).max
+ return ar
+skin=J['skins'][0]
+IBM=readacc(skin['inverseBindMatrices']).astype(float).reshape(-1,4,4).transpose(0,2,1)
+attrs=J['meshes'][0]['primitives'][0]['attributes'];P=readacc(attrs['POSITION']).astype(float)
+VH=np.c_[P,np.ones(len(P))]
+W=readacc(attrs['WEIGHTS_0']).astype(float)
+JI=readacc(attrs['JOINTS_0']).astype(int)
+assert np.max(np.abs(W.sum(axis=1)-1))<2e-6
+
+# Original local transforms contain meaningful non-axis-aligned quaternion frames.
+base_R={i:Rot.from_quat(n.get('rotation',[0,0,0,1])).as_matrix() for i,n in enumerate(orig_nodes)}
+base_t={i:np.asarray(n.get('translation',[0,0,0]),float) for i,n in enumerate(orig_nodes)}
+base_s={i:np.asarray(n.get('scale',[1,1,1]),float) for i,n in enumerate(orig_nodes)}
+BODY_PIVOT=np.array([0.,.72,0.],float)
+BODY_ROLL_DEG=(-DIR_SIGN*BODY_BANK_DEG if VARIANT=='dynamic' else 0.0)
+BODY_HEADING_DEG=(DIR_SIGN*BODY_YAW_DEG if VARIANT=='dynamic' else 0.0)
+TORSO_ROLL_DEG=(DIR_SIGN*TORSO_COUNTER_DEG if VARIANT=='dynamic' else 0.0)
+
+def build_matrices(root_delta=None,delta_angles=None):
+ root_delta=np.zeros(3) if root_delta is None else np.asarray(root_delta,float)
+ delta_angles={} if delta_angles is None else delta_angles
+ @lru_cache(None)
+ def g(i):
+  t=base_t[i].copy()
+  R=base_R[i]
+  if i==worldroot:
+   t+=root_delta
+   if POSE_ACTIVE and VARIANT=='dynamic':
+    tilt=Rot.from_euler('yz',[BODY_HEADING_DEG,BODY_ROLL_DEG],degrees=True).as_matrix()
+    t+=BODY_PIVOT-tilt@BODY_PIVOT
+    R=R@tilt
+  elif POSE_ACTIVE and VARIANT=='dynamic' and torso_node is not None and i==torso_node:
+   R=R@Rot.from_euler('z',TORSO_ROLL_DEG,degrees=True).as_matrix()
+  M=np.eye(4);M[:3,3]=t
+  if i in delta_angles:
+   x,z=delta_angles[i]
+   R=R@Rot.from_rotvec([x,0.0,z]).as_matrix()
+  M[:3,:3]=R@np.diag(base_s[i])
+  return g(parents[i])@M if i in parents else M
+ return np.array([g(i) for i in range(N)])
+
+
+# Non-destructive derived torso-control surface, added after original skeleton
+# evaluation. Not a GLB/Blender rig bake. This is a measured visual experiment.
+LEG_SKIN_INDEX=np.asarray(sorted({node2skin[n] for fam in chains.values() for n in fam}),int)
+LEG_VERTEX_INFLUENCE=(np.isin(JI,LEG_SKIN_INDEX)*W).sum(axis=1)
+TORSO_WAIST_REST_Y=0.76
+TORSO_FULL_REST_Y=1.07
+HEAD_TRANSITION_START=1.31
+HEAD_TRANSITION_END=1.51
+
+def _smooth01(x):
+ z=np.clip(x,0.0,1.0)
+ return z*z*(3.0-2.0*z)
+
+def derived_counterbend(sk,ids,M):
+ if not POSE_ACTIVE or VARIANT!='dynamic': return sk
+ indices=np.arange(len(P),dtype=int) if ids is None else np.asarray(ids,int)
+ # Bone-ownership guard: legs, planted foot witnesses, and hip socket skin
+ # must stay under original skinned-IK control, never the cartoon torso morph.
+ owner=LEG_VERTEX_INFLUENCE[indices]
+ only_body=1.0-_smooth01((owner-0.20)/0.45)
+ torso_w=_smooth01((P[indices,1]-TORSO_WAIST_REST_Y)/(TORSO_FULL_REST_Y-TORSO_WAIST_REST_Y))*only_body
+ pivot=(M[worldroot]@np.array([0.0,0.82,0.0,1.0]))[:3]
+ upper_rot=Rot.from_euler('xz',[MESH_TORSO_BACKPITCH_DEG,DIR_SIGN*MESH_TORSO_COUNTER_DEG],degrees=True)
+ corrected=upper_rot.apply(sk-pivot)+pivot
+ deformed=sk+(corrected-sk)*torso_w[:,None]
+ # A second, smoothly blended head counter-rotation brings her face back
+ # close to world-up after the deliberate opposing chest lean.
+ neck=(M[worldroot]@np.array([0.0,1.38,0.0,1.0]))[:3]
+ neck=upper_rot.apply(neck-pivot)+pivot
+ head_w=_smooth01((P[indices,1]-HEAD_TRANSITION_START)/(HEAD_TRANSITION_END-HEAD_TRANSITION_START))*only_body
+ head_rot=Rot.from_euler('xz',[MESH_HEAD_PITCH_DEG,-(BODY_ROLL_DEG+DIR_SIGN*MESH_TORSO_COUNTER_DEG)],degrees=True)
+ head_target=head_rot.apply(deformed-neck)+neck
+ return deformed+(head_target-deformed)*head_w[:,None]
+
+def torso_witness_orientation(rest,animated,lo,hi):
+ # Source-vertex witnesses, not commanded joint angles.
+ owned=(LEG_VERTEX_INFLUENCE<0.28)
+ band=(P[:,1]>=lo)&(P[:,1]<=hi)&(np.abs(P[:,0])<=0.36)&owned
+ left=np.flatnonzero(band&(P[:,0]<-0.035))
+ right=np.flatnonzero(band&(P[:,0]>0.035))
+ if len(left)<3 or len(right)<3:
+  raise RuntimeError('BODY_SURFACE_WITNESS_MISSING y=[%.2f,%.2f] counts=%d,%d'%(lo,hi,len(left),len(right)))
+ def axis(points):
+  L=np.mean(points[left],axis=0);R=np.mean(points[right],axis=0)
+  return np.degrees(np.arctan2(R[1]-L[1],R[0]-L[0]))
+ delta=(axis(animated)-axis(rest)+180)%360-180
+ return float(delta),dict(left_count=int(len(left)),right_count=int(len(right)))
+
+def real_pose_gate(animated):
+ pelvis,pc=torso_witness_orientation(restskin,animated,0.65,0.79)
+ chest,cc=torso_witness_orientation(restskin,animated,1.16,1.28)
+ head,hc=torso_witness_orientation(restskin,animated,1.49,1.61)
+ report={'pelvis_surface_roll_deg':pelvis,'chest_surface_roll_deg':chest,
+         'head_surface_roll_deg':head,'pelvis_vs_chest_deg':abs(chest-pelvis),
+         'pelvis_witness':pc,'chest_witness':cc,'head_witness':hc,
+         'mesh_counterbend_mode':'DERIVED_POST_SKIN_CARTOON_WAIST',
+         'body_source_glb_unmodified':True,'blender_bake':'NOT_RUN'}
+ # A visible counterbend requires pelvis/chest opposite slopes; a JSON
+ # angle setting or skeleton overlay alone is not acceptance.
+ if not (abs(pelvis)>=5.0 and abs(chest)>=3.0 and pelvis*chest<0.0 and
+         abs(chest-pelvis)>=11.0 and abs(head)<=8.0):
+  raise RuntimeError('POSTURE_GEOMETRY_GATE_FAILED '+json.dumps(report))
+ return report
+
+M0=build_matrices();binding=M0[skin2node]@IBM
+assert np.max(np.abs(binding-np.eye(4)))<6e-5, ('IBM_MISMATCH',np.max(np.abs(binding-np.eye(4))))
+
+def skin_vertices(M,ids=None):
+ # Fully evaluated skinning, including non-leg influences, not only FK marker.
+ if ids is None:ids=np.arange(len(P))
+ bmat=M[skin2node]@IBM
+ p=VH[ids]
+ sk=np.zeros((len(ids),3),float)
+ for slot in range(4):
+  weights=W[ids,slot]
+  # Matrices selected per vertex for arbitrary JOINTS_0 skin index
+  v=np.einsum('nij,nj->ni',bmat[JI[ids,slot]],p)
+  sk+=v[:,:3]*weights[:,None]
+ return derived_counterbend(sk,ids,M)
+
+restskin=skin_vertices(M0)
+max_rest_error=np.max(np.linalg.norm(restskin-P,axis=1))
+assert max_rest_error<5e-5,max_rest_error
+
+# Determine fixed witness groups once from source (without moving target during optimization).
+toe_sets={}; toe_anchor={};ownership={}; groups={}
+for label,chain in chains.items():
+ ownskin=[node2skin[n] for n in chain]
+ own_w=(np.isin(JI,ownskin)*W).sum(axis=1)
+ owner=np.flatnonzero(own_w>=0.60)
+ y=restskin[owner,1]
+ lo=np.min(y);idx=owner[y<=lo+0.012]
+ assert len(idx)>=2,(label,len(idx))
+ toe_sets[label]=idx
+ toe_anchor[label]=np.median(restskin[idx],axis=0)
+ ownership[label]=dict(vertices=len(idx),owned_total=len(owner),first=np.asarray(toe_anchor[label]).tolist(),min_y=float(lo),median_owner_weight=float(np.median(own_w[idx])))
+ groups[label]=chain
+
+
+
+
+
+# HEADY v03.7.1.1: asynchronous overlap-ripple gait, 6 UNIQUE phases.
+# One actual moving body, continuous ground-locked toes, never exact tripod lockstep.
+from PIL import Image, ImageDraw, ImageFont
+import math, importlib.util, traceback
+from scipy.spatial import ConvexHull
+
+VERSION='03.10.4'
+FRAME_PER_CYCLE=24
+CYCLES=3.5
+STEPS=round(FRAME_PER_CYCLE*CYCLES)+1
+STRIDE=.16
+LIFT=.068
+ANGLE_LIMIT=.78  # measured mechanical bounds pending independent calibration
+# Cyclic order was selected by checking each pair of adjacent swinging legs
+# against the STATIC support polygon. A single-pass gait uses all six.
+# Exact v03.9.3 phase order, unchanged for both travel directions.
+GROUP_A=['left_front','right_middle','left_rear']
+GROUP_B=['right_front','left_middle','right_rear']
+PHASE_DELTA=.10
+PHASE={k:group*.5 + ix*PHASE_DELTA for group,legs in enumerate((GROUP_A,GROUP_B)) for ix,k in enumerate(legs)}
+assert set(PHASE)==set(keys)
+SWING_FRACTION=.39  # three partial concurrent swings, ~61% duty under land loading.
+FRAME_MS=75
+assert .35 < SWING_FRACTION < .45
+
+base=Path(__file__).resolve().parent.parent/'review_v03_8'
+sys.path.insert(0,str(base))
+spec=importlib.util.spec_from_file_location('heady_renderer',str(base/'renderer_readonly_reference.py'))
+renderer=importlib.util.module_from_spec(spec);spec.loader.exec_module(renderer)
+try:
+ from renderer_accelerated_v034 import raster as fast_raster
+ renderer.raster=fast_raster
+except ImportError: pass
+asset=renderer.GLB(data); mesh=renderer.inspect_model(asset)
+tex=renderer.texture(asset); uv=asset.accessor(mesh['a']['TEXCOORD_0']); faces=mesh['f']
+assert len(skinJ)==52 and not J.get('animations')
+prior={leg:np.zeros(2*len(chain)) for leg,chain in chains.items()}
+origin={leg:toe_anchor[leg].copy() for leg in keys}
+step_vec=np.array([DIR_SIGN*STRIDE,0.,0.])
+POSE_ACTIVE=True
+print('BODY_POSE='+json.dumps({'variant':VARIANT,'direction':DIRECTION,'root_yaw_deg':BODY_HEADING_DEG,'root_bank_deg':BODY_ROLL_DEG,'torso_counter_deg':TORSO_ROLL_DEG,'torso_node':torso_node,'pivot':BODY_PIVOT.tolist()}),flush=True)
+
+def ease(u):
+ u=np.clip(u,0.,1.);return float(u*u*(3.-2.*u))
+def lifted(u):
+ if not 0<u<1:return 0.
+ return float(np.sin(np.pi*u**.84)**.82)
+
+def planned(t,leg):
+ # Periodic phase scheduling, including the pre-roll portion at t=0.
+ # Each leg has its OWN liftoff; never an A/B three-leg rigid group.
+ phase_start=PHASE[leg]
+ q=float(t)-phase_start
+ n=math.floor(q+1e-10)
+ frac=max(0.0,q-n)
+ if frac < SWING_FRACTION-1e-10:
+  u=frac/SWING_FRACTION
+  return origin[leg]+step_vec*(n+ease(u))+np.array([0.,LIFT*lifted(u),0.]),'SWING',n,u,lifted(u)
+ return origin[leg]+step_vec*(n+1),'STANCE',n,1.,0.
+
+def convex_margin(points,center):
+ xy=np.array(points,float)
+ if len(xy)<3: return -999.
+ try:
+  h=ConvexHull(xy)
+ except Exception:return -999.
+ poly=xy[h.vertices];signed=[]
+ for a,b in zip(poly,np.roll(poly,-1,axis=0)):
+  edge=b-a
+  signed.append(np.cross(np.append(edge,0),np.append(np.array(center)-a,0))[2]/np.linalg.norm(edge))
+ return float(min(signed))
+
+def solve_tick(shift,targets):
+ # Skin-aware numerical IK retains the approved v03.4 solver formulation.
+ angles={}
+ for sweep in range(2):
+  for leg,chain in chains.items():
+   prev=prior[leg];target=targets[leg]
+   def residual(q):
+    pose=angles.copy()
+    pose.update({node:(float(q[2*j]),float(q[2*j+1])) for j,node in enumerate(chain)})
+    skinned=skin_vertices(build_matrices(shift,pose),toe_sets[leg])
+    deviation=np.median(skinned,axis=0)-target
+    return np.r_[deviation,0.0025*q,0.001*(q-prev)]
+   fit=least_squares(residual,prev,bounds=(-ANGLE_LIMIT,ANGLE_LIMIT),max_nfev=90,ftol=1e-9,xtol=1e-9,gtol=1e-9)
+   if np.linalg.norm(fit.fun[:3])>.008:raise RuntimeError('UNREACHABLE_'+leg+'_'+str(np.linalg.norm(fit.fun[:3])))
+   angles.update({node:(float(fit.x[2*j]),float(fit.x[2*j+1])) for j,node in enumerate(chain)})
+   prior[leg]=fit.x.copy()
+ return angles
+
+POSE_GEOMETRY=None
+results=[];frames_data=[];angle_tracks=[]
+for tick in range(STEPS):
+ t=tick/FRAME_PER_CYCLE
+ shift=np.array([DIR_SIGN*STRIDE*t,0,0.])
+ requested={leg:planned(t,leg) for leg in keys}
+ targets={leg:v[0] for leg,v in requested.items()}
+ swing=[leg for leg,v in requested.items() if v[1]=='SWING']
+ if len(swing)>3:raise RuntimeError('TOO_MANY_SWINGING_'+str(tick)+':'+str(swing))
+ angles=solve_tick(shift,targets);world=build_matrices(shift,angles);sk=skin_vertices(world)
+ actual={leg:np.median(sk[toe_sets[leg]],axis=0) for leg in keys}
+ error={leg:float(np.linalg.norm(actual[leg]-targets[leg])) for leg in keys}
+ stance=[leg for leg in keys if leg not in swing]
+ margin=convex_margin([targets[k][[0,2]] for k in stance],shift[[0,2]])
+ if margin<.05:raise RuntimeError('UNSAFE_SUPPORT_MARGIN_'+str(tick)+'_'+str(margin))
+ if max(error[k] for k in stance)>.001:raise RuntimeError('STANCE_DRIFT_'+str(tick)+'_'+str(error))
+ min_y=float(sk[:,1].min())
+ if min_y<-.001:raise RuntimeError('PENETRATION_'+str(tick)+'_'+str(min_y))
+ if max(abs(v) for joint in angles.values() for v in joint)>.775:raise RuntimeError('JOINT_SATURATION_'+str(tick))
+ row={'tick':tick,'cycles':t,'root_x':float(shift[0]),
+   'swing_count':len(swing),'swinging_legs':';'.join(swing),'stance_count':len(stance),
+   'support_margin_proxy':margin,'stance_drift_max':max(error[k] for k in stance),
+   'active_foot_error':max((error[z] for z in swing),default=0.),'mesh_min_y':min_y,
+   'highest_rotation_deg':float(max(abs(np.degrees(v)) for joint in angles.values() for v in joint))}
+ for leg in keys:
+  row[leg+'_contact']=requested[leg][1];row[leg+'_lift']=float(requested[leg][4]*LIFT);row[leg+'_toe_x']=float(actual[leg][0]);row[leg+'_toe_y']=float(actual[leg][1]);row[leg+'_toe_z']=float(actual[leg][2]);row[leg+'_error']=error[leg]
+ results.append(row)
+ angle_tracks.append({leg:[float(z) for node in chains[leg] for z in angles[node]] for leg in keys})
+ frames_data.append((sk,world,actual,targets,swing))
+ if tick==40:
+  POSE_GEOMETRY=real_pose_gate(sk)
+  print('REAL_MESH_POSTURE='+json.dumps(POSE_GEOMETRY,sort_keys=True),flush=True)
+ print(f"TICK={tick:03d}/{STEPS-1} OVERLAP={';'.join(swing) or 'none'} COUNT={len(swing)} ROOT_X={shift[0]:.4f} STANCE_MAX={row['stance_drift_max']:.7f} MARGIN={margin:.4f}",flush=True)
+
+# A true moving-body cycle: body-relative planned toes repeat while root advances.
+for ix in (FRAME_PER_CYCLE,2*FRAME_PER_CYCLE,3*FRAME_PER_CYCLE):
+ shift=np.array([results[ix]['root_x'],0,0]);t=ix/FRAME_PER_CYCLE
+ for leg in keys:
+  p=planned(t,leg)[0]
+  expected=planned(t-1,leg)[0]
+  if np.linalg.norm((p-shift)-(expected-(shift-step_vec)))>.00005:
+   raise RuntimeError('RELATIVE_CYCLE_SEAM_'+str(ix)+'_'+leg)
+# Validate substantial rather than merely boundary overlap: all three actively lifted.
+assert max(row['swing_count'] for row in results)==3
+assert sum(row['swing_count']==3 for row in results[:FRAME_PER_CYCLE])>=9
+assert all(len({round(PHASE[k],6) for k in grp})==3 for grp in (GROUP_A,GROUP_B))
+assert all(any(row[leg+'_contact']=='SWING' for row in results[:FRAME_PER_CYCLE]) for leg in keys)
+assert all(DIR_SIGN*(results[i+1]['root_x']-results[i]['root_x'])>0 for i in range(STEPS-1))
+assert sourcehash==hashlib.sha256(src.read_bytes()).hexdigest(), 'SOURCE_CHANGED'
+
+with (out/'overlap_85ticks.csv').open('w',newline='') as f:
+ writer=csv.DictWriter(f,fieldnames=results[0].keys());writer.writeheader();writer.writerows(results)
+tracks={'campaign':'HEADY_GROUNDED_IK','version':VERSION,'source_sha256':sourcehash,
+ 'gait':'DIRECTIONAL_PHASE_COUPLED_SCUTTLE','cycle_frames':FRAME_PER_CYCLE,'cycles':CYCLES,'frame_count':STEPS,'fps':13,'stride':STRIDE,
+ 'bone_chains':links,'phase_groups':[GROUP_A,GROUP_B],'phase_offsets':PHASE,'swing_fraction':SWING_FRACTION,'rest_foot_witnesses':{k:v.tolist() for k,v in origin.items()},
+ 'angle_units':'radians glTF node local X/Z delta exponential rotation',
+ 'angles_by_tick':angle_tracks,'root_translations_xyz':[[row['root_x'],0.,0.] for row in results],
+ 'note':'Candidate angles from skin-median least squares, not accepted Blender-import playback.'}
+tracks.update({'direction':DIRECTION,'variant':VARIANT,'body_yaw_deg':BODY_HEADING_DEG,'body_bank_deg':BODY_ROLL_DEG,'torso_counter_deg':MESH_TORSO_COUNTER_DEG,'waist_deformation':'DERIVED_POST_SKIN_NOT_IN_BONE_TRACKS','backward_pitch_deg':MESH_TORSO_BACKPITCH_DEG})
+(out/'overlap_bone_tracks.json').write_text(json.dumps(tracks,separators=(',',':'))+'\n')
+
+try:
+ font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',17)
+ sm=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
+except OSError:font=ImageFont.load_default();sm=font
+CAMERAS=[dict(name='FRONT',eye=np.array([0.,.82,3.4]),focus=np.array([.245,.72,0.]),scale=260.,w=490,h=520),
+         dict(name='OBLIQUE',eye=np.array([2.7,1.35,2.85]),focus=np.array([.245,.72,0.]),scale=260.,w=490,h=520)]
+COLORS={leg:c for leg,c in zip(keys,[(255,175,78),(244,213,97),(150,219,140),(117,177,244),(211,155,248),(255,123,168)])}
+def project(pt,cam):
+ eye,focus=cam['eye'],cam['focus']; fw=focus-eye;fw=fw/np.linalg.norm(fw);right=np.cross(fw,[0,1,0]);right/=np.linalg.norm(right);up=np.cross(right,fw);p=np.asarray(pt,float)-focus
+ return float(cam['w']/2+p@right*cam['scale']),float(cam['h']/2-p@up*cam['scale'])
+def decorate(im,cam,ix):
+ sk,world,actual,targets,swing=frames_data[ix];d=ImageDraw.Draw(im,'RGBA')
+ for x in np.arange(-.9,1.6,.15):d.line([project([x,0,-.8],cam),project([x,0,.8],cam)],fill=(75,108,104,77),width=1)
+ for z in np.arange(-.8,.8,.15):d.line([project([-.9,0,z],cam),project([1.6,0,z],cam)],fill=(75,108,104,77),width=1)
+ for leg in keys:
+  color=COLORS[leg];p=project(actual[leg],cam);t=project(targets[leg],cam)
+  d.ellipse((p[0]-4,p[1]-4,p[0]+4,p[1]+4),fill=(*color,255))
+  if leg in swing:d.ellipse((t[0]-8,t[1]-8,t[0]+8,t[1]+8),outline=(255,232,110,255),width=3)
+ # True GLB moving bone HEAD transforms, not fake pose landmarks.
+ for leg in swing:
+  pts=[project(world[n][:3,3],cam) for n in chains[leg]]+[project(actual[leg],cam)]
+  for a,b in zip(pts,pts[1:]):d.line([a,b],fill=(130,243,213,220),width=3)
+  for x,y in pts:d.ellipse((x-4,y-4,x+4,y+4),fill=(18,226,175,255))
+ # Persistent world-start marker and MOVING torso reference: make root travel legible.
+ start=project([0,0,0],cam);body=project([results[ix]['root_x'],0.,0.],cam)
+ d.line([start,body],fill=(255,244,124,255),width=4)
+ d.ellipse((start[0]-6,start[1]-6,start[0]+6,start[1]+6),outline=(255,255,255,255),width=2)
+ d.ellipse((body[0]-6,body[1]-6,body[0]+6,body[1]+6),fill=(255,234,80,255))
+ return im
+review=[]
+for ix in range(0,STEPS,2):
+ sk,world,actual,targets,swing=frames_data[ix]
+ board=Image.new('RGB',(1008,586),(12,17,22));d=ImageDraw.Draw(board)
+ for c,cam in enumerate(CAMERAS):
+  im=renderer.raster(sk,uv,faces,tex,cam['eye'],cam['focus'],cam['scale'],cam['w'],cam['h'])
+  board.paste(decorate(im,cam,ix),(8+c*500,43));d.text((14+c*500,13),cam['name']+' / world-fixed',font=font,fill=(223,238,233))
+ row=results[ix];d.text((13,565),f"OVERLAP | {ix+1}/{STEPS} | swinging: {row['swinging_legs'] or 'NONE'} | body +X {row['root_x']:.3f} | {row['stance_count']} planted",font=sm,fill=(248,215,160))
+ review.append(board)
+ print('RENDER_FRAME='+str(ix),flush=True)
+ if ix in (0,8,16,24,36,48,60,72,84):board.save(out/f'Overlap_Frame_{ix:03d}.png')
+# Non-looping 3.5-cycle review with terminal hold. Distinct actor-world positions.
+review[0].save(out/'Heady_v03_10_4_DirectionalCandidate.gif',save_all=True,append_images=review[1:],duration=[FRAME_MS*2]*(len(review)-1)+[850],optimize=False)
+contact=Image.new('RGB',(1008*3,586*2),(12,17,22))
+for i,ix in enumerate((0,12,24,36,60,84)):contact.paste(review[ix//2],((i%3)*1008,(i//3)*586))
+contact.save(out/'Overlap_SixStates_Review.png')
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+fig,axs=plt.subplots(3,1,figsize=(10,8),sharex=True)
+for leg in keys:
+ xy=[r['tick'] for r in results if r[leg+'_contact']=='SWING']
+ axs[0].scatter(xy,[keys.index(leg)]*len(xy),s=18,label=leg)
+axs[0].set_yticks(range(6),keys);axs[0].set_title('Direction-paired gait, preserved 0.10-cycle stagger')
+axs[1].plot([r['tick'] for r in results],[r['stance_drift_max'] for r in results]);axs[1].axhline(.0002,linestyle=':',color='gray');axs[1].set_ylabel('Max planted drift')
+axs[2].plot([r['tick'] for r in results],[r['support_margin_proxy'] for r in results]);axs[2].axhline(.05,linestyle=':',color='gray');axs[2].set_ylabel('Support margin proxy');axs[2].set_xlabel('Solver tick')
+fig.tight_layout();fig.savefig(out/'Overlap_Contact_Drift_Stability.png',dpi=150);plt.close(fig)
+receipt={'campaign':'HEADY_GROUNDED_IK','version':VERSION,'status':'DIRECTIONAL_EXPERIMENT_CANDIDATE_GENERATED',
+ 'source_sha256':sourcehash,'source_preserved':True,'gltf_original_animations':len(J.get('animations',[])),
+ 'active_leg_count':len(keys),'rear_four_joint_chains':['left_rear','right_rear'],
+ 'phase_groups':[GROUP_A,GROUP_B],'phase_offsets':PHASE,'swing_fraction':SWING_FRACTION,'frames':STEPS,'cycles':CYCLES,'maximum_simultaneous_swings':max(r['swing_count'] for r in results),'triple_swing_frames':sum(r['swing_count']==3 for r in results),'body_advance':float(results[-1]['root_x']),
+ 'max_stance_drift':max(r['stance_drift_max'] for r in results),'minimum_proxy_margin':min(r['support_margin_proxy'] for r in results),
+ 'minimum_mesh_y':min(r['mesh_min_y'] for r in results),'max_rotation_deg':max(r['highest_rotation_deg'] for r in results),
+ 'physical_engine':'NOT_RUN','blender_bake':'NOT_RUN','visual_acceptance':'PENDING',
+ 'caveat':['Provisional X/Z local joint axes', 'Skinned toe medians, not calibrated foot pads', 'Plane Y=0 with no contact forces', 'No claw motion, turns, or speed blend']}
+receipt['real_surface_posture']=POSE_GEOMETRY
+receipt['visual_skin_correction']='DERIVED_WAIST_DEFORM_NOT_RIG_BAKE'
+(out/'POSE_GEOMETRY_VALIDATION.json').write_text(json.dumps(POSE_GEOMETRY,indent=2)+'\n')
+receipt.update({'direction':DIRECTION,'variant':VARIANT,'body_yaw_deg':BODY_HEADING_DEG,'body_bank_deg':BODY_ROLL_DEG,'torso_counter_deg':MESH_TORSO_COUNTER_DEG,'source_rest_hash':sourcehash})
+(out/'OVERLAP_RESULT_RECEIPT.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print('V03104_RESULT='+json.dumps(receipt),flush=True)

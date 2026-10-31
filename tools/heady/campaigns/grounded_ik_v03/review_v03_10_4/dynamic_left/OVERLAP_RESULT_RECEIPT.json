@@ -1,0 +1,80 @@
+{
+  "campaign": "HEADY_GROUNDED_IK",
+  "version": "03.10.4",
+  "status": "DIRECTIONAL_EXPERIMENT_CANDIDATE_GENERATED",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "source_preserved": true,
+  "gltf_original_animations": 0,
+  "active_leg_count": 6,
+  "rear_four_joint_chains": [
+    "left_rear",
+    "right_rear"
+  ],
+  "phase_groups": [
+    [
+      "left_front",
+      "right_middle",
+      "left_rear"
+    ],
+    [
+      "right_front",
+      "left_middle",
+      "right_rear"
+    ]
+  ],
+  "phase_offsets": {
+    "left_front": 0.0,
+    "right_middle": 0.1,
+    "left_rear": 0.2,
+    "right_front": 0.5,
+    "left_middle": 0.6,
+    "right_rear": 0.7
+  },
+  "swing_fraction": 0.39,
+  "frames": 85,
+  "cycles": 3.5,
+  "maximum_simultaneous_swings": 3,
+  "triple_swing_frames": 35,
+  "body_advance": -0.56,
+  "max_stance_drift": 3.659651823753257e-05,
+  "minimum_proxy_margin": 0.15521990955311427,
+  "minimum_mesh_y": -0.0002651862821346535,
+  "max_rotation_deg": 25.139815755638587,
+  "physical_engine": "NOT_RUN",
+  "blender_bake": "NOT_RUN",
+  "visual_acceptance": "PENDING",
+  "caveat": [
+    "Provisional X/Z local joint axes",
+    "Skinned toe medians, not calibrated foot pads",
+    "Plane Y=0 with no contact forces",
+    "No claw motion, turns, or speed blend"
+  ],
+  "real_surface_posture": {
+    "pelvis_surface_roll_deg": 9.735759810264625,
+    "chest_surface_roll_deg": -6.665116592886676,
+    "head_surface_roll_deg": 0.1437629440578121,
+    "pelvis_vs_chest_deg": 16.4008764031513,
+    "pelvis_witness": {
+      "left_count": 191,
+      "right_count": 205
+    },
+    "chest_witness": {
+      "left_count": 326,
+      "right_count": 357
+    },
+    "head_witness": {
+      "left_count": 135,
+      "right_count": 126
+    },
+    "mesh_counterbend_mode": "DERIVED_POST_SKIN_CARTOON_WAIST",
+    "body_source_glb_unmodified": true,
+    "blender_bake": "NOT_RUN"
+  },
+  "visual_skin_correction": "DERIVED_WAIST_DEFORM_NOT_RIG_BAKE",
+  "direction": "left",
+  "variant": "dynamic",
+  "body_yaw_deg": -15.0,
+  "body_bank_deg": 10.0,
+  "torso_counter_deg": 18.0,
+  "source_rest_hash": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27"
+}

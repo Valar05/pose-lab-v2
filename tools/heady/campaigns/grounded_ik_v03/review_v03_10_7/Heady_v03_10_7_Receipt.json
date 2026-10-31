@@ -1,0 +1,17 @@
+{
+  "status": "COVERAGE_DIAGNOSTIC_NOT_APPROVED",
+  "original_sha": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "prior_derived_sha": "af063bd3c465b38e161a7ee917097e2a6c1922b0a8cf63e3e135383a38a647dc",
+  "new_sha": "f7a09763fd5995f6be15c1c702f70bb71bddb90f860e7fb03398bd345c67a9f1",
+  "coverage": {
+    "seed_vertices": 83,
+    "added_vertices": 60,
+    "unresolved_seed_vertices": 33,
+    "original_hair_vertices": 1081,
+    "remaining_leg_vertices": 2700,
+    "raw_components": 1313,
+    "selected_components": 15,
+    "unresolved_by_design": true
+  },
+  "warning": "Unresolved red vertices require visual/human classification. No automatic full-hair PASS."
+}

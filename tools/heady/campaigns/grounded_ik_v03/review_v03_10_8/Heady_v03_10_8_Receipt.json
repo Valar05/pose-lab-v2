@@ -1,0 +1,146 @@
+{
+  "campaign": "v03.10.8",
+  "verdict": "BODY_INVERSION_PROVISIONAL_HUMAN_APPROVAL_REQUIRED",
+  "source_sha256": "8785927ec1e8dd6c5f87eaa966b872bc7ebb42e7cf9a425f11cbbb3ff6a0fb27",
+  "derived_input_sha256": "af063bd3c465b38e161a7ee917097e2a6c1922b0a8cf63e3e135383a38a647dc",
+  "output_sha256": "2bc1b9bfd4abb52c6a003be3b55835e55a9a06be8d469153c009aad47a6fb130",
+  "counts": {
+    "total": 9021,
+    "body_seed": 5571,
+    "body_mask": 7546,
+    "inverse_mask": 1475,
+    "existing_hair": 1081,
+    "candidate_hair": 1229,
+    "candidate_new_leg_weighted": 156,
+    "unknown_inverse": 246,
+    "ambiguous_inverse": 231,
+    "body_components": 69,
+    "all_components": 79,
+    "remaining_leg_weighted": 2544
+  },
+  "height_bands": [
+    {
+      "y": 0.0,
+      "body": 181,
+      "hair": 81,
+      "unknown": 0,
+      "new": 35
+    },
+    {
+      "y": 0.1,
+      "body": 225,
+      "hair": 179,
+      "unknown": 0,
+      "new": 31
+    },
+    {
+      "y": 0.2,
+      "body": 139,
+      "hair": 128,
+      "unknown": 0,
+      "new": 20
+    },
+    {
+      "y": 0.3,
+      "body": 181,
+      "hair": 169,
+      "unknown": 0,
+      "new": 30
+    },
+    {
+      "y": 0.4,
+      "body": 410,
+      "hair": 124,
+      "unknown": 0,
+      "new": 12
+    },
+    {
+      "y": 0.5,
+      "body": 555,
+      "hair": 58,
+      "unknown": 0,
+      "new": 8
+    },
+    {
+      "y": 0.6,
+      "body": 1089,
+      "hair": 125,
+      "unknown": 0,
+      "new": 16
+    },
+    {
+      "y": 0.7,
+      "body": 872,
+      "hair": 38,
+      "unknown": 0,
+      "new": 2
+    },
+    {
+      "y": 0.8,
+      "body": 1015,
+      "hair": 42,
+      "unknown": 0,
+      "new": 0
+    },
+    {
+      "y": 0.9,
+      "body": 473,
+      "hair": 70,
+      "unknown": 0,
+      "new": 1
+    },
+    {
+      "y": 1.0,
+      "body": 284,
+      "hair": 90,
+      "unknown": 0,
+      "new": 1
+    },
+    {
+      "y": 1.1,
+      "body": 357,
+      "hair": 28,
+      "unknown": 21,
+      "new": 0
+    },
+    {
+      "y": 1.2,
+      "body": 592,
+      "hair": 43,
+      "unknown": 91,
+      "new": 0
+    },
+    {
+      "y": 1.3,
+      "body": 393,
+      "hair": 45,
+      "unknown": 51,
+      "new": 0
+    },
+    {
+      "y": 1.4,
+      "body": 326,
+      "hair": 9,
+      "unknown": 75,
+      "new": 0
+    },
+    {
+      "y": 1.5,
+      "body": 216,
+      "hair": 0,
+      "unknown": 8,
+      "new": 0
+    },
+    {
+      "y": 1.6,
+      "body": 227,
+      "hair": 0,
+      "unknown": 0,
+      "new": 0
+    }
+  ],
+  "disclaimer": "This is a synchronized height-gated body-flood and conservative inverse candidate. Inverted geometry may include disconnected nonhair. No claim that full hair isolation or locomotion physics works.",
+  "no_physics": true,
+  "original_unchanged": true,
+  "derived_unchanged": true
+}

@@ -1,0 +1,21 @@
+{
+  "pelvis_surface_roll_deg": 9.735759810264625,
+  "chest_surface_roll_deg": -6.665116592886676,
+  "head_surface_roll_deg": 0.1437629440578121,
+  "pelvis_vs_chest_deg": 16.4008764031513,
+  "pelvis_witness": {
+    "left_count": 191,
+    "right_count": 205
+  },
+  "chest_witness": {
+    "left_count": 326,
+    "right_count": 357
+  },
+  "head_witness": {
+    "left_count": 135,
+    "right_count": 126
+  },
+  "mesh_counterbend_mode": "DERIVED_POST_SKIN_CARTOON_WAIST",
+  "body_source_glb_unmodified": true,
+  "blender_bake": "NOT_RUN"
+}
